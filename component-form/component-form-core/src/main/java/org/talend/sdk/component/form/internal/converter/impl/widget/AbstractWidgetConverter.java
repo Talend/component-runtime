@@ -145,7 +145,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         final UiSchema schema = new UiSchema();
         schema.setTitle(ctx.getProperty().getDisplayName());
         schema.setKey(ctx.getProperty().getPath());
-        schema.setRequired(ctx.isRequired());
+        if (ctx.isRequired()) {
+            schema.setRequired(ctx.isRequired());
+        }
         schema.setPlaceholder(ctx.getProperty().getPlaceholder());
         schema.setDescription(ctx.getProperty().getMetadata().get("documentation::value"));
         if (actions != null) {
@@ -226,7 +228,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     // client
     private boolean isBuiltInAction(final String key) {
         return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
-                || key.equals("action::validation") || key.equals("action::suggestions");
+                || key.equals("action::validation") || key.equals("action::suggestions")
+                || key.equals("action::update");
     }
 
     protected UiSchema.Condition createCondition(final PropertyContext ctx) {

@@ -65,16 +65,20 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
             urlConnection = HttpURLConnection.class.cast(url.openConnection());
             urlConnection.setRequestMethod(request.getMethodType());
             request.getHeaders().forEach(urlConnection::setRequestProperty);
+
+            final boolean hasBody = request.getBody().isPresent();
+            final byte[] body = hasBody ? request.getBody().get() : null;
+
             if (request.getConfigurer() != null) {
-                request.getConfigurer().configure(new DefaultConnection(urlConnection),
+                request.getConfigurer().configure(new DefaultConnection(urlConnection, body),
                         request.getConfigurationOptions());
             }
 
-            if (request.getBody().isPresent()) {
+            if (hasBody) {
                 urlConnection.setDoOutput(true);
                 try (final BufferedOutputStream outputStream =
                         new BufferedOutputStream(urlConnection.getOutputStream())) {
-                    outputStream.write(request.getBody().get());
+                    outputStream.write(body);
                     outputStream.flush();
                 }
             }
@@ -149,6 +153,28 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
     private static class DefaultConnection implements Configurer.Connection {
 
         private final HttpURLConnection urlConnection;
+
+        private final byte[] payload;
+
+        @Override
+        public String getMethod() {
+            return urlConnection.getRequestMethod();
+        }
+
+        @Override
+        public String getUrl() {
+            return urlConnection.getURL().toExternalForm();
+        }
+
+        @Override
+        public Map<String, List<String>> getHeaders() {
+            return urlConnection.getHeaderFields();
+        }
+
+        @Override
+        public byte[] getPayload() {
+            return payload;
+        }
 
         @Override
         public Configurer.Connection withHeader(final String name, final String value) {

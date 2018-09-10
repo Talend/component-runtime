@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -30,9 +31,15 @@ import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ENUM;
 import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.OBJECT;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -44,8 +51,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
@@ -59,8 +68,10 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
+import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -74,8 +85,11 @@ import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
@@ -161,11 +175,15 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (configuration.isValidateLayout()) {
-            validateLayout(finder, components, errors);
+            validateLayout(components, errors);
         }
 
         if (configuration.isValidateOptionNames()) {
             validateOptionNames(finder, errors);
+        }
+
+        if (configuration.isValidateLocalConfiguration()) {
+            validateLocalConfiguration(components, finder, errors);
         }
 
         if (!errors.isEmpty()) {
@@ -175,13 +193,60 @@ public class ComponentValidator extends BaseTask {
         }
     }
 
-    private void validateLayout(final AnnotationFinder finder, final List<Class<?>> components,
+    private void validateLocalConfiguration(final Collection<Class<?>> components, final AnnotationFinder finder,
             final Set<String> errors) {
+        final String family = components
+                .stream()
+                .map(c -> findFamily(components(c).orElse(null), c))
+                .findFirst()
+                .map(s -> s.toLowerCase(Locale.ROOT))
+                .orElse("");
+
+        // first check TALEND-INF/local-configuration.properties
+        errors.addAll(Stream
+                .of(classes)
+                .map(root -> new File(root, "TALEND-INF/local-configuration.properties"))
+                .filter(File::exists)
+                .flatMap(props -> {
+                    final Properties properties = new Properties();
+                    try (final InputStream stream = new BufferedInputStream(new FileInputStream(props))) {
+                        properties.load(stream);
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                    return properties
+                            .stringPropertyNames()
+                            .stream()
+                            .filter(it -> !it.toLowerCase(Locale.ROOT).startsWith(family + "."))
+                            .map(it -> "'" + it + "' does not start with '" + family + "', "
+                                    + "it is recommended to prefix all keys by the family");
+                })
+                .collect(toSet()));
+
+        // then check the @DefaultValue annotation
+        errors.addAll(Stream
+                .concat(finder.findAnnotatedFields(DefaultValue.class).stream(),
+                        finder.findAnnotatedConstructorParameters(DefaultValue.class).stream())
+                .map(d -> {
+                    final DefaultValue annotation = d.getAnnotation(DefaultValue.class);
+                    if (annotation.value().startsWith("local_configuration:")
+                            && !annotation.value().toLowerCase(Locale.ROOT).startsWith(
+                                    "local_configuration:" + family + ".")) {
+                        return d + " does not start with family name (followed by a dot): '" + family + "'";
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(toSet()));
+    }
+
+    private void validateLayout(final List<Class<?>> components, final Set<String> errors) {
 
         components
                 .stream()
                 .map(c -> parameterModelService.buildParameterMetas(findConstructor(c),
-                        ofNullable(c.getPackage()).map(Package::getName).orElse("")))
+                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"))))
                 .flatMap(this::toFlatNonPrimitivConfig)
                 .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue, (p1, p2) -> p1))
                 .entrySet()
@@ -397,6 +462,23 @@ public class ComponentValidator extends BaseTask {
                 errors.add("No resource bundle for " + i);
             }
         }
+
+        errors.addAll(getActionsStream().flatMap(action -> finder.findAnnotatedMethods(action).stream()).map(action -> {
+            final Annotation actionAnnotation = Stream
+                    .of(action.getAnnotations())
+                    .filter(a -> a.annotationType().isAnnotationPresent(ActionType.class))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No action annotation on " + action));
+            final String key;
+            try {
+                final Class<? extends Annotation> annotationType = actionAnnotation.annotationType();
+                key = "actions.${family}." + annotationType.getAnnotation(ActionType.class).value() + "."
+                        + annotationType.getMethod("value").invoke(actionAnnotation).toString() + "._displayName";
+            } catch (final IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                return null;
+            }
+            return validateFamilyI18nKey(action.getDeclaringClass(), key);
+        }).filter(Objects::nonNull).collect(toSet()));
     }
 
     private void validateHttpClient(final AnnotationFinder finder, final Set<String> errors) {
@@ -552,9 +634,12 @@ public class ComponentValidator extends BaseTask {
                 .collect(toList()));
 
         // ensure there is always a source with a config matching without user entries each dataset
-        final Map<Class<?>, Collection<ParameterMeta>> inputs = components.stream().filter(this::isSource).collect(
-                toMap(identity(), c -> parameterModelService.buildParameterMetas(findConstructor(c),
-                        ofNullable(c.getPackage()).map(Package::getName).orElse(""))));
+        final Map<Class<?>, Collection<ParameterMeta>> inputs = components
+                .stream()
+                .filter(this::isSource)
+                .collect(toMap(identity(), c -> parameterModelService.buildParameterMetas(findConstructor(c),
+                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools")))));
         errors.addAll(datasets
                 .entrySet()
                 .stream()
@@ -573,7 +658,7 @@ public class ComponentValidator extends BaseTask {
                 }))
                 .map(dataset -> "No source instantiable without adding parameters for @DataSet(\"" + dataset.getValue()
                         + "\") (" + dataset.getKey().getName() + "), please ensure at least a source using this "
-                        + "dataset can be use just filling the dataset informations.")
+                        + "dataset can be used just filling the dataset information.")
                 .sorted()
                 .collect(toSet()));
     }
@@ -616,21 +701,18 @@ public class ComponentValidator extends BaseTask {
 
     private void validateActions(final AnnotationFinder finder, final Set<String> errors) {
         // returned types
-        errors.addAll(of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
-                Suggestions.class).flatMap(action -> {
-                    final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
-                    final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
-                    return Stream.concat(
-                            annotatedMethods
-                                    .stream()
-                                    .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
-                                    .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
-                            annotatedMethods
-                                    .stream()
-                                    .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
-                                            && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
-                                    .map(m -> m + " is not declared into a service class"));
-                }).sorted().collect(toSet()));
+        errors.addAll(getActionsStream().flatMap(action -> {
+            final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
+            final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
+            return Stream.concat(
+                    annotatedMethods.stream().filter(m -> !returnedType.isAssignableFrom(m.getReturnType())).map(
+                            m -> m + " doesn't return a " + returnedType + ", please fix it"),
+                    annotatedMethods
+                            .stream()
+                            .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
+                                    && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
+                            .map(m -> m + " is not declared into a service class"));
+        }).sorted().collect(toSet()));
 
         // parameters for @DynamicValues
         errors.addAll(finder
@@ -656,6 +738,36 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
                 .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
+                .sorted()
+                .collect(toSet()));
+
+        // returned type for @Update, for now limit it on objects and not primitives
+        final Map<String, Method> updates = finder.findAnnotatedMethods(Update.class).stream().collect(
+                toMap(m -> m.getAnnotation(Update.class).value(), identity()));
+        errors.addAll(updates
+                .values()
+                .stream()
+                .filter(m -> isPrimitiveLike(m.getReturnType()))
+                .map(m -> m + " should return an object")
+                .sorted()
+                .collect(toSet()));
+        final List<Field> updatableFields = finder.findAnnotatedFields(Updatable.class);
+        errors.addAll(updatableFields
+                .stream()
+                .filter(f -> f.getAnnotation(Updatable.class).after().contains(".") /* no '..' or '.' */)
+                .map(f -> "@Updatable.after should only reference direct child primitive fields")
+                .sorted()
+                .collect(toSet()));
+        errors.addAll(updatableFields
+                .stream()
+                .filter(f -> isPrimitiveLike(f.getType()))
+                .map(f -> "@Updatable should not be used on primitives: " + f)
+                .sorted()
+                .collect(toSet()));
+        errors.addAll(updatableFields
+                .stream()
+                .filter(f -> updates.get(f.getAnnotation(Updatable.class).value()) == null)
+                .map(f -> "No @Update service found for field " + f + ", did you intend to use @Updatable?")
                 .sorted()
                 .collect(toSet()));
 
@@ -688,6 +800,15 @@ public class ComponentValidator extends BaseTask {
                 .collect(toSet()));
     }
 
+    private Stream<Class<? extends Annotation>> getActionsStream() {
+        return of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
+                Suggestions.class, Update.class);
+    }
+
+    private boolean isPrimitiveLike(final Class<?> type) {
+        return type.isPrimitive() || type == String.class;
+    }
+
     private int countParameters(final Method m) {
         return countParameters(m.getParameters());
     }
@@ -709,7 +830,7 @@ public class ComponentValidator extends BaseTask {
         final Collection<String> missingKeys =
                 of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(toList());
         if (!missingKeys.isEmpty()) {
-            return baseName + " is missing the key(s): " + missingKeys.stream().collect(joining("\n"));
+            return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
         }
         return null;
     }
@@ -750,13 +871,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateLayout;
 
         private boolean validateOptionNames;
-    }
 
-    @Data
-    private static class InputWithDataSet {
-
-        private final Collection<ParameterMeta> datasets;
-
-        private final Map.Entry<Class<?>, Collection<ParameterMeta>> input;
+        private boolean validateLocalConfiguration;
     }
 }

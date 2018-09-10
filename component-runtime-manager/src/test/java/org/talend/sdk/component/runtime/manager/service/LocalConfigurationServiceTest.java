@@ -60,13 +60,28 @@ class LocalConfigurationServiceTest {
     }
 
     @Test
+    void readGlobal() {
+        System.setProperty("test.foo.LocalConfigurationServiceTest", "1");
+        try {
+            assertEquals("1",
+                    new LocalConfigurationService(singletonList(systemProperties), "LocalConfigurationServiceTest")
+                            .get("test.foo.LocalConfigurationServiceTest"));
+        } finally {
+            System.clearProperty("test.foo.LocalConfigurationServiceTest");
+        }
+    }
+
+    @Test
     void keys() {
         System.setProperty("LocalConfigurationServiceTest.test.foo", "1");
         System.setProperty("LocalConfigurationServiceTest.test.bar", "1");
         try {
             assertEquals(Stream.of("test.foo", "test.bar").collect(toSet()),
                     new LocalConfigurationService(singletonList(systemProperties), "LocalConfigurationServiceTest")
-                            .keys());
+                            .keys()
+                            .stream()
+                            .filter(it -> it.startsWith("test"))
+                            .collect(toSet()));
         } finally {
             System.clearProperty("LocalConfigurationServiceTest.test.foo");
             System.clearProperty("LocalConfigurationServiceTest.test.bar");

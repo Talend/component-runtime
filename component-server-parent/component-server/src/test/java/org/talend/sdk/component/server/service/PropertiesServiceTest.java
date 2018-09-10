@@ -37,6 +37,8 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.Data;
@@ -59,7 +61,8 @@ class PropertiesServiceTest {
     @Test
     void parameterIndexMeta() throws NoSuchMethodException {
         final List<ParameterMeta> params = new ParameterModelService().buildParameterMetas(
-                getClass().getDeclaredMethod("multipleParams", String.class, BoolWrapper.class, String.class), null);
+                getClass().getDeclaredMethod("multipleParams", String.class, BoolWrapper.class, String.class), null,
+                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(params, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
                 .collect(toList());
@@ -79,7 +82,9 @@ class PropertiesServiceTest {
                 propertiesService
                         .buildProperties(
                                 new ParameterModelService().buildParameterMetas(
-                                        getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null),
+                                        getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null,
+                                        new BaseParameterEnricher.Context(
+                                                new LocalConfigurationService(emptyList(), "tools"))),
                                 Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
                         .collect(toList());
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());

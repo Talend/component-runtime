@@ -130,7 +130,7 @@ class ModelEnricherServiceTest {
 
     private ConfigTypeNode newConfig(final String type, final SimplePropertyDefinition... props) {
         return new ConfigTypeNode("a", 3, "b", type, "Test", "The Test Config", emptySet(), asList(props),
-                singletonList(new ActionReference("test", "cb", "test", emptyList())));
+                singletonList(new ActionReference("test", "cb", "test", "cb", emptyList())));
     }
 
     private SimplePropertyDefinition newProperty() {

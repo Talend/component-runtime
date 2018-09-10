@@ -23,9 +23,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
-public class DocumentationParameterEnricher implements ParameterExtensionEnricher {
+public class DocumentationParameterEnricher extends BaseParameterEnricher {
 
     private static final String VALUE = "tcomp::documentation::value";
 

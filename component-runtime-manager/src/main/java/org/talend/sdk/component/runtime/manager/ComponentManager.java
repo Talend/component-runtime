@@ -139,11 +139,13 @@ import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.InjectorImpl;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.ObjectFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
+import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.xbean.FilterFactory;
@@ -210,7 +212,7 @@ public class ComponentManager implements AutoCloseable {
     private final Filter excludeClassesFilter =
             Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
 
-    private final ParameterModelService parameterModelService = new ParameterModelService();
+    private final ParameterModelService parameterModelService;
 
     private final InternationalizationServiceFactory internationalizationServiceFactory =
             new InternationalizationServiceFactory();
@@ -242,14 +244,16 @@ public class ComponentManager implements AutoCloseable {
 
     // kind of extracted to ensure we can switch it later if needed
     // (like using a Spring/CDI context and something else than xbean)
-    private final ReflectionService reflections = new ReflectionService(parameterModelService);
+    private final ReflectionService reflections;
 
     @Getter // for extensions
-    private final MigrationHandlerFactory migrationHandlerFactory = new MigrationHandlerFactory(reflections);
+    private final MigrationHandlerFactory migrationHandlerFactory;
 
     private final Collection<ComponentExtension> extensions;
 
     private final Collection<ClassFileTransformer> transformers;
+
+    private final Collection<LocalConfiguration> localConfigurations;
 
     // org.slf4j.event but https://issues.apache.org/jira/browse/MNG-6360
     private final Level logInfoLevelMapping;
@@ -278,6 +282,11 @@ public class ComponentManager implements AutoCloseable {
                 JsonWriterFactory.class.getName(), jsonpProvider.createWriterFactory(emptyMap())));
 
         logInfoLevelMapping = findLogInfoLevel();
+
+        localConfigurations = createRawLocalConfigurations();
+        parameterModelService = new ParameterModelService();
+        reflections = new ReflectionService(parameterModelService);
+        migrationHandlerFactory = new MigrationHandlerFactory(reflections);
 
         final ContainerManager.ClassLoaderConfiguration defaultClassLoaderConfiguration =
                 ContainerManager.ClassLoaderConfiguration
@@ -829,11 +838,22 @@ public class ComponentManager implements AutoCloseable {
         services.put(Jsonb.class, serializableJsonb);
 
         // not JSON services
+        final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
+        try (final InputStream stream =
+                container.getLoader().findContainedResource("TALEND-INF/local-configuration.properties")) {
+            if (stream != null) {
+                final Properties properties = new Properties();
+                properties.load(stream);
+                containerConfigurations.add(new PropertiesConfiguration(properties));
+            }
+        } catch (final IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+        services.put(LocalConfiguration.class,
+                new LocalConfigurationService(containerConfigurations, container.getId()));
         services.put(HttpClientFactory.class,
                 new HttpClientFactoryImpl(container.getId(), reflections, serializableJsonb, services));
         services.put(LocalCache.class, new LocalCacheService(container.getId()));
-        services.put(LocalConfiguration.class,
-                new LocalConfigurationService(createRawLocalConfigurations(), container.getId()));
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(Resolver.class,
                 new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
@@ -841,12 +861,12 @@ public class ComponentManager implements AutoCloseable {
         services.put(ObjectFactory.class, new ObjectFactoryImpl(container.getId()));
     }
 
-    protected Collection<LocalConfiguration> createRawLocalConfigurations() {
+    protected static Collection<LocalConfiguration> createRawLocalConfigurations() {
         final List<LocalConfiguration> configurations = new ArrayList<>(2);
         configurations.addAll(
                 toStream(loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
                         .collect(toList()));
-        configurations.add(new LocalConfiguration() {
+        configurations.addAll(asList(new LocalConfiguration() {
 
             @Override
             public String get(final String key) {
@@ -857,8 +877,7 @@ public class ComponentManager implements AutoCloseable {
             public Set<String> keys() {
                 return System.getProperties().stringPropertyNames();
             }
-        });
-        configurations.add(new LocalConfiguration() {
+        }, new LocalConfiguration() {
 
             @Override
             public String get(final String key) {
@@ -869,7 +888,7 @@ public class ComponentManager implements AutoCloseable {
             public Set<String> keys() {
                 return System.getenv().keySet();
             }
-        });
+        }));
         return configurations;
     }
 
@@ -1254,8 +1273,9 @@ public class ComponentManager implements AutoCloseable {
             return new ServiceMeta.ActionMeta(component, actionType.value(), name,
                     serviceMethod.getGenericParameterTypes(),
                     parameterModelService.buildServiceParameterMetas(serviceMethod,
-                            ofNullable(serviceMethod.getDeclaringClass().getPackage()).map(Package::getName).orElse(
-                                    "")),
+                            ofNullable(serviceMethod.getDeclaringClass().getPackage()).map(Package::getName).orElse(""),
+                            new BaseParameterEnricher.Context(LocalConfiguration.class.cast(
+                                    container.get(AllServices.class).getServices().get(LocalConfiguration.class)))),
                     invoker);
         }
 
@@ -1356,8 +1376,9 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
             final Constructor<?> constructor = findConstructor(type);
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
+            final List<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(constructor,
+                    getPackage(type), new BaseParameterEnricher.Context(
+                            LocalConfiguration.class.cast(services.getServices().get(LocalConfiguration.class))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(partitionMapper.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
@@ -1384,8 +1405,9 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onEmitter(final Class<?> type, final Emitter emitter) {
             final Constructor<?> constructor = findConstructor(type);
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
+            final List<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(constructor,
+                    getPackage(type), new BaseParameterEnricher.Context(
+                            LocalConfiguration.class.cast(services.getServices().get(LocalConfiguration.class))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(emitter.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
@@ -1410,8 +1432,9 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onProcessor(final Class<?> type, final Processor processor) {
             final Constructor<?> constructor = findConstructor(type);
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
+            final List<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(constructor,
+                    getPackage(type), new BaseParameterEnricher.Context(
+                            LocalConfiguration.class.cast(services.getServices().get(LocalConfiguration.class))));
             addProcessorsBuiltInParameters(type, parameterMetas);
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);

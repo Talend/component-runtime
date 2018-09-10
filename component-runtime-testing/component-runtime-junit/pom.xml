@@ -123,14 +123,10 @@
             <goals>
               <goal>check</goal>
             </goals>
-            <configuration>
-              <excludes>
-                <exclude>**/ComponentsHandler</exclude>
-              </excludes>
-            </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
 </project>
+

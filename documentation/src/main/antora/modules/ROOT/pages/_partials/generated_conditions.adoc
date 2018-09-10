@@ -11,10 +11,10 @@ If the evaluation of the element at the location matches value then the element 
 [source,js]
 ----
 {
-  "condition::if::target":"test",
   "condition::if::evaluationStrategy":"DEFAULT",
-  "condition::if::value":"value1,value2",
-  "condition::if::negate":"false"
+  "condition::if::negate":"false",
+  "condition::if::target":"test",
+  "condition::if::value":"value1,value2"
 }
 ----
 
@@ -30,15 +30,15 @@ Allows to set multiple visibility conditions on the same property.
 [source,js]
 ----
 {
-  "condition::ifs::operator":"AND",
-  "condition::if::value::0":"value1,value2",
-  "condition::if::value::1":"SELECTED",
+  "condition::if::evaluationStrategy::0":"DEFAULT",
+  "condition::if::evaluationStrategy::1":"LENGTH",
+  "condition::if::negate::0":"false",
+  "condition::if::negate::1":"true",
   "condition::if::target::0":"sibling1",
   "condition::if::target::1":"../../other",
-  "condition::if::negate::1":"true",
-  "condition::if::negate::0":"false",
-  "condition::if::evaluationStrategy::0":"DEFAULT",
-  "condition::if::evaluationStrategy::1":"LENGTH"
+  "condition::if::value::0":"value1,value2",
+  "condition::if::value::1":"SELECTED",
+  "condition::ifs::operator":"AND"
 }
 ----
 

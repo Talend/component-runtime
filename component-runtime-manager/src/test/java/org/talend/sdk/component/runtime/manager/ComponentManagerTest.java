@@ -40,6 +40,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
+import javax.json.JsonObject;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -51,6 +52,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -64,6 +66,26 @@ class ComponentManagerTest {
     private ComponentManager newManager() {
         return new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies",
                 "org.talend.test:type=plugin,value=%s");
+    }
+
+    @Test
+    void configInstantiation(final TemporaryFolder temporaryFolder) {
+        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+        pluginFolder.mkdirs();
+        final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
+        try (final ComponentManager manager =
+                new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+            manager.addPlugin(plugin.getAbsolutePath());
+            final Mapper mapper =
+                    manager.findMapper("config", "injected", 1, emptyMap()).orElseThrow(IllegalStateException::new);
+            final JsonObject next = JsonObject.class.cast(mapper.create().next());
+            assertEquals(System.getProperty("java.version", "notset-on-jvm"), next.getString("value"));
+        } finally { // clean temp files
+            Stream.of(pluginFolder.listFiles()).forEach(File::delete);
+            if (ofNullable(pluginFolder.listFiles()).map(f -> f.length == 0).orElse(true)) {
+                pluginFolder.delete();
+            }
+        }
     }
 
     @Test

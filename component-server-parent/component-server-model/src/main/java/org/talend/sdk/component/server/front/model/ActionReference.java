@@ -32,5 +32,7 @@ public class ActionReference {
 
     private String type;
 
+    private String displayName;
+
     private Collection<SimplePropertyDefinition> properties;
 }

@@ -74,6 +74,12 @@ public class PropertiesConverter implements PropertyConverter {
                         } else if ("object".equalsIgnoreCase(property.getType())) {
                             defaults.put(property.getName(), jsonb.fromJson(value, Map.class));
                         } else {
+                            if ("string".equalsIgnoreCase(property.getType())
+                                    && property.getMetadata().keySet().stream().anyMatch(
+                                            k -> k.equals("action::suggestions")
+                                                    || k.equalsIgnoreCase("action::dynamic_values"))) {
+                                defaults.putIfAbsent("$" + property.getPath() + "_name", value);
+                            }
                             defaults.put(property.getName(), value);
                         }
                     });

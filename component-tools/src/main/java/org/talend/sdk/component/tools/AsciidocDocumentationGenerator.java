@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -42,6 +43,8 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.Constructors;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
@@ -138,7 +141,8 @@ public class AsciidocDocumentationGenerator extends BaseTask {
 
     private String toAsciidoc(final Class<?> aClass) {
         final Collection<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(
-                Constructors.findConstructor(aClass), ofNullable(aClass.getPackage()).map(Package::getName).orElse(""));
+                Constructors.findConstructor(aClass), ofNullable(aClass.getPackage()).map(Package::getName).orElse(""),
+                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools")));
         return levelPrefix + " "
                 + componentMarkers()
                         .filter(aClass::isAnnotationPresent)

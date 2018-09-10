@@ -83,6 +83,53 @@ class UiSpecServiceTest {
     });
 
     @Test
+    void updatable() throws Exception {
+        final ConfigTypeNode node = load("update.json", ConfigTypeNode.class);
+        final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();
+        final Iterator<UiSchema> rootItems = payload.getUiSchema().iterator().next().getItems().iterator();
+        rootItems.next(); // datastore
+        final Iterator<UiSchema> updatableConfig = rootItems.next().getItems().iterator();
+        updatableConfig.next(); // name
+        final Collection<UiSchema.Trigger> updateTriggers = updatableConfig.next().getTriggers();
+        assertEquals(1, updateTriggers.size());
+
+        final UiSchema.Trigger trigger = updateTriggers.iterator().next();
+        assertEquals("guessMe", trigger.getAction());
+        assertEquals("test", trigger.getFamily());
+        assertEquals("update", trigger.getType());
+
+        assertEquals(1, trigger.getParameters().size());
+        final UiSchema.Parameter parameter = trigger.getParameters().iterator().next();
+        assertEquals("root.updatable_config.name", parameter.getPath());
+        assertEquals("arg0.name", parameter.getKey());
+
+        assertEquals(1, trigger.getOptions().size());
+        final UiSchema.Option option = trigger.getOptions().iterator().next();
+        assertEquals("root.updatable_config", option.getPath());
+        assertEquals("object", option.getType());
+    }
+
+    @Test
+    void updatableAfter() throws Exception {
+        final ConfigTypeNode node = load("update_after.json", ConfigTypeNode.class);
+        final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();
+        final Iterator<UiSchema> rootItems = payload.getUiSchema().iterator().next().getItems().iterator();
+        rootItems.next(); // datastore
+        final Iterator<UiSchema> updatableConfig = rootItems.next().getItems().iterator();
+        final Iterator<UiSchema> wrapper = updatableConfig.next().getItems().iterator().next().getItems().iterator();
+        assertEquals("Id", wrapper.next().getTitle());
+        final Collection<UiSchema.Trigger> updateTriggers = wrapper.next().getTriggers();
+        assertEquals(1, updateTriggers.size());
+
+        final UiSchema.Trigger trigger = updateTriggers.iterator().next();
+        assertEquals("guessMe", trigger.getAction());
+        assertEquals("test", trigger.getFamily());
+        assertEquals("update", trigger.getType());
+        assertEquals(2, trigger.getParameters().size());
+        assertEquals(1, trigger.getOptions().size());
+    }
+
+    @Test
     void optionsOrderInArray() throws Exception {
         final ConfigTypeNode node =
                 load("config.json", ConfigTypeNodes.class).getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl");
@@ -255,8 +302,7 @@ class UiSpecServiceTest {
                 root.getItems().stream().filter(i -> i.getTitle().equals("Advanced")).findFirst().get();
         final UiSchema commongConfig =
                 advanced.getItems().stream().filter(i -> i.getTitle().equals("commonConfig")).findFirst().get();
-        assertTrue(commongConfig.getItems().stream().anyMatch(
-                i -> i.getKey().equals("button_schema_tableDataSet.commonConfig")));
+        assertTrue(commongConfig.getItems().stream().anyMatch(i -> i.getWidget().equals("button")));
     }
 
     @Test
@@ -436,24 +482,21 @@ class UiSpecServiceTest {
                 final List<UiSchema> connectionItems = new ArrayList<>(connection.getItems());
                 connectionItems.sort(Comparator.comparing(UiSchema::getTitle));
                 final Iterator<UiSchema> connectionIt = connectionItems.iterator();
-                assertUiSchema(connectionIt.next(), "button", "Validate Datastore",
-                        "button_healthcheck_configuration.connection", 0, validateDataStore -> {
-                            assertEquals(1, validateDataStore.getTriggers().size());
-                            final UiSchema.Trigger trigger = validateDataStore.getTriggers().iterator().next();
-                            assertEquals(4, trigger.getParameters().size());
-                            assertEquals(
-                                    Stream
-                                            .of("driver", "password", "url", "username")
-                                            .map(p -> "configuration.connection." + p)
-                                            .collect(toSet()),
-                                    trigger.getParameters().stream().map(UiSchema.Parameter::getPath).collect(toSet()));
-                            assertEquals(
-                                    Stream
-                                            .of("driver", "password", "url", "username")
-                                            .map(p -> "datastore." + p)
-                                            .collect(toSet()),
-                                    trigger.getParameters().stream().map(UiSchema.Parameter::getKey).collect(toSet()));
-                        });
+                assertUiSchema(connectionIt.next(), "button", "Validate Connection", null, 0, validateDataStore -> {
+                    assertEquals(1, validateDataStore.getTriggers().size());
+                    final UiSchema.Trigger trigger = validateDataStore.getTriggers().iterator().next();
+                    assertEquals(4, trigger.getParameters().size());
+                    assertEquals(
+                            Stream
+                                    .of("driver", "password", "url", "username")
+                                    .map(p -> "configuration.connection." + p)
+                                    .collect(toSet()),
+                            trigger.getParameters().stream().map(UiSchema.Parameter::getPath).collect(toSet()));
+                    assertEquals(
+                            Stream.of("driver", "password", "url", "username").map(p -> "datastore." + p).collect(
+                                    toSet()),
+                            trigger.getParameters().stream().map(UiSchema.Parameter::getKey).collect(toSet()));
+                });
                 assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0,
                         driver -> {
                             assertNotNull(driver.getTriggers());

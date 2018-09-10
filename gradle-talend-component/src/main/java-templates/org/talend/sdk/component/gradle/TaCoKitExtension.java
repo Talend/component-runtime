@@ -97,6 +97,8 @@ public class TaCoKitExtension {
 
     private boolean validateOptionNames = true;
 
+    private boolean validateLocalConfiguration = true;
+
     //
     // web
     //
