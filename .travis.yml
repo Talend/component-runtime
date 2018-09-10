@@ -50,11 +50,15 @@ jobs:
     # master profile
     - stage: master_build
       env:
-      - STEP=Build
+      - STEP=Build Oracle JVM
       script: mvn $BUILD_ARGS
-      jdk:
-      - oraclejdk8
-      - openjdk8
+      jdk: oraclejdk8
+
+    - stage: master_build
+      env:
+      - STEP=Build OpenJDK JVM
+      script: mvn $BUILD_ARGS
+      jdk: openjdk8
 
     - stage: master_build
       env:
