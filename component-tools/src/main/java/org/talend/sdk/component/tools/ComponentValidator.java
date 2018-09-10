@@ -187,9 +187,11 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (!errors.isEmpty()) {
-            errors.forEach(log::error);
+            final List<String> preparedErrors =
+                    errors.stream().map(it -> it.replace("java.lang.", "").replace("java.util.", "")).collect(toList());
+            preparedErrors.forEach(log::error);
             throw new IllegalStateException(
-                    "Some error were detected:" + errors.stream().collect(joining("\n- ", "\n- ", "")));
+                    "Some error were detected:" + preparedErrors.stream().collect(joining("\n- ", "\n- ", "")));
         }
     }
 
@@ -764,6 +766,16 @@ public class ComponentValidator extends BaseTask {
                 .map(f -> "@Updatable should not be used on primitives: " + f)
                 .sorted()
                 .collect(toSet()));
+        errors.addAll(updatableFields.stream().map(f -> {
+            final Method service = updates.get(f.getAnnotation(Updatable.class).value());
+            if (service == null) {
+                return null; // another error will mention it
+            }
+            if (f.getType().isAssignableFrom(service.getReturnType())) {
+                return null; // no error
+            }
+            return "@Updatable field '" + f + "' does not match returned type of '" + service + "'";
+        }).filter(Objects::nonNull).sorted().collect(toSet()));
         errors.addAll(updatableFields
                 .stream()
                 .filter(f -> updates.get(f.getAnnotation(Updatable.class).value()) == null)
