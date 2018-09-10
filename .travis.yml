@@ -1,9 +1,6 @@
 dist: trusty
 sudo: false
 language: java
-jdk:
-- oraclejdk8
-- openjdk8
 env:
    global:
     - MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dinvoker.streamLogs=false -Drmannibucau.travis.dumpOnLog=false"
@@ -48,18 +45,23 @@ jobs:
     # PR profile
     - stage: pullrequest_build
       script: mvn $BUILD_ARGS
+      jdk: oraclejdk8
 
     # master profile
     - stage: master_build
       env:
       - STEP=Build
       script: mvn $BUILD_ARGS
+      jdk:
+      - oraclejdk8
+      - openjdk8
 
     - stage: master_build
       env:
       - STEP=Deploy Artifacts
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: mvn clean deploy -e -q $DEPLOY_OPTS
+      jdk: oraclejdk8
 
     - stage: master_build
       env:
@@ -68,17 +70,20 @@ jobs:
       - echo "Skipping >rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache<"
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
       - cd documentation && mvn clean verify pre-site -e -Dwebhost.ftphost=$WEBHOST_FTPPHOST -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
+      jdk: oraclejdk8
 
     - stage: master_build
       env:
       - STEP=Docker Deployment
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: chmod +x ./.travis/docker.sh && ./.travis/docker.sh
+      jdk: oraclejdk8
 
     - stage: master_build
       env:
       - STEP=Sonatype Audit
       script: mvn ossindex:audit
+      jdk: oraclejdk8
 
 stages:
   - name: master_build
