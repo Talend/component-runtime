@@ -34,7 +34,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
-import javax.xml.bind.JAXBContext;
 
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.HttpClientFactory;
@@ -115,7 +114,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
         private final RequestParser requestParser;
 
-        private volatile Map<Class<?>, JAXBContext> jaxbContexts;
+        private volatile Map<Class<?>, Object> jaxbContexts;
 
         private volatile ConcurrentMap<Method, ExecutionContext> invokers;
 

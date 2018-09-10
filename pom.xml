@@ -156,6 +156,12 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency> <!-- for java >= 9 support, /!\ CDDL license -->
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>2.4.0-b180830.0438</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.config</groupId>
         <artifactId>geronimo-config-impl</artifactId>
