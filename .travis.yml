@@ -38,7 +38,8 @@ addons:
       # for nodegit@antora
       - libstdc++-4.9-dev
 
-install: chmod +x ./.travis/install.sh && ./.travis/install.sh
+before_install: chmod +x ./.travis/install.sh && ./.travis/install.sh
+install: echo true
 
 jobs:
   include:
