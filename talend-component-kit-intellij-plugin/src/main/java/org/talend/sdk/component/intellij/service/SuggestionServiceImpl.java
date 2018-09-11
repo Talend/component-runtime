@@ -330,17 +330,6 @@ public class SuggestionServiceImpl implements SuggestionService {
                 });
     }
 
-    private String getConfigurationName(final PsiAnnotationMemberValue optionValue, final String defaultName) {
-        String configurationName = defaultName;
-        if (optionValue != null && optionValue.getText() != null) {
-            configurationName = removeQuotes(optionValue.getText());
-            if (configurationName.isEmpty()) {
-                configurationName = defaultName;
-            }
-        }
-        return configurationName;
-    }
-
     private String removeQuotes(final String s) {
         if (s == null || s.isEmpty()) {
             return s;
