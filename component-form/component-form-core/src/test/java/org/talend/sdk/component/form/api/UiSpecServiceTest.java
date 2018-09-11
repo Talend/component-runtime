@@ -249,7 +249,7 @@ class UiSpecServiceTest {
     void condition() throws Exception {
         final Ui payload = service.convert(load("rest-api.json"), "en", null).toCompletableFuture().get();
         final UiSchema root = payload.getUiSchema().iterator().next();
-        final UiSchema.Condition condition = root
+        final Map<String, Collection<Object>> condition = root
                 .getItems()
                 .stream()
                 .filter(i -> i.getTitle().equals("Main"))
@@ -262,36 +262,21 @@ class UiSpecServiceTest {
                 .get()
                 .getCondition();
         assertNotNull(condition);
-        assertEquals(1, condition.getChildren().size());
-        assertNull(condition.getChildrenOperator());
+        assertEquals(1, condition.size());
 
-        final UiSchema.Condition child = condition.getChildren().iterator().next();
-        assertEquals("tableDataSet.ordered", child.getPath());
-        assertEquals(singletonList(true), child.getValues());
+        final Map.Entry<String, Collection<Object>> entry = condition.entrySet().iterator().next();
+        assertEquals("===", entry.getKey());
+        assertEquals(2, entry.getValue().size());
 
-        // typed serialization
+        final Iterator<Object> values = entry.getValue().iterator();
+        assertEquals(singletonMap("var", "tableDataSet.ordered"), values.next());
+        assertEquals(true, values.next());
+
+        // serialization
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
-            assertEquals("{\"path\":\"tableDataSet.ordered\",\"shouldBe\":true,\"values\":[true]}",
-                    jsonb.toJson(child));
+            assertEquals("{\"===\":[{\"var\":\"tableDataSet.ordered\"},true]}", jsonb.toJson(condition));
         }
-    }
-
-    @Test
-    void conditionWithOperator() throws Exception {
-        final ConfigTypeNode node = load("optionsorder.json", ConfigTypeNode.class);
-        final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();
-        final UiSchema root = payload.getUiSchema().iterator().next();
-        final UiSchema.Condition condition = root
-                .getItems()
-                .stream()
-                .filter(i -> i.getTitle().equals("specificRecordDelimiter"))
-                .findFirst()
-                .get()
-                .getCondition();
-        assertNotNull(condition);
-        assertEquals(2, condition.getChildren().size());
-        assertEquals("OR", condition.getChildrenOperator().name());
     }
 
     @Test
