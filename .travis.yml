@@ -58,6 +58,7 @@ jobs:
     - stage: master_build
       env:
       - STEP=Build OpenJDK JVM
+      before_install: sudo add-apt-repository ppa:tj/java-for-14.04 && sudo apt-get update && sudo apt-get install openjfx
       script: mvn $BUILD_ARGS
       jdk: openjdk8
 
