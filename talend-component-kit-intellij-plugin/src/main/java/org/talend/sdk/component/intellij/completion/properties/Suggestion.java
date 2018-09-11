@@ -41,6 +41,7 @@ public class Suggestion {
         Family,
         Component,
         Configuration,
+        Action
     }
 
     public LookupElement newLookupElement(final int priority) {
@@ -61,6 +62,9 @@ public class Suggestion {
                         } else if (Type.Configuration.equals(suggestion.getType())) {
                             presentation.setIcon(AllIcons.Hierarchy.Class);
                             presentation.appendTailText("  Configuration", true);
+                        } else if (Type.Action.equals(suggestion.getType())) {
+                            presentation.setIcon(AllIcons.Actions.Submit1);
+                            presentation.appendTailText("  Action", true);
                         }
                     }
                 }), priority);

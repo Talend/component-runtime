@@ -24,9 +24,11 @@ import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.intellij.completion.properties.Suggestion.DISPLAY_NAME;
 import static org.talend.sdk.component.intellij.completion.properties.Suggestion.PLACEHOLDER;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.intellij.codeInsight.AnnotationUtil;
@@ -43,6 +45,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.FilenameIndex;
@@ -66,6 +69,36 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private static final String DATA_SET = "org.talend.sdk.component.api.configuration.type.DataSet";
 
+    private static final String ACTION_TYPE = "org.talend.sdk.component.api.service.ActionType";
+
+    private static final String ACTION_ACTION = "org.talend.sdk.component.api.service.Action";
+
+    private static final String ACTION_HEALTHCHECK = "org.talend.sdk.component.api.service.healthcheck.HealthCheck";
+
+    private static final String ACTION_ASYNCVALIDATION =
+            "org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation";
+
+    private static final String ACTION_DYNAMICVALUES = "org.talend.sdk.component.api.service.completion.DynamicValues";
+
+    private static final String ACTION_SUGGESTIONS = "org.talend.sdk.component.api.service.completion.Suggestions";
+
+    private static final String ACTION_DISCOVERSCHEMA = "org.talend.sdk.component.api.service.schema.DiscoverSchema";
+
+    private static final String ACTION_UPDATE = "org.talend.sdk.component.api.service.update.Update";
+
+    private static final List<String> ACTIONS = new ArrayList<String>() {
+
+        {
+            add(ACTION_ACTION);
+            add(ACTION_HEALTHCHECK);
+            add(ACTION_ASYNCVALIDATION);
+            add(ACTION_DYNAMICVALUES);
+            add(ACTION_SUGGESTIONS);
+            add(ACTION_DISCOVERSCHEMA);
+            add(ACTION_UPDATE);
+        }
+    };
+
     @Override
     public boolean isSupported(final CompletionParameters completionParameters) {
         final String name = completionParameters.getOriginalFile().getName();
@@ -82,6 +115,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         case 3:
             return singletonList(new Suggestion(toHumanString(segments[1]), null)
                     .newLookupElement(withPriority(Suggestion.Type.Configuration)));
+        case 5: // action format
+            return singletonList(new Suggestion(toHumanString(segments[3]), null)
+                    .newLookupElement(withPriority(Suggestion.Type.Action)));
         default:
             return emptyList();
         }
@@ -98,19 +134,53 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         final String defaultFamily = getFamilyFromPackageInfo(pkg, module);
         return Stream
-                .concat(of(pkg.getClasses())
-                        .flatMap(this::unwrapInnerClasses)
-                        .filter(c -> AnnotationUtil.findAnnotation(c, PARTITION_MAPPER, PROCESSOR, EMITTER) != null)
-                        .flatMap(clazz -> fromComponent(clazz, defaultFamily)),
+                .concat(Stream.concat(
+                        of(pkg.getClasses())
+                                .flatMap(this::unwrapInnerClasses)
+                                .filter(c -> AnnotationUtil.findAnnotation(c, PARTITION_MAPPER, PROCESSOR,
+                                        EMITTER) != null)
+                                .flatMap(clazz -> fromComponent(clazz, defaultFamily)),
                         of(pkg.getClasses())
                                 .flatMap(this::unwrapInnerClasses)
                                 .filter(c -> of(c.getAllFields())
                                         .anyMatch(f -> AnnotationUtil.findAnnotation(f, OPTION) != null))
-                                .flatMap(c -> fromConfiguration(defaultFamily, c.getName(), c)))
+                                .flatMap(c -> fromConfiguration(defaultFamily, c.getName(), c))),
+                        of(pkg.getClasses())
+                                .flatMap(this::unwrapInnerClasses)
+                                .flatMap(c -> of(c.getMethods()).filter(m -> ACTIONS.stream().anyMatch(
+                                        action -> AnnotationUtil.findAnnotation(m, action) != null)))
+                                .map(m -> ACTIONS
+                                        .stream()
+                                        .map(action -> AnnotationUtil.findAnnotation(m, action))
+                                        .filter(Objects::nonNull)
+                                        .findFirst()
+                                        .get())
+                                .map(action -> fromAction(action, defaultFamily))
+                                .filter(Optional::isPresent)
+                                .map(Optional::get))
                 .filter(s -> containerElements.isEmpty() || !containerElements.contains(s.getKey()))
                 .filter(s -> query == null || query.isEmpty() || s.getKey().startsWith(query))
                 .map(s -> s.newLookupElement(withPriority(s.getType())))
                 .collect(toList());
+    }
+
+    private Optional<Suggestion> fromAction(final PsiAnnotation action, final String defaultFamily) {
+
+        final String actionType = ofNullable(action.getNameReferenceElement())
+                .map(PsiReference::resolve)
+                .filter(PsiClass.class::isInstance)
+                .map(e -> (PsiClass) e)
+                .map(e -> AnnotationUtil.findAnnotation(e, true, ACTION_TYPE))
+                .map(e -> e.findAttributeValue("value"))
+                .map(v -> removeQuotes(v.getText()))
+                .orElse("");
+
+        return ofNullable(action.findAttributeValue("value"))
+                .map(t -> removeQuotes(t.getText()))
+                .map(actionId -> new Suggestion(
+                        "actions." + defaultFamily + "." + actionType + "." + actionId + "." + DISPLAY_NAME,
+                        Suggestion.Type.Action));
+
     }
 
     private String toHumanString(final String segment) {

@@ -26,10 +26,7 @@
   <change-notes>
   <![CDATA[
     <ul>
-      <li>Better handling of the spinner screen refreshing</li>
-      <li>Update starter url to http://starter-toolkit.talend.io/</li>
-      <li>Add creation of a new component project support</li>
-      <li>Add i18n completion</li>
+      <li>Auto completion for ui actions display name in resource bundles</li>
     </ul>
   ]]>
   </change-notes>
