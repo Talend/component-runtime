@@ -17,6 +17,10 @@ FROM alpine:3.7 as stagingImage
 
 ARG SERVER_VERSION
 ARG KAFKA_CLIENT_VERSION
+ARG GERONIMO_OPENTRACING_VERSION
+ARG OPENTRACING_API_VERSION
+ARG MICROPROFILE_OPENTRACING_API_VERSION
+
 
 RUN date
 
@@ -25,12 +29,18 @@ RUN mkdir -p $MEECROWAVE_BASE
 WORKDIR $MEECROWAVE_BASE
 
 ADD kafka-clients-$KAFKA_CLIENT_VERSION.jar kafka.jar
+ADD geronimo-opentracing-$GERONIMO_OPENTRACING_VERSION.jar geronimo-opentracing.jar
+ADD opentracing-api-$OPENTRACING_API_VERSION.jar opentracing-api.jar
+ADD microprofile-opentracing-api-$MICROPROFILE_OPENTRACING_API_VERSION.jar microprofile-opentracing-api.jar
 ADD beam.zip beam.zip
 ADD server.zip server.zip
 
 RUN unzip server.zip && mv component-server-distribution/* . && rm -Rf component-server-distribution server.zip && \
     unzip beam.zip && mv component-runtime-beam-$SERVER_VERSION/* lib && rm -Rf component-runtime-beam-$SERVER_VERSION beam.zip && \
-    mv kafka.jar lib/
+    mv kafka.jar lib/ && \
+    mv geronimo-opentracing.jar lib/ && \
+    mv opentracing-api.jar lib/ && \
+    mv microprofile-opentracing-api.jar lib/
 
 COPY conf/log4j2-component-server-*.xml $MEECROWAVE_BASE/conf/
 COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/meecrowave.properties
@@ -47,7 +57,6 @@ RUN set -ex && \
 FROM openjdk:8-jre-alpine
 
 ARG SERVER_VERSION
-ARG KAFKA_CLIENT_VERSION
 ARG BUILD_DATE
 ARG GIT_URL
 ARG GIT_BRANCH

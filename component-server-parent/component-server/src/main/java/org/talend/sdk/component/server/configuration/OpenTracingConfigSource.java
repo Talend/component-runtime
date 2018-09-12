@@ -50,6 +50,6 @@ public class OpenTracingConfigSource implements ConfigSource {
 
     @Override
     public String getName() {
-        return "component-opentracing";
+        return "talend-opentracing";
     }
 }

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 KAFKA_VERSION=1.1.0
+GERONIMO_OPENTRACING_VERSION=1.0.0
+OPENTRACING_API_VERSION=0.31.0
+MICROPROFILE_OPENTRACING_API_VERSION=1.1
 SERVER_VERSION=$(grep "<version>" pom.xml  | head -n 1 | sed "s/.*>\\(.*\\)<.*/\\1/")
 DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION:-$SERVER_VERSION}
 # if snapshot use the date as version
@@ -29,8 +32,11 @@ cp -v -r .docker/conf $DOCKER_TMP_DIR/conf
 cp -v -r .docker/bin $DOCKER_TMP_DIR/bin
 cd $DOCKER_TMP_DIR
 
-echo "Grabbing kafka client"
+echo "Grabbing libraries (kafka client, opentracing-api, geronimo-opentracing, microprofile-opentracing-api)"
 mvn dependency:copy -Dartifact=org.apache.kafka:kafka-clients:$KAFKA_VERSION -DoutputDirectory=.
+mvn dependency:copy -Dartifact=org.eclipse.microprofile.opentracing:microprofile-opentracing-api:$MICROPROFILE_OPENTRACING_API_VERSION -DoutputDirectory=.
+mvn dependency:copy -Dartifact=io.opentracing:opentracing-api:$OPENTRACING_API_VERSION -DoutputDirectory=.
+mvn dependency:copy -Dartifact=org.apache.geronimo:geronimo-opentracing:$GERONIMO_OPENTRACING_VERSION -DoutputDirectory=.
 
 echo "Building image >$IMAGE<"
 docker build --tag "$IMAGE" \
