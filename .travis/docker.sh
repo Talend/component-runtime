@@ -43,6 +43,9 @@ docker build --tag "$IMAGE" \
   --build-arg SERVER_VERSION=$SERVER_VERSION \
   --build-arg DOCKER_IMAGE_VERSION=$DOCKER_IMAGE_VERSION \
   --build-arg KAFKA_CLIENT_VERSION=$KAFKA_VERSION \
+  --build-arg GERONIMO_OPENTRACING_VERSION=$GERONIMO_OPENTRACING_VERSION \
+  --build-arg OPENTRACING_API_VERSION=$OPENTRACING_API_VERSION \
+  --build-arg MICROPROFILE_OPENTRACING_API_VERSION=$MICROPROFILE_OPENTRACING_API_VERSION \
   --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) \
   --build-arg GIT_URL=$(git config --get remote.origin.url) \
   --build-arg GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) \
