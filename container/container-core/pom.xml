@@ -76,18 +76,18 @@
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>ziplock</artifactId>
-                  <version>${ziplock.version}</version>
+                  <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/ziplock/${ziplock.version}
+                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/ziplock/${ziplock.test.version}
                   </outputDirectory>
-                  <destFileName>ziplock-${ziplock.version}.jar</destFileName>
+                  <destFileName>ziplock-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>openejb-itests-beans</artifactId>
-                  <version>${ziplock.version}</version>
+                  <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
