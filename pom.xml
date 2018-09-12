@@ -62,6 +62,7 @@
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.1.0</ziplock.version>
+    <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.1.9</johnzon.version>
     <meecrowave.version>1.2.3</meecrowave.version>
     <owb.version>2.0.7</owb.version>
