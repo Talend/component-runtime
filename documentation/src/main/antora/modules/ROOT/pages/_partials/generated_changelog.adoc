@@ -28,13 +28,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1011[TCOMP-1011^]: Ensure datastore/dataset i18n names are validated by the maven/gradle plugins
 - link:https://jira.talendforge.org/browse/TCOMP-1013[TCOMP-1013^]: Add an operator support in @ActiveIfs (OR/AND switch)
 - link:https://jira.talendforge.org/browse/TCOMP-1014[TCOMP-1014^]: Ensure a dataset has a source which has no other required parameters in the validator
+- link:https://jira.talendforge.org/browse/TCOMP-1029[TCOMP-1029^]: Extend ActiveIf EvaluationStrategy with CONTAINS strategy
 - link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
 - link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
 
 
 === Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-1003[TCOMP-1003^]: [dependency upgrade] Tomcat 9.0.11
+- link:https://jira.talendforge.org/browse/TCOMP-1003[TCOMP-1003^]: [dependency upgrade] Tomcat 9.0.12
 - link:https://jira.talendforge.org/browse/TCOMP-1004[TCOMP-1004^]: [dependency upgrade] Log4j2 2.11.1
 - link:https://jira.talendforge.org/browse/TCOMP-1015[TCOMP-1015^]: Upgrade icons to 0.207.0
 - link:https://jira.talendforge.org/browse/TCOMP-1019[TCOMP-1019^]: (form) enum should lead to restricted datalist
@@ -45,6 +46,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1045[TCOMP-1045^]: Add documentation in metadata and enable to use it in the UI on configuration
 - link:https://jira.talendforge.org/browse/TCOMP-1047[TCOMP-1047^]: Make Suggestable text field editable (align with web)
 - link:https://jira.talendforge.org/browse/TCOMP-1050[TCOMP-1050^]: Provide simple OAuth1 integration
+- link:https://jira.talendforge.org/browse/TCOMP-1054[TCOMP-1054^]: Introduce @Configuration API
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard

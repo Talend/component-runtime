@@ -207,7 +207,7 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.action")
     void testFailureAction(final ExceptionSpec expectedException) {
         expectedException.expectMessage(
-                "public java.lang.String org.talend.test.failure.action.MyService.test(org.talend.test.failure.action.MyDataStore) doesn't return a class org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus, please fix it");
+                "public String org.talend.test.failure.action.MyService.test(org.talend.test.failure.action.MyDataStore) doesn't return a class org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus, please fix it");
     }
 
     @Test
@@ -291,7 +291,7 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.documentation.option", validateDocumentation = true)
     void testFailureDocumentationOption(final ExceptionSpec expectedException) {
         expectedException.expectMessage("Some error were detected:\n"
-                + "- No @Documentation on 'private java.lang.String org.talend.test.failure.documentation.option.MyComponent$MyConfig.input'");
+                + "- No @Documentation on 'private String org.talend.test.failure.documentation.option.MyComponent$MyConfig.input'");
     }
 
     @Test
@@ -413,6 +413,14 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.updatableafter")
     void testFailureUpdateAfter(final ExceptionSpec spec) {
         spec.expectMessage("- @Updatable.after should only reference direct child primitive fields");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.updatebadtype")
+    void testFailureUpdateBadType(final ExceptionSpec spec) {
+        spec.expectMessage("- @Updatable field 'private org.talend.test.failure.updatebadtype.Model "
+                + "org.talend.test.failure.updatebadtype.Config.model' does not match returned type of "
+                + "'String org.talend.test.failure.updatebadtype.UpdateService.update()'");
     }
 
     // .properties are ok from the classpath, no need to copy them

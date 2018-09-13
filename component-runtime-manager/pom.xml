@@ -82,6 +82,10 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency> <!-- for java >= 9 support -->
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -103,7 +107,7 @@
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>openejb-itests-beans</artifactId>
-                  <version>${ziplock.version}</version>
+                  <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
@@ -114,7 +118,7 @@
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>arquillian-tomee-codi-tests</artifactId>
-                  <version>${ziplock.version}</version>
+                  <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>

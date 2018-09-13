@@ -61,11 +61,12 @@
     <xbean.version>4.9</xbean.version>
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
-    <ziplock.version>7.0.5</ziplock.version>
+    <ziplock.version>7.1.0</ziplock.version>
+    <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.1.9</johnzon.version>
     <meecrowave.version>1.2.3</meecrowave.version>
     <owb.version>2.0.7</owb.version>
-    <tomcat.version>9.0.11</tomcat.version>
+    <tomcat.version>9.0.12</tomcat.version>
     <cxf.version>3.2.6</cxf.version>
     <log4j2.version>2.11.1</log4j2.version>
     <geronimo-jcdi.version>1.0.1</geronimo-jcdi.version>
@@ -156,6 +157,12 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency> <!-- for java >= 9 support, /!\ CDDL license -->
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>2.4.0-b180830.0438</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.config</groupId>
         <artifactId>geronimo-config-impl</artifactId>

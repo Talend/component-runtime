@@ -1,8 +1,6 @@
 dist: trusty
 sudo: false
 language: java
-jdk:
-- oraclejdk8
 env:
    global:
     - MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dinvoker.streamLogs=false -Drmannibucau.travis.dumpOnLog=false"
@@ -40,44 +38,57 @@ addons:
       # for nodegit@antora
       - libstdc++-4.9-dev
 
-install: chmod +x ./.travis/install.sh && ./.travis/install.sh
+before_install: chmod +x ./.travis/install.sh && ./.travis/install.sh
+install: echo true
 
 jobs:
   include:
     # PR profile
     - stage: pullrequest_build
       script: mvn $BUILD_ARGS
+      jdk: oraclejdk8
 
     # master profile
     - stage: master_build
       env:
-      - STEP=Build
+      - STEP=Build Oracle JVM
       script: mvn $BUILD_ARGS
+      jdk: oraclejdk8
+
+    - stage: master_build
+      env:
+      - STEP=Build OpenJDK JVM
+      before_install: sudo add-apt-repository -y ppa:tj/java-for-14.04 && sudo apt-get update && sudo apt-get install -y openjfx
+      script: mvn $BUILD_ARGS
+      jdk: openjdk8
 
     - stage: master_build
       env:
       - STEP=Deploy Artifacts
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: mvn clean deploy -e -q $DEPLOY_OPTS
+      jdk: oraclejdk8
 
     - stage: master_build
       env:
       - STEP=Update Documentation
       script:
-      - echo "Skipping >rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache<"
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
       - cd documentation && mvn clean verify pre-site -e -Dwebhost.ftphost=$WEBHOST_FTPPHOST -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
+      jdk: oraclejdk8
 
     - stage: master_build
       env:
       - STEP=Docker Deployment
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: chmod +x ./.travis/docker.sh && ./.travis/docker.sh
+      jdk: oraclejdk8
 
     - stage: master_build
       env:
       - STEP=Sonatype Audit
       script: mvn ossindex:audit
+      jdk: oraclejdk8
 
 stages:
   - name: master_build

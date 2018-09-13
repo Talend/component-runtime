@@ -54,8 +54,6 @@ import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.xml.bind.DatatypeConverter;
-
 // IMPORTANT: this class MUST not have ANY dependency, not even slf4j!
 public class CarMain {
 
@@ -656,16 +654,14 @@ public class CarMain {
         boolean v2 = false;
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(serverUrl + (serverUrl.endsWith("/") ? "" : "/") + "service/local/status");
+            final URL url = new URL(serverUrl + (serverUrl.endsWith("/") ? "" : "/") + "service/local/status");
             System.out.println("Sending GET request to " + url.getPath());
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoInput(true);
-            String userpass = username + ":" + password;
-            String basicAuth = "Basic " + DatatypeConverter.printBase64Binary(userpass.getBytes());
+            final String userpass = username + ":" + password;
+            final String basicAuth = "Basic " + Base64.getEncoder().encodeToString(userpass.getBytes());
             conn.setRequestMethod("GET");
-            if (basicAuth != null) {
-                conn.setRequestProperty("Authorization", basicAuth);
-            }
+            conn.setRequestProperty("Authorization", basicAuth);
             conn.setRequestProperty("Accept", "application/json");
             conn.connect();
             if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 299) {
@@ -683,7 +679,8 @@ public class CarMain {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            // no-op
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -697,22 +694,22 @@ public class CarMain {
         boolean v3 = false;
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(serverUrl + (serverUrl.endsWith("/") ? "" : "/") + "service/rest/beta/repositories");
+            final URL url =
+                    new URL(serverUrl + (serverUrl.endsWith("/") ? "" : "/") + "service/rest/beta/repositories");
             System.out.println("Sending GET request to " + url.getPath());
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoInput(true);
-            String userpass = username + ":" + password;
-            String basicAuth = "Basic " + DatatypeConverter.printBase64Binary(userpass.getBytes());
+            final String userpass = username + ":" + password;
+            final String basicAuth = "Basic " + Base64.getEncoder().encodeToString(userpass.getBytes());
             conn.setRequestMethod("GET");
-            if (basicAuth != null) {
-                conn.setRequestProperty("Authorization", basicAuth);
-            }
+            conn.setRequestProperty("Authorization", basicAuth);
             conn.setRequestProperty("Accept", "*/*");
             conn.connect();
             if (conn.getResponseCode() == 200) {
                 v3 = true;
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            // no-op
         } finally {
             if (conn != null) {
                 conn.disconnect();

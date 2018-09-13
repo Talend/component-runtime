@@ -21,7 +21,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -232,8 +231,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 || key.equals("action::update");
     }
 
-    protected UiSchema.Condition createCondition(final PropertyContext ctx) {
-        final List<UiSchema.Condition> conditions = ctx
+    protected Map<String, Collection<Object>> createCondition(final PropertyContext ctx) {
+        final List<Map<String, Collection<Object>>> conditions = ctx
                 .getProperty()
                 .getMetadata()
                 .entrySet()
@@ -250,27 +249,66 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     final SimplePropertyDefinition definition =
                             properties.stream().filter(p -> p.getPath().equals(path)).findFirst().orElse(null);
                     final Function<String, Object> converter = findStringValueMapper(definition);
-                    return new UiSchema.Condition.Builder()
-                            .withPath(path)
-                            .withShouldBe(!Boolean
-                                    .parseBoolean(ctx.getProperty().getMetadata().getOrDefault(negateKey, "false")))
-                            .withStrategy(ctx.getProperty().getMetadata().get(strategyKey))
-                            .withValues(Stream
-                                    .of(ctx.getProperty().getMetadata().getOrDefault(valueKey, "true").split(","))
-                                    .map(converter)
-                                    .collect(toSet()))
-                            .build();
+                    final boolean shouldBe =
+                            !Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault(negateKey, "false"));
+                    final String strategy =
+                            ctx.getProperty().getMetadata().getOrDefault(strategyKey, "default").toLowerCase(ROOT);
+                    final List<Map<String, Collection<Object>>> values = Stream
+                            .of(ctx.getProperty().getMetadata().getOrDefault(valueKey, "true").split(","))
+                            .map(converter)
+                            .map(val -> toCondition(path, strategy, val, definition))
+                            .collect(toList());
+                    final Map<String, Collection<Object>> condition = values.size() == 1 ? values.iterator().next()
+                            : new UiSchema.ConditionBuilder().withOperator("or").withValues(values).build();
+                    final UiSchema.ConditionValuesBuilder rootBuilder;
+                    if (!shouldBe) { // no need to add the wrapper if we test true (default)
+                        return new UiSchema.ConditionBuilder()
+                                .withOperator("==")
+                                .withValue(condition)
+                                .withValue(false)
+                                .build();
+                    }
+                    return condition;
                 })
                 .collect(toList());
-        if (conditions.isEmpty()) {
+
+        switch (conditions.size()) {
+        case 0:
             return null;
+        case 1:
+            return conditions.iterator().next();
+        default:
+            final String operator = ofNullable(ctx.getProperty().getMetadata().get("condition::ifs::operator"))
+                    .orElse("AND")
+                    .toLowerCase(ROOT);
+            return new UiSchema.ConditionBuilder().withOperator(operator).withValue(conditions).build();
         }
-        final UiSchema.Condition condition = new UiSchema.Condition();
-        condition.setChildren(conditions);
-        condition.setChildrenOperator(ofNullable(ctx.getProperty().getMetadata().get("condition::ifs::operator"))
-                .map(it -> UiSchema.ConditionOperator.valueOf(it.toUpperCase(ROOT)))
-                .orElse(null));
-        return condition;
+    }
+
+    private Map<String, Collection<Object>> toCondition(final String path, final String strategy, final Object value,
+            final SimplePropertyDefinition def) {
+        switch (strategy) {
+        case "length":
+            return new UiSchema.ConditionBuilder()
+                    .withOperator("===")
+                    .withVar(path + ".length")
+                    .withValue(String.class.isInstance(value) ? Integer.parseInt(String.valueOf(value)) : value)
+                    .build();
+        case "contains":
+        case "contains(lowercase=true)":
+            final UiSchema.ConditionValuesBuilder in = new UiSchema.ConditionBuilder().withOperator("in");
+            final Object val =
+                    strategy.endsWith("(lowercase=true)") ? String.class.cast(value).toLowerCase(ROOT) : value;
+            if (def != null && "array".equalsIgnoreCase(def.getType())) {
+                in.withVar(path).withValue(val).up();
+            } else {
+                in.withValue(val).withVar(path).up();
+            }
+            return in.build();
+        case "default":
+        default:
+            return new UiSchema.ConditionBuilder().withOperator("===").withVar(path).withValue(value).build();
+        }
     }
 
     private Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {

@@ -21,6 +21,7 @@ import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExc
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import lombok.NoArgsConstructor;
 
@@ -29,19 +30,33 @@ public class Defaults {
 
     private static final Constructor<MethodHandles.Lookup> LOOKUP;
 
+    private static final Method PRIVATE_LOOKUP;
+
     static {
-        try {
-            LOOKUP = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
-        } catch (final NoSuchMethodException e) {
-            throw new IllegalStateException("Incompatible JVM", e);
+        Constructor<MethodHandles.Lookup> lookup = null;
+        Method privateLookup = null;
+        try { // java 9
+            privateLookup = MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+        } catch (final NoSuchMethodException e) { // java 8
+            try {
+                lookup = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
+                if (!lookup.isAccessible()) {
+                    lookup.setAccessible(true);
+                }
+            } catch (final NoSuchMethodException ex) {
+                throw new IllegalStateException("Incompatible JVM", e);
+            }
         }
-        if (!LOOKUP.isAccessible()) {
-            LOOKUP.setAccessible(true);
-        }
+        PRIVATE_LOOKUP = privateLookup;
+        LOOKUP = lookup;
     }
 
     public static MethodHandles.Lookup of(final Class<?> declaringClass) {
         try {
+            if (PRIVATE_LOOKUP != null) {
+                return MethodHandles.Lookup.class
+                        .cast(PRIVATE_LOOKUP.invoke(null, declaringClass, MethodHandles.lookup()));
+            }
             return LOOKUP.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE).in(declaringClass);
         } catch (final IllegalAccessException | InstantiationException e) {
             throw new IllegalArgumentException(e);
