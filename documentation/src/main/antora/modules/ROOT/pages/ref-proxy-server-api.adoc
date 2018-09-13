@@ -1,4 +1,4 @@
-= Proxy server API
+= UiSpec proxy server API
 :page-partial:
 :page-talend_skipindexation:
 

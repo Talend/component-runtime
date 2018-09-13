@@ -1,5 +1,10 @@
-= Configuration types
+= Component data configuration types
 :page-partial:
 :page-talend_skipindexation:
+
+It is common to classify the incoming data. It is similar to tagging data with several types. Data can commonly be categorized as follows:
+
+- Datastore: The data you need to connect to the backend.
+- Dataset: A datastore coupled with the data you need to execute an action.
 
 include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+1]

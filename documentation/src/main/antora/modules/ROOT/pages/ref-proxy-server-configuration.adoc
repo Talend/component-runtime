@@ -1,4 +1,4 @@
-= Proxy server configuration
+= UiSpec proxy server configuration
 :page-partial:
 :page-talend_skipindexation:
 

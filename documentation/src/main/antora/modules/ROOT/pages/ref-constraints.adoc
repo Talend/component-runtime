@@ -1,5 +1,7 @@
-= Constraints
+= Component field constraints and validations
 :page-partial:
 :page-talend_skipindexation:
+
+You can use metadata to specify that a field is required or has a minimum size, and so on. This is done using the validation metadata in the org.talend.sdk.component.api.configuration.constraint package:
 
 include::{partialsdir}/generated_constraints.adoc[leveloffset=+1]

@@ -49,11 +49,8 @@ syntax in `@Ui` annotation. Here is an example to read the default value of a pr
 private String value;
 ----
 
-IMPORTANT: it is super important to ensure your key is unique accross all component since one usage will be to override
-it globally on the JVM. In practise we recommand you to always use the family as a prefix.
-
-Also note that you can use `@Configuration("prefix")` to inject in a component
-a mapping of the `LocalConfiguration`. It uses the same rules as for any configuration object.
+IMPORTANT: Ensure your key is unique across all components to avoid global overrides on the JVM. In practice, it is strongly recommended to always use the family as a prefix. +
+Also note that you can use `@Configuration("prefix")` to inject a mapping of the `LocalConfiguration` in a component. It uses the same rules as for any configuration object.
 
 [[httpclient_usage]]
 == Using HttpClient

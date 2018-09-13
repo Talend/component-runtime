@@ -1,4 +1,4 @@
-= HTTP API
+= Component Server HTTP API reference
 :page-partial:
 :page-talend_swaggerui: true
 :page-talend_skipindexation:
