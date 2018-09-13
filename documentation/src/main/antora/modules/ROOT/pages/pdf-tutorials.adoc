@@ -15,3 +15,5 @@ include::tutorial-test-rest-api.adoc[leveloffset=+1]
 include::tutorial-test-your-components.adoc[leveloffset=+1]
 
 include::tutorial-dev-vs-ci-setup.adoc[leveloffset=+1]
+
+include::tutorial-handle-talend-component-migration.adoc[leveloffset=+1]

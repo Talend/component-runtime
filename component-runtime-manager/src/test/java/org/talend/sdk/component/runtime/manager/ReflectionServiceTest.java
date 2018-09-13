@@ -16,7 +16,9 @@
 package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -35,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -47,10 +50,17 @@ import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.constraint.Pattern;
 import org.talend.sdk.component.api.configuration.constraint.Required;
+import org.talend.sdk.component.api.service.cache.LocalCache;
+import org.talend.sdk.component.api.service.configuration.Configuration;
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
+import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
@@ -61,6 +71,30 @@ class ReflectionServiceTest {
     private final ParameterModelService parameterModelService = new ParameterModelService();
 
     private final ReflectionService reflectionService = new ReflectionService(parameterModelService);
+
+    @Test
+    void configurationFromLocalConf() throws NoSuchMethodException {
+        final Properties properties = new Properties();
+        properties.setProperty("test.myconfig.url", "http://foo");
+        properties.setProperty("myconfig.user", "set");
+        final Function<Map<String, String>, Object[]> factory =
+                getComponentFactory(MyConfig.class, new HashMap<Class<?>, Object>() {
+
+                    {
+                        put(LocalConfiguration.class, new LocalConfigurationService(
+                                singletonList(new PropertiesConfiguration(properties)), "test"));
+                        put(LocalCache.class, new LocalCacheService("test"));
+                    }
+                });
+        final MyConfig myConfig = MyConfig.class.cast(factory.apply(new HashMap<String, String>() {
+
+            {
+                put("myconfig.url", "ignored");
+            }
+        })[0]);
+        assertEquals("http://foo", myConfig.url);
+        assertEquals("set", myConfig.user);
+    }
 
     @Test
     void validationRequiredStringOk() throws NoSuchMethodException {
@@ -313,7 +347,7 @@ class ReflectionServiceTest {
     void nestedObject() throws NoSuchMethodException {
         final Object[] params = reflectionService
                 .parameterFactory(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class),
-                        emptyMap(), null)
+                        emptyMap(), emptyList())
                 .apply(new HashMap<String, String>() {
 
                     {
@@ -391,11 +425,18 @@ class ReflectionServiceTest {
         }
     }
 
+    private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,
+            final Map<Class<?>, Object> services) throws NoSuchMethodException {
+        final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);
+        return reflectionService.parameterFactory(constructor, services,
+                parameterModelService.buildParameterMetas(constructor,
+                        constructor.getDeclaringClass().getPackage().getName(),
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test"))));
+    }
+
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param)
             throws NoSuchMethodException {
-        final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);
-        return reflectionService.parameterFactory(constructor, emptyMap(), parameterModelService
-                .buildParameterMetas(constructor, constructor.getDeclaringClass().getPackage().getName()));
+        return getComponentFactory(param, emptyMap());
     }
 
     @Data
@@ -495,6 +536,10 @@ class ReflectionServiceTest {
 
     public static class FakeComponent {
 
+        public FakeComponent(@Configuration("myconfig") final MyConfig config) {
+            // no-op
+        }
+
         public FakeComponent(@Option("root") final SomeConfig config) {
             // no-op
         }
@@ -514,5 +559,14 @@ class ReflectionServiceTest {
         public FakeComponent(@Option("root") final SomeConfig5 config5) {
             // no-op
         }
+    }
+
+    public static class MyConfig {
+
+        @Option
+        private String url;
+
+        @Option
+        private String user;
     }
 }

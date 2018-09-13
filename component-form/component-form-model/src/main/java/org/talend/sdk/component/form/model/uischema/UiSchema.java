@@ -16,15 +16,16 @@
 package org.talend.sdk.component.form.model.uischema;
 
 import static java.util.Arrays.asList;
-import static java.util.Locale.ROOT;
+import static java.util.Collections.singletonMap;
+import static java.util.Collections.unmodifiableMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
@@ -52,7 +53,7 @@ public class UiSchema {
 
     private Boolean readOnly;
 
-    private Boolean required;
+    private Boolean required; // warn: the uischema parsing handles it but it is preferred to use jsonSchema syntax
 
     private Boolean restricted;
 
@@ -62,7 +63,7 @@ public class UiSchema {
 
     private Collection<NameValue> titleMap;
 
-    private Condition condition;
+    private Map<String, Collection<Object>> condition;
 
     public static Builder uiSchema() {
         return new Builder();
@@ -80,107 +81,60 @@ public class UiSchema {
         return new Parameter.Builder();
     }
 
-    public static Condition.Builder condition() {
-        return new Condition.Builder();
+    public static ConditionBuilder condition() {
+        return new ConditionBuilder();
     }
 
-    public enum ConditionOperator {
-        AND,
-        OR
+    public static final class ConditionBuilder {
+
+        private final Map<String, Collection<Object>> values = new LinkedHashMap<>();
+
+        public ConditionValuesBuilder withOperator(final String operator) {
+            return new ConditionValuesBuilder(this, operator);
+        }
+
+        public Map<String, Collection<Object>> build() {
+            if (values.isEmpty()) {
+                throw new IllegalArgumentException("Empty condition, did you think about calling up()?");
+            }
+            return unmodifiableMap(values);
+        }
     }
 
-    @Data
-    public static class Condition {
+    @AllArgsConstructor
+    public static final class ConditionValuesBuilder {
 
-        private String path;
+        private final ConditionBuilder builder;
 
-        private Collection<Object> values;
+        private final String operator;
 
-        private boolean shouldBe;
+        private final Collection<Object> values = new ArrayList<>(2);
 
-        private String strategy;
+        public <T> ConditionValuesBuilder withVar(final String var) {
+            values.add(singletonMap("var", var));
+            return this;
+        }
 
-        private Collection<Condition> children;
+        public <T> ConditionValuesBuilder withValues(final Collection<T> values) {
+            this.values.add(values);
+            return this;
+        }
 
-        private ConditionOperator childrenOperator;
+        public <T> ConditionValuesBuilder withValue(final T value) {
+            values.add(value);
+            return this;
+        }
 
-        public static final class Builder {
-
-            private String path;
-
-            private Collection<Object> values;
-
-            private boolean shouldBe;
-
-            private String strategy;
-
-            private Collection<Condition> children;
-
-            private ConditionOperator childrenOperator;
-
-            public Builder withChildren(final Condition... children) {
-                if (this.children == null) {
-                    this.children = new ArrayList<>();
-                }
-                this.children.addAll(asList(children));
-                return this;
+        public ConditionBuilder up() {
+            if (values.isEmpty()) {
+                throw new IllegalArgumentException("No value set, call withValue()");
             }
+            builder.values.put(operator, values);
+            return builder;
+        }
 
-            public Builder withChildren(final Collection<Condition> children) {
-                if (this.children == null) {
-                    this.children = new ArrayList<>();
-                }
-                this.children.addAll(children);
-                return this;
-            }
-
-            public Builder withChildrenOperator(final ConditionOperator childrenOperator) {
-                this.childrenOperator = childrenOperator;
-                return this;
-            }
-
-            public Builder withShouldBe(final boolean value) {
-                this.shouldBe = value;
-                return this;
-            }
-
-            public Builder withStrategy(final String strategy) {
-                this.strategy =
-                        strategy == null || "DEFAULT".equals(strategy) ? null : strategy.trim().toLowerCase(ROOT);
-                return this;
-            }
-
-            public Builder withPath(final String path) {
-                this.path = path;
-                return this;
-            }
-
-            public Builder withValues(final Collection<Object> values) {
-                if (this.values == null) {
-                    this.values = new ArrayList<>();
-                }
-                this.values.addAll(values);
-                return this;
-            }
-
-            public Builder withValue(final Object value) {
-                if (this.values == null) {
-                    this.values = new ArrayList<>();
-                }
-                this.values.add(value);
-                return this;
-            }
-
-            public Condition build() {
-                final Condition nameValue = new Condition();
-                nameValue.setPath(path);
-                nameValue.setValues(values);
-                nameValue.setShouldBe(shouldBe);
-                nameValue.setStrategy(strategy);
-                nameValue.setChildren(children);
-                nameValue.setChildrenOperator(childrenOperator);
-                return nameValue;
-            }
+        public Map<String, Collection<Object>> build() {
+            return up().build();
         }
     }
 
@@ -408,8 +362,6 @@ public class UiSchema {
 
         private Collection<NameValue> titleMap;
 
-        private JsonSchema schema;
-
         public Builder withKey(final String key) {
             this.key = key;
             return this;
@@ -519,11 +471,6 @@ public class UiSchema {
                 this.titleMap = new ArrayList<>();
             }
             this.titleMap.addAll(titleMap);
-            return this;
-        }
-
-        public Builder withSchema(final JsonSchema schema) {
-            this.schema = schema;
             return this;
         }
 

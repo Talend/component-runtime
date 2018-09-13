@@ -786,8 +786,8 @@ public class Generator {
                             stream.println("[source,js]");
                             stream.println("----");
                             stream.println(jsonb
-                                    .toJson(enricher.onParameterAnnotation("test", String.class,
-                                            generateAnnotation(type)))
+                                    .toJson(new TreeMap<>(enricher.onParameterAnnotation("test", String.class,
+                                            generateAnnotation(type))))
                                     .replace("tcomp::", ""));
                             stream.println("----");
                             stream.println();
@@ -819,8 +819,8 @@ public class Generator {
                             stream.println();
                             stream.println("[source,js]");
                             stream.println("----");
-                            stream.println(jsonb.toJson(
-                                    enricher.onParameterAnnotation("value", String.class, generateAnnotation(type))));
+                            stream.println(jsonb.toJson(new TreeMap<>(
+                                    enricher.onParameterAnnotation("value", String.class, generateAnnotation(type)))));
                             stream.println("----");
                             stream.println();
                         });
@@ -872,8 +872,8 @@ public class Generator {
                             stream.println("[source,js]");
                             stream.println("----");
                             stream.println(jsonb
-                                    .toJson(enricher.onParameterAnnotation("test", constraint.types[0],
-                                            generateAnnotation(constraint.marker)))
+                                    .toJson(new TreeMap<>(enricher.onParameterAnnotation("test", constraint.types[0],
+                                            generateAnnotation(constraint.marker))))
                                     .replace("tcomp::", ""));
                             stream.println("----");
                             stream.println();

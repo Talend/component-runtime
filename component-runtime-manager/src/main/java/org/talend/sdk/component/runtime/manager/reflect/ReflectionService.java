@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.reflect;
 
 import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toList;
@@ -24,10 +25,12 @@ import static java.util.stream.Collectors.toSet;
 
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,7 +59,11 @@ import javax.script.ScriptException;
 import org.apache.xbean.propertyeditor.PropertyEditors;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
+import org.talend.sdk.component.api.service.cache.LocalCache;
+import org.talend.sdk.component.api.service.configuration.Configuration;
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -93,6 +100,54 @@ public class ReflectionService {
                     final String name = parameterModelService.findName(parameter, parameter.getName());
                     final Type parameterizedType = parameter.getParameterizedType();
                     if (Class.class.isInstance(parameterizedType)) {
+                        if (parameter.isAnnotationPresent(Configuration.class)) {
+                            try {
+                                final Constructor constructor = Class.class.cast(parameterizedType).getConstructor();
+                                final LocalConfiguration config =
+                                        LocalConfiguration.class.cast(precomputed.get(LocalConfiguration.class));
+                                final LocalCache cache = LocalCache.class.cast(precomputed.get(LocalCache.class));
+                                if (cache == null || config == null) {
+                                    return (Function<Map<String, String>, Object>) c -> null;
+                                }
+
+                                final String prefix = parameter.getAnnotation(Configuration.class).value();
+                                final ParameterMeta objectMeta = parameterModelService.buildParameter(prefix, prefix,
+                                        new ParameterMeta.Source() {
+
+                                            @Override
+                                            public String name() {
+                                                return parameter.getName();
+                                            }
+
+                                            @Override
+                                            public Class<?> declaringClass() {
+                                                return constructor.getDeclaringClass();
+                                            }
+                                        }, parameter.getType(), parameter.getAnnotations(),
+                                        Stream
+                                                .of(ofNullable(constructor.getDeclaringClass().getPackage())
+                                                        .map(Package::getName)
+                                                        .orElse(""))
+                                                .collect(toList()),
+                                        true, new BaseParameterEnricher.Context(config));
+                                final BiFunction<String, Map<String, Object>, Object> objectFactory =
+                                        createObjectFactory(loader, contextualSupplier, parameterizedType,
+                                                objectMeta.getNestedParameters());
+                                final Function<Map<String, Object>, Object> factory =
+                                        c -> objectFactory.apply(prefix, c);
+                                return (Function<Map<String, String>, Object>) ignoredDependentConfig -> {
+                                    final Map<String, Object> configMap = config
+                                            .keys()
+                                            .stream()
+                                            .filter(it -> objectMeta.getNestedParameters().stream().anyMatch(
+                                                    p -> it.startsWith(prefix + '.' + p.getName())))
+                                            .collect(toMap(identity(), config::get));
+                                    return factory.apply(configMap);
+                                };
+                            } catch (final NoSuchMethodException e) {
+                                throw new IllegalArgumentException("No constructor for " + parameter);
+                            }
+                        }
                         final Object value = precomputed.get(parameterizedType);
                         if (value != null) {
                             if (Copiable.class.isInstance(value)) {
@@ -518,8 +573,25 @@ public class ReflectionService {
         preparedMaps.forEach(recipe::setProperty);
         preparedLists.forEach(recipe::setProperty);
         preparedObjects.forEach(recipe::setProperty);
-        normalizedConfig.forEach(recipe::setProperty);
+        if (!normalizedConfig.isEmpty()) {
+            normalizedConfig.entrySet().stream().map(it -> normalize(it, metas)).forEach(
+                    e -> recipe.setProperty(e.getKey(), e.getValue()));
+        }
         return recipe.create(loader);
+    }
+
+    private Map.Entry<String, Object> normalize(final Map.Entry<String, Object> it, final List<ParameterMeta> metas) {
+        return metas == null ? it : metas.stream().filter(m -> m.getName().equals(it.getKey())).findFirst().map(m -> {
+            final String name = findName(m);
+            if (name.equals(it.getKey())) {
+                return it;
+            }
+            return new AbstractMap.SimpleEntry<>(name, it.getValue());
+        }).orElse(it);
+    }
+
+    private String findName(final ParameterMeta m) {
+        return ofNullable(m.getSource()).map(ParameterMeta.Source::name).orElse(m.getName());
     }
 
     private void doValidate(final List<ParameterMeta> metas, final Map<String, Object> preparedLists,

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.monitoring;
+package org.talend.test.valid.update;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.update.Update;
 
-import zipkin2.Span;
-import zipkin2.reporter.Reporter;
+@Service
+public class UpdateService {
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-@ApplicationScoped
-public class MonitoringLogger implements Reporter<Span> {
-
-    @Override
-    public void report(final Span span) {
-        log.info(span.toString());
+    @Update("foo")
+    Model update() {
+        return new Model();
     }
 }

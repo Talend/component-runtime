@@ -65,16 +65,20 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
             urlConnection = HttpURLConnection.class.cast(url.openConnection());
             urlConnection.setRequestMethod(request.getMethodType());
             request.getHeaders().forEach(urlConnection::setRequestProperty);
+
+            final boolean hasBody = request.getBody().isPresent();
+            final byte[] body = hasBody ? request.getBody().get() : null;
+
             if (request.getConfigurer() != null) {
-                request.getConfigurer().configure(new DefaultConnection(urlConnection),
+                request.getConfigurer().configure(new DefaultConnection(urlConnection, body),
                         request.getConfigurationOptions());
             }
 
-            if (request.getBody().isPresent()) {
+            if (hasBody) {
                 urlConnection.setDoOutput(true);
                 try (final BufferedOutputStream outputStream =
                         new BufferedOutputStream(urlConnection.getOutputStream())) {
-                    outputStream.write(request.getBody().get());
+                    outputStream.write(body);
                     outputStream.flush();
                 }
             }
@@ -84,7 +88,15 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
             final byte[] error;
             final byte[] response;
             try {
-                response = slurp(urlConnection.getInputStream());
+                final InputStream inputStream = urlConnection.getInputStream();
+                if (getResponseType() == InputStream.class) {
+                    if (isResponse()) {
+                        return new InputStreamResponse(responseCode, PassthroughDecoder.INSTANCE,
+                                headers(urlConnection), null, inputStream);
+                    }
+                    return inputStream;
+                }
+                response = slurp(inputStream, urlConnection.getContentLength());
                 if (!isResponse()) {
                     return byte[].class == getResponseType() ? response
                             : decoderMatcher.select(getDecoders(), contentType).decode(response, getResponseType());
@@ -92,14 +104,14 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
                 return new ResponseImpl(responseCode,
                         byte[].class == getResponseType() ? PassthroughDecoder.INSTANCE
                                 : decoderMatcher.select(getDecoders(), contentType),
-                        getResponseType(), headers(urlConnection), response, null);
+                        headers(urlConnection), null, response, getResponseType());
             } catch (final IOException e) {
-                error = ofNullable(urlConnection.getErrorStream()).map(ExecutionContext::slurp).orElseGet(
+                error = ofNullable(urlConnection.getErrorStream()).map(s -> slurp(s, -1)).orElseGet(
                         () -> ofNullable(e.getMessage()).map(s -> s.getBytes(StandardCharsets.UTF_8)).orElse(null));
                 final Response<Object> errorResponse = new ResponseImpl(responseCode,
                         byte[].class == getResponseType() ? PassthroughDecoder.INSTANCE
                                 : decoderMatcher.select(getDecoders(), contentType),
-                        getResponseType(), headers(urlConnection), null, error);
+                        headers(urlConnection), error, null, getResponseType());
 
                 if (isResponse()) {
                     return errorResponse;
@@ -116,9 +128,9 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
         }
     }
 
-    private static byte[] slurp(final InputStream responseStream) {
+    private static byte[] slurp(final InputStream responseStream, final int len) {
         final byte[] buffer = new byte[8192];
-        final ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream(buffer.length);
+        final ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream(len > 0 ? len : buffer.length);
         try (final InputStream inputStream = responseStream) {
             int count;
             while ((count = inputStream.read(buffer)) >= 0) {
@@ -141,6 +153,28 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
     private static class DefaultConnection implements Configurer.Connection {
 
         private final HttpURLConnection urlConnection;
+
+        private final byte[] payload;
+
+        @Override
+        public String getMethod() {
+            return urlConnection.getRequestMethod();
+        }
+
+        @Override
+        public String getUrl() {
+            return urlConnection.getURL().toExternalForm();
+        }
+
+        @Override
+        public Map<String, List<String>> getHeaders() {
+            return urlConnection.getHeaderFields();
+        }
+
+        @Override
+        public byte[] getPayload() {
+            return payload;
+        }
 
         @Override
         public Configurer.Connection withHeader(final String name, final String value) {
@@ -172,17 +206,13 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
     }
 
     @AllArgsConstructor
-    private static class ResponseImpl<T> implements Response<T> {
+    private static abstract class BaseResponse<T> implements Response<T> {
 
         private final int status;
 
-        private final Decoder decoder;
-
-        private final Type responseType;
+        protected final Decoder decoder;
 
         private Map<String, List<String>> headers;
-
-        private byte[] responseBody;
 
         private byte[] error;
 
@@ -194,15 +224,6 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
         @Override
         public Map<String, List<String>> headers() {
             return headers;
-        }
-
-        @Override
-        public T body() {
-            if (responseBody == null) {
-                return null;
-            }
-
-            return byte[].class == responseType ? (T) responseBody : (T) decoder.decode(responseBody, responseType);
         }
 
         @Override
@@ -218,4 +239,42 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
         }
     }
 
+    private static class InputStreamResponse<T> extends BaseResponse<InputStream> {
+
+        private final InputStream inputStream;
+
+        private InputStreamResponse(final int status, final Decoder decoder, final Map<String, List<String>> headers,
+                final byte[] error, final InputStream inputStream) {
+            super(status, decoder, headers, error);
+            this.inputStream = inputStream;
+        }
+
+        @Override
+        public InputStream body() {
+            return inputStream;
+        }
+    }
+
+    private static class ResponseImpl<T> extends BaseResponse<T> {
+
+        private final byte[] responseBody;
+
+        private final Type responseType;
+
+        private ResponseImpl(final int status, final Decoder decoder, final Map<String, List<String>> headers,
+                final byte[] error, final byte[] responseBody, final Type responseType) {
+            super(status, decoder, headers, error);
+            this.responseBody = responseBody;
+            this.responseType = responseType;
+        }
+
+        @Override
+        public T body() {
+            if (responseBody == null) {
+                return null;
+            }
+
+            return byte[].class == responseType ? (T) responseBody : (T) decoder.decode(responseBody, responseType);
+        }
+    }
 }

@@ -53,6 +53,7 @@ public class ValidateTask extends TaCoKitTask {
         set(configuration, "setValidateDocumentation", extension.isValidateDocumentation());
         set(configuration, "setValidateLayout", extension.isValidateLayout());
         set(configuration, "setValidateOptionNames", extension.isValidateOptionNames());
+        set(configuration, "setValidateLocalConfiguration", extension.isValidateLocalConfiguration());
 
         final Class<?> validator = tccl.loadClass("org.talend.sdk.component.tools.ComponentValidator");
         final Runnable runnable =

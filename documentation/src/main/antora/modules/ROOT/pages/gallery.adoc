@@ -3,7 +3,11 @@
 :description: Sample screenshots of the Talend Component Kit available widgets and validation methods
 :keywords: Widget, validation
 
+This gallery shows how widgets and validations are rendered in both Studio and web environments, along with sample implementation code.
+
 == Widgets
+
+Widgets allow to easily implement different types of input fields to your components.
 
 === Input/Text
 
@@ -101,7 +105,7 @@ enum ActionEnum {
     Delete,
     Insert,
     Update
-    }
+}
 ----
 
 [cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
@@ -118,7 +122,7 @@ enum ActionEnum {
 [source,java]
 ----
 @Option
-Object config;
+List<MyObject> config;
 ----
 
 [cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
@@ -167,6 +171,8 @@ List<String> config;
 
 
 == Validations
+
+Validations help restricting what can be entered or selected in an input field, to make sure that the value complies with the expected type of information.
 
 === Property validation
 

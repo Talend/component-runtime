@@ -41,6 +41,11 @@ TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the Pla
 This allows to use a custom `@Ui` API and advanced modeling when specific to applications. +
 Converters are sorted respecting to the `@Priority` value. If the annotation is missing, the priority defaults to `0`.
 
+=== Enabling help/hints
+
+It is possible to show under the inputs the help about each property.
+To do that, you must set a `PropertyContext.Configuration` instance on `UiSpecService` with the `includeDocumentationMetadata` attribute set to `true`.
+
 === Client in Play
 
 The client to use to connect to the Talend Component Kit server is the CXF client, using HttpClient HC (NIO) transport. When you use the Play module, it can be configured with its standard properties prefixed by `talend.component.proxy.`.

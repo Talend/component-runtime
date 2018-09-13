@@ -61,7 +61,8 @@ public class ArrayPropertyConverter implements PropertyConverter {
                 return CompletableFuture
                         .allOf(arrayElements
                                 .stream()
-                                .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                                .map(it -> new PropertyContext<>(it, context.getRootContext(),
+                                        context.getConfiguration()))
                                 .map(CompletionStages::toStage)
                                 .map(e -> new JsonSchemaConverter(jsonb, items, emptyList()).convert(e))
                                 .toArray(CompletableFuture[]::new))

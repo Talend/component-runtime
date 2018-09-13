@@ -33,6 +33,10 @@ public class FamilyBundle extends InternalBundle {
         return readValue("_displayName");
     }
 
+    public Optional<String> actionDisplayName(final String type, final String name) {
+        return readRawValue(prefix + ".actions." + type + "." + name + "._displayName");
+    }
+
     public Optional<String> configurationDisplayName(final String type, final String name) {
         return readValue(type + "." + name + "._displayName");
     }

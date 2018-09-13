@@ -46,7 +46,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 abstract class BaseTask implements Runnable {
 
-    private final File[] classes;
+    protected final File[] classes;
 
     protected ComponentValidator.Component asComponent(final Annotation a) {
         return ComponentValidator.Component.class.cast(Proxy.newProxyInstance(

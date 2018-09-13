@@ -15,11 +15,11 @@
  */
 package org.talend.sdk.component.server.service;
 
+import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -30,6 +30,7 @@ import javax.inject.Inject;
 
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.repository.Config;
+import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -46,33 +47,38 @@ public class ActionsService {
     private PropertiesService propertiesService;
 
     public Collection<ActionReference> findActions(final String family, final Container container, final Locale locale,
-            final ComponentFamilyMeta.BaseMeta<Object> meta) {
-        final Set<ActionReference> actions = getActionReference(meta);
-        return findActions(family, actions, container, locale);
+            final ComponentFamilyMeta.BaseMeta<Object> meta, final FamilyBundle familyBundle) {
+        final Set<ActionReference> actions = getActionReference(meta, familyBundle);
+        return findActions(family, actions, container, locale, familyBundle);
     }
 
     public Collection<ActionReference> findActions(final String family, final Container container, final Locale locale,
-            final Config config) {
+            final Config config, final FamilyBundle familyBundle) {
         final Set<ActionReference> actions =
-                getActionReference(toStream(Collections.singleton(config.getMeta())), family);
-        return findActions(family, actions, container, locale);
+                getActionReference(toStream(singleton(config.getMeta())), family, familyBundle);
+        return findActions(family, actions, container, locale, familyBundle);
     }
 
-    public Set<ActionReference> getActionReference(final ComponentFamilyMeta.BaseMeta<Object> meta) {
-        return getActionReference(toStream(meta.getParameterMetas()), meta.getParent().getName());
+    public Set<ActionReference> getActionReference(final ComponentFamilyMeta.BaseMeta<Object> meta,
+            final FamilyBundle familyBundle) {
+        return getActionReference(toStream(meta.getParameterMetas()), meta.getParent().getName(), familyBundle);
     }
 
-    public Set<ActionReference> getActionReference(final Stream<ParameterMeta> parameters, final String familyName) {
+    public Set<ActionReference> getActionReference(final Stream<ParameterMeta> parameters, final String familyName,
+            final FamilyBundle familyBundle) {
         return parameters
                 .flatMap(p -> p.getMetadata().entrySet().stream())
                 .filter(e -> e.getKey().startsWith(ActionParameterEnricher.META_PREFIX))
-                .map(e -> new ActionReference(familyName, e.getValue(),
-                        e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()), null))
+                .map(e -> {
+                    final String type = e.getKey().substring(ActionParameterEnricher.META_PREFIX.length());
+                    return new ActionReference(familyName, e.getValue(), type,
+                            familyBundle.actionDisplayName(type, e.getValue()).orElse(e.getValue()), null);
+                })
                 .collect(toSet());
     }
 
     private Collection<ActionReference> findActions(final String family, final Set<ActionReference> actions,
-            final Container container, final Locale locale) {
+            final Container container, final Locale locale, final FamilyBundle familyBundle) {
         final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
         return registry
                 .getServices()
@@ -84,6 +90,7 @@ public class ActionsService {
                         .anyMatch(e -> s.getFamily().equals(e.getFamily()) && s.getType().equals(e.getType())
                                 && s.getAction().equals(e.getName())))
                 .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(),
+                        familyBundle.actionDisplayName(s.getType(), s.getAction()).orElse(s.getAction()),
                         propertiesService
                                 .buildProperties(s.getParameters(), container.getLoader(), locale, null)
                                 .collect(toList())))

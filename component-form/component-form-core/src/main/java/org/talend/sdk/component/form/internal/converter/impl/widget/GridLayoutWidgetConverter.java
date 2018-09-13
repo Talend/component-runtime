@@ -132,8 +132,8 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
             if (line.length == 1 && childProperties.containsKey(line[0])) {
                 return new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), visitedProperties, client,
                         jsonSchema, properties, actions, lang, customPropertyConverters)
-                                .convert(completedFuture(
-                                        new PropertyContext<>(childProperties.get(line[0]), root.getRootContext())))
+                                .convert(completedFuture(new PropertyContext<>(childProperties.get(line[0]),
+                                        root.getRootContext(), root.getConfiguration())))
                                 .thenApply(r -> uiSchema);
             } else if (line.length > 1) {
                 final UiSchema schema = new UiSchema();
@@ -149,7 +149,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                                 .map(String::trim)
                                 .map(childProperties::get)
                                 .filter(Objects::nonNull)
-                                .map(it -> new PropertyContext<>(it, root.getRootContext()))
+                                .map(it -> new PropertyContext<>(it, root.getRootContext(), root.getConfiguration()))
                                 .map(CompletionStages::toStage)
                                 .map(columnConverter::convert)
                                 .toArray(CompletableFuture[]::new))

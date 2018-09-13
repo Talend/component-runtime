@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.configuration;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,6 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -222,7 +225,8 @@ class ConfigurationMapperTest {
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,
                 final Annotation[] annotations, final Collection<String> i18nPackages) {
-            return super.buildParameter(name, prefix, null, genericType, annotations, i18nPackages, false);
+            return super.buildParameter(name, prefix, null, genericType, annotations, i18nPackages, false,
+                    new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         }
     }
 }

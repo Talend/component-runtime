@@ -26,7 +26,7 @@ abstract class InternalBundle {
 
     private final ResourceBundle[] bundles;
 
-    private final String prefix;
+    protected final String prefix;
 
     protected Optional<String> readValue(final String key) {
         return readRawValue(prefix + key);

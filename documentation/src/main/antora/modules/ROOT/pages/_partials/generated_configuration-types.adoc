@@ -9,8 +9,8 @@ Mark a model (complex object) as being a dataset.
 [source,js]
 ----
 {
-  "tcomp::configurationtype::type":"dataset",
-  "tcomp::configurationtype::name":"test"
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"dataset"
 }
 ----
 
@@ -25,8 +25,8 @@ Mark a model (complex object) as being a datastore (connection to a backend).
 [source,js]
 ----
 {
-  "tcomp::configurationtype::type":"datastore",
-  "tcomp::configurationtype::name":"test"
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"datastore"
 }
 ----
 

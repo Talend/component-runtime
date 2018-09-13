@@ -1,18 +1,23 @@
 #!/usr/bin/env bash
 
 KAFKA_VERSION=1.1.0
+GERONIMO_OPENTRACING_VERSION=1.0.0
+OPENTRACING_API_VERSION=0.31.0
+MICROPROFILE_OPENTRACING_API_VERSION=1.1
 SERVER_VERSION=$(grep "<version>" pom.xml  | head -n 1 | sed "s/.*>\\(.*\\)<.*/\\1/")
 DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION:-$SERVER_VERSION}
 # if snapshot use the date as version
 if [[ "$DOCKER_IMAGE_VERSION" = *"SNAPSHOT" ]]; then
-    DOCKER_IMAGE_VERSION=$(echo $SERVER_VERSION | sed "s/-SNAPSHOT//")_$(date +%Y%m%d%I%M%S)
+    DOCKER_IMAGE_VERSION=$(echo $SERVER_VERSION | sed "s/-SNAPSHOT//")_$(date +%Y%m%d%H%M%S)
 fi
 IMAGE=$(echo "${DOCKER_LOGIN:-tacokit}/component-server:$DOCKER_IMAGE_VERSION")
 DOCKER_TMP_DIR="$(pwd)/target/docker_workdir"
 
-echo "Prebuilding the project"
 if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
-    mvn clean install -pl component-server-parent/component-server -am -T2C -e -q $DEPLOY_OPTS
+    echo "Prebuilding the component-server"
+    mvn clean install -pl component-server-parent/component-server \
+        -am -T2C -e $DEPLOY_OPTS \
+        -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar
 else
     echo "Assuming build is done as requested through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
 fi
@@ -27,14 +32,20 @@ cp -v -r .docker/conf $DOCKER_TMP_DIR/conf
 cp -v -r .docker/bin $DOCKER_TMP_DIR/bin
 cd $DOCKER_TMP_DIR
 
-echo "Grabbing kafka client"
+echo "Grabbing libraries (kafka client, opentracing-api, geronimo-opentracing, microprofile-opentracing-api)"
 mvn dependency:copy -Dartifact=org.apache.kafka:kafka-clients:$KAFKA_VERSION -DoutputDirectory=.
+mvn dependency:copy -Dartifact=org.eclipse.microprofile.opentracing:microprofile-opentracing-api:$MICROPROFILE_OPENTRACING_API_VERSION -DoutputDirectory=.
+mvn dependency:copy -Dartifact=io.opentracing:opentracing-api:$OPENTRACING_API_VERSION -DoutputDirectory=.
+mvn dependency:copy -Dartifact=org.apache.geronimo:geronimo-opentracing:$GERONIMO_OPENTRACING_VERSION -DoutputDirectory=.
 
 echo "Building image >$IMAGE<"
 docker build --tag "$IMAGE" \
   --build-arg SERVER_VERSION=$SERVER_VERSION \
   --build-arg DOCKER_IMAGE_VERSION=$DOCKER_IMAGE_VERSION \
   --build-arg KAFKA_CLIENT_VERSION=$KAFKA_VERSION \
+  --build-arg GERONIMO_OPENTRACING_VERSION=$GERONIMO_OPENTRACING_VERSION \
+  --build-arg OPENTRACING_API_VERSION=$OPENTRACING_API_VERSION \
+  --build-arg MICROPROFILE_OPENTRACING_API_VERSION=$MICROPROFILE_OPENTRACING_API_VERSION \
   --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) \
   --build-arg GIT_URL=$(git config --get remote.origin.url) \
   --build-arg GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) \

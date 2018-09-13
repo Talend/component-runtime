@@ -35,9 +35,8 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
 import org.talend.sdk.component.api.configuration.ui.meta.Ui;
-import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
-public class UiParameterEnricher implements ParameterExtensionEnricher {
+public class UiParameterEnricher extends BaseParameterEnricher {
 
     public static final String META_PREFIX = "tcomp::ui::";
 
@@ -47,8 +46,7 @@ public class UiParameterEnricher implements ParameterExtensionEnricher {
         final Ui condition = annotation.annotationType().getAnnotation(Ui.class);
         if (condition != null) {
             final String prefix = META_PREFIX + annotation.annotationType().getSimpleName().toLowerCase(ENGLISH) + "::";
-            if (GridLayouts.class == annotation.annotationType()) { // todo: make it generic checking @Repeatable on
-                                                                    // value()
+            if (GridLayouts.class == annotation.annotationType()) {
                 return Stream
                         .of(GridLayouts.class.cast(annotation).value())
                         .flatMap(a -> toConfig(a, prefix.substring(0, prefix.length() - 3) + "::").entrySet().stream())
@@ -60,8 +58,6 @@ public class UiParameterEnricher implements ParameterExtensionEnricher {
     }
 
     private Map<String, String> toConfig(final Annotation annotation, final String prefix) {
-        // todo: support any nested annotation based config? for now only this one is
-        // fine
         if (GridLayout.class == annotation.annotationType()) {
             final GridLayout layout = GridLayout.class.cast(annotation);
             return Stream
@@ -118,6 +114,16 @@ public class UiParameterEnricher implements ParameterExtensionEnricher {
             final String custom = customConversions.apply(invoke);
             if (custom != null) {
                 return custom;
+            }
+            if (String.class.isInstance(invoke)) {
+                final String string = String.valueOf(invoke);
+                if (string.startsWith("local_configuration:")) {
+                    return getContext()
+                            .map(context -> context.getConfiguration().get(
+                                    string.substring("local_configuration:".length())))
+                            .orElse(string);
+                }
+                return string;
             }
             if (Class.class.isInstance(invoke)) {
                 return Class.class.cast(invoke).getSimpleName().toLowerCase(ENGLISH);

@@ -126,6 +126,7 @@ class ComponentValidatorTest {
             cfg.setValidateDataStore(true);
             cfg.setValidateLayout(true);
             cfg.setValidateOptionNames(true);
+            cfg.setValidateLocalConfiguration(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -206,7 +207,7 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.action")
     void testFailureAction(final ExceptionSpec expectedException) {
         expectedException.expectMessage(
-                "public java.lang.String org.talend.test.failure.action.MyService.test(org.talend.test.failure.action.MyDataStore) doesn't return a class org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus, please fix it");
+                "public String org.talend.test.failure.action.MyService.test(org.talend.test.failure.action.MyDataStore) doesn't return a class org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus, please fix it");
     }
 
     @Test
@@ -290,7 +291,7 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.documentation.option", validateDocumentation = true)
     void testFailureDocumentationOption(final ExceptionSpec expectedException) {
         expectedException.expectMessage("Some error were detected:\n"
-                + "- No @Documentation on 'private java.lang.String org.talend.test.failure.documentation.option.MyComponent$MyConfig.input'");
+                + "- No @Documentation on 'private String org.talend.test.failure.documentation.option.MyComponent$MyConfig.input'");
     }
 
     @Test
@@ -303,8 +304,15 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.failure.missingaction18n")
+    void testMissingActionI18n(final ExceptionSpec spec) {
+        spec.expectMessage("org.talend.test.failure.missingaction18n.Messages is missing the key(s): "
+                + "actions.demo.healthcheck.default._displayName");
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid.datastore", success = true)
-    void testSucessDataStore() {
+    void testSuccessDataStore() {
         // no-op
     }
 
@@ -321,7 +329,7 @@ class ComponentValidatorTest {
         expectedException.expectMessage(
                 "- No source instantiable without adding parameters for @DataSet(\"dataset\") (org.talend.test"
                         + ".failure.datasetprocessornosource.MyComponent$MyDataSet), please ensure at least a source using this "
-                        + "dataset can be use just filling the dataset informations.");
+                        + "dataset can be used just filling the dataset information.");
     }
 
     @Test
@@ -330,7 +338,7 @@ class ComponentValidatorTest {
         expectedException.expectMessage(
                 "- No source instantiable without adding parameters for @DataSet(\"dataset\") (org.talend.test"
                         + ".failure.datasetrequiredinsource.MyComponent$MyDataSet), please ensure at least a source using this "
-                        + "dataset can be use just filling the dataset informations.");
+                        + "dataset can be used just filling the dataset information.");
     }
 
     @Test
@@ -369,20 +377,61 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage("org.talend.test.failure.localconfigurationwrongkey")
+    void testFailureLocalConfigurationKey(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "- 'demo.conf.key' does not start with 'test', it is recommended to prefix all keys by the family");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.localconfiguration", success = true)
+    void testValidLocalConfigurationKey() {
+        // no-op
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid", success = true, validateDocumentation = true)
     void testFullValidation() {
         // no-op
     }
 
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.update", success = true)
+    void testValidUpdate() {
+        // no-op
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.noupdatematching")
+    void testFailureUpdateMatching(final ExceptionSpec spec) {
+        spec.expectMessage("- No @Update service found for field "
+                + "private org.talend.test.failure.noupdatematching.Model org.talend.test.failure.noupdatematching.Config.model, "
+                + "did you intend to use @Updatable?");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.updatableafter")
+    void testFailureUpdateAfter(final ExceptionSpec spec) {
+        spec.expectMessage("- @Updatable.after should only reference direct child primitive fields");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.updatebadtype")
+    void testFailureUpdateBadType(final ExceptionSpec spec) {
+        spec.expectMessage("- @Updatable field 'private org.talend.test.failure.updatebadtype.Model "
+                + "org.talend.test.failure.updatebadtype.Config.model' does not match returned type of "
+                + "'String org.talend.test.failure.updatebadtype.UpdateService.update()'");
+    }
+
     // .properties are ok from the classpath, no need to copy them
     private static void listPackageClasses(final File pluginDir, final String sourcePackage) {
         final File root = new File(jarLocation(ComponentValidatorTest.class), sourcePackage);
-        File classDir = new File(pluginDir, sourcePackage);
+        final File classDir = new File(pluginDir, sourcePackage);
         classDir.mkdirs();
         ofNullable(root.listFiles())
                 .map(Stream::of)
                 .orElseGet(Stream::empty)
-                .filter(c -> c.getName().endsWith(".class"))
+                .filter(c -> c.getName().endsWith(".class") || c.getName().endsWith(".properties"))
                 .forEach(c -> {
                     try {
                         Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
@@ -390,5 +439,16 @@ class ComponentValidatorTest {
                         fail("cant create test plugin");
                     }
                 });
+        final String localConfRelativePath = "TALEND-INF/local-configuration.properties";
+        final File localConfig = new File(root, localConfRelativePath);
+        if (localConfig.exists()) {
+            final File output = new File(pluginDir, localConfRelativePath);
+            output.getParentFile().mkdirs();
+            try {
+                Files.copy(localConfig.toPath(), output.toPath());
+            } catch (final IOException e) {
+                fail("cant create test plugin");
+            }
+        }
     }
 }

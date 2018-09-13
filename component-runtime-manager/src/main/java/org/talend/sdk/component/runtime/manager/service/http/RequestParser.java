@@ -389,7 +389,7 @@ public class RequestParser {
 
     private static class QueryParamsProvider implements Function<Object[], Map<String, String>> {
 
-        private final Map<Integer, Encodable> queries = new HashMap<>();
+        private final Map<Integer, Encodable> queries = new LinkedHashMap<>();
 
         @Override
         public Map<String, String> apply(final Object[] args) {
@@ -414,13 +414,15 @@ public class RequestParser {
             })
                     .filter(Objects::nonNull)
                     .filter(e -> e.getValue() != null) // ignore null values
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
+                        throw new IllegalArgumentException("conflictings keys: " + a + '/' + b);
+                    }, LinkedHashMap::new));
         }
     }
 
     private static class HeadersProvider implements Function<Object[], Map<String, String>> {
 
-        private final Map<Integer, String> headers = new HashMap<>();
+        private final Map<Integer, String> headers = new LinkedHashMap<>();
 
         @Override
         public Map<String, String> apply(final Object[] args) {
@@ -436,14 +438,16 @@ public class RequestParser {
             })
                     .filter(Objects::nonNull)
                     .filter(e -> e.getValue() != null) // ignore null values
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
+                        throw new IllegalArgumentException("conflictings keys: " + a + '/' + b);
+                    }, LinkedHashMap::new));
         }
     }
 
     @RequiredArgsConstructor
     private static class PathProvider implements BiFunction<String, Object[], String> {
 
-        private final Map<Integer, Encodable> pathParams = new HashMap<>();
+        private final Map<Integer, Encodable> pathParams = new LinkedHashMap<>();
 
         /**
          * @param original : string with placeholders

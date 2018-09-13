@@ -78,7 +78,8 @@ public class JsonSchemaConverter implements PropertyConverter {
                 of(properties
                         .stream()
                         .filter(context::isDirectChild)
-                        .filter(nested -> new PropertyContext<>(nested, context.getRootContext()).isRequired())
+                        .filter(nested -> new PropertyContext<>(nested, context.getRootContext(),
+                                context.getConfiguration()).isRequired())
                         .map(SimplePropertyDefinition::getName)
                         .collect(toSet())).filter(s -> !s.isEmpty()).ifPresent(jsonSchema::setRequired);
                 return CompletableFuture.completedFuture(context).thenCompose(
@@ -135,7 +136,7 @@ public class JsonSchemaConverter implements PropertyConverter {
             return CompletableFuture
                     .allOf(nestedProperties
                             .stream()
-                            .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                            .map(it -> new PropertyContext<>(it, context.getRootContext(), context.getConfiguration()))
                             .map(CompletionStages::toStage)
                             .map(jsonSchemaConverter::convert)
                             .toArray(CompletableFuture[]::new))

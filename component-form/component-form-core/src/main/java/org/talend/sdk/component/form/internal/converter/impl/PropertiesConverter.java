@@ -55,7 +55,8 @@ public class PropertiesConverter implements PropertyConverter {
                         .allOf(properties
                                 .stream()
                                 .filter(context::isDirectChild)
-                                .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                                .map(it -> new PropertyContext<>(it, context.getRootContext(),
+                                        context.getConfiguration()))
                                 .map(CompletionStages::toStage)
                                 .map(propertiesConverter::convert)
                                 .toArray(CompletableFuture[]::new))
@@ -73,6 +74,12 @@ public class PropertiesConverter implements PropertyConverter {
                         } else if ("object".equalsIgnoreCase(property.getType())) {
                             defaults.put(property.getName(), jsonb.fromJson(value, Map.class));
                         } else {
+                            if ("string".equalsIgnoreCase(property.getType())
+                                    && property.getMetadata().keySet().stream().anyMatch(
+                                            k -> k.equals("action::suggestions")
+                                                    || k.equalsIgnoreCase("action::dynamic_values"))) {
+                                defaults.putIfAbsent("$" + property.getPath() + "_name", value);
+                            }
                             defaults.put(property.getName(), value);
                         }
                     });

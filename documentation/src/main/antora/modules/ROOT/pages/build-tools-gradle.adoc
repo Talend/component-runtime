@@ -55,6 +55,7 @@ talendComponentKit {
     validateDataStore = true
     validateDataSet = true
     validateActions = true
+    validateLocalConfiguration = true
 
     // web
     serverArguments = []
