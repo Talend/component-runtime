@@ -122,7 +122,7 @@ enum ActionEnum {
 [source,java]
 ----
 @Option
-Object config;
+List<MyObject> config;
 ----
 
 [cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
