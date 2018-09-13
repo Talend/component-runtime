@@ -1,5 +1,7 @@
-= Conditions
+= List of conditions for binding properties
 :page-partial:
 :page-talend_skipindexation:
+
+If you need to define a binding between properties, you can use a set of annotations:
 
 include::{partialsdir}/generated_conditions.adoc[leveloffset=+1]

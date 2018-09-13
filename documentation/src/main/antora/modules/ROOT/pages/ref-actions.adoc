@@ -1,5 +1,7 @@
-= Actions
+= List of available actions
 :page-partial:
 :page-talend_skipindexation:
+
+Some common actions need a clear contract so they are defined as API first-class citizen. For example, this is the case for wizards or health checks. Here is the list of the available actions:
 
 include::{partialsdir}/generated_actions.adoc[leveloffset=+1]
