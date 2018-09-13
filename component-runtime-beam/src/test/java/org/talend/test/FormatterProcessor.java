@@ -21,7 +21,6 @@ import java.io.Serializable;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
@@ -39,22 +38,25 @@ public class FormatterProcessor implements Serializable {
     }
 
     @ElementListener
-    public void length(@Input("firstName") final JsonObject firstName, @Input("lastName") final JsonObject lastName,
-            @Output("formatted-firstName") final OutputEmitter<JsonObject> lowerCase,
-            @Output("formatted-lastName") final OutputEmitter<JsonObject> upperCase) {
-        final JsonObjectBuilder internal = factory.createObjectBuilder().add("key",
-                (firstName == null ? lastName : firstName).getJsonObject("$$internal").getString("key"));
-        lowerCase.emit(firstName == null ? null
+    public void format(@Input("firstName") final JsonObject firstName, @Input("lastName") final JsonObject lastName,
+            @Output("formatted-firstName") final OutputEmitter<JsonObject> formattedFirstName,
+            @Output("formatted-lastName") final OutputEmitter<JsonObject> formatterLastName) {
+        final JsonObject internal = factory
+                .createObjectBuilder()
+                .add("key",
+                        (firstName == null ? lastName : firstName).getJsonObject("__talend_internal").getString("key"))
+                .build();
+        formattedFirstName.emit(firstName == null ? null
                 : factory
                         .createObjectBuilder()
                         .add("data", firstName.getString("data").toLowerCase(ROOT))
-                        .add("$$internal", internal)
+                        .add("__talend_internal", internal)
                         .build());
-        upperCase.emit(lastName == null ? null
+        formatterLastName.emit(lastName == null ? null
                 : factory
                         .createObjectBuilder()
                         .add("data", lastName.getString("data").toUpperCase(ROOT))
-                        .add("$$internal", internal)
+                        .add("__talend_internal", internal)
                         .build());
     }
 }

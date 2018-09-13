@@ -8,8 +8,6 @@ import java.util.stream.StreamSupport;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonObject;
-
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
@@ -19,6 +17,7 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.junit.beam.Data;
@@ -46,18 +45,18 @@ public class TInProcessorBeamTest {
         // Make sure to fil in some test data for the branches you want to test
         // You can also remove the branches that you don't need from the factory below
         final JoinInputFactory joinInputFactory =  new JoinInputFactory()
-                .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of JsonObject.class */));
+                .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of Record.class */));
 
         // Convert it to a beam "source"
-        final PCollection<JsonObject> inputs =
+        final PCollection<Record> inputs =
                 pipeline.apply(Data.of(processor.plugin(), joinInputFactory.asInputRecords()));
 
         // add our processor right after to see each data as configured previously
-        final PCollection<Map<String, JsonObject>> outputs = inputs.apply(TalendFn.asFn(processor))
-                .apply(Data.map(processor.plugin(), JsonObject.class));
+        final PCollection<Map<String, Record>> outputs = inputs.apply(TalendFn.asFn(processor))
+                .apply(Data.map(processor.plugin(), Record.class));
 
-        PAssert.that(outputs).satisfies((SerializableFunction<Iterable<Map<String, JsonObject>>, Void>) input -> {
-            final List<Map<String, JsonObject>> result = StreamSupport.stream(input.spliterator(), false).collect(toList());
+        PAssert.that(outputs).satisfies((SerializableFunction<Iterable<Map<String, Record>>, Void>) input -> {
+            final List<Map<String, Record>> result = StreamSupport.stream(input.spliterator(), false).collect(toList());
             //TODO - test the result here
 
             return null;

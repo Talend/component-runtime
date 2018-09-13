@@ -21,6 +21,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.Collection;
 import java.util.Map;
 
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.di.beam.components.QueueMapper;
 import org.talend.sdk.component.runtime.di.beam.components.QueueOutput;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -54,8 +55,8 @@ public class BeamDiExtension implements ComponentExtension {
 
     private <T> T doConvert(final ComponentInstance instance, final Class<T> component) {
         if (Mapper.class == component) {
-            final org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, org.apache.beam.sdk.values.PCollection<?>> begin =
-                    (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, org.apache.beam.sdk.values.PCollection<?>>) instance
+            final org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, org.apache.beam.sdk.values.PCollection<Record>> begin =
+                    (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, org.apache.beam.sdk.values.PCollection<Record>>) instance
                             .instance();
             return component.cast(new QueueMapper(instance.plugin(), instance.family(), instance.name(), begin));
         }

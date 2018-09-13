@@ -17,15 +17,14 @@ package org.talend.sdk.component.runtime.beam;
 
 import java.util.function.Consumer;
 
-import javax.json.JsonObject;
-
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
 import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.Instant;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.NoArgsConstructor;
@@ -36,30 +35,30 @@ public final class TalendFn {
         // no-op
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> asFn(final Processor processor) {
+    public static PTransform<PCollection<Record>, PCollection<Record>> asFn(final Processor processor) {
         return new ProcessorTransform(new ProcessorFn(processor));
     }
 
     @NoArgsConstructor
-    private static class ProcessorFn extends BaseProcessorFn<JsonObject> {
+    private static class ProcessorFn extends BaseProcessorFn<Record> {
 
         ProcessorFn(final Processor processor) {
             super(processor);
         }
 
         @Override
-        protected Consumer<JsonObject> toEmitter(final ProcessContext context) {
+        protected Consumer<Record> toEmitter(final ProcessContext context) {
             return context::output;
         }
 
         @Override
         protected BeamOutputFactory getFinishBundleOutputFactory(final FinishBundleContext context) {
             return new BeamMultiOutputFactory(record -> context.output(record, Instant.now(), GlobalWindow.INSTANCE),
-                    factory, jsonb);
+                    recordFactory, jsonb);
         }
     }
 
-    private static class ProcessorTransform extends PTransform<PCollection<JsonObject>, PCollection<JsonObject>> {
+    private static class ProcessorTransform extends PTransform<PCollection<Record>, PCollection<Record>> {
 
         private final ProcessorFn fn;
 
@@ -68,13 +67,13 @@ public final class TalendFn {
         }
 
         @Override
-        public PCollection<JsonObject> expand(final PCollection<JsonObject> input) {
+        public PCollection<Record> expand(final PCollection<Record> input) {
             return input.apply(ParDo.of(fn));
         }
 
         @Override
         protected Coder<?> getDefaultOutputCoder() {
-            return JsonpJsonObjectCoder.of(fn.processor.plugin());
+            return SchemaRegistryCoder.of();
         }
     }
 }

@@ -2,12 +2,12 @@ package com.foo.source;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.json.JsonObject;
 
 import com.foo.service.TestService;
 
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.record.Record;
 
 @Documentation("TODO fill the documentation for this source")
 public class MycompSource implements Serializable {
@@ -27,7 +27,7 @@ public class MycompSource implements Serializable {
     }
 
     @Producer
-    public JsonObject next() {
+    public Record next() {
         // this is the method allowing you to go through the dataset associated
         // to the component configuration
         //

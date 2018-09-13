@@ -40,12 +40,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
-import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 
 import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -56,6 +57,8 @@ import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -310,14 +313,7 @@ public class JobImpl implements Job {
                                 .findMapper(n.getNode().getFamily(), n.getNode().getComponent(),
                                         n.getNode().getVersion(), n.getNode().getConfiguration())
                                 .orElseThrow(() -> new IllegalStateException("No mapper found for: " + n.getNode()));
-                        return new AbstractMap.SimpleEntry<>(n.getId(),
-                                new InputRunner(mapper,
-                                        Jsonb.class.cast(getManager()
-                                                .findPlugin(mapper.plugin())
-                                                .get()
-                                                .get(ComponentManager.AllServices.class)
-                                                .getServices()
-                                                .get(Jsonb.class))));
+                        return new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(mapper));
                     }).collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
             final Map<String, Processor> processors = levels
@@ -341,13 +337,13 @@ public class JobImpl implements Job {
                         .map(component -> new AbstractMap.SimpleEntry<>(component.getId(), new AtomicBoolean(true)))
                         .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
                 processors.values().forEach(Lifecycle::start); // start processor
-                final Map<String, Map<String, Map<String, Collection<JsonObject>>>> flowData = new HashMap<>();
+                final Map<String, Map<String, Map<String, Collection<Record>>>> flowData = new HashMap<>();
                 final AtomicBoolean running = new AtomicBoolean(true);
                 do {
                     levels.forEach((level, components) -> components.forEach((Component component) -> {
                         if (component.isSource()) {
                             final InputRunner source = inputs.get(component.getId());
-                            final JsonObject data = source.next();
+                            final Record data = source.next();
                             if (data == null) {
                                 sourcesWithData.get(component.getId()).set(false);
                                 return;
@@ -371,19 +367,19 @@ public class JobImpl implements Job {
                                 final String fromBranch = edge.getFrom().getBranch();
                                 final String toBranch = edge.getTo().getBranch();
 
-                                final Map<String, Map<String, Collection<JsonObject>>> idData = flowData.get(fromId);
-                                final JsonObject data = idData == null ? null : pollFirst(idData.get(fromBranch));
+                                final Map<String, Map<String, Collection<Record>>> idData = flowData.get(fromId);
+                                final Record data = idData == null ? null : pollFirst(idData.get(fromBranch));
                                 if (data != null) {
                                     dataInputFactory.withInput(toBranch, singletonList(data));
                                 }
                             } else { // need grouping
-                                final Map<String, Map<String, Collection<JsonObject>>> availableDataForStep =
+                                final Map<String, Map<String, Collection<Record>>> availableDataForStep =
                                         new HashMap<>();
                                 connections.forEach(edge -> {
                                     final String fromId = edge.getFrom().getNode().getId();
                                     final String fromBranch = edge.getFrom().getBranch();
                                     final String toBranch = edge.getTo().getBranch();
-                                    final Map<String, Collection<JsonObject>> data =
+                                    final Map<String, Collection<Record>> data =
                                             flowData.get(fromId) == null ? null : flowData.get(fromId).get(fromBranch);
                                     if (data != null && !data.isEmpty()) {
                                         availableDataForStep.put(toBranch, data);
@@ -406,12 +402,11 @@ public class JobImpl implements Job {
                                 return;
                             }
                             final Processor processor = processors.get(component.getId());
-                            final DataOutputFactory dataOutputFactory = new DataOutputFactory(Jsonb.class.cast(manager
+                            final DataOutputFactory dataOutputFactory = new DataOutputFactory(getManager()
                                     .findPlugin(processor.plugin())
                                     .get()
                                     .get(ComponentManager.AllServices.class)
-                                    .getServices()
-                                    .get(Jsonb.class)));
+                                    .getServices());
                             processor.beforeGroup();
                             processor.onNext(dataInputFactory, dataOutputFactory);
                             processor.afterGroup(dataOutputFactory);
@@ -438,7 +433,7 @@ public class JobImpl implements Job {
         }
 
         private Map<String, String>
-                joinWithFusionSort(final Map<String, Map<String, Collection<JsonObject>>> dataByBranch) {
+                joinWithFusionSort(final Map<String, Map<String, Collection<Record>>> dataByBranch) {
             final Map<String, String> join = new HashMap<>();
             dataByBranch.forEach((branch1, records1) -> {
                 dataByBranch.forEach((branch2, records2) -> {
@@ -459,16 +454,16 @@ public class JobImpl implements Job {
             return join;
         }
 
-        private JsonObject pollFirst(final Map<String, Collection<JsonObject>> data) {
+        private Record pollFirst(final Map<String, Collection<Record>> data) {
             if (data == null || data.isEmpty()) {
                 return null;
             }
             while (!data.isEmpty()) {
                 final String key = data.keySet().iterator().next();
-                final Collection<JsonObject> items = data.get(key);
+                final Collection<Record> items = data.get(key);
                 if (!items.isEmpty()) {
-                    final Iterator<JsonObject> iterator = items.iterator();
-                    final JsonObject item = iterator.next();
+                    final Iterator<Record> iterator = items.iterator();
+                    final Record item = iterator.next();
                     iterator.remove();
                     return item;
                 } else {
@@ -508,7 +503,7 @@ public class JobImpl implements Job {
     @Data
     private static class GroupContextImpl implements GroupKeyProvider.GroupContext {
 
-        private final JsonObject data;
+        private final Record data;
 
         private final String componentId;
 
@@ -536,10 +531,7 @@ public class JobImpl implements Job {
 
         private final Input input;
 
-        private final Jsonb jsonb;
-
-        private InputRunner(final Mapper mapper, final Jsonb jsonb) {
-            this.jsonb = jsonb;
+        private InputRunner(final Mapper mapper) {
             RuntimeException error = null;
             try {
                 mapper.start();
@@ -562,16 +554,12 @@ public class JobImpl implements Job {
             }
         }
 
-        public JsonObject next() {
+        public Record next() {
             final Object next = input.next();
             if (next == null) {
                 return null;
             }
-
-            if (JsonObject.class.isInstance(next)) {
-                return JsonObject.class.cast(next);
-            }
-            return jsonb.fromJson(jsonb.toJson(next), JsonObject.class);
+            return Record.class.cast(next);
         }
 
         public void stop() {
@@ -601,9 +589,9 @@ public class JobImpl implements Job {
     @Data
     private static class DataOutputFactory implements OutputFactory {
 
-        private final Jsonb jsonb;
+        private final Map<Class<?>, Object> services;
 
-        private final Map<String, Collection<JsonObject>> outputs = new HashMap<>();
+        private final Map<String, Collection<Record>> outputs = new HashMap<>();
 
         @Override
         public OutputEmitter create(final String name) {
@@ -618,8 +606,8 @@ public class JobImpl implements Job {
             @Override
             public void emit(final Object value) {
                 outputs.computeIfAbsent(name, k -> new ArrayList<>()).add(
-                        JsonObject.class.isInstance(value) ? JsonObject.class.cast(value)
-                                : jsonb.fromJson(jsonb.toJson(value), JsonObject.class));
+                        new RecordConverters().toRecord(value, () -> Jsonb.class.cast(services.get(Jsonb.class)),
+                                () -> RecordBuilderFactory.class.cast(services.get(RecordBuilderFactory.class))));
             }
         }
     }
@@ -629,6 +617,8 @@ public class JobImpl implements Job {
         private final Map<String, Iterator<Object>> inputs = new HashMap<>();
 
         private volatile Jsonb jsonb;
+
+        private volatile RecordBuilderFactory factory;
 
         private DataInputFactory withInput(final String branch, final Collection<Object> branchData) {
             inputs.put(branch, branchData.iterator());
@@ -645,23 +635,35 @@ public class JobImpl implements Job {
         }
 
         private Object map(final Object next) {
-            if (next == null || JsonObject.class.isInstance(next)) {
+            if (next == null || Record.class.isInstance(next)) {
                 return next;
             }
-            if (jsonb == null) {
-                synchronized (this) {
-                    if (jsonb == null) {
-                        jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
-                    }
-                }
-            }
+
             final String str = jsonb.toJson(next);
             // primitives mainly, not that accurate in main code but for now not forbidden
             if (str.equals(next.toString())) {
                 return next;
             }
             // pojo
-            return jsonb.fromJson(str, JsonObject.class);
+            return new RecordConverters().toRecord(next, () -> {
+                if (jsonb == null) {
+                    synchronized (this) {
+                        if (jsonb == null) {
+                            jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+                        }
+                    }
+                }
+                return jsonb;
+            }, () -> {
+                if (factory == null) {
+                    synchronized (this) {
+                        if (factory == null) {
+                            factory = new RecordBuilderFactoryImpl("test");
+                        }
+                    }
+                }
+                return factory;
+            });
         }
     }
 

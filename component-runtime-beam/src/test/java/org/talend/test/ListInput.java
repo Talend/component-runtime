@@ -51,7 +51,7 @@ public class ListInput implements Serializable {
         return iterator.hasNext()
                 ? factory
                         .createObjectBuilder()
-                        .add("$$internal", factory.createObjectBuilder().add("key", Integer.toString(order++)))
+                        .add("__talend_internal", factory.createObjectBuilder().add("key", Integer.toString(order++)))
                         .add("data", iterator.next())
                         .build()
                 : null;

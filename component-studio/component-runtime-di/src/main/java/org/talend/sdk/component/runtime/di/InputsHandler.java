@@ -20,6 +20,7 @@ import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.runtime.output.InputFactory;
 
+// todo: move to Record
 public class InputsHandler extends BaseIOHandler {
 
     public InputsHandler(final Jsonb jsonb) {

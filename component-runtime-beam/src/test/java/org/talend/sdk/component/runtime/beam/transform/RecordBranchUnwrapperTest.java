@@ -17,24 +17,21 @@ package org.talend.sdk.component.runtime.beam.transform;
 
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.talend.sdk.component.runtime.beam.transform.Pipelines.buildBaseJsonPipeline;
+import static org.junit.Assert.assertNull;
+import static org.talend.sdk.component.runtime.beam.transform.Pipelines.buildBasePipeline;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.StreamSupport;
-
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.junit.Rule;
 import org.junit.Test;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.api.record.Record;
 
 public class RecordBranchUnwrapperTest implements Serializable {
 
@@ -43,19 +40,16 @@ public class RecordBranchUnwrapperTest implements Serializable {
 
     @Test
     public void test() {
-        final ComponentManager instance = ComponentManager.instance();
-        final JsonBuilderFactory factory = instance.getJsonpBuilderFactory();
-        PAssert
-                .that(buildBaseJsonPipeline(pipeline, factory).apply(RecordBranchMapper.of(null, "b1", "other")))
-                .satisfies(values -> {
-                    final List<JsonObject> items = StreamSupport.stream(values.spliterator(), false).collect(toList());
+        PAssert.that(buildBasePipeline(pipeline).apply(RecordBranchMapper.of(null, "b1", "other"))).satisfies(
+                values -> {
+                    final List<Record> items = StreamSupport.stream(values.spliterator(), false).collect(toList());
                     assertEquals(2, items.size());
                     items.forEach(item -> {
-                        assertTrue(item.containsKey("other"));
-                        assertNotNull(item.getJsonArray("other").getJsonObject(0).getString("foo"));
-                        assertFalse(item.containsKey("b1"));
-                        assertTrue(item.containsKey("b2"));
-                        assertNotNull(item.getJsonArray("b2").getJsonObject(0).getString("bar"));
+                        final Collection<Record> other = item.getArray(Record.class, "other");
+                        assertNotNull(other);
+                        assertNotNull(other.iterator().next().getString("foo"));
+                        assertNull(item.get(Object.class, "b1"));
+                        assertNotNull(item.get(Object.class, "b2"));
                     });
                     return null;
                 });

@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam;
 
 import static java.util.Collections.emptyIterator;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,20 +26,20 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.spi.record.RecordCollectors;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
+import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.Schemas;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
@@ -49,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor
-abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
+abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
     protected Processor processor;
 
@@ -58,7 +59,7 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
     protected int currentCount = 0;
 
-    protected volatile JsonBuilderFactory factory;
+    protected volatile RecordBuilderFactory recordFactory;
 
     protected volatile Jsonb jsonb;
 
@@ -83,7 +84,7 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
         }
     }
 
-    protected abstract Consumer<JsonObject> toEmitter(ProcessContext context);
+    protected abstract Consumer<Record> toEmitter(ProcessContext context);
 
     protected abstract BeamOutputFactory getFinishBundleOutputFactory(FinishBundleContext context);
 
@@ -98,13 +99,13 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
         if (currentCount == 0) {
             processor.beforeGroup();
         }
-        final BeamOutputFactory output = new BeamSingleOutputFactory(toEmitter(context), factory, jsonb);
+        final BeamOutputFactory output = new BeamSingleOutputFactory(toEmitter(context), recordFactory, jsonb);
         processor.onNext(new BeamInputFactory(context), output);
         output.postProcessing();
         currentCount++;
         if (maxBatchSize > 0 && currentCount >= maxBatchSize) {
             currentCount = 0;
-            final BeamOutputFactory ago = new BeamMultiOutputFactory(toEmitter(context), factory, jsonb);
+            final BeamOutputFactory ago = new BeamMultiOutputFactory(toEmitter(context), recordFactory, jsonb);
             processor.afterGroup(output);
             ago.postProcessing();
         }
@@ -127,11 +128,11 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
     }
 
     private void ensureInit() {
-        if (factory == null) {
+        if (jsonb == null) {
             synchronized (this) {
-                if (factory == null) {
+                if (jsonb == null) {
                     final LightContainer container = ContainerFinder.Instance.get().find(processor.plugin());
-                    factory = container.findService(JsonBuilderFactory.class);
+                    recordFactory = container.findService(RecordBuilderFactory.class);
                     jsonb = container.findService(Jsonb.class);
                 }
             }
@@ -140,16 +141,21 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
     protected static final class BeamInputFactory implements InputFactory {
 
-        private final Map<String, Iterator<JsonValue>> objects;
+        private final Map<String, Iterator<Record>> objects;
 
-        BeamInputFactory(final DoFn<JsonObject, ?>.ProcessContext context) {
-            objects = context.element().entrySet().stream().filter(e -> !e.getKey().startsWith("$$internal")).collect(
-                    toMap(Map.Entry::getKey, e -> e.getValue().asJsonArray().iterator()));
+        BeamInputFactory(final DoFn<Record, ?>.ProcessContext context) {
+            final Record element = context.element();
+            objects = element
+                    .getSchema()
+                    .getEntries()
+                    .stream()
+                    .filter(e -> !e.getName().startsWith("__talend_internal"))
+                    .collect(toMap(Schema.Entry::getName, e -> element.getArray(Record.class, e.getName()).iterator()));
         }
 
         @Override
         public Object read(final String name) {
-            final Iterator<JsonValue> values = objects.getOrDefault(name, emptyIterator());
+            final Iterator<Record> values = objects.getOrDefault(sanitizeConnectionName(name), emptyIterator());
             return values.hasNext() ? values.next() : null;
         }
     }
@@ -157,17 +163,18 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
     @RequiredArgsConstructor
     protected static abstract class BeamOutputFactory implements OutputFactory {
 
-        protected final Consumer<JsonObject> emit;
+        protected final Consumer<Record> emit;
 
-        protected final JsonBuilderFactory factory;
+        protected final RecordBuilderFactory factory;
 
         protected final Jsonb jsonb;
 
-        private Map<String, JsonArrayBuilder> outputs = new HashMap<>();
+        private Map<String, Collection<Record>> outputs = new HashMap<>();
 
         @Override
         public OutputEmitter create(final String name) {
-            return new BeamOutputEmitter(outputs.computeIfAbsent(name, k -> factory.createArrayBuilder()), jsonb);
+            return new BeamOutputEmitter(outputs.computeIfAbsent(sanitizeConnectionName(name), k -> new ArrayList<>()),
+                    factory, jsonb);
         }
 
         public abstract void postProcessing();
@@ -175,36 +182,41 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
     protected static final class BeamSingleOutputFactory extends BeamOutputFactory {
 
-        private Map<String, JsonArrayBuilder> outputs = new HashMap<>();
+        private Map<String, Collection<Record>> outputs = new HashMap<>();
 
-        protected BeamSingleOutputFactory(final Consumer<JsonObject> emit, final JsonBuilderFactory factory,
+        protected BeamSingleOutputFactory(final Consumer<Record> emit, final RecordBuilderFactory factory,
                 final Jsonb jsonb) {
             super(emit, factory, jsonb);
         }
 
         @Override
         public OutputEmitter create(final String name) {
-            return new BeamOutputEmitter(outputs.computeIfAbsent(name, k -> factory.createArrayBuilder()), jsonb);
+            return new BeamOutputEmitter(outputs.computeIfAbsent(sanitizeConnectionName(name), k -> new ArrayList<>()),
+                    factory, jsonb);
         }
 
         @Override
         public void postProcessing() {
             if (!outputs.isEmpty()) {
-                emit.accept(outputs
-                        .entrySet()
-                        .stream()
-                        .collect(factory::createObjectBuilder, (a, o) -> a.add(o.getKey(), o.getValue()),
-                                JsonObjectBuilder::addAll)
-                        .build());
+                final Record record = outputs.entrySet().stream().collect(factory::newRecordBuilder, (a, o) -> {
+                    final Record firstElement = o.getValue().isEmpty() ? null : o.getValue().iterator().next();
+                    a.withArray(factory
+                            .newEntryBuilder()
+                            .withName(sanitizeConnectionName(o.getKey()))
+                            .withType(Schema.Type.ARRAY)
+                            .withElementSchema(firstElement == null ? Schemas.EMPTY_RECORD : firstElement.getSchema())
+                            .build(), o.getValue());
+                }, RecordCollectors::merge).build();
+                emit.accept(record);
             }
         }
     }
 
     protected static final class BeamMultiOutputFactory extends BeamOutputFactory {
 
-        private final Collection<JsonObject> outputs = new ArrayList<>();
+        private final Collection<Record> outputs = new ArrayList<>();
 
-        protected BeamMultiOutputFactory(final Consumer<JsonObject> emit, final JsonBuilderFactory factory,
+        protected BeamMultiOutputFactory(final Consumer<Record> emit, final RecordBuilderFactory factory,
                 final Jsonb jsonb) {
             super(emit, factory, jsonb);
         }
@@ -212,16 +224,22 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
         @Override
         public OutputEmitter create(final String name) {
             return value -> {
-                final JsonArrayBuilder values = factory.createArrayBuilder();
-                new BeamOutputEmitter(values, jsonb) {
+                final Collection<Record> values = new ArrayList<>();
+                new BeamOutputEmitter(values, factory, jsonb) {
 
                     @Override
                     public void emit(final Object value) {
                         super.emit(value);
-                        final JsonArray array = values.build();
-                        if (!array.isEmpty()) {
-                            outputs.add(factory.createObjectBuilder().add(name, array).build());
-                        }
+                        final Record first = values.isEmpty() ? null : values.iterator().next();
+                        outputs.add(factory
+                                .newRecordBuilder()
+                                .withArray(factory
+                                        .newEntryBuilder()
+                                        .withName(sanitizeConnectionName(name))
+                                        .withType(Schema.Type.ARRAY)
+                                        .withElementSchema(first == null ? Schemas.EMPTY_RECORD : first.getSchema())
+                                        .build(), values)
+                                .build());
                     }
                 }.emit(value);
             };
@@ -237,21 +255,24 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
     @RequiredArgsConstructor
     private static class BeamOutputEmitter implements OutputEmitter {
 
-        private final JsonArrayBuilder builder;
+        private final Collection<Record> builder;
+
+        private final RecordBuilderFactory recordBuilderFactory;
 
         private final Jsonb jsonb;
+
+        private final RecordConverters converters = new RecordConverters();
 
         @Override
         public void emit(final Object value) {
             if (value == null) {
                 return;
             }
-            builder.add(toJson(value));
+            builder.add(toRecord(value));
         }
 
-        private JsonObject toJson(final Object value) {
-            return JsonObject.class.isInstance(value) ? JsonObject.class.cast(value)
-                    : jsonb.fromJson(jsonb.toJson(value), JsonObject.class);
+        private Record toRecord(final Object value) {
+            return Record.class.cast(converters.toRecord(value, () -> jsonb, () -> recordBuilderFactory));
         }
     }
 }

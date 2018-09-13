@@ -27,8 +27,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import javax.json.JsonObject;
-
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
@@ -38,15 +36,18 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.junit.Rule;
 import org.junit.Test;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class InMemoryQueueIOTest implements Serializable {
 
-    private static final Collection<JsonObject> INPUT_OUTPUTS = new CopyOnWriteArrayList<>();
+    private static final Collection<Record> INPUT_OUTPUTS = new CopyOnWriteArrayList<>();
 
     @Rule
     public transient final TestPipeline pipeline =
@@ -60,11 +61,11 @@ public class InMemoryQueueIOTest implements Serializable {
         try (final LoopState state = LoopState.newTracker(null)) {
             IntStream.range(0, 2).forEach(i -> state.push(new RowStruct(i)));
 
-            pipeline.apply(InMemoryQueueIO.from(state)).apply(ParDo.of(new DoFn<JsonObject, Void>() {
+            pipeline.apply(InMemoryQueueIO.from(state)).apply(ParDo.of(new DoFn<Record, Void>() {
 
                 @ProcessElement
-                public void onElement(final ProcessContext context) {
-                    INPUT_OUTPUTS.add(context.element());
+                public void onElement(@Element final Record record) {
+                    INPUT_OUTPUTS.add(record);
                 }
             }));
 
@@ -75,8 +76,12 @@ public class InMemoryQueueIOTest implements Serializable {
             state.end();
 
             final long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(2);
+            long lastLog = System.currentTimeMillis();
             while (INPUT_OUTPUTS.size() < 5 && end - System.currentTimeMillis() >= 0) {
                 try {
+                    if (lastLog - System.currentTimeMillis() > TimeUnit.SECONDS.toMillis(10)) {
+                        log.info("Not yet 5 records: {}, waiting", INPUT_OUTPUTS.size());
+                    }
                     sleep(150);
                 } catch (final InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -91,30 +96,31 @@ public class InMemoryQueueIOTest implements Serializable {
 
     @Test(timeout = 60000)
     public void output() {
-        final Collection<JsonObject> objects = new ArrayList<>();
+        final Collection<Record> objects = new ArrayList<>();
         try (final LoopState state = LoopState.newTracker(null)) {
             pipeline
                     .apply(Create.of(IntStream.range(0, 5).mapToObj(RowStruct::new).collect(toList())))
                     .setCoder(SerializableCoder.of(RowStruct.class))
-                    .apply(ParDo.of(new DoFn<RowStruct, JsonObject>() {
+                    .apply(ParDo.of(new DoFn<RowStruct, Record>() {
 
                         @ProcessElement
                         public void onElement(final ProcessContext context) {
-                            final JsonObject object = ComponentManager
+                            final Record record = ComponentManager
                                     .instance()
-                                    .getJsonpBuilderFactory()
-                                    .createObjectBuilder()
-                                    .add("id", context.element().id)
+                                    .getRecordBuilderFactoryProvider()
+                                    .apply(null)
+                                    .newRecordBuilder()
+                                    .withInt("id", context.element().id)
                                     .build();
-                            context.output(object);
+                            context.output(record);
                         }
                     }))
-                    .setCoder(JsonpJsonObjectCoder.of(null))
+                    .setCoder(SchemaRegistryCoder.of())
                     .apply(InMemoryQueueIO.to(state));
 
             pipeline.run().waitUntilFinish();
 
-            JsonObject next;
+            Record next;
             do {
                 next = state.next();
                 if (next != null) {

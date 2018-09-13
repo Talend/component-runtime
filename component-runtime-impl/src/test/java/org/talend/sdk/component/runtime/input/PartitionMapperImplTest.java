@@ -27,12 +27,13 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.runtime.serialization.Serializer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionSize;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.serialization.Serializer;
 
 public class PartitionMapperImplTest {
 
@@ -67,7 +68,7 @@ public class PartitionMapperImplTest {
 
     private void assertInput(final Mapper mapper) {
         assertTrue(Input.class.isInstance(mapper.create()));
-        assertTrue(Sample.class.isInstance(mapper.create().next())); // it was a sample in
+        assertTrue(Record.class.isInstance(mapper.create().next())); // it was a sample in
     }
 
     public static class SampleMapper implements Serializable {

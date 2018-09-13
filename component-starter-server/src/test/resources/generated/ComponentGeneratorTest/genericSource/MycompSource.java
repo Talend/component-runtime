@@ -4,13 +4,13 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
 
 import com.foo.service.TestService;
 
@@ -18,14 +18,14 @@ import com.foo.service.TestService;
 public class MycompSource implements Serializable {
     private final MycompMapperConfiguration configuration;
     private final TestService service;
-    private final JsonBuilderFactory jsonBuilderFactory;
+    private final RecordBuilderFactory builderFactory;
 
     public MycompSource(@Option("configuration") final MycompMapperConfiguration configuration,
                         final TestService service,
-                        final JsonBuilderFactory jsonBuilderFactory) {
+                        final RecordBuilderFactory builderFactory) {
         this.configuration = configuration;
         this.service = service;
-        this.jsonBuilderFactory = jsonBuilderFactory;
+        this.builderFactory = builderFactory;
     }
 
     @PostConstruct
@@ -35,12 +35,12 @@ public class MycompSource implements Serializable {
     }
 
     @Producer
-    public JsonObject next() {
+    public Record next() {
         // this is the method allowing you to go through the dataset associated
         // to the component configuration
         //
         // return null means the dataset has no more data to go through
-        // you can use the jsonBuilderFactory to create new JsonObjects.
+        // you can use the builderFactory to create a new Record.
         return null;
     }
 

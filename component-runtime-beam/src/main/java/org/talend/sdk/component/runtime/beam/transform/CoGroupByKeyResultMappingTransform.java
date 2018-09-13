@@ -15,13 +15,10 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
+import static java.util.Collections.singletonList;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
-
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.bind.Jsonb;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -30,7 +27,11 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.join.CoGbkResult;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.beam.spi.record.RecordCollectors;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
@@ -45,66 +46,77 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
 public class CoGroupByKeyResultMappingTransform<K>
-        extends PTransform<PCollection<KV<K, CoGbkResult>>, PCollection<JsonObject>> {
+        extends PTransform<PCollection<KV<K, CoGbkResult>>, PCollection<Record>> {
 
     private String plugin;
 
     private boolean propagateKey;
 
     @Override
-    public PCollection<JsonObject> expand(final PCollection<KV<K, CoGbkResult>> input) {
-        return input.apply(ParDo.of(new CoGBKMappingFn<>(plugin, propagateKey, null, null)));
+    public PCollection<Record> expand(final PCollection<KV<K, CoGbkResult>> input) {
+        return input.apply(ParDo.of(new CoGBKMappingFn<>(plugin, propagateKey, null)));
     }
 
     @Override
     protected Coder<?> getDefaultOutputCoder() {
-        return JsonpJsonObjectCoder.of(plugin);
+        return SchemaRegistryCoder.of();
     }
 
     @AllArgsConstructor(access = PRIVATE)
     @NoArgsConstructor(access = PROTECTED)
-    public static class CoGBKMappingFn<K> extends DoFn<KV<K, CoGbkResult>, JsonObject> {
+    public static class CoGBKMappingFn<K> extends DoFn<KV<K, CoGbkResult>, Record> {
 
         private String plugin;
 
         private boolean propagateKey;
 
-        private volatile JsonBuilderFactory builderFactory;
-
-        private volatile Jsonb jsonb;
+        private volatile RecordBuilderFactory builderFactory;
 
         @ProcessElement
         public void onElement(final ProcessContext context) {
             context.output(createMap(context));
         }
 
-        private JsonObject createMap(final ProcessContext context) {
+        private Record createMap(final ProcessContext context) {
             final KV<K, CoGbkResult> element = context.element();
             final CoGbkResult result = element.getValue();
-            final JsonObjectBuilder builder = result
+            final RecordBuilderFactory builderFactory = builderFactory();
+            final Record.Builder builder = result
                     .getSchema()
                     .getTupleTagList()
                     .getAll()
                     .stream()
-                    .map(key -> new Pair<>(key.getId(), JsonObject.class.cast(result.getOnly(key, null))))
+                    .map(key -> new Pair<>(key.getId(), Record.class.cast(result.getOnly(key, null))))
                     .filter(p -> p.getSecond() != null)
-                    .collect(builderFactory()::createObjectBuilder,
-                            (b, p) -> b.add(p.getFirst(), builderFactory.createArrayBuilder().add(p.getSecond())),
-                            JsonObjectBuilder::addAll);
+                    .collect(builderFactory::newRecordBuilder, (b, p) -> {
+                        final Record record = p.getSecond();
+                        final Schema.Entry entry = builderFactory
+                                .newEntryBuilder()
+                                .withName(sanitizeConnectionName(p.getFirst()))
+                                .withType(Schema.Type.ARRAY)
+                                .withElementSchema(record.getSchema())
+                                .build();
+                        b.withArray(entry, singletonList(record));
+                    }, RecordCollectors::merge);
             if (propagateKey) {
-                builder.add("$$internal",
-                        builderFactory.createObjectBuilder().add("key", String.valueOf(element.getKey())));
+                final Record internalRecord =
+                        builderFactory.newRecordBuilder().withString("key", String.valueOf(element.getKey())).build();
+                builder.withRecord(builderFactory
+                        .newEntryBuilder()
+                        .withName("__talend_internal")
+                        .withType(Schema.Type.RECORD)
+                        .withElementSchema(internalRecord.getSchema())
+                        .build(), internalRecord);
             }
             return builder.build();
         }
 
-        private JsonBuilderFactory builderFactory() {
+        private RecordBuilderFactory builderFactory() {
             if (builderFactory == null) {
                 synchronized (this) {
                     if (builderFactory == null) {
                         final LightContainer container = ContainerFinder.Instance.get().find(plugin);
-                        builderFactory = container.findService(JsonBuilderFactory.class);
-                        jsonb = container.findService(Jsonb.class);
+                        builderFactory = container.findService(RecordBuilderFactory.class);
                     }
                 }
             }

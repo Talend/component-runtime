@@ -15,44 +15,53 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+import static java.util.Collections.singletonList;
+import static lombok.AccessLevel.PROTECTED;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * Allows to convert an input to a normal output wrapping the value in a __default__ container.
  */
-public class RecordNormalizer extends DoFn<JsonObject, JsonObject> {
+@AllArgsConstructor
+@NoArgsConstructor(access = PROTECTED)
+public class RecordNormalizer extends DoFn<Record, Record> {
 
-    private JsonBuilderFactory factory;
-
-    protected RecordNormalizer() {
-        // no-op
-    }
-
-    public RecordNormalizer(final JsonBuilderFactory factory) {
-        this.factory = factory;
-    }
+    private RecordBuilderFactory factory;
 
     @ProcessElement
     public void onElement(final ProcessContext context) {
-        context.output(toMap(context.element()));
+        final Record record = toMap(context.element());
+        context.output(record);
     }
 
-    private JsonObject toMap(final JsonObject element) {
-        return factory.createObjectBuilder().add("__default__", factory.createArrayBuilder().add(element)).build();
+    private Record toMap(final Record element) {
+        final Schema nestedSchema = element.getSchema();
+        return factory
+                .newRecordBuilder()
+                .withArray(factory
+                        .newEntryBuilder()
+                        .withName("__default__")
+                        .withType(Schema.Type.ARRAY)
+                        .withElementSchema(nestedSchema)
+                        .build(), singletonList(element))
+                .build();
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin) {
-        final JsonBuilderFactory lookup =
-                ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
-        return new JsonObjectParDoTransformCoderProvider<>(JsonpJsonObjectCoder.of(plugin),
-                new RecordNormalizer(lookup));
+    public static PTransform<PCollection<Record>, PCollection<Record>> of(final String plugin) {
+        final RecordBuilderFactory lookup =
+                ServiceLookup.lookup(ComponentManager.instance(), plugin, RecordBuilderFactory.class);
+        return new RecordParDoTransformCoderProvider<>(SchemaRegistryCoder.of(), new RecordNormalizer(lookup));
     }
 }

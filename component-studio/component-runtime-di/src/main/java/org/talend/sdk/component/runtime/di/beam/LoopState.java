@@ -26,11 +26,13 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
 
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,14 +49,18 @@ public class LoopState implements AutoCloseable {
 
     final String plugin;
 
-    private final Queue<JsonObject> queue = new ConcurrentLinkedQueue<>();
+    private final Queue<Record> queue = new ConcurrentLinkedQueue<>();
 
     private final Semaphore semaphore = new Semaphore(0);
 
     @Getter
     private final AtomicLong recordCount = new AtomicLong(0);
 
+    private volatile RecordConverters recordConverters;
+
     private volatile Jsonb jsonb;
+
+    private volatile RecordBuilderFactory recordBuilderFactory;
 
     private volatile boolean done;
 
@@ -67,11 +73,11 @@ public class LoopState implements AutoCloseable {
         if (value == null) {
             return;
         }
-        queue.add(JsonObject.class.isInstance(value) ? JsonObject.class.cast(value) : toJsonObject(value));
+        queue.add(Record.class.isInstance(value) ? Record.class.cast(value) : toRecord(value));
         semaphore.release();
     }
 
-    public JsonObject next() {
+    public Record next() {
         try {
             semaphore.acquire();
             return queue.poll();
@@ -120,10 +126,10 @@ public class LoopState implements AutoCloseable {
         return STATES.get(stateId);
     }
 
-    private JsonObject toJsonObject(final Object value) {
-        if (jsonb == null) {
+    private Record toRecord(final Object value) {
+        if (recordConverters == null) {
             synchronized (this) {
-                if (jsonb == null) {
+                if (recordConverters == null) {
                     final ComponentManager manager = ComponentManager.instance();
                     jsonb = manager
                             .getJsonbProvider()
@@ -131,9 +137,11 @@ public class LoopState implements AutoCloseable {
                             .withProvider(manager.getJsonpProvider())
                             .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
                             .build();
+                    recordConverters = new RecordConverters();
+                    recordBuilderFactory = manager.getRecordBuilderFactoryProvider().apply(null);
                 }
             }
         }
-        return jsonb.fromJson(jsonb.toJson(value), JsonObject.class);
+        return recordConverters.toRecord(value, () -> jsonb, () -> recordBuilderFactory);
     }
 }

@@ -16,8 +16,6 @@
 package org.talend.sdk.component.junit.beam.test;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
@@ -31,8 +29,6 @@ import lombok.NoArgsConstructor;
 
 @Processor(family = "beamtest", name = "proc")
 public class SampleProcessor implements Serializable {
-
-    public static final Collection<String> STACK = new ArrayList<>();
 
     @ElementListener
     public void onNext(final @Input Sample sample, final @Output OutputEmitter<Sample> success,

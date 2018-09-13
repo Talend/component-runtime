@@ -38,14 +38,15 @@ public class ConcatProcessor implements Serializable {
     @ElementListener
     public void cat(@Input("str1") final JsonObject str1, @Input("str2") final JsonObject str2,
             @Output final OutputEmitter<JsonObject> concat) {
-        concat.emit(factory
+        final JsonObject output = factory
                 .createObjectBuilder()
-                .add("$$internal",
+                .add("__talend_internal",
                         factory.createObjectBuilder().add("key",
-                                (str1 == null ? str2 : str1).getJsonObject("$$internal").getString("key")))
+                                (str1 == null ? str2 : str1).getJsonObject("__talend_internal").getString("key")))
                 .add("data",
                         (str1 == null ? "null" : str1.getString("data")) + " "
                                 + (str2 == null ? "null" : str2.getString("data")))
-                .build());
+                .build();
+        concat.emit(output);
     }
 }

@@ -17,27 +17,26 @@ package org.talend.sdk.component.runtime.beam.transform;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import javax.json.JsonObject;
-
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
+import org.talend.sdk.component.api.record.Record;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
-class JsonObjectParDoTransformCoderProvider<T> extends PTransform<PCollection<JsonObject>, PCollection<T>> {
+class RecordParDoTransformCoderProvider<T> extends PTransform<PCollection<Record>, PCollection<T>> {
 
     private Coder<T> coder;
 
-    private DoFn<JsonObject, T> fn;
+    private DoFn<Record, T> fn;
 
     @Override
-    public PCollection<T> expand(final PCollection<JsonObject> input) {
+    public PCollection<T> expand(final PCollection<Record> input) {
         return input.apply(ParDo.of(fn)).setCoder(coder);
     }
 }

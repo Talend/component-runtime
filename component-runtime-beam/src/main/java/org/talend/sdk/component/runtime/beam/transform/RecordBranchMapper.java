@@ -15,30 +15,38 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+
+import java.util.Collection;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.beam.spi.record.RecordCollectors;
 import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
-
-import lombok.AllArgsConstructor;
 
 /**
  * Redirects a branch on another branch without modifying the other ones.
  */
-@AllArgsConstructor
-public class RecordBranchMapper extends DoFn<JsonObject, JsonObject> {
+public class RecordBranchMapper extends DoFn<Record, Record> {
 
-    private JsonBuilderFactory factory;
+    private RecordBuilderFactory factory;
 
     private String sourceBranch;
 
     private String targetBranch;
+
+    public RecordBranchMapper(final RecordBuilderFactory factory, final String sourceBranch,
+            final String targetBranch) {
+        this.factory = factory;
+        this.sourceBranch = sanitizeConnectionName(sourceBranch);
+        this.targetBranch = sanitizeConnectionName(targetBranch);
+    }
 
     protected RecordBranchMapper() {
         // no-op
@@ -46,25 +54,33 @@ public class RecordBranchMapper extends DoFn<JsonObject, JsonObject> {
 
     @ProcessElement
     public void onElement(final ProcessContext context) {
-        final JsonObject aggregate = context.element();
-        if (aggregate.containsKey(sourceBranch)) {
-            context.output(aggregate
-                    .entrySet()
-                    .stream()
-                    .collect(factory::createObjectBuilder,
-                            (a, e) -> a.add(e.getKey().equals(sourceBranch) ? targetBranch : e.getKey(), e.getValue()),
-                            JsonObjectBuilder::addAll)
-                    .build());
+        final Record aggregate = context.element();
+        final Collection<Record> branch = aggregate.getArray(Record.class, sourceBranch);
+        if (branch != null) {
+            final Record output =
+                    aggregate.getSchema().getEntries().stream().collect(factory::newRecordBuilder, (a, e) -> {
+                        final boolean remappedBranch = e.getName().equals(sourceBranch);
+                        final String branchName = remappedBranch ? targetBranch : e.getName();
+                        a.withArray(
+                                factory
+                                        .newEntryBuilder()
+                                        .withName(branchName)
+                                        .withType(Schema.Type.ARRAY)
+                                        .withElementSchema(e.getElementSchema())
+                                        .build(),
+                                remappedBranch ? branch : aggregate.getArray(Record.class, e.getName()));
+                    }, RecordCollectors::merge).build();
+            context.output(output);
         } else {
             context.output(aggregate);
         }
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin,
-            final String fromBranch, final String toBranch) {
-        final JsonBuilderFactory lookup =
-                ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
-        return new JsonObjectParDoTransformCoderProvider<>(JsonpJsonObjectCoder.of(plugin),
+    public static PTransform<PCollection<Record>, PCollection<Record>> of(final String plugin, final String fromBranch,
+            final String toBranch) {
+        final RecordBuilderFactory lookup =
+                ServiceLookup.lookup(ComponentManager.instance(), plugin, RecordBuilderFactory.class);
+        return new RecordParDoTransformCoderProvider<>(SchemaRegistryCoder.of(),
                 new RecordBranchMapper(lookup, fromBranch, toBranch));
     }
 }

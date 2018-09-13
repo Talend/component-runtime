@@ -43,6 +43,11 @@ install: echo true
 
 jobs:
   include:
+    # POC branches
+    - stage: poc_build
+      script: mvn $BUILD_ARGS
+      jdk: oraclejdk8
+
     # PR profile
     - stage: pullrequest_build
       script: mvn $BUILD_ARGS
@@ -93,5 +98,7 @@ jobs:
 stages:
   - name: master_build
     if: branch = master AND type != pull_request
+  - name: poc_build
+    if: branch = branch =~ /^poc/ AND type != pull_request
   - name: pullrequest_build
     if: type = pull_request

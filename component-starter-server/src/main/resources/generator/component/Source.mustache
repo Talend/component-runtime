@@ -4,15 +4,15 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-{{#generic}}
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-{{/generic}}
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
+{{#generic}}
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+{{/generic}}
 
 import {{servicePackage}}.{{serviceName}};
 
@@ -21,16 +21,16 @@ public class {{className}} implements Serializable {
     private final {{configurationName}} configuration;
     private final {{serviceName}} service;
 {{#generic}}
-    private final JsonBuilderFactory jsonBuilderFactory;
+    private final RecordBuilderFactory builderFactory;
 {{/generic}}
 
     public {{className}}(@Option("configuration") final {{configurationName}} configuration,
                         final {{serviceName}} service{{#generic}},
-                        final JsonBuilderFactory jsonBuilderFactory{{/generic}}) {
+                        final RecordBuilderFactory builderFactory{{/generic}}) {
         this.configuration = configuration;
         this.service = service;
 {{#generic}}
-        this.jsonBuilderFactory = jsonBuilderFactory;
+        this.builderFactory = builderFactory;
 {{/generic}}
     }
 
@@ -41,12 +41,12 @@ public class {{className}} implements Serializable {
     }
 
     @Producer
-    public {{#generic}}JsonObject{{/generic}}{{^generic}}{{modelName}}{{/generic}} next() {
+    public {{#generic}}Record{{/generic}}{{^generic}}{{modelName}}{{/generic}} next() {
         // this is the method allowing you to go through the dataset associated
         // to the component configuration
         //
         // return null means the dataset has no more data to go through
-{{#generic}}        // you can use the jsonBuilderFactory to create new JsonObjects.{{/generic}}
+{{#generic}}        // you can use the builderFactory to create a new Record.{{/generic}}
         return null;
     }
 

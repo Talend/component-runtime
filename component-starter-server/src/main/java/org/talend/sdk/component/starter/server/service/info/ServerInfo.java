@@ -62,6 +62,8 @@ public class ServerInfo {
 
     private String beam;
 
+    private String avroJackson;
+
     private String surefire = "2.22.0";
 
     private String cxf;
