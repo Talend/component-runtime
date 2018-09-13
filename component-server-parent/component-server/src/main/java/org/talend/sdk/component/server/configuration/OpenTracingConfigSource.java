@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.server.configuration;
 
+import static java.lang.System.getenv;
+import static java.util.Optional.ofNullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,24 +29,18 @@ public class OpenTracingConfigSource implements ConfigSource {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OpenTracingConfigSource.class);
 
-    private final String TRACING_ON = "TRACING_ON";
-
-    private final String TRACING_SAMPLING_RATE = "TRACING_SAMPLING_RATE";
-
     private Map<String, String> configuration = new HashMap<String, String>() {
 
         {
-            final boolean tracingOn =
-                    System.getenv(TRACING_ON) != null && Boolean.parseBoolean(System.getenv(TRACING_ON));
-            int tracingRate = 1;
-            if (System.getenv(TRACING_SAMPLING_RATE) != null) {
-                try {
-                    tracingRate = Integer.parseInt(System.getenv(TRACING_SAMPLING_RATE));
-                } catch (final NumberFormatException e) {
-                    LOGGER.warn("Can't parse value of environment property TRACING_SAMPLING_RATE", e);
-                }
+            int tracingRate;
+            try {
+                tracingRate = ofNullable(getenv("TRACING_SAMPLING_RATE")).map(Integer::parseInt).orElse(1);
+            } catch (final NumberFormatException e) {
+                LOGGER.warn("Can't parse value of environment property TRACING_SAMPLING_RATE", e);
+                tracingRate = 1;
             }
-            final String isTracingOn = String.valueOf(tracingOn && tracingRate == 1);
+
+            final String isTracingOn = String.valueOf(Boolean.parseBoolean(getenv("TRACING_ON")) && tracingRate == 1);
             put("geronimo.opentracing.filter.active", isTracingOn);
             put("span.converter.zipkin.active", isTracingOn);
             put("span.converter.zipkin.logger.active", isTracingOn);
