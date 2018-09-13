@@ -34,20 +34,14 @@ import org.talend.sdk.component.runtime.beam.io.NoCloseInputStream;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor(access = PRIVATE)
 @NoArgsConstructor(access = PROTECTED)
 public class JsonbCoder<T> extends CustomCoder<T> {
 
-    public static <T> JsonbCoder<T> of(final Class<T> type, final String plugin) {
-        return new JsonbCoder<>(type, ContainerFinder.Instance.get().find(plugin).findService(Jsonb.class));
-    }
-
-    public static JsonbCoder of(final Type type, final String plugin) {
-        return new JsonbCoder<>(type, ContainerFinder.Instance.get().find(plugin).findService(Jsonb.class));
-    }
-
+    @Getter
     private Type type;
 
     private Jsonb jsonb;
@@ -66,5 +60,13 @@ public class JsonbCoder<T> extends CustomCoder<T> {
     public T decode(final InputStream inputStream) throws IOException {
         final long maxBytes = VarInt.decodeLong(inputStream);
         return jsonb.fromJson(new GZIPInputStream(new NoCloseInputStream(inputStream, maxBytes)), type);
+    }
+
+    public static <T> JsonbCoder<T> of(final Class<T> type, final String plugin) {
+        return new JsonbCoder<>(type, ContainerFinder.Instance.get().find(plugin).findService(Jsonb.class));
+    }
+
+    public static JsonbCoder of(final Type type, final String plugin) {
+        return new JsonbCoder<>(type, ContainerFinder.Instance.get().find(plugin).findService(Jsonb.class));
     }
 }

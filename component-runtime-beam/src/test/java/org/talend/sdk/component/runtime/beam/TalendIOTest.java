@@ -39,8 +39,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
@@ -54,8 +52,11 @@ import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.coder.JsonbCoder;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
 import org.talend.sdk.component.runtime.beam.transform.ViewsMappingTransform;
 import org.talend.sdk.component.runtime.input.Input;
@@ -80,7 +81,7 @@ public class TalendIOTest implements Serializable {
 
     @Test
     public void input() {
-        final PCollection<JsonObject> out = pipeline.apply(TalendIO.read(new TheTestMapper() {
+        final PCollection<Record> out = pipeline.apply(TalendIO.read(new TheTestMapper() {
 
             @Override
             public Input create() {
@@ -98,11 +99,11 @@ public class TalendIOTest implements Serializable {
                 };
             }
         }));
-        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<JsonObject, String>() {
+        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Record, String>() {
 
             @ProcessElement
             public void toData(final ProcessContext sample) {
-                sample.output(JSONB.fromJson(sample.element().toString(), Sample.class).data);
+                sample.output(sample.element().getString("data"));
             }
         }))).containsInAnyOrder("a", "b");
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
@@ -113,15 +114,15 @@ public class TalendIOTest implements Serializable {
         Output.DATA.clear();
         pipeline
                 .apply(Create.of(new Sample("a"), new Sample("b")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
-                .apply(UUID.randomUUID().toString(), toJson())
-                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(UUID.randomUUID().toString(), toRecord())
+                .setCoder(SchemaRegistryCoder.of())
                 .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendIO.write(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        Output.DATA
-                                .add(JSONB.fromJson(input.read(Branches.DEFAULT_BRANCH).toString(), Sample.class).data);
+                        final Object read = input.read(Branches.DEFAULT_BRANCH);
+                        Output.DATA.add(Record.class.cast(read).getString("data"));
                     }
                 }));
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
@@ -132,19 +133,18 @@ public class TalendIOTest implements Serializable {
     public void processor() {
         final PCollection<SampleLength> out = pipeline
                 .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
-                .apply(UUID.randomUUID().toString(), toJson())
-                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(UUID.randomUUID().toString(), toRecord())
+                .setCoder(SchemaRegistryCoder.of())
                 .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendFn.asFn(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH).emit(new SampleLength(
-                                JSONB.fromJson(input.read(Branches.DEFAULT_BRANCH).toString(), Sample.class).data
-                                        .length()));
+                        factory.create(Branches.DEFAULT_BRANCH).emit(
+                                new Sample(Record.class.cast(input.read(Branches.DEFAULT_BRANCH)).getString("data")));
                     }
                 }))
-                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .setCoder(SchemaRegistryCoder.of())
                 .apply(toSampleLength());
         PAssert.that(out.apply(UUID.randomUUID().toString(), toInt())).containsInAnyOrder(1, 2);
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
@@ -159,12 +159,12 @@ public class TalendIOTest implements Serializable {
                 .collect(toList());
         final PCollection<Integer> out = pipeline
                 .apply(UUID.randomUUID().toString(), Create.of(data).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
-                .apply(UUID.randomUUID().toString(), toJson())
-                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(UUID.randomUUID().toString(), toRecord())
+                .setCoder(SchemaRegistryCoder.of())
                 .apply(UUID.randomUUID().toString(), RecordNormalizer.of(PLUGIN))
                 .apply(UUID.randomUUID().toString(), TalendFn.asFn(new BaseTestProcessor() {
 
-                    private final Collection<SampleLength> objects = new ArrayList<>();
+                    private final Collection<Sample> objects = new ArrayList<>();
 
                     @Override
                     public void beforeGroup() {
@@ -178,12 +178,11 @@ public class TalendIOTest implements Serializable {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        final String value =
-                                JSONB.fromJson(input.read(Branches.DEFAULT_BRANCH).toString(), Sample.class).data;
-                        objects.add(new SampleLength(value.length()));
+                        objects.add(
+                                new Sample(Record.class.cast(input.read(Branches.DEFAULT_BRANCH)).getString("data")));
                     }
                 }))
-                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .setCoder(SchemaRegistryCoder.of())
                 .apply(UUID.randomUUID().toString(), toSampleLength())
                 .apply(UUID.randomUUID().toString(), toInt());
 
@@ -200,16 +199,16 @@ public class TalendIOTest implements Serializable {
     public void processorMulti() {
         final PCollection<SampleLength> out = pipeline
                 .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
-                .apply(UUID.randomUUID().toString(), toJson())
-                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(UUID.randomUUID().toString(), toRecord())
+                .setCoder(SchemaRegistryCoder.of())
                 .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendFn.asFn(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH).emit(new SampleLength(
-                                JSONB.fromJson(input.read(Branches.DEFAULT_BRANCH).toString(), Sample.class).data
-                                        .length()));
+                        final Object read = input.read(Branches.DEFAULT_BRANCH);
+                        factory.create(Branches.DEFAULT_BRANCH).emit(
+                                new Sample(Record.class.cast(read).getString("data")));
                     }
                 }))
                 .apply(toSampleLength());
@@ -227,23 +226,25 @@ public class TalendIOTest implements Serializable {
         });
     }
 
-    private ParDo.SingleOutput<JsonObject, SampleLength> toSampleLength() {
-        return ParDo.of(new DoFn<JsonObject, SampleLength>() {
+    private ParDo.SingleOutput<Record, SampleLength> toSampleLength() {
+        return ParDo.of(new DoFn<Record, SampleLength>() {
 
             @ProcessElement
             public void onElement(final ProcessContext ctx) {
-                final JsonArray array = ctx.element().getJsonArray("__default__");
-                ctx.output(JSONB.fromJson(array.getJsonObject(0).toString(), SampleLength.class));
+                final Collection<Record> array = ctx.element().getArray(Record.class, "__default__");
+                ctx.output(new SampleLength(array.iterator().next().getString("data").length()));
             }
         });
     }
 
-    private ParDo.SingleOutput<Sample, JsonObject> toJson() {
-        return ParDo.of(new DoFn<Sample, JsonObject>() {
+    private ParDo.SingleOutput<Sample, Record> toRecord() {
+        return ParDo.of(new DoFn<Sample, Record>() {
 
             @ProcessElement
             public void toData(final ProcessContext sample) {
-                sample.output(JSONB.fromJson(JSONB.toJson(sample.element()), JsonObject.class));
+                final Sample element = sample.element();
+                final RecordBuilderFactory builderFactory = new AvroRecordBuilderFactoryProvider().apply(null);
+                sample.output(builderFactory.newRecordBuilder().withString("data", element.getData()).build());
             }
         });
     }

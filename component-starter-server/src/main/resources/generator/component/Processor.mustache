@@ -4,10 +4,6 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-{{#generic}}
-import javax.json.JsonObject;
-
-{{/generic}}
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -24,6 +20,9 @@ import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 {{/hasOutputs}}
 import org.talend.sdk.component.api.processor.Processor;
+{{#generic}}
+import org.talend.sdk.component.api.record.Record;
+{{/generic}}
 
 import {{servicePackage}}.{{serviceName}};
 

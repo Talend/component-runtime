@@ -23,6 +23,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.beam.LoopState;
 import org.talend.sdk.component.runtime.output.Branches;
@@ -40,7 +41,7 @@ class QueueOutputTest {
                 });
         final LoopState loopState = LoopState.lookup(output.getStateId());
         loopState.end();
-        final JsonObject next = loopState.next();
+        final Record next = loopState.next();
         assertNotNull(next);
         assertEquals(1, next.getInt("id"));
         assertNull(loopState.next());

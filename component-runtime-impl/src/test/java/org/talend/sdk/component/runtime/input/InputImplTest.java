@@ -28,6 +28,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.serialization.Serializer;
 import org.talend.sdk.component.api.input.Producer;
 
@@ -50,7 +52,15 @@ class InputImplTest {
         assertEquals(0, delegate.count);
 
         IntStream.range(0, 10).forEach(i -> {
-            assertEquals(i, Sample.class.cast(input.next()).getData());
+            final Object next = input.next();
+            assertTrue(Record.class.isInstance(next));
+            final Record record = Record.class.cast(next);
+            assertEquals(Schema.Type.RECORD, record.getSchema().getType());
+            assertEquals(1, record.getSchema().getEntries().size());
+            final Schema.Entry data = record.getSchema().getEntries().iterator().next();
+            assertEquals("data", data.getName());
+            assertEquals(Schema.Type.DOUBLE, data.getType());
+            assertEquals(i, record.get(Double.class, "data").doubleValue());
             assertTrue(delegate.start);
             assertFalse(delegate.stop);
             assertEquals(i + 1, delegate.count);

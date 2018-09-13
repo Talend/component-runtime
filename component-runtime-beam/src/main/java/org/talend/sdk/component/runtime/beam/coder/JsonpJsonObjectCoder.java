@@ -45,16 +45,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
 
-    public static JsonpJsonObjectCoder of(final String plugin) {
-        if (plugin == null) {
-            final ComponentManager instance = ComponentManager.instance();
-            return new JsonpJsonObjectCoder(instance.getJsonpReaderFactory(), instance.getJsonpWriterFactory());
-        }
-        final LightContainer container = ContainerFinder.Instance.get().find(plugin);
-        return new JsonpJsonObjectCoder(container.findService(JsonReaderFactory.class),
-                container.findService(JsonWriterFactory.class));
-    }
-
     private JsonReaderFactory readerFactory;
 
     private JsonWriterFactory writerFactory;
@@ -77,5 +67,15 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
             final JsonObject jsonObject = reader.readObject();
             return jsonObject;
         }
+    }
+
+    public static JsonpJsonObjectCoder of(final String plugin) {
+        if (plugin == null) {
+            final ComponentManager instance = ComponentManager.instance();
+            return new JsonpJsonObjectCoder(instance.getJsonpReaderFactory(), instance.getJsonpWriterFactory());
+        }
+        final LightContainer container = ContainerFinder.Instance.get().find(plugin);
+        return new JsonpJsonObjectCoder(container.findService(JsonReaderFactory.class),
+                container.findService(JsonWriterFactory.class));
     }
 }

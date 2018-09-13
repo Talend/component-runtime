@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.json.JsonObject;
-
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -18,6 +16,7 @@ import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.record.Record;
 
 import com.foo.service.TestService;
 
@@ -51,12 +50,12 @@ public class TProcProcessor implements Serializable {
 
     @ElementListener
     public void onNext(
-            @Input final JsonObject defaultInput,
-            @Input("Input_1") final JsonObject Input1Input,
+            @Input final Record defaultInput,
+            @Input("Input_1") final Record Input1Input,
             @Output final OutputEmitter<TProcDefaultOutput> defaultOutput,
-            @Output("reject") final OutputEmitter<JsonObject> rejectOutput,
-            @Output("reject2") final OutputEmitter<JsonObject> reject2Output,
-            @Output("reject3") final OutputEmitter<JsonObject> reject3Output) {
+            @Output("reject") final OutputEmitter<Record> rejectOutput,
+            @Output("reject2") final OutputEmitter<Record> reject2Output,
+            @Output("reject3") final OutputEmitter<Record> reject3Output) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).

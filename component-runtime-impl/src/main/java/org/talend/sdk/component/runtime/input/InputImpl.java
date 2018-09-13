@@ -23,17 +23,28 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import javax.json.bind.Jsonb;
+
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
+import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
 
 public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient Method next;
+
+    private transient RecordConverters converters;
+
+    private transient Jsonb jsonb;
+
+    private transient RecordBuilderFactory recordBuilderFactory;
 
     public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
         super(instance, rootName, name, plugin);
@@ -47,13 +58,47 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     public Object next() {
         if (next == null) {
             next = findMethods(Producer.class).findFirst().get();
+            converters = new RecordConverters();
         }
-        return doInvoke(next);
+        final Object record = doInvoke(this.next);
+        if (record == null) {
+            return null;
+        }
+        final Class<?> recordClass = record.getClass();
+        if (recordClass.isPrimitive() || String.class == recordClass) {
+            // mainly for tests, can be dropped while build is green
+            return record;
+        }
+        return converters.toRecord(record, this::jsonb, this::recordBuilderFactory);
     }
 
     @Override
     public Object getDelegate() {
         return delegate;
+    }
+
+    private Jsonb jsonb() {
+        if (jsonb == null) {
+            synchronized (this) {
+                if (jsonb == null) {
+                    final LightContainer container = ContainerFinder.Instance.get().find(plugin());
+                    jsonb = container.findService(Jsonb.class);
+                }
+            }
+        }
+        return jsonb;
+    }
+
+    private RecordBuilderFactory recordBuilderFactory() {
+        if (recordBuilderFactory == null) {
+            synchronized (this) {
+                if (recordBuilderFactory == null) {
+                    final LightContainer container = ContainerFinder.Instance.get().find(plugin());
+                    recordBuilderFactory = container.findService(RecordBuilderFactory.class);
+                }
+            }
+        }
+        return recordBuilderFactory;
     }
 
     Object writeReplace() throws ObjectStreamException {

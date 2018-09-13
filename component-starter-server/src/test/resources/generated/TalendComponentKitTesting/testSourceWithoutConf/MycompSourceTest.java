@@ -5,11 +5,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
-import javax.json.JsonObject;
-
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.input.Mapper;
 
@@ -30,7 +29,7 @@ public class MycompMapperTest {
         final Mapper mapper = COMPONENT_FACTORY.createMapper(MycompMapper.class, configuration);
 
         // Collect the source as a list
-        assertEquals(asList(/* TODO - give the expected data */), COMPONENT_FACTORY.collectAsList(JsonObject.class, mapper));
+        assertEquals(asList(/* TODO - give the expected data */), COMPONENT_FACTORY.collectAsList(Record.class, mapper));
     }
 
 }

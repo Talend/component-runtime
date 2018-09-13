@@ -19,6 +19,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+
 public class DynamicContainerFinder implements ContainerFinder {
 
     public static final Map<String, ClassLoader> LOADERS = new ConcurrentHashMap<>();
@@ -35,6 +41,12 @@ public class DynamicContainerFinder implements ContainerFinder {
             @Override
             public <T> T findService(final Class<T> key) {
                 try {
+                    if (key == Jsonb.class) {
+                        return key.cast(JsonbBuilder.create());
+                    }
+                    if (key == RecordBuilderFactory.class) {
+                        return key.cast(new RecordBuilderFactoryImpl("test"));
+                    }
                     return key.isInterface() ? null : key.getConstructor().newInstance();
                 } catch (final InstantiationException | IllegalAccessException | InvocationTargetException
                         | NoSuchMethodException e) {

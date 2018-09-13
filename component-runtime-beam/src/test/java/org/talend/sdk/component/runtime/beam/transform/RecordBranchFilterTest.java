@@ -17,24 +17,21 @@ package org.talend.sdk.component.runtime.beam.transform;
 
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.talend.sdk.component.runtime.beam.transform.Pipelines.buildBaseJsonPipeline;
+import static org.junit.Assert.assertNull;
+import static org.talend.sdk.component.runtime.beam.transform.Pipelines.buildBasePipeline;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.StreamSupport;
-
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.junit.Rule;
 import org.junit.Test;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.api.record.Record;
 
 public class RecordBranchFilterTest implements Serializable {
 
@@ -43,19 +40,20 @@ public class RecordBranchFilterTest implements Serializable {
 
     @Test
     public void test() {
-        final ComponentManager instance = ComponentManager.instance();
-        final JsonBuilderFactory factory = instance.getJsonpBuilderFactory();
-        PAssert.that(buildBaseJsonPipeline(pipeline, factory).apply(RecordBranchFilter.of(null, "b1"))).satisfies(
-                values -> {
-                    final List<JsonObject> items = StreamSupport.stream(values.spliterator(), false).collect(toList());
-                    assertEquals(2, items.size());
-                    items.forEach(item -> {
-                        assertTrue(item.containsKey("b1"));
-                        assertNotNull(item.getJsonArray("b1").getJsonObject(0).getString("foo"));
-                        assertFalse(item.containsKey("b2"));
-                    });
-                    return null;
-                });
+        PAssert.that(buildBasePipeline(pipeline).apply(RecordBranchFilter.of(null, "b1"))).satisfies(values -> {
+            final List<Record> items = StreamSupport.stream(values.spliterator(), false).collect(toList());
+            assertEquals(2, items.size());
+            items.forEach(item -> {
+                assertNull(item.get(Object.class, "b2"));
+
+                final Object b1 = item.get(Object.class, "b1");
+                assertNotNull(b1);
+
+                final Collection<Record> records = Collection.class.cast(b1);
+                assertNotNull(records.stream().map(r -> r.getString("foo")).findFirst().get());
+            });
+            return null;
+        });
         assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 }

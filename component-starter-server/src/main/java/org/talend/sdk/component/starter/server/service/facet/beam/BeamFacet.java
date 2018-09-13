@@ -62,7 +62,10 @@ public class BeamFacet implements FacetGenerator {
                 new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"),
                 new Dependency("org.talend.sdk.component", "component-runtime-beam-junit", versions.getKit(), "test"),
                 new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
-                new Dependency("org.apache.beam", "beam-runners-direct-java", versions.getBeam(), "test"));
+                new Dependency("org.apache.beam", "beam-runners-direct-java", versions.getBeam(), "test"),
+                // for avro
+                new Dependency("org.codehaus.jackson", "jackson-core-asl", versions.getAvroJackson(), "test"),
+                new Dependency("org.codehaus.jackson", "jackson-mapper-asl", versions.getAvroJackson(), "test"));
     }
 
     @Override
@@ -149,7 +152,7 @@ public class BeamFacet implements FacetGenerator {
             // input branches names
             final Set<Map.Entry<String, String>> inputBranches =
                     processor.getInputStructures().entrySet().stream().flatMap(in -> {
-                        final String inName = in.getValue().isGeneric() ? "JsonObject"
+                        final String inName = in.getValue().isGeneric() ? "Record"
                                 : capitalize(processor.getName())
                                         + capitalize(names.sanitizeConnectionName(in.getKey())) + "Input";
                         Map<String, String> map = new HashMap<String, String>() {
@@ -165,7 +168,7 @@ public class BeamFacet implements FacetGenerator {
             // outputNames
             final Set<Map.Entry<String, String>> outputBranches =
                     !isOutput ? processor.getOutputStructures().entrySet().stream().flatMap(e -> {
-                        final String outName = e.getValue().isGeneric() ? "JsonObject"
+                        final String outName = e.getValue().isGeneric() ? "Record"
                                 : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(e.getKey()))
                                         + "Output";
                         Map<String, String> map = new HashMap<String, String>() {
@@ -177,8 +180,8 @@ public class BeamFacet implements FacetGenerator {
                         return map.entrySet().stream();
                     }).collect(toSet()) : emptySet();
 
-            final boolean isGeneric = inputBranches.stream().anyMatch(e -> "JsonObject".equals(e.getValue()))
-                    || outputBranches.stream().anyMatch(e -> "JsonObject".equals(e.getValue()));
+            final boolean isGeneric = inputBranches.stream().anyMatch(e -> "Record".equals(e.getValue()))
+                    || outputBranches.stream().anyMatch(e -> "Record".equals(e.getValue()));
 
             final Collection<InMemoryFile> files = new ArrayList<>();
             files.add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java",

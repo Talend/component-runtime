@@ -131,6 +131,17 @@ public class BeamIOTransformer implements ClassFileTransformer {
         return doesHierarchyContain(superclass, types);
     }
 
+    public static ClassLoader setPluginTccl(final String key) {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader old = thread.getContextClassLoader();
+        thread.setContextClassLoader(ContainerFinder.Instance.get().find(key).classloader());
+        return old;
+    }
+
+    public static void resetTccl(final ClassLoader loader) {
+        Thread.currentThread().setContextClassLoader(loader);
+    }
+
     public static class SerializationWrapper implements Serializable {
 
         private static final ThreadLocal<Boolean> SKIP = new ThreadLocal<>();
@@ -142,15 +153,6 @@ public class BeamIOTransformer implements ClassFileTransformer {
         public SerializationWrapper(final Object delegate, final String plugin) {
             this.plugin = plugin;
             this.delegateBytes = serialize(delegate);
-        }
-
-        public static Object replace(final Object delegate, final String plugin) {
-            final Boolean skip = SKIP.get();
-            if (skip == null || !skip) {
-                SKIP.remove();
-                return new SerializationWrapper(delegate, plugin);
-            }
-            return null;
         }
 
         private byte[] serialize(final Object delegate) {
@@ -192,17 +194,15 @@ public class BeamIOTransformer implements ClassFileTransformer {
                 thread.setContextClassLoader(oldClassLoader);
             }
         }
-    }
 
-    public static ClassLoader setPluginTccl(final String key) {
-        final Thread thread = Thread.currentThread();
-        final ClassLoader old = thread.getContextClassLoader();
-        thread.setContextClassLoader(ContainerFinder.Instance.get().find(key).classloader());
-        return old;
-    }
-
-    public static void resetTccl(final ClassLoader loader) {
-        Thread.currentThread().setContextClassLoader(loader);
+        public static Object replace(final Object delegate, final String plugin) {
+            final Boolean skip = SKIP.get();
+            if (skip == null || !skip) {
+                SKIP.remove();
+                return new SerializationWrapper(delegate, plugin);
+            }
+            return null;
+        }
     }
 
     private static class TCCLAdviceAdapter extends AdviceAdapter {
@@ -229,11 +229,11 @@ public class BeamIOTransformer implements ClassFileTransformer {
 
         private final String desc;
 
-        private int ctxLocal;
-
         private final Label tryStart = new Label();
 
         private final Label endLabel = new Label();
+
+        private int ctxLocal;
 
         private TCCLAdviceAdapter(final MethodVisitor mv, final int access, final String name, final String desc,
                 final String plugin) {

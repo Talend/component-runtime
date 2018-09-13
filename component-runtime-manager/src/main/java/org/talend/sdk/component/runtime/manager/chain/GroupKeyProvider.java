@@ -18,7 +18,7 @@ package org.talend.sdk.component.runtime.manager.chain;
 import java.io.Serializable;
 import java.util.function.Function;
 
-import javax.json.JsonObject;
+import org.talend.sdk.component.api.record.Record;
 
 /**
  * This is a key provider for a record in a job context
@@ -31,6 +31,6 @@ public interface GroupKeyProvider extends Function<GroupKeyProvider.GroupContext
 
         String getBranchName();
 
-        JsonObject getData();
+        Record getData();
     }
 }

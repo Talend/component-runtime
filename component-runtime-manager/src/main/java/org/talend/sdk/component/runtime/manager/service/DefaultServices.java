@@ -17,12 +17,15 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.function.Function;
+
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGeneratorFactory;
 import javax.json.stream.JsonParserFactory;
 
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
 import lombok.NoArgsConstructor;
@@ -45,6 +48,11 @@ public final class DefaultServices {
         }
         if (type.equals(JsonWriterFactory.class.getName())) {
             return ComponentManager.instance().getJsonpWriterFactory();
+        }
+        if (type.equals(RecordBuilderFactory.class.getName())) {
+            final Function<String, RecordBuilderFactory> provider =
+                    ComponentManager.instance().getRecordBuilderFactoryProvider();
+            return provider.apply(null);
         }
         throw new IllegalArgumentException(type + " can't be a global service, didn't you pass a null plugin?");
     }

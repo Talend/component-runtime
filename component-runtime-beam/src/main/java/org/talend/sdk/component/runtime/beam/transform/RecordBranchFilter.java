@@ -15,28 +15,34 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+
+import java.util.Collection;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
-
-import lombok.AllArgsConstructor;
 
 /**
  * Filters a record by branch, output is a record containing only the selected branch
  * or no record is emitted if the branch is missing.
  */
-@AllArgsConstructor
-public class RecordBranchFilter extends DoFn<JsonObject, JsonObject> {
+public class RecordBranchFilter extends DoFn<Record, Record> {
 
-    private JsonBuilderFactory factory;
+    private RecordBuilderFactory factory;
 
     private String branch;
+
+    public RecordBranchFilter(final RecordBuilderFactory factory, final String branch) {
+        this.factory = factory;
+        this.branch = sanitizeConnectionName(branch);
+    }
 
     protected RecordBranchFilter() {
         // no-op
@@ -44,17 +50,25 @@ public class RecordBranchFilter extends DoFn<JsonObject, JsonObject> {
 
     @ProcessElement
     public void onElement(final ProcessContext context) {
-        final JsonObject aggregate = context.element();
-        if (aggregate.containsKey(branch)) {
-            context.output(factory.createObjectBuilder().add(branch, aggregate.getJsonArray(branch)).build());
+        final Record aggregate = context.element();
+        final Collection<Record> branchValue = aggregate.getArray(Record.class, branch);
+        if (branchValue != null) {
+            final Schema.Entry entry = aggregate
+                    .getSchema()
+                    .getEntries()
+                    .stream()
+                    .filter(it -> it.getName().equals(branch))
+                    .findFirst()
+                    .get();
+            context.output(factory.newRecordBuilder().withArray(entry, branchValue).build());
         }
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin,
+    public static PTransform<PCollection<Record>, PCollection<Record>> of(final String plugin,
             final String branchSelector) {
-        final JsonBuilderFactory lookup =
-                ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
-        return new JsonObjectParDoTransformCoderProvider<>(JsonpJsonObjectCoder.of(plugin),
+        final RecordBuilderFactory lookup =
+                ServiceLookup.lookup(ComponentManager.instance(), plugin, RecordBuilderFactory.class);
+        return new RecordParDoTransformCoderProvider<>(SchemaRegistryCoder.of(),
                 new RecordBranchFilter(lookup, branchSelector));
     }
 }

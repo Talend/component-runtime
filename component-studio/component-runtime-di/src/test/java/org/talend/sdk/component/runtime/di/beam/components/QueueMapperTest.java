@@ -21,10 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.List;
 
 import javax.json.Json;
-import javax.json.JsonObject;
 
-import org.apache.beam.sdk.transforms.Create;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.beam.LoopState;
 import org.talend.sdk.component.runtime.input.Input;
@@ -57,7 +56,7 @@ class QueueMapperTest {
         final LoopState lookup = LoopState.lookup(mapper.getStateId());
         lookup.push(Json.createObjectBuilder().add("id", 1).build());
         lookup.end();
-        assertEquals(1, JsonObject.class.cast(input.next()).getInt("id"));
+        assertEquals(1, Record.class.cast(input.next()).getInt("id"));
         assertNull(input.next());
     }
 }

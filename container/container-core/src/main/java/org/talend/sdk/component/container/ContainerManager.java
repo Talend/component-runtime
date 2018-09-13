@@ -265,7 +265,8 @@ public class ContainerManager implements Lifecycle {
     }
 
     public Optional<Container> find(final String id) {
-        return ofNullable(ofNullable(containers.get(id)).orElseGet(() -> containers.get(buildAutoIdFromName(id))));
+        return ofNullable(ofNullable(containers.get(id))
+                .orElseGet(() -> id == null ? null : containers.get(buildAutoIdFromName(id))));
     }
 
     public Collection<Container> findAll() {

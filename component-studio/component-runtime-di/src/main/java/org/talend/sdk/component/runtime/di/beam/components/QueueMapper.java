@@ -24,8 +24,8 @@ import java.util.function.Supplier;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.base.Delegated;
-import org.talend.sdk.component.runtime.beam.transform.JsonEnforcer;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.beam.InMemoryQueueIO;
 import org.talend.sdk.component.runtime.di.beam.LoopState;
@@ -46,12 +46,12 @@ public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline>,
 
     private final String name;
 
-    private final PTransform<PBegin, PCollection<?>> transform;
+    private final PTransform<PBegin, PCollection<Record>> transform;
 
     private State jobState;
 
     public QueueMapper(final String plugin, final String family, final String name,
-            final PTransform<PBegin, PCollection<?>> transform) {
+            final PTransform<PBegin, PCollection<Record>> transform) {
         this.plugin = plugin;
         this.family = family;
         this.name = name;
@@ -109,8 +109,7 @@ public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline>,
             log.debug("Adding to beam pipeline:\n\n[{}] -> [{}]\n", transform.getName(), family + '#' + name);
         }
         final DIPipeline diPipeline = get();
-        diPipeline.withState(getStateId(),
-                () -> diPipeline.apply(transform).apply(JsonEnforcer.of(plugin)).apply(InMemoryQueueIO.to(state)));
+        diPipeline.withState(getStateId(), () -> diPipeline.apply(transform).apply(InMemoryQueueIO.to(state)));
     }
 
     @Override
