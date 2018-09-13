@@ -19,14 +19,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OpenTracingConfigSource implements ConfigSource {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(OpenTracingConfigSource.class);
+
+    private final String TRACING_ON = "TRACING_ON";
+
+    private final String TRACING_SAMPLING_RATE = "TRACING_SAMPLING_RATE";
 
     private Map<String, String> configuration = new HashMap<String, String>() {
 
         {
-            final String isTracingOn = String
-                    .valueOf(Boolean.getBoolean("TRACING_ON") && Integer.getInteger("TRACING_SAMPLING_RATATE", 0) != 0);
+            final boolean tracingOn =
+                    System.getenv(TRACING_ON) != null && Boolean.parseBoolean(System.getenv(TRACING_ON));
+            int tracingRate = 1;
+            if (System.getenv(TRACING_SAMPLING_RATE) != null) {
+                try {
+                    tracingRate = Integer.parseInt(System.getenv(TRACING_SAMPLING_RATE));
+                } catch (final NumberFormatException e) {
+                    LOGGER.warn("Can't parse value of environment property TRACING_SAMPLING_RATE", e);
+                }
+            }
+            final String isTracingOn = String.valueOf(tracingOn && tracingRate == 1);
             put("geronimo.opentracing.filter.active", isTracingOn);
             put("span.converter.zipkin.active", isTracingOn);
             put("span.converter.zipkin.logger.active", isTracingOn);
