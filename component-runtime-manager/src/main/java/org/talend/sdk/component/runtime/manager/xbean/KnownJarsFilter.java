@@ -487,6 +487,8 @@ public class KnownJarsFilter implements Predicate<String> {
             add("ziplock-");
             add("zkclient");
             add("zookeeper-");
+            add("microprofile-opentracing-api");
+            add("opentracing-api");
             ofNullable(System.getProperty("talend.component.runtime.manager.exclusions"))
                     .map(s -> s.split(","))
                     .ifPresent(e -> Stream.of(e).map(String::trim).filter(v -> !v.isEmpty()).forEach(this::add));

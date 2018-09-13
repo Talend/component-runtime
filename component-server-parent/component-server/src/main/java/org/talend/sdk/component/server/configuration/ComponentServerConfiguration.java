@@ -52,11 +52,6 @@ public class ComponentServerConfiguration {
     private Optional<String> componentRegistry;
 
     @Inject
-    @Documentation("The size of the execution pool for runtime endpoints.")
-    @ConfigProperty(name = "talend.component.server.execution.pool.size", defaultValue = "64")
-    private Integer executionPoolSize;
-
-    @Inject
     @Documentation("How long the application waits during shutdown for the execution tasks to complete")
     @ConfigProperty(name = "talend.component.server.execution.pool.wait", defaultValue = "PT10S") // 10s
     private String executionPoolShutdownTimeout;
@@ -64,64 +59,13 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("How long the read execution endpoint can last (max)")
     @ConfigProperty(name = "talend.component.server.execution.dataset.retriever.timeout", defaultValue = "180") // in
-                                                                                                                // sec
+    // sec
     private Long datasetRetrieverTimeout;
 
     @Inject
     @Documentation("The name used by the brave integration (zipkin)")
     @ConfigProperty(name = "talend.component.server.monitoring.brave.service.name", defaultValue = "component-server")
     private String serviceName;
-
-    @Inject
-    @Documentation("The accuracy rate of the sampling.")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.rate", defaultValue = "-1.")
-    private Float samplerRate;
-
-    @Inject
-    @Documentation("The accuracy rate of the sampling for environment endpoints.")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.environment.rate", defaultValue = "-1")
-    private Float samplerEnvironmentRate;
-
-    @Inject
-    @Documentation("The accuracy rate of the sampling for environment endpoints.")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.configurationtype.rate",
-            defaultValue = "-1")
-    private Float samplerConfigurationTypeRate;
-
-    @Inject
-    @Documentation("The accuracy rate of the sampling for component endpoints.")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.component.rate", defaultValue = "-1")
-    private Float samplerComponentRate;
-
-    @Inject
-    @Documentation("The accuracy rate of the sampling for documentation endpoint.")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.documentation.rate", defaultValue = "-1")
-    private Float samplerDocumentationRate;
-
-    @Inject
-    @Documentation("The accuracy rate of the sampling for action endpoints.")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.action.rate", defaultValue = "-1")
-    private Float samplerActionRate;
-
-    @Inject
-    @Documentation("The accuracy rate of the sampling for execution endpoints.")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.execution.rate", defaultValue = "1")
-    private Float samplerExecutionRate;
-
-    @Inject
-    @Documentation("The brave reporter to use to send the spans. Supported values are [log, noop]. When configuration is needed,"
-            + "you can use this syntax to configure the repoter if needed: `<name>(config1=value1, config2=value2)`, "
-            + "for example: `url(endpoint=http://brave.company.com`.\n\n"
-            + "In `log` mode, if environment variable `TRACING_ON` doesn't exist or is set to `false`, `noop` will be selected, "
-            + "and is set to `true`, `TRACING_KAFKA_URL`, `TRACING_KAFKA_TOPIC` and `TRACING_SAMPLING_RATE` will configure `kafka` reporter..")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.reporter.type", defaultValue = "noop")
-    private String reporter;
-
-    @Inject
-    @Documentation("When using url or kafka reporter, you can configure the async reporter with properties passed to this configuration entry."
-            + "Ex: `messageTimeout=5000,closeTimeout=5000`.")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.reporter.async", defaultValue = "console")
-    private String reporterAsyncConfiguration;
 
     @Inject
     @Documentation("Should the /documentation endpoint be activated.")
