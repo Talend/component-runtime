@@ -105,7 +105,7 @@ enum ActionEnum {
     Delete,
     Insert,
     Update
-    }
+}
 ----
 
 [cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
