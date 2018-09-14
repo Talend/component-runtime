@@ -40,6 +40,7 @@ import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.processor.AfterGroup;
@@ -50,6 +51,7 @@ import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
+import org.talend.sdk.component.runtime.jsonb.MultipleFormatDateAdapter;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
@@ -156,7 +158,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                     jsonb = ContainerFinder.Instance.get().find(plugin()).findService(Jsonb.class);
                 }
                 if (jsonb == null) { // for tests mainly
-                    jsonb = JsonbBuilder.create();
+                    jsonb = JsonbBuilder.create(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()));
                 }
             }
         }

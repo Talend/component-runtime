@@ -130,6 +130,7 @@ import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
+import org.talend.sdk.component.runtime.jsonb.MultipleFormatDateAdapter;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamBuilder;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
@@ -852,7 +853,8 @@ public class ComponentManager implements AutoCloseable {
         final Jsonb jsonb = jsonbProvider
                 .create()
                 .withProvider(jsonpProvider) // reuses the same memory buffering
-                .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
+                .withConfig(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).setProperty(
+                        "johnzon.cdi.activated", false))
                 .build();
         final Jsonb serializableJsonb = Jsonb.class.cast(javaProxyEnricherFactory.asSerializable(container.getLoader(),
                 containerId, Jsonb.class.getName(), jsonb));
