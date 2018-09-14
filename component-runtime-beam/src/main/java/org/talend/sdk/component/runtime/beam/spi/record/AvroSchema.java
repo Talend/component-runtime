@@ -22,12 +22,13 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.util.internal.JacksonUtils;
+import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 import lombok.Data;
 
 @Data
-public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper {
+public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
 
     private final Schema delegate;
 
