@@ -205,7 +205,7 @@ public class ComponentManager implements AutoCloseable {
             .toArray(String[]::new));
 
     private final Filter beamClassesFilter = FilterFactory.and(classesFilter,
-            Filters.prefixes("org.apache.beam.runners.", "org.apache.beam.sdk.",
+            Filters.prefixes("org.apache.beam.runners.", "org.apache.beam.sdk.", "org.apache.beam.repackaged.",
                     "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
                     "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
                     "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.", "org.apache.commons.compress.",
