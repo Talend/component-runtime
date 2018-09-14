@@ -31,6 +31,7 @@ import org.apache.beam.sdk.coders.CustomCoder;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.beam.spi.record.AvroRecord;
+import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.Schemas;
 
 // advantage is that it does not need any record mutation but
@@ -44,7 +45,8 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
     public void encode(final Record value, final OutputStream outputStream) throws IOException {
         final org.talend.sdk.component.api.record.Schema schema =
                 value == null ? Schemas.EMPTY_RECORD : value.getSchema();
-        final Schema avro = value == null ? AvroSchemas.getEmptySchema() : schema.unwrap(Schema.class);
+        final Schema avro =
+                value == null ? AvroSchemas.getEmptySchema() : Unwrappable.class.cast(schema).unwrap(Schema.class);
         final String id = generateRecordName(avro.getFields());
 
         // write the id first
@@ -53,7 +55,8 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
 
         // then the record with the default avro coder
         registry().putIfAbsent(id, schema);
-        getCoder(avro).encode(value == null ? EMPTY_RECORD : value.unwrap(IndexedRecord.class), outputStream);
+        getCoder(avro).encode(value == null ? EMPTY_RECORD : Unwrappable.class.cast(value).unwrap(IndexedRecord.class),
+                outputStream);
     }
 
     @Override
@@ -68,9 +71,8 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
         if (schema == null) {
             throw new IllegalStateException("Invalid schema id: '" + id + "'");
         }
-        final IndexedRecord decoded =
-                getCoder(Schemas.EMPTY_RECORD == schema ? AvroSchemas.getEmptySchema() : schema.unwrap(Schema.class))
-                        .decode(inputStream);
+        final IndexedRecord decoded = getCoder(Schemas.EMPTY_RECORD == schema ? AvroSchemas.getEmptySchema()
+                : Unwrappable.class.cast(schema).unwrap(Schema.class)).decode(inputStream);
         return new AvroRecord(decoded);
     }
 

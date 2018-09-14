@@ -37,14 +37,6 @@ public class SchemaImpl implements Schema {
 
     private List<Entry> entries;
 
-    @Override
-    public <T> T unwrap(final Class<T> type) {
-        if (type.isInstance(this)) {
-            return type.cast(this);
-        }
-        throw new IllegalArgumentException("Unsupported type: " + type);
-    }
-
     public static class BuilderImpl implements Builder {
 
         private Type type;

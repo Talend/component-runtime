@@ -107,14 +107,6 @@ public enum Schemas implements Schema, Schema.Builder {
     }
 
     @Override
-    public <T> T unwrap(final Class<T> type) {
-        if (type.isInstance(this)) {
-            return type.cast(this);
-        }
-        throw new IllegalArgumentException(type + " is not supported by " + getClass());
-    }
-
-    @Override
     public Schema getElementSchema() {
         return null;
     }

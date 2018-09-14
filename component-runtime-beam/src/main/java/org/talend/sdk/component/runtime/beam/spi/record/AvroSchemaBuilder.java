@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.avro.util.internal.JacksonUtils;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
+import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 
 public class AvroSchemaBuilder implements Schema.Builder {
 
@@ -84,8 +85,8 @@ public class AvroSchemaBuilder implements Schema.Builder {
         default:
         }
         fields.add(new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
-                entrySchemaBuilder.build().unwrap(org.apache.avro.Schema.class), entry.getComment(),
-                JacksonUtils.toJsonNode(entry.getDefaultValue())));
+                Unwrappable.class.cast(entrySchemaBuilder.build()).unwrap(org.apache.avro.Schema.class),
+                entry.getComment(), JacksonUtils.toJsonNode(entry.getDefaultValue())));
         return this;
     }
 
@@ -127,7 +128,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
                 throw new IllegalStateException("No elementSchema set for this ARRAY schema");
             }
             final org.apache.avro.Schema elementType = elementSchema == EMPTY_RECORD ? AvroSchemas.getEmptySchema()
-                    : elementSchema.unwrap(org.apache.avro.Schema.class);
+                    : Unwrappable.class.cast(elementSchema).unwrap(org.apache.avro.Schema.class);
             return new AvroSchema(org.apache.avro.Schema.createArray(elementType));
         default:
             throw new IllegalArgumentException("Unsupported: " + type);

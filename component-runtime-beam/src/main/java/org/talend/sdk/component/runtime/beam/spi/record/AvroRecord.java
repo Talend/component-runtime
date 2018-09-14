@@ -35,9 +35,10 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.internal.JacksonUtils;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
-public class AvroRecord implements Record, AvroPropertyMapper {
+public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     private static final ZoneId UTC = ZoneId.of("UTC");
 
@@ -79,7 +80,7 @@ public class AvroRecord implements Record, AvroPropertyMapper {
 
     private Object directMapping(final Object value) {
         if (Record.class.isInstance(value)) {
-            return Record.class.cast(value).unwrap(IndexedRecord.class);
+            return Unwrappable.class.cast(value).unwrap(IndexedRecord.class);
         }
         if (ZonedDateTime.class.isInstance(value)) {
             return ZonedDateTime.class.cast(value).toInstant().toEpochMilli();
@@ -197,7 +198,7 @@ public class AvroRecord implements Record, AvroPropertyMapper {
         default:
             // no-op
         }
-        return builder.build().unwrap(org.apache.avro.Schema.class);
+        return Unwrappable.class.cast(builder.build()).unwrap(org.apache.avro.Schema.class);
     }
 
     @Override

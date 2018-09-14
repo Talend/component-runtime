@@ -95,17 +95,6 @@ public final class RecordImpl implements Record {
         throw new IllegalArgumentException(name + " can't be converted to " + expectedType);
     }
 
-    @Override
-    public <T> T unwrap(final Class<T> type) {
-        if (Map.class.isAssignableFrom(type)) {
-            return type.cast(values);
-        }
-        if (type.isInstance(this)) {
-            return type.cast(this);
-        }
-        throw new IllegalArgumentException("Unsupported type: " + type);
-    }
-
     @Override // for debug purposes, don't use it for anything else
     public String toString() {
         try (final Jsonb jsonb = JsonbBuilder
