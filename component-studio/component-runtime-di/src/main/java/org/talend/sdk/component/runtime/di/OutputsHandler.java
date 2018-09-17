@@ -17,16 +17,24 @@ package org.talend.sdk.component.runtime.di;
 
 import java.util.Map;
 
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
+import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 
 public class OutputsHandler extends BaseIOHandler {
 
+    private final JsonProvider jsonProvider;
+
+    private final JsonBuilderFactory jsonBuilderFactory;
+
     public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
+        this.jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
+        this.jsonBuilderFactory = (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
     }
 
     public OutputFactory asOutputFactory() {
