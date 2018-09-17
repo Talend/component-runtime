@@ -15,16 +15,18 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import java.util.Map;
+
 import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.InputFactory;
 
-// todo: move to Record
 public class InputsHandler extends BaseIOHandler {
 
-    public InputsHandler(final Jsonb jsonb) {
-        super(jsonb);
+    public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
+        super(jsonb, servicesMapper);
     }
 
     public InputFactory asInputFactory() {
@@ -35,12 +37,20 @@ public class InputsHandler extends BaseIOHandler {
             }
 
             final Object value = ref.next();
-            final boolean isJsonValue = JsonValue.class.isInstance(value);
-            if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
-                return null;
+            if (value instanceof Record) {
+                return value;
             }
-            return isJsonValue ? javax.json.JsonValue.class.cast(value)
-                    : jsonb.fromJson(jsonb.toJson(value), javax.json.JsonValue.class);
+            final String jsonMapper;
+            if (value instanceof javax.json.JsonValue) {
+                if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
+                    return null;
+                }
+                jsonMapper = value.toString();
+            } else {
+                jsonMapper = jsonb.toJson(value);
+            }
+
+            return converters.toRecord(jsonMapper, () -> jsonb, () -> recordBuilderMapper);
         };
     }
 
