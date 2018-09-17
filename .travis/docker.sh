@@ -15,9 +15,9 @@ DOCKER_TMP_DIR="$(pwd)/target/docker_workdir"
 
 if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
     echo "Prebuilding the component-server"
-    mvn clean install -pl component-server-parent/component-server \
-        -am -T2C -e $DEPLOY_OPTS \
-        -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar
+    MAVEN_OPTS="$MAVEN_OPTS -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar" \
+        mvn clean install -pl component-server-parent/component-server -am \
+        -T2C -e $DEPLOY_OPTS
 else
     echo "Assuming build is done as requested through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
 fi
