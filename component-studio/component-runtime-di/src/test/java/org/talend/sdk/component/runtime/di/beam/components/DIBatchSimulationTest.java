@@ -186,10 +186,16 @@ class DIBatchSimulationTest {
             processorProcessor.start();
             globalMap.put("processorProcessor", processorProcessor);
 
-            final InputsHandler inputsHandlerProcessor = new InputsHandler(jsonbProcessor);
+            final java.util.Map<Class<?>, Object> servicesMapper = manager
+                    .findPlugin(proc.get().plugin())
+                    .get()
+                    .get(org.talend.sdk.component.runtime.manager.ComponentManager.AllServices.class)
+                    .getServices();
+
+            final InputsHandler inputsHandlerProcessor = new InputsHandler(jsonbProcessor, servicesMapper);
             inputsHandlerProcessor.addConnection("FLOW", row1Struct.class);
 
-            final OutputsHandler outputHandlerProcessor = new OutputsHandler(jsonbProcessor);
+            final OutputsHandler outputHandlerProcessor = new OutputsHandler(jsonbProcessor, servicesMapper);
 
             final InputFactory inputsProcessor = inputsHandlerProcessor.asInputFactory();
             final OutputFactory outputsProcessor = outputHandlerProcessor.asOutputFactory();
