@@ -15,25 +15,37 @@
  */
 package org.talend.sdk.component.runtime.di;
 
-import javax.json.JsonValue;
+import java.util.Map;
+
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 
-// todo: move to Record
 public class OutputsHandler extends BaseIOHandler {
 
-    public OutputsHandler(final Jsonb jsonb) {
-        super(jsonb);
+    public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
+        super(jsonb, servicesMapper);
     }
 
     public OutputFactory asOutputFactory() {
         return name -> value -> {
             final BaseIOHandler.IO ref = connections.get(getActualName(name));
             if (ref != null && value != null) {
-                final String jsonValue = JsonValue.class.isInstance(value) ? JsonValue.class.cast(value).toString()
-                        : jsonb.toJson(value);
-                ref.add(jsonb.fromJson(jsonValue, ref.getType()));
+                final String jsonValueMapper;
+                if (value instanceof javax.json.JsonValue) {
+                    jsonValueMapper = value.toString();
+                } else if (value instanceof Record) {
+                    jsonValueMapper = converters
+                            .toType(converters.toRecord(value, () -> jsonb, () -> recordBuilderMapper),
+                                    JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb)
+                            .toString();
+                } else {
+                    jsonValueMapper = jsonb.toJson(value);
+                }
+
+                ref.add(jsonb.fromJson(jsonValueMapper, ref.getType()));
             }
         };
     }

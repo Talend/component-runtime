@@ -23,16 +23,36 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 
+import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
+import javax.json.spi.JsonProvider;
+
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public abstract class BaseIOHandler {
 
     protected final Jsonb jsonb;
 
+    protected final JsonProvider jsonProvider;
+
+    protected final RecordBuilderFactory recordBuilderMapper;
+
+    protected final JsonBuilderFactory jsonBuilderFactory;
+
+    protected final RecordConverters converters;
+
     protected final Map<String, IO> connections = new TreeMap<>();
+
+    public BaseIOHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
+        this.jsonb = jsonb;
+        this.jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
+        this.jsonBuilderFactory = (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
+        this.recordBuilderMapper = (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
+        this.converters = new RecordConverters();
+    }
 
     public void init(final Collection<String> branchesOrder) {
         if (branchesOrder == null) {
