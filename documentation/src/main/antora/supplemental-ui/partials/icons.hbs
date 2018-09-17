@@ -1,0 +1,11 @@
+<div class="row talend-icons-container">
+    {{#readJSON contents 'icons'}}
+    <div class="talend-icons">
+      <img src="{{path}}" alt="{{name}}" title="{{name}}" />
+      <em>{{name}}{{#legacy}}*{{/legacy}}</em>
+    </div>
+    {{/readJSON}}
+</div>
+<div class="row talend-icons-note">
+  <em>* legacy icon, if you are using it you should consider migrating to another one.</em>
+</div>

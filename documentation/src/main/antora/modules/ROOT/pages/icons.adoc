@@ -1,0 +1,5 @@
+= Icons
+:page-partial:
+:page-talend_icons: true
+
+include::{partialsdir}/generated_icons.adoc[]

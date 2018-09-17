@@ -660,3 +660,23 @@ ul.tree > li > a {
   background: #134165;
   height: 100%;
 }
+
+.talend-icons {
+  width: 50px;
+  height: 60px;
+  float: left;
+  margin: 8px;
+}
+.talend-icons img {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+}
+.talend-icons em {
+  font-size: 9px;
+  word-wrap: break-word;
+  line-height: 0;
+}
+.talend-icons-note {
+    padding-top: 1rem;
+}

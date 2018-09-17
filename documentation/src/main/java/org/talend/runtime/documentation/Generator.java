@@ -33,6 +33,7 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -42,7 +43,11 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -144,6 +149,7 @@ public class Generator {
         generatedJUnitEnvironment(generatedDir);
         generatedScanningExclusions(generatedDir);
         generatedDocumentationIndex(generatedDir, asciidoctor);
+        generatedIcons(generatedDir, new File(generatedDir.getParentFile().getParentFile(), "assets/images/icons"));
 
         final boolean offline = "offline=true".equals(args[4]);
         if (offline) {
@@ -403,6 +409,41 @@ public class Generator {
         try (final Jsonb jsonb = newJsonb(); final OutputStream writer = new WriteIfDifferentStream(file)) {
             writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
             writer.write(jsonb.toJson(contributors).getBytes(StandardCharsets.UTF_8));
+            writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    private static void generatedIcons(final File generatedDir, final File source) throws Exception {
+        if (!source.exists()) {
+            log.warn("{} does not exist", source);
+            return;
+        }
+        final List<Icon> icons = new ArrayList<>();
+        final File file = new File(generatedDir, "generated_icons.adoc");
+        final Path iconBase = source.toPath();
+        Files.walkFileTree(iconBase, new SimpleFileVisitor<Path>() {
+
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                if (file.getFileName().toString().endsWith(".svg")) {
+                    icons
+                            .add(new Icon(
+                                    file.getFileName().toString().replace(".svg", "").replace('-', '_').toUpperCase(
+                                            ENGLISH),
+                                    "_images/icons/" + iconBase.relativize(file).toString(),
+                                    file.toFile().getParentFile().getName().equals("svg-deprecated")));
+                }
+                return super.visitFile(file, attrs);
+            }
+        });
+        if (icons.isEmpty()) {
+            log.error("Can't collect icons in {}", source);
+            return;
+        }
+        icons.sort(comparing(Icon::getName));
+        try (final Jsonb jsonb = newJsonb(); final OutputStream writer = new WriteIfDifferentStream(file)) {
+            writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
+            writer.write(jsonb.toJson(icons).getBytes(StandardCharsets.UTF_8));
             writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
         }
     }
@@ -1207,5 +1248,17 @@ public class Generator {
     public static class Status {
 
         private String name;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Icon {
+
+        private String name;
+
+        private String path;
+
+        private boolean legacy;
     }
 }
