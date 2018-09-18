@@ -17,7 +17,7 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getComponentsList } from '../../store/componentsList/actions';
+import { getComponentsList, switchTree } from '../../store/componentsList/actions';
 import { selectComponent } from '../../store/component/actions';
 import Menu from './Menu.component';
 
@@ -25,10 +25,12 @@ function mapDispatchToProps(dispatch) {
 	return {
 		getComponentsList: bindActionCreators(getComponentsList, dispatch),
 		selectComponent: bindActionCreators(selectComponent, dispatch),
+		onSwitch: () => dispatch(switchTree()),
 	}
 }
+
 function mapStateToProps(state) {
 	return state.app.componentsList || {};
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Menu)
+export default connect(mapStateToProps, mapDispatchToProps)(Menu);

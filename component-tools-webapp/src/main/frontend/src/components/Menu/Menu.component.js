@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { CircularProgress, TreeView } from '@talend/react-components';
+import { CircularProgress, TreeView, Toggle } from '@talend/react-components';
 
 import theme from './Menu.scss';
 
@@ -23,6 +23,7 @@ class Menu extends React.Component {
 	constructor(props) {
 		super(props);
 		this.onSelect = this.onSelect.bind(this);
+		this.onSwitch = this.onSwitch.bind(this);
 		this.noOp = () => {};
 	}
 
@@ -37,18 +38,29 @@ class Menu extends React.Component {
 		this.props.selectComponent(node);
 	}
 
+	onSwitch() {
+		this.props.getComponentsList({ configuration: !this.props.configurationSelected });
+	}
+
 	render() {
 		if (this.props.isLoading) {
 			return (<CircularProgress light />);
 		}
 		return (
-			<TreeView
-				headerText="Components"
-				className={theme.menu}
-				structure={this.props.categories || []}
-				onClick={this.noOp}
-				onSelect={this.onSelect}
-			/>
+			<div className={theme.menu}>
+				<div className={theme.TreeViewHeader}>
+					<div>Components</div>
+					<Toggle onChange={this.onSwitch} checked={this.props.configurationSelected} />
+					<div>Configurations</div>
+				</div>
+				<TreeView
+					noHeader="true"
+					className={theme.menu}
+					structure={this.props.categories || []}
+					onClick={this.noOp}
+					onSelect={this.onSelect}
+				/>
+			</div>
 		);
 	}
 }

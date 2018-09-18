@@ -93,6 +93,7 @@ export default (state = {}, action) => {
       return {
         ...state,
         isLoading: true,
+				configurationSelected: action.configuration,
       };
     case GET_COMPONENT_LIST_OK:
       return {
@@ -114,7 +115,7 @@ export default (state = {}, action) => {
           },
         ),
       };
+    default:
+      return state;
   }
-
-  return state;
 }
