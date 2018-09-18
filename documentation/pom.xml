@@ -26,7 +26,7 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>1.1.0</antora.version>
+    <antora.version>1.1.1</antora.version>
 
     <antora.dev.site.mode>dev</antora.dev.site.mode> <!-- -Dantora.site.mode=dev-poc to test new theme -->
     <project_version>${project.version}</project_version>
