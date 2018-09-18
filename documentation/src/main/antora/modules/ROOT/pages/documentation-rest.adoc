@@ -4,8 +4,6 @@
 :description: Learn about Talend Component Kit HTTP API and the component server
 :keywords: REST API
 
-TIP: A test environment is available on Heroku and can be browsed using Talend Component Kit Server instance on link:https://talend-component-kit.restlet.io[Restlet Studio^].
-
 == HTTP API
 
 The HTTP API intends to expose most Talend Component Kit features over HTTP. It is a standalone Java HTTP server.
