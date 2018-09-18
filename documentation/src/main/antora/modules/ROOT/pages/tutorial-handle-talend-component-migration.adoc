@@ -5,7 +5,7 @@
 
 Talend Component Kit provides a migration mechanism between two versions of a component to let you ensure backward compatibility.
 
-For example, a new version of a component may have some new options that need to be set with a default value in the older versions or that need to be disabled.
+For example, a new version of a component may have some new options that need to be remapped, set with a default value in the older versions, or disabled.
 
 This tutorial shows how to create a migration handler for a component that needs to be upgraded from a version 1 to a version 2. The upgrade to the newer version includes adding new options to the component.
 

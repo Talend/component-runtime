@@ -1,5 +1,9 @@
-= Junit environments
+= Provided JUnit testing environments
 :page-partial:
 :page-talend_skipindexation:
+
+The provided environments set the contextual class loader in order to load the related runner of Apache Beam.
+
+Package: org.talend.sdk.component.junit.environment.builtin.beam
 
 include::{partialsdir}/generated_junit-environments.adoc[]
