@@ -24,6 +24,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
 
 class JoinInputFactoryTest {
 
@@ -47,7 +48,7 @@ class JoinInputFactoryTest {
                 singleton(Json.createObjectBuilder().add("test", "foo").build()));
         assertTrue(factory.hasMoreData());
         final Object main = factory.read("__default__");
-        assertTrue(JsonObject.class.isInstance(main));
+        assertTrue(Record.class.isInstance(main));
         assertEquals("{\"test\":\"foo\"}", main.toString());
         assertFalse(factory.hasMoreData());
     }

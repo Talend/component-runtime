@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.stream.StreamSupport;
 
 import javax.json.Json;
-import javax.json.JsonObject;
 
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;
@@ -37,6 +36,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.junit.beam.test.SampleProcessor;
@@ -59,15 +59,14 @@ public class ProcessorTest {
         final JoinInputFactory joinInputFactory = new JoinInputFactory().withInput("__default__",
                 asList(new SampleProcessor.Sample(1), Json.createObjectBuilder().add("data", 2).build()));
 
-        final PCollection<JsonObject> inputs =
+        final PCollection<Record> inputs =
                 pipeline.apply(Data.of(processor.plugin(), joinInputFactory.asInputRecords()));
 
-        final PCollection<Map<String, JsonObject>> outputs =
-                inputs.apply(TalendFn.asFn(processor)).apply(Data.map(processor.plugin(), JsonObject.class));
+        final PCollection<Map<String, Record>> outputs =
+                inputs.apply(TalendFn.asFn(processor)).apply(Data.map(processor.plugin(), Record.class));
 
-        PAssert.that(outputs).satisfies((SerializableFunction<Iterable<Map<String, JsonObject>>, Void>) input -> {
-            final List<Map<String, JsonObject>> result =
-                    StreamSupport.stream(input.spliterator(), false).collect(toList());
+        PAssert.that(outputs).satisfies((SerializableFunction<Iterable<Map<String, Record>>, Void>) input -> {
+            final List<Map<String, Record>> result = StreamSupport.stream(input.spliterator(), false).collect(toList());
 
             assertEquals(2, result.size());
             result.forEach(e -> assertTrue(e.containsKey("__default__") && e.containsKey("reject")));

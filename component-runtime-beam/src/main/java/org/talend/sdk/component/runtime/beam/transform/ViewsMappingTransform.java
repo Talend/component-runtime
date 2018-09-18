@@ -16,23 +16,23 @@
 package org.talend.sdk.component.runtime.beam.transform;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PROTECTED;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 
 import java.util.Map;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-
-import org.apache.beam.sdk.coders.CannotProvideCoderException;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 
 import lombok.AllArgsConstructor;
@@ -44,26 +44,26 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
-public class ViewsMappingTransform extends PTransform<PCollection<JsonObject>, PCollection<JsonObject>> {
+public class ViewsMappingTransform extends PTransform<PCollection<Record>, PCollection<Record>> {
 
     private Map<String, PCollectionView<?>> views;
 
     private String plugin;
 
     @Override
-    public PCollection<JsonObject> expand(final PCollection<JsonObject> input) {
+    public PCollection<Record> expand(final PCollection<Record> input) {
         return input.apply(ParDo.of(new MappingViewsFn(views, plugin)));
     }
 
     @Override
-    protected Coder<?> getDefaultOutputCoder() throws CannotProvideCoderException {
-        return JsonpJsonObjectCoder.of(plugin);
+    protected Coder<?> getDefaultOutputCoder() {
+        return SchemaRegistryCoder.of();
     }
 
     @NoArgsConstructor(access = PROTECTED)
-    public static class MappingViewsFn extends DoFn<JsonObject, JsonObject> {
+    public static class MappingViewsFn extends DoFn<Record, Record> {
 
-        private volatile JsonBuilderFactory builderFactory;
+        private volatile RecordBuilderFactory builderFactory;
 
         private String plugin;
 
@@ -74,7 +74,8 @@ public class ViewsMappingTransform extends PTransform<PCollection<JsonObject>, P
         }
 
         private MappingViewsFn(final Map<String, PCollectionView<?>> views, final String plugin) {
-            this.views = views.entrySet().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            this.views = views.entrySet().stream().collect(
+                    toMap(e -> sanitizeConnectionName(e.getKey()), Map.Entry::getValue));
             this.plugin = plugin;
         }
 
@@ -83,22 +84,34 @@ public class ViewsMappingTransform extends PTransform<PCollection<JsonObject>, P
             context.output(createMap(context));
         }
 
-        private JsonObject createMap(final ProcessContext context) {
-            final JsonObjectBuilder builder = builderFactory().createObjectBuilder();
-            builder.add("__default__", builderFactory.createArrayBuilder().add(context.element()));
+        private Record createMap(final ProcessContext context) {
+            final RecordBuilderFactory factory = builderFactory();
+            final Record.Builder builder = factory.newRecordBuilder();
+            final Record element = context.element();
+            builder.withArray(factory
+                    .newEntryBuilder()
+                    .withName("__default__")
+                    .withType(Schema.Type.ARRAY)
+                    .withElementSchema(element.getSchema())
+                    .build(), singletonList(element));
             views.forEach((n, v) -> {
-                final JsonObject sideInput = JsonObject.class.cast(context.sideInput(v));
-                builder.add(n, builderFactory.createArrayBuilder().add(sideInput));
+                final Record sideInput = Record.class.cast(context.sideInput(v));
+                builder.withArray(factory
+                        .newEntryBuilder()
+                        .withName(sanitizeConnectionName(n))
+                        .withType(Schema.Type.ARRAY)
+                        .withElementSchema(element.getSchema())
+                        .build(), singletonList(sideInput));
             });
             return builder.build();
         }
 
-        private JsonBuilderFactory builderFactory() {
+        private RecordBuilderFactory builderFactory() {
             if (builderFactory == null) {
                 synchronized (this) {
                     if (builderFactory == null) {
                         builderFactory =
-                                ContainerFinder.Instance.get().find(plugin).findService(JsonBuilderFactory.class);
+                                ContainerFinder.Instance.get().find(plugin).findService(RecordBuilderFactory.class);
                     }
                 }
             }

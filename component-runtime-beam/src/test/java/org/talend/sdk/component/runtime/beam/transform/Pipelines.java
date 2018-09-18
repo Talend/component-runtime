@@ -15,40 +15,48 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
+import static java.util.Collections.singletonList;
 import static lombok.AccessLevel.PRIVATE;
-
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptor;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class Pipelines {
 
-    static PCollection<JsonObject> buildBaseJsonPipeline(final TestPipeline pipeline,
-            final JsonBuilderFactory factory) {
+    static PCollection<Record> buildBasePipeline(final TestPipeline pipeline) {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
         return pipeline
                 .apply(Create.of("a", "b"))
-                .apply(MapElements
-                        .into(TypeDescriptor.of(JsonObject.class))
-                        .via((String input) -> factory
-                                .createObjectBuilder()
-                                .add("b1", factory.createArrayBuilder().add(factory
-                                        .createObjectBuilder()
-
-                                        .add("foo", input)))
-                                .add("b2", factory.createArrayBuilder().add(factory
-                                        .createObjectBuilder()
-
-                                        .add("bar", input)))
-                                .build()))
-                .setCoder(JsonpJsonObjectCoder.of(null));
+                .apply(MapElements.into(TypeDescriptor.of(Record.class)).via((String input) -> {
+                    final Record b1 = factory.newRecordBuilder().withString("foo", input).build();
+                    final Record b2 = factory.newRecordBuilder().withString("bar", input).build();
+                    return factory
+                            .newRecordBuilder()
+                            .withArray(factory
+                                    .newEntryBuilder()
+                                    .withName("b1")
+                                    .withType(Schema.Type.ARRAY)
+                                    .withElementSchema(b1.getSchema())
+                                    .build(), singletonList(b1))
+                            .withArray(factory
+                                    .newEntryBuilder()
+                                    .withName("b2")
+                                    .withType(Schema.Type.ARRAY)
+                                    .withElementSchema(b2.getSchema())
+                                    .build(), singletonList(b2))
+                            .build();
+                }))
+                .setCoder(SchemaRegistryCoder.of());
     }
 }

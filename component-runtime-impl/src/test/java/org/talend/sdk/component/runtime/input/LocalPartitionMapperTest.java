@@ -25,8 +25,9 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.runtime.serialization.Serializer;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.serialization.Serializer;
 
 public class LocalPartitionMapperTest {
 
@@ -43,7 +44,7 @@ public class LocalPartitionMapperTest {
     void createReader() {
         final Mapper mapper = new LocalPartitionMapper("Root", "Test", "Plugin", new Component());
         final Input input = mapper.create();
-        assertTrue(Sample.class.isInstance(input.next()));
+        assertTrue(Record.class.isInstance(input.next()));
         assertNotSame(input.next(), input.next());
     }
 

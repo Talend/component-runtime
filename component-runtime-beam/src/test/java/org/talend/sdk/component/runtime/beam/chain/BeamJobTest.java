@@ -23,12 +23,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.beam.PluginGenerator;
@@ -36,10 +38,13 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.chain.GroupKeyProvider;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 
-@WithTemporaryFolder
-class BeamJobTest {
+import lombok.extern.slf4j.Slf4j;
 
-    private final PluginGenerator pluginGenerator = new PluginGenerator();
+@Slf4j
+@WithTemporaryFolder
+class BeamJobTest implements Serializable {
+
+    private transient final PluginGenerator pluginGenerator = new PluginGenerator();
 
     @Test
     void complex(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
@@ -73,13 +78,11 @@ class BeamJobTest {
                     .component("concat", "chain://concat?__version=1")
                     .component("concat_2", "chain://concat?__version=1")
                     .component("firstNames-dataset",
-                            "chain://list?__version=1" + "&values[0]=noha" + "&values[1]=Emma" + "&values[2]=liam"
-                                    + "&values[3]=Olivia")
+                            "chain://list?__version=1&values[0]=noha&values[1]=Emma&values[2]=liam&values[3]=Olivia")
                     .component("lastNames-dataset",
-                            "chain://list?__version=1" + "&values[0]=manson" + "&values[1]=Sophia" + "&values[2]=jacob")
+                            "chain://list?__version=1&values[0]=manson&values[1]=Sophia&values[2]=jacob")
                     .component("address",
-                            "chain://list?__version=1" + "&values[0]=Paris" + "&values[1]=Strasbourg"
-                                    + "&values[2]=Bordeaux" + "&values[3]=Nantes")
+                            "chain://list?__version=1&values[0]=Paris&values[1]=Strasbourg&values[2]=Bordeaux&values[3]=Nantes")
                     .component("outFile", "chain://file?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
                     .from("firstNames-dataset")
@@ -97,13 +100,11 @@ class BeamJobTest {
                     .from("concat_2")
                     .to("outFile")
                     .build()
-                    .property(GroupKeyProvider.class.getName(),
-                            (GroupKeyProvider) (context) -> context.getData().getJsonObject("$$internal").getString(
-                                    "key"))
+                    .property(GroupKeyProvider.class.getName(), (GroupKeyProvider) this::getKey)
                     .run();
 
             final int maxRetries = 120;
-            for (int i = 0; i < maxRetries; i++) { // https://github.com/apache/beam/pull/4372
+            for (int i = 0; i < maxRetries; i++) {
                 try {
                     assertTrue(out.isFile());
                     assertEquals(Stream
@@ -116,6 +117,7 @@ class BeamJobTest {
                     }
                     try {
                         sleep(500);
+                        log.info("Output file is not yet matching the expected output, will retry: " + ae.getMessage());
                     } catch (final InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
@@ -123,5 +125,11 @@ class BeamJobTest {
             }
         }
 
+    }
+
+    private String getKey(final GroupKeyProvider.GroupContext context) {
+        final Record record = context.getData();
+        final Record internals = record.getRecord("__talend_internal");
+        return internals.getString("key");
     }
 }

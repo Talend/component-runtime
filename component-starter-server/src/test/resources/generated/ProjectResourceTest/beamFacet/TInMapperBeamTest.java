@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
 
-import javax.json.JsonObject;
-
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
@@ -14,6 +12,7 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.beam.TalendIO;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -35,7 +34,7 @@ public class TInMapperBeamTest implements Serializable {
         final Mapper mapper = COMPONENT_FACTORY.createMapper(TInMapper.class, configuration);
 
         // create a pipeline starting with the mapper
-        final PCollection<JsonObject> out = pipeline.apply(TalendIO.read(mapper));
+        final PCollection<Record> out = pipeline.apply(TalendIO.read(mapper));
 
         // then append some assertions to the output of the mapper,
         // PAssert is a beam utility to validate part of the pipeline

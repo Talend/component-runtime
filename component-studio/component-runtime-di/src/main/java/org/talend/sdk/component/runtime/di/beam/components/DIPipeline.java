@@ -32,6 +32,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.POutput;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.beam.DelegatingBoundedSource;
 import org.talend.sdk.component.runtime.di.beam.DelegatingUnBoundedSource;
@@ -106,7 +107,7 @@ public class DIPipeline extends Pipeline {
         });
     }
 
-    public void registerStateForTransform(final PTransform<PBegin, PCollection<?>> transform,
+    public void registerStateForTransform(final PTransform<PBegin, PCollection<Record>> transform,
             final JobStateAware.State jobState) {
         states.put(transform, jobState);
     }

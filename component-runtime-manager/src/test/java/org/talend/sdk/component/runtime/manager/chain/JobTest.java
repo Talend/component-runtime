@@ -34,12 +34,15 @@ import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
+import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.test.InMemCollector;
 
 @WithTemporaryFolder
@@ -231,10 +234,10 @@ class JobTest {
                     .build()
                     .property(GroupKeyProvider.class.getName(), (GroupKeyProvider) context -> {
                         if (context.getComponentId().equals("users")) {
-                            return context.getData().getString("id");
+                            return context.getData().get(String.class, "id");
                         }
 
-                        return context.getData().getString("userId");
+                        return context.getData().get(String.class, "userId");
                     })
                     .run();
 
@@ -254,13 +257,13 @@ class JobTest {
         try (final ComponentManager manager = newTestManager(jar)) {
 
             final GroupKeyProvider foreignKeyProvider =
-                    (GroupKeyProvider) context -> context.getData().getString("userId");
+                    (GroupKeyProvider) context -> context.getData().get(String.class, "userId");
 
             Job
                     .components()
                     .component("users", "db://input?__version=1&tableName=users")
                     .property(GroupKeyProvider.class.getName(),
-                            (GroupKeyProvider) context -> context.getData().getString("id"))
+                            (GroupKeyProvider) context -> context.getData().get(String.class, "id"))
                     .component("address", "db://input?__version=1&tableName=address")
                     .property(GroupKeyProvider.class.getName(), foreignKeyProvider)
                     .component("salary", "db://input?__version=1&tableName=salary")
@@ -294,11 +297,14 @@ class JobTest {
 
             {
                 CONTEXTUAL_INSTANCE.set(this);
-                addPlugin(jar.getAbsolutePath());
+                final String containerId = addPlugin(jar.getAbsolutePath());
+                DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class,
+                        new RecordBuilderFactoryImpl(containerId));
             }
 
             @Override
             public void close() {
+                DynamicContainerFinder.SERVICES.clear();
                 super.close();
                 CONTEXTUAL_INSTANCE.set(null);
             }

@@ -15,29 +15,26 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import javax.json.JsonArray;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+
+import java.util.Collection;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
-import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
-
-import lombok.AllArgsConstructor;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 
 /**
  * Extract the value of a branch if exists (unwrap).
  */
-@AllArgsConstructor
-public class RecordBranchUnwrapper extends DoFn<JsonObject, JsonObject> {
-
-    private JsonBuilderFactory factory;
+public class RecordBranchUnwrapper extends DoFn<Record, Record> {
 
     private String branch;
+
+    public RecordBranchUnwrapper(final String branch) {
+        this.branch = sanitizeConnectionName(branch);
+    }
 
     protected RecordBranchUnwrapper() {
         // no-op
@@ -45,23 +42,17 @@ public class RecordBranchUnwrapper extends DoFn<JsonObject, JsonObject> {
 
     @ProcessElement
     public void onElement(final ProcessContext context) {
-        final JsonObject aggregate = context.element();
-        if (aggregate.containsKey(branch)) {
-            final JsonArray jsonArray = aggregate.getJsonArray(branch);
-            if (!jsonArray.isEmpty()) {
-                final JsonValue next = jsonArray.iterator().next();
-                if (next != JsonValue.NULL) {
-                    context.output(next.asJsonObject());
-                }
-            }
+        final Record aggregate = context.element();
+        final Collection<Record> array = aggregate.getArray(Record.class, branch);
+        if (array != null) {
+            array.forEach(context::output);
         }
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin,
+    // keep plugin here, this is how we would lookup services if needed
+    public static PTransform<PCollection<Record>, PCollection<Record>> of(final String plugin,
             final String branchSelector) {
-        final JsonBuilderFactory lookup =
-                ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
-        return new JsonObjectParDoTransformCoderProvider<>(JsonpJsonObjectCoder.of(plugin),
-                new RecordBranchUnwrapper(lookup, branchSelector));
+        return new RecordParDoTransformCoderProvider<>(SchemaRegistryCoder.of(),
+                new RecordBranchUnwrapper(branchSelector));
     }
 }

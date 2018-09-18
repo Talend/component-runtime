@@ -15,9 +15,11 @@
  */
 package org.talend.sdk.component.junit.beam;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,12 +28,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
+import javax.json.spi.JsonProvider;
 
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.MapCoder;
@@ -41,8 +41,14 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.coder.JsonbCoder;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.beam.spi.record.RecordCollectors;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
@@ -52,19 +58,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public class Data {
 
-    public static <T> PTransform<PCollection<JsonObject>, PCollection<Map<String, T>>> map(final String plugin,
+    public static <T> PTransform<PCollection<Record>, PCollection<Map<String, T>>> map(final String plugin,
             final Class<T> expectedRecordType) {
         return new DataMapper<>(plugin, expectedRecordType);
     }
 
-    public static Create.Values<JsonObject> of(final String plugin, final Iterable<Map<String, List<?>>> elems) {
+    public static Create.Values<Record> of(final String plugin, final Iterable<Map<String, List<?>>> elems) {
         return Create.of(() -> {
             final Iterator<Map<String, List<?>>> delegate = elems.iterator();
-            return new Iterator<JsonObject>() {
+            return new Iterator<Record>() {
+
+                private transient volatile RecordConverters converters;
 
                 private transient volatile Jsonb jsonb;
 
-                private transient volatile JsonBuilderFactory jsonBuilderFactory;
+                private transient volatile RecordBuilderFactory recordBuilderFactory;
 
                 @Override
                 public boolean hasNext() {
@@ -72,46 +80,53 @@ public class Data {
                 }
 
                 @Override
-                public JsonObject next() {
+                public Record next() {
                     return map(delegate.next());
                 }
 
-                private JsonObject map(final Map<String, List<?>> next) {
+                private Record map(final Map<String, List<?>> next) {
                     if (next == null) {
                         return null;
                     }
-                    if (jsonBuilderFactory == null) {
+                    if (converters == null) {
                         synchronized (this) {
-                            if (jsonBuilderFactory == null) {
+                            if (converters == null) {
                                 final LightContainer container = ContainerFinder.Instance.get().find(plugin);
-                                jsonBuilderFactory = container.findService(JsonBuilderFactory.class);
+                                recordBuilderFactory = container.findService(RecordBuilderFactory.class);
                                 jsonb = container.findService(Jsonb.class);
+                                converters = new RecordConverters();
                             }
                         }
                     }
                     return next
                             .entrySet()
                             .stream()
-                            .collect(jsonBuilderFactory::createObjectBuilder,
-                                    (objBuilder, entry) -> objBuilder.add(entry.getKey(), entry
-                                            .getValue()
-                                            .stream()
-                                            .collect(jsonBuilderFactory::createArrayBuilder,
-                                                    (array, list) -> array.add(JsonValue.class.isInstance(list)
-                                                            ? JsonValue.class.cast(list)
-                                                            : jsonb.fromJson(jsonb.toJson(list), JsonObject.class)),
-                                                    JsonArrayBuilder::addAll)
-                                            .build()),
-                                    JsonObjectBuilder::addAll)
+                            .filter(it -> !it.getValue().isEmpty())
+                            .collect(recordBuilderFactory::newRecordBuilder, (aggregator, entry) -> {
+                                final List<Record> list = entry
+                                        .getValue()
+                                        .stream()
+                                        .map(it -> Record.class
+                                                .cast(converters.toRecord(it, () -> jsonb, () -> recordBuilderFactory)))
+                                        .collect(toList());
+                                aggregator
+                                        .withArray(recordBuilderFactory
+                                                .newEntryBuilder()
+                                                .withName(sanitizeConnectionName(entry.getKey()))
+                                                .withType(Schema.Type.ARRAY)
+                                                .withElementSchema(list.iterator().next().getSchema())
+                                                .build(), list)
+                                        .build();
+                            }, RecordCollectors::merge)
                             .build();
                 }
             };
-        }).withCoder(JsonpJsonObjectCoder.of(plugin));
+        }).withCoder(SchemaRegistryCoder.of());
     }
 
     @NoArgsConstructor(access = PROTECTED)
     @AllArgsConstructor(access = PRIVATE)
-    private static class DataMapper<T> extends PTransform<PCollection<JsonObject>, PCollection<Map<String, T>>> {
+    private static class DataMapper<T> extends PTransform<PCollection<Record>, PCollection<Map<String, T>>> {
 
         private String plugin;
 
@@ -119,40 +134,71 @@ public class Data {
 
         @Override
         protected Coder<?> getDefaultOutputCoder() {
-            return MapCoder.of(StringUtf8Coder.of(), JsonbCoder.of(type, plugin));
+            return MapCoder.of(StringUtf8Coder.of(), SchemaRegistryCoder.of());
         }
 
         @Override
-        public PCollection<Map<String, T>> expand(final PCollection<JsonObject> collection) {
-            return collection
-                    .apply(ParDo.of(new DataMapperFn<T>(JsonpJsonObjectCoder.of(plugin), JsonbCoder.of(type, plugin))));
+        public PCollection<Map<String, T>> expand(final PCollection<Record> collection) {
+            return collection.apply(ParDo.of(new DataMapperFn<>(JsonpJsonObjectCoder.of(plugin),
+                    JsonbCoder.of(type, plugin), plugin, new RecordConverters())));
         }
     }
 
     @NoArgsConstructor(access = PROTECTED)
     @AllArgsConstructor(access = PRIVATE)
-    private static class DataMapperFn<T> extends DoFn<JsonObject, Map<String, T>> {
+    private static class DataMapperFn<T> extends DoFn<Record, Map<String, T>> {
 
         private Coder<JsonObject> jsonpCoder;
 
-        private Coder<T> elementCoder;
+        private JsonbCoder<T> jsonbCoder;
+
+        private String plugin;
+
+        private RecordConverters converters;
 
         @ProcessElement
         public void onElement(final ProcessContext context) {
             context.output(map(context.element()));
         }
 
-        private Map<String, T> map(final JsonObject object) {
-            return object.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> {
+        private Map<String, T> map(final Record object) {
+            return object.getSchema().getEntries().stream().collect(toMap(Schema.Entry::getName, e -> {
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    jsonpCoder.encode(e.getValue().asJsonArray().getJsonObject(0), baos);
-                    return elementCoder.decode(new ByteArrayInputStream(baos.toByteArray()));
+                    final Record record = object.getArray(Record.class, e.getName()).iterator().next();
+                    final JsonObject jsonObject = JsonObject.class.cast(converters.toType(record, JsonObject.class,
+                            this::getJsonBuilder, this::getJsonProvider, this::getJsonb));
+                    if (Record.class == jsonbCoder.getType()) {
+                        return (T) new RecordConverters().toRecord(jsonObject, this::getJsonb,
+                                this::getRecordBuilderFactory);
+                    }
+                    jsonpCoder.encode(jsonObject, baos);
+                    return jsonbCoder.decode(new ByteArrayInputStream(baos.toByteArray()));
                 } catch (final IOException ex) {
                     throw new IllegalArgumentException(ex);
                 }
             }));
 
+        }
+
+        private LightContainer getContainer() {
+            return ContainerFinder.Instance.get().find(plugin);
+        }
+
+        private RecordBuilderFactory getRecordBuilderFactory() {
+            return getContainer().findService(RecordBuilderFactory.class);
+        }
+
+        private JsonBuilderFactory getJsonBuilder() {
+            return getContainer().findService(JsonBuilderFactory.class);
+        }
+
+        private JsonProvider getJsonProvider() {
+            return getContainer().findService(JsonProvider.class);
+        }
+
+        private Jsonb getJsonb() {
+            return getContainer().findService(Jsonb.class);
         }
     }
 }

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,9 +32,12 @@ import java.util.Optional;
 import java.util.PrimitiveIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
+import javax.json.spi.JsonProvider;
 
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.transforms.Create;
@@ -43,12 +47,14 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
 import org.talend.sdk.component.runtime.di.JobStateAware;
@@ -61,6 +67,7 @@ import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -69,6 +76,14 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 class DIBatchSimulationTest {
+
+    @BeforeAll
+    static void forceManagerInit() {
+        final ComponentManager manager = ComponentManager.instance();
+        if (manager.find(Stream::of).count() == 0) {
+            manager.addPlugin(new File("target/test-classes").getAbsolutePath());
+        }
+    }
 
     @Test
     void fromEmptyBeam() {
@@ -171,10 +186,16 @@ class DIBatchSimulationTest {
             processorProcessor.start();
             globalMap.put("processorProcessor", processorProcessor);
 
-            final InputsHandler inputsHandlerProcessor = new InputsHandler(jsonbProcessor);
+            final java.util.Map<Class<?>, Object> servicesMapper = manager
+                    .findPlugin(proc.get().plugin())
+                    .get()
+                    .get(org.talend.sdk.component.runtime.manager.ComponentManager.AllServices.class)
+                    .getServices();
+
+            final InputsHandler inputsHandlerProcessor = new InputsHandler(jsonbProcessor, servicesMapper);
             inputsHandlerProcessor.addConnection("FLOW", row1Struct.class);
 
-            final OutputsHandler outputHandlerProcessor = new OutputsHandler(jsonbProcessor);
+            final OutputsHandler outputHandlerProcessor = new OutputsHandler(jsonbProcessor, servicesMapper);
 
             final InputFactory inputsProcessor = inputsHandlerProcessor.asInputFactory();
             final OutputFactory outputsProcessor = outputHandlerProcessor.asOutputFactory();
@@ -215,18 +236,29 @@ class DIBatchSimulationTest {
         inputMapper.start();
         globalMap.put("inputMapper", inputMapper);
 
-        final Jsonb jsonbMapper = Jsonb.class.cast(manager
-                .findPlugin(mapperMapper.plugin())
-                .get()
-                .get(ComponentManager.AllServices.class)
-                .getServices()
-                .get(Jsonb.class));
+        final Map<Class<?>, Object> servicesMapper =
+                manager.findPlugin(mapperMapper.plugin()).get().get(ComponentManager.AllServices.class).getServices();
+        final Jsonb jsonbMapper = Jsonb.class.cast(servicesMapper.get(Jsonb.class));
+        final JsonProvider jsonProvider = JsonProvider.class.cast(servicesMapper.get(JsonProvider.class));
+        final JsonBuilderFactory jsonBuilderFactory =
+                JsonBuilderFactory.class.cast(servicesMapper.get(JsonBuilderFactory.class));
+        final RecordBuilderFactory recordBuilderMapper =
+                RecordBuilderFactory.class.cast(servicesMapper.get(RecordBuilderFactory.class));
+        final RecordConverters converters = new RecordConverters();
 
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
-            final String jsonValueMapper = javax.json.JsonValue.class.isInstance(dataMapper)
-                    ? javax.json.JsonValue.class.cast(dataMapper).toString()
-                    : jsonbMapper.toJson(dataMapper);
+            final String jsonValueMapper;
+            if (javax.json.JsonValue.class.isInstance(dataMapper)) {
+                jsonValueMapper = javax.json.JsonValue.class.cast(dataMapper).toString();
+            } else if (org.talend.sdk.component.api.record.Record.class.isInstance(dataMapper)) {
+                jsonValueMapper = converters
+                        .toType(converters.toRecord(dataMapper, () -> jsonbMapper, () -> recordBuilderMapper),
+                                JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonbMapper)
+                        .toString();
+            } else {
+                jsonValueMapper = jsonbMapper.toJson(dataMapper);
+            }
             row1 = jsonbMapper.fromJson(jsonValueMapper, row1.getClass());
             sourceData.add(row1);
 

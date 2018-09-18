@@ -20,10 +20,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
+
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.jsonb.MultipleFormatDateAdapter;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 /**
  * An input factory which joins multiple distinct sources reading them in "parallel".
@@ -73,22 +77,25 @@ public class JoinInputFactory implements ControllableInputFactory {
     }
 
     private Object map(final Object next) {
-        if (next == null || JsonObject.class.isInstance(next)) {
+        if (next == null || Record.class.isInstance(next)) { // directly ok
             return next;
         }
+
+        if (String.class.isInstance(next) || next.getClass().isPrimitive()) { // primitives
+            return next;
+        }
+
         if (jsonb == null) {
             synchronized (this) {
                 if (jsonb == null) {
-                    jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+                    jsonb = JsonbBuilder
+                            .create(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).setProperty(
+                                    "johnzon.cdi.activated", false));
                 }
             }
         }
-        final String str = jsonb.toJson(next);
-        // primitives mainly, not that accurate in main code but for now not forbidden
-        if (str.equals(next.toString())) {
-            return next;
-        }
-        // pojo
-        return jsonb.fromJson(str, JsonObject.class);
+
+        return new RecordConverters().toRecord(next, () -> jsonb,
+                () -> ComponentManager.instance().getRecordBuilderFactoryProvider().apply(null));
     }
 }

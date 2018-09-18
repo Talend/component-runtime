@@ -46,18 +46,13 @@ Mark an action as returning a discovered schema. Its parameter MUST be the type 
 
 - Type: `schema`
 - API: `@org.talend.sdk.component.api.service.schema.DiscoverSchema`
-- Returned type: `org.talend.sdk.component.api.service.schema.Schema`
+- Returned type: `org.talend.sdk.component.api.record.Schema`
 - Sample:
 
 [source,js]
 ----
 {
-  "entries":[
-    {
-      "name":"column1",
-      "type":"STRING"
-    }
-  ]
+
 }
 ----
 

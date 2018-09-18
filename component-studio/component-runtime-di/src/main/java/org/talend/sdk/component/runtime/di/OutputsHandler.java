@@ -15,24 +15,45 @@
  */
 package org.talend.sdk.component.runtime.di;
 
-import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
+import java.util.Map;
 
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.json.spi.JsonProvider;
+
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 
 public class OutputsHandler extends BaseIOHandler {
 
-    public OutputsHandler(final Jsonb jsonb) {
-        super(jsonb);
+    private final JsonProvider jsonProvider;
+
+    private final JsonBuilderFactory jsonBuilderFactory;
+
+    public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
+        super(jsonb, servicesMapper);
+        this.jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
+        this.jsonBuilderFactory = (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
     }
 
     public OutputFactory asOutputFactory() {
         return name -> value -> {
             final BaseIOHandler.IO ref = connections.get(getActualName(name));
             if (ref != null && value != null) {
-                final String jsonValue = JsonValue.class.isInstance(value) ? JsonValue.class.cast(value).toString()
-                        : jsonb.toJson(value);
-                ref.add(jsonb.fromJson(jsonValue, ref.getType()));
+                final String jsonValueMapper;
+                if (value instanceof javax.json.JsonValue) {
+                    jsonValueMapper = value.toString();
+                } else if (value instanceof Record) {
+                    jsonValueMapper = converters
+                            .toType(converters.toRecord(value, () -> jsonb, () -> recordBuilderMapper),
+                                    JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb)
+                            .toString();
+                } else {
+                    jsonValueMapper = jsonb.toJson(value);
+                }
+
+                ref.add(jsonb.fromJson(jsonValueMapper, ref.getType()));
             }
         };
     }

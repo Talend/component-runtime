@@ -19,15 +19,12 @@ import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
-import static org.talend.sdk.component.runtime.beam.transform.Pipelines.buildBaseJsonPipeline;
+import static org.talend.sdk.component.runtime.beam.transform.Pipelines.buildBasePipeline;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.StreamSupport;
-
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;
@@ -35,8 +32,7 @@ import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.values.KV;
 import org.junit.Rule;
 import org.junit.Test;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.manager.chain.internal.JobImpl;
 
 public class AutoKVWrapperTest implements Serializable {
@@ -46,25 +42,21 @@ public class AutoKVWrapperTest implements Serializable {
 
     @Test
     public void test() {
-        final ComponentManager instance = ComponentManager.instance();
-        final JsonBuilderFactory factory = instance.getJsonpBuilderFactory();
         PAssert
-                .that(buildBaseJsonPipeline(pipeline, factory)
-                        .setCoder(JsonpJsonObjectCoder.of(null))
-                        .apply(AutoKVWrapper.of(null,
-                                JobImpl.LocalSequenceHolder.cleanAndGet(getClass().getName() + ".test"), "", "")))
+                .that(buildBasePipeline(pipeline).apply(AutoKVWrapper.of(null,
+                        JobImpl.LocalSequenceHolder.cleanAndGet(getClass().getName() + ".test"), "", "")))
                 .satisfies(values -> {
-                    final List<KV<String, JsonObject>> items = StreamSupport
+                    final List<KV<String, Record>> items = StreamSupport
                             .stream(values.spliterator(), false)
-                            .sorted(comparing(k -> k.getValue().getJsonArray("b1").getJsonObject(0).getString("foo")))
+                            .sorted(comparing(
+                                    k -> k.getValue().getArray(Record.class, "b1").iterator().next().getString("foo")))
                             .collect(toList());
                     assertEquals(2, items.size());
                     assertEquals(2, new HashSet<>(items).size()); // ensure we got 2 ids
-                    assertEquals(asList("a", "b"),
-                            items
-                                    .stream()
-                                    .map(k -> k.getValue().getJsonArray("b1").getJsonObject(0).getString("foo"))
-                                    .collect(toList()));
+                    assertEquals(asList("a", "b"), items
+                            .stream()
+                            .map(k -> k.getValue().getArray(Record.class, "b1").iterator().next().getString("foo"))
+                            .collect(toList()));
                     return null;
                 });
         assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());

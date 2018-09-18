@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
-import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 
 import org.apache.beam.sdk.annotations.Experimental;
@@ -40,13 +39,17 @@ import org.apache.beam.sdk.values.PInput;
 import org.apache.beam.sdk.values.POutput;
 import org.joda.time.Instant;
 import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Lifecycle;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
+import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -54,7 +57,7 @@ import lombok.NoArgsConstructor;
 @Experimental(SOURCE_SINK)
 public final class TalendIO {
 
-    public static Base<PBegin, PCollection<JsonObject>, Mapper> read(final Mapper mapper) {
+    public static Base<PBegin, PCollection<Record>, Mapper> read(final Mapper mapper) {
         return mapper.isStream() ? new InfiniteRead(mapper) : new Read(mapper);
     }
 
@@ -92,42 +95,42 @@ public final class TalendIO {
 
         @Override
         protected Coder<?> getDefaultOutputCoder() {
-            return JsonpJsonObjectCoder.of(delegate.plugin());
+            return SchemaRegistryCoder.of();
         }
     }
 
-    private static class Read extends Base<PBegin, PCollection<JsonObject>, Mapper> {
+    private static class Read extends Base<PBegin, PCollection<Record>, Mapper> {
 
         private Read(final Mapper delegate) {
             super(delegate);
         }
 
         @Override
-        public PCollection<JsonObject> expand(final PBegin incoming) {
+        public PCollection<Record> expand(final PBegin incoming) {
             return incoming.apply(org.apache.beam.sdk.io.Read.from(new BoundedSourceImpl(delegate)));
         }
     }
 
-    private static class InfiniteRead extends Base<PBegin, PCollection<JsonObject>, Mapper> {
+    private static class InfiniteRead extends Base<PBegin, PCollection<Record>, Mapper> {
 
         private InfiniteRead(final Mapper delegate) {
             super(delegate);
         }
 
         @Override
-        public PCollection<JsonObject> expand(final PBegin incoming) {
+        public PCollection<Record> expand(final PBegin incoming) {
             return incoming.apply(org.apache.beam.sdk.io.Read.from(new UnBoundedSourceImpl(delegate)));
         }
     }
 
-    public static class Write extends Base<PCollection<JsonObject>, PDone, Processor> {
+    public static class Write extends Base<PCollection<Record>, PDone, Processor> {
 
         private Write(final Processor delegate) {
             super(delegate);
         }
 
         @Override
-        public PDone expand(final PCollection<JsonObject> incoming) {
+        public PDone expand(final PCollection<Record> incoming) {
             final WriteFn fn = new WriteFn(delegate);
             incoming.apply(ParDo.of(fn));
             return PDone.in(incoming.getPipeline());
@@ -137,7 +140,7 @@ public final class TalendIO {
     @NoArgsConstructor
     private static class WriteFn extends BaseProcessorFn<Void> {
 
-        private static final Consumer<JsonObject> NOOP_CONSUMER = record -> {
+        private static final Consumer<Record> NOOP_CONSUMER = record -> {
         };
 
         private static final OutputEmitter NOOP_OUTPUT_EMITTER = value -> {
@@ -162,7 +165,7 @@ public final class TalendIO {
         }
 
         @Override
-        protected Consumer<JsonObject> toEmitter(final ProcessContext context) {
+        protected Consumer<Record> toEmitter(final ProcessContext context) {
             return NOOP_CONSUMER;
         }
 
@@ -174,12 +177,12 @@ public final class TalendIO {
 
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class BoundedSourceImpl extends BoundedSource<JsonObject> {
+    private static class BoundedSourceImpl extends BoundedSource<Record> {
 
         private Mapper mapper;
 
         @Override
-        public List<? extends BoundedSource<JsonObject>> split(final long desiredBundleSizeBytes,
+        public List<? extends BoundedSource<Record>> split(final long desiredBundleSizeBytes,
                 final PipelineOptions options) {
             mapper.start();
             try {
@@ -200,7 +203,7 @@ public final class TalendIO {
         }
 
         @Override
-        public BoundedReader<JsonObject> createReader(final PipelineOptions options) {
+        public BoundedReader<Record> createReader(final PipelineOptions options) {
             mapper.start();
             try {
                 return new BoundedReaderImpl<>(this, mapper.create());
@@ -215,20 +218,20 @@ public final class TalendIO {
         }
 
         @Override
-        public Coder<JsonObject> getOutputCoder() {
-            return JsonpJsonObjectCoder.of(mapper.plugin());
+        public Coder<Record> getOutputCoder() {
+            return SchemaRegistryCoder.of();
         }
     }
 
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class UnBoundedSourceImpl extends UnboundedSource<JsonObject, UnboundedSource.CheckpointMark> {
+    private static class UnBoundedSourceImpl extends UnboundedSource<Record, UnboundedSource.CheckpointMark> {
 
         private Mapper mapper;
 
         @Override
-        public List<? extends UnboundedSource<JsonObject, UnboundedSource.CheckpointMark>>
-                split(final int desiredNumSplits, final PipelineOptions options) {
+        public List<? extends UnboundedSource<Record, UnboundedSource.CheckpointMark>> split(final int desiredNumSplits,
+                final PipelineOptions options) {
             mapper.start();
             try {
                 return mapper.split(desiredNumSplits).stream().map(UnBoundedSourceImpl::new).collect(toList());
@@ -238,19 +241,38 @@ public final class TalendIO {
         }
 
         @Override
-        public UnboundedReader<JsonObject> createReader(final PipelineOptions options,
+        public UnboundedReader<Record> createReader(final PipelineOptions options,
                 final UnboundedSource.CheckpointMark checkpointMark) {
             return new UnBoundedReaderImpl<>(this, mapper.create());
         }
 
         @Override
-        public Coder<JsonObject> getOutputCoder() {
-            return JsonpJsonObjectCoder.of(mapper.plugin());
+        public Coder<Record> getOutputCoder() {
+            return SchemaRegistryCoder.of();
         }
 
         @Override
         public Coder<CheckpointMark> getCheckpointMarkCoder() {
             return new NoCheckpointCoder();
+        }
+    }
+
+    private static class Converter {
+
+        private final RecordConverters converters;
+
+        private final RecordBuilderFactory recordBuilder;
+
+        private final Jsonb jsonb;
+
+        private Converter(final LightContainer container) {
+            recordBuilder = container.findService(RecordBuilderFactory.class);
+            jsonb = container.findService(Jsonb.class);
+            converters = new RecordConverters();
+        }
+
+        private Object convert(final Object next) {
+            return converters.toRecord(next, () -> jsonb, () -> recordBuilder);
         }
     }
 
@@ -262,7 +284,7 @@ public final class TalendIO {
 
         private Object current;
 
-        private volatile Jsonb jsonb;
+        private volatile Converter converter;
 
         BoundedReaderImpl(final BoundedSource<T> source, final Input input) {
             this.source = source;
@@ -278,15 +300,15 @@ public final class TalendIO {
         @Override
         public boolean advance() {
             final Object next = input.next();
-            if (next != null && !JsonObject.class.isInstance(next)) {
-                if (jsonb == null) {
+            if (next != null && !Record.class.isInstance(next)) {
+                if (converter == null) {
                     synchronized (this) {
-                        if (jsonb == null) {
-                            jsonb = ContainerFinder.Instance.get().find(input.plugin()).findService(Jsonb.class);
+                        if (converter == null) {
+                            converter = new Converter(ContainerFinder.Instance.get().find(input.plugin()));
                         }
                     }
                 }
-                current = jsonb.fromJson(jsonb.toJson(next), JsonObject.class);
+                current = converter.convert(next);
             } else {
                 current = next;
             }
@@ -317,7 +339,7 @@ public final class TalendIO {
 
         private Object current;
 
-        private volatile Jsonb jsonb;
+        private volatile Converter converter;
 
         UnBoundedReaderImpl(final UnboundedSource<T, ?> source, final Input input) {
             this.source = source;
@@ -333,15 +355,15 @@ public final class TalendIO {
         @Override
         public boolean advance() {
             final Object next = input.next();
-            if (next != null && !JsonObject.class.isInstance(next)) {
-                if (jsonb == null) {
+            if (next != null && !Record.class.isInstance(next)) {
+                if (converter == null) {
                     synchronized (this) {
-                        if (jsonb == null) {
-                            jsonb = ContainerFinder.Instance.get().find(input.plugin()).findService(Jsonb.class);
+                        if (converter == null) {
+                            converter = new Converter(ContainerFinder.Instance.get().find(input.plugin()));
                         }
                     }
                 }
-                current = jsonb.fromJson(jsonb.toJson(next), JsonObject.class);
+                current = converter.convert(next);
             } else {
                 current = next;
             }

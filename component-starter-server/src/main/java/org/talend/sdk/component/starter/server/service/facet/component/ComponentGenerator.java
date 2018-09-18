@@ -235,7 +235,7 @@ public class ComponentGenerator {
                     !isOutput ? processor.getOutputStructures().entrySet().stream().map(e -> {
                         final String javaName = names.sanitizeConnectionName(e.getKey());
                         if (e.getValue().isGeneric()) {
-                            return new Connection(e.getKey(), javaName, "JsonObject", isDefault(e.getKey()));
+                            return new Connection(e.getKey(), javaName, "Record", isDefault(e.getKey()));
                         }
 
                         final String outputClassName =
@@ -250,7 +250,7 @@ public class ComponentGenerator {
                     ? processor.getInputStructures().entrySet().stream().map(e -> {
                         final String javaName = names.sanitizeConnectionName(e.getKey());
                         if (e.getValue().isGeneric()) {
-                            return new Connection(e.getKey(), javaName, "JsonObject", isDefault(e.getKey()));
+                            return new Connection(e.getKey(), javaName, "Record", isDefault(e.getKey()));
                         }
 
                         final String inputClassName = capitalize(processor.getName() + capitalize(javaName + "Input"));
@@ -281,8 +281,8 @@ public class ComponentGenerator {
                                     put("hasOutputs", outputNames.size() != 0);
                                     put("icon", ofNullable(processor.getIcon()).filter(s -> !s.isEmpty()).orElse(
                                             "Icon.IconType.STAR"));
-                                    put("generic", outputNames.stream().anyMatch(o -> o.type.equals("JsonObject"))
-                                            || inputNames.stream().anyMatch(o -> o.type.equals("JsonObject")));
+                                    put("generic", outputNames.stream().anyMatch(o -> o.type.equals("Record"))
+                                            || inputNames.stream().anyMatch(o -> o.type.equals("Record")));
                                 }
                             })));
 

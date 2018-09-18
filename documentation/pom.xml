@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -26,7 +26,7 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>1.1.0</antora.version>
+    <antora.version>1.1.1</antora.version>
 
     <antora.dev.site.mode>dev</antora.dev.site.mode> <!-- -Dantora.site.mode=dev-poc to test new theme -->
     <project_version>${project.version}</project_version>
@@ -661,6 +661,27 @@
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit-http
                   </outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-icons</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.talend.ui</groupId>
+                  <artifactId>talend-icon</artifactId>
+                  <version>${talend-ui.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.basedir}/src/main/antora/modules/ROOT/assets/images</outputDirectory>
+                  <includes>**/*.svg</includes>
+                  <excludes>**/filters/**</excludes>
                 </artifactItem>
               </artifactItems>
             </configuration>

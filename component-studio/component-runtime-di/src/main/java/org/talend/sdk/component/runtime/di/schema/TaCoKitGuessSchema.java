@@ -38,8 +38,8 @@ import javax.json.JsonValue;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
-import org.talend.sdk.component.api.service.schema.Schema;
-import org.talend.sdk.component.api.service.schema.Type;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.input.Input;
@@ -209,42 +209,64 @@ public class TaCoKitGuessSchema {
         final Object schemaResult = actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration));
 
         if (schemaResult instanceof Schema) {
-            Collection<Schema.Entry> entries = Schema.class.cast(schemaResult).getEntries();
-            if (entries == null || entries.isEmpty()) {
-                log.info("No column found by guess schema action");
-                return false;
-            }
-
-            for (Schema.Entry entry : entries) {
-                String name = entry.getName();
-                Type entryType = entry.getType();
-                if (entryType == null) {
-                    entryType = Type.STRING;
-                }
-                String typeName;
-                switch (entryType) {
-                case BOOLEAN:
-                    typeName = javaTypesManager.BOOLEAN.getId();
-                    break;
-                case DOUBLE:
-                    typeName = javaTypesManager.DOUBLE.getId();
-                    break;
-                case INT:
-                    typeName = javaTypesManager.INTEGER.getId();
-                    break;
-                default:
-                    typeName = javaTypesManager.STRING.getId();
-                    break;
-                }
-
-                append(str, name, typeName);
-            }
-            return true;
+            return fromSchema(Schema.class.cast(schemaResult));
 
         } else {
             log.error("Result of built-in guess schema action is not an instance of TaCoKit Schema");
             return false;
         }
+    }
+
+    private boolean fromSchema(final Schema schema) {
+        final Collection<Schema.Entry> entries = schema.getEntries();
+        if (entries == null || entries.isEmpty()) {
+            log.info("No column found by guess schema action");
+            return false;
+        }
+
+        for (Schema.Entry entry : entries) {
+            String name = entry.getName();
+            Schema.Type entryType = entry.getType();
+            if (entryType == null) {
+                entryType = Schema.Type.STRING;
+            }
+            String typeName;
+            switch (entryType) {
+            case BOOLEAN:
+                typeName = javaTypesManager.BOOLEAN.getId();
+                break;
+            case DOUBLE:
+                typeName = javaTypesManager.DOUBLE.getId();
+                break;
+            case INT:
+                typeName = javaTypesManager.INTEGER.getId();
+                break;
+            case LONG:
+                typeName = javaTypesManager.LONG.getId();
+                break;
+            case FLOAT:
+                typeName = javaTypesManager.FLOAT.getId();
+                break;
+            case BYTES:
+                typeName = javaTypesManager.BYTE_ARRAY.getId();
+                break;
+            case DATETIME:
+                typeName = javaTypesManager.DATE.getId();
+                break;
+            case RECORD:
+                typeName = javaTypesManager.OBJECT.getId();
+                break;
+            case ARRAY:
+                typeName = javaTypesManager.LIST.getId();
+                break;
+            default:
+                typeName = javaTypesManager.STRING.getId();
+                break;
+            }
+
+            append(str, name, typeName);
+        }
+        return true;
     }
 
     private void append(final StringBuilder str, final String name, final String type) {
@@ -268,7 +290,9 @@ public class TaCoKitGuessSchema {
             if (rowObject == null) {
                 return false;
             }
-            if (rowObject instanceof java.util.Map) {
+            if (rowObject instanceof Record) {
+                return fromSchema(Record.class.cast(rowObject).getSchema());
+            } else if (rowObject instanceof java.util.Map) {
                 return guessInputSchemaThroughResults(input, (java.util.Map) rowObject);
             } else if (rowObject instanceof java.util.Collection) {
                 throw new Exception("Can't guess schema from a Collection");
@@ -369,7 +393,6 @@ public class TaCoKitGuessSchema {
         }
         ++lineCount;
         java.util.Iterator<String> iter = keysNoTypeYet.iterator();
-        boolean isJsonObject = JsonObject.class.isInstance(rowObject);
         while (iter.hasNext()) {
             String key = iter.next();
             Object result = rowObject.get(key);
@@ -377,7 +400,7 @@ public class TaCoKitGuessSchema {
                 continue;
             }
             String type;
-            if (isJsonObject) {
+            if (JsonObject.class.isInstance(rowObject)) {
                 // can't judge by the result variable, since common map may contains JsonValue
                 type = getTalendType((JsonValue) result);
             } else {

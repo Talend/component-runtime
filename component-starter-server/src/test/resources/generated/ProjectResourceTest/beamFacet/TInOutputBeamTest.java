@@ -3,8 +3,6 @@ package com.foo.output;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
-import javax.json.JsonObject;
-
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.values.PCollection;
@@ -12,6 +10,7 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.junit.beam.Data;
@@ -39,15 +38,15 @@ public class TInOutputBeamTest {
         // Make sure to fil in some test data for the branches you want to test
         // You can also remove the branches that you don't need from the factory below
         final JoinInputFactory joinInputFactory =  new JoinInputFactory()
-                .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of JsonObject.class */));
+                .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of Record.class */));
 
         // Convert it to a beam "source"
-        final PCollection<JsonObject> inputs =
+        final PCollection<Record> inputs =
                 pipeline.apply(Data.of(processor.plugin(), joinInputFactory.asInputRecords()));
 
         // add our processor right after to see each data as configured previously
         inputs.apply(TalendFn.asFn(processor))
-                .apply(Data.map(processor.plugin(), JsonObject.class));
+                .apply(Data.map(processor.plugin(), Record.class));
 
         // run the pipeline and ensure the execution was successful
         assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());

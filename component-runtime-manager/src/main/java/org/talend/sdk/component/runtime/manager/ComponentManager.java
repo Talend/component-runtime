@@ -118,6 +118,7 @@ import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.injector.Injector;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -129,6 +130,7 @@ import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
+import org.talend.sdk.component.runtime.jsonb.MultipleFormatDateAdapter;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamBuilder;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
@@ -147,12 +149,14 @@ import org.talend.sdk.component.runtime.manager.service.ObjectFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
+import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.xbean.FilterFactory;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
@@ -202,7 +206,7 @@ public class ComponentManager implements AutoCloseable {
             .toArray(String[]::new));
 
     private final Filter beamClassesFilter = FilterFactory.and(classesFilter,
-            Filters.prefixes("org.apache.beam.runners.", "org.apache.beam.sdk.",
+            Filters.prefixes("org.apache.beam.runners.", "org.apache.beam.sdk.", "org.apache.beam.repackaged.",
                     "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
                     "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
                     "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.", "org.apache.commons.compress.",
@@ -257,6 +261,9 @@ public class ComponentManager implements AutoCloseable {
 
     // org.slf4j.event but https://issues.apache.org/jira/browse/MNG-6360
     private final Level logInfoLevelMapping;
+
+    @Getter
+    private final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
 
     /**
      * @param m2 the maven repository location if on the file system.
@@ -328,6 +335,19 @@ public class ComponentManager implements AutoCloseable {
                 .sorted(comparing(ComponentExtension::priority))
                 .collect(toList());
         this.transformers = extensions.stream().flatMap(e -> e.getTransformers().stream()).collect(toList());
+
+        final Iterator<RecordBuilderFactoryProvider> recordBuilderFactoryIterator =
+                ServiceLoader.load(RecordBuilderFactoryProvider.class, tccl).iterator();
+        if (recordBuilderFactoryIterator.hasNext()) {
+            final RecordBuilderFactoryProvider factory = recordBuilderFactoryIterator.next();
+            recordBuilderFactoryProvider = factory::apply;
+            if (recordBuilderFactoryIterator.hasNext()) {
+                throw new IllegalArgumentException(
+                        "Ambiguous recordBuilderFactory: " + factory + "/" + recordBuilderFactoryIterator.next());
+            }
+        } else {
+            recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
+        }
     }
 
     private Level findLogInfoLevel() {
@@ -813,28 +833,31 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
-        // note: we can move it to manager instances at some point
-        final JsonProvider jsonpProvider = new PreComputedJsonpProvider(container.getId(), this.jsonpProvider,
+        final String containerId = container.getId();
+
+        // JSON services
+        final JsonProvider jsonpProvider = new PreComputedJsonpProvider(containerId, this.jsonpProvider,
                 jsonpParserFactory, jsonpWriterFactory, jsonpBuilderFactory, jsonpGeneratorFactory, jsonpReaderFactory);
         services.put(JsonProvider.class, jsonpProvider);
         services.put(JsonBuilderFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                container.getId(), JsonBuilderFactory.class.getName(), jsonpBuilderFactory));
+                containerId, JsonBuilderFactory.class.getName(), jsonpBuilderFactory));
         services.put(JsonParserFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                container.getId(), JsonParserFactory.class.getName(), jsonpParserFactory));
+                containerId, JsonParserFactory.class.getName(), jsonpParserFactory));
         services.put(JsonReaderFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                container.getId(), JsonReaderFactory.class.getName(), jsonpReaderFactory));
+                containerId, JsonReaderFactory.class.getName(), jsonpReaderFactory));
         services.put(JsonWriterFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                container.getId(), JsonWriterFactory.class.getName(), jsonpWriterFactory));
+                containerId, JsonWriterFactory.class.getName(), jsonpWriterFactory));
         services.put(JsonGeneratorFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                container.getId(), JsonGeneratorFactory.class.getName(), jsonpGeneratorFactory));
+                containerId, JsonGeneratorFactory.class.getName(), jsonpGeneratorFactory));
 
         final Jsonb jsonb = jsonbProvider
                 .create()
                 .withProvider(jsonpProvider) // reuses the same memory buffering
-                .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
+                .withConfig(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).setProperty(
+                        "johnzon.cdi.activated", false))
                 .build();
         final Jsonb serializableJsonb = Jsonb.class.cast(javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                container.getId(), Jsonb.class.getName(), jsonb));
+                containerId, Jsonb.class.getName(), jsonb));
         services.put(Jsonb.class, serializableJsonb);
 
         // not JSON services
@@ -849,16 +872,15 @@ public class ComponentManager implements AutoCloseable {
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
-        services.put(LocalConfiguration.class,
-                new LocalConfigurationService(containerConfigurations, container.getId()));
+        services.put(LocalConfiguration.class, new LocalConfigurationService(containerConfigurations, containerId));
         services.put(HttpClientFactory.class,
-                new HttpClientFactoryImpl(container.getId(), reflections, serializableJsonb, services));
-        services.put(LocalCache.class, new LocalCacheService(container.getId()));
+                new HttpClientFactoryImpl(containerId, reflections, serializableJsonb, services));
+        services.put(LocalCache.class, new LocalCacheService(containerId));
         services.put(ProxyGenerator.class, proxyGenerator);
-        services.put(Resolver.class,
-                new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
-        services.put(Injector.class, new InjectorImpl(container.getId(), services));
-        services.put(ObjectFactory.class, new ObjectFactoryImpl(container.getId()));
+        services.put(Resolver.class, new ResolverImpl(containerId, container.getLocalDependencyRelativeResolver()));
+        services.put(Injector.class, new InjectorImpl(containerId, services));
+        services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId));
+        services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
     }
 
     protected static Collection<LocalConfiguration> createRawLocalConfigurations() {

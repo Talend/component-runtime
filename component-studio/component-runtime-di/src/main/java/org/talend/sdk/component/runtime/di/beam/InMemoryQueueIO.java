@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
-import javax.json.JsonObject;
-
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.io.Read;
 import org.apache.beam.sdk.io.UnboundedSource;
@@ -36,23 +34,24 @@ import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.Instant;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class InMemoryQueueIO {
 
-    public static PTransform<PBegin, PCollection<JsonObject>> from(final LoopState state) {
+    public static PTransform<PBegin, PCollection<Record>> from(final LoopState state) {
         return Read.from(new UnboundedQueuedInput(state.id));
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<Void>> to(final LoopState state) {
+    public static PTransform<PCollection<Record>, PCollection<Void>> to(final LoopState state) {
         return new QueuedOutputTransform(state.id);
     }
 
-    public static class QueuedOutputTransform extends PTransform<PCollection<JsonObject>, PCollection<Void>> {
+    public static class QueuedOutputTransform extends PTransform<PCollection<Record>, PCollection<Void>> {
 
         private String stateId;
 
@@ -61,12 +60,12 @@ public final class InMemoryQueueIO {
         }
 
         @Override
-        public PCollection<Void> expand(final PCollection<JsonObject> input) {
+        public PCollection<Void> expand(final PCollection<Record> input) {
             return input.apply(ParDo.of(new QueuedOutput(stateId)));
         }
     }
 
-    public static class QueuedOutput extends DoFn<JsonObject, Void> {
+    public static class QueuedOutput extends DoFn<Record, Void> {
 
         private String stateId;
 
@@ -100,31 +99,31 @@ public final class InMemoryQueueIO {
         }
     }
 
-    public static class UnboundedQueuedInput extends UnboundedSource<JsonObject, UnboundedSource.CheckpointMark> {
+    public static class UnboundedQueuedInput extends UnboundedSource<Record, UnboundedSource.CheckpointMark> {
 
-        private JsonpJsonObjectCoder coder;
+        private SchemaRegistryCoder coder;
 
         private String stateId;
 
         protected UnboundedQueuedInput(final String stateId) {
             this.stateId = stateId;
-            this.coder = JsonpJsonObjectCoder.of(LoopState.lookup(stateId).plugin);
+            this.coder = SchemaRegistryCoder.of();
         }
 
         @Override
-        public List<? extends UnboundedSource<JsonObject, CheckpointMark>> split(final int desiredNumSplits,
+        public List<? extends UnboundedSource<Record, CheckpointMark>> split(final int desiredNumSplits,
                 final PipelineOptions options) {
             return singletonList(this);
         }
 
         @Override
-        public UnboundedReader<JsonObject> createReader(final PipelineOptions options,
+        public UnboundedReader<Record> createReader(final PipelineOptions options,
                 final UnboundedSource.CheckpointMark checkpointMark) {
             return new UnboundedQueuedReader(this);
         }
 
         @Override
-        public Coder<JsonObject> getOutputCoder() {
+        public Coder<Record> getOutputCoder() {
             return coder;
         }
 
@@ -133,7 +132,7 @@ public final class InMemoryQueueIO {
             return new NoCheckpointCoder();
         }
 
-        private static class UnboundedQueuedReader extends UnboundedReader<JsonObject> {
+        private static class UnboundedQueuedReader extends UnboundedReader<Record> {
 
             private final UnboundedQueuedInput source;
 
@@ -141,7 +140,7 @@ public final class InMemoryQueueIO {
 
             private volatile Supplier<Instant> waterMarkProvider;
 
-            private JsonObject current;
+            private Record current;
 
             private UnboundedQueuedReader(final UnboundedQueuedInput source) {
                 this.source = source;
@@ -173,7 +172,7 @@ public final class InMemoryQueueIO {
             }
 
             @Override
-            public JsonObject getCurrent() throws NoSuchElementException {
+            public Record getCurrent() throws NoSuchElementException {
                 return current;
             }
 
@@ -201,7 +200,7 @@ public final class InMemoryQueueIO {
             }
 
             @Override
-            public UnboundedSource<JsonObject, ?> getCurrentSource() {
+            public UnboundedSource<Record, ?> getCurrentSource() {
                 return source;
             }
         }
