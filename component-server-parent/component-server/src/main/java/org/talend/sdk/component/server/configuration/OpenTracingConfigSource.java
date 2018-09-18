@@ -29,7 +29,7 @@ public class OpenTracingConfigSource implements ConfigSource {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OpenTracingConfigSource.class);
 
-    private Map<String, String> configuration = new HashMap<String, String>() {
+    private final Map<String, String> configuration = new HashMap<String, String>() {
 
         {
             int tracingRate;

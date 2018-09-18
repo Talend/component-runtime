@@ -15,8 +15,8 @@ DOCKER_TMP_DIR="$(pwd)/target/docker_workdir"
 
 if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
     echo "Prebuilding the component-server"
-    MAVEN_OPTS="$MAVEN_OPTS -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar" \
-        mvn clean install -pl component-server-parent/component-server -am \
+    mvn clean install \
+        -pl component-server-parent/component-server -am \
         -T2C -e $DEPLOY_OPTS
 else
     echo "Assuming build is done as requested through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
@@ -32,11 +32,15 @@ cp -v -r .docker/conf $DOCKER_TMP_DIR/conf
 cp -v -r .docker/bin $DOCKER_TMP_DIR/bin
 cd $DOCKER_TMP_DIR
 
-echo "Grabbing libraries (kafka client, opentracing-api, geronimo-opentracing, microprofile-opentracing-api)"
-mvn dependency:copy -Dartifact=org.apache.kafka:kafka-clients:$KAFKA_VERSION -DoutputDirectory=.
-mvn dependency:copy -Dartifact=org.eclipse.microprofile.opentracing:microprofile-opentracing-api:$MICROPROFILE_OPENTRACING_API_VERSION -DoutputDirectory=.
-mvn dependency:copy -Dartifact=io.opentracing:opentracing-api:$OPENTRACING_API_VERSION -DoutputDirectory=.
-mvn dependency:copy -Dartifact=org.apache.geronimo:geronimo-opentracing:$GERONIMO_OPENTRACING_VERSION -DoutputDirectory=.
+echo "Grabbing libraries (kafka client + opentracing stack)"
+for i in \
+    org.apache.kafka:kafka-clients:$KAFKA_VERSION \
+    org.eclipse.microprofile.opentracing:microprofile-opentracing-api:$MICROPROFILE_OPENTRACING_API_VERSION \
+    io.opentracing:opentracing-api:$OPENTRACING_API_VERSION \
+    org.apache.geronimo:geronimo-opentracing:$GERONIMO_OPENTRACING_VERSION
+do
+    mvn dependency:copy -Dartifact=$i -DoutputDirectory=.
+done
 
 echo "Building image >$IMAGE<"
 docker build --tag "$IMAGE" \
