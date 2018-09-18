@@ -177,7 +177,9 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         return ofNullable(action.findAttributeValue("value"))
                 .map(t -> removeQuotes(t.getText()))
-                .map(actionId -> new Suggestion(defaultFamily + ".actions." + actionType + "." + actionId + "." + DISPLAY_NAME, Suggestion.Type.Action));
+                .map(actionId -> new Suggestion(
+                        defaultFamily + ".actions." + actionType + "." + actionId + "." + DISPLAY_NAME,
+                        Suggestion.Type.Action));
     }
 
     private String toHumanString(final String segment) {
@@ -298,33 +300,33 @@ public class SuggestionServiceImpl implements SuggestionService {
     private String getFamilyFromPackageInfo(final PsiPackage psiPackage, final Module module) {
         return of(FilenameIndex.getFilesByName(psiPackage.getProject(), "package-info.java",
                 GlobalSearchScope.moduleScope(module))).map(psiFile -> {
-            if (!PsiJavaFile.class.cast(psiFile).getPackageName().equals(psiPackage.getQualifiedName())) {
-                return null;
-            }
-            final String[] family = { null };
-            PsiJavaFile.class.cast(psiFile).accept(new JavaRecursiveElementWalkingVisitor() {
+                    if (!PsiJavaFile.class.cast(psiFile).getPackageName().equals(psiPackage.getQualifiedName())) {
+                        return null;
+                    }
+                    final String[] family = { null };
+                    PsiJavaFile.class.cast(psiFile).accept(new JavaRecursiveElementWalkingVisitor() {
 
-                @Override
-                public void visitAnnotation(final PsiAnnotation annotation) {
-                    super.visitAnnotation(annotation);
-                    if (!COMPONENTS.equals(annotation.getQualifiedName())) {
-                        return;
+                        @Override
+                        public void visitAnnotation(final PsiAnnotation annotation) {
+                            super.visitAnnotation(annotation);
+                            if (!COMPONENTS.equals(annotation.getQualifiedName())) {
+                                return;
+                            }
+                            final PsiAnnotationMemberValue familyAttribute = annotation.findAttributeValue("family");
+                            if (familyAttribute == null) {
+                                return;
+                            }
+                            family[0] = removeQuotes(familyAttribute.getText());
+                        }
+                    });
+                    return family[0];
+                }).filter(Objects::nonNull).findFirst().orElseGet(() -> {
+                    final PsiPackage parent = psiPackage.getParentPackage();
+                    if (parent == null) {
+                        return null;
                     }
-                    final PsiAnnotationMemberValue familyAttribute = annotation.findAttributeValue("family");
-                    if (familyAttribute == null) {
-                        return;
-                    }
-                    family[0] = removeQuotes(familyAttribute.getText());
-                }
-            });
-            return family[0];
-        }).filter(Objects::nonNull).findFirst().orElseGet(() -> {
-            final PsiPackage parent = psiPackage.getParentPackage();
-            if (parent == null) {
-                return null;
-            }
-            return getFamilyFromPackageInfo(parent, module);
-        });
+                    return getFamilyFromPackageInfo(parent, module);
+                });
     }
 
     private String removeQuotes(final String s) {

@@ -474,7 +474,7 @@ public class ComponentValidator extends BaseTask {
             final String key;
             try {
                 final Class<? extends Annotation> annotationType = actionAnnotation.annotationType();
-                key = "actions.${family}." + annotationType.getAnnotation(ActionType.class).value() + "."
+                key = "${family}.actions." + annotationType.getAnnotation(ActionType.class).value() + "."
                         + annotationType.getMethod("value").invoke(actionAnnotation).toString() + "._displayName";
             } catch (final IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 return null;
