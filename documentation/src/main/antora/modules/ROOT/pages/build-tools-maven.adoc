@@ -32,16 +32,32 @@ This plugin is also an extension so you can declare it in your `build/extensions
 </extension>
 ----
 
-Used as an extension, the goals detailed below will be set up.
+Used as an extension, the goals detailed in this document will be set up.
 
-You can run the following command from the root of the project, by adapting it with each goal name, parameters and values:
+== Maven lifecycle
+
+The Talend Component Kit plugin integrates some specific goals within Maven build lifecycle.
+For example, to compile the project and prepare for deploying your component, run `mvn clean install`. Using this command, the following goals are executed:
+
+image:mvn_clean_install.png[Maven clean install,70%]
+
+The build is split into several phases. The different goals are executed in the order shown above. Talend Component Kit uses default goals from the Maven build lifecycle and adds additional goals to the building and packaging phases.
+
+Goals added to the build by Talend Component Kit are detailed below.
+The default lifecycle is detailed in https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html[Maven documentation].
+
+== Talend Component Kit Maven goals
+
+The Talend Component Kit plugin for Maven integrates several specific goals into Maven build lifecycle.
+
+To run specific goals individually, run the following command from the root of the project, by adapting it with each goal name, parameters and values:
 
 [source,bash]
 ----
 $ mvn talend-component:<name_of_the_goal>[:<execution id>] -D<param_user_property>=<param_value>
 ----
 
-== Dependencies
+=== Dependencies
 
 The first goal is a shortcut for the `maven-dependency-plugin`. It creates the `TALEND-INF/dependencies.txt` file with the `compile` and `runtime` dependencies, allowing the component to use it at runtime:
 
@@ -62,7 +78,7 @@ The first goal is a shortcut for the `maven-dependency-plugin`. It creates the `
 </plugin>
 ----
 
-== Validating the component programming model
+=== Validating the component programming model
 
 This goal helps you validate the common programming model of the component. To activate it, you can use following execution definition:
 
@@ -103,7 +119,7 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 |validateLocalConfiguration| Ensures that if any `TALEND-INF/local-configuration.properties` exists then keys start with the family name.|true
 |===
 
-== Generating the component documentation
+=== Generating the component documentation
 
 The `asciidoc` goal generates an Asciidoc file documenting your component from the configuration model (`@Option`) and the `@Documentation` property that you can add to options and to the component itself.
 
@@ -148,7 +164,7 @@ a|`${classes}/TALEND-INF/documentation.adoc`
 |htmlAndPdf|If you use the plugin as an extension, you can add this property and set it to `true` in your project to automatically get HTML and PDF renderings of the documentation.|`talend.documentation.htmlAndPdf`|false
 |===
 
-=== Rendering your documentation
+==== Rendering your documentation
 
 To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin (or Gradle equivalent). You can configure both executions if you want both HTML and PDF renderings.
 
@@ -289,7 +305,7 @@ This is optional but allows to reuse Maven placeholders to pass paths, which can
 
 You can find more customization options on Asciidoctor link:http://asciidoctor.org/docs/asciidoctor-maven-plugin/[website].
 
-== Testing a component web rendering
+=== Testing a component web rendering
 
 Testing the rendering of your component configuration into the Studio requires deploying the component in Talend Studio. Refer to the link:studio.html[Studio documentation].
 
@@ -375,7 +391,7 @@ For this command to work, you need to register the plugin as follows:
 </plugin>
 ----
 
-== Generating the component archive
+=== Generating the component archive
 
 Component ARchive (`.car`) is the way to bundle a component to share it in the Talend ecosystem. It is a plain Java ARchive (`.jar`) containing a metadata file and a nested Maven repository containing the component and its depenencies.
 
@@ -428,7 +444,7 @@ In this command, Nexus URL and repository name are mandatory arguments. All othe
 --pass "Y0u will \ not G4iess i' ^"
 ----
 
-== Deploying to the Studio
+=== Deploying to the Studio
 
 The `deploy-in-studio` goal deploys the current component module into a local Talend Studio instance.
 
@@ -448,7 +464,7 @@ $ mvn talend-component:deploy-in-studio -Dtalend.component.studioHome="<studio_p
 ----
 
 
-== Help
+=== Help
 
 The `help` goal displays help information on `talend-component-maven-plugin`.
 Call `mvn talend-component:help -Ddetail=true -Dgoal=<goal-name>` to display the parameter details of a specific goal.
