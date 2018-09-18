@@ -99,6 +99,6 @@ stages:
   - name: master_build
     if: branch = master AND type != pull_request
   - name: poc_build
-    if: branch = ~ /^poc/ AND type != pull_request
+    if: branch =~ ^poc AND type != pull_request
   - name: pullrequest_build
     if: type = pull_request
