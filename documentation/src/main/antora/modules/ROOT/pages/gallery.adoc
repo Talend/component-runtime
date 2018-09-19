@@ -90,7 +90,7 @@ Boolean config;
 |Studio Rendering | Web Rendering
 
 |image::gallery/widgets/studio/checkbox.png[Studio Checkbox,100%,window="_blank",link="_images/gallery/widgets/studio/checkbox.png"]
-|image::gallery/widgets/web/checkbox.png[Web Checkbox,100%,window="_blank",link="_images/gallery/widgets/web/checkbox.png"]
+|image::gallery/widgets/web/checkbox.png[Web Checkbox,40%,window="_blank",link="_images/gallery/widgets/web/checkbox.png"]
 |===
 
 
@@ -129,7 +129,7 @@ enum ActionEnum {
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/list.png[Studio List,100%,window="_blank",link="_images/gallery/widgets/studio/list.png"]
+|image::gallery/widgets/studio/list.png[Studio List,40%,window="_blank",link="_images/gallery/widgets/studio/list.png"]
 |image::gallery/widgets/web/list.png[Web List,100%,window="_blank",link="_images/gallery/widgets/web/list.png"]
 |===
 
@@ -154,7 +154,7 @@ public SuggestionValues loadModules(@Option final MyConfig myconfig) { }
 
 |image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png[Studio suggestions loading,100%,window="_blank",link="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png"]
 |image::gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png[Web suggestions loading,100%,window="_blank",link="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png"]
-|image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png[Studio suggestions loaded,100%,window="_blank",link="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png"]
+|image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png[Studio suggestions loaded,80%,window="_blank",link="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png"]
 |image::gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png[Web suggestions loaded,100%,window="_blank",link="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png"]
 |===
 
