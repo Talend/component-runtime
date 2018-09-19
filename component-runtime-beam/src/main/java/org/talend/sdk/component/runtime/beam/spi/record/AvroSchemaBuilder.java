@@ -16,12 +16,12 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avro.util.internal.JacksonUtils;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
@@ -86,7 +86,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
         }
         fields.add(new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
                 Unwrappable.class.cast(entrySchemaBuilder.build()).unwrap(org.apache.avro.Schema.class),
-                entry.getComment(), JacksonUtils.toJsonNode(entry.getDefaultValue())));
+                entry.getComment(), toJsonNode(entry.getDefaultValue())));
         return this;
     }
 
