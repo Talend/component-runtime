@@ -51,14 +51,14 @@ public class StudioInstaller implements Runnable {
 
     private final Log log;
 
-    private final boolean forceInstall;
+    private final boolean enforceDeployment;
 
     public StudioInstaller(final String mainGav, final File studioHome, final Map<String, File> artifacts,
-            final Object log, final boolean forceInstall) {
+            final Object log, final boolean enforceDeployment) {
         this.mainGav = mainGav;
         this.studioHome = studioHome;
         this.artifacts = artifacts;
-        this.forceInstall = forceInstall;
+        this.enforceDeployment = enforceDeployment;
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
@@ -87,7 +87,7 @@ public class StudioInstaller implements Runnable {
         }
         String registry = config.getProperty("component.java.registry",
                 config.getProperty("talend.component.server.component.registry"));
-        if (!forceInstall && registry != null && new File(registry).exists()) {
+        if (!enforceDeployment && registry != null && new File(registry).exists()) {
             final Properties components = new Properties();
             try (final Reader reader = new FileReader(registry)) {
                 components.load(reader);
@@ -184,7 +184,7 @@ public class StudioInstaller implements Runnable {
             throw new IllegalStateException(e);
         }
 
-        if (!components.containsKey(artifact) || forceInstall) {
+        if (!components.containsKey(artifact) || enforceDeployment) {
             components.setProperty(artifact, mainGav);
             try (final Writer writer = new FileWriter(registry)) {
                 components.store(writer, "File rewritten to add " + mainGav);

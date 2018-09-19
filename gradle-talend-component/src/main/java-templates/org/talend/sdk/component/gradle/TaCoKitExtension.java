@@ -49,6 +49,8 @@ public class TaCoKitExtension {
     //
     private File studioHome;
 
+    private boolean enforceDeployment = false;
+
     //
     // documentation
     //

@@ -34,8 +34,8 @@ public class DeployStudioMojo extends DependencyAwareMojo {
     @Parameter(property = "talend.component.studioHome")
     private File studioHome;
 
-    @Parameter(property = "talend.component.enforceDeploy")
-    private Boolean forceInstall;
+    @Parameter(property = "talend.component.enforceDeployment", defaultValue = "false")
+    private boolean enforceDeployment;
 
     @Override
     public void execute() {
@@ -45,6 +45,6 @@ public class DeployStudioMojo extends DependencyAwareMojo {
         }
 
         new StudioInstaller( // group:artifact:type[:classifier]:version:scope
-                mainGav(), studioHome, artifacts(), getLog(), forceInstall == null ? false : forceInstall).run();
+                mainGav(), studioHome, artifacts(), getLog(), enforceDeployment).run();
     }
 }
