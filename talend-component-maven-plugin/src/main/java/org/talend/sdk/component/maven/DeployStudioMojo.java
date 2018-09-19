@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.talend.sdk.component.tools.StudioInstaller;
 
 // mvn talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
+
 /**
  * Deploys into a local Talend Studio Integration instance the current component module.
  */
@@ -33,6 +34,9 @@ public class DeployStudioMojo extends DependencyAwareMojo {
     @Parameter(property = "talend.component.studioHome")
     private File studioHome;
 
+    @Parameter(property = "talend.component.enforceDeploy")
+    private Boolean forceInstall;
+
     @Override
     public void execute() {
         if (studioHome == null) {
@@ -40,8 +44,7 @@ public class DeployStudioMojo extends DependencyAwareMojo {
             return;
         }
 
-        getLog().warn("Experimental feature");
         new StudioInstaller( // group:artifact:type[:classifier]:version:scope
-                mainGav(), studioHome, artifacts(), getLog()).run();
+                mainGav(), studioHome, artifacts(), getLog(), forceInstall == null ? false : forceInstall).run();
     }
 }
