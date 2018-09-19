@@ -315,6 +315,7 @@ These jars use the following prefix:
 - okhttp
 - okio
 - opencensus-
+- openejb-
 - openjpa-
 - openmdx-
 - opennlp-
@@ -463,6 +464,7 @@ These jars use the following prefix:
 - ziplock-
 - zkclient
 - zookeeper-
+- zstd-
 
 
 = Package Scanning
