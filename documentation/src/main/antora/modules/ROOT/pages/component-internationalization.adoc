@@ -19,6 +19,7 @@ Out of the box components are internationalized using the same location logic fo
 |${family}._displayName| Display name of the family
 |${family}.${category}._category| Display name of the category `${category}` in the family `${family}`.
 |${family}.${configurationType}.${name}._displayName| Display name of a configuration type (dataStore or dataSet). Important: this key is read from the family package (not the class package), to unify the localization of the metadata.
+|${family}.actions.${actionType}.${actionName}._displayName| Display name of an action of the family. Specifying it is optional and will default on the action name if not set.
 |${family}.${component_name}._displayName| Display name of the component (used by the GUIs)
 |${property_path}._displayName| Display name of the option.
 |${simple_class_name}.${property_name}._displayName| Display name of the option using its class name.
