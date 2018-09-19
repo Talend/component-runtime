@@ -60,6 +60,23 @@ String config;
 |===
 
 
+=== Integer
+
+[source,java]
+----
+@Option
+@Documentation("This is a number")
+public Integer number;
+----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
+|image::gallery/widgets/studio/studio_talend_component_kit_number_widget.png[Studio Integer,100%,window="_blank",link="_images/gallery/widgets/studio/studio_talend_component_kit_number_widget.png"]
+|image::gallery/widgets/web/web_talend_component_kit_number_widget.png[Web Textarea,100%,window="_blank",link="_images/gallery/widgets/web/web_talend_component_kit_number_widget.png"]
+|===
+
 === Checkbox
 
 [source,java]
@@ -116,6 +133,30 @@ enum ActionEnum {
 |image::gallery/widgets/web/list.png[Web List,100%,window="_blank",link="_images/gallery/widgets/web/list.png"]
 |===
 
+=== Suggestions
+
+[source,java]
+----
+@Option
+@Suggestable(value = "loadModules", parameters = { "myconfig" })
+@Documentation("module names are loaded using service")
+public String moduleName;
+
+
+// In Service class
+@Suggestions("loadModules")
+public SuggestionValues loadModules(@Option final MyConfig myconfig) { }
+----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
+|image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png[Studio suggestions loading,100%,window="_blank",link="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png"]
+|image::gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png[Web suggestions loading,100%,window="_blank",link="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png"]
+|image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png[Studio suggestions loaded,100%,window="_blank",link="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png"]
+|image::gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png[Web suggestions loaded,100%,window="_blank",link="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png"]
+|===
 
 === Table
 
