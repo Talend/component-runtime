@@ -51,6 +51,11 @@
         <artifactId>component-runtime-junit-base</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>component-form-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <dependency> <!-- needed by tomcat-websocket -->
         <groupId>org.apache.tomcat</groupId>
