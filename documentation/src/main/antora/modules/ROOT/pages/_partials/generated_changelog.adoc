@@ -16,6 +16,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1044[TCOMP-1044^]: Fix java.lang.ClassCastException in TableActionParameter
 - link:https://jira.talendforge.org/browse/TCOMP-1046[TCOMP-1046^]: String option can't set default value from a file
 - link:https://jira.talendforge.org/browse/TCOMP-1056[TCOMP-1056^]: ActiveIf doesn't work in advanced settings
+- link:https://jira.talendforge.org/browse/TCOMP-1074[TCOMP-1074^]: talend-component mvn plugin : deploy-in-studio need to rise an error when component is already installed
 - link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
 - link:https://jira.talendforge.org/browse/TCOMP-819[TCOMP-819^]: Processor doesn't produce more than 1 row on each iteration
 - link:https://jira.talendforge.org/browse/TCOMP-917[TCOMP-917^]: Migration handler need only to receive component configuration
@@ -36,6 +37,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1014[TCOMP-1014^]: Ensure a dataset has a source which has no other required parameters in the validator
 - link:https://jira.talendforge.org/browse/TCOMP-1029[TCOMP-1029^]: Extend ActiveIf EvaluationStrategy with CONTAINS strategy
 - link:https://jira.talendforge.org/browse/TCOMP-1039[TCOMP-1039^]: Integrate Updatable configuration feature into Studio
+- link:https://jira.talendforge.org/browse/TCOMP-1071[TCOMP-1071^]: support actions i18n display name
 - link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
 - link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
 
