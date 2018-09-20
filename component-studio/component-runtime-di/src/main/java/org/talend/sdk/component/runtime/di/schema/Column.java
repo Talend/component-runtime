@@ -28,13 +28,13 @@ public class Column {
 
     private String label;
 
-    private boolean key;
+    private Boolean key;
 
     private String sourceType;
 
     private String talendType;
 
-    private boolean nullable;
+    private Boolean nullable;
 
     private Integer length;
 
@@ -48,11 +48,11 @@ public class Column {
 
     private String pattern;
 
-    private boolean custom;
+    private Boolean custom;
 
-    private boolean readOnly;
+    private Boolean readOnly;
 
-    private int customId;
+    private Integer customId;
 
     private String originalDbColumnName;
 
@@ -62,7 +62,7 @@ public class Column {
 
     private String expression;
 
-    private boolean usefulColumn;
+    private Boolean usefulColumn;
 
     private Map<String, String> additionalField;
 }
