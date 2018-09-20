@@ -25,6 +25,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-984[TCOMP-984^]: Integrate ParameterizedTest with component-runtime-http-junit capture mode
 - link:https://jira.talendforge.org/browse/TCOMP-988[TCOMP-988^]: component migration - fix nested configuration migration
 - link:https://jira.talendforge.org/browse/TCOMP-989[TCOMP-989^]: .car studio install command breaks config.ini of the studio
+- link:https://jira.talendforge.org/browse/TCOMP-991[TCOMP-991^]: metadat : ignore activations from config not being part of the form while creating metadata
 
 
 === New Feature
