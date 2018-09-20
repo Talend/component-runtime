@@ -17,7 +17,9 @@ if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
     echo "Prebuilding the component-server"
     mvn clean install \
         -pl component-server-parent/component-server -am \
-        -T2C -e $DEPLOY_OPTS
+        -T2C -e \
+        -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true \
+        --settings ./settings.xml -Ptravis
 else
     echo "Assuming build is done as requested through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
 fi
