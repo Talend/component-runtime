@@ -75,7 +75,7 @@ public class StudioInstaller implements Runnable {
         final String artifact = mvnMeta[1];
         final String version = mvnMeta[2];
 
-        // -1. check if component can be installed.
+        // 0. check if component can be installed.
         final File configIni = new File(studioHome, "configuration/config.ini");
         final Properties config = new Properties();
         if (configIni.exists()) {
@@ -92,7 +92,7 @@ public class StudioInstaller implements Runnable {
             try (final Reader reader = new FileReader(registry)) {
                 components.load(reader);
                 if (components.containsKey(artifact)) {
-                    final String installedVersion = components.get(artifact).toString().split(":")[2];
+                    final String installedVersion = components.getProperty(artifact).split(":")[2];
                     if (!version.equals(installedVersion)) {
                         throw new IllegalStateException("Can't deploy this component. A different version '"
                                 + installedVersion
@@ -104,7 +104,7 @@ public class StudioInstaller implements Runnable {
             }
         }
 
-        // 0. remove staled libs from the cache (configuration/org.eclipse.osgi)
+        // 1. remove staled libs from the cache (configuration/org.eclipse.osgi)
         final File osgiCache = new File(studioHome, "configuration/org.eclipse.osgi");
         if (osgiCache.isDirectory()) {
             ofNullable(osgiCache.listFiles(child -> {
@@ -125,8 +125,7 @@ public class StudioInstaller implements Runnable {
                     .forEach(this::tryDelete);
         }
 
-        // 1. install the runtime dependency tree (scope compile+runtime) in the studio m2 repo
-
+        // 2. install the runtime dependency tree (scope compile+runtime) in the studio m2 repo
         final String repoType = config.getProperty("maven.repository");
         if (!"global".equals(repoType)) {
             final MvnCoordinateToFileConverter converter = new MvnCoordinateToFileConverter();
@@ -149,7 +148,7 @@ public class StudioInstaller implements Runnable {
                     + " configured to use global maven repository, skipping artifact installation");
         }
 
-        // 2. register component adding them into the registry
+        // 3. register component adding them into the registry
         if (registry == null) {
             final File registryLocation = new File(configIni.getParentFile(), "components-registration.properties");
             registryLocation.getParentFile().mkdirs();
