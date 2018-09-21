@@ -203,16 +203,16 @@ public class ComponentValidator extends BaseTask {
 
     private void validateOutputsIncomingInputs(final List<Class<?>> components, final Set<String> errors) {
         // outputs must have only one input param
-        components
+        errors.addAll(components
                 .stream()
                 .flatMap(c -> of(c.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)))
                 .filter(m -> of(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Output.class)))
-                .forEach(output -> {
-                    if (of(output.getParameters()).filter(p -> !p.isAnnotationPresent(Output.class)).count() > 1) {
-                        errors.add("The Output component '" + output.getDeclaringClass()
-                                + "' must have only one single input branch parameter in its ElementListener method.");
-                    }
-                });
+                .filter(m -> of(m.getParameters()).filter(p -> !p.isAnnotationPresent(Output.class)).count() > 1)
+                .map(Method::getDeclaringClass)
+                .distinct()
+                .map(clazz -> "The Output component '" + clazz
+                        + "' must have only one single input branch parameter in its ElementListener method.")
+                .collect(toList()));
     }
 
     private void validateLocalConfiguration(final Collection<Class<?>> components, final AnnotationFinder finder,
