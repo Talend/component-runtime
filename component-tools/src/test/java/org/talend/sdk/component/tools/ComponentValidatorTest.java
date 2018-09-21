@@ -127,6 +127,7 @@ class ComponentValidatorTest {
             cfg.setValidateLayout(true);
             cfg.setValidateOptionNames(true);
             cfg.setValidateLocalConfiguration(true);
+            cfg.setValidateOutputConnection(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -421,6 +422,13 @@ class ComponentValidatorTest {
         spec.expectMessage("- @Updatable field 'private org.talend.test.failure.updatebadtype.Model "
                 + "org.talend.test.failure.updatebadtype.Config.model' does not match returned type of "
                 + "'String org.talend.test.failure.updatebadtype.UpdateService.update()'");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.multipleinputsforoutput")
+    void testFailureMultipleInputsForOutputs(final ExceptionSpec spec) {
+        spec.expectMessage(
+                "- The Output component 'class org.talend.test.failure.multipleinputsforoutput.MyComponent' must have only one single input branch parameter in its ElementListener method.");
     }
 
     // .properties are ok from the classpath, no need to copy them

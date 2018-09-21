@@ -77,6 +77,8 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
@@ -186,6 +188,10 @@ public class ComponentValidator extends BaseTask {
             validateLocalConfiguration(components, finder, errors);
         }
 
+        if (configuration.isValidateOutputConnection()) {
+            validateOutputConnection(components, errors);
+        }
+
         if (!errors.isEmpty()) {
             final List<String> preparedErrors =
                     errors.stream().map(it -> it.replace("java.lang.", "").replace("java.util.", "")).collect(toList());
@@ -193,6 +199,20 @@ public class ComponentValidator extends BaseTask {
             throw new IllegalStateException(
                     "Some error were detected:" + preparedErrors.stream().collect(joining("\n- ", "\n- ", "")));
         }
+    }
+
+    private void validateOutputConnection(final List<Class<?>> components, final Set<String> errors) {
+        // outputs must have only one input param
+        errors.addAll(components
+                .stream()
+                .flatMap(c -> of(c.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)))
+                .filter(m -> of(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Output.class)))
+                .filter(m -> of(m.getParameters()).filter(p -> !p.isAnnotationPresent(Output.class)).count() > 1)
+                .map(Method::getDeclaringClass)
+                .distinct()
+                .map(clazz -> "The Output component '" + clazz
+                        + "' must have only one single input branch parameter in its ElementListener method.")
+                .collect(toList()));
     }
 
     private void validateLocalConfiguration(final Collection<Class<?>> components, final AnnotationFinder finder,
@@ -885,5 +905,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateOptionNames;
 
         private boolean validateLocalConfiguration;
+
+        private boolean validateOutputConnection;
     }
 }
