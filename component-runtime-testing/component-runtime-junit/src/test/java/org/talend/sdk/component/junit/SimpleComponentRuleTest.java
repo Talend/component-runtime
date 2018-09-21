@@ -31,12 +31,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.junit.component.BatchTransform;
@@ -45,6 +48,7 @@ import org.talend.sdk.component.junit.component.Source;
 import org.talend.sdk.component.junit.component.Transform;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.InputImpl;
+import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -93,6 +97,68 @@ public class SimpleComponentRuleTest {
             }
         });
         assertEquals(asList("a", "b"), COMPONENT_FACTORY.collectAsList(String.class, mapper));
+    }
+
+    @Test
+    public void formatCollection() {
+        final Mapper mapper = new LocalPartitionMapper("root", "test", "test", null) {
+
+            @Override
+            public Input create() {
+                return new Input() {
+
+                    private int remaining = 2;
+
+                    @Override
+                    public Object next() {
+                        remaining--;
+                        if (remaining < 0) {
+                            return null;
+                        }
+                        return Json.createObjectBuilder().add("name", Integer.toString(remaining)).build();
+                    }
+
+                    @Override
+                    public String plugin() {
+                        return null;
+                    }
+
+                    @Override
+                    public String rootName() {
+                        return null;
+                    }
+
+                    @Override
+                    public String name() {
+                        return null;
+                    }
+
+                    @Override
+                    public void start() {
+                        // no-op
+                    }
+
+                    @Override
+                    public void stop() {
+                        // no-op
+                    }
+                };
+            }
+
+            @Override
+            public void start() {
+                // no-op
+            }
+
+            @Override
+            public void stop() {
+                // no-op
+            }
+        };
+        final List<JsonObject> jsons = COMPONENT_FACTORY.collectAsList(JsonObject.class, mapper);
+        final List<Record> records = COMPONENT_FACTORY.collectAsList(Record.class, mapper);
+        assertEquals(2, records.size());
+        assertEquals(jsons.size(), records.size());
     }
 
     @Test

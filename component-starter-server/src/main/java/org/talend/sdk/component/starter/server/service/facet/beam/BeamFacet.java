@@ -18,7 +18,7 @@ package org.talend.sdk.component.starter.server.service.facet.beam;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
 import java.util.ArrayList;
 import java.util.Collection;

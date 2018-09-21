@@ -19,7 +19,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +34,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.talend.sdk.component.starter.server.configuration.StarterConfiguration;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
@@ -133,15 +132,15 @@ public class ComponentGenerator {
                 {
                     putAll(sources
                             .stream()
-                            .map(source -> Pair.of(family + "." + source.getName(), source.getName()))
-                            .collect(toMap(Pair::getKey, Pair::getValue)));
+                            .map(source -> new StringTuple2(family + "." + source.getName(), source.getName()))
+                            .collect(toMap(StringTuple2::getKey, StringTuple2::getValue)));
                     putAll(sources
                             .stream()
                             .filter(source -> source.getConfiguration() != null
                                     && source.getConfiguration().getEntries() != null)
                             .flatMap(source -> toProperties(names.toMapperName(source.getName()),
                                     source.getConfiguration().getEntries()))
-                            .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
+                            .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
             });
         }
@@ -154,15 +153,15 @@ public class ComponentGenerator {
                     putAll(processors
                             .stream()
                             .filter(ComponentGenerator::isOutput)
-                            .map(processor -> Pair.of(family + "." + processor.getName(), processor.getName()))
-                            .collect(toMap(Pair::getKey, Pair::getValue)));
+                            .map(processor -> new StringTuple2(family + "." + processor.getName(), processor.getName()))
+                            .collect(toMap(StringTuple2::getKey, StringTuple2::getValue)));
                     putAll(processors
                             .stream()
                             .filter(processor -> processor.getConfiguration() != null
                                     && processor.getConfiguration().getEntries() != null)
                             .filter(ComponentGenerator::isOutput)
                             .flatMap(p -> toProperties(names.toProcessorName(p), p.getConfiguration().getEntries()))
-                            .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
+                            .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
             });
 
@@ -172,15 +171,15 @@ public class ComponentGenerator {
                     putAll(processors
                             .stream()
                             .filter(ComponentGenerator::isProcessor)
-                            .map(processor -> Pair.of(family + "." + processor.getName(), processor.getName()))
-                            .collect(toMap(Pair::getKey, Pair::getValue)));
+                            .map(processor -> new StringTuple2(family + "." + processor.getName(), processor.getName()))
+                            .collect(toMap(StringTuple2::getKey, StringTuple2::getValue)));
                     putAll(processors
                             .stream()
                             .filter(processor -> processor.getConfiguration() != null
                                     && processor.getConfiguration().getEntries() != null)
                             .filter(ComponentGenerator::isProcessor)
                             .flatMap(p -> toProperties(names.toProcessorName(p), p.getConfiguration().getEntries()))
-                            .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
+                            .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
             });
         }
@@ -188,12 +187,12 @@ public class ComponentGenerator {
         return files.stream();
     }
 
-    private Stream<Pair<String, String>> toProperties(final String componentName,
+    private Stream<StringTuple2> toProperties(final String componentName,
             final Collection<ProjectRequest.Entry> structure) {
         return structure.stream().flatMap(e -> {
             final String prop = names.toConfigurationName(componentName) + "." + e.getName();
 
-            final Pair<String, String> pair = Pair.of(prop, e.getName());
+            final StringTuple2 pair = new StringTuple2(prop, e.getName());
             if (e.getNestedType() != null) {
                 return Stream.concat(Stream.of(pair), toProperties(e.getName(), e.getNestedType().getEntries()));
             }
@@ -441,5 +440,13 @@ public class ComponentGenerator {
         private final String type;
 
         private final boolean isDefault;
+    }
+
+    @Data
+    public static class StringTuple2 {
+
+        private final String key;
+
+        private final String value;
     }
 }
