@@ -188,7 +188,7 @@ public class ComponentValidator extends BaseTask {
             validateLocalConfiguration(components, finder, errors);
         }
 
-        if (configuration.isValidateOutputsIncomingInputs()) {
+        if (configuration.isValidateOutputConnection()) {
             validateOutputsIncomingInputs(components, errors);
         }
 
@@ -906,6 +906,6 @@ public class ComponentValidator extends BaseTask {
 
         private boolean validateLocalConfiguration;
 
-        private boolean validateOutputsIncomingInputs;
+        private boolean validateOutputConnection;
     }
 }

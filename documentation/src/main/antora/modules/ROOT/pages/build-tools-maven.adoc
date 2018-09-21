@@ -117,7 +117,7 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 |validateLayout| Ensures that the layout is referencing existing options and properties. |`talend.validation.layout`|true
 |validateOptionNames| Ensures that the option names are compliant with the framework. It is highly recommended and safer to keep it set to `true`. |`talend.validation.options`|true
 |validateLocalConfiguration| Ensures that if any `TALEND-INF/local-configuration.properties` exists then keys start with the family name.|true
-|validateOutputsIncomingInputs| Ensures that an output has only one input branch.|true
+|validateOutputConnection| Ensures that an output has only one input branch.|true
 |===
 
 === Generating the component documentation

@@ -127,7 +127,7 @@ class ComponentValidatorTest {
             cfg.setValidateLayout(true);
             cfg.setValidateOptionNames(true);
             cfg.setValidateLocalConfiguration(true);
-            cfg.setValidateOutputsIncomingInputs(true);
+            cfg.setValidateOutputConnection(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);

@@ -112,10 +112,10 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean validateOptionNames;
 
     /**
-     * Should the option names be validated.
+     * Ensure output component has only one single input branch.
      */
     @Parameter(defaultValue = "true", property = "talend.validation.outputsIncomingInputs")
-    private boolean validateOutputsIncomingInputs;
+    private boolean validateOutputConnection;
 
     /**
      * Should the option names be validated.
@@ -139,7 +139,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateLayout(validateLayout);
         configuration.setValidateOptionNames(validateOptionNames);
         configuration.setValidateLocalConfiguration(validateLocalConfiguration);
-        configuration.setValidateOutputsIncomingInputs(validateOutputsIncomingInputs);
+        configuration.setValidateOutputConnection(validateOutputConnection);
         new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
 }
