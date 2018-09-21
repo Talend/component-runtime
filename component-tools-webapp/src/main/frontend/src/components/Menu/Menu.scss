@@ -23,4 +23,25 @@
 			height: 30px;
 		}
 	}
+
+	.TreeViewHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		color: #236192;
+		line-height: 6rem;
+		font-weight: bold;
+		text-transform: uppercase;
+		padding-left: $padding-normal;
+		padding-right: $padding-normal;
+		border-bottom: 1px rgba(0, 0, 0, 0.12) solid;
+
+		:global(.checkbox) {
+			line-height: inherit;
+
+			label > span:before, label > span:after {
+				top: auto !important;
+			}
+		}
+	}
 }

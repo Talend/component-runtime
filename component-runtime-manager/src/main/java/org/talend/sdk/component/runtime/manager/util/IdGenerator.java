@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.util;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.nio.charset.StandardCharsets;
@@ -42,7 +40,7 @@ public class IdGenerator {
         }
 
         return Base64.getUrlEncoder().withoutPadding().encodeToString(
-                stream(args).collect(joining("#")).getBytes(StandardCharsets.UTF_8));
+                String.join("#", args).getBytes(StandardCharsets.UTF_8));
     }
 
 }

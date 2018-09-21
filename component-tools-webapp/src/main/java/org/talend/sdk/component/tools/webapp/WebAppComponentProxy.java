@@ -19,6 +19,8 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletionException;
@@ -46,6 +48,8 @@ import org.talend.sdk.component.form.api.WebException;
 import org.talend.sdk.component.form.model.UiActionResult;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -87,54 +91,101 @@ public class WebAppComponentProxy {
     @GET
     @Path("index")
     public void getIndex(@Suspended final AsyncResponse response,
-            @QueryParam("language") @DefaultValue("en") final String language) {
-        target
-                .path("component/index")
-                .queryParam("language", language)
-                .request(APPLICATION_JSON_TYPE)
-                .rx()
-                .get(ComponentIndices.class)
-                .toCompletableFuture()
-                .handle((index, e) -> {
-                    if (e != null) {
-                        onException(response, e);
-                    } else {
-                        index
-                                .getComponents()
-                                .stream()
-                                .flatMap(c -> c.getLinks().stream())
-                                .forEach(link -> link
-                                        .setPath(link.getPath().replaceFirst("/component/", "/application/").replace(
-                                                "/details?identifiers=", "/detail/")));
-                        response.resume(index);
-                    }
-                    return null;
-                });
+            @QueryParam("language") @DefaultValue("en") final String language,
+            @QueryParam("configuration") @DefaultValue("false") final boolean configuration) {
+        if (configuration) {
+            target
+                    .path("configurationtype/index")
+                    .queryParam("language", language)
+                    .request(APPLICATION_JSON_TYPE)
+                    .rx()
+                    .get(ConfigTypeNodes.class)
+                    .toCompletableFuture()
+                    .handle((index, e) -> {
+                        if (e != null) {
+                            onException(response, e);
+                        } else {
+                            response.resume(index);
+                        }
+                        return null;
+                    });
+        } else {
+            target
+                    .path("component/index")
+                    .queryParam("language", language)
+                    .request(APPLICATION_JSON_TYPE)
+                    .rx()
+                    .get(ComponentIndices.class)
+                    .toCompletableFuture()
+                    .handle((index, e) -> {
+                        if (e != null) {
+                            onException(response, e);
+                        } else {
+                            index
+                                    .getComponents()
+                                    .stream()
+                                    .flatMap(c -> c.getLinks().stream())
+                                    .forEach(link -> link.setPath(
+                                            link.getPath().replaceFirst("/component/", "/application/").replace(
+                                                    "/details?identifiers=", "/detail/")));
+                            response.resume(index);
+                        }
+                        return null;
+                    });
+        }
     }
 
     @GET
     @Path("detail/{id}")
     public void getDetail(@Suspended final AsyncResponse response,
             @QueryParam("language") @DefaultValue("en") final String language, @PathParam("id") final String id,
+            @QueryParam("configuration") @DefaultValue("false") final boolean configuration,
             @Context final HttpServletRequest request) {
-        target
-                .path("component/details")
-                .queryParam("language", language)
-                .queryParam("identifiers", id)
-                .request(APPLICATION_JSON_TYPE)
-                .rx()
-                .get(ComponentDetailList.class)
-                .toCompletableFuture()
-                .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next(),
-                        ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en"), null))
-                .handle((result, e) -> {
-                    if (e != null) {
-                        onException(response, e);
-                    } else {
-                        response.resume(result);
-                    }
-                    return null;
-                });
+        final String lang = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
+        if (configuration) {
+            target
+                    .path("configurationtype/details")
+                    .queryParam("language", language)
+                    .queryParam("identifiers", id)
+                    .request(APPLICATION_JSON_TYPE)
+                    .rx()
+                    .get(ConfigTypeNodes.class)
+                    .toCompletableFuture()
+                    .thenCompose(result -> {
+                        final ConfigTypeNode node = result.getNodes().values().iterator().next();
+                        return uiSpecService.convert(extractFamilyFromNode(node.getId()), lang, node, null);
+                    })
+                    .handle((result, e) -> {
+                        if (e != null) {
+                            onException(response, e);
+                        } else {
+                            response.resume(result);
+                        }
+                        return null;
+                    });
+        } else {
+            target
+                    .path("component/details")
+                    .queryParam("language", language)
+                    .queryParam("identifiers", id)
+                    .request(APPLICATION_JSON_TYPE)
+                    .rx()
+                    .get(ComponentDetailList.class)
+                    .toCompletableFuture()
+                    .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next(), lang, null))
+                    .handle((result, e) -> {
+                        if (e != null) {
+                            onException(response, e);
+                        } else {
+                            response.resume(result);
+                        }
+                        return null;
+                    });
+        }
+    }
+
+    private String extractFamilyFromNode(final String id) {
+        return new String(Base64.getUrlDecoder().decode(id), StandardCharsets.UTF_8).split("#")[1];
     }
 
     private void onException(final AsyncResponse response, final Throwable e) {

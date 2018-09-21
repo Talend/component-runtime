@@ -48,9 +48,9 @@ public class DeployInStudioTask extends TaCoKitTask {
         final Class<?> impl = tccl.loadClass("org.talend.sdk.component.tools.StudioInstaller");
         final Map<String, File> artifacts = artifacts();
         final String mainGav = mainGav();
-        final Runnable runnable =
-                Runnable.class.cast(impl.getConstructor(String.class, File.class, Map.class, Object.class).newInstance(
-                        mainGav, extension.getStudioHome(), artifacts, getLogger()));
+        final Runnable runnable = Runnable.class
+                .cast(impl.getConstructor(String.class, File.class, Map.class, Object.class, boolean.class).newInstance(
+                        mainGav, extension.getStudioHome(), artifacts, getLogger(), extension.isEnforceDeployment()));
         runnable.run();
     }
 }
