@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1046[TCOMP-1046^]: String option can't set default value from a file
 - link:https://jira.talendforge.org/browse/TCOMP-1056[TCOMP-1056^]: ActiveIf doesn't work in advanced settings
 - link:https://jira.talendforge.org/browse/TCOMP-1074[TCOMP-1074^]: talend-component mvn plugin : deploy-in-studio need to rise an error when component is already installed
+- link:https://jira.talendforge.org/browse/TCOMP-1075[TCOMP-1075^]: component reload file on windows after deploying a modified jar
 - link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
 - link:https://jira.talendforge.org/browse/TCOMP-819[TCOMP-819^]: Processor doesn't produce more than 1 row on each iteration
 - link:https://jira.talendforge.org/browse/TCOMP-917[TCOMP-917^]: Migration handler need only to receive component configuration
