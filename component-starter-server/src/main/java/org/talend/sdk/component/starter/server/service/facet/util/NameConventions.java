@@ -17,7 +17,7 @@
 package org.talend.sdk.component.starter.server.service.facet.util;
 
 import static java.util.Locale.ENGLISH;
-import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
 import java.util.function.BiConsumer;
 
