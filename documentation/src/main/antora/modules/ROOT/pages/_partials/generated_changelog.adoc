@@ -1,5 +1,75 @@
 
 
+== Version 1.1.0
+
+=== Backlog Task
+
+- link:https://jira.talendforge.org/browse/TCOMP-936[TCOMP-936^]: Fix/add support for Enum and List parameters in suggestions method
+
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1000[TCOMP-1000^]: @Option name value is not respected on fields
+- link:https://jira.talendforge.org/browse/TCOMP-1008[TCOMP-1008^]: Enum order is lost
+- link:https://jira.talendforge.org/browse/TCOMP-1009[TCOMP-1009^]: (web) OptionsOrder ignored for tables (List<MyClass>), fields located in random order
+- link:https://jira.talendforge.org/browse/TCOMP-1028[TCOMP-1028^]: [tools-webapp] submit button no more functional
+- link:https://jira.talendforge.org/browse/TCOMP-1044[TCOMP-1044^]: Fix java.lang.ClassCastException in TableActionParameter
+- link:https://jira.talendforge.org/browse/TCOMP-1046[TCOMP-1046^]: String option can't set default value from a file
+- link:https://jira.talendforge.org/browse/TCOMP-1056[TCOMP-1056^]: ActiveIf doesn't work in advanced settings
+- link:https://jira.talendforge.org/browse/TCOMP-1074[TCOMP-1074^]: talend-component mvn plugin : deploy-in-studio need to rise an error when component is already installed
+- link:https://jira.talendforge.org/browse/TCOMP-1075[TCOMP-1075^]: component reload file on windows after deploying a modified jar
+- link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
+- link:https://jira.talendforge.org/browse/TCOMP-819[TCOMP-819^]: Processor doesn't produce more than 1 row on each iteration
+- link:https://jira.talendforge.org/browse/TCOMP-917[TCOMP-917^]: Migration handler need only to receive component configuration
+- link:https://jira.talendforge.org/browse/TCOMP-968[TCOMP-968^]: Trigger AsyncValidation call only when option annotated with Validable is changed
+- link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods
+- link:https://jira.talendforge.org/browse/TCOMP-973[TCOMP-973^]: component migration - the configuration version need to be serialized in addition to the version of the component
+- link:https://jira.talendforge.org/browse/TCOMP-984[TCOMP-984^]: Integrate ParameterizedTest with component-runtime-http-junit capture mode
+- link:https://jira.talendforge.org/browse/TCOMP-988[TCOMP-988^]: component migration - fix nested configuration migration
+- link:https://jira.talendforge.org/browse/TCOMP-989[TCOMP-989^]: .car studio install command breaks config.ini of the studio
+- link:https://jira.talendforge.org/browse/TCOMP-991[TCOMP-991^]: metadat : ignore activations from config not being part of the form while creating metadata
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1001[TCOMP-1001^]: [proxy] ConfigurationClient should expose a migrate method
+- link:https://jira.talendforge.org/browse/TCOMP-1011[TCOMP-1011^]: Ensure datastore/dataset i18n names are validated by the maven/gradle plugins
+- link:https://jira.talendforge.org/browse/TCOMP-1013[TCOMP-1013^]: Add an operator support in @ActiveIfs (OR/AND switch)
+- link:https://jira.talendforge.org/browse/TCOMP-1014[TCOMP-1014^]: Ensure a dataset has a source which has no other required parameters in the validator
+- link:https://jira.talendforge.org/browse/TCOMP-1029[TCOMP-1029^]: Extend ActiveIf EvaluationStrategy with CONTAINS strategy
+- link:https://jira.talendforge.org/browse/TCOMP-1039[TCOMP-1039^]: Integrate Updatable configuration feature into Studio
+- link:https://jira.talendforge.org/browse/TCOMP-1071[TCOMP-1071^]: support actions i18n display name
+- link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
+- link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1003[TCOMP-1003^]: [dependency upgrade] Tomcat 9.0.12
+- link:https://jira.talendforge.org/browse/TCOMP-1004[TCOMP-1004^]: [dependency upgrade] Log4j2 2.11.1
+- link:https://jira.talendforge.org/browse/TCOMP-1015[TCOMP-1015^]: Upgrade icons to 0.207.0
+- link:https://jira.talendforge.org/browse/TCOMP-1019[TCOMP-1019^]: (form) enum should lead to restricted datalist
+- link:https://jira.talendforge.org/browse/TCOMP-1037[TCOMP-1037^]: [dependency upgrade] Johnzon 1.1.9
+- link:https://jira.talendforge.org/browse/TCOMP-1038[TCOMP-1038^]: Drop spring client from component-form-core
+- link:https://jira.talendforge.org/browse/TCOMP-1041[TCOMP-1041^]: HttpClient should enable to process InputStream directly
+- link:https://jira.talendforge.org/browse/TCOMP-1042[TCOMP-1042^]: Upgrade to JUnit 5.3.1
+- link:https://jira.talendforge.org/browse/TCOMP-1045[TCOMP-1045^]: Add documentation in metadata and enable to use it in the UI on configuration
+- link:https://jira.talendforge.org/browse/TCOMP-1047[TCOMP-1047^]: Make Suggestable text field editable (align with web)
+- link:https://jira.talendforge.org/browse/TCOMP-1048[TCOMP-1048^]: Add update API for configuration
+- link:https://jira.talendforge.org/browse/TCOMP-1049[TCOMP-1049^]: Add completion support for actions displayname in intellij plugin
+- link:https://jira.talendforge.org/browse/TCOMP-1050[TCOMP-1050^]: Provide simple OAuth1 integration
+- link:https://jira.talendforge.org/browse/TCOMP-1051[TCOMP-1051^]: Remove brave and move to geronimo-opentracing
+- link:https://jira.talendforge.org/browse/TCOMP-1054[TCOMP-1054^]: Introduce @Configuration API
+- link:https://jira.talendforge.org/browse/TCOMP-1055[TCOMP-1055^]: remove the ExecutionResource
+- link:https://jira.talendforge.org/browse/TCOMP-1057[TCOMP-1057^]: Add ActiveIf on @Proposable test-case
+- link:https://jira.talendforge.org/browse/TCOMP-1058[TCOMP-1058^]: Add DefaultValue on proposable/dynamicValue testcase
+- link:https://jira.talendforge.org/browse/TCOMP-1073[TCOMP-1073^]: [maven/gradle plugin] Add configuration support in web goal
+- link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
+- link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
+- link:https://jira.talendforge.org/browse/TCOMP-998[TCOMP-998^]: [dependency upgrade] Apache Commons Compress 1.18
+
+
 == Version 1.0.4
 
 === Bug
@@ -331,4 +401,3 @@
 - link:https://jira.talendforge.org/browse/TCOMP-719[TCOMP-719^]: Support Input Definition
 - link:https://jira.talendforge.org/browse/TCOMP-720[TCOMP-720^]: Support Output Definition
 - link:https://jira.talendforge.org/browse/TCOMP-721[TCOMP-721^]: Initial Widget Definitions
-

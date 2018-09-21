@@ -316,6 +316,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("metadata-extractor-");
             add("metrics-");
             add("microprofile-config-api-");
+            add("microprofile-opentracing-api");
             add("mimepull-");
             add("mina-");
             add("minlog");
@@ -336,7 +337,9 @@ public class KnownJarsFilter implements Predicate<String> {
             add("objenesis-");
             add("okhttp");
             add("okio");
+            add("opentracing-api");
             add("opencensus-");
+            add("openejb-");
             add("openjpa-");
             add("openmdx-");
             add("opennlp-");
@@ -487,8 +490,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("ziplock-");
             add("zkclient");
             add("zookeeper-");
-            add("microprofile-opentracing-api");
-            add("opentracing-api");
+            add("zstd-");
             ofNullable(System.getProperty("talend.component.runtime.manager.exclusions"))
                     .map(s -> s.split(","))
                     .ifPresent(e -> Stream.of(e).map(String::trim).filter(v -> !v.isEmpty()).forEach(this::add));

@@ -35,6 +35,10 @@ public class LocaleMapper {
         }
         final int split = requested.indexOf('_');
         if (split > 0) {
+            if (requested.startsWith("zh_") || requested.equals("zh")) {
+                // force simplified to avoid to leak other char sequences
+                return "zh_CN";
+            }
             return requested.substring(0, split);
         }
         return requested;

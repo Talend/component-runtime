@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -34,6 +35,8 @@ import java.util.stream.Stream;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
@@ -62,7 +65,7 @@ public class TaCoKitGuessSchema {
 
     private PrintStream out;
 
-    private StringBuilder str;
+    private Map<String, Column> columns;
 
     private Map<String, String> configuration;
 
@@ -97,9 +100,9 @@ public class TaCoKitGuessSchema {
         this.family = family;
         this.componentName = componentName;
         this.action = action;
-        str = new StringBuilder();
-        keysNoTypeYet = new HashSet<>();
-        javaTypesManager = new JavaTypesManager();
+        this.columns = new LinkedHashMap<>();
+        this.keysNoTypeYet = new HashSet<>();
+        this.javaTypesManager = new JavaTypesManager();
         initClass2JavaTypeMap();
     }
 
@@ -264,13 +267,14 @@ public class TaCoKitGuessSchema {
                 break;
             }
 
-            append(str, name, typeName);
+            final Column column = new Column();
+            column.setLabel(name);
+            column.setTalendType(typeName);
+            column.setNullable(entry.isNullable());
+            column.setComment(entry.getComment());
+            columns.put(name, column);
         }
         return true;
-    }
-
-    private void append(final StringBuilder str, final String name, final String type) {
-        str.append(name == null ? "" : name).append(';').append(type == null ? "" : type).append("\n");
     }
 
     private boolean guessInputComponentSchemaThroughResult() throws Exception {
@@ -333,24 +337,26 @@ public class TaCoKitGuessSchema {
     }
 
     private boolean guessSchemaThroughResultClass(final Class<?> rowClass) {
-        final int originalSize = str.length();
-        Field[] fields = rowClass.getDeclaredFields();
-        if (fields != null && 0 < fields.length) {
-            for (Field field : fields) {
-                int modifiers = field.getModifiers();
-                if (isStatic(modifiers)) {
-                    continue;
-                }
-
-                append(str, field.getName(), getTalendType(field.getType()));
+        final int originalSize = columns.size();
+        for (final Field field : rowClass.getDeclaredFields()) {
+            int modifiers = field.getModifiers();
+            if (isStatic(modifiers)) {
+                continue;
             }
+
+            final String name = field.getName();
+            final Column column = new Column();
+            column.setLabel(name);
+            column.setTalendType(getTalendType(field.getType()));
+            column.setNullable(!field.getType().isPrimitive());
+            columns.put(name, column);
         }
-        return originalSize != str.length();
+        return originalSize != columns.size();
     }
 
     private boolean guessInputSchemaThroughResults(final Input input, final Map<String, ?> rowObject) {
         keysNoTypeYet.clear();
-        final int originalSize = str.length();
+        final int originalSize = columns.size();
 
         Map<String, ?> row = rowObject;
         while (!guessSchemaThroughResult(row)) {
@@ -359,13 +365,15 @@ public class TaCoKitGuessSchema {
                 break;
             }
         }
-        if (!keysNoTypeYet.isEmpty()) {
-            for (String key : keysNoTypeYet) {
-                append(str, key, getTalendType(Object.class));
-            }
+        for (final String key : keysNoTypeYet) {
+            final Column column = new Column();
+            column.setLabel(key);
+            column.setTalendType(getTalendType(Object.class));
+            column.setNullable(true);
+            columns.put(key, column);
         }
 
-        return originalSize != str.length();
+        return originalSize != columns.size();
     }
 
     /**
@@ -383,12 +391,14 @@ public class TaCoKitGuessSchema {
             lineCount = 0;
         }
         if (lineLimit <= lineCount) {
-            if (!keysNoTypeYet.isEmpty()) {
-                for (String key : keysNoTypeYet) {
-                    append(str, key, getTalendType(Object.class));
-                }
-                keysNoTypeYet.clear();
+            for (final String key : keysNoTypeYet) {
+                final Column column = new Column();
+                column.setLabel(key);
+                column.setTalendType(getTalendType(Object.class));
+                column.setNullable(true);
+                columns.put(key, column);
             }
+            keysNoTypeYet.clear();
             return true;
         }
         ++lineCount;
@@ -399,8 +409,10 @@ public class TaCoKitGuessSchema {
             if (result == null) {
                 continue;
             }
-            String type;
-            if (JsonObject.class.isInstance(rowObject)) {
+            final String type;
+            if (Record.class.isInstance(rowObject)) {
+                type = getTalendType(Object.class);
+            } else if (JsonObject.class.isInstance(rowObject)) {
                 // can't judge by the result variable, since common map may contains JsonValue
                 type = getTalendType((JsonValue) result);
             } else {
@@ -410,7 +422,11 @@ public class TaCoKitGuessSchema {
                 continue;
             }
 
-            append(str, key, type);
+            final Column column = new Column();
+            column.setLabel(key);
+            column.setTalendType(type);
+            column.setNullable(true);
+            columns.put(key, column);
 
             iter.remove();
         }
@@ -418,11 +434,14 @@ public class TaCoKitGuessSchema {
     }
 
     public synchronized void close() {
-        if (str.length() != 0) {
-            String lines = str.toString();
-            out.println(lines);
+        if (!columns.isEmpty()) {
+            try (final Jsonb jsonb = JsonbBuilder.create()) {
+                jsonb.toJson(columns.values(), out);
+            } catch (final Exception e) {
+                throw new IllegalStateException(e);
+            }
             out.flush();
-            str = new StringBuilder();
+            columns = new LinkedHashMap<>();
         }
     }
 

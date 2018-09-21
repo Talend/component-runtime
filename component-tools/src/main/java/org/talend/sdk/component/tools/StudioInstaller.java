@@ -51,11 +51,14 @@ public class StudioInstaller implements Runnable {
 
     private final Log log;
 
+    private final boolean enforceDeployment;
+
     public StudioInstaller(final String mainGav, final File studioHome, final Map<String, File> artifacts,
-            final Object log) {
+            final Object log, final boolean enforceDeployment) {
         this.mainGav = mainGav;
         this.studioHome = studioHome;
         this.artifacts = artifacts;
+        this.enforceDeployment = enforceDeployment;
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
@@ -68,8 +71,40 @@ public class StudioInstaller implements Runnable {
         log.info("Installing development version of " + mainGav + " in " + studioHome);
 
         final List<String> artifacts = this.artifacts.values().stream().map(File::getName).collect(toList());
+        final String mvnMeta[] = mainGav.split(":");
+        final String artifact = mvnMeta[1];
+        final String version = mvnMeta[2];
 
-        // 0. remove staled libs from the cache (configuration/org.eclipse.osgi)
+        // 0. check if component can be installed.
+        final File configIni = new File(studioHome, "configuration/config.ini");
+        final Properties config = new Properties();
+        if (configIni.exists()) {
+            try (final InputStream is = new FileInputStream(configIni)) {
+                config.load(is);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        String registry = config.getProperty("component.java.registry",
+                config.getProperty("talend.component.server.component.registry"));
+        if (!enforceDeployment && registry != null && new File(registry).exists()) {
+            final Properties components = new Properties();
+            try (final Reader reader = new FileReader(registry)) {
+                components.load(reader);
+                if (components.containsKey(artifact)) {
+                    final String installedVersion = components.getProperty(artifact).split(":")[2];
+                    if (!version.equals(installedVersion)) {
+                        throw new IllegalStateException("Can't deploy this component. A different version '"
+                                + installedVersion
+                                + "' is already installed.\nYou can enforce the deployment by using -Dtalend.component.enforceDeploy=true");
+                    }
+                }
+            } catch (final IOException e) {
+                log.error("Can't load registered component from the studio " + e.getMessage());
+            }
+        }
+
+        // 1. remove staled libs from the cache (configuration/org.eclipse.osgi)
         final File osgiCache = new File(studioHome, "configuration/org.eclipse.osgi");
         if (osgiCache.isDirectory()) {
             ofNullable(osgiCache.listFiles(child -> {
@@ -90,24 +125,15 @@ public class StudioInstaller implements Runnable {
                     .forEach(this::tryDelete);
         }
 
-        // 1. install the runtime dependency tree (scope compile+runtime) in the studio m2 repo
-        final File configIni = new File(studioHome, "configuration/config.ini");
-        final Properties config = new Properties();
-        if (configIni.exists()) {
-            try (final InputStream is = new FileInputStream(configIni)) {
-                config.load(is);
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
+        // 2. install the runtime dependency tree (scope compile+runtime) in the studio m2 repo
         final String repoType = config.getProperty("maven.repository");
         if (!"global".equals(repoType)) {
             final MvnCoordinateToFileConverter converter = new MvnCoordinateToFileConverter();
             this.artifacts.forEach((gav, file) -> {
-                final Artifact artifact = converter.toArtifact(gav);
-                final File target = new File(studioHome, "configuration/.m2/repository/" + artifact.toPath());
+                final Artifact dependency = converter.toArtifact(gav);
+                final File target = new File(studioHome, "configuration/.m2/repository/" + dependency.toPath());
                 try {
-                    if (target.exists() && !artifact.getVersion().endsWith("-SNAPSHOT")) {
+                    if (target.exists() && !dependency.getVersion().endsWith("-SNAPSHOT")) {
                         log.info(gav + " already exists, skipping");
                         return;
                     }
@@ -122,9 +148,7 @@ public class StudioInstaller implements Runnable {
                     + " configured to use global maven repository, skipping artifact installation");
         }
 
-        // 2. register component adding them into the registry
-        String registry = config.getProperty("component.java.registry",
-                config.getProperty("talend.component.server.component.registry"));
+        // 3. register component adding them into the registry
         if (registry == null) {
             final File registryLocation = new File(configIni.getParentFile(), "components-registration.properties");
             registryLocation.getParentFile().mkdirs();
@@ -159,9 +183,8 @@ public class StudioInstaller implements Runnable {
             throw new IllegalStateException(e);
         }
 
-        final String key = mainGav.split(":")[1];
-        if (!components.containsKey(key)) {
-            components.setProperty(key, mainGav);
+        if (!components.containsKey(artifact) || enforceDeployment) {
+            components.setProperty(artifact, mainGav);
             try (final Writer writer = new FileWriter(registry)) {
                 components.store(writer, "File rewritten to add " + mainGav);
                 log.info("Updated " + registry + " with '" + mainGav + "'");

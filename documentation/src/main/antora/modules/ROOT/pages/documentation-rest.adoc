@@ -1,6 +1,5 @@
 = Component server and HTTP API
 :page-partial:
-:page-talend_swaggerui: true
 :description: Learn about Talend Component Kit HTTP API and the component server
 :keywords: REST API
 
@@ -10,9 +9,7 @@ The HTTP API intends to expose most Talend Component Kit features over HTTP. It 
 
 TIP: The WebSocket protocol is activated for the endpoints. Endpoints then use `/websocket/v1` as base instead of `/api/v1`. See <<websocket-transport,WebSocket>> for more details.
 
-Here is the API:
-
-include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+2]
+The API description is browsable using xref:rest-swagger.adoc[OpenAPI] browser.
 
 IMPORTANT: To make sure that the migration can be enabled, you need to set the version the component was created with in the execution configuration that you send to the server (component version is in component the detail endpoint). To do that, use `tcomp::component::version` key.
 

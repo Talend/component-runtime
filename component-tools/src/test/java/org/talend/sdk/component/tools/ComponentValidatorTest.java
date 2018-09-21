@@ -307,7 +307,7 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.missingaction18n")
     void testMissingActionI18n(final ExceptionSpec spec) {
         spec.expectMessage("org.talend.test.failure.missingaction18n.Messages is missing the key(s): "
-                + "actions.demo.healthcheck.default._displayName");
+                + "demo.actions.healthcheck.default._displayName");
     }
 
     @Test

@@ -15,11 +15,13 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -84,6 +86,32 @@ class StudioInstallerTest {
     }
 
     @Test
+    void conflictVersionsInstall() throws IOException {
+        normalInstall();
+        // install a different version should fail
+        final StudioInstaller installer =
+                new StudioInstaller("gtest:atest:2.0-SNAPSHOT", studioHome, emptyMap(), LOGGER, false);
+        final IllegalStateException e = assertThrows(IllegalStateException.class, installer::run);
+        assertEquals(
+                "Can't deploy this component. A different version '1.0-SNAPSHOT' is already installed.\n"
+                        + "You can enforce the deployment by using -Dtalend.component.enforceDeploy=true",
+                e.getMessage());
+    }
+
+    @Test
+    void forceConflictVersionsInstall() throws IOException {
+        normalInstall();
+        // enforce the installation of a different version
+        final StudioInstaller installer =
+                new StudioInstaller("gtest:atest:2.0-SNAPSHOT", studioHome, emptyMap(), LOGGER, true);
+        installer.run();
+        final File registration = new File(studioHome, "configuration/components-registration.properties");
+        assertTrue(registration.exists());
+        assertEquals(singleton("atest=gtest\\:atest\\:2.0-SNAPSHOT"),
+                Files.readAllLines(registration.toPath()).stream().filter(l -> !l.startsWith("#")).collect(toSet()));
+    }
+
+    @Test
     void reinstallWithLockedJar() throws IOException {
         final File m2Artifact =
                 new File(configuration, ".m2/repository/gtest/atest/1.0-SNAPSHOT/atest-1.0-SNAPSHOT.jar");
@@ -106,7 +134,7 @@ class StudioInstallerTest {
 
     private StudioInstaller newStudioInstaller() {
         return new StudioInstaller("gtest:atest:1.0-SNAPSHOT", studioHome,
-                singletonMap("gtest:atest:1.0-SNAPSHOT", artifact), LOGGER);
+                singletonMap("gtest:atest:1.0-SNAPSHOT", artifact), LOGGER, false);
     }
 
     private void assertSetup(File studioHome) throws IOException {

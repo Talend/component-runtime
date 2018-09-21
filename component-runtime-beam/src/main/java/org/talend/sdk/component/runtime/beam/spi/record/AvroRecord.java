@@ -19,6 +19,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
 import java.time.Instant;
@@ -32,7 +33,6 @@ import java.util.Objects;
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.avro.util.internal.JacksonUtils;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
@@ -57,7 +57,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         final List<org.apache.avro.Schema.Field> fields = sortedEntries
                 .stream()
                 .map(entry -> new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry), entry.getComment(),
-                        JacksonUtils.toJsonNode(entry.getDefaultValue())))
+                        toJsonNode(entry.getDefaultValue())))
                 .collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);

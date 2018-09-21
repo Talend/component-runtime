@@ -17,11 +17,11 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toObject;
 
 import java.util.List;
 
 import org.apache.avro.Schema;
-import org.apache.avro.util.internal.JacksonUtils;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
@@ -74,8 +74,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 final AvroSchema elementSchema =
                         new AvroSchema(type == Type.ARRAY ? field.schema().getElementType() : field.schema());
                 return new SchemaImpl.EntryImpl(field.name(), type, field.defaultValue() == null,
-                        field.defaultValue() != null ? JacksonUtils.toObject(field.defaultValue()) : null,
-                        elementSchema, field.doc());
+                        field.defaultValue() != null ? toObject(field.defaultValue()) : null, elementSchema,
+                        field.doc());
             }).collect(toList());
         }
         return entries;

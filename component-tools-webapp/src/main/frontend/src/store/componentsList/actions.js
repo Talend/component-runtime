@@ -21,7 +21,7 @@ import {
   GET_ICONS_LIST_OK,
   FAMILY_RELOADING,
   FAMILY_RELOADED,
-  FAMILY_RELOADED_ERROR
+  FAMILY_RELOADED_ERROR,
 } from '../constants';
 
 function nameComparator() {
@@ -115,6 +115,15 @@ function getOrCreateFamilyNode(categoryNode, component, dispatch) {
   return familyNode;
 }
 
+function doOpen(treeview) {
+  let children = treeview;
+  while (children && children.length) {
+    children[0].toggled = true;
+    children = children[0].children;
+  }
+	return treeview;
+}
+
 function createTree(components, dispatch) {
   const treeview = components.reduce((accu, component) => {
     component.categories.forEach(categoryId => {
@@ -129,19 +138,55 @@ function createTree(components, dispatch) {
     return accu;
   }, []);
 
-  // now open the first part of the tree
-  let children = treeview;
-  while (children && children.length) {
-    children[0].toggled = true;
-    children = children[0].children;
-  }
-
-  return treeview;
+  return doOpen(treeview);
 }
 
-function isLoadingComponentsList() {
+function getParentNode(accu, id) {
+	const found = accu.filter(it => it.id == id);
+	if (!found || found.length === 0) {
+		const nested = accu.map(it => it.children)
+							 .filter(it => it)
+							 .map(children => getParentNode(children, id))
+							 .filter(it => it)
+		return nested && nested.length > 0 && nested[0];
+	}
+	return found[0];
+}
+
+function createConfigTree(wrapper, dispatch) {
+	const values = Object.values(wrapper.nodes);
+	values.sort((v1, v2) => v1.id.localeCompare(v2.id));
+  const treeview = values.reduce((accu, node) => {
+		const familyId = atob(node.id).split('#')[1];
+		const treeNode = {
+	    ...node,
+	    familyId,
+	    $$id: node.id,
+	    $$type: 'configuration',
+			// TBD: icon:{ name: `src-/api/v1/icon/family/${familyId}`},
+	  };
+		if (node.parentId) {
+			const parent = getParentNode(accu, node.parentId);
+			treeNode.$$parent = parent;
+			treeNode.name = `${node.displayName} (${node.configurationType})`,
+			treeNode.$$detail = `/application/detail/${node.id}?configuration=true`;
+			parent.children = parent.children || [];
+			parent.children.push(treeNode);
+			parent.children.sort(nameComparator());
+		} else {
+			treeNode.name = `${node.displayName}`,
+			accu.push(treeNode);
+		}
+    return accu;
+  }, []);
+
+  return doOpen(treeview);
+}
+
+function isLoadingComponentsList(configuration) {
   return {
     type: GET_COMPONENT_LIST_LOADING,
+		configuration,
   };
 }
 
@@ -190,12 +235,13 @@ function familyIsReloading() {
   };
 }
 
-export function getComponentsList() {
+export function getComponentsList(data) {
+	const configuration = (data && data.configuration) || false;
   return dispatch => {
-    dispatch(isLoadingComponentsList());
-    fetch('api/v1/application/index')
+    dispatch(isLoadingComponentsList(configuration));
+    fetch(`api/v1/application/index?configuration=${configuration}`)
       .then(resp => resp.json())
-      .then(({ components }) => createTree(components, dispatch))
+      .then(data => data.components ? createTree(data.components, dispatch) : createConfigTree(data, dispatch))
       .then(categories => { dispatch(getComponentsListOK(categories)); })
       .catch(error => dispatch(getComponentsListERROR(error)))
   };
