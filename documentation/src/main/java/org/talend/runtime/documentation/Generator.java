@@ -115,6 +115,7 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiPara
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
@@ -782,6 +783,22 @@ public class Generator {
             schema.setEntries(new ArrayList<>());
             schema.getEntries().add(entry);
             return jsonb.toJson(schema);
+        }
+        if (returnedType == org.talend.sdk.component.api.record.Schema.class) {
+            return jsonb.toJson(new SchemaImpl.BuilderImpl()
+                    .withType(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                    .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                            .withName("column1")
+                            .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                            .withNullable(false)
+                            .withComment("The column 1")
+                            .build())
+                    .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                            .withName("column2")
+                            .withType(org.talend.sdk.component.api.record.Schema.Type.INT)
+                            .withComment("The int column")
+                            .build())
+                    .build());
         }
         if (returnedType == ValidationResult.class) {
             final ValidationResult status = new ValidationResult();
