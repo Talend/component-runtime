@@ -39,6 +39,7 @@ import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
+import org.apache.johnzon.core.JsonLongImpl;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -78,12 +79,8 @@ public class RecordConverters implements Serializable {
         object.forEach((key, value) -> {
             switch (value.getValueType()) {
             case ARRAY: {
-                final List<Object> items = value.asJsonArray().stream().map(it -> {
-                    if (JsonObject.class.isInstance(it)) {
-                        return json2Record(factory, JsonObject.class.cast(it));
-                    }
-                    return it;
-                }).collect(toList());
+                final List<Object> items =
+                        value.asJsonArray().stream().map(it -> mapJson(factory, it)).collect(toList());
                 builder.withArray(factory
                         .newEntryBuilder()
                         .withName(key)
@@ -123,23 +120,48 @@ public class RecordConverters implements Serializable {
         return builder.build();
     }
 
+    private Object mapJson(final RecordBuilderFactory factory, final JsonValue it) {
+        if (JsonObject.class.isInstance(it)) {
+            return json2Record(factory, JsonObject.class.cast(it));
+        }
+        if (JsonArray.class.isInstance(it)) {
+            return JsonArray.class.cast(it).stream().map(i -> mapJson(factory, i)).collect(toList());
+        }
+        if (JsonString.class.isInstance(it)) {
+            return JsonString.class.cast(it).getString();
+        }
+        if (JsonNumber.class.isInstance(it)) {
+            return JsonNumber.class.cast(it).numberValue();
+        }
+        if (JsonValue.FALSE.equals(it)) {
+            return false;
+        }
+        if (JsonValue.TRUE.equals(it)) {
+            return true;
+        }
+        if (JsonValue.NULL.equals(it)) {
+            return null;
+        }
+        return it;
+    }
+
     private Schema toSchema(final RecordBuilderFactory factory, final Object next) {
-        if (String.class.isInstance(next)) {
+        if (String.class.isInstance(next) || JsonString.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.STRING).build();
         }
         if (Integer.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.INT).build();
         }
-        if (Long.class.isInstance(next)) {
+        if (Long.class.isInstance(next) || JsonLongImpl.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.LONG).build();
         }
         if (Float.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.FLOAT).build();
         }
-        if (Double.class.isInstance(next)) {
+        if (Double.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
         }
-        if (Boolean.class.isInstance(next)) {
+        if (Boolean.class.isInstance(next) || JsonValue.TRUE.equals(next) || JsonValue.FALSE.equals(next)) {
             return factory.newSchemaBuilder(Schema.Type.BOOLEAN).build();
         }
         if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next)) {
@@ -148,7 +170,7 @@ public class RecordConverters implements Serializable {
         if (byte[].class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.BYTES).build();
         }
-        if (Collection.class.isInstance(next)) {
+        if (Collection.class.isInstance(next) || JsonArray.class.isInstance(next)) {
             final Collection collection = Collection.class.cast(next);
             if (collection.isEmpty()) {
                 return factory.newSchemaBuilder(Schema.Type.STRING).build();
