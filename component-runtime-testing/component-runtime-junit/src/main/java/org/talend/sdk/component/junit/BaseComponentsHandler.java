@@ -50,12 +50,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
+import javax.json.spi.JsonProvider;
 
 import org.apache.xbean.finder.filter.Filter;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.injector.Injector;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.junit.lang.StreamDecorator;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Input;
@@ -67,6 +71,7 @@ import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -136,7 +141,8 @@ public class BaseComponentsHandler implements ComponentsHandler {
             }
         };
 
-        STATE.set(new State(embeddedComponentManager, new ArrayList<>(), initState.get().emitter, null));
+        STATE.set(new State(embeddedComponentManager, new ArrayList<>(), initState.get().emitter, null, null, null,
+                null));
         return embeddedComponentManager;
     }
 
@@ -476,7 +482,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
         final State state = STATE.get();
         return state.collector
                 .stream()
-                .filter(r -> recordType.isInstance(r) || JsonObject.class.isInstance(r))
+                .filter(r -> recordType.isInstance(r) || JsonObject.class.isInstance(r) || Record.class.isInstance(r))
                 .map(r -> mapRecord(state, recordType, r))
                 .collect(toList());
     }
@@ -500,11 +506,11 @@ public class BaseComponentsHandler implements ComponentsHandler {
         if (recordType.isInstance(r)) {
             return recordType.cast(r);
         }
-        if (JsonObject.class.isInstance(r)) {
-            final Jsonb jsonb = state.jsonb();
-            return jsonb.fromJson(jsonb.toJson(r), recordType);
+        if (Record.class == recordType) {
+            return recordType.cast(new RecordConverters().toRecord(r, state::jsonb, state::recordBuilderFactory));
         }
-        throw new IllegalArgumentException("Unsupported record: " + r);
+        return recordType.cast(new RecordConverters().toType(r, recordType, state::jsonBuilderFactory,
+                state::jsonProvider, state::jsonb));
     }
 
     static class PreState {
@@ -523,6 +529,12 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
         volatile Jsonb jsonb;
 
+        volatile JsonProvider jsonProvider;
+
+        volatile JsonBuilderFactory jsonBuilderFactory;
+
+        volatile RecordBuilderFactory recordBuilderFactory;
+
         synchronized Jsonb jsonb() {
             if (jsonb == null) {
                 jsonb = manager
@@ -540,6 +552,27 @@ public class BaseComponentsHandler implements ComponentsHandler {
                         .build();
             }
             return jsonb;
+        }
+
+        synchronized JsonProvider jsonProvider() {
+            if (jsonProvider == null) {
+                jsonProvider = manager.getJsonpProvider();
+            }
+            return jsonProvider;
+        }
+
+        synchronized JsonBuilderFactory jsonBuilderFactory() {
+            if (jsonBuilderFactory == null) {
+                jsonBuilderFactory = manager.getJsonpBuilderFactory();
+            }
+            return jsonBuilderFactory;
+        }
+
+        synchronized RecordBuilderFactory recordBuilderFactory() {
+            if (recordBuilderFactory == null) {
+                recordBuilderFactory = manager.getRecordBuilderFactoryProvider().apply("test");
+            }
+            return recordBuilderFactory;
         }
     }
 
