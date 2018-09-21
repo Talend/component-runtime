@@ -454,6 +454,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         if (url != null) {
             try {
                 final URLConnection connection = url.openConnection();
+                connection.setUseCaches(false);
 
                 // package
                 final int i = name.lastIndexOf('.');
@@ -473,22 +474,23 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 }
 
                 // read the class and transform it
-                final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int read;
-                final InputStream stream = connection.getInputStream();
-                while ((read = stream.read(buffer)) >= 0) {
-                    if (read == 0) {
-                        continue;
+                byte[] bytes;
+                try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                    byte[] buffer = new byte[1024];
+                    int read;
+                    try (final InputStream stream = connection.getInputStream()) {
+                        while ((read = stream.read(buffer)) >= 0) {
+                            if (read == 0) {
+                                continue;
+                            }
+                            outputStream.write(buffer, 0, read);
+                        }
                     }
-                    outputStream.write(buffer, 0, read);
+                    bytes = outputStream.toByteArray();
                 }
-
                 final Certificate[] certificates = JarURLConnection.class.isInstance(connection)
                         ? JarURLConnection.class.cast(connection).getCertificates()
                         : new Certificate[0];
-
-                byte[] bytes = outputStream.toByteArray();
                 if (!transformers.isEmpty()) {
                     for (final ClassFileTransformer transformer : transformers) {
                         try {
