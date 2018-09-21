@@ -101,7 +101,7 @@ public class TaCoKitExtension {
 
     private boolean validateLocalConfiguration = true;
 
-    private boolean validateOutputsIncomingInputs = true;
+    private boolean validateOutputConnection = true;
 
     //
     // web

@@ -189,7 +189,7 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (configuration.isValidateOutputConnection()) {
-            validateOutputsIncomingInputs(components, errors);
+            validateOutputConnection(components, errors);
         }
 
         if (!errors.isEmpty()) {
@@ -201,7 +201,7 @@ public class ComponentValidator extends BaseTask {
         }
     }
 
-    private void validateOutputsIncomingInputs(final List<Class<?>> components, final Set<String> errors) {
+    private void validateOutputConnection(final List<Class<?>> components, final Set<String> errors) {
         // outputs must have only one input param
         errors.addAll(components
                 .stream()

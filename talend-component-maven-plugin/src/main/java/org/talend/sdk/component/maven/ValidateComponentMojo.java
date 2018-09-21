@@ -114,7 +114,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     /**
      * Ensure output component has only one single input branch.
      */
-    @Parameter(defaultValue = "true", property = "talend.validation.outputsIncomingInputs")
+    @Parameter(defaultValue = "true", property = "talend.validation.validateOutputConnection")
     private boolean validateOutputConnection;
 
     /**
