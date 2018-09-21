@@ -114,6 +114,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     /**
      * Should the option names be validated.
      */
+    @Parameter(defaultValue = "true", property = "talend.validation.outputsIncomingInputs")
+    private boolean validateOutputsIncomingInputs;
+
+    /**
+     * Should the option names be validated.
+     */
     @Parameter(defaultValue = "true", property = "talend.validation.localConfiguration")
     private boolean validateLocalConfiguration;
 
@@ -133,6 +139,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateLayout(validateLayout);
         configuration.setValidateOptionNames(validateOptionNames);
         configuration.setValidateLocalConfiguration(validateLocalConfiguration);
+        configuration.setValidateOutputsIncomingInputs(validateOutputsIncomingInputs);
         new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
 }
