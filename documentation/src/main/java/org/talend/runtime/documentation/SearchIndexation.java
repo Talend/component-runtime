@@ -89,7 +89,7 @@ public class SearchIndexation {
         final List<Future<List<JsonObject>>> updates = siteMap.getSiteMapUrls().stream().filter(url -> {
             // filter not indexed pages
             final String externalForm = url.getUrl().toExternalForm();
-            return !externalForm.contains("/all-in-one.html") && !externalForm.contains("/index-")
+            return !externalForm.contains("/all-in-one.html") && !externalForm.contains("/pdf-")
                     && !externalForm.contains("/landing.html") && !externalForm.contains("/index.html");
         }).filter(it -> it.getUrl().toExternalForm().contains(urlMarker)).map(url -> pool.submit(() -> {
             final String target = url.getUrl().toExternalForm();
