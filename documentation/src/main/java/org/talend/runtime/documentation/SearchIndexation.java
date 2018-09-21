@@ -89,22 +89,19 @@ public class SearchIndexation {
         final List<Future<List<JsonObject>>> updates = siteMap.getSiteMapUrls().stream().filter(url -> {
             // filter not indexed pages
             final String externalForm = url.getUrl().toExternalForm();
-            return !externalForm.contains("/all-in-one.html") && !externalForm.contains("/index-")
+            return !externalForm.contains("/all-in-one.html") && !externalForm.contains("/pdf-")
                     && !externalForm.contains("/landing.html") && !externalForm.contains("/index.html");
         }).filter(it -> it.getUrl().toExternalForm().contains(urlMarker)).map(url -> pool.submit(() -> {
             final String target = url.getUrl().toExternalForm();
-            final String path = target.substring(target.indexOf(urlMarker) + urlMarker.length());
-            final File adocSource = new File(siteMapFile.getParentFile().getParentFile().getParentFile(),
-                    "src/main/antora/modules/ROOT/pages"
-                            + path.substring(path.lastIndexOf('/'), path.length() - ".html".length()) + ".adoc");
-            if (!adocSource.exists() || Files.readAllLines(adocSource.toPath()).stream().anyMatch(
+            final File relative = new File(siteMapFile.getParentFile(),
+                    target.substring(target.indexOf(urlMarker) + urlMarker.length()));
+            if (!relative.exists() || Files.readAllLines(relative.toPath()).stream().anyMatch(
                     line -> line.trim().startsWith(":page-talend_skipindexation:"))) {
                 return Collections.<JsonObject> emptyList();
             }
             log.debug("Indexing {}", target);
-            final File relativeHtml = new File(siteMapFile.getParentFile(), path);
             try {
-                final Document document = Jsoup.parse(String.join("\n", Files.readAllLines(relativeHtml.toPath())));
+                final Document document = Jsoup.parse(String.join("\n", Files.readAllLines(relative.toPath())));
                 final JsonObjectBuilder builder = factory.createObjectBuilder();
                 builder
                         .add("lang", "en")
