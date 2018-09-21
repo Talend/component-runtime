@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.beam;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
@@ -23,7 +22,6 @@ import static org.talend.sdk.component.starter.server.service.Strings.capitalize
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -50,22 +48,8 @@ public class BeamFacet implements FacetGenerator {
     @Inject
     private NameConventions names;
 
-    @Inject
-    private ServerInfo versions;
-
-    private List<Dependency> dependencies;
-
     void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
-        dependencies = asList(Dependency.junit(),
-                new Dependency("org.talend.sdk.component", "component-runtime-beam", versions.getKit(), "test"),
-                new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"),
-                new Dependency("org.talend.sdk.component", "component-runtime-beam-junit", versions.getKit(), "test"),
-                new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
-                new Dependency("org.apache.beam", "beam-runners-direct-java", versions.getBeam(), "test"),
-                // for avro
-                new Dependency("org.codehaus.jackson", "jackson-core-asl", versions.getAvroJackson(), "test"),
-                new Dependency("org.codehaus.jackson", "jackson-mapper-asl", versions.getAvroJackson(), "test"));
     }
 
     @Override
@@ -76,7 +60,7 @@ public class BeamFacet implements FacetGenerator {
     @Override
     public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
             final Collection<ProjectRequest.SourceConfiguration> sources,
-            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+            final Collection<ProjectRequest.ProcessorConfiguration> processors, final ServerInfo.Snapshot versions) {
         final boolean hasComponent =
                 (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
         if (!hasComponent) {
@@ -208,8 +192,16 @@ public class BeamFacet implements FacetGenerator {
     }
 
     @Override
-    public Stream<Dependency> dependencies(final Collection<String> facets) {
-        return dependencies.stream();
+    public Stream<Dependency> dependencies(final Collection<String> facets, final ServerInfo.Snapshot versions) {
+        return Stream.of(Dependency.junit(),
+                new Dependency("org.talend.sdk.component", "component-runtime-beam", versions.getKit(), "test"),
+                new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"),
+                new Dependency("org.talend.sdk.component", "component-runtime-beam-junit", versions.getKit(), "test"),
+                new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
+                new Dependency("org.apache.beam", "beam-runners-direct-java", versions.getBeam(), "test"),
+                // for avro
+                new Dependency("org.codehaus.jackson", "jackson-core-asl", versions.getAvroJackson(), "test"),
+                new Dependency("org.codehaus.jackson", "jackson-mapper-asl", versions.getAvroJackson(), "test"));
     }
 
     @Override

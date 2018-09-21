@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.wadl;
 
-import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
@@ -26,7 +25,6 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
@@ -40,11 +38,6 @@ public class WADLFacet implements FacetGenerator {
 
     private String specification;
 
-    private Collection<Dependency> dependencies;
-
-    @Inject
-    private ServerInfo versions;
-
     void register(@Observes final GeneratorRegistration init) {
         try (final BufferedReader reader = new BufferedReader(
                 new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(
@@ -53,8 +46,6 @@ public class WADLFacet implements FacetGenerator {
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
-
-        dependencies = singleton(new Dependency("org.apache.cxf", "cxf-rt-rs-client", versions.getCxf(), "compile"));
 
         init.registerFacetType(this);
     }
@@ -78,13 +69,13 @@ public class WADLFacet implements FacetGenerator {
     @Override
     public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
             final Collection<ProjectRequest.SourceConfiguration> sources,
-            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+            final Collection<ProjectRequest.ProcessorConfiguration> processors, final ServerInfo.Snapshot versions) {
         return Stream.of(new InMemoryFile(build.getMainResourcesDirectory() + "/wadl/client.xml", specification));
     }
 
     @Override
-    public Stream<Dependency> dependencies(final Collection<String> facets) {
-        return dependencies.stream();
+    public Stream<Dependency> dependencies(final Collection<String> facets, final ServerInfo.Snapshot versions) {
+        return Stream.of(new Dependency("org.apache.cxf", "cxf-rt-rs-client", versions.getCxf(), "compile"));
     }
 
     @Override

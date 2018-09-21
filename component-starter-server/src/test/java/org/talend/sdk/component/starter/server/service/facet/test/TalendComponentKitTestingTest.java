@@ -35,12 +35,16 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.facet.testing.TalendComponentKitTesting;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 
 @MonoMeecrowaveConfig
 class TalendComponentKitTestingTest {
 
     @Inject
     private TalendComponentKitTesting generator;
+
+    @Inject
+    private ServerInfo info;
 
     private Build build = new Build("test", "test", null, "src/main/java", "src/test/java", "src/main/resources",
             "src/test/resources", "src/main/webapp", "pom.xml", "some pom", "target", emptyList());
@@ -53,7 +57,7 @@ class TalendComponentKitTestingTest {
                         new ProjectRequest.StructureConfiguration(null, true)));
 
         String testFile = generator
-                .create("foo.bar", build, emptyList(), sources, emptyList())
+                .create("foo.bar", build, emptyList(), sources, emptyList(), info.getSnapshot())
                 .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);
@@ -71,7 +75,7 @@ class TalendComponentKitTestingTest {
                         new ProjectRequest.StructureConfiguration(null, true)));
 
         String testFile = generator
-                .create("foo.bar", build, emptyList(), sources, emptyList())
+                .create("foo.bar", build, emptyList(), sources, emptyList(), info.getSnapshot())
                 .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);
@@ -88,7 +92,7 @@ class TalendComponentKitTestingTest {
                         new ProjectRequest.StructureConfiguration(complexConfig(), false)));
 
         String testFile = generator
-                .create("foo.bar", build, emptyList(), sources, emptyList())
+                .create("foo.bar", build, emptyList(), sources, emptyList(), info.getSnapshot())
                 .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);
@@ -107,7 +111,7 @@ class TalendComponentKitTestingTest {
                         singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true))));
 
         String testFile = generator
-                .create("foo.bar", build, emptyList(), emptyList(), processors)
+                .create("foo.bar", build, emptyList(), emptyList(), processors, info.getSnapshot())
                 .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);
@@ -127,7 +131,7 @@ class TalendComponentKitTestingTest {
                         singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true))));
 
         String testFile = generator
-                .create("foo.bar", build, emptyList(), emptyList(), processors)
+                .create("foo.bar", build, emptyList(), emptyList(), processors, info.getSnapshot())
                 .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);
@@ -158,7 +162,7 @@ class TalendComponentKitTestingTest {
                         }));
 
         String testFile = generator
-                .create("foo.bar", build, emptyList(), emptyList(), processors)
+                .create("foo.bar", build, emptyList(), emptyList(), processors, info.getSnapshot())
                 .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);

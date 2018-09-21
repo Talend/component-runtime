@@ -95,13 +95,15 @@ public class ProjectGenerator {
     }
 
     public void generate(final ProjectRequest request, final OutputStream outputStream) {
+        final ServerInfo.Snapshot versionSnapshot = versions.getSnapshot();
         final BuildGenerator generator = generators.get(request.getBuildType());
         final Map<String, byte[]> files = new HashMap<>();
 
         // build dependencies to give them to the build
         final Collection<String> facets = ofNullable(request.getFacets()).orElse(emptyList());
         final List<Dependency> dependencies = new ArrayList<>(
-                facets.stream().map(this.facets::get).flatMap(f -> f.dependencies(facets)).collect(toSet()));
+                facets.stream().map(this.facets::get).flatMap(f -> f.dependencies(facets, versionSnapshot)).collect(
+                        toSet()));
         dependencies.sort((o1, o2) -> {
             { // by scope
                 final int scope1 = scopesOrdering.indexOf(o1.getScope());
@@ -123,13 +125,13 @@ public class ProjectGenerator {
             return o1.getArtifact().compareTo(o2.getArtifact());
         });
         // force component-api and force it first
-        final Dependency componentApi = Dependency.componentApi(versions.getApiKit());
+        final Dependency componentApi = Dependency.componentApi(versionSnapshot.getApiKit());
         dependencies.remove(componentApi);
         dependencies.add(0, componentApi);
 
         // create the build to be able to generate the files
-        final Build build =
-                generator.createBuild(request.getBuildConfiguration(), request.getPackageBase(), dependencies, facets);
+        final Build build = generator.createBuild(request.getBuildConfiguration(), request.getPackageBase(),
+                dependencies, facets, versionSnapshot);
         files.put(build.getBuildFileName(), build.getBuildFileContent().getBytes(StandardCharsets.UTF_8));
 
         // generate facet files
@@ -138,7 +140,7 @@ public class ProjectGenerator {
                     final FacetGenerator g = this.facets.get(f);
                     return g
                             .create(request.getPackageBase(), build, facets, request.getSources(),
-                                    request.getProcessors())
+                                    request.getProcessors(), versionSnapshot)
                             .peek(file -> files.put(file.getPath(), file.getContent()))
                             .map(FacetGenerator.InMemoryFile::getPath)
                             .collect(toList());
@@ -165,8 +167,8 @@ public class ProjectGenerator {
             }
             return s1;
         }).filter(s -> !s.isEmpty()).ifPresent(scope -> {
-            dependencies
-                    .add(new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versions.getLog4j2(), scope));
+            dependencies.add(
+                    new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versionSnapshot.getLog4j2(), scope));
             files.put(
                     ("test".equals(scope) ? build.getTestResourcesDirectory() : build.getMainResourcesDirectory())
                             + "/log4j2.xml",
