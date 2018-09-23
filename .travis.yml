@@ -86,7 +86,7 @@ jobs:
       env:
       - STEP=Docker Deployment
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: chmod +x ./.travis/docker.sh && ./.travis/docker.sh
+      script: chmod +x ./.travis/docker.sh && travis_wait 50 ./.travis/docker.sh
       jdk: oraclejdk8
 
     - stage: master_build
