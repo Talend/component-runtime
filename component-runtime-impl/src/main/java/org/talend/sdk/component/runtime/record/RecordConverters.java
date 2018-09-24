@@ -18,6 +18,8 @@ package org.talend.sdk.component.runtime.record;
 import static java.util.stream.Collectors.toList;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -45,6 +47,8 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 public class RecordConverters implements Serializable {
+
+    private static final ZoneId UTC = ZoneId.of("UTC");
 
     public <T> T mapNumber(final Class<T> expected, final Number from) {
         if (expected == Double.class || expected == double.class) {
@@ -314,5 +318,31 @@ public class RecordConverters implements Serializable {
         final Collector<JsonValue, JsonArrayBuilder, JsonArray> collector = Collector.of(factory::createArrayBuilder,
                 JsonArrayBuilder::add, JsonArrayBuilder::addAll, JsonArrayBuilder::build);
         return collection.stream().map(valueFactory).collect(collector);
+    }
+
+    public <T> T coerce(final Class<T> expectedType, final Object value, final String name) {
+        // datetime cases
+        if (Long.class.isInstance(value) && expectedType != Long.class) {
+            if (expectedType == ZonedDateTime.class) {
+                return expectedType
+                        .cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Number.class.cast(value).longValue()), UTC));
+            }
+            if (expectedType == Date.class) {
+                return expectedType.cast(new Date(Number.class.cast(value).longValue()));
+            }
+        }
+
+        if (!expectedType.isInstance(value)) {
+            if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
+                return mapNumber(expectedType, Number.class.cast(value));
+            }
+            if (String.class.isInstance(value) && ZonedDateTime.class == expectedType) {
+                return expectedType.cast(ZonedDateTime.parse(String.valueOf(value)));
+            }
+
+            throw new IllegalArgumentException(name + " can't be converted to " + expectedType);
+        }
+
+        return expectedType.cast(value);
     }
 }

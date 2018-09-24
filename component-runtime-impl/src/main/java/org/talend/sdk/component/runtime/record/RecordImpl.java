@@ -29,8 +29,6 @@ import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +52,7 @@ import lombok.Getter;
 
 public final class RecordImpl implements Record {
 
-    private static final ZoneId UTC = ZoneId.of("UTC");
+    private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
     private final Map<String, Object> values;
 
@@ -74,25 +72,7 @@ public final class RecordImpl implements Record {
             return expectedType.cast(value);
         }
 
-        // datetime cases
-        if (Long.class.isInstance(value) && expectedType != Long.class) {
-            if (expectedType == ZonedDateTime.class) {
-                return expectedType
-                        .cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Number.class.cast(value).longValue()), UTC));
-            }
-            if (expectedType == Date.class) {
-                return expectedType.cast(new Date(Number.class.cast(value).longValue()));
-            }
-        }
-
-        if (!expectedType.isInstance(value)) {
-            if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
-                return new RecordConverters().mapNumber(expectedType, Number.class.cast(value));
-            }
-            throw new ClassCastException("Invalid casting: " + expectedType + " is not compatible with " + value);
-        }
-
-        throw new IllegalArgumentException(name + " can't be converted to " + expectedType);
+        return RECORD_CONVERTERS.coerce(expectedType, value, name);
     }
 
     @Override // for debug purposes, don't use it for anything else

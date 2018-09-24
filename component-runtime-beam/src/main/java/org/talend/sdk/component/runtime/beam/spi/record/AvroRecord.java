@@ -22,8 +22,6 @@ import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeCon
 import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -40,7 +38,7 @@ import org.talend.sdk.component.runtime.record.RecordConverters;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
-    private static final ZoneId UTC = ZoneId.of("UTC");
+    private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
     private final IndexedRecord delegate;
 
@@ -161,13 +159,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchema, final Object value) {
         if (Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name())) && Long.class.isInstance(value)
                 && expectedType != Long.class) {
-            if (expectedType == ZonedDateTime.class) {
-                return expectedType
-                        .cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Number.class.cast(value).longValue()), UTC));
-            }
-            if (expectedType == Date.class) {
-                return expectedType.cast(new Date(Number.class.cast(value).longValue()));
-            }
+            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
         if (IndexedRecord.class.isInstance(value) && (Record.class == expectedType || Object.class == expectedType)) {
             return expectedType.cast(new AvroRecord(IndexedRecord.class.cast(value)));
@@ -178,10 +170,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                     .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));
         }
         if (!expectedType.isInstance(value)) {
-            if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
-                return new RecordConverters().mapNumber(expectedType, Number.class.cast(value));
-            }
-            throw new ClassCastException("Invalid casting: " + expectedType + " is not compatible with " + value);
+            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
         return expectedType.cast(value);
     }
