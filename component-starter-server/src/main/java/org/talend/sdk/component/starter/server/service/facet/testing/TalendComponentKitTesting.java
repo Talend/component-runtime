@@ -15,10 +15,9 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.testing;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,26 +48,20 @@ public class TalendComponentKitTesting implements FacetGenerator {
     @Inject
     private NameConventions names;
 
-    @Inject
-    private ServerInfo versions;
-
-    private Collection<Dependency> dependencies;
-
     void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
-        dependencies = asList(Dependency.junit(),
-                new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"));
     }
 
     @Override
-    public Stream<Dependency> dependencies(final Collection<String> facets) {
-        return dependencies.stream();
+    public Stream<Dependency> dependencies(final Collection<String> facets, final ServerInfo.Snapshot versions) {
+        return Stream.of(Dependency.junit(),
+                new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"));
     }
 
     @Override
     public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
             final Collection<ProjectRequest.SourceConfiguration> sources,
-            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+            final Collection<ProjectRequest.ProcessorConfiguration> processors, final ServerInfo.Snapshot versions) {
 
         final boolean hasComponent =
                 (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());

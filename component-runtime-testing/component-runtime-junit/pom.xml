@@ -123,6 +123,11 @@
             <goals>
               <goal>check</goal>
             </goals>
+            <configuration>
+              <excludes> <!-- internal -->
+                <exclude>**/BaseComponentsHandler$State</exclude>
+              </excludes>
+            </configuration>
           </execution>
         </executions>
       </plugin>

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -31,7 +32,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,8 +99,14 @@ public class StatisticService {
 
         @PostConstruct
         private void init() {
-            executorService = Executors.newFixedThreadPool(threads,
-                    new BasicThreadFactory.Builder().namingPattern("statistcs-%d").build());
+            final AtomicInteger counter = new AtomicInteger(1);
+            executorService = Executors.newFixedThreadPool(threads, r -> {
+                final Thread thread = new Thread();
+                thread.setName("talend-starter-statistcs-" + counter.getAndIncrement());
+                thread.setPriority(Thread.NORM_PRIORITY);
+                thread.setDaemon(false);
+                return thread;
+            });
         }
 
         // don't block to return ASAP to the client, not very important if it fails for

@@ -20,9 +20,10 @@ import java.util.Collection;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 
 public interface BuildGenerator {
 
     Build createBuild(ProjectRequest.BuildConfiguration buildConfiguration, String packageBase,
-            Collection<Dependency> dependencies, Collection<String> facets);
+            Collection<Dependency> dependencies, Collection<String> facets, ServerInfo.Snapshot versions);
 }

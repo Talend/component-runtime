@@ -5,8 +5,6 @@ import static java.util.Collections.singletonList;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.json.JsonBuilderFactory;
-
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -16,6 +14,7 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.PartitionSize;
 import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 import com.foo.service.TestService;
 
@@ -29,14 +28,14 @@ import com.foo.service.TestService;
 public class MycompMapper implements Serializable {
     private final MycompMapperConfiguration configuration;
     private final TestService service;
-    private final JsonBuilderFactory jsonBuilderFactory;
+    private final RecordBuilderFactory recordBuilderFactory;
 
     public MycompMapper(@Option("configuration") final MycompMapperConfiguration configuration,
                         final TestService service,
-                        final JsonBuilderFactory jsonBuilderFactory) {
+                        final RecordBuilderFactory recordBuilderFactory) {
         this.configuration = configuration;
         this.service = service;
-        this.jsonBuilderFactory = jsonBuilderFactory;
+        this.recordBuilderFactory = recordBuilderFactory;
     }
 
     @Assessor
@@ -64,6 +63,6 @@ public class MycompMapper implements Serializable {
         // here we create an actual worker,
         // you are free to rework the configuration etc but our default generated implementation
         // propagates the partition mapper entries.
-        return new MycompSource(configuration, service, jsonBuilderFactory);
+        return new MycompSource(configuration, service, recordBuilderFactory);
     }
 }

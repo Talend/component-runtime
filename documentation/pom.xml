@@ -179,6 +179,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons-text.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.github.crawler-commons</groupId>
       <artifactId>crawler-commons</artifactId>
       <version>${crawler-commons.version}</version>
@@ -386,8 +393,8 @@
           </dependency>
           <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.7</version>
+            <artifactId>commons-text</artifactId>
+            <version>${commons-text.version}</version>
           </dependency>
           <dependency>
             <groupId>org.apache.geronimo.specs</groupId>

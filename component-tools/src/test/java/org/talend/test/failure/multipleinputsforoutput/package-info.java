@@ -13,28 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.starter.server.front;
+@Components(family = "demo")
+@Icon(Icon.IconType.DEFAULT)
+package org.talend.test.failure.multipleinputsforoutput;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-
-import org.talend.sdk.component.starter.server.model.Environment;
-import org.talend.sdk.component.starter.server.service.info.ServerInfo;
-
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-@Path("environment")
-@ApplicationScoped
-public class EnvironmentResource {
-
-    @Inject
-    private ServerInfo info;
-
-    @GET
-    public Environment info() {
-        return new Environment(info.getLastUpdate(), info.getSnapshot().getKit());
-    }
-}
+import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;

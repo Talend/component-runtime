@@ -19,8 +19,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
 import java.util.HashMap;
 import java.util.stream.Stream;
