@@ -336,8 +336,13 @@ public class RecordConverters implements Serializable {
             if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
                 return mapNumber(expectedType, Number.class.cast(value));
             }
-            if (String.class.isInstance(value) && ZonedDateTime.class == expectedType) {
-                return expectedType.cast(ZonedDateTime.parse(String.valueOf(value)));
+            if (String.class.isInstance(value)) {
+                if (ZonedDateTime.class == expectedType) {
+                    return expectedType.cast(ZonedDateTime.parse(String.valueOf(value)));
+                }
+                if (byte[].class == expectedType) {
+                    return expectedType.cast(Base64.getDecoder().decode(String.valueOf(value)));
+                }
             }
 
             throw new IllegalArgumentException(name + " can't be converted to " + expectedType);

@@ -17,16 +17,23 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.Collection;
 
 import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -34,6 +41,49 @@ import org.talend.sdk.component.api.record.Record;
 class RecordConvertersTest {
 
     private final RecordConverters converter = new RecordConverters();
+
+    private final JsonProvider jsonProvider = JsonProvider.provider();
+
+    private final JsonBuilderFactory jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
+
+    private final RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+
+    @Test
+    void booleanRoundTrip() throws Exception {
+        final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonObject json = JsonObject.class.cast(converter.toType(record, JsonObject.class,
+                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb));
+            assertTrue(json.getBoolean("value"));
+            final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
+            assertTrue(toRecord.getBoolean("value"));
+        }
+    }
+
+    @Test
+    void stringRoundTrip() throws Exception {
+        final Record record = recordBuilderFactory.newRecordBuilder().withString("value", "yes").build();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonObject json = JsonObject.class.cast(converter.toType(record, JsonObject.class,
+                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb));
+            assertEquals("yes", json.getString("value"));
+            final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
+            assertEquals("yes", toRecord.getString("value"));
+        }
+    }
+
+    @Test
+    void bytesRoundTrip() throws Exception {
+        final byte[] bytes = new byte[] { 1, 2, 3 };
+        final Record record = recordBuilderFactory.newRecordBuilder().withBytes("value", bytes).build();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonObject json = JsonObject.class.cast(converter.toType(record, JsonObject.class,
+                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb));
+            assertEquals(Base64.getEncoder().encodeToString(bytes), json.getString("value"));
+            final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
+            assertArrayEquals(bytes, toRecord.getBytes("value"));
+        }
+    }
 
     @Test
     void convertDateToString() {
