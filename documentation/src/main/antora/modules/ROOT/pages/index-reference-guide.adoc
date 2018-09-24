@@ -1,6 +1,7 @@
 = Talend Component Kit Reference guide
 :page-partial:
 :page-talend_skipindexation:
+:page-talend_filterlist: true
 
 include::gallery.adoc[leveloffset=+1]
 

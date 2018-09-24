@@ -678,5 +678,43 @@ ul.tree > li > a {
   line-height: 0;
 }
 .talend-icons-note {
-    padding-top: 1rem;
+  padding-top: 1rem;
+}
+
+.talend-filterlist .hidden {
+  display: none;
+}
+.talend-filterlist .ul-containers {
+  display: flex;
+  flex-direction: row;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  height: 400px;
+  overflow: auto;
+}
+.talend-filterlist .ul-containers > ul {
+  width: 100%;
+  -webkit-padding-start: 0;
+  padding-start: 0;
+}
+.talend-filterlist li {
+  border: 1px solid #ddd;
+  margin-top: -1px;
+  background-color: #f6f6f6;
+  padding: 12px;
+  font-size: 18px;
+  color: black;
+  display: block;
+  text-align: center;
+}
+.talend-filterlist input {
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 20px 12px 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+}
+.talend-filterlist li:hover {
+  background-color: #eee;
 }

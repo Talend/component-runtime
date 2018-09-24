@@ -8,6 +8,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.17.6/swagger-ui-standalone-preset.js" integrity="sha256-efpokdX5EnP9Wila8op8k1he7IACcRpq/wCNIonvezg=" crossorigin="anonymous"></script>
 <script src="{{uiRootPath}}/js/talend-swaggerui.js"></script>
 {{/if}}
+{{#if page.attributes.talend_filterlist}}
+<script src="{{uiRootPath}}/js/talend-filterlist.js"></script>
+{{/if}}
 {{#if page.attributes.talend_landing}}
 <script src="{{uiRootPath}}/js/talend-landing.js"></script>
 {{else if page.attributes.talend_documentationindex}}
