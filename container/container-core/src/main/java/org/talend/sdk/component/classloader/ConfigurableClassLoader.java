@@ -320,7 +320,83 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 return true;
             }
             if (sub.startsWith("sun.")) {
-                return true;
+                final String subSun = name.substring("sun.".length());
+                if (subSun.startsWith("accessibility.")) {
+                    return true;
+                }
+                if (subSun.startsWith("activation.")) {
+                    return true;
+                }
+                if (subSun.startsWith("awt.")) {
+                    return true;
+                }
+                if (subSun.startsWith("beans.")) {
+                    return true;
+                }
+                if (subSun.startsWith("corba.se.")) {
+                    return true;
+                }
+                if (subSun.startsWith("demo.jvmti.")) {
+                    return true;
+                }
+                if (subSun.startsWith("image.codec.jpeg.")) {
+                    return true;
+                }
+                if (subSun.startsWith("imageio.")) {
+                    return true;
+                }
+                if (subSun.startsWith("istack.internal.")) {
+                    return true;
+                }
+                if (subSun.startsWith("java.")) {
+                    return true;
+                }
+                if (subSun.startsWith("java_cup.")) {
+                    return true;
+                }
+                if (subSun.startsWith("jmx.")) {
+                    return true;
+                }
+                if (subSun.startsWith("jndi.")) {
+                    return true;
+                }
+                if (subSun.startsWith("management.")) {
+                    return true;
+                }
+                if (subSun.startsWith("media.sound.")) {
+                    return true;
+                }
+                if (subSun.startsWith("naming.internal.")) {
+                    return true;
+                }
+                if (subSun.startsWith("net.")) {
+                    return true;
+                }
+                if (subSun.startsWith("nio.")) {
+                    return true;
+                }
+                if (subSun.startsWith("org.")) {
+                    return true;
+                }
+                if (subSun.startsWith("rmi.rmid.")) {
+                    return true;
+                }
+                if (subSun.startsWith("rowset.")) {
+                    return true;
+                }
+                if (subSun.startsWith("security.")) {
+                    return true;
+                }
+                if (subSun.startsWith("swing.")) {
+                    return true;
+                }
+                if (subSun.startsWith("tracing.")) {
+                    return true;
+                }
+                if (subSun.startsWith("xml.internal.")) {
+                    return true;
+                }
+                return false;
             }
         }
         return false;
