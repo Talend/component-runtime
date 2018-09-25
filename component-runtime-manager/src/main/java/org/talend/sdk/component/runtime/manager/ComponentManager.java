@@ -83,6 +83,7 @@ import javax.json.JsonReaderFactory;
 import javax.json.JsonWriterFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGeneratorFactory;
@@ -252,6 +253,13 @@ public class ComponentManager implements AutoCloseable {
 
     @Getter
     private final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
+
+    @Getter
+    private final JsonbConfig jsonbConfig = new JsonbConfig()
+            .withAdapters(new MultipleFormatDateAdapter())
+            .withBinaryDataStrategy(BinaryDataStrategy.BASE_64)
+            .setProperty("johnzon.cdi.activated", false)
+            .setProperty("johnzon.accessModeDelegate", new TalendAccessMode());
 
     /**
      * @param m2 the maven repository location if on the file system.
@@ -854,10 +862,7 @@ public class ComponentManager implements AutoCloseable {
         final Jsonb jsonb = jsonbProvider
                 .create()
                 .withProvider(jsonpProvider) // reuses the same memory buffering
-                .withConfig(new JsonbConfig()
-                        .withAdapters(new MultipleFormatDateAdapter())
-                        .setProperty("johnzon.cdi.activated", false)
-                        .setProperty("johnzon.accessModeDelegate", new TalendAccessMode()))
+                .withConfig(jsonbConfig)
                 .build();
         final Jsonb serializableJsonb = Jsonb.class.cast(javaProxyEnricherFactory.asSerializable(container.getLoader(),
                 containerId, Jsonb.class.getName(), jsonb));

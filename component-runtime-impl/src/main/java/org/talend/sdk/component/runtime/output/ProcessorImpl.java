@@ -41,6 +41,7 @@ import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.processor.AfterGroup;
@@ -158,7 +159,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                     jsonb = ContainerFinder.Instance.get().find(plugin()).findService(Jsonb.class);
                 }
                 if (jsonb == null) { // for tests mainly
-                    jsonb = JsonbBuilder.create(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()));
+                    jsonb = JsonbBuilder.create(
+                            new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).withBinaryDataStrategy(
+                                    BinaryDataStrategy.BASE_64));
                 }
             }
         }

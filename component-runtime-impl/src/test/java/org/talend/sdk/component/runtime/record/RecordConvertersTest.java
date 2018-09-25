@@ -21,6 +21,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZoneId;
@@ -33,6 +34,8 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
@@ -76,11 +79,20 @@ class RecordConvertersTest {
     void bytesRoundTrip() throws Exception {
         final byte[] bytes = new byte[] { 1, 2, 3 };
         final Record record = recordBuilderFactory.newRecordBuilder().withBytes("value", bytes).build();
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
+        try (final Jsonb jsonb =
+                JsonbBuilder.create(new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64))) {
             final JsonObject json = JsonObject.class.cast(converter.toType(record, JsonObject.class,
                     () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb));
             assertEquals(Base64.getEncoder().encodeToString(bytes), json.getString("value"));
             final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
+            assertArrayEquals(bytes, toRecord.getBytes("value"));
+
+            // now studio generator kind of convertion
+            final BytesStruct struct = jsonb.fromJson(json.toString(), BytesStruct.class);
+            assertArrayEquals(bytes, struct.value);
+            final String jsonFromStruct = jsonb.toJson(struct);
+            assertEquals("{\"value\":\"AQID\"}", jsonFromStruct);
+            final Record structToRecordFromJson = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
             assertArrayEquals(bytes, toRecord.getBytes("value"));
         }
     }
@@ -124,5 +136,10 @@ class RecordConvertersTest {
             final Collection<Record> list = record.getArray(Record.class, "list");
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }
+    }
+
+    public static class BytesStruct {
+
+        public byte[] value;
     }
 }

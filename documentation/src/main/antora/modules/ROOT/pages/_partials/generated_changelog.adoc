@@ -21,6 +21,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1076[TCOMP-1076^]: component starter - fix mapper generation (Record integration)
 - link:https://jira.talendforge.org/browse/TCOMP-1077[TCOMP-1077^]: component starter - ensure kit version are updated atomically.
 - link:https://jira.talendforge.org/browse/TCOMP-1078[TCOMP-1078^]: Guess Schema button is not shown on Basic Settings view
+- link:https://jira.talendforge.org/browse/TCOMP-1085[TCOMP-1085^]: [classloader] com.sun is too wide as exclusion
 - link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
 - link:https://jira.talendforge.org/browse/TCOMP-819[TCOMP-819^]: Processor doesn't produce more than 1 row on each iteration
 - link:https://jira.talendforge.org/browse/TCOMP-917[TCOMP-917^]: Migration handler need only to receive component configuration
