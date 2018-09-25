@@ -16,7 +16,10 @@
 package org.talend.sdk.component.runtime.di.schema;
 
 import static java.lang.reflect.Modifier.isStatic;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -27,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -47,6 +51,7 @@ import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -175,22 +180,72 @@ public class TaCoKitGuessSchema {
             return configuration; // no-mapping
         }
 
-        final ParameterMeta dataSet = action
+        final String prefix = action
                 .getParameters()
                 .stream()
                 .filter(param -> param.getMetadata().containsKey("tcomp::configurationtype::type")
                         && "dataset".equals(param.getMetadata().get("tcomp::configurationtype::type")))
                 .findFirst()
+                .map(ParameterMeta::getPath)
                 .orElse(null);
 
-        if (dataSet == null) { // no mapping to do
+        if (prefix == null) { // no mapping to do
             return configuration;
         }
 
-        final String prefix = dataSet.getPath(); // action configuration prefix.
-        final int dotIndex = configuration.keySet().iterator().next().indexOf(".");
-        return configuration.entrySet().stream().collect(toMap(
-                e -> prefix + "." + e.getKey().substring(dotIndex + 1, e.getKey().length()), Map.Entry::getValue));
+        final ParameterMeta dataSet = findDataset(action)
+                .orElseThrow(() -> new IllegalArgumentException("Dataset not found for " + action.getAction()));
+
+        final String dataSetPath = dataSet.getPath();
+        return configuration.entrySet().stream().filter(e -> isChildParameter(e.getKey(), dataSetPath)).collect(
+                toMap(e -> prefix + e.getKey().substring(dataSetPath.length()), Map.Entry::getValue));
+    }
+
+    private boolean isChildParameter(final String path, final String parentPath) {
+        return path.startsWith(parentPath) && path.substring(parentPath.length()).startsWith(".");
+    }
+
+    private Optional<ParameterMeta> findDataset(final ServiceMeta.ActionMeta action) {
+        final ComponentFamilyMeta familyMeta = componentManager
+                .findPlugin(plugin)
+                .orElseThrow(() -> new IllegalArgumentException("No component " + plugin))
+                .get(ContainerComponentRegistry.class)
+                .getComponents()
+                .get(family);
+
+        final ComponentFamilyMeta.BaseMeta componentMeta = Stream
+                .concat(familyMeta.getPartitionMappers().entrySet().stream(),
+                        familyMeta.getProcessors().entrySet().stream())
+                .filter(e -> e.getKey().equals(componentName))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No component " + componentName));
+
+        // dataset name should be the same as DiscoverSchema action name
+        Optional<ParameterMeta> dataset = ((Stream<ParameterMeta>) toStream(componentMeta.getParameterMetas()))
+                .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type"))
+                        && action.getAction().equals(p.getMetadata().get("tcomp::configurationtype::name")))
+                .findFirst();
+
+        // find and use single dataset
+        if (!dataset.isPresent()) {
+            final Collection<ParameterMeta> datasets =
+                    ((Stream<ParameterMeta>) toStream(componentMeta.getParameterMetas()))
+                            .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type")))
+                            .collect(toSet());
+            if (datasets.size() == 1) {
+                dataset = of(datasets.iterator().next());
+            } else {
+                dataset = empty();
+            }
+        }
+        return dataset;
+    }
+
+    private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
+        return Stream.concat(parameterMetas.stream(),
+                parameterMetas.stream().map(ParameterMeta::getNestedParameters).filter(Objects::nonNull).flatMap(
+                        this::toStream));
     }
 
     public boolean guessSchemaThroughAction() {
