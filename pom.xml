@@ -935,16 +935,6 @@
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
     <repository>
-      <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-    <repository>
       <id>gradle-libs-releases-local</id>
       <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
       <snapshots>
@@ -960,16 +950,6 @@
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
     </pluginRepository>
   </pluginRepositories>
 </project>
