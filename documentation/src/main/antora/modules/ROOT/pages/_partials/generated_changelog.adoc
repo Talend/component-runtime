@@ -43,6 +43,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1014[TCOMP-1014^]: Ensure a dataset has a source which has no other required parameters in the validator
 - link:https://jira.talendforge.org/browse/TCOMP-1029[TCOMP-1029^]: Extend ActiveIf EvaluationStrategy with CONTAINS strategy
 - link:https://jira.talendforge.org/browse/TCOMP-1039[TCOMP-1039^]: Integrate Updatable configuration feature into Studio
+- link:https://jira.talendforge.org/browse/TCOMP-1063[TCOMP-1063^]: Integrate Record API to the studio
 - link:https://jira.talendforge.org/browse/TCOMP-1069[TCOMP-1069^]: restrict input branches for output components to only one.
 - link:https://jira.talendforge.org/browse/TCOMP-1071[TCOMP-1071^]: support actions i18n display name
 - link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
@@ -72,6 +73,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1073[TCOMP-1073^]: [maven/gradle plugin] Add configuration support in web goal
 - link:https://jira.talendforge.org/browse/TCOMP-1081[TCOMP-1081^]: ComponentManager should ignore engine classes in its filtering
 - link:https://jira.talendforge.org/browse/TCOMP-1087[TCOMP-1087^]: Jsonb service should serialize byte[] as BASE64
+- link:https://jira.talendforge.org/browse/TCOMP-1089[TCOMP-1089^]: [starter] Upgrade gradle to 4.10.2
+- link:https://jira.talendforge.org/browse/TCOMP-1090[TCOMP-1090^]: [form] Main/Advanced order not respected when some remote action are involved
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
