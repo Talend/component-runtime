@@ -2,6 +2,7 @@
 ** xref:index-getting-started-with-tck.adoc[Getting Started overview]
 ** xref:methodology-creating-components.adoc[Development methodology]
 ** xref:tck-framework-overview.adoc[Framework Overview]
+** xref:record-types.adoc[Record types]
 ** xref:component-execution.adoc[General component execution logic]
 ** xref:tutorial-create-my-first-component.adoc[Creating your first component]
 * xref:index-tutorials.adoc[Tutorials]

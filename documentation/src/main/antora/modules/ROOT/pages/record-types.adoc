@@ -1,0 +1,149 @@
+= Record types
+:page-partial:
+:keywords: record, pojo,
+:description: How to modelize data processed or emitted by components.
+
+Components are designed to manipulate data (access, read, create). Talend Component Kit can handle several types of data, described in this document.
+
+By design, the framework must run in DI (plain standalone Java program) and in Beam pipelines. +
+It is out of scope of the framework to handle the way the runtime serializes - if needed - the data.
+
+For that reason, it is critical not to import serialization constraints to the stack. As an example, this one of the reasons why `Record` or `JsonObject` were preferred to Avro `IndexedRecord`.
+
+Any serialization concern should either be hidden in the framework runtime (outside of the component developer scope) or in the runtime integration with the framework (for example, Beam integration).
+
+[[record]]
+== Record
+
+`Record` is the default format. It offers more possibilities and can evolve depending on the Talend platform needs. Its structure is data-driven and exposes a schema that allows to browse it.
+
+Projects generated from the xref:index-generating-project.adoc[Talend Component Kit Starter] are by default designed to handle this format of data.
+
+IMPORTANT: `Record` is a Java interface but never implement it yourself to ensure compatibility with the different Talend products. Follow the guidelines below.
+
+=== Creating a record
+
+You can build records using the `newRecordBuilder` method of the `RecordBuilderFactory` (see xref:services-built-in.adoc[here]).
+
+For example:
+
+[source,java]
+----
+public Record createRecord() {
+    return factory.newRecordBuilder()
+            .withString("name", "Gary")
+            .withDateTime("date", ZonedDateTime.of(LocalDateTime.of(2011, 2, 6, 8, 0), ZoneId.of("UTC")))
+            .build();
+}
+----
+
+=== Accessing and reading a record
+
+You can access and read data by relying on the `getSchema` method, which provides you with the available entries (columns) of a record. The `Entry` exposes the type of its value, which lets you access the value through the corresponding method. For example, the `Schema.Type.STRING` type implies using the `getString` method of the record.
+
+For example:
+
+[source,java]
+----
+public void print(final Record record) {
+    final Schema schema = record.getSchema();
+    // log in the natural type
+    schema.getEntries()
+          .forEach(entry -> System.out.println(record.get(Object.class, entry.getName())));
+    // log only strings
+    schema.getEntries().stream()
+          .filter(e -> e.getType() == Schema.Type.STRING)
+          .forEach(entry -> System.out.println(record.getString(entry.getName())));
+}
+----
+
+=== Supported data types
+
+The `Record` format supports the following data types:
+
+* String
+* Boolean
+* Int
+* Long
+* Float
+* Double
+* DateTime
+* Array
+* Bytes
+* Record
+
+TIP: A map can always be modelized as a list (array of records with key and value entries).
+
+For example:
+[source,java]
+----
+public Record create() {
+       final Record address = factory.newRecordBuilder()
+               .withString("street", "Prairie aux Ducs")
+               .withString("city", "Nantes")
+               .withString("country", "FRANCE")
+               .build();
+       return factory.newRecordBuilder()
+                     .withBoolean("active", true)
+                     .withInt("age", 33)
+                     .withLong("duration", 123459)
+                     .withFloat("tolerance", 1.1f)
+                     .withDouble("balance", 12.58)
+                     .withString("name", "John Doe")
+                     .withDateTime("birth", ZonedDateTime.now())
+                     .withRecord(
+                             factory.newEntryBuilder()
+                               .withName("address")
+                               .withType(Schema.Type.RECORD)
+                               .withComment("The user address")
+                               .withElementSchema(address.getSchema())
+                               .build(),
+                             address)
+                     .withArray(
+                             factory.newEntryBuilder()
+                                       .withName("permissions")
+                                       .withType(Schema.Type.ARRAY)
+                                       .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build())
+                                       .build(),
+                             asList("admin", "dev"))
+                     .build();
+   }
+----
+
+
+=== Example: discovering a schema
+
+For example, you can use the API to provide the schema.
+The following method needs to be implemented in a xref:index-defining-services.adoc[service].
+
+Manually constructing the schema without any data:
+[source,java]
+----
+@DiscoverSchema
+public Schema guessSchema() {
+    return factory.newSchemaBuilder(Schema.Type.RECORD)
+            .withEntry(factory.newEntryBuilder().withName("id").withType(Schema.Type.LONG).build())
+            .withEntry(factory.newEntryBuilder().withName("name").withType(Schema.Type.STRING).build())
+            .build();
+}
+----
+
+
+Returning the schema from an already built record:
+[source,java]
+----
+@DiscoverSchema
+public Schema guessSchema(final MyDataLoaderService myCustomService) {
+   return myCustomService.loadFirstData().getRecord().getSchema();
+}
+----
+
+
+== JsonObject
+
+The runtime also supports `JsonObject` as input and output component type. You can rely on the JSON services (`Jsonb`, `JsonBuilderFactory`) to create new instances.
+
+
+== Pojo
+
+The runtime also accepts any POJO as input and output component type. In this case, it uses JSON-B to treat it as a `JsonObject`.
