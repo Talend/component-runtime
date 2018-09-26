@@ -23,7 +23,7 @@
 
   <artifactId>component-runtime-beam</artifactId>
   <name>Component Runtime :: Beam</name>
-  <description>Component bridge to BEAM runtime, TBD: should tcomp own it?</description>
+  <description>Component bridge to BEAM runtime</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.beam</talend.build.name>

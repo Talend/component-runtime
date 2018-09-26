@@ -326,6 +326,7 @@ public class Generator {
             stream.println();
             stream.println("These jars use the following prefix:");
             stream.println();
+            stream.println("[.talend-filterlist]");
             new KnownJarsFilter().getExcludes().stream().sorted().distinct().map(prefix -> "- " + prefix).forEach(
                     stream::println);
             stream.println();
@@ -338,6 +339,7 @@ public class Generator {
             stream.println();
             stream.println("Therefore, the following packages are ignored:");
             stream.println();
+            stream.println("[.talend-filterlist]");
             KnownClassesFilter.OptimizedExclusionFilter.class
                     .cast(KnownClassesFilter.class.cast(KnownClassesFilter.INSTANCE).getDelegateSkip())
                     .getIncluded()

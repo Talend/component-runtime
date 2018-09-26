@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
+import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.function.Function.identity;
@@ -23,6 +24,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -75,43 +77,31 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                 });
             } else {
                 // if we have multiple tabs, priority is MAIN/ADVANCED pair first
-                // but if they are not present then we use all layouts
-                final Collection<String> tabs =
-                        (layouts.containsKey("Main") ? Stream.of("Main", "Advanced") : layouts.keySet().stream())
-                                .collect(toList());
+                // but if they are not present then we use all layouts in "String" order
+                final List<String> tabs = (layouts.containsKey("Main") ? Stream.of("Main", "Advanced")
+                        : layouts.keySet().stream().sorted(String::compareToIgnoreCase)).collect(toList());
 
                 final UiSchema schema = newUiSchema(context);
                 schema.setTitle(null);
                 schema.setWidget("tabs");
 
-                final Collection<UiSchema> resolvedLayouts = new ArrayList<>();
-                return CompletableFuture.allOf(tabs.stream().sorted((o1, o2) -> {
-                    if (o1.equals(o2)) {
-                        return 0;
-                    }
-                    if ("Main".equalsIgnoreCase(o1)) {
-                        return -1;
-                    }
-                    if ("Main".equalsIgnoreCase(o2)) {
-                        return 1;
-                    }
-                    final int compareToIgnoreCase = o1.compareToIgnoreCase(o2);
-                    if (compareToIgnoreCase == 0) {
-                        return o1.compareTo(o2);
-                    }
-                    return compareToIgnoreCase;
-                })
-                        .map(tab -> ofNullable(layouts.get(tab))
-                                .map(layoutStr -> createLayout(context, layoutStr, tab).thenApply(layout -> {
-                                    layout.setTitle(tab);
-                                    synchronized (resolvedLayouts) {
-                                        resolvedLayouts.add(layout);
-                                    }
-                                    return layout;
-                                }))
-                                .orElse(null))
-                        .filter(Objects::nonNull)
-                        .toArray(CompletableFuture[]::new)).thenApply(done -> {
+                final List<UiSchema> resolvedLayouts = new ArrayList<>();
+                return CompletableFuture
+                        .allOf(tabs
+                                .stream()
+                                .map(tab -> ofNullable(layouts.get(tab))
+                                        .map(layoutStr -> createLayout(context, layoutStr, tab).thenApply(layout -> {
+                                            layout.setTitle(tab);
+                                            synchronized (resolvedLayouts) {
+                                                resolvedLayouts.add(layout);
+                                            }
+                                            return layout;
+                                        }))
+                                        .orElse(null))
+                                .filter(Objects::nonNull)
+                                .toArray(CompletableFuture[]::new))
+                        .thenApply(done -> {
+                            resolvedLayouts.sort(comparing(s -> tabs.indexOf(s.getTitle())));
                             schema.setItems(resolvedLayouts);
                             return context;
                         });

@@ -66,6 +66,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -82,6 +83,7 @@ import javax.json.JsonReaderFactory;
 import javax.json.JsonWriterFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGeneratorFactory;
@@ -137,6 +139,7 @@ import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
+import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
@@ -151,7 +154,6 @@ import org.talend.sdk.component.runtime.manager.service.configuration.Properties
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
-import org.talend.sdk.component.runtime.manager.xbean.FilterFactory;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
@@ -195,26 +197,11 @@ public class ComponentManager implements AutoCloseable {
     @Getter
     protected final ContainerManager container;
 
-    // tcomp (org.talend + javax.annotation + jsonp) + logging (slf4j) are/can be provided
-    // service
-    // + tcomp "runtime" indeed (invisible from the components but required for the
-    // runtime
-    private final Filter classesFilter = Filters.prefixes(Stream
-            .concat(Stream.of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
-                    "javax.json.", "org.talend.sdk.component.classloader.", "org.talend.sdk.component.runtime.",
-                    "org.slf4j.", "org.apache.johnzon."), additionalContainerClasses())
-            .toArray(String[]::new));
+    // tcomp (org.talend + javax.annotation + jsonp) + logging (slf4j) are/can be provided service
+    // + tcomp "runtime" indeed (invisible from the components but required for the runtime
+    private final Filter classesFilter;
 
-    private final Filter beamClassesFilter = FilterFactory.and(classesFilter,
-            Filters.prefixes("org.apache.beam.runners.", "org.apache.beam.sdk.", "org.apache.beam.repackaged.",
-                    "org.apache.beam.vendor.", "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
-                    "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
-                    "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.", "org.apache.commons.compress.",
-                    "org.tukaani.xz.", "org.objenesis.", "org.joda.time.", "org.xerial.snappy.", "avro.shaded.",
-                    "org.apache.avro."));
-
-    private final Filter excludeClassesFilter =
-            Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
+    private final Filter excludeClassesFilter;
 
     private final ParameterModelService parameterModelService;
 
@@ -262,8 +249,17 @@ public class ComponentManager implements AutoCloseable {
     // org.slf4j.event but https://issues.apache.org/jira/browse/MNG-6360
     private final Level logInfoLevelMapping;
 
+    private final List<Customizer> customizers;
+
     @Getter
     private final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
+
+    @Getter
+    private final JsonbConfig jsonbConfig = new JsonbConfig()
+            .withAdapters(new MultipleFormatDateAdapter())
+            .withBinaryDataStrategy(BinaryDataStrategy.BASE_64)
+            .setProperty("johnzon.cdi.activated", false)
+            .setProperty("johnzon.accessModeDelegate", new TalendAccessMode());
 
     /**
      * @param m2 the maven repository location if on the file system.
@@ -273,6 +269,16 @@ public class ComponentManager implements AutoCloseable {
      */
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+
+        customizers =
+                StreamSupport.stream(ServiceLoader.load(Customizer.class, tccl).spliterator(), false).collect(toList());
+        classesFilter = Filters.prefixes(Stream
+                .concat(Stream.of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
+                        "javax.json.", "org.talend.sdk.component.classloader.", "org.talend.sdk.component.runtime.",
+                        "org.slf4j.", "org.apache.johnzon."), additionalContainerClasses())
+                .distinct()
+                .toArray(String[]::new));
+        excludeClassesFilter = Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
 
         jsonpProvider = JsonProvider.provider();
         jsonbProvider = JsonbProvider.provider();
@@ -295,20 +301,13 @@ public class ComponentManager implements AutoCloseable {
         reflections = new ReflectionService(parameterModelService);
         migrationHandlerFactory = new MigrationHandlerFactory(reflections);
 
+        final Predicate<String> isContainerClass = name -> isContainerClass(classesFilter, name);
         final ContainerManager.ClassLoaderConfiguration defaultClassLoaderConfiguration =
                 ContainerManager.ClassLoaderConfiguration
                         .builder()
                         .parent(tccl)
-                        .parentClassesFilter(name -> isContainerClass(beamClassesFilter, name)) // beam is desired
-                        .classesFilter(name -> !isContainerClass(classesFilter, name))
-                        .supportsResourceDependencies(true)
-                        .create();
-        final ContainerManager.ClassLoaderConfiguration beamClassLoaderConfiguration =
-                ContainerManager.ClassLoaderConfiguration
-                        .builder()
-                        .parent(tccl)
-                        .parentClassesFilter(name -> isContainerClass(beamClassesFilter, name))
-                        .classesFilter(name -> !isContainerClass(beamClassesFilter, name))
+                        .parentClassesFilter(isContainerClass)
+                        .classesFilter(isContainerClass.negate())
                         .supportsResourceDependencies(true)
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
@@ -316,13 +315,6 @@ public class ComponentManager implements AutoCloseable {
                 .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource))
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
-                    // if a beam component then ensure to use beam specific filtering
-                    // since it becomes part of the container
-                    if (container.getDependencies() != null && Stream.of(container.getDependencies()).anyMatch(
-                            a -> a.getGroup().startsWith("org.apache.beam")
-                                    || a.getArtifact().startsWith("beam-sdks-java-"))) {
-                        container.set(ContainerManager.ClassLoaderConfiguration.class, beamClassLoaderConfiguration);
-                    }
                 }, logInfoLevelMapping);
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty()).ifPresent(p -> this.container
@@ -505,18 +497,35 @@ public class ComponentManager implements AutoCloseable {
                 .orElse(null);
     }
 
-    private static Stream<String> additionalContainerClasses() {
+    private Stream<String> additionalContainerClassesThroughExtension() {
+        return Stream.concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
+                ofNullable(System.getProperty("talend.component.manager.classloader.container.classesAndPackages"))
+                        .map(s -> s.split(","))
+                        .map(Stream::of)
+                        .orElseGet(Stream::empty));
+    }
+
+    private Stream<String> additionalContainerClasses() {
         try { // if beam is here just skips beam sdk java core classes and load them from the container
             ComponentManager.class.getClassLoader().loadClass("org.apache.beam.sdk.Pipeline");
-            // todo: refine to let not beam component provide their own impl
-            return Stream.of("org.apache.beam.runners.", "org.apache.beam.sdk.",
-                    "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
-                    "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
-                    "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.", "org.apache.commons.compress.",
-                    "org.tukaani.xz.", "org.objenesis.", "org.joda.time.", "org.xerial.snappy.", "avro.shaded.",
-                    "org.apache.avro.");
+            return Stream.concat(
+                    customizers.stream().anyMatch(Customizer::ignoreBeamClassLoaderExclusions) ? Stream.empty()
+                            : Stream.of(
+                                    // beam
+                                    "org.apache.beam.runners.", "org.apache.beam.sdk.", "org.apache.beam.repackaged.",
+                                    "org.apache.beam.vendor.", "org.talend.sdk.component.runtime.beam.",
+                                    "org.codehaus.jackson.", "com.fasterxml.jackson.annotation.",
+                                    "com.fasterxml.jackson.core.", "com.fasterxml.jackson.databind.",
+                                    "com.thoughtwors.paranamer.", "org.apache.commons.compress.", "org.tukaani.xz.",
+                                    "org.objenesis.", "org.joda.time.", "org.xerial.snappy.", "avro.shaded.",
+                                    "org.apache.avro.",
+                                    // scala - most engines
+                                    "scala.",
+                                    // engines
+                                    "org.apache.spark.", "org.apache.flink."),
+                    additionalContainerClassesThroughExtension());
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
-            return Stream.empty();
+            return additionalContainerClassesThroughExtension();
         }
     }
 
@@ -853,8 +862,7 @@ public class ComponentManager implements AutoCloseable {
         final Jsonb jsonb = jsonbProvider
                 .create()
                 .withProvider(jsonpProvider) // reuses the same memory buffering
-                .withConfig(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).setProperty(
-                        "johnzon.cdi.activated", false))
+                .withConfig(jsonbConfig)
                 .build();
         final Jsonb serializableJsonb = Jsonb.class.cast(javaProxyEnricherFactory.asSerializable(container.getLoader(),
                 containerId, Jsonb.class.getName(), jsonb));
@@ -1572,5 +1580,22 @@ public class ComponentManager implements AutoCloseable {
                 }
             });
         }
+    }
+
+    /**
+     * WARNING: use with caution and only if you fully understand the consequences.
+     */
+    public interface Customizer {
+
+        /**
+         * @return a stream of string representing classes or packages. They will be considered
+         * as loaded from the "container" (ComponentManager loader) and not the components classloaders.
+         */
+        Stream<String> containerClassesAndPackages();
+
+        /**
+         * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.
+         */
+        boolean ignoreBeamClassLoaderExclusions();
     }
 }

@@ -6,6 +6,7 @@ an impacts a lot the startup time, several jars are excluded out of the box.
 
 These jars use the following prefix:
 
+[.talend-filterlist]
 - ApacheJMeter
 - FastInfoset
 - HdrHistogram
@@ -475,6 +476,7 @@ it is important to ensure we don't scan the whole classes for performances reaso
 
 Therefore, the following packages are ignored:
 
+[.talend-filterlist]
 - avro.shaded
 - com.codehale.metrics
 - com.ctc.wstx

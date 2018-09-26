@@ -20,6 +20,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1075[TCOMP-1075^]: component reload file on windows after deploying a modified jar
 - link:https://jira.talendforge.org/browse/TCOMP-1076[TCOMP-1076^]: component starter - fix mapper generation (Record integration)
 - link:https://jira.talendforge.org/browse/TCOMP-1077[TCOMP-1077^]: component starter - ensure kit version are updated atomically.
+- link:https://jira.talendforge.org/browse/TCOMP-1078[TCOMP-1078^]: Guess Schema button is not shown on Basic Settings view
+- link:https://jira.talendforge.org/browse/TCOMP-1082[TCOMP-1082^]: Fix Exception during HealthCheck parameter deserialization
+- link:https://jira.talendforge.org/browse/TCOMP-1085[TCOMP-1085^]: [classloader] com.sun is too wide as exclusion
 - link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
 - link:https://jira.talendforge.org/browse/TCOMP-819[TCOMP-819^]: Processor doesn't produce more than 1 row on each iteration
 - link:https://jira.talendforge.org/browse/TCOMP-917[TCOMP-917^]: Migration handler need only to receive component configuration
@@ -67,6 +70,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1057[TCOMP-1057^]: Add ActiveIf on @Proposable test-case
 - link:https://jira.talendforge.org/browse/TCOMP-1058[TCOMP-1058^]: Add DefaultValue on proposable/dynamicValue testcase
 - link:https://jira.talendforge.org/browse/TCOMP-1073[TCOMP-1073^]: [maven/gradle plugin] Add configuration support in web goal
+- link:https://jira.talendforge.org/browse/TCOMP-1081[TCOMP-1081^]: ComponentManager should ignore engine classes in its filtering
+- link:https://jira.talendforge.org/browse/TCOMP-1087[TCOMP-1087^]: Jsonb service should serialize byte[] as BASE64
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard

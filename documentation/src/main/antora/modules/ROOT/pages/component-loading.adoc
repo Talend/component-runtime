@@ -2,6 +2,7 @@
 :page-partial:
 :description: How plugins and dependencies are loaded.
 :keywords: plugin, scanning
+:page-talend_filterlist: true
 
 Talend Component scanning is based on plugins. To make sure that plugins can be developed in parallel and avoid conflicts, they need to be isolated (component or group of components in a single jar/plugin).
 
