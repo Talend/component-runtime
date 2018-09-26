@@ -54,40 +54,7 @@ This does not replace the requirement to test the components but helps developer
 
 === Flexible data modeling
 
-=== Generic and specific
-
-The processor API supports `JsonObject` as well as any custom model. The goal is to support generic component development that need to access configured "object paths", as well as specific components that rely on a defined path from the input.
-
-A generic component can look like:
-
-[source,java]
-----
-@ElementListener
-public MyOutput onElement(JsonObject input) {
-    return ...;
-}
-----
-
-A specific component can look like (with `MyInput` a POJO):
-
-[source,java]
-----
-@ElementListener
-public MyOutput onElement(MyInput input) {
-    return ...;
-}
-----
-
-==== No runtime assumption
-
-By design, the framework must run in DI (plain standalone Java program) and in Beam pipelines. +
-It is out of scope of the framework to handle the way the runtime serializes - if needed - the data.
-
-For that reason, it is critical not to import serialization constraints to the stack. As an example, this is the reason why `JsonObject` is not an `IndexedRecord` from Avro.
-
-Any serialization concern should either be hidden in the framework runtime (outside of the component developer scope) or in the runtime integration with the framework (for example, Beam integration).
-
-In this context, JSON-P can be good compromise because it brings a powerful API with very few constraints.
+Refer to xref:record-types.adoc[this document].
 
 == Isolated
 
