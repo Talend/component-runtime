@@ -16,10 +16,9 @@
 package org.talend.sdk.component.runtime.di.schema;
 
 import static java.lang.reflect.Modifier.isStatic;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -28,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -213,7 +213,7 @@ public class TaCoKitGuessSchema {
                 .getComponents()
                 .get(family);
 
-        final ComponentFamilyMeta.BaseMeta componentMeta = Stream
+        final ComponentFamilyMeta.BaseMeta<?> componentMeta = Stream
                 .concat(familyMeta.getPartitionMappers().entrySet().stream(),
                         familyMeta.getProcessors().entrySet().stream())
                 .filter(e -> e.getKey().equals(componentName))
@@ -222,24 +222,28 @@ public class TaCoKitGuessSchema {
                 .orElseThrow(() -> new IllegalStateException("No component " + componentName));
 
         // dataset name should be the same as DiscoverSchema action name
-        Optional<ParameterMeta> dataset = ((Stream<ParameterMeta>) toStream(componentMeta.getParameterMetas()))
+        final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas()).collect(toList());
+        return ofNullable(metas
+                .stream()
                 .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type"))
                         && action.getAction().equals(p.getMetadata().get("tcomp::configurationtype::name")))
-                .findFirst();
-
-        // find and use single dataset
-        if (!dataset.isPresent()) {
-            final Collection<ParameterMeta> datasets =
-                    ((Stream<ParameterMeta>) toStream(componentMeta.getParameterMetas()))
+                .findFirst()
+                .orElseGet(() -> {
+                    // find and use single dataset
+                    final Iterator<ParameterMeta> iterator = metas
+                            .stream()
                             .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type")))
-                            .collect(toSet());
-            if (datasets.size() == 1) {
-                dataset = of(datasets.iterator().next());
-            } else {
-                dataset = empty();
-            }
-        }
-        return dataset;
+                            .iterator();
+                    if (iterator.hasNext()) {
+                        final ParameterMeta value = iterator.next();
+                        if (!iterator.hasNext()) {
+                            return value;
+                        }
+                        log.warn("Multiple potential datasets for {}:{}, ignoring parameters", action.getType(),
+                                action.getAction());
+                    }
+                    return null;
+                }));
     }
 
     private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
