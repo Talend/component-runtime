@@ -547,11 +547,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                         .withProvider(new PreComputedJsonpProvider("test", manager.getJsonpProvider(),
                                 manager.getJsonpParserFactory(), manager.getJsonpWriterFactory(),
                                 manager.getJsonpBuilderFactory(), manager.getJsonpGeneratorFactory(),
-                                manager.getJsonpReaderFactory())) // reuses
-                        // the
-                        // same
-                        // memory
-                        // buffering
+                                manager.getJsonpReaderFactory())) // reuses the same memory buffers
                         .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
                         .build();
             }
