@@ -60,7 +60,6 @@ import javax.script.ScriptException;
 import org.apache.xbean.propertyeditor.PropertyEditors;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
-import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -201,8 +200,7 @@ public class ReflectionService {
             throws NoSuchMethodException {
         final Constructor constructor = configClass.getConstructor();
         final LocalConfiguration config = LocalConfiguration.class.cast(precomputed.get(LocalConfiguration.class));
-        final LocalCache cache = LocalCache.class.cast(precomputed.get(LocalCache.class));
-        if (cache == null || config == null) {
+        if (config == null) {
             return c -> null;
         }
 
