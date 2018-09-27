@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
@@ -365,9 +366,6 @@ public class Generator {
             stream.println();
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
-            stream.println("|====");
-            stream.println("|Class|Name|Description");
             final File api = jarLocation(BaseEnvironmentProvider.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
@@ -386,10 +384,8 @@ public class Generator {
                                 | InvocationTargetException e) {
                             throw new IllegalStateException(e);
                         }
-                        stream.println("|" + type.getSimpleName() + "|" + environment.getName() + "|"
-                                + environment.getName() + " runner");
+                        stream.println(environment.getName() + ":: " + "__class: " + type.getSimpleName() + "_. ");
                     });
-            stream.println("|====");
             stream.println();
         }
     }
@@ -603,11 +599,7 @@ public class Generator {
             stream.println();
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
-            stream.println("|====");
-            stream.println("|Key|Description|Default");
             generateConfigTableContent(stream, ComponentServerConfiguration.class);
-            stream.println("|====");
             stream.println();
         }
     }
@@ -620,12 +612,7 @@ public class Generator {
             stream.println("If you use `playx-microprofile-config`, you can also use typesafe configuration.");
             stream.println();
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
-            stream.println("|====");
-            stream.println("|Key|Description|Default");
-            final Class<ProxyConfiguration> configClass = ProxyConfiguration.class;
-            generateConfigTableContent(stream, configClass);
-            stream.println("|====");
+            generateConfigTableContent(stream, ProxyConfiguration.class);
             stream.println();
         }
     }
@@ -640,7 +627,12 @@ public class Generator {
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class);
                     final String name =
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
-                    return "|" + name + "|"
+                    return name + ":: "
+                            + of(configProperty.defaultValue())
+                            .filter(it -> !it.equals(
+                                    org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
+                            .map(it -> "Default value: `" + it + "`. ")
+                            .orElse("")
                             + Stream
                                     .of(field.getDeclaredAnnotations())
                                     .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
@@ -653,11 +645,7 @@ public class Generator {
                                         }
                                     })
                                     .findFirst()
-                                    .orElse("-")
-                            + "|"
-                            + (org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE
-                                    .equalsIgnoreCase(configProperty.defaultValue()) ? "-"
-                                            : configProperty.defaultValue());
+                                    .orElse("-");
                 })
                 .sorted()
                 .forEach(stream::println);

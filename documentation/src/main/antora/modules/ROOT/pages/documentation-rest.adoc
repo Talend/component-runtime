@@ -447,9 +447,9 @@ sudo docker run -p 8080:8080 \
 *Note* : `LOG_KAFKA_TOPIC` will receive the application and the access logs
 and `TRACING_KAFKA_TOPIC` will receive brave tracing logs.
 
-==== Tracing (Brave Monitoring)
+==== OpenTracing
 
-The component server use https://github.com/openzipkin/brave to monitor request.
+The component server use Geronimo OpenTracing to monitor request.
 
 The tracing can be activated by setting environment variable `TRACING_ON` to `true`.
 
@@ -457,21 +457,8 @@ You can choose the reporter type by setting `talend_component_server_monitoring_
 to `log` (this is the default value in this docker image) or to `noop`
 which will deactivate the tracing. __Other type of reporter may be added in the future.__
 
-The tracing rate is configurable by setting environment variable `TRACING_SAMPLING_RATE`.
-This is the default sample rate for all the endpoints and has a default value of 0.1
-
-You can define more accurate rate for every component server endpoint using those environment variables :
-
-[options="header,autowidth"]
-|===
-| Environment variable | Endpoint
-| `talend_component_server_monitoring_brave_sampling_environment_rate`          | `/api/v1/environment`
-| `talend_component_server_monitoring_brave_sampling_configurationtype_rate`    | `/api/v1/configurationtype`
-| `talend_component_server_monitoring_brave_sampling_component_rate`            | `/api/v1/component`
-| `talend_component_server_monitoring_brave_sampling_documentation_rate`        | `/api/v1/documentation`
-| `talend_component_server_monitoring_brave_sampling_action_rate`               | `/api/v1/action`
-| `talend_component_server_monitoring_brave_sampling_execution_rate`            | `/api/v1/execution`
-|===
+The tracing rate is configurable by setting environment variable `TRACING_SAMPLING_RATE`,
+it accepts `0` (none) and `1` (all, default) as value to ensure the consistency of the reporting.
 
 Run docker image with tracing on
 
@@ -479,9 +466,11 @@ Run docker image with tracing on
 ----
 sudo docker run -p 8080:8080 \
 	-e TRACING_ON=true \
-	-e TRACING_SAMPLING_RATE = 0.1 \
 	tacokit/component-server
 ----
+
+By default, Geronimo OpenTracing will log the spans in a Zipking format so you can use the Kafka profile as explained before
+to wire it over any OpenTracing backend.
 
 === Build the image yourself
 

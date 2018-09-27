@@ -110,7 +110,7 @@ entry `bar`, then you will configure it this way:
 The configuration of the call is passed through a comma separated list in parenthesis as seen in previous snippet.
 The configuration entries are the following ones:
 
-[options="header"]
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |Name|Description|Sample
 |url|The target server to call. Note that placeholder are supported and filled from request headers (`placeholderProvider`).|`http://proposals.service.com`
