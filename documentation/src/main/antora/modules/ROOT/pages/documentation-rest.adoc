@@ -451,16 +451,16 @@ and `TRACING_KAFKA_TOPIC` will receive brave tracing logs.
 
 The component server use Geronimo OpenTracing to monitor request.
 
-The tracing can be activated by setting environment variable `TRACING_ON` to `true`.
+The tracing can be activated by setting the `TRACING_ON` environment variable to `true`.
 
 You can choose the reporter type by setting `talend_component_server_monitoring_brave_reporter_type` environment variable
 to `log` (this is the default value in this docker image) or to `noop`
 which will deactivate the tracing. __Other type of reporter may be added in the future.__
 
-The tracing rate is configurable by setting environment variable `TRACING_SAMPLING_RATE`,
-it accepts `0` (none) and `1` (all, default) as value to ensure the consistency of the reporting.
+The tracing rate is configurable by setting the `TRACING_SAMPLING_RATE`cenvironment variable.
+It accepts `0` (none) and `1` (all, default) as values to ensure the consistency of the reporting.
 
-Run docker image with tracing on
+Run docker image with tracing on.
 
 [source,sh]
 ----
