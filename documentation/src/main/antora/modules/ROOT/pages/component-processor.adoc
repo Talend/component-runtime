@@ -20,16 +20,16 @@ public MyNewData map(final MyData data) {
 
 Processors must be *Serializable* because they are distributed components.
 
-If you just need to access data on a map-based ruleset, you can use `JsonObject` as parameter type. +
+If you just need to access data on a map-based ruleset, you can use `Record` or `JsonObject` as parameter type. +
 From there, Talend Component Kit wraps the data to allow you to access it as a map. The parameter type is not enforced. +
-This means that if you know you will get a `SuperCustomDto`, then you can use it as parameter type. But for generic components that are reusable in any chain, it is highly encouraged to use `JsonObject` until you have an evaluation language-based processor that has its own way to access components.
+This means that if you know you will get a `SuperCustomDto`, then you can use it as parameter type. But for generic components that are reusable in any chain, it is highly encouraged to use `Record` until you have an evaluation language-based processor that has its own way to access components.
 
 For example:
 
 [source,java]
 ----
 @ElementListener
-public MyNewData map(final JsonObject incomingData) {
+public MyNewData map(final Record incomingData) {
     String name = incomingData.getString("name");
     int name = incomingData.getInt("age");
     return ...;

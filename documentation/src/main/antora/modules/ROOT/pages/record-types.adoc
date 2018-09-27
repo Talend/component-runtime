@@ -143,6 +143,7 @@ public Schema guessSchema(final MyDataLoaderService myCustomService) {
 
 The runtime also supports `JsonObject` as input and output component type. You can rely on the JSON services (`Jsonb`, `JsonBuilderFactory`) to create new instances.
 
+This format is close to the `Record` format, except that it does not natively support the Datetime type and has a unique Number type to represent Int, Long, Float and Double types. It also does not provide entry metadata like `nullable` or `comment`, for example.
 
 == Pojo
 
