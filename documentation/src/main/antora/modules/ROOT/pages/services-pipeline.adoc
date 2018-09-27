@@ -155,7 +155,7 @@ public class Main {
 
 The multiple inputs and outputs are represented by a `Map` element in Beam case to avoid using multiple inputs and outputs.
 
-TIP: You can use `ViewsMappingTransform` or `CoGroupByKeyResultMappingTransform` to adapt the input/output format to the record format representing the multiple inputs/output, like `Map<String, List<?>>`, but materialized as a `JsonObject`. Input data must be of the `JsonObject` type in this case.
+TIP: You can use `ViewsMappingTransform` or `CoGroupByKeyResultMappingTransform` to adapt the input/output format to the record format representing the multiple inputs/output, like `Map<String, List<?>>`, but materialized as a `Record`. Input data must be of the `Record` type in this case.
 
 === Converting a Beam.io into a component I/O
 
