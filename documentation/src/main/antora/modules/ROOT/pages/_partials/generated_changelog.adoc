@@ -71,10 +71,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1057[TCOMP-1057^]: Add ActiveIf on @Proposable test-case
 - link:https://jira.talendforge.org/browse/TCOMP-1058[TCOMP-1058^]: Add DefaultValue on proposable/dynamicValue testcase
 - link:https://jira.talendforge.org/browse/TCOMP-1073[TCOMP-1073^]: [maven/gradle plugin] Add configuration support in web goal
+- link:https://jira.talendforge.org/browse/TCOMP-1080[TCOMP-1080^]: [dependency upgrade] Meecrowave 1.2.4
 - link:https://jira.talendforge.org/browse/TCOMP-1081[TCOMP-1081^]: ComponentManager should ignore engine classes in its filtering
 - link:https://jira.talendforge.org/browse/TCOMP-1087[TCOMP-1087^]: Jsonb service should serialize byte[] as BASE64
 - link:https://jira.talendforge.org/browse/TCOMP-1089[TCOMP-1089^]: [starter] Upgrade gradle to 4.10.2
 - link:https://jira.talendforge.org/browse/TCOMP-1090[TCOMP-1090^]: [form] Main/Advanced order not respected when some remote action are involved
+- link:https://jira.talendforge.org/browse/TCOMP-1091[TCOMP-1091^]: Ensure main component is preferred over test ones in a maven project
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
@@ -412,3 +414,4 @@
 - link:https://jira.talendforge.org/browse/TCOMP-719[TCOMP-719^]: Support Input Definition
 - link:https://jira.talendforge.org/browse/TCOMP-720[TCOMP-720^]: Support Output Definition
 - link:https://jira.talendforge.org/browse/TCOMP-721[TCOMP-721^]: Initial Widget Definitions
+

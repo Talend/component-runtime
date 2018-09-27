@@ -15,19 +15,33 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
-import static java.util.Collections.singletonMap;
+import static java.util.Collections.singleton;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.cache.LocalCache;
+import org.talend.sdk.component.api.service.configuration.Configuration;
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.injector.Injector;
+import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
+
+import lombok.Data;
 
 class InjectorImplTest {
 
@@ -35,8 +49,23 @@ class InjectorImplTest {
 
     @BeforeEach
     void init() {
-        injector = new InjectorImpl("LocalCacheServiceTest",
-                singletonMap(LocalCache.class, new LocalCacheService("LocalCacheServiceTest")));
+        final Map<Class<?>, Object> services = new HashMap<>(2);
+        services.put(LocalCache.class, new LocalCacheService("LocalCacheServiceTest"));
+        services.put(LocalConfiguration.class,
+                new LocalConfigurationService(Collections.singletonList(new LocalConfiguration() {
+
+                    @Override
+                    public String get(final String key) {
+                        return "test.foo.name".equals(key) ? "ok" : "ko";
+                    }
+
+                    @Override
+                    public Set<String> keys() {
+                        return singleton("foo.name");
+                    }
+                }), "test"));
+        injector =
+                new InjectorImpl("LocalCacheServiceTest", new ReflectionService(new ParameterModelService()), services);
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(Injector.class, injector);
     }
@@ -59,9 +88,52 @@ class InjectorImplTest {
         assertNotNull(instance.cache);
     }
 
+    @Test
+    void invalidConfigurationInjectionSupplier() {
+        assertThrows(IllegalArgumentException.class, () -> injector.inject(new InvalidInjectedConfig1()));
+    }
+
+    @Test
+    void invalidConfigurationInjectionDirectConfig() {
+        assertThrows(IllegalArgumentException.class, () -> injector.inject(new InvalidInjectedConfig2()));
+    }
+
+    @Test
+    void configurationInjection() {
+        final Supplier<MyConfig> config = injector.inject(new InjectedConfig()).config;
+        assertNotNull(config);
+        final MyConfig configuration = config.get();
+        assertEquals("ok", configuration.getValue());
+    }
+
     public static class Injected {
 
         @Service
         private LocalCache cache;
+    }
+
+    public static class InvalidInjectedConfig1 {
+
+        @Configuration("foo")
+        private Supplier config;
+    }
+
+    public static class InvalidInjectedConfig2 {
+
+        @Configuration("foo")
+        private MyConfig config;
+    }
+
+    public static class InjectedConfig {
+
+        @Configuration("foo")
+        private Supplier<MyConfig> config;
+    }
+
+    @Data
+    public static class MyConfig {
+
+        @Option("name")
+        private String value;
     }
 }

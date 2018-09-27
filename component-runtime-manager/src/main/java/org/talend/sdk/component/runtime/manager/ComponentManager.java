@@ -868,15 +868,17 @@ public class ComponentManager implements AutoCloseable {
 
         // not JSON services
         final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
-        try (final InputStream stream =
-                container.getLoader().findContainedResource("TALEND-INF/local-configuration.properties")) {
-            if (stream != null) {
-                final Properties properties = new Properties();
-                properties.load(stream);
-                containerConfigurations.add(new PropertiesConfiguration(properties));
+        if (!Boolean.getBoolean("talend.component.configuration." + containerId + ".ignoreLocalConfiguration")) {
+            try (final InputStream stream =
+                    container.getLoader().findContainedResource("TALEND-INF/local-configuration" + ".properties")) {
+                if (stream != null) {
+                    final Properties properties = new Properties();
+                    properties.load(stream);
+                    containerConfigurations.add(new PropertiesConfiguration(properties));
+                }
+            } catch (final IOException e) {
+                throw new IllegalArgumentException(e);
             }
-        } catch (final IOException e) {
-            throw new IllegalArgumentException(e);
         }
         services.put(LocalConfiguration.class, new LocalConfigurationService(containerConfigurations, containerId));
         services.put(HttpClientFactory.class,
@@ -884,7 +886,7 @@ public class ComponentManager implements AutoCloseable {
         services.put(LocalCache.class, new LocalCacheService(containerId));
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(Resolver.class, new ResolverImpl(containerId, container.getLocalDependencyRelativeResolver()));
-        services.put(Injector.class, new InjectorImpl(containerId, services));
+        services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId));
         services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
     }
