@@ -72,6 +72,8 @@ Accept: application/json
 ^@
 ----
 
+include::ref-server-configuration.adoc[leveloffset=+1]
+
 == HTTPS activation
 
 Using the server ZIP (or https://github.com/Talend/component-runtime/blob/master/.docker/Dockerfile[Docker image]), you can configure HTTPS by adding properties to `MEECROWAVE_OPTS`. Assuming that you have a certificate in `/opt/certificates/component.p12` (don't forget to add/mount it in the Docker image if you use it), you can activate it as follows:
@@ -357,8 +359,6 @@ Output messages look like:
 More details are available in the link:https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender[RollingFileAppender] documentation.
 
 TIP: You can compose previous layout (message format) and appenders (where logs are written).
-
-include::server-uispec.adoc[leveloffset=+1]
 
 == Docker
 
