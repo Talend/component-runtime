@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.beans.ConstructorProperties;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -85,16 +86,7 @@ public class ReflectionService {
     public Function<Map<String, String>, Object[]> parameterFactory(final Executable executable,
             final Map<Class<?>, Object> precomputed, final List<ParameterMeta> metas) {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        final Function<Supplier<Object>, Object> contextualSupplier = supplier -> {
-            final Thread thread = Thread.currentThread();
-            final ClassLoader old = thread.getContextClassLoader();
-            thread.setContextClassLoader(loader);
-            try {
-                return supplier.get();
-            } finally {
-                thread.setContextClassLoader(old);
-            }
-        };
+        final Function<Supplier<Object>, Object> contextualSupplier = createContextualSupplier(loader);
         final Collection<Function<Map<String, String>, Object>> factories =
                 Stream.of(executable.getParameters()).map(parameter -> {
                     final String name = parameterModelService.findName(parameter, parameter.getName());
@@ -102,48 +94,10 @@ public class ReflectionService {
                     if (Class.class.isInstance(parameterizedType)) {
                         if (parameter.isAnnotationPresent(Configuration.class)) {
                             try {
-                                final Constructor constructor = Class.class.cast(parameterizedType).getConstructor();
-                                final LocalConfiguration config =
-                                        LocalConfiguration.class.cast(precomputed.get(LocalConfiguration.class));
-                                final LocalCache cache = LocalCache.class.cast(precomputed.get(LocalCache.class));
-                                if (cache == null || config == null) {
-                                    return (Function<Map<String, String>, Object>) c -> null;
-                                }
-
-                                final String prefix = parameter.getAnnotation(Configuration.class).value();
-                                final ParameterMeta objectMeta = parameterModelService.buildParameter(prefix, prefix,
-                                        new ParameterMeta.Source() {
-
-                                            @Override
-                                            public String name() {
-                                                return parameter.getName();
-                                            }
-
-                                            @Override
-                                            public Class<?> declaringClass() {
-                                                return constructor.getDeclaringClass();
-                                            }
-                                        }, parameter.getType(), parameter.getAnnotations(),
-                                        Stream
-                                                .of(ofNullable(constructor.getDeclaringClass().getPackage())
-                                                        .map(Package::getName)
-                                                        .orElse(""))
-                                                .collect(toList()),
-                                        true, new BaseParameterEnricher.Context(config));
-                                final BiFunction<String, Map<String, Object>, Object> objectFactory =
-                                        createObjectFactory(loader, contextualSupplier, parameterizedType,
-                                                objectMeta.getNestedParameters());
-                                final Function<Map<String, Object>, Object> factory =
-                                        c -> objectFactory.apply(prefix, c);
-                                return (Function<Map<String, String>, Object>) ignoredDependentConfig -> {
-                                    final Map<String, Object> configMap = config
-                                            .keys()
-                                            .stream()
-                                            .filter(it -> objectMeta.getNestedParameters().stream().anyMatch(
-                                                    p -> it.startsWith(prefix + '.' + p.getName())))
-                                            .collect(toMap(identity(), config::get));
-                                    return factory.apply(configMap);
-                                };
+                                final Class configClass = Class.class.cast(parameterizedType);
+                                return createConfigFactory(precomputed, loader, contextualSupplier, parameter.getName(),
+                                        parameter.getAnnotation(Configuration.class), parameter.getAnnotations(),
+                                        configClass);
                             } catch (final NoSuchMethodException e) {
                                 throw new IllegalArgumentException("No constructor for " + parameter);
                             }
@@ -225,6 +179,60 @@ public class ReflectionService {
         return config -> {
             final Map<String, String> notNullConfig = ofNullable(config).orElseGet(Collections::emptyMap);
             return factories.stream().map(f -> f.apply(notNullConfig)).toArray(Object[]::new);
+        };
+    }
+
+    public Function<Supplier<Object>, Object> createContextualSupplier(final ClassLoader loader) {
+        return supplier -> {
+            final Thread thread = Thread.currentThread();
+            final ClassLoader old = thread.getContextClassLoader();
+            thread.setContextClassLoader(loader);
+            try {
+                return supplier.get();
+            } finally {
+                thread.setContextClassLoader(old);
+            }
+        };
+    }
+
+    public Function<Map<String, String>, Object> createConfigFactory(final Map<Class<?>, Object> precomputed,
+            final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier, final String name,
+            final Configuration configuration, final Annotation[] allAnnotations, final Class<?> configClass)
+            throws NoSuchMethodException {
+        final Constructor constructor = configClass.getConstructor();
+        final LocalConfiguration config = LocalConfiguration.class.cast(precomputed.get(LocalConfiguration.class));
+        final LocalCache cache = LocalCache.class.cast(precomputed.get(LocalCache.class));
+        if (cache == null || config == null) {
+            return c -> null;
+        }
+
+        final String prefix = configuration.value();
+        final ParameterMeta objectMeta =
+                parameterModelService.buildParameter(prefix, prefix, new ParameterMeta.Source() {
+
+                    @Override
+                    public String name() {
+                        return name;
+                    }
+
+                    @Override
+                    public Class<?> declaringClass() {
+                        return constructor.getDeclaringClass();
+                    }
+                }, configClass, allAnnotations, Stream
+                        .of(ofNullable(constructor.getDeclaringClass().getPackage()).map(Package::getName).orElse(""))
+                        .collect(toList()), true, new BaseParameterEnricher.Context(config));
+        final BiFunction<String, Map<String, Object>, Object> objectFactory =
+                createObjectFactory(loader, contextualSupplier, configClass, objectMeta.getNestedParameters());
+        final Function<Map<String, Object>, Object> factory = c -> objectFactory.apply(prefix, c);
+        return ignoredDependentConfig -> {
+            final Map<String, Object> configMap = config
+                    .keys()
+                    .stream()
+                    .filter(it -> objectMeta.getNestedParameters().stream().anyMatch(
+                            p -> it.startsWith(prefix + '.' + p.getName())))
+                    .collect(toMap(identity(), config::get));
+            return factory.apply(configMap);
         };
     }
 

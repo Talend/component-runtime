@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.manager;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -26,7 +25,6 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
@@ -617,7 +615,7 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
-    protected Set<String> addJarContaining(final ClassLoader loader, final String resource) {
+    protected List<String> addJarContaining(final ClassLoader loader, final String resource) {
         final URL url = loader.getResource(resource);
         if (url != null) {
             File plugin = null;
@@ -662,25 +660,25 @@ public class ComponentManager implements AutoCloseable {
                         return id;
                     })
                     .filter(Objects::nonNull)
-                    .collect(toSet());
+                    .collect(toList());
         }
-        return emptySet();
+        return emptyList();
     }
 
     private Stream<File> toPluginLocations(final File src) {
         if ("test-classes".equals(src.getName()) && src.getParentFile() != null) { // maven
-            return Stream.of(src, new File(src.getParentFile(), "classes"));
+            return Stream.of(new File(src.getParentFile(), "classes"), src);
         }
 
         // gradle (v3 & v4)
         if ("classes".equals(src.getName()) && src.getParentFile() != null
                 && "test".equals(src.getParentFile().getName()) && src.getParentFile().getParentFile() != null) {
-            return Stream.of(src, new File(src.getParentFile().getParentFile(), "production/classes")).filter(
+            return Stream.of(new File(src.getParentFile().getParentFile(), "production/classes"), src).filter(
                     File::exists);
         }
         if ("test".equals(src.getName()) && src.getParentFile() != null
                 && "java".equals(src.getParentFile().getName())) {
-            return Stream.of(src, new File(src.getParentFile(), "main")).filter(File::exists);
+            return Stream.of(new File(src.getParentFile(), "main"), src).filter(File::exists);
         }
         return Stream.of(src);
     }
@@ -870,15 +868,17 @@ public class ComponentManager implements AutoCloseable {
 
         // not JSON services
         final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
-        try (final InputStream stream =
-                container.getLoader().findContainedResource("TALEND-INF/local-configuration.properties")) {
-            if (stream != null) {
-                final Properties properties = new Properties();
-                properties.load(stream);
-                containerConfigurations.add(new PropertiesConfiguration(properties));
+        if (!Boolean.getBoolean("talend.component.configuration." + containerId + ".ignoreLocalConfiguration")) {
+            try (final InputStream stream =
+                    container.getLoader().findContainedResource("TALEND-INF/local-configuration" + ".properties")) {
+                if (stream != null) {
+                    final Properties properties = new Properties();
+                    properties.load(stream);
+                    containerConfigurations.add(new PropertiesConfiguration(properties));
+                }
+            } catch (final IOException e) {
+                throw new IllegalArgumentException(e);
             }
-        } catch (final IOException e) {
-            throw new IllegalArgumentException(e);
         }
         services.put(LocalConfiguration.class, new LocalConfigurationService(containerConfigurations, containerId));
         services.put(HttpClientFactory.class,
@@ -886,7 +886,7 @@ public class ComponentManager implements AutoCloseable {
         services.put(LocalCache.class, new LocalCacheService(containerId));
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(Resolver.class, new ResolverImpl(containerId, container.getLocalDependencyRelativeResolver()));
-        services.put(Injector.class, new InjectorImpl(containerId, services));
+        services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId));
         services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
     }

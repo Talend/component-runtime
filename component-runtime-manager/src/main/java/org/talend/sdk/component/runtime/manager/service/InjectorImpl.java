@@ -15,14 +15,21 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import static java.util.Collections.emptyMap;
+
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.injector.Injector;
+import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.AllArgsConstructor;
@@ -32,6 +39,8 @@ import lombok.AllArgsConstructor;
 public class InjectorImpl implements Serializable, Injector {
 
     private final String plugin;
+
+    private final ReflectionService reflectionService;
 
     private final Map<Class<?>, Object> services;
 
@@ -48,8 +57,9 @@ public class InjectorImpl implements Serializable, Injector {
         if (type == Object.class || type == null) {
             return;
         }
+        final Field[] fields = type.getDeclaredFields();
         Stream
-                .of(type.getDeclaredFields())
+                .of(fields)
                 .filter(field -> !Modifier.isStatic(field.getModifiers()))
                 .filter(field -> field.isAnnotationPresent(Service.class))
                 .peek(f -> {
@@ -65,6 +75,45 @@ public class InjectorImpl implements Serializable, Injector {
                         } catch (final IllegalAccessException e) {
                             throw new IllegalArgumentException(e);
                         }
+                    }
+                });
+        Stream
+                .of(fields)
+                .filter(field -> !Modifier.isStatic(field.getModifiers()))
+                .filter(field -> field.isAnnotationPresent(Configuration.class))
+                .peek(field -> {
+                    if (Supplier.class != field.getType()
+                            || !ParameterizedType.class.isInstance(field.getGenericType())) {
+                        throw new IllegalArgumentException("Field " + field + " is not a Supplier<X>,\n"
+                                + "it will not be injected otherwise it wouldn't be up to date,\n"
+                                + "did you mean Supplier<" + field.getType() + "> ?");
+                    }
+                })
+                .peek(f -> {
+                    if (!f.isAccessible()) {
+                        f.setAccessible(true);
+                    }
+                })
+                .forEach(field -> {
+                    try {
+                        final Class<?> configClass = Class.class
+                                .cast(ParameterizedType.class.cast(field.getGenericType()).getActualTypeArguments()[0]);
+                        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                        final Supplier<?> supplier = () -> {
+                            try {
+                                return reflectionService
+                                        .createConfigFactory(services, loader,
+                                                reflectionService.createContextualSupplier(loader), field.getName(),
+                                                field.getAnnotation(Configuration.class), field.getAnnotations(),
+                                                configClass)
+                                        .apply(emptyMap());
+                            } catch (final NoSuchMethodException e) {
+                                throw new IllegalStateException(e);
+                            }
+                        };
+                        field.set(instance, supplier);
+                    } catch (final IllegalAccessException e) {
+                        throw new IllegalArgumentException(e);
                     }
                 });
         if (type.getSuperclass() != type) {

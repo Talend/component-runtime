@@ -29,6 +29,7 @@ import static org.talend.sdk.component.junit.SimpleFactory.configurationByExampl
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -464,7 +465,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
     }
 
     public Set<String> getTestPlugins() {
-        return EmbeddedComponentManager.class.cast(asManager()).testPlugins;
+        return new HashSet<>(EmbeddedComponentManager.class.cast(asManager()).testPlugins);
     }
 
     @Override
@@ -498,8 +499,11 @@ public class BaseComponentsHandler implements ComponentsHandler {
     }
 
     private String getSinglePlugin() {
-        return Optional.of(getTestPlugins()).filter(c -> !c.isEmpty()).map(c -> c.iterator().next()).orElseThrow(
-                () -> new IllegalStateException("No component plugin found"));
+        return Optional
+                .of(EmbeddedComponentManager.class.cast(asManager()).testPlugins/* sorted */)
+                .filter(c -> !c.isEmpty())
+                .map(c -> c.iterator().next())
+                .orElseThrow(() -> new IllegalStateException("No component plugin found"));
     }
 
     private <T> T mapRecord(final State state, final Class<T> recordType, final Object r) {
@@ -543,11 +547,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                         .withProvider(new PreComputedJsonpProvider("test", manager.getJsonpProvider(),
                                 manager.getJsonpParserFactory(), manager.getJsonpWriterFactory(),
                                 manager.getJsonpBuilderFactory(), manager.getJsonpGeneratorFactory(),
-                                manager.getJsonpReaderFactory())) // reuses
-                        // the
-                        // same
-                        // memory
-                        // buffering
+                                manager.getJsonpReaderFactory())) // reuses the same memory buffers
                         .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
                         .build();
             }
@@ -580,7 +580,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
         private final ComponentManager oldInstance;
 
-        private final Set<String> testPlugins;
+        private final List<String> testPlugins;
 
         private EmbeddedComponentManager(final String componentPackage) {
             super(findM2(), "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
