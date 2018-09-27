@@ -1,19 +1,15 @@
 
 NOTE: the configuration is read from system properties, environment variables, ....
 
-[role="table-striped table-hover table-ordered",options="header,autowidth"]
-|====
-|Key|Description|Default
-|talend.component.server.component.coordinates|A comma separated list of gav to locate the components|-
-|talend.component.server.component.extend.dependencies|Should the component extensions add required dependencies.|true
-|talend.component.server.component.registry|A property file where the value is a gav of a component to register (complementary with `coordinates`)|-
-|talend.component.server.documentation.active|Should the /documentation endpoint be activated.|true
-|talend.component.server.execution.dataset.retriever.timeout|How long the read execution endpoint can last (max)|180
-|talend.component.server.execution.pool.wait|How long the application waits during shutdown for the execution tasks to complete|PT10S
-|talend.component.server.jaxrs.exceptionhandler.defaultMessage|If set it will replace any message for exceptions. Set to `false` to use the actual exception message.|false
-|talend.component.server.maven.repository|The local maven repository used to locate components and their dependencies|-
-|talend.component.server.monitoring.brave.service.name|The name used by the brave integration (zipkin)|component-server
-|talend.component.server.security.command.handler|How to validate a command/request. Accepted values: securityNoopHandler.|securityNoopHandler
-|talend.component.server.security.connection.handler|How to validate a connection. Accepted values: securityNoopHandler.|securityNoopHandler
-|====
+talend.component.server.component.coordinates:: A comma separated list of gav to locate the components
+talend.component.server.component.extend.dependencies:: Should the component extensions add required dependencies. Default value: `true`.
+talend.component.server.component.registry:: A property file where the value is a gav of a component to register (complementary with `coordinates`)
+talend.component.server.documentation.active:: Should the /documentation endpoint be activated. Default value: `true`.
+talend.component.server.execution.dataset.retriever.timeout:: How long the read execution endpoint can last (max) Default value: `180`.
+talend.component.server.execution.pool.wait:: How long the application waits during shutdown for the execution tasks to complete Default value: `PT10S`.
+talend.component.server.jaxrs.exceptionhandler.defaultMessage:: If set it will replace any message for exceptions. Set to `false` to use the actual exception message. Default value: `false`.
+talend.component.server.maven.repository:: The local maven repository used to locate components and their dependencies
+talend.component.server.monitoring.brave.service.name:: The name used by the brave integration (zipkin) Default value: `component-server`.
+talend.component.server.security.command.handler:: How to validate a command/request. Accepted values: securityNoopHandler. Default value: `securityNoopHandler`.
+talend.component.server.security.connection.handler:: How to validate a connection. Accepted values: securityNoopHandler. Default value: `securityNoopHandler`.
 
