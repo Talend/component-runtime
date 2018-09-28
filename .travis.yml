@@ -85,8 +85,9 @@ jobs:
     - stage: master_build
       env:
       - STEP=Docker Deployment
+      - COMPONENT_SERVER_DOCKER_BUILD_ONLY=false
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: chmod +x ./.travis/docker.sh && travis_wait 50 ./.travis/docker.sh
+      script: chmod +x ./.travis/docker.sh && travis_wait 50 mvn clean install -pl component-server-parent/component-server -am $DEPLOY_OPTS && travis_wait 50 ./.travis/docker.sh
       jdk: oraclejdk8
 
     - stage: master_build
