@@ -49,6 +49,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1071[TCOMP-1071^]: support actions i18n display name
 - link:https://jira.talendforge.org/browse/TCOMP-1092[TCOMP-1092^]: Ensure @Configuration POJO are injectable as Supplier in services
 - link:https://jira.talendforge.org/browse/TCOMP-1094[TCOMP-1094^]: Add FullSerializationRecordCoder coder for Record in beam module
+- link:https://jira.talendforge.org/browse/TCOMP-1095[TCOMP-1095^]: Ensure all configuration type models root entries are named "configuration"
 - link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
 - link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
 

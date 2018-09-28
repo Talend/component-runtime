@@ -94,7 +94,7 @@ public class RepositoryModelBuilder {
         final Config c = new Config();
         c.setIcon(familyIcon);
         c.setKey(getKey(familyName, config.getMetadata()));
-        c.setMeta(config);
+        c.setMeta(translate(config, config.getPath().length(), "configuration"));
         c.setId(IdGenerator.get(plugin, c.getKey().getFamily(), c.getKey().getConfigType(),
                 c.getKey().getConfigName()));
 
@@ -105,7 +105,7 @@ public class RepositoryModelBuilder {
                 c.setVersion(version.value());
                 if (version.migrationHandler() != MigrationHandler.class) {
                     c.setMigrationHandler(
-                            migrationHandlerFactory.findMigrationHandler(singletonList(config), clazz, services));
+                            migrationHandlerFactory.findMigrationHandler(singletonList(c.getMeta()), clazz, services));
                 }
             } else {
                 c.setVersion(-1);
@@ -128,4 +128,12 @@ public class RepositoryModelBuilder {
         return parameterMeta.getMetadata().keySet().stream().anyMatch(m -> m.startsWith("tcomp::configurationtype::"));
     }
 
+    private ParameterMeta translate(final ParameterMeta config, final int replacedPrefixLen, final String newPrefix) {
+        return new ParameterMeta(config.getSource(), config.getJavaType(), config.getType(),
+                newPrefix + config.getPath().substring(replacedPrefixLen),
+                config.getName().length() == replacedPrefixLen ? newPrefix : config.getName(), config.getI18nPackages(),
+                config.getNestedParameters().stream().map(it -> translate(it, replacedPrefixLen, newPrefix)).collect(
+                        toList()),
+                config.getProposals(), config.getMetadata(), config.isLogMissingResourceBundle());
+    }
 }

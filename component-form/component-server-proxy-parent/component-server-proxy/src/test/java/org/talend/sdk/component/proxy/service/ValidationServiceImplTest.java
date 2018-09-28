@@ -72,12 +72,11 @@ class ValidationServiceImplTest {
         final JsonBuilderFactory factory = Json.createBuilderFactory(emptyMap());
         final ValidationService.Result errors = service
                 .validate(context, "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSNkYXRhc2V0I2RhdGFzZXQtMg",
-                        factory.createObjectBuilder().add("config", factory.createObjectBuilder()).build())
+                        factory.createObjectBuilder().add("configuration", factory.createObjectBuilder()).build())
                 .toCompletableFuture()
                 .get();
-        assertEquals(
-                singletonList(
-                        new ValidationService.ValidationError("/config", "connection is required and is not present")),
+        assertEquals(singletonList(
+                new ValidationService.ValidationError("/configuration", "connection is required and is not present")),
                 errors.getErrors());
     }
 }

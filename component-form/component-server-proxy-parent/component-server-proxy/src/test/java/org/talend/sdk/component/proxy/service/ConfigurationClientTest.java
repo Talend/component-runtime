@@ -38,13 +38,14 @@ class ConfigurationClientTest {
     @Test
     void migrate() throws ExecutionException, InterruptedException {
         final Map<String, String> configuration = new HashMap<>();
-        configuration.put("config.connection.__version", "0"); // connection version is 1 so we put an earlier version
-        configuration.put("config.connection.url", "http://previous"); // connection version is 1 so we put an earlier version
+        configuration.put("configuration.__version", "0"); // connection version is 1 so we put an earlier version
+        configuration.put("configuration.url", "http://previous"); // connection version is 1 so we put an earlier
+                                                                   // version
         final Map<String, String> migrated = configurationClient
                 .migrate("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0y", configuration,
                         i -> null)
                 .toCompletableFuture()
                 .get();
-        assertEquals("http://migrated", migrated.get("config.connection.url"));
+        assertEquals("http://migrated", migrated.get("configuration.url"));
     }
 }

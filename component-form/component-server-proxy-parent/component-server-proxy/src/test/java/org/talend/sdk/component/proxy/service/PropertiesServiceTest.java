@@ -189,8 +189,8 @@ class PropertiesServiceTest {
                 new HashMap<String, String>() {
 
                     {
-                        put("config.value", "somevalue");
-                        put("config.value2", "other");
+                        put("configuration.value", "somevalue");
+                        put("configuration.value2", "other");
                     }
                 });
 

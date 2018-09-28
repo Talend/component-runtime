@@ -136,14 +136,18 @@ class RepositoryModelBuilderTest {
                     family.getConfigs().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
-            assertEquals("configuration1", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals("configuration", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals("class org.talend.test.generated.tmp.DataSet1",
+                    dataStore1Config.getChildConfigs().get(0).getMeta().getJavaType().toString());
 
             final String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2");
             final Config dataStore2Config =
                     family.getConfigs().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
             assertNotNull(dataStore2Config);
             assertEquals(1, dataStore2Config.getChildConfigs().size());
-            assertEquals("configuration2", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals("configuration", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals("class org.talend.test.generated.tmp.DataSet2",
+                    dataStore2Config.getChildConfigs().get(0).getMeta().getJavaType().toString());
         }
 
     }

@@ -56,16 +56,16 @@ class ConfigurationMigrationTest {
             final Map<String, String> migrated = handler.migrate(1, new HashMap<String, String>() {
 
                 {
-                    put("configuration.dataset.__version", "1");
-                    put("configuration.dataset.option", "value");
-                    put("configuration.dataset.dataStore.__version", "1");
-                    put("configuration.dataset.dataStore.connection", "http://talend.com");
+                    put("configuration.__version", "1");
+                    put("configuration.option", "value");
+                    put("configuration.dataStore.__version", "1");
+                    put("configuration.dataStore.connection", "http://talend.com");
                 }
             });
 
             assertNotNull(migrated);
-            assertEquals("value", migrated.get("configuration.dataset.config"));
-            assertEquals("http://talend.com", migrated.get("configuration.dataset.dataStore.url"));
+            assertEquals("value", migrated.get("configuration.config"));
+            assertEquals("http://talend.com", migrated.get("configuration.dataStore.url"));
         }
 
     }
@@ -91,13 +91,13 @@ class ConfigurationMigrationTest {
             final Map<String, String> migrated = handler.migrate(1, new HashMap<String, String>() {
 
                 {
-                    put("configuration.dataset.dataStore.__version", "1");
-                    put("configuration.dataset.dataStore.connection", "http://talend.com");
+                    put("configuration.__version", "1");
+                    put("configuration.connection", "http://talend.com");
                 }
             });
 
             assertNotNull(migrated);
-            assertEquals("http://talend.com", migrated.get("configuration.dataset.dataStore.url"));
+            assertEquals("http://talend.com", migrated.get("configuration.url"));
         }
     }
 }
