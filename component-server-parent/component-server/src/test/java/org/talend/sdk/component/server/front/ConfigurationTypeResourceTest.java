@@ -72,9 +72,9 @@ class ConfigurationTypeResourceTest {
     @Test
     void migrate() {
         final Map<String, String> config = ws.read(Map.class, "post",
-                "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/1", "{}");
-        assertEquals("true", config.get("migrated"));
-        assertEquals("1", config.get("size"));
+                "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-2", "{}");
+        assertEquals("true", config.get("configuration.migrated"));
+        assertEquals("1", config.get("configuration.size"));
     }
 
     private void assertIndex(final ConfigTypeNodes index) {

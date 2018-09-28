@@ -158,14 +158,20 @@ public class ConfigurationTypeResource {
                     @RequestBody(description = "the actual configuration in key/value form.", required = true,
                             content = @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(type = OBJECT))) final Map<String, String> config) {
-        return ofNullable(configurations.findById(id))
-                .orElseThrow(() -> new WebApplicationException(Response
+        final Config configuration =
+                ofNullable(configurations.findById(id)).orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
                         .entity(new ErrorPayload(ErrorDictionary.CONFIGURATION_MISSING,
                                 "Didn't find configuration " + id))
-                        .build()))
-                .getMigrationHandler()
-                .migrate(version, config);
+                        .build()));
+        final Map<String, String> configToMigrate = new HashMap<>(config);
+        final String versionKey = configuration.getMeta().getPath() + ".__version";
+        final boolean addedVersion = configToMigrate.putIfAbsent(versionKey, Integer.toString(version)) != null;
+        final Map<String, String> migrated = configuration.getMigrationHandler().migrate(version, configToMigrate);
+        if (addedVersion) {
+            migrated.remove(versionKey);
+        }
+        return migrated;
     }
 
     private Stream<ConfigTypeNode> createNode(final String parentId, final String family, final Stream<Config> configs,
