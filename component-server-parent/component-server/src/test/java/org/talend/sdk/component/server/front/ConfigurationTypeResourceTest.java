@@ -62,7 +62,7 @@ class ConfigurationTypeResourceTest {
                 jdbcConnection
                         .getProperties()
                         .stream()
-                        .filter(p -> "connection.configurations".equals(p.getPath()))
+                        .filter(p -> "configuration.configurations".equals(p.getPath()))
                         .findFirst()
                         .get()
                         .getDefaultValue());

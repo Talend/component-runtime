@@ -131,7 +131,7 @@ public class RepositoryModelBuilder {
     private ParameterMeta translate(final ParameterMeta config, final int replacedPrefixLen, final String newPrefix) {
         return new ParameterMeta(config.getSource(), config.getJavaType(), config.getType(),
                 newPrefix + config.getPath().substring(replacedPrefixLen),
-                config.getName().length() == replacedPrefixLen ? newPrefix : config.getName(), config.getI18nPackages(),
+                config.getPath().length() == replacedPrefixLen ? newPrefix : config.getName(), config.getI18nPackages(),
                 config.getNestedParameters().stream().map(it -> translate(it, replacedPrefixLen, newPrefix)).collect(
                         toList()),
                 config.getProposals(), config.getMetadata(), config.isLogMissingResourceBundle());

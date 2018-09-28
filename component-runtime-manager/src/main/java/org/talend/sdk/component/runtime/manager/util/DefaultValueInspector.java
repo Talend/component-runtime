@@ -81,7 +81,7 @@ public class DefaultValueInspector {
     }
 
     private Object findField(final Object rootInstance, final ParameterMeta param) {
-        if (param.getName().startsWith("$")) { // builtin param
+        if (param.getPath().startsWith("$") || param.getName().startsWith("$")) { // virtual param
             return null;
         }
         Class<?> current = rootInstance.getClass();

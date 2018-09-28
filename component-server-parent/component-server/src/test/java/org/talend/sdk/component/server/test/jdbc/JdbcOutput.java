@@ -21,6 +21,7 @@ import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
@@ -41,6 +42,11 @@ public class JdbcOutput implements Serializable {
     @ElementListener
     public void onElement(final JsonObject object) {
         // no-op
+    }
+
+    @AfterGroup
+    public void afterGroup() {
+        // just to get $maxBatchSize
     }
 
     @Data

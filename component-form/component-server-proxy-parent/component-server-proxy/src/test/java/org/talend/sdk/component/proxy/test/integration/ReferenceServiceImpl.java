@@ -53,7 +53,7 @@ public class ReferenceServiceImpl implements ReferenceService {
             return completedFuture(Form
                     .builder()
                     .formId("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ")
-                    .properties(singletonMap("connection.url", "http://foo"))
+                    .properties(singletonMap("configuration.url", "http://foo"))
                     .build());
         }
         final OnPersist byId = persistence.findById(id);
