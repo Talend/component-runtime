@@ -627,10 +627,9 @@ public class Generator {
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class);
                     final String name =
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
-                    return name + ":: "
-                            + of(configProperty.defaultValue())
-                            .filter(it -> !it.equals(
-                                    org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
+                    return name + ":: " + of(configProperty.defaultValue())
+                            .filter(it -> !it
+                                    .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
                             .map(it -> "Default value: `" + it + "`. ")
                             .orElse("")
                             + Stream
