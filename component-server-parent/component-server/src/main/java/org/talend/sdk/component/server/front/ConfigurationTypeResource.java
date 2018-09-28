@@ -166,7 +166,7 @@ public class ConfigurationTypeResource {
                         .build()));
         final Map<String, String> configToMigrate = new HashMap<>(config);
         final String versionKey = configuration.getMeta().getPath() + ".__version";
-        final boolean addedVersion = configToMigrate.putIfAbsent(versionKey, Integer.toString(version)) != null;
+        final boolean addedVersion = configToMigrate.putIfAbsent(versionKey, Integer.toString(version)) == null;
         final Map<String, String> migrated = configuration.getMigrationHandler().migrate(version, configToMigrate);
         if (addedVersion) {
             migrated.remove(versionKey);
