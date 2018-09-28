@@ -71,12 +71,14 @@ public class MigrationHandlerFactory {
                 })
                 .filter(Objects::nonNull)
                 .reduce(NO_MIGRATION,
-                    (current, partial) -> (incomingVersion, incomingData) ->
-                            current.migrate(incomingVersion, partial.apply(incomingData)),
-                    (h1, h2) -> (incomingVersion, incomingData) ->
-                            h2.migrate(incomingVersion, h1.migrate(incomingVersion, incomingData)));
+                        (current,
+                                partial) -> (incomingVersion, incomingData) -> current.migrate(incomingVersion,
+                                        partial.apply(incomingData)),
+                        (h1, h2) -> (incomingVersion, incomingData) -> h2.migrate(incomingVersion,
+                                h1.migrate(incomingVersion, incomingData)));
 
-        if (parameterMetas != null && parameterMetas.size() == 1 && parameterMetas.iterator().next().getJavaType() == type) {
+        if (parameterMetas != null && parameterMetas.size() == 1
+                && parameterMetas.iterator().next().getJavaType() == type) {
             return implicitMigrationHandler;
         }
         return ofNullable(type.getAnnotation(Version.class))
