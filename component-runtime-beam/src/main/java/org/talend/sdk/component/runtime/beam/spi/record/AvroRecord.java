@@ -31,6 +31,7 @@ import java.util.Objects;
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
+import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
@@ -170,6 +171,9 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                     .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));
         }
         if (!expectedType.isInstance(value)) {
+            if (Utf8.class.isInstance(value) && String.class == expectedType) {
+                return expectedType.cast(value.toString());
+            }
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
         return expectedType.cast(value);

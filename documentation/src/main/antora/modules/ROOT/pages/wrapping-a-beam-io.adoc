@@ -131,9 +131,21 @@ See `org.talend.sdk.component.runtime.beam.transform.avro.IndexedRecordCoder`.
 
 If your `PCollection` is made of `JsonObject` records, and you want to convert them to `IndexedRecord`, you can use the following `PTransforms`:
 
-- `IndexedRecordToJson`: to convert an `IndexedRecord` to a `JsonObject`.
-- `JsonToIndexedRecord`: to convert a `JsonObject` to an `IndexedRecord`.
-- `SchemalessJsonToIndexedRecord`: to convert a `JsonObject` to an `IndexedRecord` with AVRO schema inference.
+`IndexedRecordToJson`:: converts an `IndexedRecord` to a `JsonObject`.
+`JsonToIndexedRecord`:: converts a `JsonObject` to an `IndexedRecord`.
+`SchemalessJsonToIndexedRecord`:: converts a `JsonObject` to an `IndexedRecord` with AVRO schema inference.
+
+=== Record coder
+
+There are two main provided coder for `Record`:
+
+`FullSerializationRecordCoder`:: it will unwrap the record as an Avro `IndexedRecord` and serialize it *with its schema*.
+This can indeed have a performance impact but, due to the structure of component, it will not impact the runtime
+performance in general - except with direct runner - because the runners will optimize the pipeline accurately.
+`SchemaRegistryCoder`:: it will serialize the Avro `IndexedRecord` as well but it will ensure the schema is in the
+`SchemaRegistry` to be able to deserialize it when needed. This implementation is faster *but* the default implementation
+of the registry is "in memory" so will only work with a single worker node. You can extend it using Java SPI mecanism to use a custom
+distributed implementation.
 
 === Sample
 
