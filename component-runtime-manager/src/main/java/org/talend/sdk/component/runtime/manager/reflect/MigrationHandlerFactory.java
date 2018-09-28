@@ -59,17 +59,15 @@ public class MigrationHandlerFactory {
                 .sorted(Comparator.comparingInt(o -> o.getPath().length()))
                 .map(p -> {
                     // for now we can assume it is not in arrays
-                    final MigrationHandler handler =
-                            findMigrationHandler(emptyList(), Class.class.cast(p.getJavaType()), services);
+                    final Class<?> jType = Class.class.cast(p.getJavaType());
+                    final MigrationHandler handler = findMigrationHandler(emptyList(), jType, services);
                     if (handler == NO_MIGRATION) {
                         return null;
                     }
 
                     return (Function<Map<String, String>, Map<String, String>>) map -> buildMigrationFunction(p,
                             handler, p.getPath(), map,
-                            ofNullable(((Class) p.getJavaType()).getAnnotation(Version.class))
-                                    .map(v -> ((Version) v).value())
-                                    .orElse(-1));
+                            ofNullable(jType.getAnnotation(Version.class)).map(Version::value).orElse(-1));
                 })
                 .filter(Objects::nonNull)
                 .reduce(NO_MIGRATION,
@@ -79,6 +77,9 @@ public class MigrationHandlerFactory {
                         (migrationHandler, migrationHandler2) -> (incomingVersion, incomingData) -> migrationHandler2
                                 .migrate(incomingVersion, migrationHandler.migrate(incomingVersion, incomingData)));
 
+        if (parameterMetas.size() == 1 && parameterMetas.iterator().next().getJavaType() == type) {
+            return implicitMigrationHandler;
+        }
         return ofNullable(type.getAnnotation(Version.class))
                 .map(Version::migrationHandler)
                 .filter(t -> t != MigrationHandler.class)
