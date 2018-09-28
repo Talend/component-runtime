@@ -1,5 +1,6 @@
 package org.talend.sdk.component.design.extension.repository;
 
+import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -103,8 +104,8 @@ public class RepositoryModelBuilder {
             if (version != null) {
                 c.setVersion(version.value());
                 if (version.migrationHandler() != MigrationHandler.class) {
-                    c.setMigrationHandler(migrationHandlerFactory.findMigrationHandler(config.getNestedParameters(),
-                            clazz, services));
+                    c.setMigrationHandler(
+                            migrationHandlerFactory.findMigrationHandler(singletonList(config), clazz, services));
                 }
             } else {
                 c.setVersion(-1);

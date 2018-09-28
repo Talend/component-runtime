@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.design.extension.RepositoryModel;
@@ -31,7 +30,6 @@ import org.talend.sdk.component.design.extension.repository.Config;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.test.MetadataMigrationProcessor;
 
-@Disabled
 class ConfigurationMigrationTest {
 
     @Test
@@ -40,38 +38,35 @@ class ConfigurationMigrationTest {
                 "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {
             final String plugin = manager.addPlugin(jarLocation(MetadataMigrationProcessor.class).getAbsolutePath());
 
-            final Config config = manager.findPlugin(plugin).get().get(RepositoryModel.class)
-                    .getFamilies().stream().filter(f -> f.getMeta().getName().equals("metadata"))
-                    .map(f -> f.getConfigs().iterator().next()).findFirst().get();
+            final Config dataset = manager
+                    .findPlugin(plugin)
+                    .get()
+                    .get(RepositoryModel.class)
+                    .getFamilies()
+                    .stream()
+                    .filter(f -> f.getMeta().getName().equals("metadata"))
+                    .map(f -> f.getConfigs().iterator().next())
+                    .findFirst()
+                    .get()
+                    .getChildConfigs()
+                    .iterator()
+                    .next();
 
-            final MigrationHandler handler = findRootMigrationHandler(config);
+            final MigrationHandler handler = dataset.getMigrationHandler();
             final Map<String, String> migrated = handler.migrate(1, new HashMap<String, String>() {
 
                 {
-                    put("__version", "1");
-                    put("option", "value");
-                    put("datastore.connection", "http://talend.com");
-                    put("datastore.__version", "1");
+                    put("configuration.dataset.__version", "1");
+                    put("configuration.dataset.option", "value");
+                    put("configuration.dataset.dataStore.__version", "1");
+                    put("configuration.dataset.dataStore.connection", "http://talend.com");
                 }
             });
 
             assertNotNull(migrated);
-            assertEquals("value", migrated.get("config"));
-            assertEquals("http://talend.com", migrated.get("datastore.url"));
+            assertEquals("value", migrated.get("configuration.dataset.config"));
+            assertEquals("http://talend.com", migrated.get("configuration.dataset.dataStore.url"));
         }
 
     }
-
-    private MigrationHandler findRootMigrationHandler(final Config config) {
-        if ("dataset".equals(config.getMeta().getMetadata().get("tcomp::configurationtype::type"))) {
-            return config.getMigrationHandler();
-        }
-        return config.getChildConfigs().stream().filter(c -> "dataset".equals(c.getMeta().getMetadata().get("tcomp::configurationtype::type")))
-                .map(Config::getMigrationHandler)
-                .findFirst().orElseGet(() -> config.getChildConfigs()
-                        .stream().filter(c -> !c.getChildConfigs().isEmpty())
-                        .map(this::findRootMigrationHandler)
-                        .findFirst().get());
-    }
-
 }

@@ -123,22 +123,23 @@ class RepositoryModelBuilderTest {
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {
             final String location = pluginJar.getAbsolutePath();
             manager.addPlugin(location);
-            Container pluginContainer =
+            final Container pluginContainer =
                     manager.findPlugin(pluginName).orElseThrow(() -> new Exception("test plugin don't exist"));
             assertNotNull(pluginContainer);
-            RepositoryModel rm = pluginContainer.get(RepositoryModel.class);
+            final RepositoryModel rm = pluginContainer.get(RepositoryModel.class);
             assertNotNull(rm);
-            assertEquals(1, rm.getFamilies().size());
-            Family family = rm.getFamilies().get(0);
-            String ds1Id = IdGenerator.get("test", "family1", "datastore", "dataStore1");
-            Config dataStore1Config =
+            assertEquals(2, rm.getFamilies().size());
+            final Family family =
+                    rm.getFamilies().stream().filter(it -> it.getMeta().getName().equals("family1")).findFirst().get();
+            final String ds1Id = IdGenerator.get("test", "family1", "datastore", "dataStore1");
+            final Config dataStore1Config =
                     family.getConfigs().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
             assertEquals("configuration1", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
 
-            String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2");
-            Config dataStore2Config =
+            final String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2");
+            final Config dataStore2Config =
                     family.getConfigs().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
             assertNotNull(dataStore2Config);
             assertEquals(1, dataStore2Config.getChildConfigs().size());

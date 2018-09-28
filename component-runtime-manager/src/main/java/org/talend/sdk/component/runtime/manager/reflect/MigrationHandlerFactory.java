@@ -99,8 +99,11 @@ public class MigrationHandlerFactory {
                     if (implicitMigrationHandler == NO_MIGRATION) {
                         return h;
                     }
-                    return (MigrationHandler) (incomingVersion, incomingData) -> h.migrate(incomingVersion,
-                            implicitMigrationHandler.migrate(incomingVersion, incomingData));
+                    return (MigrationHandler) (incomingVersion, incomingData) -> {
+                        final Map<String, String> configuration =
+                                implicitMigrationHandler.migrate(incomingVersion, incomingData);
+                        return h.migrate(incomingVersion, configuration);
+                    };
                 })
                 .orElse(implicitMigrationHandler);
     }
@@ -121,11 +124,7 @@ public class MigrationHandlerFactory {
         final String version = map.get(versionPath);
         final Map<String, String> result = new HashMap<>(map);
         if (version != null && Integer.parseInt(version.trim()) < currentVersion) {
-            final Map<String, String> toMigrate = map
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getKey().startsWith(prefix + '.') && !e.getKey().endsWith(".__version"))
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            final Map<String, String> toMigrate = stripPrefix(prefix, map);
             toMigrate.keySet().forEach(result::remove);
             final Map<String, String> migrated = ofNullable(handler.migrate(Integer.parseInt(version.trim()),
                     toMigrate.entrySet().stream().collect(
@@ -138,5 +137,13 @@ public class MigrationHandlerFactory {
             log.debug("No version for {} so skipping any potential migration", p.getJavaType().toString());
         }
         return result;
+    }
+
+    private Map<String, String> stripPrefix(final String prefix, final Map<String, String> map) {
+        return map
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().startsWith(prefix + '.') && !e.getKey().endsWith(".__version"))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

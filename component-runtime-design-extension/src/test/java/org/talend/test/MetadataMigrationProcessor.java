@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.test;
 
 import java.io.Serializable;
@@ -20,11 +35,19 @@ import lombok.Data;
 @Processor(family = "metadata", name = "MetadataMigrationProcessor")
 public class MetadataMigrationProcessor implements Serializable {
 
-    public MetadataMigrationProcessor(@Option("configuration") final MyDataSet configuration) {
+    public MetadataMigrationProcessor(@Option("configuration") final Config config) {
+        // no-op
     }
 
     @ElementListener
     public void onElement(@Input final Record in) {
+        // no-op
+    }
+
+    public static class Config {
+
+        @Option
+        private MyDataSet dataset;
     }
 
     @Data
@@ -43,8 +66,8 @@ public class MetadataMigrationProcessor implements Serializable {
         public static class InputMapperDataSetHandler implements MigrationHandler {
 
             @Override
-            public Map<String, String> migrate(int incomingVersion, Map<String, String> incomingData) {
-                String value = incomingData.remove("option");
+            public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
+                final String value = incomingData.remove("option");
                 if (value != null) {
                     incomingData.put("config", value);
                 }
