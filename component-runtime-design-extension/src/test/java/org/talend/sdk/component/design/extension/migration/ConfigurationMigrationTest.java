@@ -33,7 +33,7 @@ import org.talend.test.MetadataMigrationProcessor;
 class ConfigurationMigrationTest {
 
     @Test
-    void migrateMetadata() {
+    void migrateDataSet() {
         try (final ComponentManager manager = new ComponentManager(new File("target/test-dependencies"),
                 "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {
             final String plugin = manager.addPlugin(jarLocation(MetadataMigrationProcessor.class).getAbsolutePath());
@@ -68,5 +68,36 @@ class ConfigurationMigrationTest {
             assertEquals("http://talend.com", migrated.get("configuration.dataset.dataStore.url"));
         }
 
+    }
+
+    @Test
+    void migrateDataStore() {
+        try (final ComponentManager manager = new ComponentManager(new File("target/test-dependencies"),
+                "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {
+            final String plugin = manager.addPlugin(jarLocation(MetadataMigrationProcessor.class).getAbsolutePath());
+
+            final Config datastore = manager
+                    .findPlugin(plugin)
+                    .get()
+                    .get(RepositoryModel.class)
+                    .getFamilies()
+                    .stream()
+                    .filter(f -> f.getMeta().getName().equals("metadata"))
+                    .map(f -> f.getConfigs().iterator().next())
+                    .findFirst()
+                    .get();
+
+            final MigrationHandler handler = datastore.getMigrationHandler();
+            final Map<String, String> migrated = handler.migrate(1, new HashMap<String, String>() {
+
+                {
+                    put("configuration.dataset.dataStore.__version", "1");
+                    put("configuration.dataset.dataStore.connection", "http://talend.com");
+                }
+            });
+
+            assertNotNull(migrated);
+            assertEquals("http://talend.com", migrated.get("configuration.dataset.dataStore.url"));
+        }
     }
 }

@@ -76,7 +76,7 @@ public class MigrationHandlerFactory {
                     (h1, h2) -> (incomingVersion, incomingData) ->
                             h2.migrate(incomingVersion, h1.migrate(incomingVersion, incomingData)));
 
-        if (parameterMetas.size() == 1 && parameterMetas.iterator().next().getJavaType() == type) {
+        if (parameterMetas != null && parameterMetas.size() == 1 && parameterMetas.iterator().next().getJavaType() == type) {
             return implicitMigrationHandler;
         }
         return ofNullable(type.getAnnotation(Version.class))
