@@ -82,12 +82,6 @@
         </executions>
         <dependencies>
           <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
-            <type>pom</type>
-          </dependency>
-          <dependency>
             <groupId>org.jetbrains.intellij</groupId>
             <artifactId>plugin-repository-rest-client</artifactId>
             <version>0.4.27</version>
@@ -167,12 +161,6 @@
               </execution>
             </executions>
             <dependencies>
-              <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-                <version>${groovy.version}</version>
-                <type>pom</type>
-              </dependency>
               <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-xml</artifactId>

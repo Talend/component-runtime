@@ -316,12 +316,6 @@
             <version>0.7</version>
           </dependency>
           <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
-            <type>pom</type>
-          </dependency>
-          <dependency>
             <groupId>org.apache.tomee</groupId>
             <artifactId>ziplock</artifactId>
             <version>${ziplock.version}</version>
@@ -541,6 +535,19 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>java11</id>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jaxws_2.2_spec</artifactId>
+          <version>1.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
     <profile>
       <id>travis</id>
       <build>

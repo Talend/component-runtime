@@ -162,14 +162,6 @@
             <script>${project.basedir}/src/build/PrepareResources.groovy</script>
           </scripts>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
-            <type>pom</type>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
