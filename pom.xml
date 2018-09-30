@@ -58,7 +58,8 @@
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
-    <xbean.version>4.9</xbean.version>
+    <xbean.version>4.10</xbean.version>
+    <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.1.0</ziplock.version>
