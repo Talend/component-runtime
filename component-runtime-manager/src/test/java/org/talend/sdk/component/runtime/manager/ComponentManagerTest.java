@@ -77,6 +77,8 @@ class ComponentManagerTest {
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
         DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl("plugin"));
+        final String jvd = System.getProperty("java.version.date"); // java 11
+        System.clearProperty("java.version.date");
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
@@ -89,6 +91,9 @@ class ComponentManagerTest {
             Stream.of(pluginFolder.listFiles()).forEach(File::delete);
             if (ofNullable(pluginFolder.listFiles()).map(f -> f.length == 0).orElse(true)) {
                 pluginFolder.delete();
+            }
+            if (jvd != null) {
+                System.setProperty("java.version.date", jvd);
             }
         }
     }
