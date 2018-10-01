@@ -120,4 +120,17 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>java11</id>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <properties>
+        <!-- hadoop+spark are not java 11 friendly yet -->
+        <skipTests>true</skipTests>
+      </properties>
+    </profile>
+  </profiles>
 </project>

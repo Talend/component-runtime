@@ -74,7 +74,7 @@
     <geronimo-atinject.version>1.0</geronimo-atinject.version>
     <geronimo-annotation.version>1.0</geronimo-annotation.version>
     <geronimo-interceptor.version>1.0</geronimo-interceptor.version>
-    <geronimo-jsonb.version>1.0</geronimo-jsonb.version>
+    <geronimo-jsonb.version>1.1</geronimo-jsonb.version>
     <geronimo-json.version>1.0</geronimo-json.version>
     <jcache-api.version>1.0-alpha-1</jcache-api.version>
     <batik.version>1.9.1</batik.version>
@@ -87,7 +87,7 @@
     <geronimo-jaxrs.version>1.0</geronimo-jaxrs.version>
     <asciidoctorj.version>1.6.0-alpha.7</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
-    <jsonb-api.version>1.0</jsonb-api.version>
+    <jsonb-api.version>1.1</jsonb-api.version>
     <jsonp-api.version>1.0</jsonp-api.version>
     <microprofile-config-api.version>1.2</microprofile-config-api.version>
     <microprofile-openapi-api.version>1.0.1</microprofile-openapi-api.version>

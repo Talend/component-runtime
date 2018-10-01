@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.rules.RuleChain.emptyRuleChain;
+import static org.talend.sdk.component.junit.http.test.json.AssertJson.assertJSONEquals;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -127,8 +128,8 @@ public class CaptureJUnit4HttpsApiTest {
             }, Description.createTestDescription(getClass(), "doCapture")).evaluate();
 
             assertTrue(output.toFile().exists());
-            final String lines = Files.readAllLines(output).stream().collect(joining("\n"));
-            assertEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
+            final String lines = String.join("\n", Files.readAllLines(output));
+            assertJSONEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
                     + "        \"content-length\":\"0\",\n"
                     + "        \"Accept\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\",\n"
                     + "        \"Connection\":\"keep-alive\"\n" + "      },\n" + "      \"method\":\"GET\",\n"

@@ -132,4 +132,17 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>java11</id>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <properties>
+        <!-- beam does not support it yet -->
+        <skipTests>true</skipTests>
+      </properties>
+    </profile>
+  </profiles>
 </project>

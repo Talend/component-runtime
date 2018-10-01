@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
@@ -67,7 +68,15 @@ public class Github {
 
         final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
         final WebTarget gravatarBase = client.target(Gravatars.GRAVATAR_BASE);
-        final ForkJoinPool pool = new ForkJoinPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 8));
+        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        final ForkJoinPool pool = new ForkJoinPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 8),
+                p -> new ForkJoinWorkerThread(p) {
+
+                    { // needed on java11 otherwise
+                      // it uses apploader which is not the one we must use with mvn exec plugin
+                        setContextClassLoader(loader);
+                    }
+                }, null, false);
         try {
             return pool
                     .submit(() -> Stream

@@ -197,7 +197,10 @@ class ProjectResourceTest {
                                 + "              <packagename>com.application.client.wadl</packagename>\n"
                                 + "            </wadlOption>\n" + "          </wadlOptions>\n"
                                 + "        </configuration>\n" + "      </plugin>")
-                .forEach(string -> assertTrue(files.get("application/pom.xml").contains(string)));
+                .forEach(string -> {
+                    final String content = files.get("application/pom.xml");
+                    assertTrue(content.contains(string), content);
+                });
     }
 
     @Test
