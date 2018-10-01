@@ -68,7 +68,7 @@ function getOrCreateCategoryNode(categories, categoryId) {
       id: categoryId,
       name: categoryId,
       children: [],
-      toggled: false,
+      isOpened: false,
       $$type: 'category',
     };
     categories.push(categoryNode);
@@ -91,7 +91,7 @@ function getOrCreateFamilyNode(categoryNode, component, dispatch) {
       icon: iconFamily.customIconType ?
         { name: `src-/api/v1/component/icon/family/${familyId}`} :
         iconFamily.icon,
-      toggled: false,
+      isOpened: false,
       children: [],
       $$type: 'family',
       $$parent: categoryNode,
@@ -118,7 +118,7 @@ function getOrCreateFamilyNode(categoryNode, component, dispatch) {
 function doOpen(treeview) {
   let children = treeview;
   while (children && children.length) {
-    children[0].toggled = true;
+    children[0].isOpened = true;
     children = children[0].children;
   }
 	return treeview;
@@ -155,8 +155,28 @@ function getParentNode(accu, id) {
 
 function createConfigTree(wrapper, dispatch) {
 	const values = Object.values(wrapper.nodes);
-	values.sort((v1, v2) => v1.id.localeCompare(v2.id));
-  const treeview = values.reduce((accu, node) => {
+	values.sort((v1, v2) => { // todo: better impl, this one works with simple components only
+	    if (v1.parentId && !v2.parentId) {
+          return 1;
+	    }
+	    if (v2.parentId && !v1.parentId) {
+          return -1;
+	    }
+	    if (v1.parentId == v2.id) {
+	      return 1;
+	    }
+	    if (v1.id == v2.parentId) {
+	      return -1;
+	    }
+	    if (v1.configurationType === 'datastore' && v2.configurationType === 'dataset') {
+	        return -1;
+	    }
+	    if (v2.configurationType === 'datastore' && v1.configurationType === 'dataset') {
+	        return 1;
+	    }
+	    return v1.id.localeCompare(v2.id);
+	});
+    const treeview = values.reduce((accu, node) => {
 		const familyId = atob(node.id).split('#')[1];
 		const treeNode = {
 	    ...node,

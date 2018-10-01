@@ -323,6 +323,24 @@ Two parameters are available with the plugin:
 
 IMPORTANT: Make sure to install the artifact before using this command because it reads the component JAR from the local Maven repository.
 
+==== Tip: change the UI bundle
+
+If you built a custom UI (js+css) bundle and want to test it in the webapp
+you can configure it in the pom.xml:
+
+[source,xml]
+----
+<configuration>
+  <uiConfiguration>
+    <jsLocation>https://cdn.talend.com/myapp.min.js</jsLocation>
+    <cssLocation>https://cdn.talend.com/myapp.min.css</cssLocation>
+  </uiConfiguration>
+</configuration>
+----
+
+IMPORTANT: this is a very advanced feature, ensure to know why you use it if you do. It is recommended to not use it
+until a framework developper encourages you to do so.
+
 == Generating inputs or outputs
 
 The Mojo `generate` (Maven plugin goal) of the same plugin also embeds a generator that you can use to bootstrap any input or output component:

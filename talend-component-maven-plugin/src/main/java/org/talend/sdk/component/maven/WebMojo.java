@@ -26,6 +26,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.talend.sdk.component.tools.WebServer;
 
+import lombok.Data;
+
 /**
  * Starts a small web server where you can test the rendering of your
  * component forms.
@@ -45,10 +47,20 @@ public class WebMojo extends AbstractMojo {
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
 
+    @Parameter
+    private UiConfiguration uiConfiguration;
+
     @Override
     public void execute() {
         final String originalRepoSystProp = System.getProperty("talend.component.server.maven.repository");
         System.setProperty("talend.component.server.maven.repository", settings.getLocalRepository());
+        if (uiConfiguration != null) {
+            if (uiConfiguration.getCssLocation() == null || uiConfiguration.getJsLocation() == null) {
+                throw new IllegalArgumentException("Either don't set <uiConfiguration /> or set js AND css locations");
+            }
+            System.setProperty("talend.tools.web.ui.js", uiConfiguration.getJsLocation());
+            System.setProperty("talend.tools.web.ui.css", uiConfiguration.getCssLocation());
+        }
         try {
             new WebServer(serverArguments, port, getLog(),
                     String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion()))
@@ -59,6 +71,18 @@ public class WebMojo extends AbstractMojo {
             } else {
                 System.setProperty("talend.component.server.maven.repository", originalRepoSystProp);
             }
+            System.clearProperty("talend.tools.web.ui.js");
+            System.clearProperty("talend.tools.web.ui.css");
         }
+    }
+
+    @Data
+    public static class UiConfiguration {
+
+        @Parameter(property = "talend.web.ui.jsLocation")
+        private String jsLocation;
+
+        @Parameter(property = "talend.web.ui.cssLocation")
+        private String cssLocation;
     }
 }
