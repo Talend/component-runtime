@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.form.internal.converter;
 
+import java.util.Collection;
+import java.util.stream.Stream;
+
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.AllArgsConstructor;
@@ -40,6 +43,10 @@ public class PropertyContext<T> {
         final String prefix = property.getPath() + ".";
         return child.getPath().startsWith(prefix) && child.getPath().indexOf('.', prefix.length()) < 0
                 && !child.getPath().endsWith("[]");
+    }
+
+    public Stream<SimplePropertyDefinition> findDirectChild(final Collection<SimplePropertyDefinition> properties) {
+        return properties.stream().filter(this::isDirectChild);
     }
 
     @NoArgsConstructor

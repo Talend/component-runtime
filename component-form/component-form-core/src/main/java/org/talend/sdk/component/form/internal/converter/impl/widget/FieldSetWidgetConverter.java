@@ -69,14 +69,13 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
                     properties, client, jsonSchema, this.properties, actions, lang, customPropertyConverters);
 
             // Create Nested UI Items
-            final Stream<SimplePropertyDefinition> nestedProperties =
-                    this.properties.stream().filter(context::isDirectChild);
+            final Stream<SimplePropertyDefinition> nestedProperties = context.findDirectChild(this.properties);
             final Stream<SimplePropertyDefinition> sortedProperties =
                     order == null ? nestedProperties.sorted(comparing(SimplePropertyDefinition::getPath))
                             : nestedProperties.sorted(comparing(it -> order.indexOf(it.getName())));
             return CompletableFuture
                     .allOf(sortedProperties
-                            .map(it -> new PropertyContext<>(it, context.getRootContext(), context.getConfiguration()))
+                            .map(it -> new PropertyContext(it, context.getRootContext(), context.getConfiguration()))
                             .map(CompletionStages::toStage)
                             .map(uiSchemaConverter::convert)
                             .toArray(CompletableFuture[]::new))

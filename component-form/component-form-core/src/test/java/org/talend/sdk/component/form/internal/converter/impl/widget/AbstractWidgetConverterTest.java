@@ -141,7 +141,7 @@ class AbstractWidgetConverterTest {
             {
                 final SimplePropertyDefinition property =
                         new SimplePropertyDefinition("root", "root", null, null, null, null, spec.getKey(), null, null);
-                final PropertyContext ctx = new PropertyContext<>(property, null, null);
+                final PropertyContext<?> ctx = new PropertyContext<>(property, null, null);
                 condition.set(createCondition(ctx));
             }
         };

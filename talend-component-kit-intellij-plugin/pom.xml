@@ -106,7 +106,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.5.3</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <id>package-plugin</id>
@@ -115,7 +115,9 @@
               <goal>single</goal>
             </goals>
             <configuration>
-              <descriptor>src/assembly/plugin.xml</descriptor>
+              <descriptors>
+                <descriptor>src/assembly/plugin.xml</descriptor>
+              </descriptors>
             </configuration>
           </execution>
         </executions>
@@ -137,6 +139,34 @@
   </pluginRepositories>
 
   <profiles>
+    <profile>
+      <id>java11</id>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <dependencies>
+        <!-- /!\ GPL dependency, ensure to not deliver it -->
+        <dependency>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-controls</artifactId>
+          <version>11</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-web</artifactId>
+          <version>11</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-swing</artifactId>
+          <version>11</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
     <profile>
       <id>release</id>
       <build>

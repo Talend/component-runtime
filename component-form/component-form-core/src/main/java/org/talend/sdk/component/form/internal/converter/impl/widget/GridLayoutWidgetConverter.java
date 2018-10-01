@@ -109,15 +109,14 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         });
     }
 
-    private CompletionStage<UiSchema> createLayout(final PropertyContext root, final String layout,
+    private CompletionStage<UiSchema> createLayout(final PropertyContext<?> root, final String layout,
             final String layoutFilter) {
         final UiSchema uiSchema = newOrphanSchema(root);
         uiSchema.setItems(new ArrayList<>());
 
         final Collection<SimplePropertyDefinition> visitedProperties = new ArrayList<>();
         final Map<String, SimplePropertyDefinition> childProperties =
-                properties.stream().filter(root::isDirectChild).collect(
-                        toMap(SimplePropertyDefinition::getName, identity()));
+                root.findDirectChild(properties).collect(toMap(SimplePropertyDefinition::getName, identity()));
         return CompletableFuture.allOf(Stream.of(layout.split("\\|")).map(line -> line.split(",")).map(line -> {
             if (line.length == 1 && childProperties.containsKey(line[0])) {
                 return new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), visitedProperties, client,

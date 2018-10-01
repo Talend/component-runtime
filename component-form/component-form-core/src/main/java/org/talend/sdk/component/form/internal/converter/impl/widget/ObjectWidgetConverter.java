@@ -45,7 +45,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
         super(schemas, properties, actions, jsonSchema, lang);
     }
 
-    protected void addActions(final PropertyContext root, final UiSchema uiSchema,
+    protected void addActions(final PropertyContext<?> root, final UiSchema uiSchema,
             final Collection<SimplePropertyDefinition> includedProperties) {
         final Collection<UiSchema> buttons = new ArrayList<>();
 
@@ -139,7 +139,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
         return Stream.of(ui);
     }
 
-    private Optional<UiSchema> addUpdate(final PropertyContext root) {
+    private Optional<UiSchema> addUpdate(final PropertyContext<?> root) {
         final SimplePropertyDefinition property = root.getProperty();
         return ofNullable(property.getMetadata().get("action::update"))
                 .flatMap(v -> (actions == null ? Stream.<ActionReference> empty() : actions.stream())
@@ -161,7 +161,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 });
     }
 
-    private void addHealthCheck(final PropertyContext root, final Collection<UiSchema> items) {
+    private void addHealthCheck(final PropertyContext<?> root, final Collection<UiSchema> items) {
         ofNullable(root.getProperty().getMetadata().get("action::healthcheck"))
                 .flatMap(v -> (actions == null ? Stream.<ActionReference> empty() : actions.stream())
                         .filter(a -> a.getName().equals(v) && "healthcheck".equals(a.getType()))
@@ -217,7 +217,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 });
     }
 
-    private void addGuessSchemaButton(final PropertyContext root, final SimplePropertyDefinition bindingProp,
+    private void addGuessSchemaButton(final PropertyContext<?> root, final SimplePropertyDefinition bindingProp,
             final Collection<UiSchema> items) {
         final String schemaActionName =
                 ofNullable(bindingProp.getMetadata().get("action::schema")).filter(n -> !n.isEmpty()).orElse("default");

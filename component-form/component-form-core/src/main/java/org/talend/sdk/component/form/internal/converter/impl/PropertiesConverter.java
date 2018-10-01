@@ -52,9 +52,8 @@ public class PropertiesConverter implements PropertyConverter {
                         new PropertiesConverter(jsonb, childDefaults, properties);
 
                 return CompletableFuture
-                        .allOf(properties
-                                .stream()
-                                .filter(context::isDirectChild)
+                        .allOf(context
+                                .findDirectChild(properties)
                                 .map(it -> new PropertyContext<>(it, context.getRootContext(),
                                         context.getConfiguration()))
                                 .map(CompletionStages::toStage)

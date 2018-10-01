@@ -132,7 +132,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }).collect(toList())).orElse(null);
     }
 
-    protected UiSchema newUiSchema(final PropertyContext ctx) {
+    protected UiSchema newUiSchema(final PropertyContext<?> ctx) {
         final UiSchema schema = newOrphanSchema(ctx);
         synchronized (schemas) {
             schemas.add(schema);
@@ -140,7 +140,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return schema;
     }
 
-    protected UiSchema newOrphanSchema(final PropertyContext ctx) {
+    protected UiSchema newOrphanSchema(final PropertyContext<?> ctx) {
         final UiSchema schema = new UiSchema();
         schema.setTitle(ctx.getProperty().getDisplayName());
         schema.setKey(ctx.getProperty().getPath());
@@ -231,7 +231,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 || key.equals("action::update");
     }
 
-    protected Map<String, Collection<Object>> createCondition(final PropertyContext ctx) {
+    protected Map<String, Collection<Object>> createCondition(final PropertyContext<?> ctx) {
         final List<Map<String, Collection<Object>>> conditions = ctx
                 .getProperty()
                 .getMetadata()
