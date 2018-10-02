@@ -281,7 +281,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             final String operator = ofNullable(ctx.getProperty().getMetadata().get("condition::ifs::operator"))
                     .orElse("AND")
                     .toLowerCase(ROOT);
-            return new UiSchema.ConditionBuilder().withOperator(operator).withValue(conditions).build();
+            return new UiSchema.ConditionBuilder().withOperator(operator).withValues(conditions).build();
         }
     }
 

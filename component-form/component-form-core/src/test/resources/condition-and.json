@@ -1,0 +1,454 @@
+{
+  "actions": [
+    {
+      "displayName": "Propose",
+      "family": "QA",
+      "name": "proposable",
+      "properties": [],
+      "type": "dynamic_values"
+    }
+  ],
+  "displayName": "QA ActiveIf",
+  "icon": "check",
+  "id": {
+    "family": "QA",
+    "familyId": "cWEjUUE",
+    "id": "cWEjUUEjUUFBY3RpdmVJZg",
+    "name": "QAActiveIf",
+    "plugin": "qa",
+    "pluginLocation": "org.talend.components:qa:0.0.1-SNAPSHOT"
+  },
+  "inputFlows": [],
+  "links": [],
+  "outputFlows": [
+    "__default__"
+  ],
+  "properties": [
+    {
+      "displayName": "conf",
+      "metadata": {
+        "ui::gridlayout::Advanced::value": "dataset",
+        "ui::gridlayout::Main::value": "str|activeIfStr|complexActiveIfStr|flag|activeIfBool|constant|activeIfEnum|proposable|activeIfProposable|strNegate|activeIfNegate|strLength|activeIfLength|activeIfAnd|activeIfOr|dataset",
+        "documentation::value": "TODO fill the documentation for this configuration",
+        "definition::parameter::index": "0"
+      },
+      "name": "conf",
+      "path": "conf",
+      "placeholder": "conf",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "activeIfAnd",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "value",
+        "condition::if::value::1": "true",
+        "condition::if::target::0": "str",
+        "condition::if::target::1": "flag",
+        "documentation::value": "active if based on 2 values - str and flag combined by AND operator",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "activeIfAnd",
+      "path": "conf.activeIfAnd",
+      "placeholder": "activeIfAnd",
+      "type": "STRING"
+    },
+    {
+      "displayName": "activeIfBool",
+      "metadata": {
+        "condition::if::target": "flag",
+        "documentation::value": "active if based on string value",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "true"
+      },
+      "name": "activeIfBool",
+      "path": "conf.activeIfBool",
+      "placeholder": "activeIfBool",
+      "type": "STRING"
+    },
+    {
+      "displayName": "activeIfEnum",
+      "metadata": {
+        "condition::if::target": "constant",
+        "documentation::value": "active if based on enum value",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "THREE"
+      },
+      "name": "activeIfEnum",
+      "path": "conf.activeIfEnum",
+      "placeholder": "activeIfEnum",
+      "type": "STRING"
+    },
+    {
+      "displayName": "activeIfLength",
+      "metadata": {
+        "condition::if::target": "strLength",
+        "documentation::value": "active if based on value length",
+        "condition::if::evaluationStrategy": "LENGTH",
+        "condition::if::negate": "false",
+        "condition::if::value": "7"
+      },
+      "name": "activeIfLength",
+      "path": "conf.activeIfLength",
+      "placeholder": "activeIfLength",
+      "type": "STRING"
+    },
+    {
+      "displayName": "activeIfNegate",
+      "metadata": {
+        "condition::if::target": "strNegate",
+        "documentation::value": "active if based on negate value of string",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "true",
+        "condition::if::value": "value"
+      },
+      "name": "activeIfNegate",
+      "path": "conf.activeIfNegate",
+      "placeholder": "activeIfNegate",
+      "type": "STRING"
+    },
+    {
+      "displayName": "activeIfOr",
+      "metadata": {
+        "condition::ifs::operator": "OR",
+        "condition::if::value::0": "value",
+        "condition::if::value::1": "true",
+        "condition::if::target::0": "str",
+        "condition::if::target::1": "flag",
+        "documentation::value": "active if based on 2 values combined by OR operator",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "activeIfOr",
+      "path": "conf.activeIfOr",
+      "placeholder": "activeIfOr",
+      "type": "STRING"
+    },
+    {
+      "displayName": "activeIfProposable",
+      "metadata": {
+        "condition::if::target": "proposable",
+        "documentation::value": "active if based on proposable string value",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "Option3"
+      },
+      "name": "activeIfProposable",
+      "path": "conf.activeIfProposable",
+      "placeholder": "activeIfProposable",
+      "type": "STRING"
+    },
+    {
+      "displayName": "activeIfStr",
+      "metadata": {
+        "condition::if::target": "str",
+        "documentation::value": "active if based on string value",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "value"
+      },
+      "name": "activeIfStr",
+      "path": "conf.activeIfStr",
+      "placeholder": "activeIfStr",
+      "type": "STRING"
+    },
+    {
+      "displayName": "complexActiveIfStr",
+      "metadata": {
+        "ui::gridlayout::Main::value": "nestedString1,nestedString2",
+        "condition::if::target": "str",
+        "documentation::value": "complex configuration active if based on string value",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "value"
+      },
+      "name": "complexActiveIfStr",
+      "path": "conf.complexActiveIfStr",
+      "placeholder": "complexActiveIfStr",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "nestedString1",
+      "metadata": {
+        "documentation::value": "just string value"
+      },
+      "name": "nestedString1",
+      "path": "conf.complexActiveIfStr.nestedString1",
+      "placeholder": "nestedString1",
+      "type": "STRING"
+    },
+    {
+      "displayName": "nestedString2",
+      "metadata": {
+        "documentation::value": "just string value"
+      },
+      "name": "nestedString2",
+      "path": "conf.complexActiveIfStr.nestedString2",
+      "placeholder": "nestedString2",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "THREE",
+      "displayName": "constant",
+      "metadata": {
+        "documentation::value": "just an enum value"
+      },
+      "name": "constant",
+      "path": "conf.constant",
+      "placeholder": "constant",
+      "proposalDisplayNames": {
+        "ONE": "One",
+        "TWO": "Two",
+        "THREE": "Three"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "ONE",
+          "TWO",
+          "THREE"
+        ]
+      }
+    },
+    {
+      "displayName": "dataset",
+      "metadata": {
+        "ui::gridlayout::Advanced::value": "advancedCheck,advancedString|advancedActiveIf",
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "value",
+        "condition::if::value::1": "true",
+        "condition::if::target::0": "str",
+        "ui::gridlayout::Main::value": "datasetStr|datasetInt|datasetBool|datastore",
+        "condition::if::target::1": "flag",
+        "documentation::value": "check active if with multiple parent options",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "dataset",
+      "path": "conf.dataset",
+      "placeholder": "dataset",
+      "type": "OBJECT"
+    },
+    {
+      "defaultValue": "Talend",
+      "displayName": "advancedActiveIf",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "true",
+        "condition::if::value::1": "comp",
+        "condition::if::target::0": "advancedCheck",
+        "condition::if::target::1": "advancedString",
+        "documentation::value": "just string value",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "CONTAINS(lowercase=true)"
+      },
+      "name": "advancedActiveIf",
+      "path": "conf.dataset.advancedActiveIf",
+      "placeholder": "advancedActiveIf",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "advancedCheck",
+      "metadata": {
+        "documentation::value": "checkbox on advanced tab"
+      },
+      "name": "advancedCheck",
+      "path": "conf.dataset.advancedCheck",
+      "placeholder": "advancedCheck",
+      "type": "BOOLEAN"
+    },
+    {
+      "defaultValue": "",
+      "displayName": "advancedString",
+      "metadata": {
+        "documentation::value": "string on advanced tab"
+      },
+      "name": "advancedString",
+      "path": "conf.dataset.advancedString",
+      "placeholder": "advancedString",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "true",
+      "displayName": "datasetBool",
+      "metadata": {
+        "documentation::value": "just bool value"
+      },
+      "name": "datasetBool",
+      "path": "conf.dataset.datasetBool",
+      "placeholder": "datasetBool",
+      "type": "BOOLEAN"
+    },
+    {
+      "defaultValue": "42",
+      "displayName": "datasetInt",
+      "metadata": {
+        "documentation::value": "just int value"
+      },
+      "name": "datasetInt",
+      "path": "conf.dataset.datasetInt",
+      "placeholder": "datasetInt",
+      "type": "NUMBER"
+    },
+    {
+      "defaultValue": "Talend",
+      "displayName": "datasetStr",
+      "metadata": {
+        "documentation::value": "just string value"
+      },
+      "name": "datasetStr",
+      "path": "conf.dataset.datasetStr",
+      "placeholder": "datasetStr",
+      "type": "STRING"
+    },
+    {
+      "displayName": "datastore",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::2": "true",
+        "condition::if::target::2": "datasetBool",
+        "condition::if::value::0": "Talend",
+        "condition::if::value::1": "42",
+        "condition::if::target::0": "datasetStr",
+        "ui::gridlayout::Main::value": "datastoreStr|datastoreInt|datastoreBool|datastoreActiveIf",
+        "condition::if::target::1": "datasetInt",
+        "documentation::value": "check active if with multiple parent options",
+        "condition::if::evaluationStrategy::2": "DEFAULT",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT",
+        "condition::if::negate::2": "false",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false"
+      },
+      "name": "datastore",
+      "path": "conf.dataset.datastore",
+      "placeholder": "datastore",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "datastoreActiveIf",
+      "metadata": {
+        "condition::ifs::operator": "OR",
+        "condition::if::value::2": "false",
+        "condition::if::target::2": "datastoreBool",
+        "condition::if::value::0": "Talend",
+        "condition::if::value::1": "42",
+        "condition::if::target::0": "datastoreStr",
+        "condition::if::target::1": "datastoreInt",
+        "documentation::value": "check active if with multiple parent options",
+        "condition::if::evaluationStrategy::2": "DEFAULT",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT",
+        "condition::if::negate::2": "false",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false"
+      },
+      "name": "datastoreActiveIf",
+      "path": "conf.dataset.datastore.datastoreActiveIf",
+      "placeholder": "datastoreActiveIf",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "datastoreBool",
+      "metadata": {
+        "documentation::value": "just bool value"
+      },
+      "name": "datastoreBool",
+      "path": "conf.dataset.datastore.datastoreBool",
+      "placeholder": "datastoreBool",
+      "type": "BOOLEAN"
+    },
+    {
+      "defaultValue": "42",
+      "displayName": "datastoreInt",
+      "metadata": {
+        "documentation::value": "just int value"
+      },
+      "name": "datastoreInt",
+      "path": "conf.dataset.datastore.datastoreInt",
+      "placeholder": "datastoreInt",
+      "type": "NUMBER"
+    },
+    {
+      "defaultValue": "Talend",
+      "displayName": "datastoreStr",
+      "metadata": {
+        "documentation::value": "just string value"
+      },
+      "name": "datastoreStr",
+      "path": "conf.dataset.datastore.datastoreStr",
+      "placeholder": "datastoreStr",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "true",
+      "displayName": "flag",
+      "metadata": {
+        "documentation::value": "just a boolean value"
+      },
+      "name": "flag",
+      "path": "conf.flag",
+      "placeholder": "flag",
+      "type": "BOOLEAN"
+    },
+    {
+      "displayName": "proposable",
+      "metadata": {
+        "action::dynamic_values": "proposable",
+        "documentation::value": "proposable string option"
+      },
+      "name": "proposable",
+      "path": "conf.proposable",
+      "placeholder": "proposable",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "value",
+      "displayName": "str",
+      "metadata": {
+        "documentation::value": "just string value"
+      },
+      "name": "str",
+      "path": "conf.str",
+      "placeholder": "str",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "1234567",
+      "displayName": "strLength",
+      "metadata": {
+        "documentation::value": "just string value"
+      },
+      "name": "strLength",
+      "path": "conf.strLength",
+      "placeholder": "strLength",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "value",
+      "displayName": "strNegate",
+      "metadata": {
+        "documentation::value": "just string value"
+      },
+      "name": "strNegate",
+      "path": "conf.strNegate",
+      "placeholder": "strNegate",
+      "type": "STRING"
+    }
+  ],
+  "type": "input",
+  "version": 1
+}

@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -107,6 +108,29 @@ class UiSpecServiceTest {
         final UiSchema.Option option = trigger.getOptions().iterator().next();
         assertEquals("root.updatable_config", option.getPath());
         assertEquals("object", option.getType());
+    }
+
+    @Test
+    void conditionAnd() throws Exception {
+        final ComponentDetail node = load("condition-and.json", ComponentDetail.class);
+        final Ui payload = service.convert(node, "en", null).toCompletableFuture().get();
+        final UiSchema schema = payload
+                .getUiSchema()
+                .iterator()
+                .next()
+                .getItems()
+                .iterator()
+                .next()
+                .getItems()
+                .stream()
+                .filter(it -> "conf.activeIfAnd".equals(it.getKey()))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
+        final Map<String, Collection<Object>> condition = schema.getCondition();
+        final Collection<Object> and = condition.get("and");
+        and.forEach(it -> assertFalse(Collection.class.isInstance(it)));
+        final Map<String, Collection<Object>> firstCond = Map.class.cast(and.iterator().next());
+        assertEquals(asList(singletonMap("var", "conf.str"), "value"), firstCond.get("==="));
     }
 
     @Test

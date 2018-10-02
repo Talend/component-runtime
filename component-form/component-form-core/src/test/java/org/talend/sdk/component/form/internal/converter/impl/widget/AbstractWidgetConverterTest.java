@@ -114,7 +114,7 @@ class AbstractWidgetConverterTest {
                         put("condition::if::negate::1", "false");
                         put("condition::if::evaluationStrategy::1", "DEFAULT");
                     }
-                }, "{\"and\":[[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"===\":[{\"var\":\"other\"},\"Dummy\"]}]]}"),
+                }, "{\"and\":[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"===\":[{\"var\":\"other\"},\"Dummy\"]}]}"),
                 // multiple simple values
                 new AbstractMap.SimpleEntry<>(new LinkedHashMap<String, String>() {
 
@@ -124,7 +124,7 @@ class AbstractWidgetConverterTest {
                         put("condition::if::negate", "false");
                         put("condition::if::evaluationStrategy", "DEFAULT");
                     }
-                }, "{\"or\":[[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"===\":[{\"var\":\"foo\"},\"Dummy\"]}]]}"));
+                }, "{\"or\":[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"===\":[{\"var\":\"foo\"},\"Dummy\"]}]}"));
     }
 
     @ParameterizedTest
