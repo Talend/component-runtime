@@ -89,6 +89,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1096[TCOMP-1096^]: [dependency upgrade] xbean 4.10
 - link:https://jira.talendforge.org/browse/TCOMP-1097[TCOMP-1097^]: [dependency upgrade] Beam 2.7.0
 - link:https://jira.talendforge.org/browse/TCOMP-1099[TCOMP-1099^]: Upgrade web ui bundle to 1.0.0
+- link:https://jira.talendforge.org/browse/TCOMP-1101[TCOMP-1101^]: Add conditional rendering in the generated documentation
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard

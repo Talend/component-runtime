@@ -47,10 +47,9 @@ class DocumentationResourceTest {
         final DocumentationContent content = ws.read(DocumentationContent.class, "GET",
                 "/documentation/component/" + client.getJdbcId() + "?format=html", null);
         assertEquals("html", content.getType());
-        assertEquals(
-                "<h1 id=\"_test\">Test</h1>\n" + "<h2 id=\"_component\">Component</h2>\n"
-                        + "<div class=\"paragraph\">\n" + "<p>\n" + "Something\n" + "</p>\n" + "</div>\n",
-                content.getSource());
+        assertEquals("<h1>Test</h1>\n" + "<div class=\"sect1\">\n" + "<h2 id=\"_component\">Component</h2>\n"
+                + "<div class=\"sectionbody\">\n" + "<div class=\"paragraph\">\n" + "<p>Something</p>\n" + "</div>\n"
+                + "</div>\n" + "</div>", content.getSource());
     }
 
     @Test
@@ -74,10 +73,9 @@ class DocumentationResourceTest {
                 .request(APPLICATION_JSON_TYPE)
                 .get(DocumentationContent.class);
         assertEquals("html", content.getType());
-        assertEquals(
-                "<h1 id=\"_test\">Test</h1>\n" + "<h2 id=\"_component\">Component</h2>\n"
-                        + "<div class=\"paragraph\">\n" + "<p>\n" + "Something\n" + "</p>\n" + "</div>\n",
-                content.getSource());
+        assertEquals("<h1>Test</h1>\n" + "<div class=\"sect1\">\n" + "<h2 id=\"_component\">Component</h2>\n"
+                + "<div class=\"sectionbody\">\n" + "<div class=\"paragraph\">\n" + "<p>Something</p>\n" + "</div>\n"
+                + "</div>\n" + "</div>", content.getSource());
     }
 
     @Test

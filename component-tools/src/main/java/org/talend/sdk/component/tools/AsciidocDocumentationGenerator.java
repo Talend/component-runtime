@@ -15,14 +15,16 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
+import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,6 +37,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -44,9 +47,12 @@ import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.Constructors;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
+
+import lombok.AllArgsConstructor;
 
 public class AsciidocDocumentationGenerator extends BaseTask {
 
@@ -72,13 +78,14 @@ public class AsciidocDocumentationGenerator extends BaseTask {
 
     private final Log log;
 
+    private final AbsolutePathResolver resolver = new AbsolutePathResolver();
+
     private final ParameterModelService parameterModelService =
-            new ParameterModelService(
-                    singletonList(
-                            (ParameterExtensionEnricher) (parameterName, parameterType,
-                                    annotation) -> annotation.annotationType() == Documentation.class ? singletonMap(
-                                            "documentation", Documentation.class.cast(annotation).value())
-                                            : emptyMap())) {
+            new ParameterModelService(asList((ParameterExtensionEnricher) (parameterName, parameterType,
+                    annotation) -> annotation.annotationType() == Documentation.class
+                            ? singletonMap("documentation", Documentation.class.cast(annotation).value())
+                            : emptyMap(),
+                    new ConditionParameterEnricher())) {
 
             };
 
@@ -149,7 +156,7 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                         .map(aClass::getAnnotation)
                         .map(this::asComponent)
                         .findFirst()
-                        .get()
+                        .orElseThrow(NoSuchElementException::new)
                         .name()
                 + "\n\n"
                 + ofNullable(aClass.getAnnotation(Documentation.class))
@@ -159,7 +166,9 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                 + (parameterMetas.isEmpty() ? ""
                         : (levelPrefix + "= Configuration\n\n" + toAsciidocRows(parameterMetas, null)
                                 .sorted(comparing(line -> line.substring(1, line.indexOf('|', 1))))
-                                .collect(joining("\n", "|===\n|Path|Description|Default Value\n", "\n|===\n\n"))));
+                                .collect(joining("\n",
+                                        "[cols=\"e,d,m,a\",options=\"header\"]\n|===\n|Path|Description|Default Value|Enabled If\n",
+                                        "\n|===\n\n"))));
     }
 
     private Stream<String> toAsciidocRows(final Collection<ParameterMeta> parameterMetas, final Object parentInstance) {
@@ -172,7 +181,71 @@ public class AsciidocDocumentationGenerator extends BaseTask {
 
     private String toAsciidoctor(final ParameterMeta p, final Object instance) {
         return "|" + p.getPath() + '|' + findDocumentation(p) + '|'
-                + ofNullable(defaultValueInspector.findDefault(instance, p)).orElse("-");
+                + ofNullable(defaultValueInspector.findDefault(instance, p)).orElse("-") + '|'
+                + renderConditions(p.getPath(), p.getMetadata());
+    }
+
+    private String renderConditions(final String path, final Map<String, String> metadata) {
+        final String globalOperator = metadata.getOrDefault("tcomp::condition::ifs::operator", "AND");
+        final Collection<Condition> conditionEntries = metadata
+                .keySet()
+                .stream()
+                .filter(it -> it.startsWith("tcomp::condition::if::target"))
+                .map(it -> new Condition(metadata.get(it), metadata.get(it.replace("::target", "::value")),
+                        Boolean.parseBoolean(metadata.get(it.replace("::target", "::negate"))),
+                        metadata.get(it.replace("::target", "::evaluationStrategy"))))
+                .collect(toList());
+        switch (conditionEntries.size()) {
+        case 0:
+            return "Always enabled";
+        case 1:
+            return renderCondition(path, conditionEntries.iterator().next());
+        default:
+            final String conditions =
+                    conditionEntries.stream().map(c -> renderCondition(path, c)).map(c -> "- " + c).collect(
+                            joining("\n", "\n", "\n"));
+            switch (globalOperator.toUpperCase(ROOT)) {
+            case "OR":
+                return "One of these conditions is meet:\n" + conditions;
+            case "AND":
+            default:
+                return "All of the following conditions are met:\n" + conditions;
+            }
+        }
+    }
+
+    private String renderCondition(final String paramPath, final Condition condition) {
+        final String path = resolver.doResolveProperty(paramPath, condition.target);
+        final String values = Stream.of(condition.value.split(",")).map(v -> '`' + v + '`').collect(joining(" or "));
+        switch (ofNullable(condition.strategy).orElse("default").toLowerCase(ROOT)) {
+        case "length":
+            if (condition.negate) {
+                if (values.equals("`0`")) {
+                    return '`' + path + "` is not empty";
+                }
+                return "the length of `" + path + "` is not " + values;
+            }
+            if (values.equals("`0`")) {
+                return '`' + path + "` is empty";
+            }
+            return "the length of `" + path + "` is " + values;
+        case "contains":
+            if (condition.negate) {
+                return '`' + path + "` does not contain " + values;
+            }
+            return '`' + path + "` contains " + values;
+        case "contains(lowercase=true)":
+            if (condition.negate) {
+                return "the lowercase value of `" + path + "` does not contain " + values;
+            }
+            return "the lowercase value of `" + path + "` contains " + values;
+        case "default":
+        default:
+            if (condition.negate) {
+                return '`' + path + "` is not equal to " + values;
+            }
+            return '`' + path + "` is equal to " + values;
+        }
     }
 
     private String findDocumentation(final ParameterMeta p) {
@@ -197,5 +270,59 @@ public class AsciidocDocumentationGenerator extends BaseTask {
             return inline;
         }
         return p.getName() + " configuration";
+    }
+
+    @AllArgsConstructor
+    private static class Condition {
+
+        private final String target;
+
+        private final String value;
+
+        private final boolean negate;
+
+        private final String strategy;
+    }
+
+    private static class AbsolutePathResolver {
+
+        // ensure it is aligned with org.talend.sdk.component.studio.model.parameter.SettingsCreator.computeTargetPath()
+        // and org.talend.sdk.component.form.internal.converter.impl.widget.path.AbsolutePathResolver
+        public String resolveProperty(final String propPath, final String paramRef) {
+            return doResolveProperty(propPath, normalizeParamRef(paramRef));
+        }
+
+        private String normalizeParamRef(final String paramRef) {
+            return (!paramRef.contains(".") ? "../" : "") + paramRef;
+        }
+
+        private String doResolveProperty(final String propPath, final String paramRef) {
+            if (".".equals(paramRef)) {
+                return propPath;
+            }
+            if (paramRef.startsWith("..")) {
+                String current = propPath;
+                String ref = paramRef;
+                while (ref.startsWith("..")) {
+                    int lastDot = current.lastIndexOf('.');
+                    if (lastDot < 0) {
+                        lastDot = 0;
+                    }
+                    current = current.substring(0, lastDot);
+                    ref = ref.substring("..".length(), ref.length());
+                    if (ref.startsWith("/")) {
+                        ref = ref.substring(1);
+                    }
+                    if (current.isEmpty()) {
+                        break;
+                    }
+                }
+                return Stream.of(current, ref.replace('/', '.')).filter(it -> !it.isEmpty()).collect(joining("."));
+            }
+            if (paramRef.startsWith(".") || paramRef.startsWith("./")) {
+                return propPath + '.' + paramRef.replaceFirst("\\./?", "").replace('/', '.');
+            }
+            return paramRef;
+        }
     }
 }

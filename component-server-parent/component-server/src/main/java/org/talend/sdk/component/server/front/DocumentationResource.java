@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -80,7 +81,7 @@ public class DocumentationResource {
     private ComponentManager manager;
 
     @Inject
-    private AsciidoctorService adoc;
+    private Instance<Object> instance;
 
     @GET
     @Path("component/{id}")
@@ -155,7 +156,8 @@ public class DocumentationResource {
                         switch (format) {
                         case "html":
                         case "html5":
-                            return adoc.toHtml(value);
+                            // will fail by default since we don't provide it, this is deprecated anyway
+                            return instance.select(AsciidoctorService.class).get().toHtml(value);
                         case "asciidoc":
                         case "adoc":
                         default:
