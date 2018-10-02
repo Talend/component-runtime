@@ -227,8 +227,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     // client
     private boolean isBuiltInAction(final String key) {
         return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
-                || key.equals("action::validation") || key.equals("action::suggestions")
-                || key.equals("action::update");
+                || key.equals("action::validation") || key.equals("action::suggestions") || key.equals("action::update")
+                || key.equals("action::schema");
     }
 
     protected Map<String, Collection<Object>> createCondition(final PropertyContext<?> ctx) {
