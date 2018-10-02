@@ -115,9 +115,11 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
                     .map(o -> {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
-                        final String key = parameterPrefix + o.getPath().substring(propertiesPrefix.length());
+                        final String path = o.getPath();
+                        final String key = parameterPrefix + path.substring(propertiesPrefix.length());
                         parameter.setKey(key.replace("[]", "")); // not a lodash path otherwise
-                        parameter.setPath(o.getPath());
+                        parameter
+                                .setPath(path.endsWith("[]") ? path.substring(0, path.length() - "[]".length()) : path);
                         return parameter;
                     })
                     .collect(toList());
