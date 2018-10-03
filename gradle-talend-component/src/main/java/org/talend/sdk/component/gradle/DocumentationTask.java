@@ -18,6 +18,9 @@ package org.talend.sdk.component.gradle;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Locale;
 import java.util.Map;
 
 import org.gradle.api.tasks.TaskAction;
@@ -46,20 +49,32 @@ public class DocumentationTask extends TaCoKitTask {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
         final Class<?> impl = tccl.loadClass("org.talend.sdk.component.tools.AsciidocDocumentationGenerator");
-        final Runnable runnable = Runnable.class.cast(impl
-                .getConstructor(File[].class, File.class, String.class, int.class, Map.class, Map.class, File.class,
-                        String.class, Object.class, File.class, String.class)
-                .newInstance(findClasses().toArray(File[]::new),
-                        ofNullable(extension.getDocumentationOutput())
-                                .orElseGet(() -> new File(getProject().getBuildDir(),
-                                        "resources/main/TALEND-INF/documentation.adoc")),
-                        extension.getDocumentationTitle() == null ? getProject().getName()
-                                : extension.getDocumentationTitle(),
-                        extension.getDocumentationLevel(), extension.getDocumentationFormats(),
-                        extension.getDocumentationAttributes(), extension.getDocumentationTemplateDir(),
-                        extension.getDocumentationTemplateEngine(), getLogger(),
-                        new File(getProject().getBuildDir(), "talend-component/workdir"),
-                        getProject().getVersion().toString()));
-        runnable.run();
+        final Constructor<?> constructor = impl.getConstructor(File[].class, File.class, String.class, int.class,
+                Map.class, Map.class, File.class, String.class, Object.class, File.class, String.class, Locale.class);
+        final File[] classes = findClasses().toArray(File[]::new);
+        extension.getDocumentationLocales().forEach(locale -> {
+            try {
+                final String language = locale.toString();
+                final File output = ofNullable(extension.getDocumentationOutput()).orElseGet(() -> {
+                    final String suffix = language.isEmpty() ? "" : ("_" + language);
+                    return new File(getProject().getBuildDir(),
+                            "resources/main/TALEND-INF/documentation" + suffix + ".adoc");
+                });
+                Runnable.class
+                        .cast(constructor.newInstance(classes, output,
+                                extension.getDocumentationTitle() == null ? getProject().getName()
+                                        : extension.getDocumentationTitle(),
+                                extension.getDocumentationLevel(), extension.getDocumentationFormats(),
+                                extension.getDocumentationAttributes(), extension.getDocumentationTemplateDir(),
+                                extension.getDocumentationTemplateEngine(), getLogger(),
+                                new File(getProject().getBuildDir(), "talend-component/workdir"),
+                                getProject().getVersion().toString(), locale))
+                        .run();
+            } catch (final InstantiationException | IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            } catch (final InvocationTargetException e) {
+                throw new IllegalStateException(e.getTargetException());
+            }
+        });
     }
 }

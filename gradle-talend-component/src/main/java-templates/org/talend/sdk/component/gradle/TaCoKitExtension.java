@@ -15,8 +15,13 @@
  */
 package org.talend.sdk.component.gradle;
 
+import static java.util.Arrays.asList;
+import static java.util.Locale.ENGLISH;
+import static java.util.Locale.ROOT;
+
 import java.io.File;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 
 import lombok.Data;
@@ -69,6 +74,8 @@ public class TaCoKitExtension {
     private String documentationTitle;
 
     private String documentationTemplateEngine;
+
+    private Collection<Locale> documentationLocales = asList(ROOT, ENGLISH);
 
     //
     // validation

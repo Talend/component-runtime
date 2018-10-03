@@ -36,6 +36,7 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
@@ -43,6 +44,7 @@ import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.Constructors;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
@@ -78,6 +80,8 @@ public class AsciidocDocumentationGenerator extends BaseTask {
 
     private final Log log;
 
+    private final Locale locale;
+
     private final AbsolutePathResolver resolver = new AbsolutePathResolver();
 
     private final ParameterModelService parameterModelService =
@@ -92,9 +96,11 @@ public class AsciidocDocumentationGenerator extends BaseTask {
     // CHECKSTYLE:OFF - used by reflection so better to not create a wrapper
     public AsciidocDocumentationGenerator(final File[] classes, final File output, final String title, final int level,
             final Map<String, String> formats, final Map<String, String> attributes, final File templateDir,
-            final String templateEngine, final Object log, final File workDir, final String version) {
+            final String templateEngine, final Object log, final File workDir, final String version,
+            final Locale locale) {
         // CHECKSTYLE:ON
         super(classes);
+        this.locale = locale;
         this.title = title;
         this.output = output;
         this.formats = formats;
@@ -164,25 +170,31 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                         .map(v -> v + "\n\n")
                         .orElse("")
                 + (parameterMetas.isEmpty() ? ""
-                        : (levelPrefix + "= Configuration\n\n" + toAsciidocRows(parameterMetas, null)
-                                .sorted(comparing(line -> line.substring(1, line.indexOf('|', 1))))
-                                .collect(joining("\n",
-                                        "[cols=\"e,d,m,a\",options=\"header\"]\n|===\n|Path|Description|Default Value|Enabled If\n",
+                        : (levelPrefix + "= Configuration\n\n"
+                                + toAsciidocRows(sort(parameterMetas), null, null).collect(joining("\n",
+                                        "[cols=\"d,d,m,a,e\",options=\"header\"]\n|===\n|Display Name|Description|Default Value|Enabled If|Configuration Path\n",
                                         "\n|===\n\n"))));
     }
 
-    private Stream<String> toAsciidocRows(final Collection<ParameterMeta> parameterMetas, final Object parentInstance) {
+    private Collection<ParameterMeta> sort(final Collection<ParameterMeta> parameterMetas) {
+        return parameterMetas.stream().sorted(comparing(ParameterMeta::getPath)).collect(toList());
+    }
+
+    private Stream<String> toAsciidocRows(final Collection<ParameterMeta> parameterMetas, final Object parentInstance,
+            final ParameterBundle parentBundle) {
         return parameterMetas.stream().flatMap(p -> {
             final Object instance = defaultValueInspector.createDemoInstance(parentInstance, p);
-            return Stream.concat(Stream.of(toAsciidoctor(p, instance)),
-                    toAsciidocRows(p.getNestedParameters(), instance));
+            return Stream.concat(Stream.of(toAsciidoctor(p, instance, parentBundle)),
+                    toAsciidocRows(p.getNestedParameters(), instance, findBundle(p)));
         });
     }
 
-    private String toAsciidoctor(final ParameterMeta p, final Object instance) {
-        return "|" + p.getPath() + '|' + findDocumentation(p) + '|'
+    private String toAsciidoctor(final ParameterMeta p, final Object instance, final ParameterBundle parent) {
+        final ParameterBundle bundle = findBundle(p);
+        return "|" + bundle.displayName(parent).orElse(p.getName()) + '|'
+                + bundle.documentation(parent).orElseGet(() -> findDocumentation(p)) + '|'
                 + ofNullable(defaultValueInspector.findDefault(instance, p)).orElse("-") + '|'
-                + renderConditions(p.getPath(), p.getMetadata());
+                + renderConditions(p.getPath(), p.getMetadata()) + '|' + p.getPath();
     }
 
     private String renderConditions(final String path, final Map<String, String> metadata) {
@@ -270,6 +282,10 @@ public class AsciidocDocumentationGenerator extends BaseTask {
             return inline;
         }
         return p.getName() + " configuration";
+    }
+
+    private ParameterBundle findBundle(final ParameterMeta p) {
+        return p.findBundle(Thread.currentThread().getContextClassLoader(), locale);
     }
 
     @AllArgsConstructor
