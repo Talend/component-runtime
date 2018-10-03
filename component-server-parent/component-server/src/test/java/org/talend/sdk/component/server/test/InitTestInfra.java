@@ -193,7 +193,9 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out.closeEntry();
 
                     out.putNextEntry(new JarEntry("TALEND-INF/documentation.adoc"));
-                    out.write("= Test\n\n== Component\n\nSomething".getBytes(StandardCharsets.UTF_8));
+                    out.write(
+                            "== input\n\n=== Configuration\n\nSomething1\n\n== output\n\n=== Configuration\n\nSomething else"
+                                    .getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
                 } catch (final IOException e) {
                     fail(e.getMessage());
