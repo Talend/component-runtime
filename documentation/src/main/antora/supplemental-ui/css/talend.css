@@ -13,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+/* add horizontal scroll on some elements*/
+
 .contributors {
   display: flex;
   flex-direction: row;
@@ -717,4 +719,74 @@ ul.tree > li > a {
 }
 .talend-filterlist li:hover {
   background-color: #eee;
+}
+
+@media (min-width: 1024px) {
+  .article-content p {
+    padding-right: 20%;
+  }
+}
+
+/** mobile */
+@media (max-width: 768px) {
+  h1 { font-size: 25px;}
+  h2 { font-size: 24px;}
+  h3 { font-size: 22px;}
+  .global-header > .navbar > .navbar-nav {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0 5px;
+  }
+  .navbar-nav > .dropdown {
+    display: block;
+  }
+  #navbar > ul.nav.navbar-nav.navbar-right > li:before {
+    content: none;
+  }
+  .navbar-nav > .dropdown > .dropdown-menu {
+    background-color: white;
+  }
+  /* remove grid from the content */
+  article.doc,
+  .doc > .row,
+  .doc > .row > .row {
+    margin: 0;
+  }
+  article.doc {
+    padding: 0;
+  }
+  .doc .col-sm-9 {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  /* handle large content */
+  dl,
+  code {
+    word-wrap: break-word;
+  }
+  code.language-xml,
+  code.json,
+  code.language-java {
+    word-wrap: normal;
+    overflow-x: scroll;
+    display: block;
+    white-space: pre;
+  }
+
+  .toolbar,
+  table {
+    display: block;
+    overflow-x: scroll;
+  }
+
+  /* remove some content */
+  a.top,
+  .navbar-versions,
+  .article-side-panel,
+  #header-talend-logo,
+  #header-kit-logo,
+  .admonitionblock .icon > .fa {
+    display: none;
+  }
 }

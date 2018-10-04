@@ -2,6 +2,7 @@
   "name": "documentation",
   "version": "${project.version}",
   "private": true,
+  "engines" : { "node" : ">=8 < 9" },
   "dependencies": {
     "js-search": "1.4.2",
     "@antora/cli": "${antora.version}",
