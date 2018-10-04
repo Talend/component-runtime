@@ -15,23 +15,27 @@
  */
 package org.talend.sdk.component.classloader;
 
+import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.UUID;
+import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -150,6 +154,26 @@ class ConfigurableClassLoaderTest {
             { // missing
                 assertNull(loader.getResource("a.missing"));
                 assertNull(loader.getResourceAsStream("b.missing"));
+            }
+        }
+    }
+
+    @Test
+    void getResourceAsStreamChildFirst(final TemporaryFolder temporaryFolder) throws IOException {
+        final File jar = temporaryFolder.newFile("getResourceAsStreamChildFirst.jar");
+        try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(jar))) {
+            outputStream.putNextEntry(new JarEntry("found.in.child.and.parent"));
+            outputStream.write("child".getBytes(StandardCharsets.UTF_8));
+            outputStream.closeEntry();
+        }
+        try (final URLClassLoader parent =
+                new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader("",
+                        new URL[] { jar.toURI().toURL() }, parent, name -> true, name -> true, new String[0])) {
+
+            try (final BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(loader.getResourceAsStream("found.in.child.and.parent")))) {
+                assertEquals("child", reader.lines().collect(joining()).trim());
             }
         }
     }

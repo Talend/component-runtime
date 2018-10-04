@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -42,7 +43,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Predicate;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
@@ -78,6 +81,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private final Map<String, Collection<Resource>> resources = new HashMap<>();
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
+
+    private final WeakHashMap<Closeable, Void> closeables = new WeakHashMap<>();
 
     private volatile URLClassLoader temporaryCopy;
 
@@ -152,9 +157,18 @@ public class ConfigurableClassLoader extends URLClassLoader {
             try {
                 temporaryCopy.close();
             } catch (final RuntimeException re) {
-                super.close();
-                return;
+                log.warn(re.getMessage(), re);
             }
+        }
+        synchronized (closeables) {
+            closeables.keySet().forEach(c -> {
+                try {
+                    c.close();
+                } catch (final IOException ex) {
+                    log.warn(ex.getMessage(), ex);
+                }
+            });
+            closeables.clear();
         }
         super.close();
     }
@@ -231,11 +245,38 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     @Override
     public InputStream getResourceAsStream(final String name) {
-        return ofNullable(super.getResourceAsStream(name)).orElseGet(() -> ofNullable(resources.get(name))
+        return ofNullable(doGetResourceAsStream(name)).orElseGet(() -> ofNullable(resources.get(name))
                 .filter(s -> s.size() > 0)
                 .map(s -> s.iterator().next().resource)
                 .map(ByteArrayInputStream::new)
                 .orElse(null));
+    }
+
+    private InputStream doGetResourceAsStream(final String name) {
+        final URL resource = super.findResource(name);
+        try {
+            if (resource == null) {
+                return super.getResourceAsStream(name);
+            }
+            final URLConnection urlc = resource.openConnection();
+            final InputStream is = urlc.getInputStream();
+            if (JarURLConnection.class.isInstance(urlc)) {
+                final JarURLConnection juc = JarURLConnection.class.cast(urlc);
+                final JarFile jar = juc.getJarFile();
+                synchronized (closeables) {
+                    if (!closeables.containsKey(jar)) {
+                        closeables.put(jar, null);
+                    }
+                }
+            } else if (urlc.getClass().getName().equals("sun.net.www.protocol.file.FileURLConnection")) {
+                synchronized (closeables) {
+                    closeables.put(is, null);
+                }
+            }
+            return is;
+        } catch (final IOException e) {
+            return null;
+        }
     }
 
     @Override
