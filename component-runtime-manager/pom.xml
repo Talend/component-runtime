@@ -57,6 +57,11 @@
       <artifactId>xbean-reflect</artifactId>
       <version>${xbean.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-asm7-shaded</artifactId>
+      <version>${xbean.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.johnzon</groupId>

@@ -17,12 +17,12 @@ package org.talend.sdk.component.runtime.beam.transformer;
 
 import static java.lang.Integer.MIN_VALUE;
 import static java.util.Arrays.asList;
-import static org.apache.xbean.asm6.Opcodes.ALOAD;
-import static org.apache.xbean.asm6.Opcodes.ARETURN;
-import static org.apache.xbean.asm6.Opcodes.ASM6;
-import static org.apache.xbean.asm6.Opcodes.DUP;
-import static org.apache.xbean.asm6.Opcodes.INVOKESTATIC;
-import static org.apache.xbean.asm6.Opcodes.NEW;
+import static org.apache.xbean.asm7.Opcodes.ALOAD;
+import static org.apache.xbean.asm7.Opcodes.ARETURN;
+import static org.apache.xbean.asm7.Opcodes.ASM7;
+import static org.apache.xbean.asm7.Opcodes.DUP;
+import static org.apache.xbean.asm7.Opcodes.INVOKESTATIC;
+import static org.apache.xbean.asm7.Opcodes.NEW;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,13 +38,13 @@ import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.Collection;
 
-import org.apache.xbean.asm6.ClassReader;
-import org.apache.xbean.asm6.ClassVisitor;
-import org.apache.xbean.asm6.ClassWriter;
-import org.apache.xbean.asm6.Label;
-import org.apache.xbean.asm6.MethodVisitor;
-import org.apache.xbean.asm6.Type;
-import org.apache.xbean.asm6.commons.AdviceAdapter;
+import org.apache.xbean.asm7.ClassReader;
+import org.apache.xbean.asm7.ClassVisitor;
+import org.apache.xbean.asm7.ClassWriter;
+import org.apache.xbean.asm7.Label;
+import org.apache.xbean.asm7.MethodVisitor;
+import org.apache.xbean.asm7.Type;
+import org.apache.xbean.asm7.commons.AdviceAdapter;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
@@ -219,11 +219,11 @@ public class BeamIOTransformer implements ClassFileTransformer {
 
         private static final Type[] RESET_TCCL_ARGS = new Type[] { CLASSLOADER_TYPE };
 
-        private static final org.apache.xbean.asm6.commons.Method SET_METHOD =
-                new org.apache.xbean.asm6.commons.Method("setPluginTccl", CLASSLOADER_TYPE, SET_TCCL_ARGS);
+        private static final org.apache.xbean.asm7.commons.Method SET_METHOD =
+                new org.apache.xbean.asm7.commons.Method("setPluginTccl", CLASSLOADER_TYPE, SET_TCCL_ARGS);
 
-        private static final org.apache.xbean.asm6.commons.Method RESET_METHOD =
-                new org.apache.xbean.asm6.commons.Method("resetTccl", Type.VOID_TYPE, RESET_TCCL_ARGS);
+        private static final org.apache.xbean.asm7.commons.Method RESET_METHOD =
+                new org.apache.xbean.asm7.commons.Method("resetTccl", Type.VOID_TYPE, RESET_TCCL_ARGS);
 
         private final String plugin;
 
@@ -237,7 +237,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
 
         private TCCLAdviceAdapter(final MethodVisitor mv, final int access, final String name, final String desc,
                 final String plugin) {
-            super(ASM6, mv, access, name, desc);
+            super(ASM7, mv, access, name, desc);
             this.plugin = plugin;
             this.desc = desc;
         }
@@ -296,7 +296,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
         private final String plugin;
 
         private ComponentClassVisitor(final ComponentClassWriter cv, final String plugin) {
-            super(ASM6, cv);
+            super(ASM7, cv);
             this.plugin = plugin;
             this.writer = cv;
         }

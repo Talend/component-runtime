@@ -270,6 +270,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("joda-time-");
             add("johnzon-");
             add("jolokia-");
+            add("joni-");
             add("jopt-simple");
             add("jruby-");
             add("json4s-");
@@ -315,7 +316,8 @@ public class KnownJarsFilter implements Predicate<String> {
             add("mesos-");
             add("metadata-extractor-");
             add("metrics-");
-            add("microprofile-config-api-");
+            add("microprofile-config-api");
+            add("microprofile-openapi-api");
             add("microprofile-opentracing-api");
             add("mimepull-");
             add("mina-");
@@ -347,12 +349,14 @@ public class KnownJarsFilter implements Predicate<String> {
             add("opentest4j-");
             add("openwebbeans-");
             add("openws-");
+            add("options");
             add("ops4j-");
             add("org.apache.aries");
             add("org.apache.commons");
             add("org.apache.log4j");
             add("org.eclipse.");
             add("org.junit.");
+            add("org.osgi.annotation.versioning");
             add("org.osgi.core-");
             add("org.osgi.enterprise");
             add("org.talend");
