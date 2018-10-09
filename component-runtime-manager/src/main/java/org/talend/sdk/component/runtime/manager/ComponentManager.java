@@ -100,6 +100,7 @@ import org.apache.xbean.finder.archive.FilteredArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -294,9 +295,10 @@ public class ComponentManager implements AutoCloseable {
 
         logInfoLevelMapping = findLogInfoLevel();
 
+        final PropertyEditorRegistry registry = new PropertyEditorRegistry();
         localConfigurations = createRawLocalConfigurations();
-        parameterModelService = new ParameterModelService();
-        reflections = new ReflectionService(parameterModelService);
+        parameterModelService = new ParameterModelService(registry);
+        reflections = new ReflectionService(parameterModelService, registry);
         migrationHandlerFactory = new MigrationHandlerFactory(reflections);
 
         final Predicate<String> isContainerClass = name -> isContainerClass(classesFilter, name);
@@ -1520,14 +1522,19 @@ public class ComponentManager implements AutoCloseable {
             if (Stream.of(type.getMethods()).anyMatch(p -> p.isAnnotationPresent(AfterGroup.class))) {
                 final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root);
                 final ParameterMeta maxBatchSize = paramBuilder.newBulkParameter();
-                root.getNestedParameters().add(maxBatchSize);
-                if (!root.getMetadata().containsKey(paramBuilder.getLayoutType())) {
-                    root.getMetadata().put(paramBuilder.getLayoutType(),
-                            paramBuilder.getLayoutType().contains("gridlayout") ? maxBatchSize.getName() : "true");
-                } else if (paramBuilder.getLayoutType().contains("gridlayout")) {
-                    final String oldLayout = root.getMetadata().get(paramBuilder.getLayoutType());
-                    root.getMetadata().put(paramBuilder.getLayoutType(), maxBatchSize.getName() + "|" + oldLayout);
+                final String layoutType = paramBuilder.getLayoutType();
+                if (layoutType == null) {
+                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxBatchSize.getName());
+                    root.getMetadata().put("tcomp::ui::gridlayout::Main::value",
+                            root.getNestedParameters().stream().map(ParameterMeta::getName).collect(joining("|")));
+                } else if (!root.getMetadata().containsKey(layoutType)) {
+                    root.getMetadata().put(layoutType,
+                            layoutType.contains("gridlayout") ? maxBatchSize.getName() : "true");
+                } else if (layoutType.contains("gridlayout")) {
+                    final String oldLayout = root.getMetadata().get(layoutType);
+                    root.getMetadata().put(layoutType, maxBatchSize.getName() + "|" + oldLayout);
                 }
+                root.getNestedParameters().add(maxBatchSize);
             }
         }
 
