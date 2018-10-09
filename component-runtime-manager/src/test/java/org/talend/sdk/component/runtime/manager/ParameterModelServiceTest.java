@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
@@ -32,7 +33,7 @@ import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
 class ParameterModelServiceTest {
 
-    private final ParameterModelService service = new ParameterModelService();
+    private final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
 
     @Test
     void primitive() throws NoSuchMethodException {

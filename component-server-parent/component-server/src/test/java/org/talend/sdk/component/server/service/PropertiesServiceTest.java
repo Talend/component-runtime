@@ -33,6 +33,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -60,7 +61,7 @@ class PropertiesServiceTest {
 
     @Test
     void parameterIndexMeta() throws NoSuchMethodException {
-        final List<ParameterMeta> params = new ParameterModelService().buildParameterMetas(
+        final List<ParameterMeta> params = new ParameterModelService(new PropertyEditorRegistry()).buildParameterMetas(
                 getClass().getDeclaredMethod("multipleParams", String.class, BoolWrapper.class, String.class), null,
                 new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         final List<SimplePropertyDefinition> props = propertiesService
@@ -81,7 +82,7 @@ class PropertiesServiceTest {
         final List<SimplePropertyDefinition> props =
                 propertiesService
                         .buildProperties(
-                                new ParameterModelService().buildParameterMetas(
+                                new ParameterModelService(new PropertyEditorRegistry()).buildParameterMetas(
                                         getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null,
                                         new BaseParameterEnricher.Context(
                                                 new LocalConfigurationService(emptyList(), "tools"))),

@@ -45,6 +45,7 @@ import org.apache.xbean.asm7.ClassReader;
 import org.apache.xbean.asm7.ClassWriter;
 import org.apache.xbean.asm7.commons.ClassRemapper;
 import org.apache.xbean.asm7.commons.Remapper;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.container.Container;
@@ -87,6 +88,7 @@ class RepositoryModelBuilderTest {
 
     @Test
     void notRootConfig() {
+        final PropertyEditorRegistry registry = new PropertyEditorRegistry();
         final RepositoryModel model = new RepositoryModelBuilder().create(new ComponentManager.AllServices(emptyMap()),
                 singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test") {
 
@@ -107,7 +109,7 @@ class RepositoryModelBuilderTest {
                                 PartitionMapper1.class, singletonList(wrapper), m -> null, (a, b) -> null, true) {
                         });
                     }
-                }), new MigrationHandlerFactory(new ReflectionService(new ParameterModelService())));
+                }), new MigrationHandlerFactory(new ReflectionService(new ParameterModelService(registry), registry)));
         final List<Config> configs =
                 model.getFamilies().stream().flatMap(f -> f.getConfigs().stream()).collect(toList());
         assertEquals(1, configs.size());

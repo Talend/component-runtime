@@ -111,6 +111,12 @@ class MaxBatchSizeParamTest {
                                 assertEquals("$maxBatchSize|config",
                                         parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
                                 break;
+                            case "BulkProcessorWithoutLayout":
+                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
+                                assertEquals("config", parent.getMetadata().get("tcomp::ui::gridlayout::Main::value"));
+                                assertEquals("$maxBatchSize",
+                                        parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
+                                break;
                             }
                         }
                     });

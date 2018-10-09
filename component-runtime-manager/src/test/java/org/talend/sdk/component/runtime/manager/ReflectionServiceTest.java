@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 
 import javax.json.bind.JsonbBuilder;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Max;
@@ -68,9 +69,10 @@ import lombok.Data;
 
 class ReflectionServiceTest {
 
-    private final ParameterModelService parameterModelService = new ParameterModelService();
+    private final ParameterModelService parameterModelService = new ParameterModelService(new PropertyEditorRegistry());
 
-    private final ReflectionService reflectionService = new ReflectionService(parameterModelService);
+    private final ReflectionService reflectionService =
+            new ReflectionService(parameterModelService, new PropertyEditorRegistry());
 
     @Test
     void configurationFromLocalConf() throws NoSuchMethodException {
@@ -384,9 +386,11 @@ class ReflectionServiceTest {
     @Test
     void tables() throws NoSuchMethodException {
         final Method factory = TableOwner.class.getMethod("factory", TableOwner.class);
+        final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
         final Object[] tests =
-                new ReflectionService(new ParameterModelService()).parameterFactory(factory, emptyMap(), null).apply(
-                        new HashMap<String, String>() {
+                new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry)
+                        .parameterFactory(factory, emptyMap(), null)
+                        .apply(new HashMap<String, String>() {
 
                             {
                                 put("root.table[0].value1", "test1");

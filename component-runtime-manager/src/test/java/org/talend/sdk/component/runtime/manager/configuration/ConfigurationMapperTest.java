@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -222,6 +223,10 @@ class ConfigurationMapperTest {
     }
 
     private static class SimpleParameterModelService extends ParameterModelService {
+
+        public SimpleParameterModelService() {
+            super(new PropertyEditorRegistry());
+        }
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,
                 final Annotation[] annotations, final Collection<String> i18nPackages) {

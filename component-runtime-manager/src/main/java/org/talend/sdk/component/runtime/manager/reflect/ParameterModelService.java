@@ -40,6 +40,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
@@ -55,15 +56,19 @@ public class ParameterModelService {
 
     private final Collection<ParameterExtensionEnricher> enrichers;
 
-    protected ParameterModelService(final Collection<ParameterExtensionEnricher> enrichers) {
+    private final PropertyEditorRegistry registry;
+
+    protected ParameterModelService(final Collection<ParameterExtensionEnricher> enrichers,
+            final PropertyEditorRegistry registry) {
         this.enrichers = enrichers;
+        this.registry = registry;
     }
 
-    public ParameterModelService() {
+    public ParameterModelService(final PropertyEditorRegistry registry) {
         this(StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(
                         ServiceLoader.load(ParameterExtensionEnricher.class).iterator(), Spliterator.IMMUTABLE), false)
-                .collect(toList()));
+                .collect(toList()), registry);
     }
 
     public boolean isService(final Parameter parameter) {
@@ -318,7 +323,7 @@ public class ParameterModelService {
             }
             throw new IllegalArgumentException("Unsupported type: " + pt);
         }
-        if (StringCompatibleTypes.isKnown(type)) { // flatten the config as a string
+        if (StringCompatibleTypes.isKnown(type, registry)) { // flatten the config as a string
             return ParameterMeta.Type.STRING;
         }
         return ParameterMeta.Type.OBJECT;

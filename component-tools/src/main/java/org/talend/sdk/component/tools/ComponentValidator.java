@@ -62,6 +62,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -105,7 +106,7 @@ public class ComponentValidator extends BaseTask {
 
     private final Log log;
 
-    private final ParameterModelService parameterModelService = new ParameterModelService();
+    private final ParameterModelService parameterModelService = new ParameterModelService(new PropertyEditorRegistry());
 
     public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         super(classes);

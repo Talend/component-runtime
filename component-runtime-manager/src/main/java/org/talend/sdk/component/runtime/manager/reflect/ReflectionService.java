@@ -57,7 +57,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.apache.xbean.propertyeditor.PropertyEditors;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
 import org.talend.sdk.component.api.service.configuration.Configuration;
@@ -71,6 +71,8 @@ import lombok.RequiredArgsConstructor;
 public class ReflectionService {
 
     private final ParameterModelService parameterModelService;
+
+    private final PropertyEditorRegistry propertyEditorRegistry;
 
     // note: we use xbean for now but we can need to add some caching inside if we
     // abuse of it at runtime.
@@ -355,11 +357,12 @@ public class ReflectionService {
     private Object createObject(final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier,
             final Class clazz, final String[] args, final String name, final Map<String, Object> config,
             final List<ParameterMeta> metas) {
-        if (PropertyEditors.canConvert(clazz) && config.size() == 1) { // direct conversion using the configured
-                                                                       // converter/editor
+        if (propertyEditorRegistry.findConverter(clazz) != null && config.size() == 1) { // direct conversion using the
+                                                                                         // configured
+            // converter/editor
             final Object configValue = config.values().iterator().next();
             if (String.class.isInstance(configValue)) {
-                return PropertyEditors.getValue(clazz, String.class.cast(configValue));
+                return propertyEditorRegistry.getValue(clazz, String.class.cast(configValue));
             }
         }
 
@@ -681,8 +684,8 @@ public class ReflectionService {
         if (type.isInstance(value)) { // no need of any conversion
             return value;
         }
-        if (PropertyEditors.canConvert(type)) { // go through string to convert the value
-            return PropertyEditors.getValue(type, String.valueOf(value));
+        if (propertyEditorRegistry.findConverter(type) != null) { // go through string to convert the value
+            return propertyEditorRegistry.getValue(type, String.valueOf(value));
         }
         throw new IllegalArgumentException("Can't convert '" + value + "' to " + type);
     }

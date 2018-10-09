@@ -248,6 +248,7 @@ These jars use the following prefix:
 - joda-time-
 - johnzon-
 - jolokia-
+- joni-
 - jopt-simple
 - jruby-
 - json-
@@ -293,7 +294,8 @@ These jars use the following prefix:
 - mesos-
 - metadata-extractor-
 - metrics-
-- microprofile-config-api-
+- microprofile-config-api
+- microprofile-openapi-api
 - microprofile-opentracing-api
 - mimepull-
 - mina-
@@ -326,11 +328,13 @@ These jars use the following prefix:
 - openwebbeans-
 - openws-
 - ops4j-
+- options
 - org.apache.aries
 - org.apache.commons
 - org.apache.log4j
 - org.eclipse.
 - org.junit.
+- org.osgi.annotation.versioning
 - org.osgi.core-
 - org.osgi.enterprise
 - org.talend

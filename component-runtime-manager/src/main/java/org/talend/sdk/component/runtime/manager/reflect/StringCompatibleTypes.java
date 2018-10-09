@@ -19,15 +19,15 @@ import static lombok.AccessLevel.PRIVATE;
 
 import java.lang.reflect.Type;
 
-import org.apache.xbean.propertyeditor.PropertyEditors;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 final class StringCompatibleTypes {
 
-    static boolean isKnown(final Type type) {
+    static boolean isKnown(final Type type, final PropertyEditorRegistry registry) {
         return String.class == type || char.class == type || Character.class == type
-                || (Class.class.isInstance(type) && PropertyEditors.canConvert(Class.class.cast(type)));
+                || (Class.class.isInstance(type) && registry.findConverter(Class.class.cast(type)) != null);
     }
 }

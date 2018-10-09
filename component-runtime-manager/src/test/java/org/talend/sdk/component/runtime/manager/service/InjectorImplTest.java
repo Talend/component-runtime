@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,8 +65,10 @@ class InjectorImplTest {
                         return singleton("foo.name");
                     }
                 }), "test"));
-        injector =
-                new InjectorImpl("LocalCacheServiceTest", new ReflectionService(new ParameterModelService()), services);
+        final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
+        injector = new InjectorImpl("LocalCacheServiceTest",
+                new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry),
+                services);
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(Injector.class, injector);
     }

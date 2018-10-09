@@ -260,6 +260,8 @@ public class ComponentManager implements AutoCloseable {
             .setProperty("johnzon.cdi.activated", false)
             .setProperty("johnzon.accessModeDelegate", new TalendAccessMode());
 
+    private final PropertyEditorRegistry propertyEditorRegistry;
+
     /**
      * @param m2 the maven repository location if on the file system.
      * @param dependenciesResource the resource path containing dependencies.
@@ -295,10 +297,10 @@ public class ComponentManager implements AutoCloseable {
 
         logInfoLevelMapping = findLogInfoLevel();
 
-        final PropertyEditorRegistry registry = new PropertyEditorRegistry();
+        propertyEditorRegistry = new PropertyEditorRegistry();
         localConfigurations = createRawLocalConfigurations();
-        parameterModelService = new ParameterModelService(registry);
-        reflections = new ReflectionService(parameterModelService, registry);
+        parameterModelService = new ParameterModelService(propertyEditorRegistry);
+        reflections = new ReflectionService(parameterModelService, propertyEditorRegistry);
         migrationHandlerFactory = new MigrationHandlerFactory(reflections);
 
         final Predicate<String> isContainerClass = name -> isContainerClass(classesFilter, name);
@@ -816,6 +818,7 @@ public class ComponentManager implements AutoCloseable {
     @Override
     public void close() {
         container.close();
+        propertyEditorRegistry.close();
     }
 
     private Consumer<Container> createContainerCustomizer(final String originalId) {

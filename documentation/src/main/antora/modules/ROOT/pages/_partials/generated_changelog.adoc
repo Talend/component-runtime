@@ -1,5 +1,17 @@
 
 
+== Version 1.1.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1110[TCOMP-1110^]: When a configuration has no layout and uses @AfterGroup the configuration is lost
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1111[TCOMP-1111^]: Move to PropertyEditorRegistry from xbean instead of using the deprecated static class
+
+
 == Version 1.1.0
 
 === Backlog Task

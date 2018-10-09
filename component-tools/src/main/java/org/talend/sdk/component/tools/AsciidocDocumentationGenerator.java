@@ -43,6 +43,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -89,7 +90,7 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                     annotation) -> annotation.annotationType() == Documentation.class
                             ? singletonMap("documentation", Documentation.class.cast(annotation).value())
                             : emptyMap(),
-                    new ConditionParameterEnricher())) {
+                    new ConditionParameterEnricher()), new PropertyEditorRegistry()) {
 
             };
 

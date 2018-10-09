@@ -43,6 +43,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
@@ -235,15 +236,16 @@ class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            final DecoderWithService client =
-                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
-                            JsonbBuilder.create(), new HashMap<Class<?>, Object>() {
+            final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
+            final DecoderWithService client = new HttpClientFactoryImpl("test",
+                    new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry),
+                    JsonbBuilder.create(), new HashMap<Class<?>, Object>() {
 
-                                {
-                                    put(MyService.class, new MyService());
-                                    put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
-                                }
-                            }).create(DecoderWithService.class, null);
+                        {
+                            put(MyService.class, new MyService());
+                            put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
+                        }
+                    }).create(DecoderWithService.class, null);
             client.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             assertThrows(IllegalStateException.class, () -> client.error("search yes"));
@@ -414,7 +416,9 @@ class HttpClientFactoryImplTest {
     }
 
     private HttpClientFactoryImpl newDefaultFactory() {
-        return new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
+        final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
+        return new HttpClientFactoryImpl("test",
+                new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry),
                 JsonbBuilder.create(), emptyMap());
     }
 
