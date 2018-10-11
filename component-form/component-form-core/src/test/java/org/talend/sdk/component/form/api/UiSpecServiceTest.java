@@ -101,8 +101,8 @@ class UiSpecServiceTest {
 
         assertEquals(1, trigger.getParameters().size());
         final UiSchema.Parameter parameter = trigger.getParameters().iterator().next();
-        assertEquals("root.updatable_config.name", parameter.getPath());
-        assertEquals("arg0.name", parameter.getKey());
+        assertEquals("root.updatable_config", parameter.getPath());
+        assertEquals("arg0", parameter.getKey());
 
         assertEquals(1, trigger.getOptions().size());
         final UiSchema.Option option = trigger.getOptions().iterator().next();
@@ -149,7 +149,7 @@ class UiSpecServiceTest {
         assertEquals("guessMe", trigger.getAction());
         assertEquals("test", trigger.getFamily());
         assertEquals("update", trigger.getType());
-        assertEquals(2, trigger.getParameters().size());
+        assertEquals(1, trigger.getParameters().size());
         assertEquals(1, trigger.getOptions().size());
     }
 
@@ -388,13 +388,13 @@ class UiSpecServiceTest {
 
         // here is what the test validates: the parameters are flattened and translated
         // for the ui
-        assertEquals(3, driverTrigger.getParameters().size(), driverTrigger.toString());
+        assertEquals(2, driverTrigger.getParameters().size(), driverTrigger.toString());
 
         final Iterator<UiSchema.Parameter> params = driverTrigger.getParameters().iterator();
         assertTrue(params.hasNext());
-        assertTriggerParameter(params.next(), "value.driver", "configuration.connection.driver");
-        assertTriggerParameter(params.next(), "query.timeout", "configuration.query.timeout");
-        assertTriggerParameter(params.next(), "query.sql", "configuration.query.sql");
+        assertTriggerParameter(params.next(), "value", "configuration.connection");
+        assertTrue(params.hasNext());
+        assertTriggerParameter(params.next(), "query", "configuration.query");
     }
 
     @Test
@@ -494,16 +494,10 @@ class UiSpecServiceTest {
                 assertUiSchema(connectionIt.next(), "button", "Validate Connection", null, 0, validateDataStore -> {
                     assertEquals(1, validateDataStore.getTriggers().size());
                     final UiSchema.Trigger trigger = validateDataStore.getTriggers().iterator().next();
-                    assertEquals(4, trigger.getParameters().size());
-                    assertEquals(
-                            Stream
-                                    .of("driver", "password", "url", "username")
-                                    .map(p -> "configuration.connection." + p)
-                                    .collect(toSet()),
+                    assertEquals(1, trigger.getParameters().size());
+                    assertEquals(singleton("configuration.connection"),
                             trigger.getParameters().stream().map(UiSchema.Parameter::getPath).collect(toSet()));
-                    assertEquals(
-                            Stream.of("driver", "password", "url", "username").map(p -> "datastore." + p).collect(
-                                    toSet()),
+                    assertEquals(singleton("datastore"),
                             trigger.getParameters().stream().map(UiSchema.Parameter::getKey).collect(toSet()));
                 });
                 assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0,

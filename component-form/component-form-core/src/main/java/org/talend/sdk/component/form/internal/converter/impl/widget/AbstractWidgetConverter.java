@@ -111,8 +111,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             final String propertiesPrefix = pathResolver.resolveProperty(prop.getPath(), paramRef);
             final List<UiSchema.Parameter> resolvedParams = properties
                     .stream()
-                    .filter(p -> p.getPath().startsWith(propertiesPrefix))
-                    .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
+                    .filter(p -> p.getPath().equals(propertiesPrefix))
+                    // .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
                     .map(o -> {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
                         final String path = o.getPath();

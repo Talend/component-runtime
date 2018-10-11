@@ -15,19 +15,15 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.InputStream;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,8 +39,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
-import org.talend.sdk.component.server.front.model.ActionReference;
-import org.talend.sdk.component.server.front.model.PropertyValidation;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 class AbstractWidgetConverterTest {
@@ -152,42 +147,44 @@ class AbstractWidgetConverterTest {
     }
 
     @Test
-    void emptyObjectAsParamTolerance() {
-        new AbstractWidgetConverter(emptyList(), emptyList(), emptyList(), new JsonSchema(), "en") {
+    void triggerArrayParameters() throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create();
+                final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                        "object-array-in-parameter.json")) {
+            final ComponentDetail details = jsonb.fromJson(stream, ComponentDetail.class);
+            final AtomicReference<UiSchema.Trigger> trigger = new AtomicReference<>();
+            new AbstractWidgetConverter(new ArrayList<>(), details.getProperties(), emptyList(), new JsonSchema(),
+                    "en") {
 
-            @Override
-            public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> context) {
-                throw new UnsupportedOperationException("shouldnt be called in this test");
-            }
+                @Override
+                public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> context) {
+                    throw new UnsupportedOperationException();
+                }
 
-            {
-                final List<UiSchema.Parameter> noLeafParams = toParams(
-                        singletonList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null,
-                                new PropertyValidation(), emptyMap(), null, null)),
-                        new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
-                                emptyMap(), null, null),
-                        new ActionReference("test", "act", "sthg", "act",
-                                singletonList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null,
-                                        new PropertyValidation(), singletonMap("definition::parameter::index", "1"),
-                                        null, null))),
-                        "me");
-                assertTrue(noLeafParams.isEmpty()); // no leaf
-
-                final List<UiSchema.Parameter> parameters = toParams(
-                        asList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
-                                emptyMap(), null, null),
-                                new SimplePropertyDefinition("me.url", "url", null, "STRING", null,
-                                        new PropertyValidation(), emptyMap(), null, null)),
-                        new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
-                                emptyMap(), null, null),
-                        new ActionReference("test", "act", "sthg", "act",
-                                singletonList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null,
-                                        new PropertyValidation(), singletonMap("definition::parameter::index", "1"),
-                                        null, null))),
-                        "me");
-                assertEquals(1, parameters.size());
-                assertEquals("me.url", parameters.iterator().next().getPath());
-            }
-        };
+                {
+                    trigger.set(toTrigger(details.getProperties(),
+                            details
+                                    .getProperties()
+                                    .stream()
+                                    .filter(it -> it.getName().equals("filterAdvancedValueWrapper"))
+                                    .findFirst()
+                                    .orElseThrow(IllegalArgumentException::new),
+                            details
+                                    .getActions()
+                                    .stream()
+                                    .filter(it -> it.getName().equals("updatableFilterAdvanced"))
+                                    .findFirst()
+                                    .orElseThrow(IllegalArgumentException::new)));
+                }
+            };
+            final UiSchema.Parameter parameter = trigger
+                    .get()
+                    .getParameters()
+                    .stream()
+                    .filter(it -> it.getPath().equals("configuration.selectionFilter.filterLines"))
+                    .findFirst()
+                    .orElseThrow(IllegalStateException::new);
+            assertEquals("filterLines", parameter.getKey());
+        }
     }
 }
