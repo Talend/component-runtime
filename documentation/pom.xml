@@ -34,7 +34,6 @@
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
     <sample_project_test>${sample_project-base}/src/test/java/org/talend/sdk/component/sample</sample_project_test>
     <site.rootpath />
-    <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
 
     <args4j.version>2.33</args4j.version>
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
@@ -48,6 +47,13 @@
     <crawler-commons.version>0.10</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
     <webhost.ftphost>files.000webhost.com</webhost.ftphost>
+
+    <!-- skip flags for the release -->
+    <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
+    <talend.documentation.pdf.skip>false</talend.documentation.pdf.skip>
+    <pdf.skip>false</pdf.skip>
+    <swagger2markup.skip>false</swagger2markup.skip>
+    <indexation.skip>false</indexation.skip>
   </properties>
 
   <dependencies>
@@ -262,6 +268,7 @@
           </execution>
         </executions>
         <configuration>
+          <skip>${swagger2markup.skip}</skip>
           <swaggerInput>${project.parent.basedir}/component-form/component-server-proxy-parent/component-server-proxy/target/generated/swagger/swagger.json</swaggerInput>
           <outputFile>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials/generated_proxy-server-api</outputFile>
           <config>
@@ -303,6 +310,7 @@
               <goal>java</goal>
             </goals>
             <configuration>
+              <skip>${indexation.skip}</skip>
               <mainClass>org.talend.runtime.documentation.SearchIndexation</mainClass>
               <includePluginDependencies>true</includePluginDependencies>
               <arguments>
@@ -603,6 +611,7 @@
           </execution>
         </executions>
         <configuration>
+          <skip>${antora.skip}</skip>
           <installDirectory>${project.basedir}/.node</installDirectory>
           <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
           <environmentVariables>
@@ -799,6 +808,7 @@
               <goal>attach-artifact</goal>
             </goals>
             <configuration>
+              <skipAttach>${talend.documentation.pdf.skip}</skipAttach>
               <artifacts>
                 <artifact>
                   <file>${project.build.directory}/generated-docs/all-in-one.pdf</file>
@@ -868,6 +878,16 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>release</id>
+      <properties>
+        <talend.documentation.generation.skip>true</talend.documentation.generation.skip>
+        <swagger2markup.skip>true</swagger2markup.skip>
+        <component.front.build.skip>true</component.front.build.skip>
+        <indexation.skip>true</indexation.skip>
+        <talend.documentation.pdf.skip>true</talend.documentation.pdf.skip>
+      </properties>
     </profile>
   </profiles>
 

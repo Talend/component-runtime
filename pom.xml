@@ -673,7 +673,7 @@
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
           <releaseProfiles>release</releaseProfiles>
-          <goals>deploy pre-site</goals>
+          <goals>deploy</goals>
         </configuration>
       </plugin>
       <plugin>
