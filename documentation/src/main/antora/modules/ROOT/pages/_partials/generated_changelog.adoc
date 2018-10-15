@@ -90,6 +90,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1055[TCOMP-1055^]: remove the ExecutionResource
 - link:https://jira.talendforge.org/browse/TCOMP-1057[TCOMP-1057^]: Add ActiveIf on @Proposable test-case
 - link:https://jira.talendforge.org/browse/TCOMP-1058[TCOMP-1058^]: Add DefaultValue on proposable/dynamicValue testcase
+- link:https://jira.talendforge.org/browse/TCOMP-1059[TCOMP-1059^]: Rework generic record format
 - link:https://jira.talendforge.org/browse/TCOMP-1073[TCOMP-1073^]: [maven/gradle plugin] Add configuration support in web goal
 - link:https://jira.talendforge.org/browse/TCOMP-1079[TCOMP-1079^]: Document new Record structure
 - link:https://jira.talendforge.org/browse/TCOMP-1080[TCOMP-1080^]: [dependency upgrade] Meecrowave 1.2.4
