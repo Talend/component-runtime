@@ -21,6 +21,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.form.internal.lang.CompletionStages.toStage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,17 +30,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
-import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+
+import lombok.RequiredArgsConstructor;
 
 public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
 
@@ -117,43 +120,85 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         final Collection<SimplePropertyDefinition> visitedProperties = new ArrayList<>();
         final Map<String, SimplePropertyDefinition> childProperties =
                 root.findDirectChild(properties).collect(toMap(SimplePropertyDefinition::getName, identity()));
-        return CompletableFuture.allOf(Stream.of(layout.split("\\|")).map(line -> line.split(",")).map(line -> {
-            if (line.length == 1 && childProperties.containsKey(line[0])) {
-                return new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), visitedProperties, client,
-                        jsonSchema, properties, actions, lang, customPropertyConverters)
-                                .convert(completedFuture(new PropertyContext<>(childProperties.get(line[0]),
-                                        root.getRootContext(), root.getConfiguration())))
-                                .thenApply(r -> uiSchema);
-            } else if (line.length > 1) {
-                final UiSchema schema = new UiSchema();
-                schema.setWidget("columns");
-                schema.setItems(new ArrayList<>());
-
-                final UiSchemaConverter columnConverter = new UiSchemaConverter(layoutFilter, family, schema.getItems(),
-                        visitedProperties, client, jsonSchema, properties, actions, lang, customPropertyConverters);
-
-                return CompletableFuture
-                        .allOf(Stream
-                                .of(line)
-                                .map(String::trim)
-                                .map(childProperties::get)
-                                .filter(Objects::nonNull)
-                                .map(it -> new PropertyContext<>(it, root.getRootContext(), root.getConfiguration()))
-                                .map(CompletionStages::toStage)
-                                .map(columnConverter::convert)
-                                .toArray(CompletableFuture[]::new))
-                        .thenApply(r -> {
-                            final Collection<UiSchema> items = uiSchema.getItems();
-                            synchronized (items) {
-                                items.add(schema);
-                            }
-                            return uiSchema;
-                        });
-            }
-            return completedFuture(null);
-        }).toArray(CompletableFuture[]::new)).thenApply(done -> {
+        final String[] lines = layout.split("\\|");
+        final Collection<CompletionStage<ListItem>> futures = new ArrayList<>();
+        for (int i = 0; i < lines.length; i++) {
+            final ListItem line = new ListItem(i, lines[i].split(","));
+            futures.add(mapToFuture(root, layoutFilter, visitedProperties, childProperties, line));
+        }
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).thenApply(done -> {
+            futures
+                    .stream()
+                    .map(CompletionStage::toCompletableFuture)
+                    .map(this::futureGet)
+                    .sorted(comparing(it -> it.index))
+                    .forEach(it -> uiSchema.getItems().addAll(it.uiSchemas));
             addActions(root, uiSchema, visitedProperties);
             return uiSchema;
         });
+    }
+
+    private ListItem futureGet(final CompletableFuture<ListItem> it) {
+        try {
+            return it.get();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        } catch (final ExecutionException e) {
+            throw new IllegalStateException(e.getCause());
+        }
+    }
+
+    private CompletionStage<ListItem> mapToFuture(final PropertyContext<?> root, final String layoutFilter,
+            final Collection<SimplePropertyDefinition> visitedProperties,
+            final Map<String, SimplePropertyDefinition> childProperties, final ListItem line) {
+        if (line.items.length == 1 && childProperties.containsKey(line.items[0])) {
+            return new UiSchemaConverter(layoutFilter, family, line.uiSchemas, visitedProperties, client, jsonSchema,
+                    properties, actions, lang, customPropertyConverters)
+                            .convert(completedFuture(new PropertyContext<>(childProperties.get(line.items[0]),
+                                    root.getRootContext(), root.getConfiguration())))
+                            .thenApply(r -> line);
+        } else if (line.items.length > 1) {
+            final UiSchema schema = new UiSchema();
+            schema.setWidget("columns");
+            schema.setItems(new ArrayList<>());
+            line.uiSchemas.add(schema);
+
+            final Collection<CompletableFuture<ListItem>> futures = new ArrayList<>();
+            for (int i = 0; i < line.items.length; i++) {
+                final ListItem item = new ListItem(i, new String[] { line.items[i].trim() });
+                final SimplePropertyDefinition property = childProperties.get(item.items[0]);
+                if (property == null) {
+                    continue;
+                }
+                final PropertyContext<?> context =
+                        new PropertyContext<>(property, root.getRootContext(), root.getConfiguration());
+                final List<UiSchema> schemas = new ArrayList<>();
+                final UiSchemaConverter columnConverter = new UiSchemaConverter(layoutFilter, family, schemas,
+                        visitedProperties, client, jsonSchema, properties, actions, lang, customPropertyConverters);
+                final CompletableFuture<ListItem> converted =
+                        columnConverter.convert(toStage(context)).thenApply(output -> {
+                            item.uiSchemas.addAll(schemas);
+                            return item;
+                        }).toCompletableFuture();
+                futures.add(converted);
+            }
+            return CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).thenApply(r -> {
+                futures.stream().map(this::futureGet).sorted(comparing(it -> it.index)).forEach(
+                        it -> schema.getItems().addAll(it.uiSchemas));
+                return line;
+            });
+        }
+        return completedFuture(line);
+    }
+
+    @RequiredArgsConstructor
+    private static class ListItem {
+
+        private final int index;
+
+        private final String[] items;
+
+        private final List<UiSchema> uiSchemas = new ArrayList<>();
     }
 }
