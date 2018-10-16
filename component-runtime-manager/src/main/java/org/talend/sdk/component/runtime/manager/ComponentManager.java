@@ -49,6 +49,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -66,10 +67,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -95,11 +93,11 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
-import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.FilteredArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
+import org.apache.xbean.finder.util.Files;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
@@ -154,7 +152,6 @@ import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryIm
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
-import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
@@ -389,24 +386,24 @@ public class ComponentManager implements AutoCloseable {
                                 addCallerAsPlugin();
                             }
 
-                            // common for studio until job generation is updated to build a tcomp friendly
-                            // bundle
-                            // alternatively we could capture based on TALEND-INF/dependencies.txt jars
+                            // common for studio until job generation is updated to build a tcomp friendly bundle
                             if (!Boolean.getBoolean("component.manager.classpath.skip")) {
-                                final String componentClasspath = findClasspath().replace(File.pathSeparatorChar, ';');
-                                if (!componentClasspath.isEmpty()) {
-                                    final String[] jars = componentClasspath.split(";");
-                                    if (jars.length > 1) {
-                                        Stream
-                                                .of(jars)
-                                                .map(FileArchive::decode)
-                                                .map(File::new)
-                                                .filter(File::exists)
-                                                .filter(f -> !f.isDirectory() && f.getName().endsWith(".jar"))
-                                                .filter(f -> KnownJarsFilter.INSTANCE.test(f.getName()))
-                                                .filter(f -> !hasPlugin(container.buildAutoIdFromName(f.getName())))
-                                                .forEach(jar -> addPlugin(jar.getAbsolutePath()));
+                                try {
+                                    final Enumeration<URL> componentMarkers =
+                                            Thread.currentThread().getContextClassLoader().getResources(
+                                                    "TALEND-INF/dependencies.txt");
+                                    while (componentMarkers.hasMoreElements()) {
+                                        File file = Files.toFile(componentMarkers.nextElement());
+                                        if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
+                                                && file.getParentFile().getName().equals("TALEND-INF")) {
+                                            file = file.getParentFile().getParentFile();
+                                        }
+                                        if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
+                                            addPlugin(file.getAbsolutePath());
+                                        }
                                     }
+                                } catch (final IOException e) {
+                                    // no-op
                                 }
                             }
 
@@ -463,40 +460,6 @@ public class ComponentManager implements AutoCloseable {
         default:
             log.info(msg);
         }
-    }
-
-    private static String findClasspath() { // alternative is to use getResources("") and parse urls
-        return ofNullable(System.getProperty("component.manager.classpath")).orElseGet(() -> Stream
-                .of(System.getProperty("java.class.path"), findManifestClassPath())
-                .filter(Objects::nonNull)
-                .map(s -> s.replace(File.separatorChar, '/'))
-                .collect(joining(File.pathSeparator)));
-    }
-
-    // studio specific (launching from the interface)
-    private static String findManifestClassPath() {
-        return ofNullable(System.getProperty("java.class.path"))
-                .flatMap(cp -> Stream
-                        .of(cp.split(File.pathSeparator))
-                        .map(File::new)
-                        .filter(f -> f.getName().equals("classpath.jar"))
-                        .findFirst())
-                .map(f -> {
-                    // respect this format sun.misc.URLClassPath.JarLoader.parseClassPath()
-                    try (final JarFile file = new JarFile(f)) {
-                        return ofNullable(file.getManifest())
-                                .map(Manifest::getMainAttributes)
-                                .map(a -> a.getValue(Attributes.Name.CLASS_PATH))
-                                .map(value -> value.replace(' ', ';'))
-                                .orElse(null);
-                    } catch (final IOException e) {
-                        log.warn(e.getMessage());
-                        log.debug(e.getMessage(), e);
-                        return null;
-                    }
-                })
-                .map(String::trim)
-                .orElse(null);
     }
 
     private Stream<String> additionalContainerClassesThroughExtension() {
