@@ -17,7 +17,6 @@ package org.talend.sdk.component.design.extension.flows;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 
@@ -64,7 +63,7 @@ class ProcessorFlowsFactory implements FlowsFactory {
                                 p -> p.getAnnotation(Output.class).value())),
                 of(type.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).flatMap(
                         m -> of(m.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
-                                p -> p.getAnnotation(Output.class).value()))).collect(toSet());
+                                p -> p.getAnnotation(Output.class).value()))).distinct().collect(toList());
     }
 
     /**
