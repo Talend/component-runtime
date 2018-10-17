@@ -70,24 +70,35 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                 .getComponents()
                 .values()
                 .stream()
-                .flatMap(c -> Stream.concat(
-                        c.getPartitionMappers().values().stream().map(
-                                p -> new Component(p.getParent().getCategories(), p.getParent().getName(), p.getName(),
-                                        p.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(
-                                                p.getName()),
+                .flatMap(c -> Stream
+                        .concat(c
+                                .getPartitionMappers()
+                                .values()
+                                .stream()
+                                .map(p -> new Component(p.getParent().getCategories(), p.getParent().getName(),
+                                        p.getName(),
+                                        p
+                                                .findBundle(container.getLoader(), Locale.ENGLISH)
+                                                .displayName()
+                                                .orElse(p.getName()),
                                         p.getIcon(), emptyList(), singletonList("MAIN"))),
-                        c.getProcessors().values().stream().map(p -> {
-                            final Method listener = p.getListener();
-                            return new Component(p.getParent().getCategories(), p.getParent().getName(), p.getName(),
-                                    p.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(
-                                            p.getName()),
-                                    p.getIcon(), getDesignModel(p).getInputFlows(), getDesignModel(p).getOutputFlows());
-                        })))
+                                c.getProcessors().values().stream().map(p -> {
+                                    final Method listener = p.getListener();
+                                    return new Component(p.getParent().getCategories(), p.getParent().getName(),
+                                            p.getName(),
+                                            p
+                                                    .findBundle(container.getLoader(), Locale.ENGLISH)
+                                                    .displayName()
+                                                    .orElse(p.getName()),
+                                            p.getIcon(), getDesignModel(p).getInputFlows(),
+                                            getDesignModel(p).getOutputFlows());
+                                })))
                 .collect(toList());
 
         try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder)
-                .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false).setProperty(
-                        "johnzon.attributeOrder", String.CASE_INSENSITIVE_ORDER))
+                .withConfig(new JsonbConfig()
+                        .setProperty("johnzon.cdi.activated", false)
+                        .setProperty("johnzon.attributeOrder", String.CASE_INSENSITIVE_ORDER))
                 .build()) {
             container.execute(() -> {
                 try {

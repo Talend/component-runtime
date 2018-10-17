@@ -224,8 +224,10 @@ public class ComponentGeneratorMojo extends AbstractMojo {
             final String template = capitalise(tpl);
             try (final OutputStream stream = new BufferedOutputStream(
                     new FileOutputStream(createOutputFile(sourceDir, classPath + template + ".java")))) {
-                stream.write(freemarkers.templatize("input-" + tpl, createContext(template)).getBytes(
-                        StandardCharsets.UTF_8));
+                stream
+                        .write(freemarkers
+                                .templatize("input-" + tpl, createContext(template))
+                                .getBytes(StandardCharsets.UTF_8));
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }

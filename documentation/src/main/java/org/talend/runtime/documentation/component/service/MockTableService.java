@@ -71,9 +71,10 @@ public class MockTableService {
                     errorMessage = error.getString("message") + " \n" + error.getString("detail");
                 }
                 return new HealthCheckStatus(HealthCheckStatus.Status.KO,
-                        i18n.connectionFailed(
-                                errorMessage != null && errorMessage.trim().isEmpty() ? e.getLocalizedMessage()
-                                        : errorMessage));
+                        i18n
+                                .connectionFailed(
+                                        errorMessage != null && errorMessage.trim().isEmpty() ? e.getLocalizedMessage()
+                                                : errorMessage));
             }
 
             return new HealthCheckStatus(HealthCheckStatus.Status.KO, i18n.connectionFailed(e.getLocalizedMessage()));
@@ -96,8 +97,10 @@ public class MockTableService {
     @DynamicValues(CommonConfig.PROPOSABLE_GET_TABLE_FIELDS)
     public Values getTableFields(final Client client) {
         // todo when dynamic values can have params
-        return new Values(Stream.of(QueryBuilder.Fields.values()).map(f -> new Values.Item(f.name(), f.name())).collect(
-                toList()));
+        return new Values(Stream
+                .of(QueryBuilder.Fields.values())
+                .map(f -> new Values.Item(f.name(), f.name()))
+                .collect(toList()));
     }
 
     public interface Client extends HttpClient {

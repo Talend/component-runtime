@@ -175,12 +175,13 @@ class DIBatchSimulationTest {
             final Processor processor = proc.orElseThrow(() -> new IllegalStateException("scanning failed"));
             JobStateAware.init(processor, globalMap);
 
-            final Jsonb jsonbProcessor = Jsonb.class.cast(manager
-                    .findPlugin(processor.plugin())
-                    .get()
-                    .get(ComponentManager.AllServices.class)
-                    .getServices()
-                    .get(Jsonb.class));
+            final Jsonb jsonbProcessor = Jsonb.class
+                    .cast(manager
+                            .findPlugin(processor.plugin())
+                            .get()
+                            .get(ComponentManager.AllServices.class)
+                            .getServices()
+                            .get(Jsonb.class));
             final AutoChunkProcessor processorProcessor = new AutoChunkProcessor(100, processor);
 
             processorProcessor.start();
@@ -325,9 +326,13 @@ class DIBatchSimulationTest {
 
         @Override
         public PCollection<Record> expand(final PBegin input) {
-            return input.apply(Create
-                    .of(IntStream.range(0, count).mapToObj(i -> new Record("id_" + i, "record_" + i)).collect(toList()))
-                    .withCoder(SerializableCoder.of(Record.class)));
+            return input
+                    .apply(Create
+                            .of(IntStream
+                                    .range(0, count)
+                                    .mapToObj(i -> new Record("id_" + i, "record_" + i))
+                                    .collect(toList()))
+                            .withCoder(SerializableCoder.of(Record.class)));
         }
     }
 

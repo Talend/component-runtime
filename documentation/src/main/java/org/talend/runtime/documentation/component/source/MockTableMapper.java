@@ -70,15 +70,17 @@ public class MockTableMapper implements Serializable {
 
     @Assessor
     public long estimateSize() {
-        final int totalData = tableAPI.count(ds.getCommonConfig().getTableName().name(),
-                ds.getDataStore().getAuthorizationHeader(), ds.buildQuery());
+        final int totalData = tableAPI
+                .count(ds.getCommonConfig().getTableName().name(), ds.getDataStore().getAuthorizationHeader(),
+                        ds.buildQuery());
 
         final int requestedSize =
                 ds.getMaxRecords() == READ_ALL_RECORD_FROM_SERVER ? totalData : Math.min(totalData, ds.getMaxRecords());
 
-        long recordSize = tableAPI.estimateRecordSize(ds.getCommonConfig().getTableName().name(),
-                ds.getDataStore().getAuthorizationHeader(), ds.buildQuery(),
-                ds.getCommonConfig().getFieldsCommaSeparated());
+        long recordSize = tableAPI
+                .estimateRecordSize(ds.getCommonConfig().getTableName().name(),
+                        ds.getDataStore().getAuthorizationHeader(), ds.buildQuery(),
+                        ds.getCommonConfig().getFieldsCommaSeparated());
 
         return recordSize * requestedSize;
     }
@@ -86,14 +88,16 @@ public class MockTableMapper implements Serializable {
     @Split
     public List<MockTableMapper> split(@PartitionSize final long bundles) {
 
-        long recordSize = tableAPI.estimateRecordSize(ds.getCommonConfig().getTableName().name(),
-                ds.getDataStore().getAuthorizationHeader(), ds.buildQuery(),
-                ds.getCommonConfig().getFieldsCommaSeparated());
+        long recordSize = tableAPI
+                .estimateRecordSize(ds.getCommonConfig().getTableName().name(),
+                        ds.getDataStore().getAuthorizationHeader(), ds.buildQuery(),
+                        ds.getCommonConfig().getFieldsCommaSeparated());
 
         long nbBundle = Math.max(1, estimateSize() / bundles);
         final long bundleCount = bundles / recordSize;
-        final int totalData = tableAPI.count(ds.getCommonConfig().getTableName().name(),
-                ds.getDataStore().getAuthorizationHeader(), ds.buildQuery());
+        final int totalData = tableAPI
+                .count(ds.getCommonConfig().getTableName().name(), ds.getDataStore().getAuthorizationHeader(),
+                        ds.buildQuery());
 
         final int requestedSize =
                 ds.getMaxRecords() == READ_ALL_RECORD_FROM_SERVER ? totalData : Math.min(totalData, ds.getMaxRecords());

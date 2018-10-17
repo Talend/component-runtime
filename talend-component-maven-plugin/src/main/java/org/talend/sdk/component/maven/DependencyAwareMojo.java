@@ -40,14 +40,18 @@ public abstract class DependencyAwareMojo extends AbstractMojo {
                 .stream()
                 .filter(a -> !"org.talend.sdk.component".equals(a.getGroupId())
                         && ("compile".equals(a.getScope()) || "runtime".equals(a.getScope())))
-                .collect(toMap(a -> String.format("%s:%s:%s%s:%s:%s", a.getGroupId(), a.getArtifactId(),
-                        ofNullable(a.getType()).orElse("jar"),
-                        a.getClassifier() == null || a.getClassifier().isEmpty() ? "" : (":" + a.getClassifier()),
-                        a.getVersion(), ofNullable(a.getScope()).orElse("compile")), Artifact::getFile));
+                .collect(toMap(a -> String
+                        .format("%s:%s:%s%s:%s:%s", a.getGroupId(), a.getArtifactId(),
+                                ofNullable(a.getType()).orElse("jar"),
+                                a.getClassifier() == null || a.getClassifier().isEmpty() ? ""
+                                        : (":" + a.getClassifier()),
+                                a.getVersion(), ofNullable(a.getScope()).orElse("compile")),
+                        Artifact::getFile));
 
         final String mainGav = mainGav();
-        artifacts.putIfAbsent(mainGav, new File(project.getBuild().getDirectory(), project.getBuild().getFinalName()
-                + "." + ("bundle".equals(project.getPackaging()) ? "jar" : project.getPackaging())));
+        artifacts
+                .putIfAbsent(mainGav, new File(project.getBuild().getDirectory(), project.getBuild().getFinalName()
+                        + "." + ("bundle".equals(project.getPackaging()) ? "jar" : project.getPackaging())));
         return artifacts;
     }
 

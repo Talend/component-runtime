@@ -184,16 +184,17 @@ public class Github {
                     if (link == null) {
                         return pageContributors;
                     }
-                    return Stream.concat(pageContributors,
-                            Stream
-                                    .of(link.split(","))
-                                    .map(String::trim)
-                                    .filter(s -> s.endsWith("rel=\"next\""))
-                                    .flatMap(l -> {
-                                        final int from = l.indexOf('<');
-                                        final int to = l.indexOf('>');
-                                        return contributors(client, token, l.substring(from + 1, to));
-                                    }));
+                    return Stream
+                            .concat(pageContributors,
+                                    Stream
+                                            .of(link.split(","))
+                                            .map(String::trim)
+                                            .filter(s -> s.endsWith("rel=\"next\""))
+                                            .flatMap(l -> {
+                                                final int from = l.indexOf('<');
+                                                final int to = l.indexOf('>');
+                                                return contributors(client, token, l.substring(from + 1, to));
+                                            }));
                 });
     }
 

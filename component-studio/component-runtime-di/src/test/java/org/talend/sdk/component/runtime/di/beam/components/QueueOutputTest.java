@@ -34,11 +34,11 @@ class QueueOutputTest {
     void execution() {
         final QueueOutput output = new QueueOutput("test", "test", "test", null);
         output.setState(new JobStateAware.State());
-        output.onNext(
-                name -> Branches.DEFAULT_BRANCH.equals(name) ? Json.createObjectBuilder().add("id", 1).build() : null,
-                name -> value -> {
-                    throw new UnsupportedOperationException();
-                });
+        output
+                .onNext(name -> Branches.DEFAULT_BRANCH.equals(name) ? Json.createObjectBuilder().add("id", 1).build()
+                        : null, name -> value -> {
+                            throw new UnsupportedOperationException();
+                        });
         final LoopState loopState = LoopState.lookup(output.getStateId());
         loopState.end();
         final Record next = loopState.next();

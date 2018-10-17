@@ -49,16 +49,16 @@ public class DependencyMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        final String content =
-                project
-                        .getArtifacts()
-                        .stream()
-                        .filter(a -> scopes == null || scopes.contains(a.getScope()))
-                        .map(a -> String.format("%s:%s:%s%s:%s:%s", a.getGroupId(), a.getArtifactId(), a.getType(),
+        final String content = project
+                .getArtifacts()
+                .stream()
+                .filter(a -> scopes == null || scopes.contains(a.getScope()))
+                .map(a -> String
+                        .format("%s:%s:%s%s:%s:%s", a.getGroupId(), a.getArtifactId(), a.getType(),
                                 a.getClassifier() == null || a.getClassifier().isEmpty() ? ""
                                         : (":" + a.getClassifier()),
                                 a.getBaseVersion(), a.getScope()))
-                        .collect(joining("\n"));
+                .collect(joining("\n"));
         output.getParentFile().mkdirs();
         try (final Writer writer = new BufferedWriter(new FileWriter(output))) {
             writer.write(content);

@@ -197,8 +197,11 @@ public class TaCoKitGuessSchema {
                 .orElseThrow(() -> new IllegalArgumentException("Dataset not found for " + action.getAction()));
 
         final String dataSetPath = dataSet.getPath();
-        return configuration.entrySet().stream().filter(e -> isChildParameter(e.getKey(), dataSetPath)).collect(
-                toMap(e -> prefix + e.getKey().substring(dataSetPath.length()), Map.Entry::getValue));
+        return configuration
+                .entrySet()
+                .stream()
+                .filter(e -> isChildParameter(e.getKey(), dataSetPath))
+                .collect(toMap(e -> prefix + e.getKey().substring(dataSetPath.length()), Map.Entry::getValue));
     }
 
     private boolean isChildParameter(final String path, final String parentPath) {
@@ -239,17 +242,22 @@ public class TaCoKitGuessSchema {
                         if (!iterator.hasNext()) {
                             return value;
                         }
-                        log.warn("Multiple potential datasets for {}:{}, ignoring parameters", action.getType(),
-                                action.getAction());
+                        log
+                                .warn("Multiple potential datasets for {}:{}, ignoring parameters", action.getType(),
+                                        action.getAction());
                     }
                     return null;
                 }));
     }
 
     private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
-        return Stream.concat(parameterMetas.stream(),
-                parameterMetas.stream().map(ParameterMeta::getNestedParameters).filter(Objects::nonNull).flatMap(
-                        this::toStream));
+        return Stream
+                .concat(parameterMetas.stream(),
+                        parameterMetas
+                                .stream()
+                                .map(ParameterMeta::getNestedParameters)
+                                .filter(Objects::nonNull)
+                                .flatMap(this::toStream));
     }
 
     public boolean guessSchemaThroughAction() {
@@ -337,8 +345,9 @@ public class TaCoKitGuessSchema {
     }
 
     private boolean guessInputComponentSchemaThroughResult() throws Exception {
-        final Mapper mapper = componentManager.findMapper(family, componentName, 1, configuration).orElseThrow(
-                () -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
+        final Mapper mapper = componentManager
+                .findMapper(family, componentName, 1, configuration)
+                .orElseThrow(() -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
         if (JobStateAware.class.isInstance(mapper)) {
             JobStateAware.class.cast(mapper).setState(new JobStateAware.State());
         }
