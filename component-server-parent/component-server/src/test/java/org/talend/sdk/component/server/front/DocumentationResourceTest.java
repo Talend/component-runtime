@@ -44,12 +44,18 @@ class DocumentationResourceTest {
 
     @Test
     void wsDoc() {
-        final DocumentationContent content = ws.read(DocumentationContent.class, "GET",
-                "/documentation/component/" + client.getJdbcId() + "?format=html", null);
+        final DocumentationContent content = ws
+                .read(DocumentationContent.class, "GET",
+                        "/documentation/component/" + client.getJdbcId() + "?format=html", null);
         assertEquals("html", content.getType());
         assertEquals(
-                "<h1 id=\"_test\">Test</h1>\n" + "<h2 id=\"_component\">Component</h2>\n"
-                        + "<div class=\"paragraph\">\n" + "<p>\n" + "Something\n" + "</p>\n" + "</div>\n",
+                "<div class=\"sect1\">\n" + "<h2 id=\"_input\">input</h2>\n" + "<div class=\"sectionbody\">\n"
+                        + "<div class=\"sect2\">\n" + "<h3 id=\"_configuration\">Configuration</h3>\n"
+                        + "<div class=\"paragraph\">\n" + "<p>Something1</p>\n" + "</div>\n" + "</div>\n" + "</div>\n"
+                        + "</div>\n" + "<div class=\"sect1\">\n" + "<h2 id=\"_output\">output</h2>\n"
+                        + "<div class=\"sectionbody\">\n" + "<div class=\"sect2\">\n"
+                        + "<h3 id=\"_configuration_2\">Configuration</h3>\n" + "<div class=\"paragraph\">\n"
+                        + "<p>Something else</p>\n" + "</div>\n" + "</div>\n" + "</div>\n" + "</div>",
                 content.getSource());
     }
 
@@ -61,7 +67,7 @@ class DocumentationResourceTest {
                 .request(APPLICATION_JSON_TYPE)
                 .get(DocumentationContent.class);
         assertEquals("asciidoc", content.getType());
-        assertEquals("= Test\n\n== Component\n\nSomething", content.getSource());
+        assertEquals("== input\n\n=== Configuration\n\nSomething1\n", content.getSource());
     }
 
     @Test
@@ -75,8 +81,13 @@ class DocumentationResourceTest {
                 .get(DocumentationContent.class);
         assertEquals("html", content.getType());
         assertEquals(
-                "<h1 id=\"_test\">Test</h1>\n" + "<h2 id=\"_component\">Component</h2>\n"
-                        + "<div class=\"paragraph\">\n" + "<p>\n" + "Something\n" + "</p>\n" + "</div>\n",
+                "<div class=\"sect1\">\n" + "<h2 id=\"_input\">input</h2>\n" + "<div class=\"sectionbody\">\n"
+                        + "<div class=\"sect2\">\n" + "<h3 id=\"_configuration\">Configuration</h3>\n"
+                        + "<div class=\"paragraph\">\n" + "<p>Something1</p>\n" + "</div>\n" + "</div>\n" + "</div>\n"
+                        + "</div>\n" + "<div class=\"sect1\">\n" + "<h2 id=\"_output\">output</h2>\n"
+                        + "<div class=\"sectionbody\">\n" + "<div class=\"sect2\">\n"
+                        + "<h3 id=\"_configuration_2\">Configuration</h3>\n" + "<div class=\"paragraph\">\n"
+                        + "<p>Something else</p>\n" + "</div>\n" + "</div>\n" + "</div>\n" + "</div>",
                 content.getSource());
     }
 
@@ -92,5 +103,29 @@ class DocumentationResourceTest {
         final ErrorPayload payload = response.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.COMPONENT_MISSING, payload.getCode());
         assertEquals("No component '" + id + "'", payload.getDescription());
+    }
+
+    @Test
+    void selectDocByName() {
+        {
+            final String id = client.getComponentId("jdbc", "input");
+            final String response = base
+                    .path("documentation/component/{id}")
+                    .resolveTemplate("id", id)
+                    .request(APPLICATION_JSON_TYPE)
+                    .get(DocumentationContent.class)
+                    .getSource();
+            assertEquals("== input\n\n=== Configuration\n\nSomething1\n", response);
+        }
+        {
+            final String id = client.getComponentId("jdbc", "output");
+            final String response = base
+                    .path("documentation/component/{id}")
+                    .resolveTemplate("id", id)
+                    .request(APPLICATION_JSON_TYPE)
+                    .get(DocumentationContent.class)
+                    .getSource();
+            assertEquals("== output\n\n=== Configuration\n\nSomething else", response);
+        }
     }
 }

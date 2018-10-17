@@ -51,8 +51,10 @@ public class CacheHandler implements InterceptorHandler {
     private String toKey(final Method method, final Object[] args) {
         return method.getDeclaringClass().getName() + "#" + method.getName() + "("
                 + (args == null ? ""
-                        : Stream.of(args).map(s -> String.valueOf(s) + "/" + (s == null ? 0 : s.hashCode())).collect(
-                                joining(",")))
+                        : Stream
+                                .of(args)
+                                .map(s -> String.valueOf(s) + "/" + (s == null ? 0 : s.hashCode()))
+                                .collect(joining(",")))
                 + ")";
     }
 }

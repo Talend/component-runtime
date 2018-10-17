@@ -116,7 +116,7 @@ public class UiSchema {
         }
 
         public <T> ConditionValuesBuilder withValues(final Collection<T> values) {
-            this.values.add(values);
+            this.values.addAll(values);
             return this;
         }
 

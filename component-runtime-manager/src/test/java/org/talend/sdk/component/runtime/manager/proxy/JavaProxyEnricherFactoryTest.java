@@ -33,8 +33,10 @@ class JavaProxyEnricherFactoryTest {
     void serialization() throws IOException, ClassNotFoundException {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final JavaProxyEnricherFactory factory = new JavaProxyEnricherFactory();
-        final Translator proxyBased = Translator.class.cast(factory.asSerializable(loader, getClass().getSimpleName(),
-                Translator.class.getName(), new InternationalizationServiceFactory().create(Translator.class, loader)));
+        final Translator proxyBased = Translator.class
+                .cast(factory
+                        .asSerializable(loader, getClass().getSimpleName(), Translator.class.getName(),
+                                new InternationalizationServiceFactory().create(Translator.class, loader)));
         assertEquals("ok", proxyBased.message());
 
         DynamicContainerFinder.SERVICES.put(Translator.class, proxyBased);
@@ -53,14 +55,16 @@ class JavaProxyEnricherFactoryTest {
     void defaultMethod() {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final JavaProxyEnricherFactory factory = new JavaProxyEnricherFactory();
-        final SomeDefault proxyBased = SomeDefault.class.cast(factory.asSerializable(loader, getClass().getSimpleName(),
-                SomeDefault.class.getName(), new SomeDefault() {
+        final SomeDefault proxyBased = SomeDefault.class
+                .cast(factory
+                        .asSerializable(loader, getClass().getSimpleName(), SomeDefault.class.getName(),
+                                new SomeDefault() {
 
-                    @Override
-                    public String get() {
-                        return "ok";
-                    }
-                }));
+                                    @Override
+                                    public String get() {
+                                        return "ok";
+                                    }
+                                }));
         assertEquals("ok", proxyBased.get());
     }
 

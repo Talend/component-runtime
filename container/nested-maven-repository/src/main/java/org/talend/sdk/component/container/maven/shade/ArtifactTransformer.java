@@ -120,16 +120,18 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                             final DependencyNode transitives =
                                     graphBuilder.buildDependencyGraph(projectBuildingResult.getProject(), filter);
                             final CollectingDependencyNodeVisitor visitor = new CollectingDependencyNodeVisitor();
-                            transitives.accept(new FilteringDependencyNodeVisitor(visitor,
-                                    new ArtifactDependencyNodeFilter(filter)));
-                            return Stream.concat(Stream.of(artifact),
-                                    visitor.getNodes().stream().map(DependencyNode::getArtifact).map(a -> {
-                                        try {
-                                            return resolver.resolveArtifact(request, a).getArtifact();
-                                        } catch (final ArtifactResolverException e) {
-                                            throw new IllegalStateException(e);
-                                        }
-                                    }));
+                            transitives
+                                    .accept(new FilteringDependencyNodeVisitor(visitor,
+                                            new ArtifactDependencyNodeFilter(filter)));
+                            return Stream
+                                    .concat(Stream.of(artifact),
+                                            visitor.getNodes().stream().map(DependencyNode::getArtifact).map(a -> {
+                                                try {
+                                                    return resolver.resolveArtifact(request, a).getArtifact();
+                                                } catch (final ArtifactResolverException e) {
+                                                    throw new IllegalStateException(e);
+                                                }
+                                            }));
                         } catch (final ProjectBuildingException | DependencyGraphBuilderException e) {
                             throw new IllegalStateException(e);
                         }
@@ -168,16 +170,19 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
             filters.add(new ExcludesArtifactFilter(Stream.of(exclude.split(",")).collect(toList())));
         }
         if (scope != null) {
-            filters.addAll(
-                    Stream.of(scope.split(",")).map(singleScope -> singleScope.startsWith("-") ? new ArtifactFilter() {
+            filters
+                    .addAll(Stream
+                            .of(scope.split(","))
+                            .map(singleScope -> singleScope.startsWith("-") ? new ArtifactFilter() {
 
-                        private final ArtifactFilter delegate = newScopeFilter(singleScope.substring(1));
+                                private final ArtifactFilter delegate = newScopeFilter(singleScope.substring(1));
 
-                        @Override
-                        public boolean include(final Artifact artifact) {
-                            return !delegate.include(artifact);
-                        }
-                    } : newScopeFilter(singleScope)).collect(toList()));
+                                @Override
+                                public boolean include(final Artifact artifact) {
+                                    return !delegate.include(artifact);
+                                }
+                            } : newScopeFilter(singleScope))
+                            .collect(toList()));
         }
         return new AndArtifactFilter(filters);
     }

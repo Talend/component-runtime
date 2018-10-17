@@ -22,6 +22,7 @@ import {
 	GET_COMPONENT_ERROR,
 	GET_COMPONENT_OK,
 	SELECT_COMPONENT_NODE,
+	TOGGLE_COMPONENT_NODE,
 	BACK_TO_COMPONENT_EDIT,
 	SUBMIT_COMPONENT,
 } from '../constants';
@@ -94,4 +95,11 @@ export function selectNode(node) {
 
 export function selectComponent(node) {
 	return selectNode(node);
+}
+
+export function toggleComponent(node) {
+	return {
+        type: TOGGLE_COMPONENT_NODE,
+        node,
+    };
 }

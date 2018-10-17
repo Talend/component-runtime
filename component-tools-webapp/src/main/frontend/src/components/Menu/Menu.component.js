@@ -23,6 +23,7 @@ class Menu extends React.Component {
 	constructor(props) {
 		super(props);
 		this.onSelect = this.onSelect.bind(this);
+		this.onToggle = this.onToggle.bind(this);
 		this.onSwitch = this.onSwitch.bind(this);
 		this.noOp = () => {};
 	}
@@ -31,7 +32,11 @@ class Menu extends React.Component {
 		this.props.getComponentsList();
 	}
 
-	onSelect(node) {
+	onToggle(event, node) {
+        this.props.toggleComponent(node);
+	}
+
+	onSelect(event, node) {
 		if (node.$$type ==='component' && node.selected) {
 			return;
 		}
@@ -48,6 +53,7 @@ class Menu extends React.Component {
 		}
 		return (
 			<div className={theme.menu}>
+			    {this.props.error && <p>{this.props.error}</p>}
 				<div className={theme.TreeViewHeader}>
 					<div>Components</div>
 					<Toggle onChange={this.onSwitch} checked={this.props.configurationSelected} />
@@ -57,8 +63,10 @@ class Menu extends React.Component {
 					noHeader="true"
 					className={theme.menu}
 					structure={this.props.categories || []}
-					onClick={this.noOp}
+					selectedId={this.props.selectedId}
 					onSelect={this.onSelect}
+					onToggle={this.onToggle}
+					onToggleAllSiblings={this.noOp}
 				/>
 			</div>
 		);

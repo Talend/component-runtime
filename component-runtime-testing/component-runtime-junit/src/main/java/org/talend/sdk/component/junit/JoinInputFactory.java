@@ -89,13 +89,15 @@ public class JoinInputFactory implements ControllableInputFactory {
             synchronized (this) {
                 if (jsonb == null) {
                     jsonb = JsonbBuilder
-                            .create(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).setProperty(
-                                    "johnzon.cdi.activated", false));
+                            .create(new JsonbConfig()
+                                    .withAdapters(new MultipleFormatDateAdapter())
+                                    .setProperty("johnzon.cdi.activated", false));
                 }
             }
         }
 
-        return new RecordConverters().toRecord(next, () -> jsonb,
-                () -> ComponentManager.instance().getRecordBuilderFactoryProvider().apply(null));
+        return new RecordConverters()
+                .toRecord(next, () -> jsonb,
+                        () -> ComponentManager.instance().getRecordBuilderFactoryProvider().apply(null));
     }
 }

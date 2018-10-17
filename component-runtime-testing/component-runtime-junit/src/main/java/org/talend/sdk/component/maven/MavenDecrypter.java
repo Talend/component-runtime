@@ -94,8 +94,9 @@ public class MavenDecrypter {
     }
 
     private static File getM2() {
-        return ofNullable(System.getProperty("talend.maven.decrypter.m2.location")).map(File::new).orElseGet(
-                () -> new File(System.getProperty("user.home"), ".m2"));
+        return ofNullable(System.getProperty("talend.maven.decrypter.m2.location"))
+                .map(File::new)
+                .orElseGet(() -> new File(System.getProperty("user.home"), ".m2"));
     }
 
     public static void main(final String[] args) {

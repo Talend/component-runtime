@@ -183,8 +183,9 @@ public @interface WithServer {
                     if (ENV.get() == null) {
                         final Tacokit tacokit = startTacokitRemoteServer(Network.randomPort());
                         ENV.set(new Env(tacokit, null));
-                        Runtime.getRuntime().addShutdownHook(
-                                new Thread(ENV.get()::close, "proxy-test-servers-shutdown"));
+                        Runtime
+                                .getRuntime()
+                                .addShutdownHook(new Thread(ENV.get()::close, "proxy-test-servers-shutdown"));
 
                         tacokit.prepare(extensionContext.getTestClass().get());
                         tacokit.launch();
@@ -227,14 +228,16 @@ public @interface WithServer {
             store.put(TestServer.class, ENV.get().getPlayServer());
             store.put(Tacokit.class, ENV.get().getTacokit());
             store.put(Client.class, client);
-            store.put(WebTarget.class,
-                    client.target("http://localhost:" + ENV.get().getPlayServer().port() + "/componentproxy/api/v1"));
+            store
+                    .put(WebTarget.class, client
+                            .target("http://localhost:" + ENV.get().getPlayServer().port() + "/componentproxy/api/v1"));
         }
 
         @Override
         public void afterAll(ExtensionContext extensionContext) {
-            ofNullable(extensionContext.getStore(NAMESPACE).get(Client.class)).map(Client.class::cast).ifPresent(
-                    Client::close);
+            ofNullable(extensionContext.getStore(NAMESPACE).get(Client.class))
+                    .map(Client.class::cast)
+                    .ifPresent(Client::close);
         }
 
         @Override
@@ -255,11 +258,9 @@ public @interface WithServer {
         }
 
         private Application startPlayApplication(final int tacokitPort) {
-            final ApplicationLoader.Context context =
-                    ApplicationLoader.create(
-                            new Environment(new File(jarLocation(Extension.class), "test/play/conf"),
-                                    Thread.currentThread().getContextClassLoader(), Mode.TEST),
-                            new HashMap<String, Object>() {
+            final ApplicationLoader.Context context = ApplicationLoader
+                    .create(new Environment(new File(jarLocation(Extension.class), "test/play/conf"),
+                            Thread.currentThread().getContextClassLoader(), Mode.TEST), new HashMap<String, Object>() {
 
                                 {
                                     put("config.resource", "test/play/conf/application.conf");
@@ -385,9 +386,9 @@ public @interface WithServer {
             if (isSkipped()) {
                 return;
             }
-            final String classpath =
-                    of(ofNullable(libs.listFiles()).orElseGet(() -> new File[0])).map(File::getAbsolutePath).collect(
-                            joining(File.pathSeparator));
+            final String classpath = of(ofNullable(libs.listFiles()).orElseGet(() -> new File[0]))
+                    .map(File::getAbsolutePath)
+                    .collect(joining(File.pathSeparator));
 
             try {
                 process = new ProcessBuilder()

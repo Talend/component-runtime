@@ -6,6 +6,7 @@ an impacts a lot the startup time, several jars are excluded out of the box.
 
 These jars use the following prefix:
 
+[.talend-filterlist]
 - ApacheJMeter
 - FastInfoset
 - HdrHistogram
@@ -247,6 +248,7 @@ These jars use the following prefix:
 - joda-time-
 - johnzon-
 - jolokia-
+- joni-
 - jopt-simple
 - jruby-
 - json-
@@ -292,7 +294,8 @@ These jars use the following prefix:
 - mesos-
 - metadata-extractor-
 - metrics-
-- microprofile-config-api-
+- microprofile-config-api
+- microprofile-openapi-api
 - microprofile-opentracing-api
 - mimepull-
 - mina-
@@ -325,11 +328,13 @@ These jars use the following prefix:
 - openwebbeans-
 - openws-
 - ops4j-
+- options
 - org.apache.aries
 - org.apache.commons
 - org.apache.log4j
 - org.eclipse.
 - org.junit.
+- org.osgi.annotation.versioning
 - org.osgi.core-
 - org.osgi.enterprise
 - org.talend
@@ -475,6 +480,7 @@ it is important to ensure we don't scan the whole classes for performances reaso
 
 Therefore, the following packages are ignored:
 
+[.talend-filterlist]
 - avro.shaded
 - com.codehale.metrics
 - com.ctc.wstx

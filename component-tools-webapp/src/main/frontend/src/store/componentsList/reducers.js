@@ -20,6 +20,7 @@ import {
   GET_COMPONENT_LIST_ERROR,
   GET_COMPONENT_LIST_OK,
   SELECT_COMPONENT_NODE,
+  TOGGLE_COMPONENT_NODE,
 } from '../constants';
 
 function getCategory(node) {
@@ -55,35 +56,22 @@ function getPath(selectedNode) {
   };
 }
 
-function getNextLevel(level) {
-  switch (level) {
-    case 'category': return 'family';
-    case 'family': return 'component';
-    default: return null;
-  }
-}
-
-function updateSelected(tree, level, paths) {
-  const nextLevel = getNextLevel(level);
-
+function updateToggle(tree, currentNode) {
   return tree.map(node => {
-    const isOldPath = node.id === get(paths.old, [level, 'id']);
-    const isNewPath = node.id === get(paths.new, [level, 'id']);
-    const isNewSelectedNode = node === paths.new.selectedNode;
-    if (isOldPath || isNewPath) {
-      const newNode = {
+    if (currentNode.id === node.id) {
+      return {
         ...node,
-        selected: isNewSelectedNode,
+        isOpened: !node.isOpened,
       };
-      if (isNewSelectedNode && level !== 'component') {
-        newNode.toggled = !newNode.toggled;
+    } else {
+      if (node.children) {
+        return {
+          ...node,
+          children: updateToggle(node.children, currentNode),
+        }
       }
-      if (nextLevel) {
-        newNode.children = updateSelected(node.children, nextLevel, paths);
-      }
-      return newNode;
+      return node;
     }
-    return node;
   });
 }
 
@@ -93,27 +81,30 @@ export default (state = {}, action) => {
       return {
         ...state,
         isLoading: true,
-				configurationSelected: action.configuration,
+        configurationSelected: action.configuration,
       };
     case GET_COMPONENT_LIST_OK:
       return {
         ...state,
         isLoading: false,
         categories: action.categories,
+        error: undefined,
       };
     case GET_COMPONENT_LIST_ERROR:
+      return {
+        ...state,
+        error: action.error,
+      };
     case SELECT_COMPONENT_NODE:
       return {
         ...state,
+        selectedId: action.node.id,
         selectedNode: action.node,
-        categories: updateSelected(
-          state.categories,
-          'category',
-          {
-            old: getPath(state.selectedNode),
-            new: getPath(action.node),
-          },
-        ),
+      };
+    case TOGGLE_COMPONENT_NODE:
+      return {
+        ...state,
+        categories: updateToggle(state.categories, action.node),
       };
     default:
       return state;

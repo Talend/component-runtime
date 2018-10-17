@@ -79,7 +79,7 @@ public class MaxBatchSizeParamBuilder {
                 .filter(s -> s.length > 2)
                 .map(s -> s[2])
                 .findFirst()
-                .orElse("gridlayout");
+                .orElse("default");
         switch (rootLayoutType.toLowerCase(Locale.ROOT)) {
         case "verticallayout":
             return "tcomp::ui::verticallayout";
@@ -89,6 +89,8 @@ public class MaxBatchSizeParamBuilder {
             return "tcomp::ui::autolayout";
         case "optionsorder":
             return "tcomp::ui::optionsorder";
+        case "default":
+            return null;
         case "gridlayout":
         default:
             return "tcomp::ui::gridlayout::Advanced::value";

@@ -157,7 +157,9 @@ Use light validations first before going with custom validations because they ar
 
 ==== Custom validations
 
-Custom validations enforce custom code to be executed, they are more heavy to process, so prefer using light validations when possible.
+Custom validations enforce custom code to be executed, they are more heavy to execute.
+
+TIP: always prefer using light validations when possible.
 
 Define an action with the parameters needed for the validation and link the option you want to validate to this action.
 For example, to validate a dataset for a JDBC driver:
@@ -214,6 +216,10 @@ public ValidationResult validateDriver(@Option("value") MyConfiguration configur
 
 NOTE: The parameter binding of the validation method uses the same logic as the component configuration injection. Therefore, the `@Option` method specifies the prefix to use to reference a parameter. +
 It is recommended to use `@Option("value")` until you know exactly why you don't use it. This way, the consumer can match the configuration model and just prefix it with `value.` to send the instance to validate.
+
+The validations are triggers based on "events" so if you mark part of a configuration as `@Validable` but it is translated
+to a widget without any interaction then nothing will never happen. The rule of thumb here is to ensure you mark only
+primitives and simple types (List of primitives) as validable.
 
 === Completion
 

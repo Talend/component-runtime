@@ -40,6 +40,7 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.dependencies.Resolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.lifecycle.Lifecycle;
@@ -110,8 +111,11 @@ public class ContainerManager implements Lifecycle {
                             load(mappingStream);
                         }
                     };
-                    nestedContainerMapping.putAll(properties.stringPropertyNames().stream().collect(
-                            toMap(identity(), properties::getProperty)));
+                    nestedContainerMapping
+                            .putAll(properties
+                                    .stringPropertyNames()
+                                    .stream()
+                                    .collect(toMap(identity(), properties::getProperty)));
                     info("Mapped " + getDefinedNestedPlugin() + " plugins");
                 } else {
                     info("No " + nestedPluginMappingResource + " found, will use file resolution");
@@ -181,8 +185,8 @@ public class ContainerManager implements Lifecycle {
 
         final String[] coords = path.split(":");
         if (coords.length > 2) { // mvn gav
-            final String relativePath =
-                    String.format("%s/%s/%s/%s-%s%s.%s", coords[0].replace('.', '/'), coords[1], coords[2], coords[1],
+            final String relativePath = String
+                    .format("%s/%s/%s/%s-%s%s.%s", coords[0].replace('.', '/'), coords[1], coords[2], coords[1],
                             coords[2], coords.length == 5 ? coords[4] : "", coords.length >= 4 ? coords[3] : "jar");
             final File file = new File(rootRepositoryLocation, relativePath);
             if (file.exists()) {
@@ -354,8 +358,9 @@ public class ContainerManager implements Lifecycle {
 
             final Container container = new Container(id, location, classpath.toArray(Artifact[]::new),
                     classLoaderConfiguration, ContainerManager.this::resolve,
-                    ofNullable(containerInitializer).orElse(NOOP_CUSTOMIZER).andThen(
-                            ofNullable(customizer).orElse(NOOP_CUSTOMIZER))) {
+                    ofNullable(containerInitializer)
+                            .orElse(NOOP_CUSTOMIZER)
+                            .andThen(ofNullable(customizer).orElse(NOOP_CUSTOMIZER))) {
 
                 @Override
                 public void close() {
@@ -378,22 +383,30 @@ public class ContainerManager implements Lifecycle {
             container.set(Actions.class, new Actions(container));
 
             final Collection<RuntimeException> re = new ArrayList<>();
-            final Collection<ContainerListener> calledListeners = listeners
-                    .stream()
-                    .filter(l -> !ofNullable(safeInvoke(() -> l.onCreate(container))).map(re::add).orElse(false))
-                    .collect(toList());
-            if (calledListeners.size() == listeners.size()) {
-                if (containers.putIfAbsent(id, container) != null) {
-                    container.setState(Container.State.ON_ERROR);
+            final ConfigurableClassLoader loader = container.getLoader();
+            final Thread thread = Thread.currentThread();
+            final ClassLoader oldLoader = thread.getContextClassLoader();
+            thread.setContextClassLoader(loader);
+            try {
+                final Collection<ContainerListener> calledListeners = listeners
+                        .stream()
+                        .filter(l -> !ofNullable(safeInvoke(() -> l.onCreate(container))).map(re::add).orElse(false))
+                        .collect(toList());
+                if (calledListeners.size() == listeners.size()) {
+                    if (containers.putIfAbsent(id, container) != null) {
+                        container.setState(Container.State.ON_ERROR);
+                        calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
+                        throw new IllegalArgumentException("Container '" + id + "' already exists");
+                    }
+                } else {
+                    info("Failed creating container " + id);
                     calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
-                    throw new IllegalArgumentException("Container '" + id + "' already exists");
+                    final IllegalArgumentException exception = new IllegalArgumentException(id + " can't be deployed");
+                    re.forEach(exception::addSuppressed);
+                    throw exception;
                 }
-            } else {
-                info("Failed creating container " + id);
-                calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
-                final IllegalArgumentException exception = new IllegalArgumentException(id + " can't be deployed");
-                re.forEach(exception::addSuppressed);
-                throw exception;
+            } finally {
+                thread.setContextClassLoader(oldLoader);
             }
 
             container.setState(Container.State.DEPLOYED);

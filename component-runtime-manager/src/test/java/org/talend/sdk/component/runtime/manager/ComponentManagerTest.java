@@ -77,6 +77,8 @@ class ComponentManagerTest {
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
         DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl("plugin"));
+        final String jvd = System.getProperty("java.version.date"); // java 11
+        System.clearProperty("java.version.date");
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
@@ -90,6 +92,9 @@ class ComponentManagerTest {
             if (ofNullable(pluginFolder.listFiles()).map(f -> f.length == 0).orElse(true)) {
                 pluginFolder.delete();
             }
+            if (jvd != null) {
+                System.setProperty("java.version.date", jvd);
+            }
         }
     }
 
@@ -99,10 +104,11 @@ class ComponentManagerTest {
         pluginFolder.mkdirs();
 
         // just some jars with classes we can scan
-        final File plugin1 = pluginGenerator.createPlugin(pluginFolder, "plugin1.jar",
-                "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
-        final File plugin2 = pluginGenerator.createPlugin(pluginFolder, "plugin2.jar",
-                "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.5:runtime");
+        final File plugin1 = pluginGenerator
+                .createPlugin(pluginFolder, "plugin1.jar", "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+        final File plugin2 = pluginGenerator
+                .createPlugin(pluginFolder, "plugin2.jar",
+                        "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.5:runtime");
 
         // ensure jmx value is free and we don't get a test luck
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();

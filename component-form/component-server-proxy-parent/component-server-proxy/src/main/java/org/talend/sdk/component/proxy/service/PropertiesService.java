@@ -69,9 +69,10 @@ public class PropertiesService {
                 .map(ref -> {
                     final Map<String, String> enrichedMetadata = new HashMap<>(ref.getMetadata());
                     // note: we can move to suggestions later
-                    enrichedMetadata.put("action::dynamic_values",
-                            "builtin::references(type=" + ref.getMetadata().get("configurationtype::type") + ",name="
-                                    + ref.getMetadata().get("configurationtype::name") + ")");
+                    enrichedMetadata
+                            .put("action::dynamic_values",
+                                    "builtin::references(type=" + ref.getMetadata().get("configurationtype::type")
+                                            + ",name=" + ref.getMetadata().get("configurationtype::name") + ")");
 
                     return new SimplePropertyDefinition(ref.getPath(), ref.getName(), ref.getDisplayName(), "STRING",
                             null,
@@ -106,16 +107,17 @@ public class PropertiesService {
             fillMeta = completedFuture(null);
         }
 
-        return fillMeta.thenApply(ignored -> Stream
-                .concat(properties
-                        .stream()
-                        .filter(it -> nestedConfigurations
+        return fillMeta
+                .thenApply(ignored -> Stream
+                        .concat(properties
                                 .stream()
-                                .noneMatch(prefix -> prefix.getPath().equals(it.getPath())
-                                        || it.getPath().startsWith(prefix.getPath() + '.'))),
-                        // not the best naming convention but enough for now
-                        nestedConfigurations.stream().peek(it -> it.setPath(it.getPath() + ".$selfReference")))
-                .collect(toList()));
+                                .filter(it -> nestedConfigurations
+                                        .stream()
+                                        .noneMatch(prefix -> prefix.getPath().equals(it.getPath())
+                                                || it.getPath().startsWith(prefix.getPath() + '.'))),
+                                // not the best naming convention but enough for now
+                                nestedConfigurations.stream().peek(it -> it.setPath(it.getPath() + ".$selfReference")))
+                        .collect(toList()));
     }
 
     private boolean isConfiguration(final SimplePropertyDefinition it) {
@@ -135,8 +137,9 @@ public class PropertiesService {
         return referenceService
                 .findReferencesByTypeAndName(node.getConfigurationType(), node.getId(), context)
                 .thenApply(values -> ofNullable(values.getItems())
-                        .map(items -> items.stream().collect(
-                                toMap(Values.Item::getId, Values.Item::getLabel, (a, b) -> {
+                        .map(items -> items
+                                .stream()
+                                .collect(toMap(Values.Item::getId, Values.Item::getLabel, (a, b) -> {
                                     throw new IllegalArgumentException("Conflict is not possible here");
                                 }, LinkedHashMap::new)))
                         .orElseGet(LinkedHashMap::new));
@@ -170,25 +173,30 @@ public class PropertiesService {
             }
             final String sanitizedPath = it.getPath().replace(".$selfReference", "");
             ofNullable(instance.get(it.getPath())).ifPresent(val -> config.put(it.getPath(), val));
-            return referenceService.findPropertiesById(id, context).thenCompose(form -> configurations
-                    .getDetails(context.getLanguage(), form.getFormId(), context.getPlaceholderProvider())
-                    .thenCompose(detail -> filterProperties(detail.getProperties(), context).thenCompose(
-                            props -> replaceReferences(context, props, form.getProperties()).thenApply(nestedProps -> {
-                                final String root = detail
-                                        .getProperties()
-                                        .stream()
-                                        .map(SimplePropertyDefinition::getPath)
-                                        .sorted()
-                                        .iterator()
-                                        .next();
-                                config.putAll(nestedProps
-                                        .entrySet()
-                                        .stream()
-                                        .collect(toMap(e -> e.getKey().startsWith(root)
-                                                ? sanitizedPath + e.getKey().substring(root.length())
-                                                : e.getKey(), Map.Entry::getValue)));
-                                return null;
-                            }))));
+            return referenceService
+                    .findPropertiesById(id, context)
+                    .thenCompose(form -> configurations
+                            .getDetails(context.getLanguage(), form.getFormId(), context.getPlaceholderProvider())
+                            .thenCompose(detail -> filterProperties(detail.getProperties(), context)
+                                    .thenCompose(props -> replaceReferences(context, props, form.getProperties())
+                                            .thenApply(nestedProps -> {
+                                                final String root = detail
+                                                        .getProperties()
+                                                        .stream()
+                                                        .map(SimplePropertyDefinition::getPath)
+                                                        .sorted()
+                                                        .iterator()
+                                                        .next();
+                                                config
+                                                        .putAll(nestedProps
+                                                                .entrySet()
+                                                                .stream()
+                                                                .collect(toMap(e -> e.getKey().startsWith(root)
+                                                                        ? sanitizedPath
+                                                                                + e.getKey().substring(root.length())
+                                                                        : e.getKey(), Map.Entry::getValue)));
+                                                return null;
+                                            }))));
         }).toArray(CompletableFuture[]::new)).thenApply(ignored -> config);
     }
 }

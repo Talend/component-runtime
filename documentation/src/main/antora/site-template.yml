@@ -22,7 +22,7 @@ content:
   - url: https://github.com/Talend/component-runtime.git
     tags:
       - component-runtime-*
-      - '!component-runtime-0.0.1'
+      - '!component-runtime-0.*'
       - '!component-runtime-1.0.0'
     branches:
       - master

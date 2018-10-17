@@ -35,8 +35,9 @@ public class Artifact {
     private final String scope;
 
     public String toPath() {
-        return String.format("%s/%s/%s/%s-%s%s.%s", group.replace(".", "/"), artifact, version, artifact, version,
-                ofNullable(classifier).map(c -> '-' + c).orElse(""), type);
+        return String
+                .format("%s/%s/%s/%s-%s%s.%s", group.replace(".", "/"), artifact, version, artifact, version,
+                        ofNullable(classifier).map(c -> '-' + c).orElse(""), type);
     }
 
     public String toCoordinate() {

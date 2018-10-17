@@ -17,7 +17,6 @@ package org.talend.sdk.component.design.extension.flows;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 
@@ -60,11 +59,14 @@ class ProcessorFlowsFactory implements FlowsFactory {
         Method listener = getListener();
         return concat(
                 concat(listener.getReturnType().equals(Void.TYPE) ? Stream.empty() : of(Branches.DEFAULT_BRANCH),
-                        of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
-                                p -> p.getAnnotation(Output.class).value())),
-                of(type.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).flatMap(
-                        m -> of(m.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
-                                p -> p.getAnnotation(Output.class).value()))).collect(toSet());
+                        of(listener.getParameters())
+                                .filter(p -> p.isAnnotationPresent(Output.class))
+                                .map(p -> p.getAnnotation(Output.class).value())),
+                of(type.getMethods())
+                        .filter(m -> m.isAnnotationPresent(AfterGroup.class))
+                        .flatMap(m -> of(m.getParameters())
+                                .filter(p -> p.isAnnotationPresent(Output.class))
+                                .map(p -> p.getAnnotation(Output.class).value()))).distinct().collect(toList());
     }
 
     /**
@@ -73,8 +75,10 @@ class ProcessorFlowsFactory implements FlowsFactory {
      * @return listener method
      */
     private Method getListener() {
-        return of(type.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst().orElseThrow(
-                () -> new IllegalArgumentException("No @ElementListener method in " + type));
+        return of(type.getMethods())
+                .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + type));
     }
 
     /**

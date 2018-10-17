@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.beam.spi;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,16 +30,23 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.transforms.Create;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.design.extension.flows.FlowsFactory;
 import org.talend.sdk.component.runtime.base.Serializer;
 import org.talend.sdk.component.runtime.beam.data.Sample;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
@@ -49,13 +57,26 @@ class BeamComponentExtensionTest {
     private final BeamComponentExtension extension = new BeamComponentExtension();
 
     @Test
-    public void supports() {
+    void flowFactory() {
+        final FlowsFactory factory = extension
+                .unwrap(FlowsFactory.class,
+                        new ComponentFamilyMeta.ProcessorMeta(
+                                new ComponentFamilyMeta("test", emptyList(), null, "test", "test"), "beam", null, 1,
+                                BeamMapper.class, emptyList(), null, null, true) {
+
+                        });
+        assertEquals(1, factory.getInputFlows().size());
+        assertEquals(asList("main1", "main2"), factory.getOutputFlows());
+    }
+
+    @Test
+    void supports() {
         assertTrue(extension.supports(Mapper.class));
         assertTrue(extension.supports(Processor.class));
     }
 
     @Test
-    public void toMapper() throws IOException, ClassNotFoundException {
+    void toMapper() throws IOException, ClassNotFoundException {
         final ComponentContextImpl context = new ComponentContextImpl(BeamSource.class);
         context.setCurrentExtension(extension);
         extension.onComponent(context);
@@ -121,6 +142,29 @@ class BeamComponentExtensionTest {
         @Override
         public PCollection<Sample> expand(final PBegin input) {
             return source.expand(input);
+        }
+    }
+
+    public static class BeamMapper extends PTransform<PCollection<IndexedRecord>, PCollection<?>> {
+
+        @Override
+        public PCollection<?> expand(final PCollection<IndexedRecord> input) {
+            final MyDoFn fn = new MyDoFn();
+            return input.apply(ParDo.of(fn));
+        }
+
+        @ElementListener
+        public void designDefinition(final IndexedRecord input, @Output("main1") final IndexedRecord ignored1,
+                @Output("main2") final IndexedRecord ignored2) {
+            // not used, here just for the design
+        }
+
+        public static class MyDoFn extends DoFn<IndexedRecord, String> {
+
+            @ProcessElement
+            public void onElement(@Element final IndexedRecord record, final OutputReceiver<String> output) {
+                // no-op
+            }
         }
     }
 }

@@ -84,8 +84,10 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
         case NUMBER:
             return singletonMap(e.getKey(), String.valueOf(JsonNumber.class.cast(e.getValue()).doubleValue()));
         case OBJECT:
-            return flatten(JsonObject.class.cast(e.getValue())).entrySet().stream().collect(
-                    toMap(it -> e.getKey() + '.' + it.getKey(), Map.Entry::getValue));
+            return flatten(JsonObject.class.cast(e.getValue()))
+                    .entrySet()
+                    .stream()
+                    .collect(toMap(it -> e.getKey() + '.' + it.getKey(), Map.Entry::getValue));
         case ARRAY:
             final JsonArray array = JsonArray.class.cast(e.getValue());
             int index = 0;
@@ -113,12 +115,17 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
 
         final JsonObjectBuilder json = factory.createObjectBuilder();
 
-        new ArrayList<>(definitions).stream().filter(it -> it.getPath().equals(prefix + it.getName())).forEach(
-                prop -> onProperty(prefix, definitions, config, json, prop));
+        new ArrayList<>(definitions)
+                .stream()
+                .filter(it -> it.getPath().equals(prefix + it.getName()))
+                .forEach(prop -> onProperty(prefix, definitions, config, json, prop));
 
         // handle virtual properties ($xxx) which are not spec-ed
-        config.entrySet().stream().filter(it -> it.getKey().startsWith("$") && !it.getKey().contains(".")).forEach(
-                e -> json.add(e.getKey(), e.getValue()));
+        config
+                .entrySet()
+                .stream()
+                .filter(it -> it.getKey().startsWith("$") && !it.getKey().contains("."))
+                .forEach(e -> json.add(e.getKey(), e.getValue()));
 
         return json.build();
     }
@@ -130,8 +137,11 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
         if (!subConfig.isEmpty()) {
             json.add(name, unflatten(currentPath, definitions, subConfig));
         } else {
-            new ArrayList<>(definitions).stream().filter(it -> isNested(it.getPath(), prop.getPath())).forEach(
-                    p -> onProperty(currentPath, definitions, extractSubConfig(config, p.getName() + '.'), json, p));
+            new ArrayList<>(definitions)
+                    .stream()
+                    .filter(it -> isNested(it.getPath(), prop.getPath()))
+                    .forEach(p -> onProperty(currentPath, definitions, extractSubConfig(config, p.getName() + '.'),
+                            json, p));
         }
     }
 
@@ -140,8 +150,11 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
     }
 
     private Map<String, String> extractSubConfig(final Map<String, String> config, final String prefix) {
-        return config.entrySet().stream().filter(it -> isNested(it.getKey(), prefix)).collect(
-                toMap(it -> it.getKey().substring(prefix.length() + 1), Map.Entry::getValue));
+        return config
+                .entrySet()
+                .stream()
+                .filter(it -> isNested(it.getKey(), prefix))
+                .collect(toMap(it -> it.getKey().substring(prefix.length() + 1), Map.Entry::getValue));
     }
 
     private void onProperty(final String prefix, final Collection<SimplePropertyDefinition> definitions,
@@ -177,12 +190,16 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
             break;
         }
         case "BOOLEAN":
-            ofNullable(config.get(name)).map(String::trim).filter(v -> !v.isEmpty()).ifPresent(
-                    v -> json.add(name, Boolean.parseBoolean(v)));
+            ofNullable(config.get(name))
+                    .map(String::trim)
+                    .filter(v -> !v.isEmpty())
+                    .ifPresent(v -> json.add(name, Boolean.parseBoolean(v)));
             break;
         case "NUMBER":
-            ofNullable(config.get(name)).map(String::trim).filter(v -> !v.isEmpty()).ifPresent(
-                    v -> json.add(name, Double.parseDouble(v)));
+            ofNullable(config.get(name))
+                    .map(String::trim)
+                    .filter(v -> !v.isEmpty())
+                    .ifPresent(v -> json.add(name, Double.parseDouble(v)));
             break;
         case "ENUM":
         case "STRING":
@@ -216,9 +233,11 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
                 .map(index -> {
                     final String itemPrefix = definition.getPath() + "[].";
                     final String configFilter = definition.getName() + "[" + index + "].";
-                    return unflatten(itemPrefix, objectOptions,
-                            config.entrySet().stream().filter(sc -> sc.getKey().startsWith(configFilter)).collect(
-                                    toMap(sc -> sc.getKey().substring(configFilter.length()), Map.Entry::getValue)));
+                    return unflatten(itemPrefix, objectOptions, config
+                            .entrySet()
+                            .stream()
+                            .filter(sc -> sc.getKey().startsWith(configFilter))
+                            .collect(toMap(sc -> sc.getKey().substring(configFilter.length()), Map.Entry::getValue)));
                 })
                 .collect(toJsonArray());
     }

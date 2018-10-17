@@ -155,9 +155,10 @@ public class ProxyConfiguration {
                 throw new IllegalArgumentException(e);
             }
             final Set<String> dynamicHeaderKeys = new HashSet<>();
-            final Map<String, Function<Function<String, String>, String>> providers =
-                    properties.stringPropertyNames().stream().collect(
-                            toMap(identity(), e -> substitutor.compile(dynamicHeaderKeys, properties.getProperty(e))));
+            final Map<String, Function<Function<String, String>, String>> providers = properties
+                    .stringPropertyNames()
+                    .stream()
+                    .collect(toMap(identity(), e -> substitutor.compile(dynamicHeaderKeys, properties.getProperty(e))));
             dynamicHeaders = unmodifiableSet(dynamicHeaderKeys);
             headerAppender = (builder, placeholders) -> {
                 Invocation.Builder out = builder;

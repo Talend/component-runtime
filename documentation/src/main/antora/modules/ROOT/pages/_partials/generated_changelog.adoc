@@ -1,5 +1,17 @@
 
 
+== Version 1.1.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1110[TCOMP-1110^]: When a configuration has no layout and uses @AfterGroup the configuration is lost
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1111[TCOMP-1111^]: Move to PropertyEditorRegistry from xbean instead of using the deprecated static class
+
+
 == Version 1.1.0
 
 === Backlog Task
@@ -13,14 +25,23 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1008[TCOMP-1008^]: Enum order is lost
 - link:https://jira.talendforge.org/browse/TCOMP-1009[TCOMP-1009^]: (web) OptionsOrder ignored for tables (List<MyClass>), fields located in random order
 - link:https://jira.talendforge.org/browse/TCOMP-1028[TCOMP-1028^]: [tools-webapp] submit button no more functional
+- link:https://jira.talendforge.org/browse/TCOMP-1031[TCOMP-1031^]: DiscoverSchema parameters are not correctly mapped in Studio GuessSchema runtime
 - link:https://jira.talendforge.org/browse/TCOMP-1044[TCOMP-1044^]: Fix java.lang.ClassCastException in TableActionParameter
 - link:https://jira.talendforge.org/browse/TCOMP-1046[TCOMP-1046^]: String option can't set default value from a file
 - link:https://jira.talendforge.org/browse/TCOMP-1056[TCOMP-1056^]: ActiveIf doesn't work in advanced settings
+- link:https://jira.talendforge.org/browse/TCOMP-1072[TCOMP-1072^]: Metadata migration issues
 - link:https://jira.talendforge.org/browse/TCOMP-1074[TCOMP-1074^]: talend-component mvn plugin : deploy-in-studio need to rise an error when component is already installed
 - link:https://jira.talendforge.org/browse/TCOMP-1075[TCOMP-1075^]: component reload file on windows after deploying a modified jar
+- link:https://jira.talendforge.org/browse/TCOMP-1076[TCOMP-1076^]: component starter - fix mapper generation (Record integration)
+- link:https://jira.talendforge.org/browse/TCOMP-1077[TCOMP-1077^]: component starter - ensure kit version are updated atomically.
+- link:https://jira.talendforge.org/browse/TCOMP-1078[TCOMP-1078^]: Guess Schema button is not shown on Basic Settings view
+- link:https://jira.talendforge.org/browse/TCOMP-1082[TCOMP-1082^]: Fix Exception during HealthCheck parameter deserialization
+- link:https://jira.talendforge.org/browse/TCOMP-1085[TCOMP-1085^]: [classloader] com.sun is too wide as exclusion
+- link:https://jira.talendforge.org/browse/TCOMP-1104[TCOMP-1104^]: Fix drag and drop issue for dataset/datastore metadata
 - link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
 - link:https://jira.talendforge.org/browse/TCOMP-819[TCOMP-819^]: Processor doesn't produce more than 1 row on each iteration
 - link:https://jira.talendforge.org/browse/TCOMP-917[TCOMP-917^]: Migration handler need only to receive component configuration
+- link:https://jira.talendforge.org/browse/TCOMP-941[TCOMP-941^]: Default and init values are ignored in connection wizzard (datastore/dataset)
 - link:https://jira.talendforge.org/browse/TCOMP-968[TCOMP-968^]: Trigger AsyncValidation call only when option annotated with Validable is changed
 - link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods
 - link:https://jira.talendforge.org/browse/TCOMP-973[TCOMP-973^]: component migration - the configuration version need to be serialized in addition to the version of the component
@@ -28,6 +49,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-988[TCOMP-988^]: component migration - fix nested configuration migration
 - link:https://jira.talendforge.org/browse/TCOMP-989[TCOMP-989^]: .car studio install command breaks config.ini of the studio
 - link:https://jira.talendforge.org/browse/TCOMP-991[TCOMP-991^]: metadat : ignore activations from config not being part of the form while creating metadata
+- link:https://jira.talendforge.org/browse/TCOMP-996[TCOMP-996^]: metadata : migration issues
 
 
 === New Feature
@@ -38,7 +60,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1014[TCOMP-1014^]: Ensure a dataset has a source which has no other required parameters in the validator
 - link:https://jira.talendforge.org/browse/TCOMP-1029[TCOMP-1029^]: Extend ActiveIf EvaluationStrategy with CONTAINS strategy
 - link:https://jira.talendforge.org/browse/TCOMP-1039[TCOMP-1039^]: Integrate Updatable configuration feature into Studio
+- link:https://jira.talendforge.org/browse/TCOMP-1063[TCOMP-1063^]: Integrate Record API to the studio
+- link:https://jira.talendforge.org/browse/TCOMP-1069[TCOMP-1069^]: restrict input branches for output components to only one.
 - link:https://jira.talendforge.org/browse/TCOMP-1071[TCOMP-1071^]: support actions i18n display name
+- link:https://jira.talendforge.org/browse/TCOMP-1092[TCOMP-1092^]: Ensure @Configuration POJO are injectable as Supplier in services
+- link:https://jira.talendforge.org/browse/TCOMP-1094[TCOMP-1094^]: Add FullSerializationRecordCoder coder for Record in beam module
+- link:https://jira.talendforge.org/browse/TCOMP-1095[TCOMP-1095^]: Ensure all configuration type models root entries are named "configuration"
 - link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
 - link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
 
@@ -47,7 +74,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1003[TCOMP-1003^]: [dependency upgrade] Tomcat 9.0.12
 - link:https://jira.talendforge.org/browse/TCOMP-1004[TCOMP-1004^]: [dependency upgrade] Log4j2 2.11.1
-- link:https://jira.talendforge.org/browse/TCOMP-1015[TCOMP-1015^]: Upgrade icons to 0.207.0
+- link:https://jira.talendforge.org/browse/TCOMP-1015[TCOMP-1015^]: Upgrade icons to 1.0.0
 - link:https://jira.talendforge.org/browse/TCOMP-1019[TCOMP-1019^]: (form) enum should lead to restricted datalist
 - link:https://jira.talendforge.org/browse/TCOMP-1037[TCOMP-1037^]: [dependency upgrade] Johnzon 1.1.9
 - link:https://jira.talendforge.org/browse/TCOMP-1038[TCOMP-1038^]: Drop spring client from component-form-core
@@ -63,7 +90,23 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1055[TCOMP-1055^]: remove the ExecutionResource
 - link:https://jira.talendforge.org/browse/TCOMP-1057[TCOMP-1057^]: Add ActiveIf on @Proposable test-case
 - link:https://jira.talendforge.org/browse/TCOMP-1058[TCOMP-1058^]: Add DefaultValue on proposable/dynamicValue testcase
+- link:https://jira.talendforge.org/browse/TCOMP-1059[TCOMP-1059^]: Rework generic record format
 - link:https://jira.talendforge.org/browse/TCOMP-1073[TCOMP-1073^]: [maven/gradle plugin] Add configuration support in web goal
+- link:https://jira.talendforge.org/browse/TCOMP-1079[TCOMP-1079^]: Document new Record structure
+- link:https://jira.talendforge.org/browse/TCOMP-1080[TCOMP-1080^]: [dependency upgrade] Meecrowave 1.2.4
+- link:https://jira.talendforge.org/browse/TCOMP-1081[TCOMP-1081^]: ComponentManager should ignore engine classes in its filtering
+- link:https://jira.talendforge.org/browse/TCOMP-1087[TCOMP-1087^]: Jsonb service should serialize byte[] as BASE64
+- link:https://jira.talendforge.org/browse/TCOMP-1089[TCOMP-1089^]: [starter] Upgrade gradle to 4.10.2
+- link:https://jira.talendforge.org/browse/TCOMP-1090[TCOMP-1090^]: [form] Main/Advanced order not respected when some remote action are involved
+- link:https://jira.talendforge.org/browse/TCOMP-1091[TCOMP-1091^]: Ensure main component is preferred over test ones in a maven project
+- link:https://jira.talendforge.org/browse/TCOMP-1093[TCOMP-1093^]: [dependency upgrade] netty 4.1.30.Final for junit http testing module
+- link:https://jira.talendforge.org/browse/TCOMP-1096[TCOMP-1096^]: [dependency upgrade] xbean 4.10
+- link:https://jira.talendforge.org/browse/TCOMP-1097[TCOMP-1097^]: [dependency upgrade] Beam 2.7.0
+- link:https://jira.talendforge.org/browse/TCOMP-1099[TCOMP-1099^]: Upgrade web ui bundle to 1.0.2
+- link:https://jira.talendforge.org/browse/TCOMP-1101[TCOMP-1101^]: Add conditional rendering in the generated documentation
+- link:https://jira.talendforge.org/browse/TCOMP-1102[TCOMP-1102^]: Reflect in documentation that Validable/AsyncValidation doesn't support Object types
+- link:https://jira.talendforge.org/browse/TCOMP-1106[TCOMP-1106^]: Enable to generate the component documentation in multiple languages
+- link:https://jira.talendforge.org/browse/TCOMP-1107[TCOMP-1107^]: ConfigurableClassLoader does not priviledges container classloader for getResourceAsStream
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard

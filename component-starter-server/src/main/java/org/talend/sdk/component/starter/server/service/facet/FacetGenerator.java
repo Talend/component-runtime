@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -45,11 +46,11 @@ public interface FacetGenerator {
 
     default Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
             final Collection<ProjectRequest.SourceConfiguration> sources,
-            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+            final Collection<ProjectRequest.ProcessorConfiguration> processors, final ServerInfo.Snapshot versions) {
         return Stream.empty();
     }
 
-    default Stream<Dependency> dependencies(final Collection<String> facets) {
+    default Stream<Dependency> dependencies(final Collection<String> facets, final ServerInfo.Snapshot versions) {
         return Stream.empty();
     }
 

@@ -39,8 +39,10 @@ public class IdGenerator {
             return null;
         }
 
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(
-                String.join("#", args).getBytes(StandardCharsets.UTF_8));
+        return Base64
+                .getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(String.join("#", args).getBytes(StandardCharsets.UTF_8));
     }
 
 }

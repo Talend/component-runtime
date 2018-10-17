@@ -75,23 +75,25 @@ public class JsonSchemaConverter implements PropertyConverter {
                     return CompletableFuture.completedFuture(context);
                 }
                 jsonSchema.setType(type.toLowerCase(ROOT));
-                of(properties
-                        .stream()
-                        .filter(context::isDirectChild)
+                of(context
+                        .findDirectChild(properties)
                         .filter(nested -> new PropertyContext<>(nested, context.getRootContext(),
                                 context.getConfiguration()).isRequired())
                         .map(SimplePropertyDefinition::getName)
                         .collect(toSet())).filter(s -> !s.isEmpty()).ifPresent(jsonSchema::setRequired);
-                return CompletableFuture.completedFuture(context).thenCompose(
-                        c -> postHandling(context, jsonSchema, type));
+                return CompletableFuture
+                        .completedFuture(context)
+                        .thenCompose(c -> postHandling(context, jsonSchema, type));
             }
         });
     }
 
     private CompletionStage<PropertyContext<?>> postHandling(final PropertyContext<?> context,
             final JsonSchema jsonSchema, final String type) {
-        final String defaultValue = context.getProperty().getMetadata().getOrDefault("ui::defaultvalue::value",
-                context.getProperty().getDefaultValue());
+        final String defaultValue = context
+                .getProperty()
+                .getMetadata()
+                .getOrDefault("ui::defaultvalue::value", context.getProperty().getDefaultValue());
         convertDefaultValue(type, defaultValue).ifPresent(jsonSchema::setDefaultValue);
 
         final PropertyValidation validation = context.getProperty().getValidation();
@@ -113,8 +115,7 @@ public class JsonSchemaConverter implements PropertyConverter {
             rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema);
         }
 
-        final Set<SimplePropertyDefinition> nestedProperties =
-                properties.stream().filter(context::isDirectChild).collect(toSet());
+        final Set<SimplePropertyDefinition> nestedProperties = context.findDirectChild(properties).collect(toSet());
         if (!nestedProperties.isEmpty()) {
             final String order = context.getProperty().getMetadata().get("ui::optionsorder::value");
             if (order != null) {

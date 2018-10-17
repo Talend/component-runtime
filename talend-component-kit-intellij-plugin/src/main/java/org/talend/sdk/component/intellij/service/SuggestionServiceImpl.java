@@ -211,6 +211,9 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     private int withPriority(final Suggestion.Type type) {
+        if (Suggestion.Type.Action.equals(type)) {
+            return 5;
+        }
         if (Suggestion.Type.Family.equals(type)) {
             return 3;
         }

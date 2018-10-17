@@ -129,13 +129,23 @@ See `org.talend.sdk.component.runtime.beam.transform.avro.IndexedRecordCoder`.
 
 === JsonObject to IndexedRecord
 
-The mainstream model is `JsonObject` but it is common to have a legacy system using
-`IndexedRecord`. To mitigate the transition, you can use the following `PTransforms`:
+If your `PCollection` is made of `JsonObject` records, and you want to convert them to `IndexedRecord`, you can use the following `PTransforms`:
 
-- `IndexedRecordToJson`: to convert an `IndexedRecord` to a `JsonObject`.
-- `JsonToIndexedRecord`: to convert a `JsonObject` to an `IndexedRecord`.
-- `SchemalessJsonToIndexedRecord`: to convert a `JsonObject` to an `IndexedRecord` with AVRO schema inference.
+`IndexedRecordToJson`:: converts an `IndexedRecord` to a `JsonObject`.
+`JsonToIndexedRecord`:: converts a `JsonObject` to an `IndexedRecord`.
+`SchemalessJsonToIndexedRecord`:: converts a `JsonObject` to an `IndexedRecord` with AVRO schema inference.
 
+=== Record coder
+
+There are two main provided coder for `Record`:
+
+`FullSerializationRecordCoder`:: it will unwrap the record as an Avro `IndexedRecord` and serialize it *with its schema*.
+This can indeed have a performance impact but, due to the structure of component, it will not impact the runtime
+performance in general - except with direct runner - because the runners will optimize the pipeline accurately.
+`SchemaRegistryCoder`:: it will serialize the Avro `IndexedRecord` as well but it will ensure the schema is in the
+`SchemaRegistry` to be able to deserialize it when needed. This implementation is faster *but* the default implementation
+of the registry is "in memory" so will only work with a single worker node. You can extend it using Java SPI mecanism to use a custom
+distributed implementation.
 
 === Sample
 
@@ -148,11 +158,11 @@ The mainstream model is `JsonObject` but it is common to have a legacy system us
 @Emitter(name = "Input")
 @AllArgsConstructor
 @Documentation("Kafka Input")
-public class KafkaInput extends PTransform<PBegin, PCollection<JsonObject>> { <1>
+public class KafkaInput extends PTransform<PBegin, PCollection<Record>> { <1>
 
     private final InputConfiguration configuration;
 
-    private final JsonBuilderFactory builder;
+    private final RecordBuilderFactory builder;
 
     private final PluginCoderFactory coderFactory;
 
@@ -168,32 +178,32 @@ public class KafkaInput extends PTransform<PBegin, PCollection<JsonObject>> { <1
     }
 
     @Override <2>
-    public PCollection<JsonObject> expand(final PBegin pBegin) {
+    public PCollection<Record> expand(final PBegin pBegin) {
         final PCollection<KafkaRecord<byte[], byte[]>> kafkaEntries = pBegin.getPipeline().apply(delegate());
-        return kafkaEntries.apply(ParDo.of(new RecordToJson(builder))).setCoder(coderFactory.jsonp()); <3>
+        return kafkaEntries.apply(ParDo.of(new BytesToRecord(builder))).setCoder(SchemaRegistryCoder.of()); <3>
     }
 
     @AllArgsConstructor
-    private static class RecordToJson extends DoFn<KafkaRecord<byte[], byte[]>, JsonObject> {
+    private static class BytesToRecord extends DoFn<KafkaRecord<byte[], byte[]>, Record> {
 
-        private final JsonBuilderFactory builder;
+        private final RecordBuilderFactory builder;
 
         @ProcessElement
         public void onElement(final ProcessContext context) {
-            context.output(toJson(context.element()));
+            context.output(toRecord(context.element()));
         }
 
-        private JsonObject toJson(final KafkaRecord<byte[], byte[]> element) {
-            return builder.createObjectBuilder().add("key", new String(element.getKV().getKey()))
-                    .add("value", new String(element.getKV().getValue())).build();
+        private Record toRecord(final KafkaRecord<byte[], byte[]> element) {
+            return builder.newRecordBuilder().add("key", element.getKV().getKey())
+                    .add("value", element.getKV().getValue()).build();
         }
     }
 }
 ----
 
 <1> The `PTransform` generics define that the component is an input (`PBegin` marker).
-<2> The `expand` method chains the native I/O with a custom mapper (`RecordToJson`).
-<3> The mapper uses the JSON-P coder automatically created from the contextual component.
+<2> The `expand` method chains the native I/O with a custom mapper (`BytesToRecord`).
+<3> The mapper uses the SchemaRegistry coder automatically created from the contextual component.
 
 Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no `@Emitter`), you need to set the `<talend.validation.component>false</talend.validation.component>` property in your `pom.xml` file (or equivalent for Gradle) to skip the component programming model validations of the framework.
 

@@ -109,8 +109,10 @@ class ModelVisitorTest {
     private List<String> visit(final Class<?> type) {
         final ModelVisitor visitor = new ModelVisitor();
         final List<String> tracker = new ArrayList<>();
-        Stream.of(type.getClasses()).sorted(Comparator.comparing(Class::getName)).forEach(
-                nested -> visitor.visit(nested, new ModelListener() {
+        Stream
+                .of(type.getClasses())
+                .sorted(Comparator.comparing(Class::getName))
+                .forEach(nested -> visitor.visit(nested, new ModelListener() {
 
                     @Override
                     public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {

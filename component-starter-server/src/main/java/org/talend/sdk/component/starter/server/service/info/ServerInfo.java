@@ -18,6 +18,7 @@ package org.talend.sdk.component.starter.server.service.info;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static lombok.AccessLevel.NONE;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +47,9 @@ import org.talend.sdk.component.starter.server.configuration.StarterConfiguratio
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -56,19 +59,7 @@ public class ServerInfo {
 
     private Date lastUpdate;
 
-    private String apiKit;
-
-    private String kit;
-
-    private String beam;
-
-    private String avroJackson;
-
-    private String surefire = "2.22.0";
-
-    private String cxf;
-
-    private String log4j2;
+    private volatile Snapshot snapshot;
 
     @Inject
     @Getter(NONE)
@@ -101,18 +92,19 @@ public class ServerInfo {
     }
 
     private void doUpdate(final Supplier<InputStream> streamProvider) {
+        final Snapshot newSnapshot = new Snapshot();
         try (final InputStream stream = streamProvider.get()) {
             final Properties properties = new Properties();
             properties.load(stream);
             properties.stringPropertyNames().forEach(name -> {
                 try {
-                    final Field field = ServerInfo.class.getDeclaredField(name);
+                    final Field field = Snapshot.class.getDeclaredField(name);
                     if (!field.isAccessible()) {
                         field.setAccessible(true);
                     }
                     final String property = properties.getProperty(name);
                     if (!property.trim().isEmpty()) {
-                        field.set(ServerInfo.this, property);
+                        field.set(newSnapshot, property);
                     }
                 } catch (final Exception ise) {
                     log.error(ise.getMessage(), ise);
@@ -121,6 +113,7 @@ public class ServerInfo {
         } catch (final IOException ioe) {
             throw new IllegalStateException(ioe);
         }
+        snapshot = newSnapshot;
         lastUpdate = new Date();
     }
 
@@ -137,9 +130,9 @@ public class ServerInfo {
             parser.parse(metadata, handler);
             if (handler.release != null) {
                 final String release = handler.release.toString();
-                if (!release.equals(kit)) {
+                if (!release.equals(snapshot.getKit())) {
                     synchronized (this) {
-                        log.info("Updating current version from {} to {}", kit, release);
+                        log.info("Updating current version from {} to {}", snapshot.getKit(), release);
                         doUpdate(() -> base
                                 .path("{version}/component-starter-server-{version}-versions.properties")
                                 .resolveTemplate("version", release)
@@ -187,5 +180,24 @@ public class ServerInfo {
         public void endElement(final String uri, final String localName, final String qName) {
             text = null;
         }
+    }
+
+    @Data
+    @NoArgsConstructor(access = PRIVATE)
+    public static class Snapshot {
+
+        private String apiKit;
+
+        private String kit;
+
+        private String beam;
+
+        private String avroJackson;
+
+        private String surefire = "2.22.0";
+
+        private String cxf;
+
+        private String log4j2;
     }
 }

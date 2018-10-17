@@ -22,8 +22,6 @@ import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeCon
 import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -33,6 +31,7 @@ import java.util.Objects;
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
+import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
@@ -40,7 +39,7 @@ import org.talend.sdk.component.runtime.record.RecordConverters;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
-    private static final ZoneId UTC = ZoneId.of("UTC");
+    private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
     private final IndexedRecord delegate;
 
@@ -64,18 +63,23 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         avroSchema.setFields(fields);
         this.schema = new AvroSchema(avroSchema);
         this.delegate = new GenericData.Record(avroSchema);
-        sortedEntries.forEach(
-                entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName()))).ifPresent(v -> {
-                    Object avroValue = directMapping(v);
-                    if (Collection.class.isInstance(avroValue)) {
-                        avroValue =
-                                Collection.class.cast(avroValue).stream().map(this::directMapping).collect(toList());
-                    }
-                    if (avroValue != null) {
-                        this.delegate.put(avroSchema.getField(sanitizeConnectionName(entry.getName())).pos(),
-                                avroValue);
-                    }
-                }));
+        sortedEntries
+                .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
+                        .ifPresent(v -> {
+                            Object avroValue = directMapping(v);
+                            if (Collection.class.isInstance(avroValue)) {
+                                avroValue = Collection.class
+                                        .cast(avroValue)
+                                        .stream()
+                                        .map(this::directMapping)
+                                        .collect(toList());
+                            }
+                            if (avroValue != null) {
+                                this.delegate
+                                        .put(avroSchema.getField(sanitizeConnectionName(entry.getName())).pos(),
+                                                avroValue);
+                            }
+                        }));
     }
 
     private Object directMapping(final Object value) {
@@ -161,13 +165,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchema, final Object value) {
         if (Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name())) && Long.class.isInstance(value)
                 && expectedType != Long.class) {
-            if (expectedType == ZonedDateTime.class) {
-                return expectedType
-                        .cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Number.class.cast(value).longValue()), UTC));
-            }
-            if (expectedType == Date.class) {
-                return expectedType.cast(new Date(Number.class.cast(value).longValue()));
-            }
+            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
         if (IndexedRecord.class.isInstance(value) && (Record.class == expectedType || Object.class == expectedType)) {
             return expectedType.cast(new AvroRecord(IndexedRecord.class.cast(value)));
@@ -178,10 +176,10 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                     .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));
         }
         if (!expectedType.isInstance(value)) {
-            if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
-                return new RecordConverters().mapNumber(expectedType, Number.class.cast(value));
+            if (Utf8.class.isInstance(value) && String.class == expectedType) {
+                return expectedType.cast(value.toString());
             }
-            throw new ClassCastException("Invalid casting: " + expectedType + " is not compatible with " + value);
+            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
         return expectedType.cast(value);
     }

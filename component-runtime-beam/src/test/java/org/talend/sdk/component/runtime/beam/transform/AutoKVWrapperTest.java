@@ -43,8 +43,10 @@ public class AutoKVWrapperTest implements Serializable {
     @Test
     public void test() {
         PAssert
-                .that(buildBasePipeline(pipeline).apply(AutoKVWrapper.of(null,
-                        JobImpl.LocalSequenceHolder.cleanAndGet(getClass().getName() + ".test"), "", "")))
+                .that(buildBasePipeline(pipeline)
+                        .apply(AutoKVWrapper
+                                .of(null, JobImpl.LocalSequenceHolder.cleanAndGet(getClass().getName() + ".test"), "",
+                                        "")))
                 .satisfies(values -> {
                     final List<KV<String, Record>> items = StreamSupport
                             .stream(values.spliterator(), false)

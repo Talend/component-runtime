@@ -90,8 +90,10 @@ public class BeamProcessorChainImpl implements Processor, Serializable, Delegate
     public BeamProcessorChainImpl(final List<CapturingPipeline.TransformWithCoder> transforms,
             final CoderRegistry coderRegistry, final String plugin, final String family, final String name) {
         this(transforms.get(transforms.size() - 1),
-                transforms.stream().flatMap(t -> toProcessors(t, coderRegistry, plugin, family, name)).collect(
-                        toList()),
+                transforms
+                        .stream()
+                        .flatMap(t -> toProcessors(t, coderRegistry, plugin, family, name))
+                        .collect(toList()),
                 plugin, family, name);
     }
 
@@ -194,8 +196,9 @@ public class BeamProcessorChainImpl implements Processor, Serializable, Delegate
 
     private static Stream<Processor> toProcessors(final CapturingPipeline.TransformWithCoder transform,
             final CoderRegistry coderRegistry, final String plugin, final String family, final String name) {
-        return extractDoFn(transform, coderRegistry).stream().map(
-                fn -> new BeamProcessorImpl(fn, fn, plugin, family, name));
+        return extractDoFn(transform, coderRegistry)
+                .stream()
+                .map(fn -> new BeamProcessorImpl(fn, fn, plugin, family, name));
     }
 
     private static Collection<DoFn<?, ?>> extractDoFn(final CapturingPipeline.TransformWithCoder step,
@@ -208,8 +211,9 @@ public class BeamProcessorChainImpl implements Processor, Serializable, Delegate
 
             @Override
             public PCollection<Object> expand(final PBegin input) {
-                return PCollection.createPrimitiveOutputInternal(capturingPipeline, WindowingStrategy.globalDefault(),
-                        PCollection.IsBounded.BOUNDED, TypingCoder.INSTANCE);
+                return PCollection
+                        .createPrimitiveOutputInternal(capturingPipeline, WindowingStrategy.globalDefault(),
+                                PCollection.IsBounded.BOUNDED, TypingCoder.INSTANCE);
             }
 
             @Override

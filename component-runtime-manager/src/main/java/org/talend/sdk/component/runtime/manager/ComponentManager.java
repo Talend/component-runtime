@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.manager;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -26,7 +25,6 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
@@ -51,6 +49,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -66,11 +65,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -82,6 +79,7 @@ import javax.json.JsonReaderFactory;
 import javax.json.JsonWriterFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGeneratorFactory;
@@ -95,11 +93,12 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
-import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.FilteredArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
+import org.apache.xbean.finder.util.Files;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -137,6 +136,7 @@ import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
+import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
@@ -151,9 +151,7 @@ import org.talend.sdk.component.runtime.manager.service.configuration.Properties
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
-import org.talend.sdk.component.runtime.manager.xbean.FilterFactory;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
-import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
@@ -195,26 +193,11 @@ public class ComponentManager implements AutoCloseable {
     @Getter
     protected final ContainerManager container;
 
-    // tcomp (org.talend + javax.annotation + jsonp) + logging (slf4j) are/can be provided
-    // service
-    // + tcomp "runtime" indeed (invisible from the components but required for the
-    // runtime
-    private final Filter classesFilter = Filters.prefixes(Stream
-            .concat(Stream.of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
-                    "javax.json.", "org.talend.sdk.component.classloader.", "org.talend.sdk.component.runtime.",
-                    "org.slf4j.", "org.apache.johnzon."), additionalContainerClasses())
-            .toArray(String[]::new));
+    // tcomp (org.talend + javax.annotation + jsonp) + logging (slf4j) are/can be provided service
+    // + tcomp "runtime" indeed (invisible from the components but required for the runtime
+    private final Filter classesFilter;
 
-    private final Filter beamClassesFilter = FilterFactory.and(classesFilter,
-            Filters.prefixes("org.apache.beam.runners.", "org.apache.beam.sdk.", "org.apache.beam.repackaged.",
-                    "org.apache.beam.vendor.", "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
-                    "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
-                    "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.", "org.apache.commons.compress.",
-                    "org.tukaani.xz.", "org.objenesis.", "org.joda.time.", "org.xerial.snappy.", "avro.shaded.",
-                    "org.apache.avro."));
-
-    private final Filter excludeClassesFilter =
-            Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
+    private final Filter excludeClassesFilter;
 
     private final ParameterModelService parameterModelService;
 
@@ -262,8 +245,19 @@ public class ComponentManager implements AutoCloseable {
     // org.slf4j.event but https://issues.apache.org/jira/browse/MNG-6360
     private final Level logInfoLevelMapping;
 
+    private final List<Customizer> customizers;
+
     @Getter
     private final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
+
+    @Getter
+    private final JsonbConfig jsonbConfig = new JsonbConfig()
+            .withAdapters(new MultipleFormatDateAdapter())
+            .withBinaryDataStrategy(BinaryDataStrategy.BASE_64)
+            .setProperty("johnzon.cdi.activated", false)
+            .setProperty("johnzon.accessModeDelegate", new TalendAccessMode());
+
+    private final PropertyEditorRegistry propertyEditorRegistry;
 
     /**
      * @param m2 the maven repository location if on the file system.
@@ -274,41 +268,58 @@ public class ComponentManager implements AutoCloseable {
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
+        customizers =
+                StreamSupport.stream(ServiceLoader.load(Customizer.class, tccl).spliterator(), false).collect(toList());
+        classesFilter = Filters
+                .prefixes(Stream
+                        .concat(Stream
+                                .of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.",
+                                        "javax.annotation.", "javax.json.", "org.talend.sdk.component.classloader.",
+                                        "org.talend.sdk.component.runtime.", "org.slf4j.", "org.apache.johnzon."),
+                                additionalContainerClasses())
+                        .distinct()
+                        .toArray(String[]::new));
+        excludeClassesFilter = Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
+
         jsonpProvider = JsonProvider.provider();
         jsonbProvider = JsonbProvider.provider();
         // these factories have memory caches so ensure we reuse them properly
-        jsonpGeneratorFactory = JsonGeneratorFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null,
-                JsonGeneratorFactory.class.getName(), jsonpProvider.createGeneratorFactory(emptyMap())));
-        jsonpReaderFactory = JsonReaderFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null,
-                JsonReaderFactory.class.getName(), jsonpProvider.createReaderFactory(emptyMap())));
-        jsonpBuilderFactory = JsonBuilderFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null,
-                JsonBuilderFactory.class.getName(), jsonpProvider.createBuilderFactory(emptyMap())));
-        jsonpParserFactory = JsonParserFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null,
-                JsonParserFactory.class.getName(), jsonpProvider.createParserFactory(emptyMap())));
-        jsonpWriterFactory = JsonWriterFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null,
-                JsonWriterFactory.class.getName(), jsonpProvider.createWriterFactory(emptyMap())));
+        jsonpGeneratorFactory = JsonGeneratorFactory.class
+                .cast(javaProxyEnricherFactory
+                        .asSerializable(tccl, null, JsonGeneratorFactory.class.getName(),
+                                jsonpProvider.createGeneratorFactory(emptyMap())));
+        jsonpReaderFactory = JsonReaderFactory.class
+                .cast(javaProxyEnricherFactory
+                        .asSerializable(tccl, null, JsonReaderFactory.class.getName(),
+                                jsonpProvider.createReaderFactory(emptyMap())));
+        jsonpBuilderFactory = JsonBuilderFactory.class
+                .cast(javaProxyEnricherFactory
+                        .asSerializable(tccl, null, JsonBuilderFactory.class.getName(),
+                                jsonpProvider.createBuilderFactory(emptyMap())));
+        jsonpParserFactory = JsonParserFactory.class
+                .cast(javaProxyEnricherFactory
+                        .asSerializable(tccl, null, JsonParserFactory.class.getName(),
+                                jsonpProvider.createParserFactory(emptyMap())));
+        jsonpWriterFactory = JsonWriterFactory.class
+                .cast(javaProxyEnricherFactory
+                        .asSerializable(tccl, null, JsonWriterFactory.class.getName(),
+                                jsonpProvider.createWriterFactory(emptyMap())));
 
         logInfoLevelMapping = findLogInfoLevel();
 
+        propertyEditorRegistry = new PropertyEditorRegistry();
         localConfigurations = createRawLocalConfigurations();
-        parameterModelService = new ParameterModelService();
-        reflections = new ReflectionService(parameterModelService);
+        parameterModelService = new ParameterModelService(propertyEditorRegistry);
+        reflections = new ReflectionService(parameterModelService, propertyEditorRegistry);
         migrationHandlerFactory = new MigrationHandlerFactory(reflections);
 
+        final Predicate<String> isContainerClass = name -> isContainerClass(classesFilter, name);
         final ContainerManager.ClassLoaderConfiguration defaultClassLoaderConfiguration =
                 ContainerManager.ClassLoaderConfiguration
                         .builder()
                         .parent(tccl)
-                        .parentClassesFilter(name -> isContainerClass(beamClassesFilter, name)) // beam is desired
-                        .classesFilter(name -> !isContainerClass(classesFilter, name))
-                        .supportsResourceDependencies(true)
-                        .create();
-        final ContainerManager.ClassLoaderConfiguration beamClassLoaderConfiguration =
-                ContainerManager.ClassLoaderConfiguration
-                        .builder()
-                        .parent(tccl)
-                        .parentClassesFilter(name -> isContainerClass(beamClassesFilter, name))
-                        .classesFilter(name -> !isContainerClass(beamClassesFilter, name))
+                        .parentClassesFilter(isContainerClass)
+                        .classesFilter(isContainerClass.negate())
                         .supportsResourceDependencies(true)
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
@@ -316,17 +327,13 @@ public class ComponentManager implements AutoCloseable {
                 .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource))
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
-                    // if a beam component then ensure to use beam specific filtering
-                    // since it becomes part of the container
-                    if (container.getDependencies() != null && Stream.of(container.getDependencies()).anyMatch(
-                            a -> a.getGroup().startsWith("org.apache.beam")
-                                    || a.getArtifact().startsWith("beam-sdks-java-"))) {
-                        container.set(ContainerManager.ClassLoaderConfiguration.class, beamClassLoaderConfiguration);
-                    }
                 }, logInfoLevelMapping);
         this.container.registerListener(new Updater());
-        ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty()).ifPresent(p -> this.container
-                .registerListener(new JmxManager(container, p, ManagementFactory.getPlatformMBeanServer())));
+        ofNullable(jmxNamePattern)
+                .map(String::trim)
+                .filter(n -> !n.isEmpty())
+                .ifPresent(p -> this.container
+                        .registerListener(new JmxManager(container, p, ManagementFactory.getPlatformMBeanServer())));
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
                 .peek(e -> e.setComponentManager(ComponentManager.this))
                 .forEach(container::registerListener);
@@ -395,29 +402,33 @@ public class ComponentManager implements AutoCloseable {
                                 addCallerAsPlugin();
                             }
 
-                            // common for studio until job generation is updated to build a tcomp friendly
-                            // bundle
-                            // alternatively we could capture based on TALEND-INF/dependencies.txt jars
+                            // common for studio until job generation is updated to build a tcomp friendly bundle
                             if (!Boolean.getBoolean("component.manager.classpath.skip")) {
-                                final String componentClasspath = findClasspath().replace(File.pathSeparatorChar, ';');
-                                if (!componentClasspath.isEmpty()) {
-                                    final String[] jars = componentClasspath.split(";");
-                                    if (jars.length > 1) {
-                                        Stream
-                                                .of(jars)
-                                                .map(FileArchive::decode)
-                                                .map(File::new)
-                                                .filter(File::exists)
-                                                .filter(f -> !f.isDirectory() && f.getName().endsWith(".jar"))
-                                                .filter(f -> KnownJarsFilter.INSTANCE.test(f.getName()))
-                                                .filter(f -> !hasPlugin(container.buildAutoIdFromName(f.getName())))
-                                                .forEach(jar -> addPlugin(jar.getAbsolutePath()));
+                                try {
+                                    final Enumeration<URL> componentMarkers = Thread
+                                            .currentThread()
+                                            .getContextClassLoader()
+                                            .getResources("TALEND-INF/dependencies.txt");
+                                    while (componentMarkers.hasMoreElements()) {
+                                        File file = Files.toFile(componentMarkers.nextElement());
+                                        if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
+                                                && file.getParentFile().getName().equals("TALEND-INF")) {
+                                            file = file.getParentFile().getParentFile();
+                                        }
+                                        if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
+                                            addPlugin(file.getAbsolutePath());
+                                        }
                                     }
+                                } catch (final IOException e) {
+                                    // no-op
                                 }
                             }
 
-                            container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)).forEach(
-                                    this::addPlugin);
+                            container
+                                    .getDefinedNestedPlugin()
+                                    .stream()
+                                    .filter(p -> !hasPlugin(p))
+                                    .forEach(this::addPlugin);
                             info("Components: " + availablePlugins());
                         }
 
@@ -471,52 +482,38 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
-    private static String findClasspath() { // alternative is to use getResources("") and parse urls
-        return ofNullable(System.getProperty("component.manager.classpath")).orElseGet(() -> Stream
-                .of(System.getProperty("java.class.path"), findManifestClassPath())
-                .filter(Objects::nonNull)
-                .map(s -> s.replace(File.separatorChar, '/'))
-                .collect(joining(File.pathSeparator)));
+    private Stream<String> additionalContainerClassesThroughExtension() {
+        return Stream
+                .concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
+                        ofNullable(
+                                System.getProperty("talend.component.manager.classloader.container.classesAndPackages"))
+                                        .map(s -> s.split(","))
+                                        .map(Stream::of)
+                                        .orElseGet(Stream::empty));
     }
 
-    // studio specific (launching from the interface)
-    private static String findManifestClassPath() {
-        return ofNullable(System.getProperty("java.class.path"))
-                .flatMap(cp -> Stream
-                        .of(cp.split(File.pathSeparator))
-                        .map(File::new)
-                        .filter(f -> f.getName().equals("classpath.jar"))
-                        .findFirst())
-                .map(f -> {
-                    // respect this format sun.misc.URLClassPath.JarLoader.parseClassPath()
-                    try (final JarFile file = new JarFile(f)) {
-                        return ofNullable(file.getManifest())
-                                .map(Manifest::getMainAttributes)
-                                .map(a -> a.getValue(Attributes.Name.CLASS_PATH))
-                                .map(value -> value.replace(' ', ';'))
-                                .orElse(null);
-                    } catch (final IOException e) {
-                        log.warn(e.getMessage());
-                        log.debug(e.getMessage(), e);
-                        return null;
-                    }
-                })
-                .map(String::trim)
-                .orElse(null);
-    }
-
-    private static Stream<String> additionalContainerClasses() {
+    private Stream<String> additionalContainerClasses() {
         try { // if beam is here just skips beam sdk java core classes and load them from the container
             ComponentManager.class.getClassLoader().loadClass("org.apache.beam.sdk.Pipeline");
-            // todo: refine to let not beam component provide their own impl
-            return Stream.of("org.apache.beam.runners.", "org.apache.beam.sdk.",
-                    "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
-                    "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
-                    "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.", "org.apache.commons.compress.",
-                    "org.tukaani.xz.", "org.objenesis.", "org.joda.time.", "org.xerial.snappy.", "avro.shaded.",
-                    "org.apache.avro.");
+            return Stream
+                    .concat(customizers.stream().anyMatch(Customizer::ignoreBeamClassLoaderExclusions) ? Stream.empty()
+                            : Stream
+                                    .of(
+                                            // beam
+                                            "org.apache.beam.runners.", "org.apache.beam.sdk.",
+                                            "org.apache.beam.repackaged.", "org.apache.beam.vendor.",
+                                            "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
+                                            "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
+                                            "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.",
+                                            "org.apache.commons.compress.", "org.tukaani.xz.", "org.objenesis.",
+                                            "org.joda.time.", "org.xerial.snappy.", "avro.shaded.", "org.apache.avro.",
+                                            // scala - most engines
+                                            "scala.",
+                                            // engines
+                                            "org.apache.spark.", "org.apache.flink."),
+                            additionalContainerClassesThroughExtension());
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
-            return Stream.empty();
+            return additionalContainerClassesThroughExtension();
         }
     }
 
@@ -536,8 +533,9 @@ public class ComponentManager implements AutoCloseable {
 
     private static File findDefaultM2() {
         // check out settings.xml first
-        final File settings = new File(System.getProperty("talend.component.manager.m2.settings",
-                System.getProperty("user.home") + "/.m2/settings.xml"));
+        final File settings = new File(System
+                .getProperty("talend.component.manager.m2.settings",
+                        System.getProperty("user.home") + "/.m2/settings.xml"));
         if (settings.exists()) {
             try {
                 final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -583,20 +581,22 @@ public class ComponentManager implements AutoCloseable {
             final ClassLoader tmpLoader = ofNullable(Thread.currentThread().getContextClassLoader())
                     .orElseGet(ClassLoader::getSystemClassLoader);
             final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
-            final Class<?> jarMarker = tmpLoader.loadClass(Stream
-                    .of(stackTrace)
-                    .filter(c -> !c.getClassName().startsWith("org.talend.sdk.component.runtime.manager.")
-                            && !c.getClassName().startsWith("org.talend.sdk.component.runtime.beam.dsl.")
-                            && !c.getClassName().startsWith("org.talend.sdk.component.runtime.standalone.")
-                            && !c.getClassName().startsWith("org.talend.sdk.component.runtime.avro.")
-                            && !c.getClassName().startsWith("org.talend.daikon.")
-                            && !c.getClassName().startsWith("org.talend.designer.")
-                            && !c.getClassName().startsWith("org.eclipse.") && !c.getClassName().startsWith("java.")
-                            && !c.getClassName().startsWith("javax.") && !c.getClassName().startsWith("sun.")
-                            && !c.getClassName().startsWith("com.sun.") && !c.getClassName().startsWith("com.oracle."))
-                    .findFirst()
-                    .map(StackTraceElement::getClassName)
-                    .orElse(ComponentManager.class.getName()));
+            final Class<?> jarMarker = tmpLoader
+                    .loadClass(Stream
+                            .of(stackTrace)
+                            .filter(c -> !c.getClassName().startsWith("org.talend.sdk.component.runtime.manager.")
+                                    && !c.getClassName().startsWith("org.talend.sdk.component.runtime.beam.dsl.")
+                                    && !c.getClassName().startsWith("org.talend.sdk.component.runtime.standalone.")
+                                    && !c.getClassName().startsWith("org.talend.sdk.component.runtime.avro.")
+                                    && !c.getClassName().startsWith("org.talend.daikon.")
+                                    && !c.getClassName().startsWith("org.talend.designer.")
+                                    && !c.getClassName().startsWith("org.eclipse.")
+                                    && !c.getClassName().startsWith("java.") && !c.getClassName().startsWith("javax.")
+                                    && !c.getClassName().startsWith("sun.") && !c.getClassName().startsWith("com.sun.")
+                                    && !c.getClassName().startsWith("com.oracle."))
+                            .findFirst()
+                            .map(StackTraceElement::getClassName)
+                            .orElse(ComponentManager.class.getName()));
             if (jarMarker == ComponentManager.class) {
                 return;
             }
@@ -608,7 +608,7 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
-    protected Set<String> addJarContaining(final ClassLoader loader, final String resource) {
+    protected List<String> addJarContaining(final ClassLoader loader, final String resource) {
         final URL url = loader.getResource(resource);
         if (url != null) {
             File plugin = null;
@@ -653,25 +653,26 @@ public class ComponentManager implements AutoCloseable {
                         return id;
                     })
                     .filter(Objects::nonNull)
-                    .collect(toSet());
+                    .collect(toList());
         }
-        return emptySet();
+        return emptyList();
     }
 
     private Stream<File> toPluginLocations(final File src) {
         if ("test-classes".equals(src.getName()) && src.getParentFile() != null) { // maven
-            return Stream.of(src, new File(src.getParentFile(), "classes"));
+            return Stream.of(new File(src.getParentFile(), "classes"), src);
         }
 
         // gradle (v3 & v4)
         if ("classes".equals(src.getName()) && src.getParentFile() != null
                 && "test".equals(src.getParentFile().getName()) && src.getParentFile().getParentFile() != null) {
-            return Stream.of(src, new File(src.getParentFile().getParentFile(), "production/classes")).filter(
-                    File::exists);
+            return Stream
+                    .of(new File(src.getParentFile().getParentFile(), "production/classes"), src)
+                    .filter(File::exists);
         }
         if ("test".equals(src.getName()) && src.getParentFile() != null
                 && "java".equals(src.getParentFile().getName())) {
-            return Stream.of(src, new File(src.getParentFile(), "main")).filter(File::exists);
+            return Stream.of(new File(src.getParentFile(), "main"), src).filter(File::exists);
         }
         return Stream.of(src);
     }
@@ -688,10 +689,11 @@ public class ComponentManager implements AutoCloseable {
                 .filter(Objects::nonNull)
                 .map(r -> r.getComponents().get(container.buildAutoIdFromName(plugin)))
                 .filter(Objects::nonNull)
-                .map(component -> ofNullable(componentType.findMeta(component).get(name)).map(comp -> comp
-                        .getInstantiator()
-                        .apply(configuration == null ? null
-                                : comp.getMigrationHandler().migrate(version, configuration))))
+                .map(component -> ofNullable(componentType.findMeta(component).get(name))
+                        .map(comp -> comp
+                                .getInstantiator()
+                                .apply(configuration == null ? null
+                                        : comp.getMigrationHandler().migrate(version, configuration))))
                 .findFirst()
                 .flatMap(identity())
                 // unwrap to access the actual instance which is the desired one
@@ -700,27 +702,29 @@ public class ComponentManager implements AutoCloseable {
 
     public Optional<Mapper> findMapper(final String plugin, final String name, final int version,
             final Map<String, String> configuration) {
-        return find(
-                pluginContainer -> Stream
-                        .of(pluginContainer.get(ContainerComponentRegistry.class).getComponents().get(
-                                container.buildAutoIdFromName(plugin))))
-                                        .filter(Objects::nonNull)
-                                        .map(component -> ofNullable(component.getPartitionMappers().get(name))
-                                                .map(mapper -> mapper
-                                                        .getInstantiator()
-                                                        .apply(configuration == null ? null
-                                                                : mapper.getMigrationHandler().migrate(version,
-                                                                        configuration)))
-                                                .map(Mapper.class::cast))
-                                        .findFirst()
-                                        .flatMap(identity());
+        return find(pluginContainer -> Stream
+                .of(pluginContainer
+                        .get(ContainerComponentRegistry.class)
+                        .getComponents()
+                        .get(container.buildAutoIdFromName(plugin))))
+                                .filter(Objects::nonNull)
+                                .map(component -> ofNullable(component.getPartitionMappers().get(name))
+                                        .map(mapper -> mapper
+                                                .getInstantiator()
+                                                .apply(configuration == null ? null
+                                                        : mapper.getMigrationHandler().migrate(version, configuration)))
+                                        .map(Mapper.class::cast))
+                                .findFirst()
+                                .flatMap(identity());
     }
 
     public Optional<org.talend.sdk.component.runtime.output.Processor> findProcessor(final String plugin,
             final String name, final int version, final Map<String, String> configuration) {
-        return find(
-                pluginContainer -> Stream.of(pluginContainer.get(ContainerComponentRegistry.class).getComponents().get(
-                        container.buildAutoIdFromName(plugin))))
+        return find(pluginContainer -> Stream
+                .of(pluginContainer
+                        .get(ContainerComponentRegistry.class)
+                        .getComponents()
+                        .get(container.buildAutoIdFromName(plugin))))
                                 .filter(Objects::nonNull)
                                 .map(component -> ofNullable(component.getProcessors().get(name))
                                         .map(proc -> proc
@@ -807,6 +811,7 @@ public class ComponentManager implements AutoCloseable {
     @Override
     public void close() {
         container.close();
+        propertyEditorRegistry.close();
     }
 
     private Consumer<Container> createContainerCustomizer(final String originalId) {
@@ -819,8 +824,9 @@ public class ComponentManager implements AutoCloseable {
     private <T> T executeInContainer(final String plugin, final Supplier<T> supplier) {
         final Thread thread = Thread.currentThread();
         final ClassLoader old = thread.getContextClassLoader();
-        thread.setContextClassLoader(
-                container.find(plugin).map(Container::getLoader).map(ClassLoader.class::cast).orElse(old));
+        thread
+                .setContextClassLoader(
+                        container.find(plugin).map(Container::getLoader).map(ClassLoader.class::cast).orElse(old));
         try {
             return supplier.get();
         } finally {
@@ -839,55 +845,74 @@ public class ComponentManager implements AutoCloseable {
         final JsonProvider jsonpProvider = new PreComputedJsonpProvider(containerId, this.jsonpProvider,
                 jsonpParserFactory, jsonpWriterFactory, jsonpBuilderFactory, jsonpGeneratorFactory, jsonpReaderFactory);
         services.put(JsonProvider.class, jsonpProvider);
-        services.put(JsonBuilderFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                containerId, JsonBuilderFactory.class.getName(), jsonpBuilderFactory));
-        services.put(JsonParserFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                containerId, JsonParserFactory.class.getName(), jsonpParserFactory));
-        services.put(JsonReaderFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                containerId, JsonReaderFactory.class.getName(), jsonpReaderFactory));
-        services.put(JsonWriterFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                containerId, JsonWriterFactory.class.getName(), jsonpWriterFactory));
-        services.put(JsonGeneratorFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                containerId, JsonGeneratorFactory.class.getName(), jsonpGeneratorFactory));
+        services
+                .put(JsonBuilderFactory.class,
+                        javaProxyEnricherFactory
+                                .asSerializable(container.getLoader(), containerId, JsonBuilderFactory.class.getName(),
+                                        jsonpBuilderFactory));
+        services
+                .put(JsonParserFactory.class,
+                        javaProxyEnricherFactory
+                                .asSerializable(container.getLoader(), containerId, JsonParserFactory.class.getName(),
+                                        jsonpParserFactory));
+        services
+                .put(JsonReaderFactory.class,
+                        javaProxyEnricherFactory
+                                .asSerializable(container.getLoader(), containerId, JsonReaderFactory.class.getName(),
+                                        jsonpReaderFactory));
+        services
+                .put(JsonWriterFactory.class,
+                        javaProxyEnricherFactory
+                                .asSerializable(container.getLoader(), containerId, JsonWriterFactory.class.getName(),
+                                        jsonpWriterFactory));
+        services
+                .put(JsonGeneratorFactory.class,
+                        javaProxyEnricherFactory
+                                .asSerializable(container.getLoader(), containerId,
+                                        JsonGeneratorFactory.class.getName(), jsonpGeneratorFactory));
 
         final Jsonb jsonb = jsonbProvider
                 .create()
                 .withProvider(jsonpProvider) // reuses the same memory buffering
-                .withConfig(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).setProperty(
-                        "johnzon.cdi.activated", false))
+                .withConfig(jsonbConfig)
                 .build();
-        final Jsonb serializableJsonb = Jsonb.class.cast(javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                containerId, Jsonb.class.getName(), jsonb));
+        final Jsonb serializableJsonb = Jsonb.class
+                .cast(javaProxyEnricherFactory
+                        .asSerializable(container.getLoader(), containerId, Jsonb.class.getName(), jsonb));
         services.put(Jsonb.class, serializableJsonb);
 
         // not JSON services
         final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
-        try (final InputStream stream =
-                container.getLoader().findContainedResource("TALEND-INF/local-configuration.properties")) {
-            if (stream != null) {
-                final Properties properties = new Properties();
-                properties.load(stream);
-                containerConfigurations.add(new PropertiesConfiguration(properties));
+        if (!Boolean.getBoolean("talend.component.configuration." + containerId + ".ignoreLocalConfiguration")) {
+            try (final InputStream stream =
+                    container.getLoader().findContainedResource("TALEND-INF/local-configuration" + ".properties")) {
+                if (stream != null) {
+                    final Properties properties = new Properties();
+                    properties.load(stream);
+                    containerConfigurations.add(new PropertiesConfiguration(properties));
+                }
+            } catch (final IOException e) {
+                throw new IllegalArgumentException(e);
             }
-        } catch (final IOException e) {
-            throw new IllegalArgumentException(e);
         }
         services.put(LocalConfiguration.class, new LocalConfigurationService(containerConfigurations, containerId));
-        services.put(HttpClientFactory.class,
-                new HttpClientFactoryImpl(containerId, reflections, serializableJsonb, services));
+        services
+                .put(HttpClientFactory.class,
+                        new HttpClientFactoryImpl(containerId, reflections, serializableJsonb, services));
         services.put(LocalCache.class, new LocalCacheService(containerId));
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(Resolver.class, new ResolverImpl(containerId, container.getLocalDependencyRelativeResolver()));
-        services.put(Injector.class, new InjectorImpl(containerId, services));
+        services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId));
         services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
     }
 
     protected static Collection<LocalConfiguration> createRawLocalConfigurations() {
         final List<LocalConfiguration> configurations = new ArrayList<>(2);
-        configurations.addAll(
-                toStream(loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
-                        .collect(toList()));
+        configurations
+                .addAll(toStream(
+                        loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
+                                .collect(toList()));
         configurations.addAll(asList(new LocalConfiguration() {
 
             @Override
@@ -971,8 +996,9 @@ public class ComponentManager implements AutoCloseable {
         if (!proxyGenerator.hasInterceptors(type) && proxyGenerator.isSerializable(type)) {
             return type;
         }
-        return container.execute(
-                () -> proxyGenerator.generateProxy(container.getLoader(), type, container.getId(), type.getName()));
+        return container
+                .execute(() -> proxyGenerator
+                        .generateProxy(container.getLoader(), type, container.getId(), type.getName()));
     }
 
     private Function<Map<String, String>, Object[]> createParametersFactory(final String plugin,
@@ -1098,9 +1124,9 @@ public class ComponentManager implements AutoCloseable {
             final Map<String, AnnotatedElement> componentDefaults = new HashMap<>();
 
             finder.findAnnotatedClasses(Internationalized.class).forEach(proxy -> {
-                final Object instance = javaProxyEnricherFactory.asSerializable(container.getLoader(),
-                        container.getId(), proxy.getName(),
-                        internationalizationServiceFactory.create(proxy, container.getLoader()));
+                final Object instance = javaProxyEnricherFactory
+                        .asSerializable(container.getLoader(), container.getId(), proxy.getName(),
+                                internationalizationServiceFactory.create(proxy, container.getLoader()));
                 services.put(proxy, instance);
                 registry.getServices().add(new ServiceMeta(instance, emptyList()));
             });
@@ -1129,8 +1155,9 @@ public class ComponentManager implements AutoCloseable {
                             try {
                                 instance = handleProxy(container, service).getConstructor().newInstance();
                                 if (proxyGenerator.hasInterceptors(service)) {
-                                    proxyGenerator.initialize(instance, new InterceptorHandlerFacade(
-                                            service.getConstructor().newInstance(), services));
+                                    proxyGenerator
+                                            .initialize(instance, new InterceptorHandlerFacade(
+                                                    service.getConstructor().newInstance(), services));
                                 }
                                 return instance;
                             } catch (final InstantiationException | IllegalAccessException e) {
@@ -1153,14 +1180,14 @@ public class ComponentManager implements AutoCloseable {
                 services.put(service, instance);
                 registry
                         .getServices()
-                        .add(new ServiceMeta(instance,
-                                Stream
-                                        .of(service.getMethods())
-                                        .filter(m -> Stream.of(m.getAnnotations()).anyMatch(
-                                                a -> a.annotationType().isAnnotationPresent(ActionType.class)))
-                                        .map(serviceMethod -> createServiceMeta(container, services, componentDefaults,
-                                                service, instance, serviceMethod))
-                                        .collect(toList())));
+                        .add(new ServiceMeta(instance, Stream
+                                .of(service.getMethods())
+                                .filter(m -> Stream
+                                        .of(m.getAnnotations())
+                                        .anyMatch(a -> a.annotationType().isAnnotationPresent(ActionType.class)))
+                                .map(serviceMethod -> createServiceMeta(container, services, componentDefaults, service,
+                                        instance, serviceMethod))
+                                .collect(toList())));
                 info("Added @Service " + service + " for container-id=" + container.getId());
             });
 
@@ -1209,12 +1236,18 @@ public class ComponentManager implements AutoCloseable {
                             final ComponentFamilyMeta componentFamilyMeta =
                                     registry.getComponents().computeIfAbsent(c.getName(), n -> c);
                             if (componentFamilyMeta != c) {
-                                if (componentFamilyMeta.getProcessors().keySet().stream().anyMatch(
-                                        k -> c.getProcessors().keySet().contains(k))) {
+                                if (componentFamilyMeta
+                                        .getProcessors()
+                                        .keySet()
+                                        .stream()
+                                        .anyMatch(k -> c.getProcessors().keySet().contains(k))) {
                                     throw new IllegalArgumentException("Conflicting processors in " + c);
                                 }
-                                if (componentFamilyMeta.getPartitionMappers().keySet().stream().anyMatch(
-                                        k -> c.getPartitionMappers().keySet().contains(k))) {
+                                if (componentFamilyMeta
+                                        .getPartitionMappers()
+                                        .keySet()
+                                        .stream()
+                                        .anyMatch(k -> c.getPartitionMappers().keySet().contains(k))) {
                                     throw new IllegalArgumentException("Conflicting mappers in " + c);
                                 }
 
@@ -1294,10 +1327,16 @@ public class ComponentManager implements AutoCloseable {
 
             return new ServiceMeta.ActionMeta(component, actionType.value(), name,
                     serviceMethod.getGenericParameterTypes(),
-                    parameterModelService.buildServiceParameterMetas(serviceMethod,
-                            ofNullable(serviceMethod.getDeclaringClass().getPackage()).map(Package::getName).orElse(""),
-                            new BaseParameterEnricher.Context(LocalConfiguration.class.cast(
-                                    container.get(AllServices.class).getServices().get(LocalConfiguration.class)))),
+                    parameterModelService
+                            .buildServiceParameterMetas(serviceMethod,
+                                    ofNullable(serviceMethod.getDeclaringClass().getPackage())
+                                            .map(Package::getName)
+                                            .orElse(""),
+                                    new BaseParameterEnricher.Context(LocalConfiguration.class
+                                            .cast(container
+                                                    .get(AllServices.class)
+                                                    .getServices()
+                                                    .get(LocalConfiguration.class)))),
                     invoker);
         }
 
@@ -1341,8 +1380,11 @@ public class ComponentManager implements AutoCloseable {
             ofNullable(container.get(ContainerComponentRegistry.class)).ifPresent(r -> {
                 final ContainerComponentRegistry registry = container.remove(ContainerComponentRegistry.class);
                 registry.getComponents().clear();
-                registry.getServices().stream().filter(i -> !Proxy.isProxyClass(i.getInstance().getClass())).forEach(
-                        s -> doInvoke(container.getId(), s.getInstance(), PreDestroy.class));
+                registry
+                        .getServices()
+                        .stream()
+                        .filter(i -> !Proxy.isProxyClass(i.getInstance().getClass()))
+                        .forEach(s -> doInvoke(container.getId(), s.getInstance(), PreDestroy.class));
                 registry.getServices().clear();
             });
             ofNullable(container.get(AllServices.class))
@@ -1398,8 +1440,8 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
             final Constructor<?> constructor = findConstructor(type);
-            final List<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(constructor,
-                    getPackage(type), new BaseParameterEnricher.Context(
+            final List<ParameterMeta> parameterMetas = parameterModelService
+                    .buildParameterMetas(constructor, getPackage(type), new BaseParameterEnricher.Context(
                             LocalConfiguration.class.cast(services.getServices().get(LocalConfiguration.class))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
@@ -1417,18 +1459,20 @@ public class ComponentManager implements AutoCloseable {
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin,
                                     partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
 
-            component.getPartitionMappers().put(name,
-                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
-                            type, parameterMetas, instantiator,
-                            migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
-                            !context.isNoValidation()));
+            component
+                    .getPartitionMappers()
+                    .put(name,
+                            new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type),
+                                    findVersion(type), type, parameterMetas, instantiator,
+                                    migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
+                                    !context.isNoValidation()));
         }
 
         @Override
         public void onEmitter(final Class<?> type, final Emitter emitter) {
             final Constructor<?> constructor = findConstructor(type);
-            final List<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(constructor,
-                    getPackage(type), new BaseParameterEnricher.Context(
+            final List<ParameterMeta> parameterMetas = parameterModelService
+                    .buildParameterMetas(constructor, getPackage(type), new BaseParameterEnricher.Context(
                             LocalConfiguration.class.cast(services.getServices().get(LocalConfiguration.class))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
@@ -1444,18 +1488,20 @@ public class ComponentManager implements AutoCloseable {
                                                     component.getName(), name), Mapper.class))
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
-            component.getPartitionMappers().put(name,
-                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
-                            type, parameterMetas, instantiator,
-                            migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
-                            !context.isNoValidation()));
+            component
+                    .getPartitionMappers()
+                    .put(name,
+                            new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type),
+                                    findVersion(type), type, parameterMetas, instantiator,
+                                    migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
+                                    !context.isNoValidation()));
         }
 
         @Override
         public void onProcessor(final Class<?> type, final Processor processor) {
             final Constructor<?> constructor = findConstructor(type);
-            final List<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(constructor,
-                    getPackage(type), new BaseParameterEnricher.Context(
+            final List<ParameterMeta> parameterMetas = parameterModelService
+                    .buildParameterMetas(constructor, getPackage(type), new BaseParameterEnricher.Context(
                             LocalConfiguration.class.cast(services.getServices().get(LocalConfiguration.class))));
             addProcessorsBuiltInParameters(type, parameterMetas);
             final Function<Map<String, String>, Object[]> parameterFactory =
@@ -1463,15 +1509,18 @@ public class ComponentManager implements AutoCloseable {
             final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(processor.family());
             final Function<Map<String, String>, org.talend.sdk.component.runtime.output.Processor> instantiator =
-                    context.getOwningExtension() != null && context.getOwningExtension().supports(
-                            org.talend.sdk.component.runtime.output.Processor.class)
+                    context.getOwningExtension() != null && context
+                            .getOwningExtension()
+                            .supports(org.talend.sdk.component.runtime.output.Processor.class)
                                     ? config -> executeInContainer(
                                             plugin,
-                                            () -> context.getOwningExtension().convert(
-                                                    new ComponentInstanceImpl(
-                                                            doInvoke(constructor, parameterFactory.apply(config)),
-                                                            plugin, component.getName(), name),
-                                                    org.talend.sdk.component.runtime.output.Processor.class))
+                                            () -> context
+                                                    .getOwningExtension()
+                                                    .convert(
+                                                            new ComponentInstanceImpl(doInvoke(constructor,
+                                                                    parameterFactory.apply(config)), plugin,
+                                                                    component.getName(), name),
+                                                            org.talend.sdk.component.runtime.output.Processor.class))
                                     : config -> new ProcessorImpl(this.component.getName(), name, plugin,
                                             ofNullable(config)
                                                     .map(it -> it
@@ -1482,11 +1531,13 @@ public class ComponentManager implements AutoCloseable {
                                                             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
                                                     .orElseGet(Collections::emptyMap),
                                             doInvoke(constructor, parameterFactory.apply(config)));
-            component.getProcessors().put(name,
-                    new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
-                            parameterMetas, instantiator,
-                            migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
-                            !context.isNoValidation()));
+            component
+                    .getProcessors()
+                    .put(name,
+                            new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type),
+                                    type, parameterMetas, instantiator,
+                                    migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
+                                    !context.isNoValidation()));
         }
 
         private void addProcessorsBuiltInParameters(final Class<?> type, final List<ParameterMeta> parameterMetas) {
@@ -1512,14 +1563,26 @@ public class ComponentManager implements AutoCloseable {
             if (Stream.of(type.getMethods()).anyMatch(p -> p.isAnnotationPresent(AfterGroup.class))) {
                 final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root);
                 final ParameterMeta maxBatchSize = paramBuilder.newBulkParameter();
-                root.getNestedParameters().add(maxBatchSize);
-                if (!root.getMetadata().containsKey(paramBuilder.getLayoutType())) {
-                    root.getMetadata().put(paramBuilder.getLayoutType(),
-                            paramBuilder.getLayoutType().contains("gridlayout") ? maxBatchSize.getName() : "true");
-                } else if (paramBuilder.getLayoutType().contains("gridlayout")) {
-                    final String oldLayout = root.getMetadata().get(paramBuilder.getLayoutType());
-                    root.getMetadata().put(paramBuilder.getLayoutType(), maxBatchSize.getName() + "|" + oldLayout);
+                final String layoutType = paramBuilder.getLayoutType();
+                if (layoutType == null) {
+                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxBatchSize.getName());
+                    root
+                            .getMetadata()
+                            .put("tcomp::ui::gridlayout::Main::value",
+                                    root
+                                            .getNestedParameters()
+                                            .stream()
+                                            .map(ParameterMeta::getName)
+                                            .collect(joining("|")));
+                } else if (!root.getMetadata().containsKey(layoutType)) {
+                    root
+                            .getMetadata()
+                            .put(layoutType, layoutType.contains("gridlayout") ? maxBatchSize.getName() : "true");
+                } else if (layoutType.contains("gridlayout")) {
+                    final String oldLayout = root.getMetadata().get(layoutType);
+                    root.getMetadata().put(layoutType, maxBatchSize.getName() + "|" + oldLayout);
                 }
+                root.getNestedParameters().add(maxBatchSize);
             }
         }
 
@@ -1572,5 +1635,22 @@ public class ComponentManager implements AutoCloseable {
                 }
             });
         }
+    }
+
+    /**
+     * WARNING: use with caution and only if you fully understand the consequences.
+     */
+    public interface Customizer {
+
+        /**
+         * @return a stream of string representing classes or packages. They will be considered
+         * as loaded from the "container" (ComponentManager loader) and not the components classloaders.
+         */
+        Stream<String> containerClassesAndPackages();
+
+        /**
+         * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.
+         */
+        boolean ignoreBeamClassLoaderExclusions();
     }
 }

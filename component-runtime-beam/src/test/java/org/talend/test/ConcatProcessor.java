@@ -40,9 +40,9 @@ public class ConcatProcessor implements Serializable {
             @Output final OutputEmitter<JsonObject> concat) {
         final JsonObject output = factory
                 .createObjectBuilder()
-                .add("__talend_internal",
-                        factory.createObjectBuilder().add("key",
-                                (str1 == null ? str2 : str1).getJsonObject("__talend_internal").getString("key")))
+                .add("__talend_internal", factory
+                        .createObjectBuilder()
+                        .add("key", (str1 == null ? str2 : str1).getJsonObject("__talend_internal").getString("key")))
                 .add("data",
                         (str1 == null ? "null" : str1.getString("data")) + " "
                                 + (str2 == null ? "null" : str2.getString("data")))

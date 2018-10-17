@@ -147,20 +147,26 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     @Override
     public CompletionStage<Map<String, String>> resolveConfiguration(final RequestContext context, final String id) {
         final UiSpecContext uiSpecContext = new UiSpecContext(context.language(), context::findPlaceholder);
-        return onFindByIdEvent.fireAsync(new OnFindById(context, id)).thenCompose(byId -> byId
-                .getFormId()
-                .thenCompose(formId -> configurationClient
-                        .getDetails(context.language(), formId, context::findPlaceholder)
-                        .thenCompose(detail -> configurationService.filterNestedConfigurations(detail, uiSpecContext)))
-                .thenCompose(detail -> byId.getProperties().thenCompose(
-                        props -> configurationService.replaceReferences(uiSpecContext, detail, props))));
+        return onFindByIdEvent
+                .fireAsync(new OnFindById(context, id))
+                .thenCompose(byId -> byId
+                        .getFormId()
+                        .thenCompose(formId -> configurationClient
+                                .getDetails(context.language(), formId, context::findPlaceholder)
+                                .thenCompose(detail -> configurationService
+                                        .filterNestedConfigurations(detail, uiSpecContext)))
+                        .thenCompose(detail -> byId
+                                .getProperties()
+                                .thenCompose(props -> configurationService
+                                        .replaceReferences(uiSpecContext, detail, props))));
     }
 
     @Override
     public CompletionStage<Collection<SimplePropertyDefinition>> findProperties(final RequestContext context,
             final String id) {
-        return configurationClient.getDetails(context.language(), id, context::findPlaceholder).thenApply(
-                ConfigTypeNode::getProperties);
+        return configurationClient
+                .getDetails(context.language(), id, context::findPlaceholder)
+                .thenApply(ConfigTypeNode::getProperties);
     }
 
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
@@ -197,8 +203,10 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
         }
         final String language = getLang(request);
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        return toUiSpecAndMetadata(language, placeholderProvider, CompletableFuture.completedFuture(
-                new ConfigTypeNode(type, 0, null, type, type, type, emptySet(), new ArrayList<>(), new ArrayList<>())),
+        return toUiSpecAndMetadata(language, placeholderProvider,
+                CompletableFuture
+                        .completedFuture(new ConfigTypeNode(type, 0, null, type, type, type, emptySet(),
+                                new ArrayList<>(), new ArrayList<>())),
                 true);
     }
 
@@ -249,14 +257,18 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
         final HttpRequestContext requestContext = new HttpRequestContext(lang, placeholderProvider, request);
         return onFindByIdEvent
                 .fireAsync(new OnFindById(requestContext, id), notificationOptions)
-                .thenCompose(event -> event.getFormId().thenCompose(
-                        formId -> configurationClient.getDetails(lang, formId, placeholderProvider)))
+                .thenCompose(event -> event
+                        .getFormId()
+                        .thenCompose(formId -> configurationClient.getDetails(lang, formId, placeholderProvider)))
                 .thenCompose(config -> {
                     final JsonObject enrichment =
                             modelEnricherService.extractEnrichment(config.getConfigurationType(), lang, payload);
                     final JsonObject configuration = enrichment.isEmpty() ? payload
-                            : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
-                                    toJsonObject());
+                            : payload
+                                    .entrySet()
+                                    .stream()
+                                    .filter(it -> !enrichment.containsKey(it.getKey()))
+                                    .collect(toJsonObject());
                     return onEditEvent
                             .fireAsync(new OnEdit(id, requestContext, jsonb, enrichment, config.getProperties(),
                                     configurationFormatter.flatten(configuration)), notificationOptions)
@@ -309,8 +321,11 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                     final JsonObject enrichment =
                             modelEnricherService.extractEnrichment(node.getConfigurationType(), lang, payload);
                     final JsonObject configuration = enrichment.isEmpty() ? payload
-                            : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
-                                    toJsonObject());
+                            : payload
+                                    .entrySet()
+                                    .stream()
+                                    .filter(it -> !enrichment.containsKey(it.getKey()))
+                                    .collect(toJsonObject());
                     return onPersistEvent
                             .fireAsync(new OnPersist(requestContext, jsonb, node.getId(), enrichment,
                                     node.getProperties(), configurationFormatter.flatten(configuration)),

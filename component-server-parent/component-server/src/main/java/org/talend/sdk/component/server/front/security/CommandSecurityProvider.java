@@ -58,11 +58,12 @@ public class CommandSecurityProvider implements ContainerRequestFilter {
         final OnCommand onCommand = new OnCommand(resourceInfo.getResourceClass(), resourceInfo.getResourceMethod());
         onConnectionEvent.fire(onCommand);
         if (!onCommand.isValid()) {
-            requestContext.abortWith(Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .entity(new ErrorPayload(UNAUTHORIZED, "Invalid command credentials"))
-                    .type(APPLICATION_JSON_TYPE)
-                    .build());
+            requestContext
+                    .abortWith(Response
+                            .status(Response.Status.UNAUTHORIZED)
+                            .entity(new ErrorPayload(UNAUTHORIZED, "Invalid command credentials"))
+                            .type(APPLICATION_JSON_TYPE)
+                            .build());
         }
     }
 }

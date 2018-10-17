@@ -46,8 +46,11 @@ public final class RecordAsserts implements Function<Iterable<Map<String, List<S
                 .stream(input.spliterator(), false)
                 .flatMap(m -> m.entrySet().stream())
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (u1, u2) -> Stream.of(u1, u2).filter(Objects::nonNull).flatMap(Collection::stream).collect(
-                                toList())));
+                        (u1, u2) -> Stream
+                                .of(u1, u2)
+                                .filter(Objects::nonNull)
+                                .flatMap(Collection::stream)
+                                .collect(toList())));
 
         // if we want to validate some outputs which are not here it means the
         // validation fails

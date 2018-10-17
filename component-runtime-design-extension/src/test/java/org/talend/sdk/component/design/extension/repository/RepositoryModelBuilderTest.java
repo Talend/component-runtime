@@ -22,8 +22,8 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
-import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm7.ClassReader.EXPAND_FRAMES;
+import static org.apache.xbean.asm7.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -41,10 +41,11 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 
-import org.apache.xbean.asm6.ClassReader;
-import org.apache.xbean.asm6.ClassWriter;
-import org.apache.xbean.asm6.commons.ClassRemapper;
-import org.apache.xbean.asm6.commons.Remapper;
+import org.apache.xbean.asm7.ClassReader;
+import org.apache.xbean.asm7.ClassWriter;
+import org.apache.xbean.asm7.commons.ClassRemapper;
+import org.apache.xbean.asm7.commons.Remapper;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.container.Container;
@@ -80,34 +81,42 @@ class RepositoryModelBuilderTest {
                     .orElseThrow(IllegalArgumentException::new);
             assertEquals(3, theTestFamily.getConfigs().size(),
                     theTestFamily.getConfigs().stream().map(c -> c.getKey().getConfigName()).collect(joining(", ")));
-            theTestFamily.getConfigs().forEach(it -> assertTrue(it.getKey().getConfigName().startsWith("Connection-"),
-                    it.getKey().getConfigName()));
+            theTestFamily
+                    .getConfigs()
+                    .forEach(it -> assertTrue(it.getKey().getConfigName().startsWith("Connection-"),
+                            it.getKey().getConfigName()));
         }
     }
 
     @Test
     void notRootConfig() {
-        final RepositoryModel model = new RepositoryModelBuilder().create(new ComponentManager.AllServices(emptyMap()),
-                singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test") {
+        final PropertyEditorRegistry registry = new PropertyEditorRegistry();
+        final RepositoryModel model = new RepositoryModelBuilder()
+                .create(new ComponentManager.AllServices(emptyMap()),
+                        singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test") {
 
-                    {
-                        final ParameterMeta store = new ParameterMeta(null, DataStore1.class, ParameterMeta.Type.OBJECT,
-                                "config.store", "store", new String[0], emptyList(), emptyList(),
-                                new HashMap<String, String>() {
+                            {
+                                final ParameterMeta store = new ParameterMeta(null, DataStore1.class,
+                                        ParameterMeta.Type.OBJECT, "config.store", "store", new String[0], emptyList(),
+                                        emptyList(), new HashMap<String, String>() {
 
-                                    {
-                                        put("tcomp::configurationtype::type", "datastore");
-                                        put("tcomp::configurationtype::name", "testDatastore");
-                                    }
-                                }, false);
-                        final ParameterMeta wrapper =
-                                new ParameterMeta(null, WrappingStore.class, ParameterMeta.Type.OBJECT, "config",
-                                        "config", new String[0], singletonList(store), emptyList(), emptyMap(), false);
-                        getPartitionMappers().put("test", new PartitionMapperMeta(this, "mapper", "noicon", 1,
-                                PartitionMapper1.class, singletonList(wrapper), m -> null, (a, b) -> null, true) {
-                        });
-                    }
-                }), new MigrationHandlerFactory(new ReflectionService(new ParameterModelService())));
+                                            {
+                                                put("tcomp::configurationtype::type", "datastore");
+                                                put("tcomp::configurationtype::name", "testDatastore");
+                                            }
+                                        }, false);
+                                final ParameterMeta wrapper = new ParameterMeta(null, WrappingStore.class,
+                                        ParameterMeta.Type.OBJECT, "config", "config", new String[0],
+                                        singletonList(store), emptyList(), emptyMap(), false);
+                                getPartitionMappers()
+                                        .put("test",
+                                                new PartitionMapperMeta(this, "mapper", "noicon", 1,
+                                                        PartitionMapper1.class, singletonList(wrapper), m -> null,
+                                                        (a, b) -> null, true) {
+                                                });
+                            }
+                        }), new MigrationHandlerFactory(
+                                new ReflectionService(new ParameterModelService(registry), registry)));
         final List<Config> configs =
                 model.getFamilies().stream().flatMap(f -> f.getConfigs().stream()).collect(toList());
         assertEquals(1, configs.size());
@@ -123,26 +132,31 @@ class RepositoryModelBuilderTest {
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {
             final String location = pluginJar.getAbsolutePath();
             manager.addPlugin(location);
-            Container pluginContainer =
+            final Container pluginContainer =
                     manager.findPlugin(pluginName).orElseThrow(() -> new Exception("test plugin don't exist"));
             assertNotNull(pluginContainer);
-            RepositoryModel rm = pluginContainer.get(RepositoryModel.class);
+            final RepositoryModel rm = pluginContainer.get(RepositoryModel.class);
             assertNotNull(rm);
-            assertEquals(1, rm.getFamilies().size());
-            Family family = rm.getFamilies().get(0);
-            String ds1Id = IdGenerator.get("test", "family1", "datastore", "dataStore1");
-            Config dataStore1Config =
+            assertEquals(2, rm.getFamilies().size());
+            final Family family =
+                    rm.getFamilies().stream().filter(it -> it.getMeta().getName().equals("family1")).findFirst().get();
+            final String ds1Id = IdGenerator.get("test", "family1", "datastore", "dataStore1");
+            final Config dataStore1Config =
                     family.getConfigs().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
-            assertEquals("configuration1", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals("configuration", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals("class org.talend.test.generated.tmp.DataSet1",
+                    dataStore1Config.getChildConfigs().get(0).getMeta().getJavaType().toString());
 
-            String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2");
-            Config dataStore2Config =
+            final String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2");
+            final Config dataStore2Config =
                     family.getConfigs().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
             assertNotNull(dataStore2Config);
             assertEquals(1, dataStore2Config.getChildConfigs().size());
-            assertEquals("configuration2", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals("configuration", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals("class org.talend.test.generated.tmp.DataSet2",
+                    dataStore2Config.getChildConfigs().get(0).getMeta().getJavaType().toString());
         }
 
     }

@@ -139,8 +139,10 @@ public class Data {
 
         @Override
         public PCollection<Map<String, T>> expand(final PCollection<Record> collection) {
-            return collection.apply(ParDo.of(new DataMapperFn<>(JsonpJsonObjectCoder.of(plugin),
-                    JsonbCoder.of(type, plugin), plugin, new RecordConverters())));
+            return collection
+                    .apply(ParDo
+                            .of(new DataMapperFn<>(JsonpJsonObjectCoder.of(plugin), JsonbCoder.of(type, plugin), plugin,
+                                    new RecordConverters())));
         }
     }
 
@@ -166,11 +168,13 @@ public class Data {
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     final Record record = object.getArray(Record.class, e.getName()).iterator().next();
-                    final JsonObject jsonObject = JsonObject.class.cast(converters.toType(record, JsonObject.class,
-                            this::getJsonBuilder, this::getJsonProvider, this::getJsonb));
+                    final JsonObject jsonObject = JsonObject.class
+                            .cast(converters
+                                    .toType(record, JsonObject.class, this::getJsonBuilder, this::getJsonProvider,
+                                            this::getJsonb));
                     if (Record.class == jsonbCoder.getType()) {
-                        return (T) new RecordConverters().toRecord(jsonObject, this::getJsonb,
-                                this::getRecordBuilderFactory);
+                        return (T) new RecordConverters()
+                                .toRecord(jsonObject, this::getJsonb, this::getRecordBuilderFactory);
                     }
                     jsonpCoder.encode(jsonObject, baos);
                     return jsonbCoder.decode(new ByteArrayInputStream(baos.toByteArray()));

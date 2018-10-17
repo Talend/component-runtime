@@ -140,8 +140,10 @@ public class TalendIOTest implements Serializable {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH).emit(
-                                new Sample(Record.class.cast(input.read(Branches.DEFAULT_BRANCH)).getString("data")));
+                        factory
+                                .create(Branches.DEFAULT_BRANCH)
+                                .emit(new Sample(
+                                        Record.class.cast(input.read(Branches.DEFAULT_BRANCH)).getString("data")));
                     }
                 }))
                 .setCoder(SchemaRegistryCoder.of())
@@ -178,8 +180,9 @@ public class TalendIOTest implements Serializable {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        objects.add(
-                                new Sample(Record.class.cast(input.read(Branches.DEFAULT_BRANCH)).getString("data")));
+                        objects
+                                .add(new Sample(
+                                        Record.class.cast(input.read(Branches.DEFAULT_BRANCH)).getString("data")));
                     }
                 }))
                 .setCoder(SchemaRegistryCoder.of())
@@ -207,8 +210,9 @@ public class TalendIOTest implements Serializable {
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
                         final Object read = input.read(Branches.DEFAULT_BRANCH);
-                        factory.create(Branches.DEFAULT_BRANCH).emit(
-                                new Sample(Record.class.cast(read).getString("data")));
+                        factory
+                                .create(Branches.DEFAULT_BRANCH)
+                                .emit(new Sample(Record.class.cast(read).getString("data")));
                     }
                 }))
                 .apply(toSampleLength());

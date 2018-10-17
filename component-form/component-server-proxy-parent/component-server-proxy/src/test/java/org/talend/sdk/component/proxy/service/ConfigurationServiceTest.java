@@ -88,8 +88,10 @@ class ConfigurationServiceTest {
                         .flatMap(it -> it.getTriggers().stream())
                         .peek(trigger -> {
                             final Collection<UiSchema.Parameter> parameters = trigger.getParameters();
-                            assertTrue(parameters.stream().anyMatch(
-                                    p -> p.getPath().equals("$datasetMetadata.id") && p.getKey().equals("$formId")));
+                            assertTrue(parameters
+                                    .stream()
+                                    .anyMatch(p -> p.getPath().equals("$datasetMetadata.id")
+                                            && p.getKey().equals("$formId")));
                         })
                         .count());
     }

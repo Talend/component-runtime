@@ -85,8 +85,9 @@ public class StudioInstaller implements Runnable {
                 throw new IllegalStateException(e);
             }
         }
-        String registry = config.getProperty("component.java.registry",
-                config.getProperty("talend.component.server.component.registry"));
+        String registry = config
+                .getProperty("component.java.registry",
+                        config.getProperty("talend.component.server.component.registry"));
         if (!enforceDeployment && registry != null && new File(registry).exists()) {
             final Properties components = new Properties();
             try (final Reader reader = new FileReader(registry)) {
@@ -144,8 +145,9 @@ public class StudioInstaller implements Runnable {
                 }
             });
         } else {
-            log.info("Studio " + studioHome
-                    + " configured to use global maven repository, skipping artifact installation");
+            log
+                    .info("Studio " + studioHome
+                            + " configured to use global maven repository, skipping artifact installation");
         }
 
         // 3. register component adding them into the registry
@@ -164,8 +166,9 @@ public class StudioInstaller implements Runnable {
                 throw new IllegalStateException(e);
             }
             try (final Writer writer = new FileWriter(configIni)) {
-                config.store(writer,
-                        "File rewritten by " + getClass().getName() + " utility to add component.java.registry entry");
+                config
+                        .store(writer, "File rewritten by " + getClass().getName()
+                                + " utility to add component.java.registry entry");
                 log.info("Updated " + configIni + " to add the component registry entry");
             } catch (final IOException e) {
                 throw new IllegalStateException(e);

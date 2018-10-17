@@ -16,8 +16,8 @@
 package org.talend.sdk.component.runtime.beam;
 
 import static java.util.Optional.ofNullable;
-import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
-import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm7.ClassReader.EXPAND_FRAMES;
+import static org.apache.xbean.asm7.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -30,10 +30,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 
-import org.apache.xbean.asm6.ClassReader;
-import org.apache.xbean.asm6.ClassWriter;
-import org.apache.xbean.asm6.commons.ClassRemapper;
-import org.apache.xbean.asm6.commons.Remapper;
+import org.apache.xbean.asm7.ClassReader;
+import org.apache.xbean.asm7.ClassWriter;
+import org.apache.xbean.asm7.commons.ClassRemapper;
+import org.apache.xbean.asm7.commons.Remapper;
 
 public class PluginGenerator {
 

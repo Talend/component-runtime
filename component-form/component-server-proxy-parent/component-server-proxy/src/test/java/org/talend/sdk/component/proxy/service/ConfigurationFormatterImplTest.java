@@ -59,12 +59,16 @@ class ConfigurationFormatterImplTest {
 
     @Test
     void flattenMarketo() {
-        final Map<String, String> properties = formatter.flatten(factory
-                .createObjectBuilder()
-                .add("dataStore",
-                        factory.createObjectBuilder().add("clientId", "xxxx").add("clientSecret", "yyyy").add(
-                                "endpoint", "https://foo.bar.colm"))
-                .build());
+        final Map<String, String> properties = formatter
+                .flatten(factory
+                        .createObjectBuilder()
+                        .add("dataStore",
+                                factory
+                                        .createObjectBuilder()
+                                        .add("clientId", "xxxx")
+                                        .add("clientSecret", "yyyy")
+                                        .add("endpoint", "https://foo.bar.colm"))
+                        .build());
         assertEquals(3, properties.size());
         assertEquals(properties.get("dataStore.clientId"), "xxxx");
         assertEquals(properties.get("dataStore.clientSecret"), "yyyy");
@@ -156,36 +160,43 @@ class ConfigurationFormatterImplTest {
 
     @Test
     void unflattenTable() {
-        final JsonObject object = formatter.unflatten(
-                asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"), prop("root.table[]", "STRING")),
-                new HashMap<String, String>() {
+        final JsonObject object = formatter
+                .unflatten(asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"), prop("root.table[]", "STRING")),
+                        new HashMap<String, String>() {
 
-                    {
-                        put("root.table[0]", "a");
-                        put("root.table[1]", "b");
-                    }
-                });
+                            {
+                                put("root.table[0]", "a");
+                                put("root.table[1]", "b");
+                            }
+                        });
         assertEquals(1, object.size());
         final JsonObject root = object.getJsonObject("root");
         assertEquals(1, root.size());
         assertEquals(asList("a", "b"),
-                root.getJsonArray("table").stream().map(JsonString.class::cast).map(JsonString::getString).collect(
-                        toList()));
+                root
+                        .getJsonArray("table")
+                        .stream()
+                        .map(JsonString.class::cast)
+                        .map(JsonString::getString)
+                        .collect(toList()));
     }
 
     @Test
     void unflattenTableOfObject() {
-        final JsonObject object = formatter.unflatten(asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"),
-                prop("root.table[].name", "STRING"), prop("root.table[].age", "NUMBER")),
-                new HashMap<String, String>() {
+        final JsonObject object =
+                formatter
+                        .unflatten(
+                                asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"),
+                                        prop("root.table[].name", "STRING"), prop("root.table[].age", "NUMBER")),
+                                new HashMap<String, String>() {
 
-                    {
-                        put("root.table[0].name", "a");
-                        put("root.table[0].age", "20");
-                        put("root.table[1].name", "b");
-                        put("root.table[1].age", "30");
-                    }
-                });
+                                    {
+                                        put("root.table[0].name", "a");
+                                        put("root.table[0].age", "20");
+                                        put("root.table[1].name", "b");
+                                        put("root.table[1].age", "30");
+                                    }
+                                });
         assertEquals(1, object.size());
         final JsonObject root = object.getJsonObject("root");
         assertEquals(1, root.size());
@@ -197,19 +208,22 @@ class ConfigurationFormatterImplTest {
 
     @Test
     void unflattenComplex() {
-        final JsonObject object = formatter.unflatten(asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"),
-                prop("root.table[].urls", "ARRAY"), prop("root.table[].urls[]", "STRING")),
-                new HashMap<String, String>() {
+        final JsonObject object =
+                formatter
+                        .unflatten(
+                                asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"),
+                                        prop("root.table[].urls", "ARRAY"), prop("root.table[].urls[]", "STRING")),
+                                new HashMap<String, String>() {
 
-                    {
-                        put("root.table[0].name", "a");
-                        put("root.table[0].age", "20");
-                        put("root.table[0].urls[1]", "http://2");
-                        put("root.table[0].urls[0]", "http://1");
-                        put("root.table[1].name", "b");
-                        put("root.table[1].age", "30");
-                    }
-                });
+                                    {
+                                        put("root.table[0].name", "a");
+                                        put("root.table[0].age", "20");
+                                        put("root.table[0].urls[1]", "http://2");
+                                        put("root.table[0].urls[0]", "http://1");
+                                        put("root.table[1].name", "b");
+                                        put("root.table[1].age", "30");
+                                    }
+                                });
         assertEquals(1, object.size());
         final JsonArray table = object.getJsonObject("root").getJsonArray("table");
         assertEquals(2, table.size());
@@ -217,21 +231,26 @@ class ConfigurationFormatterImplTest {
         final JsonObject first = table.getJsonObject(0);
         assertTrue(first.containsKey("urls"));
         assertEquals(asList("http://1", "http://2"),
-                first.getJsonArray("urls").stream().map(JsonString.class::cast).map(JsonString::getString).collect(
-                        toList()));
+                first
+                        .getJsonArray("urls")
+                        .stream()
+                        .map(JsonString.class::cast)
+                        .map(JsonString::getString)
+                        .collect(toList()));
     }
 
     @Test
     void unflattenPrimitivesRoot() {
-        final JsonObject object = formatter.unflatten(asList(prop("root", "OBJECT"), prop("root.name", "STRING"),
-                prop("root.age", "NUMBER"), prop("root.toggle", "BOOLEAN")), new HashMap<String, String>() {
+        final JsonObject object = formatter
+                .unflatten(asList(prop("root", "OBJECT"), prop("root.name", "STRING"), prop("root.age", "NUMBER"),
+                        prop("root.toggle", "BOOLEAN")), new HashMap<String, String>() {
 
-                    {
-                        put("root.name", "Sombody");
-                        put("root.age", "30");
-                        put("root.toggle", "true");
-                    }
-                });
+                            {
+                                put("root.name", "Sombody");
+                                put("root.age", "30");
+                                put("root.toggle", "true");
+                            }
+                        });
         assertEquals(1, object.size());
         final JsonObject root = object.getJsonObject("root");
         assertEquals(3, root.size());
@@ -242,20 +261,21 @@ class ConfigurationFormatterImplTest {
 
     @Test
     void unflattenPrimitivesNested() {
-        final JsonObject object = formatter.unflatten(
-                asList(prop("root", "OBJECT"), prop("root.nested1", "OBJECT"), prop("root.nested2", "OBJECT"),
-                        prop("root.nested3", "OBJECT"), // ignored in this test
-                        prop("root.nested2.name", "STRING"), prop("root.nested1.name", "STRING"),
-                        prop("root.nested1.age", "NUMBER"), prop("root.nested1.toggle", "BOOLEAN")),
-                new HashMap<String, String>() {
+        final JsonObject object = formatter
+                .unflatten(
+                        asList(prop("root", "OBJECT"), prop("root.nested1", "OBJECT"), prop("root.nested2", "OBJECT"),
+                                prop("root.nested3", "OBJECT"), // ignored in this test
+                                prop("root.nested2.name", "STRING"), prop("root.nested1.name", "STRING"),
+                                prop("root.nested1.age", "NUMBER"), prop("root.nested1.toggle", "BOOLEAN")),
+                        new HashMap<String, String>() {
 
-                    {
-                        put("root.nested1.name", "Sombody");
-                        put("root.nested1.age", "30");
-                        put("root.nested1.toggle", "true");
-                        put("root.nested2.name", "Other");
-                    }
-                });
+                            {
+                                put("root.nested1.name", "Sombody");
+                                put("root.nested1.age", "30");
+                                put("root.nested1.toggle", "true");
+                                put("root.nested2.name", "Other");
+                            }
+                        });
         assertEquals(1, object.size());
         final JsonObject root = object.getJsonObject("root");
         assertEquals(2, root.size());

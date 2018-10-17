@@ -19,7 +19,7 @@
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
   <packaging>pom</packaging>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.1.2-SNAPSHOT</version>
   <name>Component Runtime</name>
   <description>Talend Component Kit Runtime</description>
   <url>https://talend.github.io/component-runtime/</url>
@@ -58,26 +58,27 @@
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
-    <xbean.version>4.9</xbean.version>
+    <xbean.version>4.11</xbean.version>
+    <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.1.0</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.1.10</johnzon.version>
-    <meecrowave.version>1.2.3</meecrowave.version>
+    <meecrowave.version>1.2.4</meecrowave.version>
     <owb.version>2.0.7</owb.version>
     <tomcat.version>9.0.12</tomcat.version>
     <cxf.version>3.2.6</cxf.version>
     <log4j2.version>2.11.1</log4j2.version>
-    <geronimo-jcdi.version>1.0.1</geronimo-jcdi.version>
-    <geronimo-atinject.version>1.0</geronimo-atinject.version>
-    <geronimo-annotation.version>1.0</geronimo-annotation.version>
-    <geronimo-interceptor.version>1.0</geronimo-interceptor.version>
-    <geronimo-jsonb.version>1.0</geronimo-jsonb.version>
-    <geronimo-json.version>1.0</geronimo-json.version>
+    <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
+    <geronimo-atinject.version>1.1</geronimo-atinject.version>
+    <geronimo-annotation.version>1.1</geronimo-annotation.version>
+    <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
+    <geronimo-jsonb.version>1.1</geronimo-jsonb.version>
+    <geronimo-json.version>1.1</geronimo-json.version>
     <jcache-api.version>1.0-alpha-1</jcache-api.version>
     <batik.version>1.9.1</batik.version>
-    <beam.version>2.6.0</beam.version>
+    <beam.version>2.7.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
     <commons-compress.version>1.18</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
@@ -86,7 +87,7 @@
     <geronimo-jaxrs.version>1.0</geronimo-jaxrs.version>
     <asciidoctorj.version>1.6.0-alpha.7</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
-    <jsonb-api.version>1.0</jsonb-api.version>
+    <jsonb-api.version>1.1</jsonb-api.version>
     <jsonp-api.version>1.0</jsonp-api.version>
     <microprofile-config-api.version>1.2</microprofile-config-api.version>
     <microprofile-openapi-api.version>1.0.1</microprofile-openapi-api.version>
@@ -96,11 +97,11 @@
     <hamcrest.version>1.3</hamcrest.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
 
-    <talend-ui.version>0.209.0</talend-ui.version>
-    <component-api.version>1.1.0</component-api.version>
+    <talend-ui.version>1.0.2</talend-ui.version>
+    <component-api.version>1.1.1</component-api.version>
 
     <!-- for the starter -->
-    <gradle.version>4.8</gradle.version>
+    <gradle.version>4.10.2</gradle.version>
     <mvn.version>3.5.4</mvn.version>
 
     <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
@@ -115,7 +116,7 @@
     <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
     <git-commit-id-plugin.version>2.2.4</git-commit-id-plugin.version>
-    <formatter-plugin.version>2.7.3</formatter-plugin.version>
+    <formatter-plugin.version>2.8.0</formatter-plugin.version>
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>4.9.2.201712150930-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
@@ -127,6 +128,7 @@
 
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
+    <java11.jaxb.version>2.3.0</java11.jaxb.version>
   </properties>
 
   <dependencies>
@@ -159,6 +161,21 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-annotation_1.3_spec</artifactId>
+        <version>${geronimo-annotation.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-json_1.1_spec</artifactId>
+        <version>${geronimo-json.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+        <version>${geronimo-jsonb.version}</version>
+      </dependency>
       <dependency> <!-- for java >= 9 support, /!\ CDDL license -->
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-runtime</artifactId>
@@ -492,7 +509,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.0</version>
+        <version>2.22.1</version>
         <configuration>
           <forkCount>1</forkCount> <!-- never use 0, it affects too much test behavior to be accurate -->
           <trimStackTrace>false</trimStackTrace>
@@ -605,7 +622,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.0</version>
+        <version>0.8.2</version>
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -656,7 +673,7 @@
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
           <releaseProfiles>release</releaseProfiles>
-          <goals>deploy pre-site</goals>
+          <goals>deploy</goals>
         </configuration>
       </plugin>
       <plugin>
@@ -696,6 +713,51 @@
     </plugins>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.codehaus.gmavenplus</groupId>
+          <artifactId>gmavenplus-plugin</artifactId>
+          <version>${gmavenplus.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.codehaus.groovy</groupId>
+              <artifactId>groovy-all</artifactId>
+              <version>${groovy.version}</version>
+              <type>pom</type>
+            </dependency>
+            <dependency>
+              <groupId>javax.xml.bind</groupId>
+              <artifactId>jaxb-api</artifactId>
+              <version>${java11.jaxb.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.sun.xml.bind</groupId>
+              <artifactId>jaxb-impl</artifactId>
+              <version>${java11.jaxb.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>javax.xml.bind</groupId>
+                  <artifactId>jsr173_api</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>javax.xml</groupId>
+                  <artifactId>jsr173</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>javax.activation</groupId>
+                  <artifactId>activation</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>javax.xml.bind</groupId>
+                  <artifactId>activation</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>javax.xml.bind</groupId>
+                  <artifactId>jaxb-api</artifactId>
+                </exclusion>
+              </exclusions>
+            </dependency>
+          </dependencies>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
@@ -854,6 +916,67 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>java11</id>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <properties>
+        <groovy.version>3.0.0-SNAPSHOT</groovy.version>
+      </properties>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxws_2.2_spec</artifactId>
+            <version>1.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+            <version>1.1</version>
+          </dependency>
+          <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${java11.jaxb.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${java11.jaxb.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jsr173_api</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>javax.xml</groupId>
+                <artifactId>jsr173</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>activation</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>groovy-snaspshot</id>
+          <url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
   </profiles>
 
   <distributionManagement>
@@ -935,16 +1058,6 @@
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
     <repository>
-      <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-    <repository>
       <id>gradle-libs-releases-local</id>
       <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
       <snapshots>
@@ -960,16 +1073,6 @@
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
     </pluginRepository>
   </pluginRepositories>
 </project>

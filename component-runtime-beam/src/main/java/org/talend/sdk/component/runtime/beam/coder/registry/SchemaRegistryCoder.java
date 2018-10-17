@@ -55,8 +55,9 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
 
         // then the record with the default avro coder
         registry().putIfAbsent(id, schema);
-        getCoder(avro).encode(value == null ? EMPTY_RECORD : Unwrappable.class.cast(value).unwrap(IndexedRecord.class),
-                outputStream);
+        getCoder(avro)
+                .encode(value == null ? EMPTY_RECORD : Unwrappable.class.cast(value).unwrap(IndexedRecord.class),
+                        outputStream);
     }
 
     @Override

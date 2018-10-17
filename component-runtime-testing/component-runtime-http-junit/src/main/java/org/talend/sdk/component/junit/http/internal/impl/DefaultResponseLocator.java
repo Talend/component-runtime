@@ -67,10 +67,11 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
     public DefaultResponseLocator(final String prefix, final String test) {
         this.prefix = prefix;
         this.test = test;
-        this.jsonb = JsonbBuilder.create(new JsonbConfig()
-                .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
-                .withFormatting(true)
-                .setProperty("johnzon.cdi.activated", false));
+        this.jsonb = JsonbBuilder
+                .create(new JsonbConfig()
+                        .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
+                        .withFormatting(true)
+                        .setProperty("johnzon.cdi.activated", false));
     }
 
     @Override
@@ -97,8 +98,9 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
                     } catch (final IOException e) {
                         throw new IllegalStateException(e);
                     }
-                    return models.stream().filter(
-                            m -> m.request != null && matches(request, m.request, exactMatching, headerFilter));
+                    return models
+                            .stream()
+                            .filter(m -> m.request != null && matches(request, m.request, exactMatching, headerFilter));
                 })
                 .findFirst()
                 .map(model -> new ResponseImpl(model.response.headers, model.response.status, getPayload(model)));
@@ -148,9 +150,11 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
 
     protected boolean doesHeadersMatch(final Request request, final RequestModel model,
             final Predicate<String> headerFilter) {
-        return model.headers == null
-                || model.headers.entrySet().stream().filter(h -> !headerFilter.test(h.getKey())).allMatch(
-                        h -> h.getValue().equals(request.headers().get(h.getKey())));
+        return model.headers == null || model.headers
+                .entrySet()
+                .stream()
+                .filter(h -> !headerFilter.test(h.getKey()))
+                .allMatch(h -> h.getValue().equals(request.headers().get(h.getKey())));
     }
 
     @Override

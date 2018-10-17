@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
@@ -32,13 +33,13 @@ import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
 class ParameterModelServiceTest {
 
-    private final ParameterModelService service = new ParameterModelService();
+    private final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
 
     @Test
     void primitive() throws NoSuchMethodException {
-        final List<ParameterMeta> params = service.buildParameterMetas(
-                MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class), "def",
-                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final List<ParameterMeta> params = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         assertEquals(3, params.size());
         {
             final ParameterMeta param = params.get(0);
@@ -68,9 +69,9 @@ class ParameterModelServiceTest {
 
     @Test
     void collection() throws NoSuchMethodException {
-        final List<ParameterMeta> params = service.buildParameterMetas(
-                MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class), "def",
-                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final List<ParameterMeta> params = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         assertEquals(3, params.size());
         {
             final ParameterMeta param = params.get(0);
@@ -135,8 +136,8 @@ class ParameterModelServiceTest {
 
     @Test
     void array() throws NoSuchMethodException {
-        final List<ParameterMeta> params =
-                service.buildParameterMetas(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), "def",
+        final List<ParameterMeta> params = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), "def",
                         new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         assertEquals(1, params.size());
         {
@@ -177,9 +178,10 @@ class ParameterModelServiceTest {
                 put("tcomp::configurationtype::name", "test");
             }
         };
-        final List<ParameterMeta> params = service.buildParameterMetas(
-                MethodsHolder.class.getMethod("object", MethodsHolder.Config.class, MethodsHolder.Config.class), "def",
-                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final List<ParameterMeta> params = service
+                .buildParameterMetas(
+                        MethodsHolder.class.getMethod("object", MethodsHolder.Config.class, MethodsHolder.Config.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         assertEquals(2, params.size());
         assertConfigModel("implicit", params.get(0));
         assertConfigModel("prefixed", params.get(1));
@@ -188,15 +190,21 @@ class ParameterModelServiceTest {
 
         assertEquals("test",
                 params.get(0).getNestedParameters().get(1).getMetadata().get("tcomp::action::dynamic_values"));
-        assertNull(params.get(0).getNestedParameters().get(1).getNestedParameters().get(0).getMetadata().get(
-                "tcomp::action::dynamic_values"));
+        assertNull(params
+                .get(0)
+                .getNestedParameters()
+                .get(1)
+                .getNestedParameters()
+                .get(0)
+                .getMetadata()
+                .get("tcomp::action::dynamic_values"));
     }
 
     @Test
     void nestedObject() throws NoSuchMethodException {
-        final List<ParameterMeta> params =
-                service.buildParameterMetas(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class),
-                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final List<ParameterMeta> params = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class), "def",
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         assertEquals(1, params.size());
         {
             final ParameterMeta param = params.get(0);

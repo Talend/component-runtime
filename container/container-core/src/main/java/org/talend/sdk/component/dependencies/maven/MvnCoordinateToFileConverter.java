@@ -24,7 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 public class MvnCoordinateToFileConverter {
 
     public Artifact toArtifact(final String coordinates) {
-        String trim = coordinates.trim();
+        String trim = coordinates
+                .trim()
+                // maven with Java Module System (>= 9) support
+                .replaceAll(" -- module.*", "");
         if (trim.isEmpty()) {
             return null;
         }

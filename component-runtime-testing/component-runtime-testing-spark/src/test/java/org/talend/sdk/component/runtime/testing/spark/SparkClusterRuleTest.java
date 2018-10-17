@@ -58,9 +58,10 @@ public class SparkClusterRuleTest {
         }
         SPARK.submitClasspath(SubmittableMain.class, File::isDirectory, SPARK.getSparkMaster(), out.getAbsolutePath());
 
-        await().atMost(5, MINUTES).until(
-                () -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim() : null,
-                equalTo("b -> 1\na -> 1"));
+        await()
+                .atMost(5, MINUTES)
+                .until(() -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim()
+                        : null, equalTo("b -> 1\na -> 1"));
     }
 
     @NoArgsConstructor(access = PRIVATE)

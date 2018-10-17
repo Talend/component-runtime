@@ -63,8 +63,10 @@ class MaxBatchSizeParamTest {
                                 .orElseGet(() -> fail("No parent config found"));
 
                         if ("BulkProcessorWithoutAfterGroup".equals(c.getName())) {
-                            assertTrue(parent.getNestedParameters().stream().noneMatch(
-                                    meta -> "$maxBatchSize".equals(meta.getName())));
+                            assertTrue(parent
+                                    .getNestedParameters()
+                                    .stream()
+                                    .noneMatch(meta -> "$maxBatchSize".equals(meta.getName())));
 
                         } else {
                             final ParameterMeta maxBatchSize = parent
@@ -109,6 +111,12 @@ class MaxBatchSizeParamTest {
                             case "BulkProcessorWithAdvancedGridLayoutConfig":
                                 assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
                                 assertEquals("$maxBatchSize|config",
+                                        parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
+                                break;
+                            case "BulkProcessorWithoutLayout":
+                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
+                                assertEquals("config", parent.getMetadata().get("tcomp::ui::gridlayout::Main::value"));
+                                assertEquals("$maxBatchSize",
                                         parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
                                 break;
                             }

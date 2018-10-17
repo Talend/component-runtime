@@ -74,11 +74,15 @@ class PojoJsonSchemaBuilder {
                 || genericType == BigDecimal.class || genericType == BigInteger.class) {
             return schemas.computeIfAbsent(Class.class.cast(genericType), k -> jsonSchema().withType("number").build());
         } else if (genericType == boolean.class || genericType == Boolean.class) {
-            return schemas.computeIfAbsent(Class.class.cast(genericType),
-                    k -> jsonSchema().withType("boolean").build());
+            return schemas
+                    .computeIfAbsent(Class.class.cast(genericType), k -> jsonSchema().withType("boolean").build());
         } else if (Class.class.isInstance(genericType)) {
             final Class<?> clazz = Class.class.cast(genericType);
-            return schemas.computeIfAbsent(clazz, k -> create(k).build());
+            return ofNullable(schemas.get(clazz)).orElseGet(() -> {
+                final JsonSchema jsonSchema = create(clazz).build();
+                schemas.put(clazz, jsonSchema);
+                return jsonSchema;
+            });
         } else if (ParameterizedType.class.isInstance(genericType)) {
             final ParameterizedType pt = ParameterizedType.class.cast(genericType);
             final Type rawType = pt.getRawType();
@@ -92,10 +96,13 @@ class PojoJsonSchemaBuilder {
                     throw new IllegalArgumentException(
                             "Unsupported generic type for item type: " + pt + ", this must be a Class");
                 }
-                return jsonSchema()
-                        .withType("array")
-                        .withItems(schemas.computeIfAbsent(Class.class.cast(itemType), k -> create(k).build()))
-                        .build();
+                final Class itemClass = Class.class.cast(itemType);
+                final JsonSchema nested = ofNullable(schemas.get(itemType)).orElseGet(() -> {
+                    final JsonSchema jsonSchema = create(itemClass).build();
+                    schemas.put(itemClass, jsonSchema);
+                    return jsonSchema;
+                });
+                return jsonSchema().withType("array").withItems(nested).build();
             } else if (Map.class.isAssignableFrom(rawClazz) && pt.getActualTypeArguments().length == 2) {
                 final Type keyType = pt.getActualTypeArguments()[0];
                 final Type valueType = pt.getActualTypeArguments()[1];

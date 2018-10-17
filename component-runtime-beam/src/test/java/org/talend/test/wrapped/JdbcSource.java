@@ -62,12 +62,13 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
 
     public PCollection<JsonObject> expand(final PBegin input) {
         final WorkAroundCoder workAroundCoder = new WorkAroundCoder();
-        final PCollection<JsonObject> apply = input.apply(JdbcIO
-                .<JsonObject> read()
-                .withRowMapper(new RecordMapper(builder))
-                .withDataSourceConfiguration(config.asBeamConfig())
-                .withQuery(config.query)
-                .withCoder(workAroundCoder));
+        final PCollection<JsonObject> apply = input
+                .apply(JdbcIO
+                        .<JsonObject> read()
+                        .withRowMapper(new RecordMapper(builder))
+                        .withDataSourceConfiguration(config.asBeamConfig())
+                        .withQuery(config.query)
+                        .withCoder(workAroundCoder));
         workAroundCoder.collection = apply;
         return apply;
     }
@@ -191,9 +192,10 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
                 builders = IntStream.rangeClosed(1, count).mapToObj(i -> {
                     final String column;
                     try {
-                        column = metaData.getColumnName(
+                        column = metaData
+                                .getColumnName(
 
-                                i);
+                                        i);
                     } catch (final SQLException e) {
                         throw new IllegalStateException(e);
                     }

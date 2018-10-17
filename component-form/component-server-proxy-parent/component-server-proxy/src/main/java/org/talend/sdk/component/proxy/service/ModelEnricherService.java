@@ -96,8 +96,8 @@ public class ModelEnricherService {
                     new ActionReference("builtin::family", "builtin::references", "suggestions", "references",
                             new ArrayList<>()))
             .map(act -> new ActionReference(act.getFamily(), act.getName(), act.getType(), act.getDisplayName(), Stream
-                    .concat(act.getProperties().stream(),
-                            Stream.of(new SimplePropertyDefinition("$formId", "$formId", "$formId", "STRING", null,
+                    .concat(act.getProperties().stream(), Stream
+                            .of(new SimplePropertyDefinition("$formId", "$formId", "$formId", "STRING", null,
                                     new PropertyValidation(false, null, null, null, null, null, null, null, null, null),
                                     singletonMap("definition::parameter::index",
                                             Integer.toString(act.getProperties().size())),
@@ -141,8 +141,8 @@ public class ModelEnricherService {
         final Locale locale = new Locale(lang);
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         try {
-            return ResourceBundle.getBundle("org.talend.sdk.component.proxy.enrichment.i18n.Messages", locale,
-                    classLoader);
+            return ResourceBundle
+                    .getBundle("org.talend.sdk.component.proxy.enrichment.i18n.Messages", locale, classLoader);
         } catch (final MissingResourceException mre) {
             return new ResourceBundle() {
 
@@ -232,10 +232,14 @@ public class ModelEnricherService {
             }
         } else if (prop.getValidation() != null && prop.getValidation().getEnumValues() != null
                 && prop.getProposalDisplayNames() == null) {
-            prop.setProposalDisplayNames(
-                    prop.getValidation().getEnumValues().stream().collect(toMap(identity(), identity(), (a, b) -> {
-                        throw new IllegalArgumentException("Conflict is not possible here");
-                    }, LinkedHashMap::new)));
+            prop
+                    .setProposalDisplayNames(prop
+                            .getValidation()
+                            .getEnumValues()
+                            .stream()
+                            .collect(toMap(identity(), identity(), (a, b) -> {
+                                throw new IllegalArgumentException("Conflict is not possible here");
+                            }, LinkedHashMap::new)));
         }
 
         if (prop.getMetadata() == null) {
@@ -311,8 +315,9 @@ public class ModelEnricherService {
     }
 
     private Stream<SimplePropertyDefinition> filterRoots(final Collection<SimplePropertyDefinition> props) {
-        return ofNullable(props).map(p -> p.stream().filter(it -> it.getName().equals(it.getPath()))).orElseGet(
-                Stream::empty);
+        return ofNullable(props)
+                .map(p -> p.stream().filter(it -> it.getName().equals(it.getPath())))
+                .orElseGet(Stream::empty);
     }
 
     @Data
@@ -371,15 +376,21 @@ public class ModelEnricherService {
                             findTranslation(bundle, p.getDisplayName()), p.getType(), p.getDefaultValue(),
                             p.getValidation(),
                             ofNullable(p.getMetadata())
-                                    .map(m -> m.entrySet().stream().collect(
-                                            toMap(Map.Entry::getKey, e -> findTranslation(bundle, e.getValue()))))
+                                    .map(m -> m
+                                            .entrySet()
+                                            .stream()
+                                            .collect(toMap(Map.Entry::getKey,
+                                                    e -> findTranslation(bundle, e.getValue()))))
                                     .orElse(null),
                             findTranslation(bundle, p.getPlaceholder()),
                             ofNullable(p.getProposalDisplayNames())
-                                    .map(proposals -> proposals.entrySet().stream().collect(toMap(Map.Entry::getKey,
-                                            e -> findTranslation(bundle, e.getValue()), (a, b) -> {
-                                                throw new IllegalArgumentException("can't happen");
-                                            }, LinkedHashMap::new)))
+                                    .map(proposals -> proposals
+                                            .entrySet()
+                                            .stream()
+                                            .collect(toMap(Map.Entry::getKey,
+                                                    e -> findTranslation(bundle, e.getValue()), (a, b) -> {
+                                                        throw new IllegalArgumentException("can't happen");
+                                                    }, LinkedHashMap::new)))
                                     .orElse(null)))
                     .collect(toList());
         }

@@ -29,6 +29,10 @@ public class ParameterBundle extends InternalBundle {
         this.simpleNames = simpleNames;
     }
 
+    public Optional<String> documentation(final ParameterBundle parent) {
+        return get(parent, "_documentation", false);
+    }
+
     public Optional<String> displayName(final ParameterBundle parent) {
         return get(parent, "_displayName", false);
     }

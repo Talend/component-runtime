@@ -1,0 +1,1020 @@
+{
+  "actions": [
+    {
+      "displayName": "Test connection",
+      "family": "Magento",
+      "name": "datastoreHealthcheck",
+      "properties": [
+        {
+          "displayName": "datastore",
+          "metadata": {
+            "ui::gridlayout::Advanced::value": "magentoRestVersion",
+            "ui::gridlayout::Main::value": "magentoWebServerUrl|authenticationType|authenticationOauth1Settings|authenticationTokenSettings|authenticationLoginPasswordSettings",
+            "documentation::value": "Data store settings. Magento's server connection and authentication preferences",
+            "action::healthcheck": "datastoreHealthcheck",
+            "configurationtype::name": "MagentoDataStore",
+            "configurationtype::type": "datastore",
+            "definition::parameter::index": "0"
+          },
+          "name": "datastore",
+          "path": "datastore",
+          "placeholder": "datastore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "User credentials:",
+          "metadata": {
+            "ui::gridlayout::Main::value": "authenticationLogin|authenticationPassword",
+            "condition::if::target": "authenticationType",
+            "documentation::value": "authentication Login settings",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "LOGIN_PASSWORD"
+          },
+          "name": "authenticationLoginPasswordSettings",
+          "path": "datastore.authenticationLoginPasswordSettings",
+          "placeholder": "authenticationLoginPasswordSettings",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Login:",
+          "metadata": {
+            "documentation::value": "authentication login for 'Login' authentication"
+          },
+          "name": "authenticationLogin",
+          "path": "datastore.authenticationLoginPasswordSettings.authenticationLogin",
+          "placeholder": "enter login",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Password:",
+          "metadata": {
+            "documentation::value": "authentication password for 'Login' authentication",
+            "ui::credential": "true"
+          },
+          "name": "authenticationPassword",
+          "path": "datastore.authenticationLoginPasswordSettings.authenticationPassword",
+          "placeholder": "enter password",
+          "type": "STRING"
+        },
+        {
+          "displayName": "OAuth1 credentials:",
+          "metadata": {
+            "ui::gridlayout::Main::value": "authenticationOauth1ConsumerKey|authenticationOauth1ConsumerSecret|authenticationOauth1AccessToken|authenticationOauth1AccessTokenSecret",
+            "condition::if::target": "authenticationType",
+            "documentation::value": "authentication OAuth 1.0 settings",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "OAUTH_1"
+          },
+          "name": "authenticationOauth1Settings",
+          "path": "datastore.authenticationOauth1Settings",
+          "placeholder": "authenticationOauth1Settings",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Access token:",
+          "metadata": {
+            "documentation::value": "authentication OAuth 1.0 access token"
+          },
+          "name": "authenticationOauth1AccessToken",
+          "path": "datastore.authenticationOauth1Settings.authenticationOauth1AccessToken",
+          "placeholder": "enter access token",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Access token secret:",
+          "metadata": {
+            "documentation::value": "authentication OAuth 1.0 access token secret",
+            "ui::credential": "true"
+          },
+          "name": "authenticationOauth1AccessTokenSecret",
+          "path": "datastore.authenticationOauth1Settings.authenticationOauth1AccessTokenSecret",
+          "placeholder": "enter access token secret",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Consumer key:",
+          "metadata": {
+            "documentation::value": "authentication OAuth 1.0 consumer key"
+          },
+          "name": "authenticationOauth1ConsumerKey",
+          "path": "datastore.authenticationOauth1Settings.authenticationOauth1ConsumerKey",
+          "placeholder": "enter consumer key",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Consumer secret:",
+          "metadata": {
+            "documentation::value": "authentication OAuth 1.0 consumer secret",
+            "ui::credential": "true"
+          },
+          "name": "authenticationOauth1ConsumerSecret",
+          "path": "datastore.authenticationOauth1Settings.authenticationOauth1ConsumerSecret",
+          "placeholder": "enter consumer secret",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "AuthenticationTokenSettings(authenticationAccessToken=null)",
+          "displayName": "Token credentials:",
+          "metadata": {
+            "ui::gridlayout::Main::value": "authenticationAccessToken",
+            "condition::if::target": "authenticationType",
+            "documentation::value": "authentication Token settings",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "AUTHENTICATION_TOKEN"
+          },
+          "name": "authenticationTokenSettings",
+          "path": "datastore.authenticationTokenSettings",
+          "placeholder": "authenticationTokenSettings",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Auth type:",
+          "metadata": {
+            "documentation::value": "authentication type (OAuth 1.0, Token, Login etc.)"
+          },
+          "name": "authenticationType",
+          "path": "datastore.authenticationType",
+          "placeholder": "choose authentication type",
+          "proposalDisplayNames": {
+            "OAUTH_1": "OAuth 1.0",
+            "AUTHENTICATION_TOKEN": "Token",
+            "LOGIN_PASSWORD": "Login"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "OAUTH_1",
+              "AUTHENTICATION_TOKEN",
+              "LOGIN_PASSWORD"
+            ]
+          }
+        },
+        {
+          "defaultValue": "V1",
+          "displayName": "REST version:",
+          "metadata": {
+            "documentation::value": "The version of Magento REST ,e.g. 'V1'"
+          },
+          "name": "magentoRestVersion",
+          "path": "datastore.magentoRestVersion",
+          "placeholder": "choose REST version",
+          "proposalDisplayNames": {
+            "V1": "V1"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "V1"
+            ]
+          }
+        },
+        {
+          "displayName": "Server URL:",
+          "metadata": {
+            "documentation::value": "URL of web server (including port after ':'), e.g. 'http://mymagentoserver.com:1234'"
+          },
+          "name": "magentoWebServerUrl",
+          "path": "datastore.magentoWebServerUrl",
+          "placeholder": "enter server URL (http://localhost:8080)",
+          "type": "STRING"
+        }
+      ],
+      "type": "healthcheck"
+    },
+    {
+      "displayName": "Guess schema",
+      "family": "Magento",
+      "name": "guessTableSchema",
+      "properties": [
+        {
+          "displayName": "configuration",
+          "metadata": {
+            "ui::gridlayout::Advanced::value": "magentoCmsConfigurationBase|fields|selectionFilter",
+            "ui::gridlayout::Main::value": "magentoCmsConfigurationBase|selectionType|selectionFilter|innerString",
+            "documentation::value": "Input component configuration",
+            "configurationtype::name": "MagentoInput",
+            "configurationtype::type": "dataset",
+            "definition::parameter::index": "0"
+          },
+          "name": "configuration",
+          "path": "configuration",
+          "placeholder": "configuration",
+          "type": "OBJECT"
+        },
+        {
+          "defaultValue": "[]",
+          "displayName": "Schema:",
+          "metadata": {
+            "ui::structure::discoverSchema": "guessTableSchema",
+            "ui::structure::value": "__default__",
+            "documentation::value": "The schema of the component. Use 'Discover schema' button to fil it with sample data. Schema is discovering by getting the frist record from particular data table, e.g. first product in case of 'Product' selection type",
+            "action::schema::type": "OUT",
+            "action::schema::discoverSchema": "guessTableSchema",
+            "ui::structure::type": "OUT",
+            "action::schema": "guessTableSchema"
+          },
+          "name": "fields",
+          "path": "configuration.fields",
+          "placeholder": "add schema fields",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "fields[${index}]",
+          "metadata": {},
+          "name": "fields[]",
+          "path": "configuration.fields[]",
+          "placeholder": "fields[${index}]",
+          "type": "STRING"
+        },
+        {
+          "displayName": "innerString",
+          "metadata": {
+            "action::update::after": "str",
+            "action::update::parameters": "selectionType",
+            "ui::gridlayout::Main::value": "str",
+            "action::update": "updatableStr",
+            "documentation::value": "updatableStr"
+          },
+          "name": "innerString",
+          "path": "configuration.innerString",
+          "placeholder": "innerString",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "str",
+          "metadata": {
+            "documentation::value": "str property - updatable parameter"
+          },
+          "name": "str",
+          "path": "configuration.innerString.str",
+          "placeholder": "str",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Base configuration:",
+          "metadata": {
+            "ui::gridlayout::Advanced::value": "magentoRestVersion",
+            "ui::gridlayout::Main::value": "magentoWebServerUrl|authenticationType|authenticationOauth1Settings|authenticationTokenSettings|authenticationLoginPasswordSettings",
+            "documentation::value": "Connection to Magento CMS",
+            "action::healthcheck": "datastoreHealthcheck",
+            "configurationtype::name": "MagentoDataStore",
+            "configurationtype::type": "datastore"
+          },
+          "name": "magentoCmsConfigurationBase",
+          "path": "configuration.magentoCmsConfigurationBase",
+          "placeholder": "magentoCmsConfigurationBase",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "User credentials:",
+          "metadata": {
+            "ui::gridlayout::Main::value": "authenticationLogin|authenticationPassword",
+            "condition::if::target": "authenticationType",
+            "documentation::value": "authentication Login settings",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "LOGIN_PASSWORD"
+          },
+          "name": "authenticationLoginPasswordSettings",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationLoginPasswordSettings",
+          "placeholder": "authenticationLoginPasswordSettings",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Login:",
+          "metadata": {
+            "documentation::value": "authentication login for 'Login' authentication"
+          },
+          "name": "authenticationLogin",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationLoginPasswordSettings.authenticationLogin",
+          "placeholder": "enter login",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Password:",
+          "metadata": {
+            "documentation::value": "authentication password for 'Login' authentication",
+            "ui::credential": "true"
+          },
+          "name": "authenticationPassword",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationLoginPasswordSettings.authenticationPassword",
+          "placeholder": "enter password",
+          "type": "STRING"
+        },
+        {
+          "displayName": "OAuth1 credentials:",
+          "metadata": {
+            "ui::gridlayout::Main::value": "authenticationOauth1ConsumerKey|authenticationOauth1ConsumerSecret|authenticationOauth1AccessToken|authenticationOauth1AccessTokenSecret",
+            "condition::if::target": "authenticationType",
+            "documentation::value": "authentication OAuth 1.0 settings",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "OAUTH_1"
+          },
+          "name": "authenticationOauth1Settings",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings",
+          "placeholder": "authenticationOauth1Settings",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Access token:",
+          "metadata": {
+            "documentation::value": "authentication OAuth 1.0 access token"
+          },
+          "name": "authenticationOauth1AccessToken",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings.authenticationOauth1AccessToken",
+          "placeholder": "enter access token",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Access token secret:",
+          "metadata": {
+            "documentation::value": "authentication OAuth 1.0 access token secret",
+            "ui::credential": "true"
+          },
+          "name": "authenticationOauth1AccessTokenSecret",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings.authenticationOauth1AccessTokenSecret",
+          "placeholder": "enter access token secret",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Consumer key:",
+          "metadata": {
+            "documentation::value": "authentication OAuth 1.0 consumer key"
+          },
+          "name": "authenticationOauth1ConsumerKey",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings.authenticationOauth1ConsumerKey",
+          "placeholder": "enter consumer key",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Consumer secret:",
+          "metadata": {
+            "documentation::value": "authentication OAuth 1.0 consumer secret",
+            "ui::credential": "true"
+          },
+          "name": "authenticationOauth1ConsumerSecret",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings.authenticationOauth1ConsumerSecret",
+          "placeholder": "enter consumer secret",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "AuthenticationTokenSettings(authenticationAccessToken=null)",
+          "displayName": "Token credentials:",
+          "metadata": {
+            "ui::gridlayout::Main::value": "authenticationAccessToken",
+            "condition::if::target": "authenticationType",
+            "documentation::value": "authentication Token settings",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "AUTHENTICATION_TOKEN"
+          },
+          "name": "authenticationTokenSettings",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationTokenSettings",
+          "placeholder": "authenticationTokenSettings",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Auth type:",
+          "metadata": {
+            "documentation::value": "authentication type (OAuth 1.0, Token, Login etc.)"
+          },
+          "name": "authenticationType",
+          "path": "configuration.magentoCmsConfigurationBase.authenticationType",
+          "placeholder": "choose authentication type",
+          "proposalDisplayNames": {
+            "OAUTH_1": "OAuth 1.0",
+            "AUTHENTICATION_TOKEN": "Token",
+            "LOGIN_PASSWORD": "Login"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "OAUTH_1",
+              "AUTHENTICATION_TOKEN",
+              "LOGIN_PASSWORD"
+            ]
+          }
+        },
+        {
+          "defaultValue": "V1",
+          "displayName": "REST version:",
+          "metadata": {
+            "documentation::value": "The version of Magento REST ,e.g. 'V1'"
+          },
+          "name": "magentoRestVersion",
+          "path": "configuration.magentoCmsConfigurationBase.magentoRestVersion",
+          "placeholder": "choose REST version",
+          "proposalDisplayNames": {
+            "V1": "V1"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "V1"
+            ]
+          }
+        },
+        {
+          "displayName": "Server URL:",
+          "metadata": {
+            "documentation::value": "URL of web server (including port after ':'), e.g. 'http://mymagentoserver.com:1234'"
+          },
+          "name": "magentoWebServerUrl",
+          "path": "configuration.magentoCmsConfigurationBase.magentoWebServerUrl",
+          "placeholder": "enter server URL (http://localhost:8080)",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Filter:",
+          "metadata": {
+            "ui::gridlayout::Advanced::value": "filterAdvancedValueWrapper",
+            "ui::gridlayout::Main::value": "filterOperator|filterLines|filterAdvancedValueWrapper",
+            "documentation::value": "Data filter"
+          },
+          "name": "selectionFilter",
+          "path": "configuration.selectionFilter",
+          "placeholder": "selectionFilter",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "",
+          "metadata": {
+            "action::update::after": "filterAdvancedValue",
+            "action::update::parameters": "filterOperator,filterLines",
+            "ui::gridlayout::Main::value": "filterAdvancedValue",
+            "action::update": "updatableFilterAdvanced",
+            "documentation::value": "Full text of advanced filter. Use '&' to join conditions. See Magento's 'Search using REST endpoints' article"
+          },
+          "name": "filterAdvancedValueWrapper",
+          "path": "configuration.selectionFilter.filterAdvancedValueWrapper",
+          "placeholder": "filterAdvancedValueWrapper",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Filter custom:",
+          "metadata": {
+            "documentation::value": "Full text of advanced filter. Use '&' to join conditions. See Magento's 'Search using REST endpoints' article"
+          },
+          "name": "filterAdvancedValue",
+          "path": "configuration.selectionFilter.filterAdvancedValueWrapper.filterAdvancedValue",
+          "placeholder": "enter custom filter (read Magento documentation for filter format)",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "[]",
+          "displayName": "Filter values:",
+          "metadata": {
+            "documentation::value": "Basic filter values, contain column name, condition and value, eg. 'name like 123%'"
+          },
+          "name": "filterLines",
+          "path": "configuration.selectionFilter.filterLines",
+          "placeholder": "filterLines",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "Field",
+          "metadata": {
+            "documentation::value": "The name of field to filter, e.g. 'sku'"
+          },
+          "name": "fieldName",
+          "path": "configuration.selectionFilter.filterLines[].fieldName",
+          "placeholder": "enter field name",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Condition",
+          "metadata": {
+            "documentation::value": "The condition to filter, e.g. 'eq' or 'like'"
+          },
+          "name": "fieldNameCondition",
+          "path": "configuration.selectionFilter.filterLines[].fieldNameCondition",
+          "placeholder": "enter condition (eq, like etc)",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Value",
+          "metadata": {
+            "documentation::value": "The value to filter, e.g. 'my_preferable_sku'"
+          },
+          "name": "value",
+          "path": "configuration.selectionFilter.filterLines[].value",
+          "placeholder": "enter value",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "OR",
+          "displayName": "Filter operator:",
+          "metadata": {
+            "documentation::value": "Filter operator (OR, AND etc.) to join basic filter values"
+          },
+          "name": "filterOperator",
+          "path": "configuration.selectionFilter.filterOperator",
+          "placeholder": "choose filter operator",
+          "proposalDisplayNames": {
+            "AND": "And",
+            "OR": "Or"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "AND",
+              "OR"
+            ]
+          }
+        },
+        {
+          "displayName": "Selection type:",
+          "metadata": {
+            "documentation::value": "The type of information we want to get, e.g. 'Products'"
+          },
+          "name": "selectionType",
+          "path": "configuration.selectionType",
+          "placeholder": "choose selection type",
+          "proposalDisplayNames": {
+            "PRODUCTS": "Products"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "PRODUCTS"
+            ]
+          }
+        }
+      ],
+      "type": "schema"
+    },
+    {
+      "displayName": "\"updatableStr\"",
+      "family": "Magento",
+      "name": "updatableStr",
+      "properties": [
+        {
+          "displayName": "filterOperator",
+          "metadata": {
+            "definition::parameter::index": "0"
+          },
+          "name": "filterOperator",
+          "path": "filterOperator",
+          "placeholder": "filterOperator",
+          "proposalDisplayNames": {
+            "PRODUCTS": "Products"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "PRODUCTS"
+            ]
+          }
+        }
+      ],
+      "type": "update"
+    },
+    {
+      "displayName": "Update advanced filter",
+      "family": "Magento",
+      "name": "updatableFilterAdvanced",
+      "properties": [
+        {
+          "displayName": "filterLines",
+          "metadata": {
+            "documentation::value": "Data filter element",
+            "definition::parameter::index": "1"
+          },
+          "name": "filterLines",
+          "path": "filterLines",
+          "placeholder": "filterLines",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "Field",
+          "metadata": {
+            "documentation::value": "The name of field to filter, e.g. 'sku'"
+          },
+          "name": "fieldName",
+          "path": "filterLines[].fieldName",
+          "placeholder": "enter field name",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Condition",
+          "metadata": {
+            "documentation::value": "The condition to filter, e.g. 'eq' or 'like'"
+          },
+          "name": "fieldNameCondition",
+          "path": "filterLines[].fieldNameCondition",
+          "placeholder": "enter condition (eq, like etc)",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Value",
+          "metadata": {
+            "documentation::value": "The value to filter, e.g. 'my_preferable_sku'"
+          },
+          "name": "value",
+          "path": "filterLines[].value",
+          "placeholder": "enter value",
+          "type": "STRING"
+        },
+        {
+          "displayName": "filterOperator",
+          "metadata": {
+            "definition::parameter::index": "0"
+          },
+          "name": "filterOperator",
+          "path": "filterOperator",
+          "placeholder": "filterOperator",
+          "proposalDisplayNames": {
+            "AND": "And",
+            "OR": "Or"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "AND",
+              "OR"
+            ]
+          }
+        }
+      ],
+      "type": "update"
+    }
+  ],
+  "displayName": "Input",
+  "icon": "magento_input",
+  "id": {
+    "family": "Magento",
+    "familyId": "bWFnZW50b2NtcyNNYWdlbnRv",
+    "id": "bWFnZW50b2NtcyNNYWdlbnRvI0lucHV0",
+    "name": "Input",
+    "plugin": "magentocms",
+    "pluginLocation": "org.talend.components:magentocms:1.0.0-SNAPSHOT"
+  },
+  "inputFlows": [],
+  "links": [],
+  "outputFlows": [
+    "__default__"
+  ],
+  "properties": [
+    {
+      "displayName": "configuration",
+      "metadata": {
+        "ui::gridlayout::Advanced::value": "magentoCmsConfigurationBase|fields|selectionFilter",
+        "ui::gridlayout::Main::value": "magentoCmsConfigurationBase|selectionType|selectionFilter|innerString",
+        "documentation::value": "Input component configuration",
+        "configurationtype::name": "MagentoInput",
+        "configurationtype::type": "dataset",
+        "definition::parameter::index": "0"
+      },
+      "name": "configuration",
+      "path": "configuration",
+      "placeholder": "configuration",
+      "type": "OBJECT"
+    },
+    {
+      "defaultValue": "[]",
+      "displayName": "Schema:",
+      "metadata": {
+        "ui::structure::discoverSchema": "guessTableSchema",
+        "ui::structure::value": "__default__",
+        "documentation::value": "The schema of the component. Use 'Discover schema' button to fil it with sample data. Schema is discovering by getting the frist record from particular data table, e.g. first product in case of 'Product' selection type",
+        "action::schema::type": "OUT",
+        "action::schema::discoverSchema": "guessTableSchema",
+        "ui::structure::type": "OUT",
+        "action::schema": "guessTableSchema"
+      },
+      "name": "fields",
+      "path": "configuration.fields",
+      "placeholder": "add schema fields",
+      "type": "ARRAY"
+    },
+    {
+      "displayName": "fields[${index}]",
+      "metadata": {},
+      "name": "fields[]",
+      "path": "configuration.fields[]",
+      "placeholder": "fields[${index}]",
+      "type": "STRING"
+    },
+    {
+      "displayName": "innerString",
+      "metadata": {
+        "action::update::after": "str",
+        "action::update::parameters": "selectionType",
+        "ui::gridlayout::Main::value": "str",
+        "action::update": "updatableStr",
+        "documentation::value": "updatableStr"
+      },
+      "name": "innerString",
+      "path": "configuration.innerString",
+      "placeholder": "innerString",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "str",
+      "metadata": {
+        "documentation::value": "str property - updatable parameter"
+      },
+      "name": "str",
+      "path": "configuration.innerString.str",
+      "placeholder": "str",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Base configuration:",
+      "metadata": {
+        "ui::gridlayout::Advanced::value": "magentoRestVersion",
+        "ui::gridlayout::Main::value": "magentoWebServerUrl|authenticationType|authenticationOauth1Settings|authenticationTokenSettings|authenticationLoginPasswordSettings",
+        "documentation::value": "Connection to Magento CMS",
+        "action::healthcheck": "datastoreHealthcheck",
+        "configurationtype::name": "MagentoDataStore",
+        "configurationtype::type": "datastore"
+      },
+      "name": "magentoCmsConfigurationBase",
+      "path": "configuration.magentoCmsConfigurationBase",
+      "placeholder": "magentoCmsConfigurationBase",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "User credentials:",
+      "metadata": {
+        "ui::gridlayout::Main::value": "authenticationLogin|authenticationPassword",
+        "condition::if::target": "authenticationType",
+        "documentation::value": "authentication Login settings",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "LOGIN_PASSWORD"
+      },
+      "name": "authenticationLoginPasswordSettings",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationLoginPasswordSettings",
+      "placeholder": "authenticationLoginPasswordSettings",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "Login:",
+      "metadata": {
+        "documentation::value": "authentication login for 'Login' authentication"
+      },
+      "name": "authenticationLogin",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationLoginPasswordSettings.authenticationLogin",
+      "placeholder": "enter login",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Password:",
+      "metadata": {
+        "documentation::value": "authentication password for 'Login' authentication",
+        "ui::credential": "true"
+      },
+      "name": "authenticationPassword",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationLoginPasswordSettings.authenticationPassword",
+      "placeholder": "enter password",
+      "type": "STRING"
+    },
+    {
+      "displayName": "OAuth1 credentials:",
+      "metadata": {
+        "ui::gridlayout::Main::value": "authenticationOauth1ConsumerKey|authenticationOauth1ConsumerSecret|authenticationOauth1AccessToken|authenticationOauth1AccessTokenSecret",
+        "condition::if::target": "authenticationType",
+        "documentation::value": "authentication OAuth 1.0 settings",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "OAUTH_1"
+      },
+      "name": "authenticationOauth1Settings",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings",
+      "placeholder": "authenticationOauth1Settings",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "Access token:",
+      "metadata": {
+        "documentation::value": "authentication OAuth 1.0 access token"
+      },
+      "name": "authenticationOauth1AccessToken",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings.authenticationOauth1AccessToken",
+      "placeholder": "enter access token",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Access token secret:",
+      "metadata": {
+        "documentation::value": "authentication OAuth 1.0 access token secret",
+        "ui::credential": "true"
+      },
+      "name": "authenticationOauth1AccessTokenSecret",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings.authenticationOauth1AccessTokenSecret",
+      "placeholder": "enter access token secret",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Consumer key:",
+      "metadata": {
+        "documentation::value": "authentication OAuth 1.0 consumer key"
+      },
+      "name": "authenticationOauth1ConsumerKey",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings.authenticationOauth1ConsumerKey",
+      "placeholder": "enter consumer key",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Consumer secret:",
+      "metadata": {
+        "documentation::value": "authentication OAuth 1.0 consumer secret",
+        "ui::credential": "true"
+      },
+      "name": "authenticationOauth1ConsumerSecret",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationOauth1Settings.authenticationOauth1ConsumerSecret",
+      "placeholder": "enter consumer secret",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "AuthenticationTokenSettings(authenticationAccessToken=null)",
+      "displayName": "Token credentials:",
+      "metadata": {
+        "ui::gridlayout::Main::value": "authenticationAccessToken",
+        "condition::if::target": "authenticationType",
+        "documentation::value": "authentication Token settings",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "AUTHENTICATION_TOKEN"
+      },
+      "name": "authenticationTokenSettings",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationTokenSettings",
+      "placeholder": "authenticationTokenSettings",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Auth type:",
+      "metadata": {
+        "documentation::value": "authentication type (OAuth 1.0, Token, Login etc.)"
+      },
+      "name": "authenticationType",
+      "path": "configuration.magentoCmsConfigurationBase.authenticationType",
+      "placeholder": "choose authentication type",
+      "proposalDisplayNames": {
+        "OAUTH_1": "OAuth 1.0",
+        "AUTHENTICATION_TOKEN": "Token",
+        "LOGIN_PASSWORD": "Login"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "OAUTH_1",
+          "AUTHENTICATION_TOKEN",
+          "LOGIN_PASSWORD"
+        ]
+      }
+    },
+    {
+      "defaultValue": "V1",
+      "displayName": "REST version:",
+      "metadata": {
+        "documentation::value": "The version of Magento REST ,e.g. 'V1'"
+      },
+      "name": "magentoRestVersion",
+      "path": "configuration.magentoCmsConfigurationBase.magentoRestVersion",
+      "placeholder": "choose REST version",
+      "proposalDisplayNames": {
+        "V1": "V1"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "V1"
+        ]
+      }
+    },
+    {
+      "displayName": "Server URL:",
+      "metadata": {
+        "documentation::value": "URL of web server (including port after ':'), e.g. 'http://mymagentoserver.com:1234'"
+      },
+      "name": "magentoWebServerUrl",
+      "path": "configuration.magentoCmsConfigurationBase.magentoWebServerUrl",
+      "placeholder": "enter server URL (http://localhost:8080)",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Filter:",
+      "metadata": {
+        "ui::gridlayout::Advanced::value": "filterAdvancedValueWrapper",
+        "ui::gridlayout::Main::value": "filterOperator|filterLines|filterAdvancedValueWrapper",
+        "documentation::value": "Data filter"
+      },
+      "name": "selectionFilter",
+      "path": "configuration.selectionFilter",
+      "placeholder": "selectionFilter",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "",
+      "metadata": {
+        "action::update::after": "filterAdvancedValue",
+        "action::update::parameters": "filterOperator,filterLines",
+        "ui::gridlayout::Main::value": "filterAdvancedValue",
+        "action::update": "updatableFilterAdvanced",
+        "documentation::value": "Full text of advanced filter. Use '&' to join conditions. See Magento's 'Search using REST endpoints' article"
+      },
+      "name": "filterAdvancedValueWrapper",
+      "path": "configuration.selectionFilter.filterAdvancedValueWrapper",
+      "placeholder": "filterAdvancedValueWrapper",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "Filter custom:",
+      "metadata": {
+        "documentation::value": "Full text of advanced filter. Use '&' to join conditions. See Magento's 'Search using REST endpoints' article"
+      },
+      "name": "filterAdvancedValue",
+      "path": "configuration.selectionFilter.filterAdvancedValueWrapper.filterAdvancedValue",
+      "placeholder": "enter custom filter (read Magento documentation for filter format)",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "[]",
+      "displayName": "Filter values:",
+      "metadata": {
+        "documentation::value": "Basic filter values, contain column name, condition and value, eg. 'name like 123%'"
+      },
+      "name": "filterLines",
+      "path": "configuration.selectionFilter.filterLines",
+      "placeholder": "filterLines",
+      "type": "ARRAY"
+    },
+    {
+      "displayName": "Field",
+      "metadata": {
+        "documentation::value": "The name of field to filter, e.g. 'sku'"
+      },
+      "name": "fieldName",
+      "path": "configuration.selectionFilter.filterLines[].fieldName",
+      "placeholder": "enter field name",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Condition",
+      "metadata": {
+        "documentation::value": "The condition to filter, e.g. 'eq' or 'like'"
+      },
+      "name": "fieldNameCondition",
+      "path": "configuration.selectionFilter.filterLines[].fieldNameCondition",
+      "placeholder": "enter condition (eq, like etc)",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Value",
+      "metadata": {
+        "documentation::value": "The value to filter, e.g. 'my_preferable_sku'"
+      },
+      "name": "value",
+      "path": "configuration.selectionFilter.filterLines[].value",
+      "placeholder": "enter value",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "OR",
+      "displayName": "Filter operator:",
+      "metadata": {
+        "documentation::value": "Filter operator (OR, AND etc.) to join basic filter values"
+      },
+      "name": "filterOperator",
+      "path": "configuration.selectionFilter.filterOperator",
+      "placeholder": "choose filter operator",
+      "proposalDisplayNames": {
+        "AND": "And",
+        "OR": "Or"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "AND",
+          "OR"
+        ]
+      }
+    },
+    {
+      "displayName": "Selection type:",
+      "metadata": {
+        "documentation::value": "The type of information we want to get, e.g. 'Products'"
+      },
+      "name": "selectionType",
+      "path": "configuration.selectionType",
+      "placeholder": "choose selection type",
+      "proposalDisplayNames": {
+        "PRODUCTS": "Products"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "PRODUCTS"
+        ]
+      }
+    }
+  ],
+  "type": "input",
+  "version": 1
+}

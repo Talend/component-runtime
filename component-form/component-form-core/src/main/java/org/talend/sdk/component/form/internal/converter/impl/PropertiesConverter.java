@@ -52,9 +52,8 @@ public class PropertiesConverter implements PropertyConverter {
                         new PropertiesConverter(jsonb, childDefaults, properties);
 
                 return CompletableFuture
-                        .allOf(properties
-                                .stream()
-                                .filter(context::isDirectChild)
+                        .allOf(context
+                                .findDirectChild(properties)
                                 .map(it -> new PropertyContext<>(it, context.getRootContext(),
                                         context.getConfiguration()))
                                 .map(CompletionStages::toStage)
@@ -74,10 +73,12 @@ public class PropertiesConverter implements PropertyConverter {
                         } else if ("object".equalsIgnoreCase(property.getType())) {
                             defaults.put(property.getName(), jsonb.fromJson(value, Map.class));
                         } else {
-                            if ("string".equalsIgnoreCase(property.getType())
-                                    && property.getMetadata().keySet().stream().anyMatch(
-                                            k -> k.equals("action::suggestions")
-                                                    || k.equalsIgnoreCase("action::dynamic_values"))) {
+                            if ("string".equalsIgnoreCase(property.getType()) && property
+                                    .getMetadata()
+                                    .keySet()
+                                    .stream()
+                                    .anyMatch(k -> k.equals("action::suggestions")
+                                            || k.equalsIgnoreCase("action::dynamic_values"))) {
                                 defaults.putIfAbsent("$" + property.getPath() + "_name", value);
                             }
                             defaults.put(property.getName(), value);

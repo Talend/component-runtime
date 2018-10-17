@@ -45,8 +45,9 @@ public class DuplicateEmitTransform implements Serializable {
     @ElementListener
     public void process(final Record first, @Input("second") final Record second) {
 
-        records.add(new AbstractMap.SimpleEntry<>(first.value.length() + second.value.length(),
-                first.value + second.value));
+        records
+                .add(new AbstractMap.SimpleEntry<>(first.value.length() + second.value.length(),
+                        first.value + second.value));
     }
 
     @AfterGroup

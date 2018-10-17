@@ -43,6 +43,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
@@ -80,17 +81,19 @@ class HttpClientFactoryImplTest {
             server.start();
             final OAuth1Client client =
                     newDefaultFactory().create(OAuth1Client.class, "http://localhost:" + server.getAddress().getPort());
-            final String result = client.call(OAuth1.Configuration
-                    .builder()
-                    .consumerKey("efrzfrf")
-                    .consumerSecret("frzfrgtgt")
-                    .token("gertgteg")
-                    .tokenSecret("frzeefezfrf")
-                    .timestamp(1736297329L)
-                    .nonce("firjfirjiefjpfr")
-                    .build());
-            assertTrue(result.startsWith("GET@Authorization=OAuth oauth_consumer_key=\"efrzfrf\", "
-                    + "oauth_nonce=\"firjfirjiefjpfr\", oauth_signature=\""));
+            final String result = client
+                    .call(OAuth1.Configuration
+                            .builder()
+                            .consumerKey("efrzfrf")
+                            .consumerSecret("frzfrgtgt")
+                            .token("gertgteg")
+                            .tokenSecret("frzeefezfrf")
+                            .timestamp(1736297329L)
+                            .nonce("firjfirjiefjpfr")
+                            .build());
+            assertTrue(result
+                    .startsWith("GET@Authorization=OAuth oauth_consumer_key=\"efrzfrf\", "
+                            + "oauth_nonce=\"firjfirjiefjpfr\", oauth_signature=\""));
             // signature changes cause we have a dynamic port so don't test it
             assertTrue(result
                     .trim()
@@ -235,15 +238,16 @@ class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            final DecoderWithService client =
-                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
-                            JsonbBuilder.create(), new HashMap<Class<?>, Object>() {
+            final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
+            final DecoderWithService client = new HttpClientFactoryImpl("test",
+                    new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry),
+                    JsonbBuilder.create(), new HashMap<Class<?>, Object>() {
 
-                                {
-                                    put(MyService.class, new MyService());
-                                    put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
-                                }
-                            }).create(DecoderWithService.class, null);
+                        {
+                            put(MyService.class, new MyService());
+                            put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
+                        }
+                    }).create(DecoderWithService.class, null);
             client.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             assertThrows(IllegalStateException.class, () -> client.error("search yes"));
@@ -337,8 +341,9 @@ class HttpClientFactoryImplTest {
             {
                 final InputStream response = httpClient.doRequestNoWrapper("ABC123");
                 assertEquals("GET@Connection=keep-alive@/api/ABC123@",
-                        new BufferedReader(new InputStreamReader(response, StandardCharsets.UTF_8)).lines().collect(
-                                joining("\n")));
+                        new BufferedReader(new InputStreamReader(response, StandardCharsets.UTF_8))
+                                .lines()
+                                .collect(joining("\n")));
             }
         } finally {
             server.stop(0);
@@ -367,9 +372,9 @@ class HttpClientFactoryImplTest {
 
             server.start();
             final GenericClient httpClient = newDefaultFactory().create(GenericClient.class, null);
-            Response<byte[]> response =
-                    httpClient.execute(2000, 2000, "http://localhost:" + server.getAddress().getPort() + "/api", "POST",
-                            headers, queries, "body data");
+            Response<byte[]> response = httpClient
+                    .execute(2000, 2000, "http://localhost:" + server.getAddress().getPort() + "/api", "POST", headers,
+                            queries, "body data");
             assertEquals(
                     "POST@Authorization=Basic ABCD/Connection=keep-alive/Content-length=9/Content-type=application/json@/api?emptyParam=&param=value+to+be+encoded@body data",
                     new String(response.body()));
@@ -385,8 +390,9 @@ class HttpClientFactoryImplTest {
         try {
             server.start();
             final GenericClient httpClient = newDefaultFactory().create(GenericClient.class, null);
-            Response<byte[]> response = httpClient.execute(2000, 2000,
-                    "http://localhost:" + server.getAddress().getPort() + "/api/", "POST", null, null, null);
+            Response<byte[]> response = httpClient
+                    .execute(2000, 2000, "http://localhost:" + server.getAddress().getPort() + "/api/", "POST", null,
+                            null, null);
             assertEquals("POST@Authorization=Basic ABCD/Connection=keep-alive@/api@", new String(response.body()));
         } finally {
             server.stop(0);
@@ -414,7 +420,9 @@ class HttpClientFactoryImplTest {
     }
 
     private HttpClientFactoryImpl newDefaultFactory() {
-        return new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
+        final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
+        return new HttpClientFactoryImpl("test",
+                new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry),
                 JsonbBuilder.create(), emptyMap());
     }
 

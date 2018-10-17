@@ -129,8 +129,9 @@ public class CapturingPipeline extends Pipeline {
         public void visitPrimitiveTransform(final TransformHierarchy.Node node) {
             final PTransform<?, ?> transform = node.getTransform();
             if (this.transform != null) {
-                this.transforms.add(new TransformWithCoder((PTransform<PCollection<?>, PCollection<?>>) transform,
-                        findCoders(node)));
+                this.transforms
+                        .add(new TransformWithCoder((PTransform<PCollection<?>, PCollection<?>>) transform,
+                                findCoders(node)));
             } else {
                 this.transform = (PTransform<? super PBegin, ?>) transform;
             }

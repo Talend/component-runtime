@@ -19,6 +19,7 @@ import static lombok.AccessLevel.PRIVATE;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 
@@ -37,6 +38,17 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = PRIVATE)
 public final class CompletionStages {
+
+    public static <T> T get(final CompletableFuture<T> it) {
+        try {
+            return it.get();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        } catch (final ExecutionException e) {
+            throw new IllegalStateException(e.getCause());
+        }
+    }
 
     public static CompletionStage<PropertyContext<?>> toStage(final PropertyContext<?> context) {
         return CompletableFuture.completedFuture(context);

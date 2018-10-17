@@ -85,7 +85,8 @@ public class StreamDecorator implements InvocationHandler {
 
     private static <T, S extends BaseStream<T, ?>> S decorate(final S delegate, final Class<S> type,
             final Consumer<Runnable> wrapper) {
-        return (S) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { type },
-                new StreamDecorator(delegate, wrapper));
+        return (S) Proxy
+                .newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { type },
+                        new StreamDecorator(delegate, wrapper));
     }
 }

@@ -49,9 +49,6 @@ public class MavenBuildGenerator implements BuildGenerator {
     @Inject
     private TemplateRenderer renderer;
 
-    @Inject
-    private ServerInfo versions;
-
     private Map<String, Collection<Plugin>> plugins;
 
     void register(@Observes final GeneratorRegistration init) {
@@ -62,19 +59,19 @@ public class MavenBuildGenerator implements BuildGenerator {
 
     @Override
     public Build createBuild(final ProjectRequest.BuildConfiguration buildConfiguration, final String packageBase,
-            final Collection<Dependency> dependencies, final Collection<String> facets) {
+            final Collection<Dependency> dependencies, final Collection<String> facets,
+            final ServerInfo.Snapshot versions) {
         return new Build(buildConfiguration.getArtifact(), buildConfiguration.getGroup(),
                 buildConfiguration.getVersion(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "pom.xml",
                 renderer.render("generator/maven/pom.xml",
-                        new Pom(buildConfiguration, dependencies,
-                                createPlugins(facets, packageBase, plugins.get(buildConfiguration.getPackaging())),
-                                versions.getKit())),
+                        new Pom(buildConfiguration, dependencies, createPlugins(facets, packageBase,
+                                plugins.get(buildConfiguration.getPackaging()), versions), versions.getKit())),
                 "target", generateWrapperFiles());
     }
 
     private Collection<Plugin> createPlugins(final Collection<String> facets, final String packageBase,
-            final Collection<Plugin> plugins) {
+            final Collection<Plugin> plugins, final ServerInfo.Snapshot versions) {
         final Collection<Plugin> buildPlugins = new ArrayList<>(plugins);
 
         buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", versions.getSurefire(),

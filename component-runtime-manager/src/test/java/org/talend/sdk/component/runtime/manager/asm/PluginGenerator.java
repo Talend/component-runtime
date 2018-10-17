@@ -17,17 +17,17 @@ package org.talend.sdk.component.runtime.manager.asm;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
-import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
-import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm6.Opcodes.ALOAD;
-import static org.apache.xbean.asm6.Opcodes.ARETURN;
-import static org.apache.xbean.asm6.Opcodes.DUP;
-import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm6.Opcodes.NEW;
-import static org.apache.xbean.asm6.Opcodes.RETURN;
-import static org.apache.xbean.asm6.Opcodes.V1_8;
+import static org.apache.xbean.asm7.ClassReader.EXPAND_FRAMES;
+import static org.apache.xbean.asm7.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm7.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm7.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm7.Opcodes.ALOAD;
+import static org.apache.xbean.asm7.Opcodes.ARETURN;
+import static org.apache.xbean.asm7.Opcodes.DUP;
+import static org.apache.xbean.asm7.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm7.Opcodes.NEW;
+import static org.apache.xbean.asm7.Opcodes.RETURN;
+import static org.apache.xbean.asm7.Opcodes.V1_8;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -43,13 +43,13 @@ import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import org.apache.xbean.asm6.AnnotationVisitor;
-import org.apache.xbean.asm6.ClassReader;
-import org.apache.xbean.asm6.ClassWriter;
-import org.apache.xbean.asm6.MethodVisitor;
-import org.apache.xbean.asm6.Type;
-import org.apache.xbean.asm6.commons.ClassRemapper;
-import org.apache.xbean.asm6.commons.Remapper;
+import org.apache.xbean.asm7.AnnotationVisitor;
+import org.apache.xbean.asm7.ClassReader;
+import org.apache.xbean.asm7.ClassWriter;
+import org.apache.xbean.asm7.MethodVisitor;
+import org.apache.xbean.asm7.Type;
+import org.apache.xbean.asm7.commons.ClassRemapper;
+import org.apache.xbean.asm7.commons.Remapper;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Action;
@@ -119,14 +119,16 @@ public class PluginGenerator {
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
         writer.visitAnnotation(Type.getDescriptor(Service.class), true).visitEnd();
-        writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), null);
+        writer
+                .visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                        null, Type.getInternalName(Object.class), null);
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
 
-        final MethodVisitor action = writer.visitMethod(ACC_PUBLIC, "doAction",
-                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+        final MethodVisitor action = writer
+                .visitMethod(ACC_PUBLIC, "doAction", "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null,
+                        new String[0]);
         final AnnotationVisitor actionAnnotation = action.visitAnnotation(Type.getDescriptor(Action.class), true);
         actionAnnotation.visit("family", "proc");
         actionAnnotation.visit("value", name + "Action");
@@ -148,8 +150,9 @@ public class PluginGenerator {
         final String className = packageName + "/AModel.class";
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-        writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), null);
+        writer
+                .visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                        null, Type.getInternalName(Object.class), null);
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
@@ -168,15 +171,18 @@ public class PluginGenerator {
         processorAnnotation.visit("family", "comp");
         processorAnnotation.visit("name", "proc");
         processorAnnotation.visitEnd();
-        writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), new String[] { Serializable.class.getName().replace(".", "/") });
+        writer
+                .visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                        null, Type.getInternalName(Object.class),
+                        new String[] { Serializable.class.getName().replace(".", "/") });
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
 
         // generate a processor
-        final MethodVisitor emitMethod = writer.visitMethod(ACC_PUBLIC, "emit",
-                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+        final MethodVisitor emitMethod = writer
+                .visitMethod(ACC_PUBLIC, "emit", "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null,
+                        new String[0]);
         emitMethod.visitAnnotation(Type.getDescriptor(ElementListener.class), true).visitEnd();
         emitMethod.visitCode();
         emitMethod.visitTypeInsn(NEW, packageName + "/AModel");

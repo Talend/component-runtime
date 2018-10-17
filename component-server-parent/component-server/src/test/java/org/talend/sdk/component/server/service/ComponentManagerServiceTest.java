@@ -77,8 +77,8 @@ class ComponentManagerServiceTest {
                 .getComponents()
                 .values()
                 .stream()
-                .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
-                        c.getProcessors().values().stream()))
+                .flatMap(c -> Stream
+                        .concat(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream()))
                 .map(ComponentFamilyMeta.BaseMeta::getId)
                 .collect(toSet());
         final Set<String> familiesIds = plugin

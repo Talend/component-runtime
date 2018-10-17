@@ -16,7 +16,10 @@
 package org.talend.sdk.component.server.front;
 
 import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -27,14 +30,19 @@ import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRI
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -54,6 +62,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
@@ -80,7 +89,7 @@ public class DocumentationResource {
     private ComponentManager manager;
 
     @Inject
-    private AsciidoctorService adoc;
+    private Instance<Object> instance;
 
     @GET
     @Path("component/{id}")
@@ -90,9 +99,7 @@ public class DocumentationResource {
                     + "Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get "
                     + "a partial document. "
                     + "IMPORTANT: it is recommended to use asciidoc format and handle the conversion on your side if you can, "
-                    + "the html flavor handles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles. "
-                    + "The documentation will likely be the family documentation but you can use anchors to access a particular "
-                    + "component (_componentname_inlowercase).")
+                    + "the html is not activated by default and requires deployment work (adding asciidoctor).")
     @APIResponse(responseCode = "200",
             description = "the list of available and storable configurations (datastore, dataset, ...).",
             content = @Content(mediaType = APPLICATION_JSON))
@@ -155,11 +162,23 @@ public class DocumentationResource {
                         switch (format) {
                         case "html":
                         case "html5":
-                            return adoc.toHtml(value);
+                            // will fail by default since we don't provide it, this is deprecated anyway
+                            return instance.select(AsciidoctorService.class).get().toHtml(value);
                         case "asciidoc":
                         case "adoc":
                         default:
-                            return value;
+                            return ofNullable(container.get(ContainerComponentRegistry.class))
+                                    .flatMap(r -> r
+                                            .getComponents()
+                                            .values()
+                                            .stream()
+                                            .flatMap(f -> Stream
+                                                    .concat(f.getPartitionMappers().values().stream(),
+                                                            f.getProcessors().values().stream()))
+                                            .filter(c -> c.getId().equals(id))
+                                            .findFirst()
+                                            .map(c -> selectById(c.getName(), value)))
+                                    .orElse(value);
 
                         }
                     })
@@ -184,5 +203,49 @@ public class DocumentationResource {
     private static class DocumentationCache {
 
         private final ConcurrentMap<DocKey, DocumentationContent> documentations = new ConcurrentHashMap<>();
+    }
+
+    // see org.talend.sdk.component.tools.AsciidocDocumentationGenerator.toAsciidoc
+    private String selectById(final String name, final String value) {
+        final List<String> lines;
+        try (final BufferedReader reader = new BufferedReader(new StringReader(value))) {
+            lines = reader.lines().collect(toList());
+        } catch (final IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        // first try to find configuration level, default is 2 (==)
+        final TreeMap<Integer, List<Integer>> configurationLevels = lines
+                .stream()
+                .filter(it -> it.endsWith("= Configuration"))
+                .map(it -> it.indexOf(' '))
+                .collect(groupingBy(identity(), TreeMap::new, toList()));
+        if (configurationLevels.isEmpty()) {
+            // no standard configuration, just return it all
+            return value;
+        }
+
+        final int titleLevels = Math.max(1, configurationLevels.lastKey() - 1);
+        final String prefixTitle = IntStream.range(0, titleLevels).mapToObj(i -> "=").collect(joining()) + " ";
+        final int titleIndex = lines.indexOf(prefixTitle + name);
+        if (titleIndex < 0) {
+            return value;
+        }
+
+        List<String> endOfLines = lines.subList(titleIndex, lines.size());
+        int lineIdx = 0;
+        for (final String line : endOfLines) {
+            if (lineIdx > 0 && line.startsWith(prefixTitle)) {
+                endOfLines = lines.subList(0, lineIdx);
+                break;
+            }
+            lineIdx++;
+        }
+        if (!endOfLines.isEmpty()) {
+            return String.join("\n", endOfLines);
+        }
+
+        // if not found just return all the doc
+        return value;
     }
 }

@@ -107,9 +107,9 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
             }
             for (int i = 0; i < invokerHandlers.size(); i++) {
                 final InvokerHandler invokerHandler = invokerHandlers.get(i);
-                invokerHandler.init(
-                        i == invokerHandlers.size() - 1 ? this::doInvoke : invokerHandlers.get(i + 1)::invoke, delegate,
-                        services);
+                invokerHandler
+                        .init(i == invokerHandlers.size() - 1 ? this::doInvoke : invokerHandlers.get(i + 1)::invoke,
+                                delegate, services);
             }
             return invokerHandlers.get(0)::invoke;
         }).apply(method, args);

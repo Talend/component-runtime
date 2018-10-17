@@ -54,12 +54,14 @@ class SparkExtensionTest {
         if (out.exists()) {
             out.delete();
         }
-        spark.submitClasspath(SparkClusterRuleTest.SubmittableMain.class, File::isDirectory, spark.getSparkMaster(),
-                out.getAbsolutePath());
+        spark
+                .submitClasspath(SparkClusterRuleTest.SubmittableMain.class, File::isDirectory, spark.getSparkMaster(),
+                        out.getAbsolutePath());
 
-        await().atMost(5, MINUTES).until(
-                () -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim() : null,
-                equalTo("b -> 1\na -> 1"));
+        await()
+                .atMost(5, MINUTES)
+                .until(() -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim()
+                        : null, equalTo("b -> 1\na -> 1"));
     }
 
     @NoArgsConstructor(access = PRIVATE)

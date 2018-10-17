@@ -64,24 +64,29 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return client.action(family, "dynamic_values", actionName, lang, emptyMap(), context).exceptionally(e -> {
             log.warn(e.getMessage(), e);
             return emptyMap();
-        }).thenApply(
-                values -> ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
-                    final Collection<?> dynamicValues = Collection.class.cast(c);
-                    return dynamicValues
-                            .stream()
-                            .filter(Map.class::isInstance)
-                            .filter(m -> Map.class.cast(m).get("id") != null
-                                    && Map.class.cast(m).get("id") instanceof String)
-                            .map(Map.class::cast)
-                            .map(entry -> {
-                                final UiSchema.NameValue val = new UiSchema.NameValue();
-                                val.setName(entry.get("label") == null ? (String) entry.get("id")
-                                        : String.class.cast(entry.get("label")));
-                                val.setValue(String.class.cast(entry.get("id")));
-                                return val;
-                            })
-                            .collect(toList());
-                }).orElse(emptyList()));
+        })
+                .thenApply(values -> ofNullable(values)
+                        .map(v -> v.get("items"))
+                        .filter(Collection.class::isInstance)
+                        .map(c -> {
+                            final Collection<?> dynamicValues = Collection.class.cast(c);
+                            return dynamicValues
+                                    .stream()
+                                    .filter(Map.class::isInstance)
+                                    .filter(m -> Map.class.cast(m).get("id") != null
+                                            && Map.class.cast(m).get("id") instanceof String)
+                                    .map(Map.class::cast)
+                                    .map(entry -> {
+                                        final UiSchema.NameValue val = new UiSchema.NameValue();
+                                        val
+                                                .setName(entry.get("label") == null ? (String) entry.get("id")
+                                                        : String.class.cast(entry.get("label")));
+                                        val.setValue(String.class.cast(entry.get("id")));
+                                        return val;
+                                    })
+                                    .collect(toList());
+                        })
+                        .orElse(emptyList()));
     }
 
     protected UiSchema.Trigger toTrigger(final Collection<SimplePropertyDefinition> properties,
@@ -90,8 +95,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         trigger.setAction(ref.getName());
         trigger.setFamily(ref.getFamily());
         trigger.setType(ref.getType());
-        trigger.setParameters(
-                toParams(properties, prop, ref, prop.getMetadata().get("action::" + ref.getType() + "::parameters")));
+        trigger
+                .setParameters(toParams(properties, prop, ref,
+                        prop.getMetadata().get("action::" + ref.getType() + "::parameters")));
         return trigger;
     }
 
@@ -111,13 +117,15 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             final String propertiesPrefix = pathResolver.resolveProperty(prop.getPath(), paramRef);
             final List<UiSchema.Parameter> resolvedParams = properties
                     .stream()
-                    .filter(p -> p.getPath().startsWith(propertiesPrefix))
-                    .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
+                    .filter(p -> p.getPath().equals(propertiesPrefix))
+                    // .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
                     .map(o -> {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
-                        final String key = parameterPrefix + o.getPath().substring(propertiesPrefix.length());
+                        final String path = o.getPath();
+                        final String key = parameterPrefix + path.substring(propertiesPrefix.length());
                         parameter.setKey(key.replace("[]", "")); // not a lodash path otherwise
-                        parameter.setPath(o.getPath());
+                        parameter
+                                .setPath(path.endsWith("[]") ? path.substring(0, path.length() - "[]".length()) : path);
                         return parameter;
                     })
                     .collect(toList());
@@ -132,7 +140,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }).collect(toList())).orElse(null);
     }
 
-    protected UiSchema newUiSchema(final PropertyContext ctx) {
+    protected UiSchema newUiSchema(final PropertyContext<?> ctx) {
         final UiSchema schema = newOrphanSchema(ctx);
         synchronized (schemas) {
             schemas.add(schema);
@@ -140,7 +148,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return schema;
     }
 
-    protected UiSchema newOrphanSchema(final PropertyContext ctx) {
+    protected UiSchema newOrphanSchema(final PropertyContext<?> ctx) {
         final UiSchema schema = new UiSchema();
         schema.setTitle(ctx.getProperty().getDisplayName());
         schema.setKey(ctx.getProperty().getPath());
@@ -151,8 +159,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         schema.setDescription(ctx.getProperty().getMetadata().get("documentation::value"));
         if (actions != null) {
             final List<UiSchema.Trigger> triggers = Stream
-                    .concat(Stream.concat(createValidationTrigger(ctx.getProperty()),
-                            createOtherActions(ctx.getProperty())), createSuggestionTriggers(ctx.getProperty()))
+                    .concat(Stream
+                            .concat(createValidationTrigger(ctx.getProperty()), createOtherActions(ctx.getProperty())),
+                            createSuggestionTriggers(ctx.getProperty()))
                     .collect(toList());
             if (!triggers.isEmpty()) {
                 schema.setTriggers(triggers);
@@ -168,8 +177,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         .stream()
                         .filter(a -> actionMatch(v, a) && "suggestions".equals(a.getType()))
                         .findFirst())
-                .map(ref -> Stream.of(toTrigger(properties, property, ref)).peek(
-                        trigger -> trigger.setOnEvent("focus")))
+                .map(ref -> Stream
+                        .of(toTrigger(properties, property, ref))
+                        .peek(trigger -> trigger.setOnEvent("focus")))
                 .orElseGet(Stream::empty);
     }
 
@@ -227,11 +237,11 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     // client
     private boolean isBuiltInAction(final String key) {
         return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
-                || key.equals("action::validation") || key.equals("action::suggestions")
-                || key.equals("action::update");
+                || key.equals("action::validation") || key.equals("action::suggestions") || key.equals("action::update")
+                || key.equals("action::schema");
     }
 
-    protected Map<String, Collection<Object>> createCondition(final PropertyContext ctx) {
+    protected Map<String, Collection<Object>> createCondition(final PropertyContext<?> ctx) {
         final List<Map<String, Collection<Object>>> conditions = ctx
                 .getProperty()
                 .getMetadata()
@@ -281,7 +291,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             final String operator = ofNullable(ctx.getProperty().getMetadata().get("condition::ifs::operator"))
                     .orElse("AND")
                     .toLowerCase(ROOT);
-            return new UiSchema.ConditionBuilder().withOperator(operator).withValue(conditions).build();
+            return new UiSchema.ConditionBuilder().withOperator(operator).withValues(conditions).build();
         }
     }
 

@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.beans.ConstructorProperties;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -56,10 +57,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.apache.xbean.propertyeditor.PropertyEditors;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
-import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -71,6 +71,8 @@ import lombok.RequiredArgsConstructor;
 public class ReflectionService {
 
     private final ParameterModelService parameterModelService;
+
+    private final PropertyEditorRegistry propertyEditorRegistry;
 
     // note: we use xbean for now but we can need to add some caching inside if we
     // abuse of it at runtime.
@@ -85,16 +87,7 @@ public class ReflectionService {
     public Function<Map<String, String>, Object[]> parameterFactory(final Executable executable,
             final Map<Class<?>, Object> precomputed, final List<ParameterMeta> metas) {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        final Function<Supplier<Object>, Object> contextualSupplier = supplier -> {
-            final Thread thread = Thread.currentThread();
-            final ClassLoader old = thread.getContextClassLoader();
-            thread.setContextClassLoader(loader);
-            try {
-                return supplier.get();
-            } finally {
-                thread.setContextClassLoader(old);
-            }
-        };
+        final Function<Supplier<Object>, Object> contextualSupplier = createContextualSupplier(loader);
         final Collection<Function<Map<String, String>, Object>> factories =
                 Stream.of(executable.getParameters()).map(parameter -> {
                     final String name = parameterModelService.findName(parameter, parameter.getName());
@@ -102,48 +95,10 @@ public class ReflectionService {
                     if (Class.class.isInstance(parameterizedType)) {
                         if (parameter.isAnnotationPresent(Configuration.class)) {
                             try {
-                                final Constructor constructor = Class.class.cast(parameterizedType).getConstructor();
-                                final LocalConfiguration config =
-                                        LocalConfiguration.class.cast(precomputed.get(LocalConfiguration.class));
-                                final LocalCache cache = LocalCache.class.cast(precomputed.get(LocalCache.class));
-                                if (cache == null || config == null) {
-                                    return (Function<Map<String, String>, Object>) c -> null;
-                                }
-
-                                final String prefix = parameter.getAnnotation(Configuration.class).value();
-                                final ParameterMeta objectMeta = parameterModelService.buildParameter(prefix, prefix,
-                                        new ParameterMeta.Source() {
-
-                                            @Override
-                                            public String name() {
-                                                return parameter.getName();
-                                            }
-
-                                            @Override
-                                            public Class<?> declaringClass() {
-                                                return constructor.getDeclaringClass();
-                                            }
-                                        }, parameter.getType(), parameter.getAnnotations(),
-                                        Stream
-                                                .of(ofNullable(constructor.getDeclaringClass().getPackage())
-                                                        .map(Package::getName)
-                                                        .orElse(""))
-                                                .collect(toList()),
-                                        true, new BaseParameterEnricher.Context(config));
-                                final BiFunction<String, Map<String, Object>, Object> objectFactory =
-                                        createObjectFactory(loader, contextualSupplier, parameterizedType,
-                                                objectMeta.getNestedParameters());
-                                final Function<Map<String, Object>, Object> factory =
-                                        c -> objectFactory.apply(prefix, c);
-                                return (Function<Map<String, String>, Object>) ignoredDependentConfig -> {
-                                    final Map<String, Object> configMap = config
-                                            .keys()
-                                            .stream()
-                                            .filter(it -> objectMeta.getNestedParameters().stream().anyMatch(
-                                                    p -> it.startsWith(prefix + '.' + p.getName())))
-                                            .collect(toMap(identity(), config::get));
-                                    return factory.apply(configMap);
-                                };
+                                final Class configClass = Class.class.cast(parameterizedType);
+                                return createConfigFactory(precomputed, loader, contextualSupplier, parameter.getName(),
+                                        parameter.getAnnotation(Configuration.class), parameter.getAnnotations(),
+                                        configClass);
                             } catch (final NoSuchMethodException e) {
                                 throw new IllegalArgumentException("No constructor for " + parameter);
                             }
@@ -158,8 +113,8 @@ public class ReflectionService {
                         }
                         final BiFunction<String, Map<String, Object>, Object> objectFactory = createObjectFactory(
                                 loader, contextualSupplier, parameterizedType, translate(metas, name));
-                        return (Function<Map<String, String>, Object>) config -> objectFactory.apply(name,
-                                Map.class.cast(config));
+                        return (Function<Map<String, String>, Object>) config -> objectFactory
+                                .apply(name, Map.class.cast(config));
                     }
 
                     if (ParameterizedType.class.isInstance(parameterizedType)) {
@@ -225,6 +180,61 @@ public class ReflectionService {
         return config -> {
             final Map<String, String> notNullConfig = ofNullable(config).orElseGet(Collections::emptyMap);
             return factories.stream().map(f -> f.apply(notNullConfig)).toArray(Object[]::new);
+        };
+    }
+
+    public Function<Supplier<Object>, Object> createContextualSupplier(final ClassLoader loader) {
+        return supplier -> {
+            final Thread thread = Thread.currentThread();
+            final ClassLoader old = thread.getContextClassLoader();
+            thread.setContextClassLoader(loader);
+            try {
+                return supplier.get();
+            } finally {
+                thread.setContextClassLoader(old);
+            }
+        };
+    }
+
+    public Function<Map<String, String>, Object> createConfigFactory(final Map<Class<?>, Object> precomputed,
+            final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier, final String name,
+            final Configuration configuration, final Annotation[] allAnnotations, final Class<?> configClass)
+            throws NoSuchMethodException {
+        final Constructor constructor = configClass.getConstructor();
+        final LocalConfiguration config = LocalConfiguration.class.cast(precomputed.get(LocalConfiguration.class));
+        if (config == null) {
+            return c -> null;
+        }
+
+        final String prefix = configuration.value();
+        final ParameterMeta objectMeta =
+                parameterModelService.buildParameter(prefix, prefix, new ParameterMeta.Source() {
+
+                    @Override
+                    public String name() {
+                        return name;
+                    }
+
+                    @Override
+                    public Class<?> declaringClass() {
+                        return constructor.getDeclaringClass();
+                    }
+                }, configClass, allAnnotations, Stream
+                        .of(ofNullable(constructor.getDeclaringClass().getPackage()).map(Package::getName).orElse(""))
+                        .collect(toList()), true, new BaseParameterEnricher.Context(config));
+        final BiFunction<String, Map<String, Object>, Object> objectFactory =
+                createObjectFactory(loader, contextualSupplier, configClass, objectMeta.getNestedParameters());
+        final Function<Map<String, Object>, Object> factory = c -> objectFactory.apply(prefix, c);
+        return ignoredDependentConfig -> {
+            final Map<String, Object> configMap = config
+                    .keys()
+                    .stream()
+                    .filter(it -> objectMeta
+                            .getNestedParameters()
+                            .stream()
+                            .anyMatch(p -> it.startsWith(prefix + '.' + p.getName())))
+                    .collect(toMap(identity(), config::get));
+            return factory.apply(configMap);
         };
     }
 
@@ -349,11 +359,12 @@ public class ReflectionService {
     private Object createObject(final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier,
             final Class clazz, final String[] args, final String name, final Map<String, Object> config,
             final List<ParameterMeta> metas) {
-        if (PropertyEditors.canConvert(clazz) && config.size() == 1) { // direct conversion using the configured
-                                                                       // converter/editor
+        if (propertyEditorRegistry.findConverter(clazz) != null && config.size() == 1) { // direct conversion using the
+                                                                                         // configured
+            // converter/editor
             final Object configValue = config.values().iterator().next();
             if (String.class.isInstance(configValue)) {
-                return PropertyEditors.getValue(clazz, String.class.cast(configValue));
+                return propertyEditorRegistry.getValue(clazz, String.class.cast(configValue));
             }
         }
 
@@ -367,9 +378,11 @@ public class ReflectionService {
                                                                           // directly
         ofNullable(args).ifPresent(recipe::setConstructorArgNames);
 
-        final Map<String, Object> specificMapping =
-                config.entrySet().stream().filter(e -> e.getKey().startsWith(prefix)).collect(
-                        toMap(Map.Entry::getKey, Map.Entry::getValue));
+        final Map<String, Object> specificMapping = config
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().startsWith(prefix))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // extract map configuration
         final Map<String, Object> mapEntries = specificMapping.entrySet().stream().filter(e -> {
@@ -412,12 +425,13 @@ public class ReflectionService {
 
             final Class<?> keyType = Class.class.cast(pt.getActualTypeArguments()[0]);
             final Class<?> valueType = Class.class.cast(pt.getActualTypeArguments()[1]);
-            preparedMaps.put(enclosingName,
-                    createMap(prefix + enclosingName, Map.class,
-                            createObjectFactory(loader, contextualSupplier, keyType, metas),
-                            createObjectFactory(loader, contextualSupplier, valueType, metas),
-                            createMapCollector(Class.class.cast(pt.getRawType()), keyType, valueType),
-                            new HashMap<>(mapEntries)));
+            preparedMaps
+                    .put(enclosingName,
+                            createMap(prefix + enclosingName, Map.class,
+                                    createObjectFactory(loader, contextualSupplier, keyType, metas),
+                                    createObjectFactory(loader, contextualSupplier, valueType, metas),
+                                    createMapCollector(Class.class.cast(pt.getRawType()), keyType, valueType),
+                                    new HashMap<>(mapEntries)));
         }
 
         // extract list configuration
@@ -444,9 +458,9 @@ public class ReflectionService {
                 if (arrayClass.isArray()) {
                     // we could use Array.newInstance but for now use the list, shouldn't impact
                     // much the perf
-                    final Collection<?> list =
-                            Collection.class.cast(createList(loader, contextualSupplier, prefix + enclosingName,
-                                    List.class, arrayClass.getComponentType(), toList(), createObjectFactory(loader,
+                    final Collection<?> list = Collection.class
+                            .cast(createList(loader, contextualSupplier, prefix + enclosingName, List.class,
+                                    arrayClass.getComponentType(), toList(), createObjectFactory(loader,
                                             contextualSupplier, arrayClass.getComponentType(), metas),
                                     new HashMap<>(listEntries), metas));
 
@@ -473,11 +487,12 @@ public class ReflectionService {
                         + " should use concrete class items and not a " + pt.getActualTypeArguments()[0]);
             }
             final Type itemType = pt.getActualTypeArguments()[0];
-            preparedLists.put(enclosingName,
-                    createList(loader, contextualSupplier, prefix + enclosingName, Class.class.cast(pt.getRawType()),
-                            Class.class.cast(itemType), toList(),
-                            createObjectFactory(loader, contextualSupplier, itemType, metas),
-                            new HashMap<>(listEntries), metas));
+            preparedLists
+                    .put(enclosingName,
+                            createList(loader, contextualSupplier, prefix + enclosingName,
+                                    Class.class.cast(pt.getRawType()), Class.class.cast(itemType), toList(),
+                                    createObjectFactory(loader, contextualSupplier, itemType, metas),
+                                    new HashMap<>(listEntries), metas));
         }
 
         // extract nested Object configurations
@@ -541,8 +556,9 @@ public class ReflectionService {
                 }
             }
             final Field field = findField(nestedName, clazz);
-            preparedObjects.put(nestedName, createObject(loader, contextualSupplier, field.getType(),
-                    findArgsName(field.getType()), prefix + nestedName, config, translate(metas, nestedName)));
+            preparedObjects
+                    .put(nestedName, createObject(loader, contextualSupplier, field.getType(),
+                            findArgsName(field.getType()), prefix + nestedName, config, translate(metas, nestedName)));
         }
 
         // other entries can be directly set
@@ -574,8 +590,11 @@ public class ReflectionService {
         preparedLists.forEach(recipe::setProperty);
         preparedObjects.forEach(recipe::setProperty);
         if (!normalizedConfig.isEmpty()) {
-            normalizedConfig.entrySet().stream().map(it -> normalize(it, metas)).forEach(
-                    e -> recipe.setProperty(e.getKey(), e.getValue()));
+            normalizedConfig
+                    .entrySet()
+                    .stream()
+                    .map(it -> normalize(it, metas))
+                    .forEach(e -> recipe.setProperty(e.getKey(), e.getValue()));
         }
         return recipe.create(loader);
     }
@@ -597,25 +616,29 @@ public class ReflectionService {
     private void doValidate(final List<ParameterMeta> metas, final Map<String, Object> preparedLists,
             final Map<String, Object> normalizedConfig) {
         if (metas != null && !Boolean.getBoolean("talend.component.configuration.validation.skip")) {
-            final String error =
-                    Stream
-                            .concat(metas
-                                    .stream()
-                                    .filter(it -> "true"
-                                            .equalsIgnoreCase(it.getMetadata().get("tcomp::validation::required")))
-                                    .filter(it -> !normalizedConfig.containsKey(it.getName()))
-                                    .map(it -> "Missing configuration " + it.getPath()),
-                                    Stream.concat(metas
+            final String error = Stream
+                    .concat(metas
+                            .stream()
+                            .filter(it -> "true".equalsIgnoreCase(it.getMetadata().get("tcomp::validation::required")))
+                            .filter(it -> !normalizedConfig.containsKey(it.getName()))
+                            .map(it -> "Missing configuration " + it.getPath()),
+                            Stream
+                                    .concat(metas
                                             .stream()
                                             .map(it -> ofNullable(normalizedConfig.get(it.getName()))
                                                     .map(v -> errorFactory(it).apply(v).stream().collect(joining("\n")))
                                                     .orElse(null)),
-                                            metas.stream().map(it -> ofNullable(preparedLists.get(it.getName()))
-                                                    .map(v -> errorFactory(it).apply(v).stream().collect(joining("\n")))
-                                                    .orElse(null))))
-                            .filter(Objects::nonNull)
-                            .collect(joining("\n"))
-                            .trim();
+                                            metas
+                                                    .stream()
+                                                    .map(it -> ofNullable(preparedLists.get(it.getName()))
+                                                            .map(v -> errorFactory(it)
+                                                                    .apply(v)
+                                                                    .stream()
+                                                                    .collect(joining("\n")))
+                                                            .orElse(null))))
+                    .filter(Objects::nonNull)
+                    .collect(joining("\n"))
+                    .trim();
             if (!error.isEmpty()) {
                 throw new IllegalArgumentException(error);
             }
@@ -631,8 +654,9 @@ public class ReflectionService {
         final Class<?> itemType = Class.class.cast(pt.getActualTypeArguments()[0]);
         final int index = Integer.parseInt(nestedName.substring(listName.length() + 1, nestedName.length() - 1));
         if (aggregator.size() <= index) {
-            aggregator.add(createObject(loader, contextualSupplier, itemType, findArgsName(itemType),
-                    prefix + nestedName, config, metas));
+            aggregator
+                    .add(createObject(loader, contextualSupplier, itemType, findArgsName(itemType), prefix + nestedName,
+                            config, metas));
         }
     }
 
@@ -675,8 +699,8 @@ public class ReflectionService {
         if (type.isInstance(value)) { // no need of any conversion
             return value;
         }
-        if (PropertyEditors.canConvert(type)) { // go through string to convert the value
-            return PropertyEditors.getValue(type, String.valueOf(value));
+        if (propertyEditorRegistry.findConverter(type) != null) { // go through string to convert the value
+            return propertyEditorRegistry.getValue(type, String.valueOf(value));
         }
         throw new IllegalArgumentException("Can't convert '" + value + "' to " + type);
     }

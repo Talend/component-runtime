@@ -81,8 +81,9 @@ public class JAXRSClient<T> implements Client<T> {
                 .stringPropertyNames()
                 .stream()
                 .filter(k -> k.startsWith("talend.component.form.client.jaxrs.properties."))
-                .forEach(k -> instance.property(k.substring("talend.component.form.client.jaxrs.properties.".length()),
-                        System.getProperty(k)));
+                .forEach(k -> instance
+                        .property(k.substring("talend.component.form.client.jaxrs.properties.".length()),
+                                System.getProperty(k)));
         return instance;
     }
 }

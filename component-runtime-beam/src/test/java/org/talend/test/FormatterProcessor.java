@@ -46,17 +46,19 @@ public class FormatterProcessor implements Serializable {
                 .add("key",
                         (firstName == null ? lastName : firstName).getJsonObject("__talend_internal").getString("key"))
                 .build();
-        formattedFirstName.emit(firstName == null ? null
-                : factory
-                        .createObjectBuilder()
-                        .add("data", firstName.getString("data").toLowerCase(ROOT))
-                        .add("__talend_internal", internal)
-                        .build());
-        formatterLastName.emit(lastName == null ? null
-                : factory
-                        .createObjectBuilder()
-                        .add("data", lastName.getString("data").toUpperCase(ROOT))
-                        .add("__talend_internal", internal)
-                        .build());
+        formattedFirstName
+                .emit(firstName == null ? null
+                        : factory
+                                .createObjectBuilder()
+                                .add("data", firstName.getString("data").toLowerCase(ROOT))
+                                .add("__talend_internal", internal)
+                                .build());
+        formatterLastName
+                .emit(lastName == null ? null
+                        : factory
+                                .createObjectBuilder()
+                                .add("data", lastName.getString("data").toUpperCase(ROOT))
+                                .add("__talend_internal", internal)
+                                .build());
     }
 }

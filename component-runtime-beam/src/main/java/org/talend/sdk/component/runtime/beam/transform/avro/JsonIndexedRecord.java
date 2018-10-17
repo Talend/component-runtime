@@ -62,8 +62,11 @@ public class JsonIndexedRecord extends GenericData.Record {
         case STRING:
             return JsonString.class.cast(jsonValue).getString();
         case ARRAY:
-            return jsonValue.asJsonArray().stream().map(it -> toObject(jsonValue, schema.getElementType())).collect(
-                    toList());
+            return jsonValue
+                    .asJsonArray()
+                    .stream()
+                    .map(it -> toObject(jsonValue, schema.getElementType()))
+                    .collect(toList());
         case OBJECT:
             return new JsonIndexedRecord(jsonValue.asJsonObject(), schema);
         case NULL:

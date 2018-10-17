@@ -16,6 +16,7 @@ If you are new to Talend component development or with the Talend Component Kit 
 * xref:methodology-creating-components.adoc[Development methodology]
 * xref:component-execution.adoc[General component execution logic]
 * xref:tck-framework-overview.adoc[Framework Overview]
+* xref:record-types.adoc[Record types]
 
 You can also learn the basics of component development by following this tutorial:
 

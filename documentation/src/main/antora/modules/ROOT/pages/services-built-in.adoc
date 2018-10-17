@@ -23,6 +23,8 @@ a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Re
 a| `org.talend.sdk.component.api.service.dependency.Resolver` a| Allows to resolve files from Maven coordinates (like `dependencies.txt` for component). Note that it assumes that the files are available in the component Maven repository.
 a| `org.talend.sdk.component.api.service.injector.Injector` a| Utility to inject services in fields marked with `@Service`.
 a| `org.talend.sdk.component.api.service.factory.ObjectFactory` a| Allows to instantiate an object from its class name and properties.
+a| `org.talend.sdk.component.api.service.record.RecordBuilderFactory` a| Allows to instantiate a xref:record-types.adoc#record[record].
+
 
 It is not recommended to use it for the runtime because the local configuration is usually different and the instances are distinct.
 
@@ -51,6 +53,47 @@ private String value;
 
 IMPORTANT: Ensure your key is unique across all components to avoid global overrides on the JVM. In practice, it is strongly recommended to always use the family as a prefix. +
 Also note that you can use `@Configuration("prefix")` to inject a mapping of the `LocalConfiguration` in a component. It uses the same rules as for any configuration object.
+If you prefer to inject you configuration in a service, ensure to wrap it in a `Supplier` to always have
+an up to date version.
+
+If you want to ignore the `local-configuration.properties`, you can set the system property: `talend.component.configuration.${componentPluginId}.ignoreLocalConfiguration=true`.
+
+Here a sample `@Configuration` model:
+
+[source,java]
+----
+@Data // from lombok, optional
+public class MyConfig {
+  @Option
+  private String defaultUrl;
+}
+----
+
+Here is how to use it from a service:
+
+[source,java]
+----
+@Service
+public class ConfiguredService {
+  @Configuration("myprefix")
+  private Supplier<MyConfig> config;
+}
+----
+
+And finally, here is how to use it in a component:
+
+[source,java]
+----
+@Service
+public class ConfiguredComponent {
+  public ConfiguredComponent(@Configuration("myprefix") final MyConfig config) {
+    // ...
+  }
+}
+----
+
+TIP: it is recommended to convert this configuration in a runtime model in components
+to avoid to transport more than desired during the job distribution.
 
 [[httpclient_usage]]
 == Using HttpClient

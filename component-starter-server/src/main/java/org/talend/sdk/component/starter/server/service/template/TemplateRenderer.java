@@ -18,6 +18,7 @@ package org.talend.sdk.component.starter.server.service.template;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.AccessibleObject;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,6 +52,14 @@ public class TemplateRenderer {
                         }
                         return call;
                     };
+                }
+
+                @Override // java 11 support
+                protected AccessibleObject findMember(final Class sClass, final String name) {
+                    if (sClass == String.class && "value".equals(name)) {
+                        return null;
+                    }
+                    return super.findMember(sClass, name);
                 }
             });
         }

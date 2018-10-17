@@ -106,8 +106,9 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
         instance.start();
         try {
             if (!startingPistol.await(Integer.getInteger("talend.junit.http.starting.timeout", 60), SECONDS)) {
-                log.warn("API server took more than the expected timeout to start, you can tune it "
-                        + "setting talend.junit.http.starting.timeout system property");
+                log
+                        .warn("API server took more than the expected timeout to start, you can tune it "
+                                + "setting talend.junit.http.starting.timeout system property");
             }
         } catch (final InterruptedException e) {
             log.warn(e.getMessage());
@@ -140,8 +141,9 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
                     throw new IllegalStateException(e);
                 }
             }
-            log.info("Configured the JVM to use the {} API proxy localhost:{}",
-                    handler.getSslContext() != null ? "SSL" : "plain", handler.getPort());
+            log
+                    .info("Configured the JVM to use the {} API proxy localhost:{}",
+                            handler.getSslContext() != null ? "SSL" : "plain", handler.getPort());
         }
         return this;
     }

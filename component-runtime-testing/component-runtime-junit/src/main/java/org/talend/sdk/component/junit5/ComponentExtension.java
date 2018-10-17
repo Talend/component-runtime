@@ -37,10 +37,11 @@ class ComponentExtension extends BaseComponentsHandler
 
     @Override
     public void beforeAll(final ExtensionContext extensionContext) {
-        final WithComponents element =
-                extensionContext.getElement().map(e -> e.getAnnotation(WithComponents.class)).orElseThrow(
-                        () -> new IllegalArgumentException(
-                                "No annotation @WithComponents on " + extensionContext.getRequiredTestClass()));
+        final WithComponents element = extensionContext
+                .getElement()
+                .map(e -> e.getAnnotation(WithComponents.class))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No annotation @WithComponents on " + extensionContext.getRequiredTestClass()));
         this.packageName = element.value();
         final ExtensionContext.Store store = extensionContext.getStore(NAMESPACE);
         if (element.isolatedPackages().length > 0) {

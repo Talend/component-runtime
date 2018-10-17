@@ -53,8 +53,9 @@ class ConfigurationTypeResourceTest {
 
     @Test
     void webSocketDetail() {
-        final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get",
-                "/configurationtype/details?identifiers=amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYw", "");
+        final ConfigTypeNodes index = ws
+                .read(ConfigTypeNodes.class, "get",
+                        "/configurationtype/details?identifiers=amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYw", "");
         assertEquals(1, index.getNodes().size());
         final ConfigTypeNode jdbcConnection = index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYw");
         assertNotNull(jdbcConnection);
@@ -62,7 +63,7 @@ class ConfigurationTypeResourceTest {
                 jdbcConnection
                         .getProperties()
                         .stream()
-                        .filter(p -> "connection.configurations".equals(p.getPath()))
+                        .filter(p -> "configuration.configurations".equals(p.getPath()))
                         .findFirst()
                         .get()
                         .getDefaultValue());
@@ -71,10 +72,11 @@ class ConfigurationTypeResourceTest {
 
     @Test
     void migrate() {
-        final Map<String, String> config = ws.read(Map.class, "post",
-                "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/1", "{}");
-        assertEquals("true", config.get("migrated"));
-        assertEquals("1", config.get("size"));
+        final Map<String, String> config = ws
+                .read(Map.class, "post", "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-2",
+                        "{}");
+        assertEquals("true", config.get("configuration.migrated"));
+        assertEquals("1", config.get("configuration.size"));
     }
 
     private void assertIndex(final ConfigTypeNodes index) {

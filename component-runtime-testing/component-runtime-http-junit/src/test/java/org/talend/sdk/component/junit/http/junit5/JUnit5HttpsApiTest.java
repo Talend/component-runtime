@@ -57,9 +57,12 @@ class JUnit5HttpsApiTest {
         connection.connect();
         final int responseCode = connection.getResponseCode();
         try {
-            final Map<String, String> headers =
-                    connection.getHeaderFields().entrySet().stream().filter(e -> e.getKey() != null).collect(
-                            toMap(Map.Entry::getKey, e -> e.getValue().stream().collect(joining(","))));
+            final Map<String, String> headers = connection
+                    .getHeaderFields()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getKey() != null)
+                    .collect(toMap(Map.Entry::getKey, e -> e.getValue().stream().collect(joining(","))));
             return new ResponseImpl(headers, responseCode, IO.readBytes(connection.getInputStream()));
         } finally {
             connection.disconnect();

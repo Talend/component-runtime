@@ -202,6 +202,11 @@
   },
   {
     "legacy":false,
+    "name":"COLUMN_CHOOSER",
+    "path":"_images/icons/svg/column-chooser.svg"
+  },
+  {
+    "legacy":false,
     "name":"COMPONENT_KIT_NEGATIVE",
     "path":"_images/icons/svg/component-kit-negative.svg"
   },

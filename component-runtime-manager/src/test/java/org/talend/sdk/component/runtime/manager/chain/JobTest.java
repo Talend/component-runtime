@@ -298,8 +298,8 @@ class JobTest {
             {
                 CONTEXTUAL_INSTANCE.set(this);
                 final String containerId = addPlugin(jar.getAbsolutePath());
-                DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class,
-                        new RecordBuilderFactoryImpl(containerId));
+                DynamicContainerFinder.SERVICES
+                        .put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl(containerId));
             }
 
             @Override

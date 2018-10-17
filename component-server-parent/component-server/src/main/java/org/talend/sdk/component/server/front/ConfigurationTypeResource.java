@@ -158,14 +158,20 @@ public class ConfigurationTypeResource {
                     @RequestBody(description = "the actual configuration in key/value form.", required = true,
                             content = @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(type = OBJECT))) final Map<String, String> config) {
-        return ofNullable(configurations.findById(id))
+        final Config configuration = ofNullable(configurations.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
                         .entity(new ErrorPayload(ErrorDictionary.CONFIGURATION_MISSING,
                                 "Didn't find configuration " + id))
-                        .build()))
-                .getMigrationHandler()
-                .migrate(version, config);
+                        .build()));
+        final Map<String, String> configToMigrate = new HashMap<>(config);
+        final String versionKey = configuration.getMeta().getPath() + ".__version";
+        final boolean addedVersion = configToMigrate.putIfAbsent(versionKey, Integer.toString(version)) == null;
+        final Map<String, String> migrated = configuration.getMigrationHandler().migrate(version, configToMigrate);
+        if (addedVersion) {
+            migrated.remove(versionKey);
+        }
+        return migrated;
     }
 
     private Stream<ConfigTypeNode> createNode(final String parentId, final String family, final Stream<Config> configs,
@@ -184,22 +190,24 @@ public class ConfigurationTypeResource {
                 node.setConfigurationType(c.getKey().getConfigType());
                 node.setName(c.getKey().getConfigName());
                 node.setParentId(parentId);
-                node.setDisplayName(resourcesBundle
-                        .configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
-                        .orElse(c.getKey().getConfigName()));
+                node
+                        .setDisplayName(resourcesBundle
+                                .configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
+                                .orElse(c.getKey().getConfigName()));
                 if (!lightPayload) {
                     node.setActions(actionsService.findActions(family, container, locale, c, resourcesBundle));
 
                     // force configuration as root prefix
                     final int prefixLen = c.getMeta().getPath().length();
                     final String forcedPrefix = c.getMeta().getName();
-                    node.setProperties(propertiesService
-                            .buildProperties(singletonList(c.getMeta()), loader, locale, null)
-                            .map(p -> new SimplePropertyDefinition(forcedPrefix + p.getPath().substring(prefixLen),
-                                    p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(),
-                                    p.getValidation(), p.getMetadata(), p.getPlaceholder(),
-                                    p.getProposalDisplayNames()))
-                            .collect(toList()));
+                    node
+                            .setProperties(propertiesService
+                                    .buildProperties(singletonList(c.getMeta()), loader, locale, null)
+                                    .map(p -> new SimplePropertyDefinition(
+                                            forcedPrefix + p.getPath().substring(prefixLen), p.getName(),
+                                            p.getDisplayName(), p.getType(), p.getDefaultValue(), p.getValidation(),
+                                            p.getMetadata(), p.getPlaceholder(), p.getProposalDisplayNames()))
+                                    .collect(toList()));
                 }
 
                 node.setEdges(c.getChildConfigs().stream().map(Config::getId).collect(toSet()));
@@ -209,8 +217,9 @@ public class ConfigurationTypeResource {
                 configNode = Stream.empty();
             }
 
-            return Stream.concat(configNode, createNode(c.getId(), family, c.getChildConfigs().stream(),
-                    resourcesBundle, container, locale, idFilter, lightPayload));
+            return Stream
+                    .concat(configNode, createNode(c.getId(), family, c.getChildConfigs().stream(), resourcesBundle,
+                            container, locale, idFilter, lightPayload));
         });
     }
 
@@ -240,8 +249,11 @@ public class ConfigurationTypeResource {
                             } else {
                                 familyNode = Stream.empty();
                             }
-                            return Stream.concat(familyNode, createNode(family.getId(), family.getMeta().getName(),
-                                    family.getConfigs().stream(), resourcesBundle, c, locale, filter, lightPayload));
+                            return Stream
+                                    .concat(familyNode,
+                                            createNode(family.getId(), family.getMeta().getName(),
+                                                    family.getConfigs().stream(), resourcesBundle, c, locale, filter,
+                                                    lightPayload));
                         }))
                 .collect(() -> {
                     final ConfigTypeNodes nodes = new ConfigTypeNodes();

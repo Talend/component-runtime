@@ -15,12 +15,17 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -51,11 +56,11 @@ public class AsciidocMojo extends ClasspathMojoBase {
     private int level;
 
     /**
-     * Where to output the .adoc.
+     * Where to output the .adoc, it supports "%s" variable to pass the locale.
      */
-    @Parameter(defaultValue = "${project.build.outputDirectory}/TALEND-INF/documentation.adoc",
+    @Parameter(defaultValue = "${project.build.outputDirectory}/TALEND-INF/documentation%s.adoc",
             property = "talend.documentation.output")
-    private File output;
+    private String output;
 
     /**
      * If set a the generated .adoc will be included in a document ready to render.
@@ -108,39 +113,60 @@ public class AsciidocMojo extends ClasspathMojoBase {
             defaultValue = "${project.build.directory}/talend-component/workdir")
     private File workDir;
 
+    /**
+     * Locales to generate a documentation for.
+     */
+    @Parameter(property = "talend.documentation.locales", defaultValue = "<root>,en")
+    private Collection<String> locales;
+
     @Component
     private MavenProjectHelper helper;
 
     @Override
     public void doExecute() {
-        final Map<String, String> formats = htmlAndPdf ? new HashMap<String, String>() {
+        if (locales == null || locales.isEmpty()) {
+            getLog().warn("No locale set, skipping documentation generation");
+            return;
+        }
 
-            {
-                put("html",
-                        new File(output.getParentFile(), output.getName().replace(".adoc", ".html")).getAbsolutePath());
-                put("pdf",
-                        new File(output.getParentFile(), output.getName().replace(".adoc", ".pdf")).getAbsolutePath());
-            }
-        } : this.formats;
-        new AsciidocDocumentationGenerator(new File[] { classes }, output,
-                title == null ? ofNullable(project.getName()).orElse(project.getArtifactId()) : title, level, formats,
-                attributes, templateDir, templateEngine, getLog(), workDir, version).run();
-        if (attachDocumentations) {
-            Stream
-                    .concat(Stream.of(output),
-                            ofNullable(this.formats).map(m -> m.values().stream().map(File::new)).orElseGet(
-                                    Stream::empty))
-                    .filter(File::exists)
-                    .forEach(artifact -> {
-                        final String artifactName = artifact.getName();
-                        final int dot = artifactName.lastIndexOf('.');
-                        if (dot > 0) {
-                            helper.attachArtifact(project, artifact,
-                                    artifactName.substring(dot + 1, artifactName.length()) + "-documentation");
-                        } else {
-                            helper.attachArtifact(project, artifact, artifactName + "-documentation");
+        final String title =
+                this.title == null ? ofNullable(project.getName()).orElse(project.getArtifactId()) : this.title;
+        final File[] classes = { this.classes };
+
+        final List<File> adocs =
+                locales.stream().map(it -> "<root>".equals(it) ? ROOT : new Locale(it)).flatMap(locale -> {
+                    final String localeStr = locale.toString();
+                    final File output =
+                            new File(String.format(this.output, localeStr.isEmpty() ? "" : ("_" + localeStr)));
+                    final Map<String, String> formats = htmlAndPdf ? new HashMap<String, String>() {
+
+                        {
+                            put("html", new File(output.getParentFile(), output.getName().replace(".adoc", ".html"))
+                                    .getAbsolutePath());
+                            put("pdf", new File(output.getParentFile(), output.getName().replace(".adoc", ".pdf"))
+                                    .getAbsolutePath());
                         }
-                    });
+                    } : this.formats;
+                    new AsciidocDocumentationGenerator(classes, output, title, level, formats, attributes, templateDir,
+                            templateEngine, getLog(), workDir, version, locale).run();
+                    return formats == null || formats.isEmpty() ? Stream.of(output)
+                            : Stream.concat(Stream.of(output), formats.values().stream().map(File::new));
+                }).collect(toList());
+
+        if (attachDocumentations) {
+            adocs.forEach(artifact -> {
+                final String artifactName = artifact.getName();
+                int dot = artifactName.lastIndexOf('_');
+                if (dot < 0) {
+                    dot = artifactName.lastIndexOf('.');
+                }
+                if (dot > 0) {
+                    helper.attachArtifact(project, artifact,
+                            artifactName.substring(dot + 1).replace('.', '-') + "-documentation");
+                } else {
+                    helper.attachArtifact(project, artifact, artifactName + "-documentation");
+                }
+            });
         }
     }
 }

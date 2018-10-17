@@ -96,13 +96,14 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
                 return NULL;
             case OBJECT:
                 final Schema record = Schema.createRecord(recordName, null, NAMESPACE, false);
-                record.setFields(element
-                        .asJsonObject()
-                        .entrySet()
-                        .stream()
-                        .map(it -> new Schema.Field(it.getKey(),
-                                guessSchema(buildNextName(recordName, it.getKey()), it.getValue()), null, null))
-                        .collect(toList()));
+                record
+                        .setFields(element
+                                .asJsonObject()
+                                .entrySet()
+                                .stream()
+                                .map(it -> new Schema.Field(it.getKey(),
+                                        guessSchema(buildNextName(recordName, it.getKey()), it.getValue()), null, null))
+                                .collect(toList()));
                 return record;
             case ARRAY:
                 final JsonArray array = element.asJsonArray();

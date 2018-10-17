@@ -108,7 +108,7 @@ The `@ElementListener` method now looks as follows: +
 ----
 @ElementListener
     public void onNext(
-            @Input final JsonObject defaultInput) {
+            @Input final Record defaultInput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).

@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.rules.RuleChain.emptyRuleChain;
+import static org.talend.sdk.component.junit.http.test.json.AssertJson.assertJSONEquals;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -96,8 +97,11 @@ public class CaptureJUnit4GzipHttpApiTest {
         });
         server.start();
 
-        final Path output = TEMPORARY_FOLDER.getRoot().toPath().toAbsolutePath().resolve(
-                "talend/testing/http/" + getClass().getName() + "_doCapture.json");
+        final Path output = TEMPORARY_FOLDER
+                .getRoot()
+                .toPath()
+                .toAbsolutePath()
+                .resolve("talend/testing/http/" + getClass().getName() + "_doCapture.json");
 
         try {
             new JUnit4HttpApiPerMethodConfigurator(API).apply(new Statement() {
@@ -105,8 +109,10 @@ public class CaptureJUnit4GzipHttpApiTest {
                 @Override
                 public void evaluate() throws Throwable {
                     final URL url = new URL("http://localhost:" + server.getAddress().getPort() + "/supertest");
-                    final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(
-                            new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", API.getPort()))));
+                    final HttpURLConnection connection = HttpURLConnection.class
+                            .cast(url
+                                    .openConnection(new Proxy(Proxy.Type.HTTP,
+                                            new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
                     connection.setRequestProperty("Accept-Encoding", "gzip");
@@ -118,8 +124,8 @@ public class CaptureJUnit4GzipHttpApiTest {
             }, Description.createTestDescription(getClass(), "doCapture")).evaluate();
 
             assertTrue(output.toFile().exists());
-            final String lines = Files.readAllLines(output).stream().collect(joining("\n"));
-            assertEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
+            final String lines = String.join("\n", Files.readAllLines(output));
+            assertJSONEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
                     + "        \"content-length\":\"0\",\n"
                     + "        \"Accept\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\",\n"
                     + "        \"Accept-Encoding\":\"gzip\",\n" + "        \"ok\":\"yes\",\n"

@@ -28,6 +28,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -47,14 +48,43 @@ class AsciidocDocumentationGeneratorTest {
         new AsciidocDocumentationGenerator(
                 new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
                         info.getTestMethod().get().getName()) },
-                output, null, 2, null, null, null, null, log, findWorkDir(), "1.0").run();
+                output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals(
-                    "== my\n" + "\n" + "super my component\n" + "\n" + "=== Configuration\n" + "\n" + "|===\n"
-                            + "|Path|Description|Default Value\n" + "|configuration|configuration configuration|-\n"
-                            + "|configuration.input|the input value|-\n" + "|configuration.nested|it is nested|-\n"
-                            + "|configuration.nested.user|the user to log in|unknown\n" + "|===\n",
+                    "== my\n" + "\n" + "super my component\n" + "\n" + "=== Configuration\n" + "\n"
+                            + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                            + "|Display Name|Description|Default Value|Enabled If|Configuration Path\n"
+                            + "|configuration|configuration configuration|-|Always enabled|configuration\n"
+                            + "|input|the input value|-|Always enabled|configuration.input\n"
+                            + "|nested|it is nested|-|Always enabled|configuration.nested\n"
+                            + "|user|the user to log in|unknown|Always enabled|configuration.nested.user\n" + "|===\n",
+                    reader.lines().collect(joining("\n")));
+        }
+    }
+
+    @Test
+    void generateAdocWithConditions(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
+        final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
+        new AsciidocDocumentationGenerator(
+                new File[] { copyBinaries("org.talend.test.activeif", temporaryFolder.getRoot(),
+                        info.getTestMethod().get().getName()) },
+                output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
+        assertTrue(output.exists());
+        try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
+            assertEquals("== activeif\n" + "\n" + "=== Configuration\n" + "\n"
+                    + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "|Display Name|Description|Default Value|Enabled If|Configuration Path\n"
+                    + "|configuration|configuration configuration|-|Always enabled|configuration\n"
+                    + "|advanced|advanced configuration|false|Always enabled|configuration.advanced\n"
+                    + "|advancedOption|advancedOption configuration|-|All of the following conditions are met:\n" + "\n"
+                    + "- `advanced` is equal to `false`\n" + "- `query` is empty\n" + "|configuration.advancedOption\n"
+                    + "|query|query configuration|-|All of the following conditions are met:\n" + "\n"
+                    + "- `toggle` is equal to `true`\n" + "- `type` is equal to `mysql` or `oracle`\n"
+                    + "|configuration.query\n"
+                    + "|toggle|toggle configuration|false|Always enabled|configuration.toggle\n"
+                    + "|token|token configuration|-|`toggle` is equal to `true`|configuration.token\n"
+                    + "|type|type configuration|-|Always enabled|configuration.type\n" + "|===\n",
                     reader.lines().collect(joining("\n")));
         }
     }
@@ -74,7 +104,7 @@ class AsciidocDocumentationGeneratorTest {
                         put("html", outputHtml.getAbsolutePath());
                         put("pdf", outputPdf.getAbsolutePath());
                     }
-                }, null, null, null, log, findWorkDir(), "1.0").run();
+                }, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(outputHtml.exists());
         assertTrue(outputPdf.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(outputHtml))) {

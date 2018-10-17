@@ -1,5 +1,6 @@
 package org.talend.sdk.component.design.extension.repository;
 
+import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -65,8 +66,9 @@ public class RepositoryModelBuilder {
                                     .findFirst()
                                     .map(Config::getChildConfigs)
                                     .orElseGet(aggregator::getConfigs);
-                            if (configs.stream().noneMatch(
-                                    c -> c.getMeta().getJavaType() == item.getMeta().getJavaType())) {
+                            if (configs
+                                    .stream()
+                                    .noneMatch(c -> c.getMeta().getJavaType() == item.getMeta().getJavaType())) {
                                 configs.add(item);
                             }
                         }, (family1, family2) -> family1.getConfigs().addAll(family2.getConfigs())))
@@ -93,9 +95,10 @@ public class RepositoryModelBuilder {
         final Config c = new Config();
         c.setIcon(familyIcon);
         c.setKey(getKey(familyName, config.getMetadata()));
-        c.setMeta(config);
-        c.setId(IdGenerator.get(plugin, c.getKey().getFamily(), c.getKey().getConfigType(),
-                c.getKey().getConfigName()));
+        c.setMeta(translate(config, config.getPath().length(), "configuration"));
+        c
+                .setId(IdGenerator
+                        .get(plugin, c.getKey().getFamily(), c.getKey().getConfigType(), c.getKey().getConfigName()));
 
         if (Class.class.isInstance(config.getJavaType())) {
             final Class<?> clazz = Class.class.cast(config.getJavaType());
@@ -103,8 +106,9 @@ public class RepositoryModelBuilder {
             if (version != null) {
                 c.setVersion(version.value());
                 if (version.migrationHandler() != MigrationHandler.class) {
-                    c.setMigrationHandler(migrationHandlerFactory.findMigrationHandler(config.getNestedParameters(),
-                            clazz, services));
+                    c
+                            .setMigrationHandler(migrationHandlerFactory
+                                    .findMigrationHandler(singletonList(c.getMeta()), clazz, services));
                 }
             } else {
                 c.setVersion(-1);
@@ -127,4 +131,15 @@ public class RepositoryModelBuilder {
         return parameterMeta.getMetadata().keySet().stream().anyMatch(m -> m.startsWith("tcomp::configurationtype::"));
     }
 
+    private ParameterMeta translate(final ParameterMeta config, final int replacedPrefixLen, final String newPrefix) {
+        return new ParameterMeta(config.getSource(), config.getJavaType(), config.getType(),
+                newPrefix + config.getPath().substring(replacedPrefixLen),
+                config.getPath().length() == replacedPrefixLen ? newPrefix : config.getName(), config.getI18nPackages(),
+                config
+                        .getNestedParameters()
+                        .stream()
+                        .map(it -> translate(it, replacedPrefixLen, newPrefix))
+                        .collect(toList()),
+                config.getProposals(), config.getMetadata(), config.isLogMissingResourceBundle());
+    }
 }

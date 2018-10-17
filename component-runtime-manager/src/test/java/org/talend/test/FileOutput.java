@@ -43,12 +43,13 @@ public class FileOutput implements Serializable {
     public void length(final JsonObject data) throws IOException {
         final Writer writer = service.writerFor(file.getAbsolutePath());
         synchronized (writer) {
-            writer.write(data
-                    .keySet()
-                    .stream()
-                    .filter(k -> !k.toLowerCase(Locale.ROOT).contains("id"))
-                    .map(data::getString)
-                    .collect(joining(" ")) + System.lineSeparator());
+            writer
+                    .write(data
+                            .keySet()
+                            .stream()
+                            .filter(k -> !k.toLowerCase(Locale.ROOT).contains("id"))
+                            .map(data::getString)
+                            .collect(joining(" ")) + System.lineSeparator());
         }
     }
 

@@ -125,9 +125,11 @@ public class WebAppComponentProxy {
                                     .getComponents()
                                     .stream()
                                     .flatMap(c -> c.getLinks().stream())
-                                    .forEach(link -> link.setPath(
-                                            link.getPath().replaceFirst("/component/", "/application/").replace(
-                                                    "/details?identifiers=", "/detail/")));
+                                    .forEach(link -> link
+                                            .setPath(link
+                                                    .getPath()
+                                                    .replaceFirst("/component/", "/application/")
+                                                    .replace("/details?identifiers=", "/detail/")));
                             response.resume(index);
                         }
                         return null;

@@ -38,8 +38,10 @@ public class JCacheSetup {
     @UiSpecProxy
     public CachingProvider manager(final ProxyConfiguration configuration) {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        return configuration.getJcacheProvider().map(p -> Caching.getCachingProvider(p, loader)).orElseGet(
-                () -> Caching.getCachingProvider(loader));
+        return configuration
+                .getJcacheProvider()
+                .map(p -> Caching.getCachingProvider(p, loader))
+                .orElseGet(() -> Caching.getCachingProvider(loader));
     }
 
     // will release manager and caches transitively

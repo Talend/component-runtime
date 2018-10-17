@@ -50,6 +50,40 @@ If you need to apply migrations in a specific order, make sure that they are sor
 NOTE: Consider this API as a migration callback rather than a migration API. +
 Adjust the migration code structure you need behind the `MigrationHandler`, based on your component requirements, using service injection.
 
+== Difference between migrating a component configuration and a nested configuration
+
+A nested configuration will always migrate itself with any root prefix whereas the component configuration
+always roots the full configuration. Typically if your model is the following:
+
+[source,java]
+----
+@Version
+// ...
+public class MyComponent implements Serializable {
+  public MyComponent(@Option("configuration") final MyConfig config) {
+    // ...
+  }
+
+  // ...
+}
+
+@DataStore
+public class MyConfig implements Serializable {
+  @Option
+  private MyDataStore datastore;
+}
+
+@Version
+@DataStore
+public class MyDataStore implements Serializable {
+  @Option
+  private String url;
+}
+----
+
+Then the component will see the path `configuration.datastore.url` for the datastore url whereas the datastore
+will see the path `url` for the same property. You can see it as configuration types - `@DataStore`, `@DataSet` - being
+configured with an empty root path.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

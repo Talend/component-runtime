@@ -19,20 +19,17 @@ import org.apache.maven.lifecycle.internal.LifecycleDependencyResolver
 import org.apache.maven.model.Dependency
 import org.apache.maven.project.MavenProject
 
-import static java.util.Collections.singleton
-import static java.util.Collections.singletonList
-
 def createDependenciesDescriptor = { rootDependency, output ->
     def dependenciesResolver = session.container.lookup(LifecycleDependencyResolver)
 
     def tmpProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom');
     tmpProject.artifact = new DefaultArtifact(project.groupId, project.artifactId, project.version, 'compile',
             'pom', null, new DefaultArtifactHandler())
-    tmpProject.dependencies = singletonList(rootDependency)
+    tmpProject.dependencies = [rootDependency] as List
     tmpProject.remoteArtifactRepositories = project.remoteArtifactRepositories
 
     def scopes = ['compile', 'runtime']
-    dependenciesResolver.resolveProjectDependencies(tmpProject, scopes, scopes, session, false, singleton(project.artifact))
+    dependenciesResolver.resolveProjectDependencies(tmpProject, scopes, scopes, session, false, [project.artifact] as Set)
 
     output.parentFile.mkdirs()
     def out = output.newOutputStream()

@@ -56,16 +56,22 @@ jobs:
     # master profile
     - stage: master_build
       env:
-      - STEP=Build Oracle JVM
+      - STEP=Build Oracle 8 JVM
       script: mvn $BUILD_ARGS
       jdk: oraclejdk8
 
     - stage: master_build
       env:
-      - STEP=Build OpenJDK JVM
+      - STEP=Build OpenJDK 8 JVM
       before_install: sudo add-apt-repository -y ppa:tj/java-for-14.04 && sudo apt-get update && sudo apt-get install -y openjfx
       script: mvn $BUILD_ARGS
       jdk: openjdk8
+
+    - stage: master_build
+      env:
+      - STEP=Build OpenJDK 11 JVM
+      script: mvn $BUILD_ARGS
+      jdk: openjdk11
 
     - stage: master_build
       env:
@@ -85,14 +91,15 @@ jobs:
     - stage: master_build
       env:
       - STEP=Docker Deployment
+      - COMPONENT_SERVER_DOCKER_BUILD_ONLY=false
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: chmod +x ./.travis/docker.sh && ./.travis/docker.sh
+      script: chmod +x ./.travis/docker.sh && travis_wait 50 mvn clean install -pl component-server-parent/component-server -am $DEPLOY_OPTS && travis_wait 50 ./.travis/docker.sh
       jdk: oraclejdk8
 
     - stage: master_build
       env:
       - STEP=Sonatype Audit
-      script: mvn ossindex:audit
+      script: travis_wait 50 mvn ossindex:audit
       jdk: oraclejdk8
 
 stages:

@@ -16,54 +16,54 @@
 package org.talend.sdk.component.runtime.manager.asm;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.xbean.asm6.ClassReader.SKIP_CODE;
-import static org.apache.xbean.asm6.ClassReader.SKIP_DEBUG;
-import static org.apache.xbean.asm6.ClassReader.SKIP_FRAMES;
-import static org.apache.xbean.asm6.Opcodes.AALOAD;
-import static org.apache.xbean.asm6.Opcodes.AASTORE;
-import static org.apache.xbean.asm6.Opcodes.ACC_PRIVATE;
-import static org.apache.xbean.asm6.Opcodes.ACC_PROTECTED;
-import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm6.Opcodes.ACC_STATIC;
-import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm6.Opcodes.ACC_SYNTHETIC;
-import static org.apache.xbean.asm6.Opcodes.ACC_VARARGS;
-import static org.apache.xbean.asm6.Opcodes.ACONST_NULL;
-import static org.apache.xbean.asm6.Opcodes.ALOAD;
-import static org.apache.xbean.asm6.Opcodes.ANEWARRAY;
-import static org.apache.xbean.asm6.Opcodes.ARETURN;
-import static org.apache.xbean.asm6.Opcodes.ASTORE;
-import static org.apache.xbean.asm6.Opcodes.ATHROW;
-import static org.apache.xbean.asm6.Opcodes.BIPUSH;
-import static org.apache.xbean.asm6.Opcodes.CHECKCAST;
-import static org.apache.xbean.asm6.Opcodes.DLOAD;
-import static org.apache.xbean.asm6.Opcodes.DRETURN;
-import static org.apache.xbean.asm6.Opcodes.DUP;
-import static org.apache.xbean.asm6.Opcodes.FLOAD;
-import static org.apache.xbean.asm6.Opcodes.FRETURN;
-import static org.apache.xbean.asm6.Opcodes.GETFIELD;
-import static org.apache.xbean.asm6.Opcodes.GETSTATIC;
-import static org.apache.xbean.asm6.Opcodes.ICONST_0;
-import static org.apache.xbean.asm6.Opcodes.ICONST_1;
-import static org.apache.xbean.asm6.Opcodes.ICONST_2;
-import static org.apache.xbean.asm6.Opcodes.ICONST_3;
-import static org.apache.xbean.asm6.Opcodes.ICONST_4;
-import static org.apache.xbean.asm6.Opcodes.ICONST_5;
-import static org.apache.xbean.asm6.Opcodes.IFEQ;
-import static org.apache.xbean.asm6.Opcodes.ILOAD;
-import static org.apache.xbean.asm6.Opcodes.INVOKEINTERFACE;
-import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm6.Opcodes.INVOKESTATIC;
-import static org.apache.xbean.asm6.Opcodes.INVOKEVIRTUAL;
-import static org.apache.xbean.asm6.Opcodes.IRETURN;
-import static org.apache.xbean.asm6.Opcodes.LLOAD;
-import static org.apache.xbean.asm6.Opcodes.LRETURN;
-import static org.apache.xbean.asm6.Opcodes.NEW;
-import static org.apache.xbean.asm6.Opcodes.POP;
-import static org.apache.xbean.asm6.Opcodes.PUTFIELD;
-import static org.apache.xbean.asm6.Opcodes.RETURN;
-import static org.apache.xbean.asm6.Opcodes.SIPUSH;
-import static org.apache.xbean.asm6.Opcodes.V1_8;
+import static org.apache.xbean.asm7.ClassReader.SKIP_CODE;
+import static org.apache.xbean.asm7.ClassReader.SKIP_DEBUG;
+import static org.apache.xbean.asm7.ClassReader.SKIP_FRAMES;
+import static org.apache.xbean.asm7.Opcodes.AALOAD;
+import static org.apache.xbean.asm7.Opcodes.AASTORE;
+import static org.apache.xbean.asm7.Opcodes.ACC_PRIVATE;
+import static org.apache.xbean.asm7.Opcodes.ACC_PROTECTED;
+import static org.apache.xbean.asm7.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm7.Opcodes.ACC_STATIC;
+import static org.apache.xbean.asm7.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm7.Opcodes.ACC_SYNTHETIC;
+import static org.apache.xbean.asm7.Opcodes.ACC_VARARGS;
+import static org.apache.xbean.asm7.Opcodes.ACONST_NULL;
+import static org.apache.xbean.asm7.Opcodes.ALOAD;
+import static org.apache.xbean.asm7.Opcodes.ANEWARRAY;
+import static org.apache.xbean.asm7.Opcodes.ARETURN;
+import static org.apache.xbean.asm7.Opcodes.ASTORE;
+import static org.apache.xbean.asm7.Opcodes.ATHROW;
+import static org.apache.xbean.asm7.Opcodes.BIPUSH;
+import static org.apache.xbean.asm7.Opcodes.CHECKCAST;
+import static org.apache.xbean.asm7.Opcodes.DLOAD;
+import static org.apache.xbean.asm7.Opcodes.DRETURN;
+import static org.apache.xbean.asm7.Opcodes.DUP;
+import static org.apache.xbean.asm7.Opcodes.FLOAD;
+import static org.apache.xbean.asm7.Opcodes.FRETURN;
+import static org.apache.xbean.asm7.Opcodes.GETFIELD;
+import static org.apache.xbean.asm7.Opcodes.GETSTATIC;
+import static org.apache.xbean.asm7.Opcodes.ICONST_0;
+import static org.apache.xbean.asm7.Opcodes.ICONST_1;
+import static org.apache.xbean.asm7.Opcodes.ICONST_2;
+import static org.apache.xbean.asm7.Opcodes.ICONST_3;
+import static org.apache.xbean.asm7.Opcodes.ICONST_4;
+import static org.apache.xbean.asm7.Opcodes.ICONST_5;
+import static org.apache.xbean.asm7.Opcodes.IFEQ;
+import static org.apache.xbean.asm7.Opcodes.ILOAD;
+import static org.apache.xbean.asm7.Opcodes.INVOKEINTERFACE;
+import static org.apache.xbean.asm7.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm7.Opcodes.INVOKESTATIC;
+import static org.apache.xbean.asm7.Opcodes.INVOKEVIRTUAL;
+import static org.apache.xbean.asm7.Opcodes.IRETURN;
+import static org.apache.xbean.asm7.Opcodes.LLOAD;
+import static org.apache.xbean.asm7.Opcodes.LRETURN;
+import static org.apache.xbean.asm7.Opcodes.NEW;
+import static org.apache.xbean.asm7.Opcodes.POP;
+import static org.apache.xbean.asm7.Opcodes.PUTFIELD;
+import static org.apache.xbean.asm7.Opcodes.RETURN;
+import static org.apache.xbean.asm7.Opcodes.SIPUSH;
+import static org.apache.xbean.asm7.Opcodes.V1_8;
 
 import java.io.InputStream;
 import java.io.ObjectStreamException;
@@ -77,12 +77,12 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import org.apache.xbean.asm6.ClassReader;
-import org.apache.xbean.asm6.ClassWriter;
-import org.apache.xbean.asm6.Label;
-import org.apache.xbean.asm6.MethodVisitor;
-import org.apache.xbean.asm6.Type;
-import org.apache.xbean.asm6.shade.commons.EmptyVisitor;
+import org.apache.xbean.asm7.ClassReader;
+import org.apache.xbean.asm7.ClassWriter;
+import org.apache.xbean.asm7.Label;
+import org.apache.xbean.asm7.MethodVisitor;
+import org.apache.xbean.asm7.Type;
+import org.apache.xbean.asm7.shade.commons.EmptyVisitor;
 import org.talend.sdk.component.api.service.interceptor.InterceptorHandler;
 import org.talend.sdk.component.api.service.interceptor.Intercepts;
 
@@ -116,8 +116,9 @@ public class ProxyGenerator implements Serializable {
     }
 
     private void createSerialisation(final ClassWriter cw, final String pluginId, final String key) {
-        final MethodVisitor mv = cw.visitMethod(Modifier.PUBLIC, "writeReplace", "()Ljava/lang/Object;", null,
-                new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
+        final MethodVisitor mv = cw
+                .visitMethod(Modifier.PUBLIC, "writeReplace", "()Ljava/lang/Object;", null,
+                        new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
 
         mv.visitCode();
 
@@ -125,8 +126,9 @@ public class ProxyGenerator implements Serializable {
         mv.visitInsn(DUP);
         mv.visitLdcInsn(pluginId);
         mv.visitLdcInsn(key);
-        mv.visitMethodInsn(INVOKESPECIAL, "org/talend/sdk/component/runtime/serialization/SerializableService",
-                "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
+        mv
+                .visitMethodInsn(INVOKESPECIAL, "org/talend/sdk/component/runtime/serialization/SerializableService",
+                        "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
         mv.visitInsn(ARETURN);
 
         mv.visitMaxs(-1, -1);
@@ -171,8 +173,9 @@ public class ProxyGenerator implements Serializable {
             if (withInterceptors) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInsn(ACONST_NULL);
-                mv.visitFieldInsn(PUTFIELD, proxyClassFileName, FIELD_INTERCEPTOR_HANDLER,
-                        Type.getDescriptor(InterceptorHandler.class));
+                mv
+                        .visitFieldInsn(PUTFIELD, proxyClassFileName, FIELD_INTERCEPTOR_HANDLER,
+                                Type.getDescriptor(InterceptorHandler.class));
             }
 
             mv.visitInsn(RETURN);
@@ -263,8 +266,9 @@ public class ProxyGenerator implements Serializable {
         mv.visitVarInsn(ALOAD, 0);
 
         // get the invocationHandler field from this class
-        mv.visitFieldInsn(GETFIELD, proxyClassFileName, FIELD_INTERCEPTOR_HANDLER,
-                Type.getDescriptor(InterceptorHandler.class));
+        mv
+                .visitFieldInsn(GETFIELD, proxyClassFileName, FIELD_INTERCEPTOR_HANDLER,
+                        Type.getDescriptor(InterceptorHandler.class));
 
         // add the Method from the static array as first parameter
         mv.visitFieldInsn(GETSTATIC, proxyClassFileName, FIELD_INTERCEPTED_METHODS, Type.getDescriptor(Method[].class));
@@ -286,16 +290,18 @@ public class ProxyGenerator implements Serializable {
         pushMethodParameterArray(mv, parameterTypes);
 
         // invoke the invocationHandler
-        mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(InterceptorHandler.class), "invoke",
-                "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;", true);
+        mv
+                .visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(InterceptorHandler.class), "invoke",
+                        "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;", true);
 
         // cast the result
         mv.visitTypeInsn(CHECKCAST, getCastType(returnType));
 
         if (returnType.isPrimitive() && (!Void.TYPE.equals(returnType))) {
             // get the primitive value
-            mv.visitMethodInsn(INVOKEVIRTUAL, getWrapperType(returnType), getPrimitiveMethod(returnType),
-                    "()" + Type.getDescriptor(returnType), false);
+            mv
+                    .visitMethodInsn(INVOKEVIRTUAL, getWrapperType(returnType), getPrimitiveMethod(returnType),
+                            "()" + Type.getDescriptor(returnType), false);
         }
 
         // push return
@@ -320,8 +326,9 @@ public class ProxyGenerator implements Serializable {
 
                 mv.visitLdcInsn(Type.getType("L" + exceptionType.getCanonicalName().replace('.', '/') + ";"));
                 mv.visitVarInsn(ALOAD, length);
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/reflect/InvocationTargetException", "getCause",
-                        "()Ljava/lang/Throwable;", false);
+                mv
+                        .visitMethodInsn(INVOKEVIRTUAL, "java/lang/reflect/InvocationTargetException", "getCause",
+                                "()Ljava/lang/Throwable;", false);
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z", false);
 
@@ -332,8 +339,9 @@ public class ProxyGenerator implements Serializable {
                 mv.visitLabel(l7);
 
                 mv.visitVarInsn(ALOAD, length);
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/reflect/InvocationTargetException", "getCause",
-                        "()Ljava/lang/Throwable;", false);
+                mv
+                        .visitMethodInsn(INVOKEVIRTUAL, "java/lang/reflect/InvocationTargetException", "getCause",
+                                "()Ljava/lang/Throwable;", false);
                 mv.visitTypeInsn(CHECKCAST, getCastType(exceptionType));
                 mv.visitInsn(ATHROW);
                 mv.visitLabel(l6);
@@ -342,8 +350,9 @@ public class ProxyGenerator implements Serializable {
                     mv.visitTypeInsn(NEW, "java/lang/reflect/UndeclaredThrowableException");
                     mv.visitInsn(DUP);
                     mv.visitVarInsn(ALOAD, length);
-                    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/reflect/UndeclaredThrowableException", "<init>",
-                            "(Ljava/lang/Throwable;)V", false);
+                    mv
+                            .visitMethodInsn(INVOKESPECIAL, "java/lang/reflect/UndeclaredThrowableException", "<init>",
+                                    "(Ljava/lang/Throwable;)V", false);
                     mv.visitInsn(ATHROW);
                 }
             }
@@ -374,8 +383,9 @@ public class ProxyGenerator implements Serializable {
                 final String wrapperType = getWrapperType(parameterType);
                 mv.visitVarInsn(getVarInsn(parameterType), index);
 
-                mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf",
-                        "(" + Type.getDescriptor(parameterType) + ")L" + wrapperType + ";", false);
+                mv
+                        .visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf",
+                                "(" + Type.getDescriptor(parameterType) + ")L" + wrapperType + ";", false);
                 mv.visitInsn(AASTORE);
 
                 if (Long.TYPE.equals(parameterType) || Double.TYPE.equals(parameterType)) {
@@ -522,8 +532,9 @@ public class ProxyGenerator implements Serializable {
         final String[] interfaceNames = { Type.getInternalName(Serializable.class) };
         final String superClassName = Type.getInternalName(classToProxy);
 
-        cw.visit(findJavaVersion(classToProxy), ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null,
-                superClassName, interfaceNames);
+        cw
+                .visit(findJavaVersion(classToProxy), ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null,
+                        superClassName, interfaceNames);
         cw.visitSource(classFileName + ".java", null);
 
         if (!Serializable.class.isAssignableFrom(classToProxy)) {

@@ -43,8 +43,9 @@ public class ReferenceServiceImpl implements ReferenceService {
     @Override
     public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name,
             final UiSpecContext context) {
-        return CompletableFuture.completedFuture(
-                new Values(asList(new Values.Item(type + "1", name + "1"), new Values.Item(type + "2", name + "2"))));
+        return CompletableFuture
+                .completedFuture(new Values(
+                        asList(new Values.Item(type + "1", name + "1"), new Values.Item(type + "2", name + "2"))));
     }
 
     @Override
@@ -53,7 +54,7 @@ public class ReferenceServiceImpl implements ReferenceService {
             return completedFuture(Form
                     .builder()
                     .formId("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ")
-                    .properties(singletonMap("connection.url", "http://foo"))
+                    .properties(singletonMap("configuration.url", "http://foo"))
                     .build());
         }
         final OnPersist byId = persistence.findById(id);

@@ -89,9 +89,11 @@ class ComponentResourceTest {
     @Test
     void getDependencies() {
         final String compId = client.getJdbcId();
-        final Dependencies dependencies =
-                base.path("component/dependencies").queryParam("identifier", compId).request(APPLICATION_JSON_TYPE).get(
-                        Dependencies.class);
+        final Dependencies dependencies = base
+                .path("component/dependencies")
+                .queryParam("identifier", compId)
+                .request(APPLICATION_JSON_TYPE)
+                .get(Dependencies.class);
         assertEquals(1, dependencies.getDependencies().size());
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertNotNull(definition);
@@ -271,8 +273,12 @@ class ComponentResourceTest {
     }
 
     private SimplePropertyDefinition findProperty(final String path, final ComponentDetail aggregate) {
-        return aggregate.getProperties().stream().filter(p -> p.getPath().equals(path)).findFirst().orElseThrow(
-                () -> new IllegalArgumentException("No path " + path));
+        return aggregate
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals(path))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No path " + path));
     }
 
     private void assertComponent(final String plugin, final String family, final String name, final String displayName,
@@ -287,8 +293,12 @@ class ComponentResourceTest {
         assertEquals(1, data.getLinks().size());
         final Link link = data.getLinks().iterator().next();
         assertEquals("Detail", link.getName());
-        assertEquals("/component/details?identifiers=" + Base64.getUrlEncoder().withoutPadding().encodeToString(
-                (plugin + "#" + family + "#" + name).getBytes(StandardCharsets.UTF_8)), link.getPath());
+        assertEquals(
+                "/component/details?identifiers=" + Base64
+                        .getUrlEncoder()
+                        .withoutPadding()
+                        .encodeToString((plugin + "#" + family + "#" + name).getBytes(StandardCharsets.UTF_8)),
+                link.getPath());
         assertEquals(MediaType.APPLICATION_JSON, link.getContentType());
 
         if ("jdbc".equals(data.getId().getFamily()) && "input".equals(data.getId().getName())) {

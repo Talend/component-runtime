@@ -77,9 +77,10 @@ public class SecurityExtension implements Extension {
 
     void bindSecurityHandlers(@Observes final AfterDeploymentValidation afterDeploymentValidation,
             final BeanManager beanManager) {
-        final ComponentServerConfiguration configuration = ComponentServerConfiguration.class.cast(
-                beanManager.getReference(beanManager.resolve(beanManager.getBeans(ComponentServerConfiguration.class)),
-                        ComponentServerConfiguration.class, beanManager.createCreationalContext(null)));
+        final ComponentServerConfiguration configuration = ComponentServerConfiguration.class
+                .cast(beanManager
+                        .getReference(beanManager.resolve(beanManager.getBeans(ComponentServerConfiguration.class)),
+                                ComponentServerConfiguration.class, beanManager.createCreationalContext(null)));
 
         final String connectionHandler = configuration.getSecurityConnectionHandler();
         onConnectionMtd = ofNullable(onConnectionObservers.get(connectionHandler))
@@ -93,8 +94,9 @@ public class SecurityExtension implements Extension {
         onConnectionObservers.clear();
         onCommandObservers.clear();
 
-        log.info("Security configured with connection handler '{}' and command handler '{}'", connectionHandler,
-                commandHandler);
+        log
+                .info("Security configured with connection handler '{}' and command handler '{}'", connectionHandler,
+                        commandHandler);
     }
 
     private void onConnection(final EventContext<OnConnection> onConnection) {

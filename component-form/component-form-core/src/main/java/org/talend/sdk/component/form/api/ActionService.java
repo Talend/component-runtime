@@ -35,10 +35,15 @@ public class ActionService {
         final UiActionResult actionResult = new UiActionResult();
         actionResult.setRawData(exception.getData());
         // default error will be mapped to the calling option
-        actionResult.setError(ofNullable(exception.getData())
-                .flatMap(d -> Stream.of("description", "comment").map(d::get).filter(Objects::nonNull).findFirst())
-                .map(String::valueOf)
-                .orElse(exception.getMessage()));
+        actionResult
+                .setError(ofNullable(exception.getData())
+                        .flatMap(d -> Stream
+                                .of("description", "comment")
+                                .map(d::get)
+                                .filter(Objects::nonNull)
+                                .findFirst())
+                        .map(String::valueOf)
+                        .orElse(exception.getMessage()));
         return actionResult;
     }
 }

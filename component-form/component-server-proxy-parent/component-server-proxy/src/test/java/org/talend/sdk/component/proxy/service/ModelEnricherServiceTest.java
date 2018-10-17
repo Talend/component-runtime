@@ -60,28 +60,30 @@ class ModelEnricherServiceTest {
 
     @Test
     void extractCustomExisting() {
-        final JsonObject object = modelEnricherService.extractEnrichment("test", "en",
-                builderFactory
-                        .createObjectBuilder()
-                        .add("url", "http://foo")
-                        .add("userId", "bar")
-                        .add("nested", builderFactory.createObjectBuilder().add("open", false))
-                        .add("$datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
-                        .build());
+        final JsonObject object = modelEnricherService
+                .extractEnrichment("test", "en",
+                        builderFactory
+                                .createObjectBuilder()
+                                .add("url", "http://foo")
+                                .add("userId", "bar")
+                                .add("nested", builderFactory.createObjectBuilder().add("open", false))
+                                .add("$datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
+                                .build());
         assertEquals(1, object.size());
         assertEquals("simple", object.getJsonObject("$datasetMetadata").getString("name"));
     }
 
     @Test
     void extractCustomNotExisting() {
-        final JsonObject object = modelEnricherService.extractEnrichment("foo", "en",
-                builderFactory
-                        .createObjectBuilder()
-                        .add("url", "http://foo")
-                        .add("userId", "bar")
-                        .add("nested", builderFactory.createObjectBuilder().add("open", false))
-                        .add("$datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
-                        .build());
+        final JsonObject object = modelEnricherService
+                .extractEnrichment("foo", "en",
+                        builderFactory
+                                .createObjectBuilder()
+                                .add("url", "http://foo")
+                                .add("userId", "bar")
+                                .add("nested", builderFactory.createObjectBuilder().add("open", false))
+                                .add("$datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
+                                .build());
         assertTrue(object.isEmpty());
     }
 

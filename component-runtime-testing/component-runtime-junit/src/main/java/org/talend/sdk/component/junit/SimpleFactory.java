@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.configuration.ConfigurationMapper;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
@@ -57,6 +58,10 @@ public class SimpleFactory {
     }
 
     private static class SimpleParameterModelService extends ParameterModelService {
+
+        public SimpleParameterModelService() {
+            super(new PropertyEditorRegistry());
+        }
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,
                 final Annotation[] annotations, final Collection<String> i18nPackages) {
@@ -99,9 +104,9 @@ public class SimpleFactory {
                 return emptyMap();
             }
             final String usedPrefix = ofNullable(byExample.prefix).orElse("configuration.");
-            final ParameterMeta params = new SimpleParameterModelService().build(usedPrefix, usedPrefix,
-                    byExample.instance.getClass(), new Annotation[0],
-                    new ArrayList<>(singletonList(byExample.instance.getClass().getPackage().getName())));
+            final ParameterMeta params = new SimpleParameterModelService()
+                    .build(usedPrefix, usedPrefix, byExample.instance.getClass(), new Annotation[0],
+                            new ArrayList<>(singletonList(byExample.instance.getClass().getPackage().getName())));
             return CONFIGURATION_MAPPER.map(params.getNestedParameters(), byExample.instance);
         }
 

@@ -1,28 +1,28 @@
 ++++
 <jsonArray>[
   {
-    "commits":1709,
+    "commits":1815,
     "description":"Joined the Apache EE family (TomEE, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":272,
+    "commits":278,
     "description":"I am a software developer at @Talend\r\nFor my personal projects you can check them @khabali \n\nBlog: https://khabali.github.io",
     "gravatar":"https://avatars3.githubusercontent.com/u/25590305?v=4",
     "id":"akhabali",
     "name":"Anas KHABALI"
   },
   {
-    "commits":192,
+    "commits":195,
     "description":"",
     "gravatar":"https://avatars3.githubusercontent.com/u/7621737?v=4",
     "id":"gonchar-ivan",
     "name":"Ivan Gonchar"
   },
   {
-    "commits":148,
+    "commits":151,
     "description":"Technical Writer at @Talend",
     "gravatar":"https://avatars1.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",
@@ -36,18 +36,18 @@
     "name":"Chao MENG"
   },
   {
+    "commits":18,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
+    "id":"jmfrancois",
+    "name":"Jean-Michel FRANCOIS"
+  },
+  {
     "commits":17,
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",
     "name":"ypiel"
-  },
-  {
-    "commits":17,
-    "description":"",
-    "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
-    "id":"jmfrancois",
-    "name":"Jean-Michel FRANCOIS"
   },
   {
     "commits":9,

@@ -48,7 +48,7 @@ public class JdbcDataSet implements Serializable {
 
     @Option
     @Min(1) // not 0 == infinite
-    private int timeout;
+    private int timeout = 0;
 
     public static class Migration implements MigrationHandler {
 

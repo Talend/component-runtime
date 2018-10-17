@@ -106,9 +106,12 @@ class JUnit5HttpApiTest {
 
         final int responseCode = connection.getResponseCode();
         try {
-            final Map<String, String> headers =
-                    connection.getHeaderFields().entrySet().stream().filter(e -> e.getKey() != null).collect(
-                            toMap(Map.Entry::getKey, e -> e.getValue().stream().collect(Collectors.joining(","))));
+            final Map<String, String> headers = connection
+                    .getHeaderFields()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getKey() != null)
+                    .collect(toMap(Map.Entry::getKey, e -> e.getValue().stream().collect(Collectors.joining(","))));
             return new ResponseImpl(headers, responseCode,
                     responseCode < 399 ? IO.readBytes(connection.getInputStream()) : null);
         } finally {

@@ -89,12 +89,12 @@ public abstract class BeamEnvironment extends ClassLoaderEnvironment {
 
     @Override
     protected MavenDependency[] rootDependencies() {
-        return new MavenDependency[] { MavenDependencies.createDependency(rootDependencyBase() + ":jar:" + beamVersion,
-                ScopeType.RUNTIME, false,
-                skipBeamSdk
-                        ? new MavenDependencyExclusion[] {
-                                MavenDependencies.createExclusion("org.apache.beam", "beam-sdks-java-core") }
-                        : new MavenDependencyExclusion[0]) };
+        return new MavenDependency[] { MavenDependencies
+                .createDependency(rootDependencyBase() + ":jar:" + beamVersion, ScopeType.RUNTIME, false,
+                        skipBeamSdk
+                                ? new MavenDependencyExclusion[] {
+                                        MavenDependencies.createExclusion("org.apache.beam", "beam-sdks-java-core") }
+                                : new MavenDependencyExclusion[0]) };
     }
 
     @Override

@@ -39,7 +39,8 @@ class EnvironmentsExtension implements TestTemplateInvocationContextProvider {
         return new EnvironmentsConfigurationParser(context.getRequiredTestClass())
                 .stream()
                 .map(e -> new EnvironmentalContext(e,
-                        format.replace("${displayName}", context.getDisplayName()).replace("${environment}",
-                                DecoratingEnvironmentProvider.class.cast(e).getName())));
+                        format
+                                .replace("${displayName}", context.getDisplayName())
+                                .replace("${environment}", DecoratingEnvironmentProvider.class.cast(e).getName())));
     }
 }

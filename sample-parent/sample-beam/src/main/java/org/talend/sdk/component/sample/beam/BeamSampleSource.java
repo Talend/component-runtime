@@ -54,10 +54,11 @@ public class BeamSampleSource extends PTransform<PBegin, PCollection<JsonObject>
 
             @ProcessElement
             public void processElement(final ProcessContext context) throws Exception {
-                context.output(jsonBuilderFactory
-                        .createObjectBuilder()
-                        .add(configuration.getColumnName(), configuration.getValue())
-                        .build());
+                context
+                        .output(jsonBuilderFactory
+                                .createObjectBuilder()
+                                .add(configuration.getColumnName(), configuration.getValue())
+                                .build());
             }
         }));
     }

@@ -62,13 +62,17 @@ public class ConfigurationMapper {
                 final AtomicInteger valuesIndex = new AtomicInteger(0);
                 final Map<String, String> config = values.stream().map((Object item) -> {
                     indexes.put(arrayIndex, valuesIndex.getAndIncrement());
-                    final Map<String, String> res =
-                            param.getNestedParameters().stream().filter(ConfigurationMapper::isPrimitive).collect(
-                                    toMap(p -> evaluateIndexes(p.getPath(), indexes),
-                                            p -> getValue(item, p.getName()).toString()));
+                    final Map<String, String> res = param
+                            .getNestedParameters()
+                            .stream()
+                            .filter(ConfigurationMapper::isPrimitive)
+                            .collect(toMap(p -> evaluateIndexes(p.getPath(), indexes),
+                                    p -> getValue(item, p.getName()).toString()));
 
-                    res.putAll(map(param.getNestedParameters().stream().filter(p -> !isPrimitive(p)).collect(toList()),
-                            item, indexes));
+                    res
+                            .putAll(map(
+                                    param.getNestedParameters().stream().filter(p -> !isPrimitive(p)).collect(toList()),
+                                    item, indexes));
                     return res;
                 }).flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 

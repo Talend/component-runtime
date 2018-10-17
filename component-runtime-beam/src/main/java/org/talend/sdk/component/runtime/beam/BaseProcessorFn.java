@@ -200,12 +200,14 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
             if (!outputs.isEmpty()) {
                 final Record record = outputs.entrySet().stream().collect(factory::newRecordBuilder, (a, o) -> {
                     final Record firstElement = o.getValue().isEmpty() ? null : o.getValue().iterator().next();
-                    a.withArray(factory
-                            .newEntryBuilder()
-                            .withName(sanitizeConnectionName(o.getKey()))
-                            .withType(Schema.Type.ARRAY)
-                            .withElementSchema(firstElement == null ? Schemas.EMPTY_RECORD : firstElement.getSchema())
-                            .build(), o.getValue());
+                    a
+                            .withArray(factory
+                                    .newEntryBuilder()
+                                    .withName(sanitizeConnectionName(o.getKey()))
+                                    .withType(Schema.Type.ARRAY)
+                                    .withElementSchema(
+                                            firstElement == null ? Schemas.EMPTY_RECORD : firstElement.getSchema())
+                                    .build(), o.getValue());
                 }, RecordCollectors::merge).build();
                 emit.accept(record);
             }
@@ -231,15 +233,17 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
                     public void emit(final Object value) {
                         super.emit(value);
                         final Record first = values.isEmpty() ? null : values.iterator().next();
-                        outputs.add(factory
-                                .newRecordBuilder()
-                                .withArray(factory
-                                        .newEntryBuilder()
-                                        .withName(sanitizeConnectionName(name))
-                                        .withType(Schema.Type.ARRAY)
-                                        .withElementSchema(first == null ? Schemas.EMPTY_RECORD : first.getSchema())
-                                        .build(), values)
-                                .build());
+                        outputs
+                                .add(factory
+                                        .newRecordBuilder()
+                                        .withArray(factory
+                                                .newEntryBuilder()
+                                                .withName(sanitizeConnectionName(name))
+                                                .withType(Schema.Type.ARRAY)
+                                                .withElementSchema(
+                                                        first == null ? Schemas.EMPTY_RECORD : first.getSchema())
+                                                .build(), values)
+                                        .build());
                     }
                 }.emit(value);
             };

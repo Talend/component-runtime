@@ -142,11 +142,16 @@ static def writeIndex(file, list) {
 
 def namespaces = types.split(',').collect {
     def result = createPropType(null, Thread.currentThread().contextClassLoader.loadClass(it.trim()), new GenerationAggregator(filenames: []))
+    if (!result) {
+        return null
+    }
     def index = new File(project.build.directory, "prop-types/src/${result.namespace}/index.js")
     writeIndex(index, result.filenames)
     return index.parentFile.name
 }
-writeIndex(new File(project.build.directory, "prop-types/src/index.js"), namespaces)
+if (namespaces.count { it != null } > 0) {
+    writeIndex(new File(project.build.directory, "prop-types/src/index.js"), namespaces)
+}
 
 new File(project.build.directory, "prop-types/package.json").withWriter('UTF-8') { writer ->
     writer.write("""{

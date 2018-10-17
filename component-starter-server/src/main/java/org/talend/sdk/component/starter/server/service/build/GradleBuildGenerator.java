@@ -46,16 +46,14 @@ public class GradleBuildGenerator implements BuildGenerator {
     @Inject
     private TemplateRenderer tpl;
 
-    @Inject
-    private ServerInfo versions;
-
     void register(@Observes final GeneratorRegistration init) {
         init.registerBuildType("Gradle", this);
     }
 
     @Override
     public Build createBuild(final ProjectRequest.BuildConfiguration buildConfiguration, final String packageBase,
-            final Collection<Dependency> dependencies, final Collection<String> facets) {
+            final Collection<Dependency> dependencies, final Collection<String> facets,
+            final ServerInfo.Snapshot versions) {
 
         final Set<String> buildDependencies = new TreeSet<>();
         final List<String> configurations = new ArrayList<>();

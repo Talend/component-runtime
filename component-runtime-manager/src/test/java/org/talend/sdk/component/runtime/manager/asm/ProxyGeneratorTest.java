@@ -45,8 +45,9 @@ class ProxyGeneratorTest {
     void interceptors()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         final ProxyGenerator generator = new ProxyGenerator();
-        final Class<?> proxyClass = generator.generateProxy(Thread.currentThread().getContextClassLoader(),
-                Intercepted.class, "test", Intercepted.class.getName());
+        final Class<?> proxyClass = generator
+                .generateProxy(Thread.currentThread().getContextClassLoader(), Intercepted.class, "test",
+                        Intercepted.class.getName());
         final Intercepted proxy = Intercepted.class.cast(proxyClass.getConstructor().newInstance());
         generator.initialize(proxy, (method, args) -> "intercepted");
 
@@ -60,8 +61,9 @@ class ProxyGeneratorTest {
             assertFalse(Serializable.class.isInstance(new CatService())); // if this fails the whole test is pointless
 
             final ProxyGenerator generator = new ProxyGenerator();
-            final Class<?> proxyType = generator.generateProxy(Thread.currentThread().getContextClassLoader(),
-                    CatService.class, "test", CatService.class.getName());
+            final Class<?> proxyType = generator
+                    .generateProxy(Thread.currentThread().getContextClassLoader(), CatService.class, "test",
+                            CatService.class.getName());
             assertNotNull(proxyType);
 
             final Object proxy = proxyType.getConstructor().newInstance();

@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -42,7 +43,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Predicate;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
@@ -79,6 +82,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
 
+    private final WeakHashMap<Closeable, Void> closeables = new WeakHashMap<>();
+
     private volatile URLClassLoader temporaryCopy;
 
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
@@ -104,8 +109,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
                                 out.write(buffer, 0, read);
                             }
 
-                            resources.computeIfAbsent(entry.getName(), k -> new ArrayList<>()).add(
-                                    new Resource(resource, out.toByteArray()));
+                            resources
+                                    .computeIfAbsent(entry.getName(), k -> new ArrayList<>())
+                                    .add(new Resource(resource, out.toByteArray()));
                         }
                     }
                 } catch (final IOException e) {
@@ -152,9 +158,18 @@ public class ConfigurableClassLoader extends URLClassLoader {
             try {
                 temporaryCopy.close();
             } catch (final RuntimeException re) {
-                super.close();
-                return;
+                log.warn(re.getMessage(), re);
             }
+        }
+        synchronized (closeables) {
+            closeables.keySet().forEach(c -> {
+                try {
+                    c.close();
+                } catch (final IOException ex) {
+                    log.warn(ex.getMessage(), ex);
+                }
+            });
+            closeables.clear();
         }
         super.close();
     }
@@ -222,20 +237,49 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Override
     public URL findResource(final String name) {
         return resources.isEmpty() ? super.findResource(name)
-                : ofNullable(super.findResource(name)).orElseGet(() -> ofNullable(resources.get(name))
-                        .filter(s -> !s.isEmpty())
-                        .map(s -> s.iterator().next())
-                        .map(r -> nestedResourceToURL(name, r))
-                        .orElse(null));
+                : ofNullable(super.findResource(name))
+                        .orElseGet(() -> ofNullable(resources.get(name))
+                                .filter(s -> !s.isEmpty())
+                                .map(s -> s.iterator().next())
+                                .map(r -> nestedResourceToURL(name, r))
+                                .orElse(null));
     }
 
     @Override
     public InputStream getResourceAsStream(final String name) {
-        return ofNullable(super.getResourceAsStream(name)).orElseGet(() -> ofNullable(resources.get(name))
-                .filter(s -> s.size() > 0)
-                .map(s -> s.iterator().next().resource)
-                .map(ByteArrayInputStream::new)
-                .orElse(null));
+        return ofNullable(doGetResourceAsStream(name))
+                .orElseGet(() -> ofNullable(resources.get(name))
+                        .filter(s -> s.size() > 0)
+                        .map(s -> s.iterator().next().resource)
+                        .map(ByteArrayInputStream::new)
+                        .orElse(null));
+    }
+
+    private InputStream doGetResourceAsStream(final String name) {
+        final URL resource = super.findResource(name);
+        try {
+            if (resource == null) {
+                return super.getResourceAsStream(name);
+            }
+            final URLConnection urlc = resource.openConnection();
+            final InputStream is = urlc.getInputStream();
+            if (JarURLConnection.class.isInstance(urlc)) {
+                final JarURLConnection juc = JarURLConnection.class.cast(urlc);
+                final JarFile jar = juc.getJarFile();
+                synchronized (closeables) {
+                    if (!closeables.containsKey(jar)) {
+                        closeables.put(jar, null);
+                    }
+                }
+            } else if (urlc.getClass().getName().equals("sun.net.www.protocol.file.FileURLConnection")) {
+                synchronized (closeables) {
+                    closeables.put(is, null);
+                }
+            }
+            return is;
+        } catch (final IOException e) {
+            return null;
+        }
     }
 
     @Override
@@ -320,7 +364,83 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 return true;
             }
             if (sub.startsWith("sun.")) {
-                return true;
+                final String subSun = name.substring("sun.".length());
+                if (subSun.startsWith("accessibility.")) {
+                    return true;
+                }
+                if (subSun.startsWith("activation.")) {
+                    return true;
+                }
+                if (subSun.startsWith("awt.")) {
+                    return true;
+                }
+                if (subSun.startsWith("beans.")) {
+                    return true;
+                }
+                if (subSun.startsWith("corba.se.")) {
+                    return true;
+                }
+                if (subSun.startsWith("demo.jvmti.")) {
+                    return true;
+                }
+                if (subSun.startsWith("image.codec.jpeg.")) {
+                    return true;
+                }
+                if (subSun.startsWith("imageio.")) {
+                    return true;
+                }
+                if (subSun.startsWith("istack.internal.")) {
+                    return true;
+                }
+                if (subSun.startsWith("java.")) {
+                    return true;
+                }
+                if (subSun.startsWith("java_cup.")) {
+                    return true;
+                }
+                if (subSun.startsWith("jmx.")) {
+                    return true;
+                }
+                if (subSun.startsWith("jndi.")) {
+                    return true;
+                }
+                if (subSun.startsWith("management.")) {
+                    return true;
+                }
+                if (subSun.startsWith("media.sound.")) {
+                    return true;
+                }
+                if (subSun.startsWith("naming.internal.")) {
+                    return true;
+                }
+                if (subSun.startsWith("net.")) {
+                    return true;
+                }
+                if (subSun.startsWith("nio.")) {
+                    return true;
+                }
+                if (subSun.startsWith("org.")) {
+                    return true;
+                }
+                if (subSun.startsWith("rmi.rmid.")) {
+                    return true;
+                }
+                if (subSun.startsWith("rowset.")) {
+                    return true;
+                }
+                if (subSun.startsWith("security.")) {
+                    return true;
+                }
+                if (subSun.startsWith("swing.")) {
+                    return true;
+                }
+                if (subSun.startsWith("tracing.")) {
+                    return true;
+                }
+                if (subSun.startsWith("xml.internal.")) {
+                    return true;
+                }
+                return false;
             }
         }
         return false;

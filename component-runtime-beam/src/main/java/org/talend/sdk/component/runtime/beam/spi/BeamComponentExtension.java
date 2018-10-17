@@ -17,15 +17,16 @@ package org.talend.sdk.component.runtime.beam.spi;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.sdk.component.design.extension.flows.FlowsFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.beam.Versions;
 import org.talend.sdk.component.runtime.beam.design.BeamFlowFactory;
@@ -39,7 +40,6 @@ import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 
-// TODO: enrich the validation set to check the from/to generics in the pTransforms
 public class BeamComponentExtension implements ComponentExtension {
 
     @Override
@@ -59,9 +59,14 @@ public class BeamComponentExtension implements ComponentExtension {
         if ("org.talend.sdk.component.design.extension.flows.FlowsFactory".equals(type.getName()) && args != null
                 && args.length == 1 && ComponentFamilyMeta.BaseMeta.class.isInstance(args[0])) {
             if (ComponentFamilyMeta.ProcessorMeta.class.isInstance(args[0])) {
-                return type.cast(BeamFlowFactory.OUTPUT);
+                try {
+                    final FlowsFactory factory = FlowsFactory.get(ComponentFamilyMeta.BaseMeta.class.cast(args[0]));
+                    factory.getOutputFlows();
+                    return type.cast(factory);
+                } catch (final Exception e) { // no @ElementListener, let's default for native transforms
+                    return type.cast(BeamFlowFactory.OUTPUT); // default
+                }
             }
-            return type.cast(BeamFlowFactory.INPUT);
         }
         if (type.isInstance(this)) {
             return type.cast(this);
@@ -118,17 +123,18 @@ public class BeamComponentExtension implements ComponentExtension {
         } catch (final RuntimeException re) { // create a passthrough impl to ensure it can be unwrapped
             if (component.isInterface()) {
                 final Object actualInstance = instance.instance();
-                return (T) Proxy.newProxyInstance(component.getClassLoader(),
-                        new Class<?>[] { component, Delegated.class }, (proxy, method, args) -> {
-                            if (Object.class == method.getDeclaringClass()) {
-                                return method.invoke(actualInstance, args);
-                            }
-                            if (Delegated.class == method.getDeclaringClass()) {
-                                return actualInstance;
-                            }
-                            throw new UnsupportedOperationException("this method is not supported (" + method + ")",
-                                    re);
-                        });
+                return (T) Proxy
+                        .newProxyInstance(component.getClassLoader(), new Class<?>[] { component, Delegated.class },
+                                (proxy, method, args) -> {
+                                    if (Object.class == method.getDeclaringClass()) {
+                                        return method.invoke(actualInstance, args);
+                                    }
+                                    if (Delegated.class == method.getDeclaringClass()) {
+                                        return actualInstance;
+                                    }
+                                    throw new UnsupportedOperationException(
+                                            "this method is not supported (" + method + ")", re);
+                                });
             }
             throw re;
         }
@@ -137,6 +143,6 @@ public class BeamComponentExtension implements ComponentExtension {
 
     @Override
     public Collection<String> getAdditionalDependencies() {
-        return Arrays.asList(Versions.GROUP + ":" + Versions.ARTIFACT + ":jar:" + Versions.VERSION);
+        return singletonList(Versions.GROUP + ":" + Versions.ARTIFACT + ":jar:" + Versions.VERSION);
     }
 }

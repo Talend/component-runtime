@@ -34,8 +34,10 @@ class ActionDisplayNameTest {
 
     @Test
     void actionDisplayName() {
-        final Container container = componentManagerService.manager().findPlugin("jdbc-component").orElseThrow(
-                () -> new IllegalStateException("No jdbc plugin"));
+        final Container container = componentManagerService
+                .manager()
+                .findPlugin("jdbc-component")
+                .orElseThrow(() -> new IllegalStateException("No jdbc plugin"));
         final String displayName = container
                 .get(ContainerComponentRegistry.class)
                 .getComponents()

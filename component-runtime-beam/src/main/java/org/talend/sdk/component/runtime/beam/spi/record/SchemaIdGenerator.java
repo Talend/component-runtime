@@ -31,8 +31,8 @@ import lombok.NoArgsConstructor;
 public class SchemaIdGenerator {
 
     public static String generateRecordName(final List<Schema.Field> fields) {
-        return "org.talend.sdk.component.schema.generated.Record"
-                + new XXHash64(0/* always the same output */).id(fields
+        return "org.talend.sdk.component.schema.generated.Record" + new XXHash64(0/* always the same output */)
+                .id(fields
                         .stream()
                         .sorted(comparing(org.apache.avro.Schema.Field::pos)
                                 .thenComparing(org.apache.avro.Schema.Field::name))

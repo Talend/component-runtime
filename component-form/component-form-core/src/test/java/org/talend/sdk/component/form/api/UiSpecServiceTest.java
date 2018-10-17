@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -100,13 +101,36 @@ class UiSpecServiceTest {
 
         assertEquals(1, trigger.getParameters().size());
         final UiSchema.Parameter parameter = trigger.getParameters().iterator().next();
-        assertEquals("root.updatable_config.name", parameter.getPath());
-        assertEquals("arg0.name", parameter.getKey());
+        assertEquals("root.updatable_config", parameter.getPath());
+        assertEquals("arg0", parameter.getKey());
 
         assertEquals(1, trigger.getOptions().size());
         final UiSchema.Option option = trigger.getOptions().iterator().next();
         assertEquals("root.updatable_config", option.getPath());
         assertEquals("object", option.getType());
+    }
+
+    @Test
+    void conditionAnd() throws Exception {
+        final ComponentDetail node = load("condition-and.json", ComponentDetail.class);
+        final Ui payload = service.convert(node, "en", null).toCompletableFuture().get();
+        final UiSchema schema = payload
+                .getUiSchema()
+                .iterator()
+                .next()
+                .getItems()
+                .iterator()
+                .next()
+                .getItems()
+                .stream()
+                .filter(it -> "conf.activeIfAnd".equals(it.getKey()))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
+        final Map<String, Collection<Object>> condition = schema.getCondition();
+        final Collection<Object> and = condition.get("and");
+        and.forEach(it -> assertFalse(Collection.class.isInstance(it)));
+        final Map<String, Collection<Object>> firstCond = Map.class.cast(and.iterator().next());
+        assertEquals(asList(singletonMap("var", "conf.str"), "value"), firstCond.get("==="));
     }
 
     @Test
@@ -125,7 +149,7 @@ class UiSpecServiceTest {
         assertEquals("guessMe", trigger.getAction());
         assertEquals("test", trigger.getFamily());
         assertEquals("update", trigger.getType());
-        assertEquals(2, trigger.getParameters().size());
+        assertEquals(1, trigger.getParameters().size());
         assertEquals(1, trigger.getOptions().size());
     }
 
@@ -234,8 +258,9 @@ class UiSpecServiceTest {
 
         final Set<String> uiSchemaKeys = flattenUiSchema(payload.getUiSchema().stream())
                 .map(UiSchema::getKey)
-                .filter(it -> Stream.of("dataStore", "button_healthcheck_dataStore").noneMatch(
-                        ignored -> ignored.equals(it)))
+                .filter(it -> Stream
+                        .of("dataStore", "button_healthcheck_dataStore")
+                        .noneMatch(ignored -> ignored.equals(it)))
                 .filter(Objects::nonNull)
                 .collect(toSet());
         final Set<String> jsonSchemaKeys = flattenJsonSchema(Stream.of(new Pair("", payload.getJsonSchema())))
@@ -364,13 +389,13 @@ class UiSpecServiceTest {
 
         // here is what the test validates: the parameters are flattened and translated
         // for the ui
-        assertEquals(3, driverTrigger.getParameters().size(), driverTrigger.toString());
+        assertEquals(2, driverTrigger.getParameters().size(), driverTrigger.toString());
 
         final Iterator<UiSchema.Parameter> params = driverTrigger.getParameters().iterator();
         assertTrue(params.hasNext());
-        assertTriggerParameter(params.next(), "value.driver", "configuration.connection.driver");
-        assertTriggerParameter(params.next(), "query.timeout", "configuration.query.timeout");
-        assertTriggerParameter(params.next(), "query.sql", "configuration.query.sql");
+        assertTriggerParameter(params.next(), "value", "configuration.connection");
+        assertTrue(params.hasNext());
+        assertTriggerParameter(params.next(), "query", "configuration.query");
     }
 
     @Test
@@ -470,16 +495,10 @@ class UiSpecServiceTest {
                 assertUiSchema(connectionIt.next(), "button", "Validate Connection", null, 0, validateDataStore -> {
                     assertEquals(1, validateDataStore.getTriggers().size());
                     final UiSchema.Trigger trigger = validateDataStore.getTriggers().iterator().next();
-                    assertEquals(4, trigger.getParameters().size());
-                    assertEquals(
-                            Stream
-                                    .of("driver", "password", "url", "username")
-                                    .map(p -> "configuration.connection." + p)
-                                    .collect(toSet()),
+                    assertEquals(1, trigger.getParameters().size());
+                    assertEquals(singleton("configuration.connection"),
                             trigger.getParameters().stream().map(UiSchema.Parameter::getPath).collect(toSet()));
-                    assertEquals(
-                            Stream.of("driver", "password", "url", "username").map(p -> "datastore." + p).collect(
-                                    toSet()),
+                    assertEquals(singleton("datastore"),
                             trigger.getParameters().stream().map(UiSchema.Parameter::getKey).collect(toSet()));
                 });
                 assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0,
@@ -587,14 +606,23 @@ class UiSpecServiceTest {
     }
 
     private Stream<UiSchema> flattenUiSchema(final Stream<UiSchema> uiSchema) {
-        return uiSchema.flatMap(u -> u.getItems() == null ? Stream.of(u)
-                : Stream.concat(Stream.of(u), flattenUiSchema(u.getItems().stream())));
+        return uiSchema
+                .flatMap(u -> u.getItems() == null ? Stream.of(u)
+                        : Stream.concat(Stream.of(u), flattenUiSchema(u.getItems().stream())));
     }
 
     private Stream<Pair> flattenJsonSchema(final Stream<Pair> jsonSchemaStream) {
-        return jsonSchemaStream.flatMap(u -> u.schema.getProperties() == null ? Stream.of(u)
-                : Stream.concat(Stream.of(u), flattenJsonSchema(u.schema.getProperties().entrySet().stream().map(
-                        it -> new Pair(u.prefix + (u.prefix.isEmpty() ? "" : ".") + it.getKey(), it.getValue())))));
+        return jsonSchemaStream
+                .flatMap(u -> u.schema.getProperties() == null ? Stream.of(u)
+                        : Stream
+                                .concat(Stream.of(u),
+                                        flattenJsonSchema(u.schema
+                                                .getProperties()
+                                                .entrySet()
+                                                .stream()
+                                                .map(it -> new Pair(
+                                                        u.prefix + (u.prefix.isEmpty() ? "" : ".") + it.getKey(),
+                                                        it.getValue())))));
     }
 
     @Data

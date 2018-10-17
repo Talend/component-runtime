@@ -13,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+/* add horizontal scroll on some elements*/
+
 .contributors {
   display: flex;
   flex-direction: row;
@@ -678,5 +680,113 @@ ul.tree > li > a {
   line-height: 0;
 }
 .talend-icons-note {
-    padding-top: 1rem;
+  padding-top: 1rem;
+}
+
+.talend-filterlist .hidden {
+  display: none;
+}
+.talend-filterlist .ul-containers {
+  display: flex;
+  flex-direction: row;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  height: 400px;
+  overflow: auto;
+}
+.talend-filterlist .ul-containers > ul {
+  width: 100%;
+  -webkit-padding-start: 0;
+  padding-start: 0;
+}
+.talend-filterlist li {
+  border: 1px solid #ddd;
+  margin-top: -1px;
+  background-color: #f6f6f6;
+  padding: 12px;
+  font-size: 18px;
+  color: black;
+  display: block;
+  text-align: center;
+}
+.talend-filterlist input {
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 20px 12px 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+}
+.talend-filterlist li:hover {
+  background-color: #eee;
+}
+
+@media (min-width: 1024px) {
+  .article-content p {
+    padding-right: 20%;
+  }
+}
+
+/** mobile */
+@media (max-width: 768px) {
+  h1 { font-size: 25px;}
+  h2 { font-size: 24px;}
+  h3 { font-size: 22px;}
+  .global-header > .navbar > .navbar-nav {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0 5px;
+  }
+  .navbar-nav > .dropdown {
+    display: block;
+  }
+  #navbar > ul.nav.navbar-nav.navbar-right > li:before {
+    content: none;
+  }
+  .navbar-nav > .dropdown > .dropdown-menu {
+    background-color: white;
+  }
+  /* remove grid from the content */
+  article.doc,
+  .doc > .row,
+  .doc > .row > .row {
+    margin: 0;
+  }
+  article.doc {
+    padding: 0;
+  }
+  .doc .col-sm-9 {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  /* handle large content */
+  dl,
+  code {
+    word-wrap: break-word;
+  }
+  code.language-xml,
+  code.json,
+  code.language-java {
+    word-wrap: normal;
+    overflow-x: scroll;
+    display: block;
+    white-space: pre;
+  }
+
+  .toolbar,
+  table {
+    display: block;
+    overflow-x: scroll;
+  }
+
+  /* remove some content */
+  a.top,
+  .navbar-versions,
+  .article-side-panel,
+  #header-talend-logo,
+  #header-kit-logo,
+  .admonitionblock .icon > .fa {
+    display: none;
+  }
 }
