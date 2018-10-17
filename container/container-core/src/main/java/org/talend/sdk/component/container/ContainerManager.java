@@ -111,8 +111,11 @@ public class ContainerManager implements Lifecycle {
                             load(mappingStream);
                         }
                     };
-                    nestedContainerMapping.putAll(properties.stringPropertyNames().stream().collect(
-                            toMap(identity(), properties::getProperty)));
+                    nestedContainerMapping
+                            .putAll(properties
+                                    .stringPropertyNames()
+                                    .stream()
+                                    .collect(toMap(identity(), properties::getProperty)));
                     info("Mapped " + getDefinedNestedPlugin() + " plugins");
                 } else {
                     info("No " + nestedPluginMappingResource + " found, will use file resolution");
@@ -182,8 +185,8 @@ public class ContainerManager implements Lifecycle {
 
         final String[] coords = path.split(":");
         if (coords.length > 2) { // mvn gav
-            final String relativePath =
-                    String.format("%s/%s/%s/%s-%s%s.%s", coords[0].replace('.', '/'), coords[1], coords[2], coords[1],
+            final String relativePath = String
+                    .format("%s/%s/%s/%s-%s%s.%s", coords[0].replace('.', '/'), coords[1], coords[2], coords[1],
                             coords[2], coords.length == 5 ? coords[4] : "", coords.length >= 4 ? coords[3] : "jar");
             final File file = new File(rootRepositoryLocation, relativePath);
             if (file.exists()) {
@@ -355,8 +358,9 @@ public class ContainerManager implements Lifecycle {
 
             final Container container = new Container(id, location, classpath.toArray(Artifact[]::new),
                     classLoaderConfiguration, ContainerManager.this::resolve,
-                    ofNullable(containerInitializer).orElse(NOOP_CUSTOMIZER).andThen(
-                            ofNullable(customizer).orElse(NOOP_CUSTOMIZER))) {
+                    ofNullable(containerInitializer)
+                            .orElse(NOOP_CUSTOMIZER)
+                            .andThen(ofNullable(customizer).orElse(NOOP_CUSTOMIZER))) {
 
                 @Override
                 public void close() {

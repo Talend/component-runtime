@@ -114,8 +114,10 @@ public class Container implements Lifecycle {
             // - if the nested file exists using the module as path in nested maven repo,
             // we use it
             // - if the nested path is in the global plugin.properties index, we use it
-            final File rootFile = of(rootModule).map(File::new).filter(File::exists).orElseGet(
-                    () -> localDependencyRelativeResolver.apply(rootModule));
+            final File rootFile = of(rootModule)
+                    .map(File::new)
+                    .filter(File::exists)
+                    .orElseGet(() -> localDependencyRelativeResolver.apply(rootModule));
             final Predicate<String> resourceExists =
                     rootFile.exists() && rootFile.getName().endsWith(".jar") ? jarIndex(rootFile)
                             : s -> new File(rootFile, ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + s).exists();
@@ -182,8 +184,11 @@ public class Container implements Lifecycle {
     }
 
     public Optional<File> getContainerFile() {
-        return Optional.of(rootModule).map(
-                m -> of(new File(m)).filter(File::exists).orElseGet(() -> localDependencyRelativeResolver.apply(m)));
+        return Optional
+                .of(rootModule)
+                .map(m -> of(new File(m))
+                        .filter(File::exists)
+                        .orElseGet(() -> localDependencyRelativeResolver.apply(m)));
     }
 
     public Stream<Artifact> findDependencies() {
@@ -204,8 +209,9 @@ public class Container implements Lifecycle {
 
         final S result = execute(supplier);
         return api.isInstance(result) ? api.cast(result)
-                : api.cast(newProxyInstance(loaderRef.get(), new Class<?>[] { api },
-                        new ApiHandler(result, api, this::withTccl)));
+                : api
+                        .cast(newProxyInstance(loaderRef.get(), new Class<?>[] { api },
+                                new ApiHandler(result, api, this::withTccl)));
     }
 
     public <T> T execute(final Supplier<T> supplier) {

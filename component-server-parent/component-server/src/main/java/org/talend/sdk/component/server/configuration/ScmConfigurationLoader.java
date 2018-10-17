@@ -53,8 +53,10 @@ public class ScmConfigurationLoader implements ConfigSource {
                         }
                     }
                 };
-                properties.stringPropertyNames().stream().collect(() -> map,
-                        (m, k) -> m.put(k, properties.getProperty(k)), Map::putAll);
+                properties
+                        .stringPropertyNames()
+                        .stream()
+                        .collect(() -> map, (m, k) -> m.put(k, properties.getProperty(k)), Map::putAll);
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }

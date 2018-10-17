@@ -58,8 +58,10 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         responseModel.setHeaders(filterHeaders(resp.headers().entrySet()));
         // todo: support as byte[] for not text responses
         if (resp.payload() != null) {
-            if (responseHeaderFields.getOrDefault("Content-Encoding", emptyList()).stream().anyMatch(
-                    it -> it.contains("gzip"))) {
+            if (responseHeaderFields
+                    .getOrDefault("Content-Encoding", emptyList())
+                    .stream()
+                    .anyMatch(it -> it.contains("gzip"))) {
                 responseModel.setPayload(new String(degzip(resp.payload()), StandardCharsets.UTF_8));
             } else {
                 responseModel.setPayload(new String(resp.payload(), StandardCharsets.UTF_8));

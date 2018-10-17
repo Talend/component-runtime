@@ -38,15 +38,18 @@ class ConfigurationResourceProxyTest {
     @Test
     void checkHeaders() {
         final Map<String, String> headers = new HashMap<>();
-        configuration.getHeaderAppender().apply(
-                Invocation.Builder.class.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                        new Class<?>[] { Invocation.Builder.class }, (proxy, method, args) -> {
-                            if (method.getName().equals("header")) {
-                                headers.put(args[0].toString(), args[1].toString());
-                            }
-                            return proxy;
-                        })),
-                k -> "done");
+        configuration
+                .getHeaderAppender()
+                .apply(Invocation.Builder.class
+                        .cast(Proxy
+                                .newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                        new Class<?>[] { Invocation.Builder.class }, (proxy, method, args) -> {
+                                            if (method.getName().equals("header")) {
+                                                headers.put(args[0].toString(), args[1].toString());
+                                            }
+                                            return proxy;
+                                        })),
+                        k -> "done");
         assertEquals(new HashMap<String, String>() {
 
             {

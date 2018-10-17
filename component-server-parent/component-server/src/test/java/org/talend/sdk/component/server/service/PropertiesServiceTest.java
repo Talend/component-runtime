@@ -61,9 +61,10 @@ class PropertiesServiceTest {
 
     @Test
     void parameterIndexMeta() throws NoSuchMethodException {
-        final List<ParameterMeta> params = new ParameterModelService(new PropertyEditorRegistry()).buildParameterMetas(
-                getClass().getDeclaredMethod("multipleParams", String.class, BoolWrapper.class, String.class), null,
-                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final List<ParameterMeta> params = new ParameterModelService(new PropertyEditorRegistry())
+                .buildParameterMetas(
+                        getClass().getDeclaredMethod("multipleParams", String.class, BoolWrapper.class, String.class),
+                        null, new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(params, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
                 .collect(toList());
@@ -79,15 +80,14 @@ class PropertiesServiceTest {
 
     @Test
     void booleanDefault() throws NoSuchMethodException {
-        final List<SimplePropertyDefinition> props =
-                propertiesService
-                        .buildProperties(
-                                new ParameterModelService(new PropertyEditorRegistry()).buildParameterMetas(
-                                        getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null,
+        final List<SimplePropertyDefinition> props = propertiesService
+                .buildProperties(
+                        new ParameterModelService(new PropertyEditorRegistry())
+                                .buildParameterMetas(getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null,
                                         new BaseParameterEnricher.Context(
                                                 new LocalConfigurationService(emptyList(), "tools"))),
-                                Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
-                        .collect(toList());
+                        Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
+                .collect(toList());
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
     }
 

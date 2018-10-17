@@ -150,8 +150,8 @@ public class CacheResolverManager implements CacheResolverFactory {
     private CacheResolver toResolver(final String cacheName) {
         if (!configuration.getJcacheActive() || ("org.talend.sdk.component.proxy.actions.proposables".equals(cacheName)
                 && !configuration.getCacheProposables())) {
-            return resolvers.computeIfAbsent(cacheName,
-                    k -> new CacheResolverImpl(new EmptyCache<>(cacheName, cacheManager)));
+            return resolvers
+                    .computeIfAbsent(cacheName, k -> new CacheResolverImpl(new EmptyCache<>(cacheName, cacheManager)));
         }
 
         return resolvers.computeIfAbsent(cacheName, k -> {
@@ -167,10 +167,12 @@ public class CacheResolverManager implements CacheResolverFactory {
             final MutableConfiguration<Object, Object> conf = new MutableConfiguration<>();
             conf.setExpiryPolicyFactory(policy);
             conf.setStoreByValue(false);
-            conf.setManagementEnabled(
-                    getConfigValue(config, keyCacheName, "management.active", Boolean.class).orElse(false));
-            conf.setStatisticsEnabled(
-                    getConfigValue(config, keyCacheName, "statistics.active", Boolean.class).orElse(false));
+            conf
+                    .setManagementEnabled(
+                            getConfigValue(config, keyCacheName, "management.active", Boolean.class).orElse(false));
+            conf
+                    .setStatisticsEnabled(
+                            getConfigValue(config, keyCacheName, "statistics.active", Boolean.class).orElse(false));
 
             try {
                 return new CacheResolverImpl(cacheManager.createCache(cacheName, conf));

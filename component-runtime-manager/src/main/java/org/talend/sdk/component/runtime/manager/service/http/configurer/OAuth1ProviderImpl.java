@@ -55,12 +55,15 @@ public class OAuth1ProviderImpl implements OAuth1.OAuth1Provider {
         values.put("oauth_consumer_key", oauth1Config.getConsumerKey());
         values.put("oauth_nonce", ofNullable(oauth1Config.getNonce()).orElseGet(this::newNonce));
         values.put("oauth_signature_method", algorithm);
-        values.put("oauth_timestamp", ofNullable(oauth1Config.getTimestamp()).map(String::valueOf).orElseGet(
-                () -> Long.toString(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()))));
+        values
+                .put("oauth_timestamp", ofNullable(oauth1Config.getTimestamp())
+                        .map(String::valueOf)
+                        .orElseGet(() -> Long.toString(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()))));
         values.put("oauth_version", "1.0");
         ofNullable(oauth1Config.getToken()).ifPresent(token -> values.put("oauth_token", token));
-        ofNullable(oauth1Config.getPayloadHashAlgorithm()).ifPresent(
-                algo -> values.put("oauth_body_hash", hash(algo, ofNullable(payload).orElseGet(() -> new byte[0]))));
+        ofNullable(oauth1Config.getPayloadHashAlgorithm())
+                .ifPresent(algo -> values
+                        .put("oauth_body_hash", hash(algo, ofNullable(payload).orElseGet(() -> new byte[0]))));
         ofNullable(oauth1Config.getOauthParameters()).ifPresent(values::putAll);
         values.entrySet().forEach(e -> e.setValue(encode(e.getValue())));
         values.putAll(extractQuery(url));
@@ -124,18 +127,20 @@ public class OAuth1ProviderImpl implements OAuth1.OAuth1Provider {
 
     private String sign(final String algorithm, final String signingString, final OAuth1.Configuration configuration) {
         if (algorithm.toLowerCase(ROOT).contains("hmac")) {
-            final byte[] signingKey = ofNullable(configuration.getSigningHmacKey()).orElseGet(() -> Stream
-                    .of(configuration.getConsumerSecret(), configuration.getTokenSecret())
-                    .filter(Objects::nonNull)
-                    .map(this::encode)
-                    .collect(joining("&"))
-                    .getBytes(StandardCharsets.UTF_8));
+            final byte[] signingKey = ofNullable(configuration.getSigningHmacKey())
+                    .orElseGet(() -> Stream
+                            .of(configuration.getConsumerSecret(), configuration.getTokenSecret())
+                            .filter(Objects::nonNull)
+                            .map(this::encode)
+                            .collect(joining("&"))
+                            .getBytes(StandardCharsets.UTF_8));
             try {
                 final SecretKeySpec key = new SecretKeySpec(signingKey, algorithm);
                 final Mac mac = Mac.getInstance(key.getAlgorithm().replace("-", ""));
                 mac.init(key);
-                return encode(Base64.getEncoder().encodeToString(
-                        mac.doFinal(signingString.getBytes(StandardCharsets.UTF_8))));
+                return encode(Base64
+                        .getEncoder()
+                        .encodeToString(mac.doFinal(signingString.getBytes(StandardCharsets.UTF_8))));
             } catch (final InvalidKeyException | NoSuchAlgorithmException e) {
                 throw new IllegalStateException(e);
             }
@@ -153,8 +158,11 @@ public class OAuth1ProviderImpl implements OAuth1.OAuth1Provider {
 
     private String signingString(final Map<String, String> values, final String method, final String url) {
         return method.toUpperCase(ROOT) + "&" + encode(prepareUrl(url)) + "&"
-                + encode(values.entrySet().stream().map(e -> String.format("%s=%s", e.getKey(), e.getValue())).collect(
-                        joining("&")));
+                + encode(values
+                        .entrySet()
+                        .stream()
+                        .map(e -> String.format("%s=%s", e.getKey(), e.getValue()))
+                        .collect(joining("&")));
     }
 
     private String prepareUrl(final String url) {

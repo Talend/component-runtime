@@ -43,8 +43,9 @@ public class ReferenceServiceImpl implements ReferenceService {
     @Override
     public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name,
             final UiSpecContext context) {
-        return CompletableFuture.completedFuture(
-                new Values(asList(new Values.Item(type + "1", name + "1"), new Values.Item(type + "2", name + "2"))));
+        return CompletableFuture
+                .completedFuture(new Values(
+                        asList(new Values.Item(type + "1", name + "1"), new Values.Item(type + "2", name + "2"))));
     }
 
     @Override

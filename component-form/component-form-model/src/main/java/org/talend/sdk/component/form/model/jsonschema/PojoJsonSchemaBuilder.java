@@ -74,8 +74,8 @@ class PojoJsonSchemaBuilder {
                 || genericType == BigDecimal.class || genericType == BigInteger.class) {
             return schemas.computeIfAbsent(Class.class.cast(genericType), k -> jsonSchema().withType("number").build());
         } else if (genericType == boolean.class || genericType == Boolean.class) {
-            return schemas.computeIfAbsent(Class.class.cast(genericType),
-                    k -> jsonSchema().withType("boolean").build());
+            return schemas
+                    .computeIfAbsent(Class.class.cast(genericType), k -> jsonSchema().withType("boolean").build());
         } else if (Class.class.isInstance(genericType)) {
             final Class<?> clazz = Class.class.cast(genericType);
             return ofNullable(schemas.get(clazz)).orElseGet(() -> {

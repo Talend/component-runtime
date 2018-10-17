@@ -84,9 +84,10 @@ public class AvroSchemaBuilder implements Schema.Builder {
             break;
         default:
         }
-        fields.add(new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
-                Unwrappable.class.cast(entrySchemaBuilder.build()).unwrap(org.apache.avro.Schema.class),
-                entry.getComment(), toJsonNode(entry.getDefaultValue())));
+        fields
+                .add(new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
+                        Unwrappable.class.cast(entrySchemaBuilder.build()).unwrap(org.apache.avro.Schema.class),
+                        entry.getComment(), toJsonNode(entry.getDefaultValue())));
         return this;
     }
 

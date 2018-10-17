@@ -58,12 +58,13 @@ class BeamComponentExtensionTest {
 
     @Test
     void flowFactory() {
-        final FlowsFactory factory = extension.unwrap(FlowsFactory.class,
-                new ComponentFamilyMeta.ProcessorMeta(
-                        new ComponentFamilyMeta("test", emptyList(), null, "test", "test"), "beam", null, 1,
-                        BeamMapper.class, emptyList(), null, null, true) {
+        final FlowsFactory factory = extension
+                .unwrap(FlowsFactory.class,
+                        new ComponentFamilyMeta.ProcessorMeta(
+                                new ComponentFamilyMeta("test", emptyList(), null, "test", "test"), "beam", null, 1,
+                                BeamMapper.class, emptyList(), null, null, true) {
 
-                });
+                        });
         assertEquals(1, factory.getInputFlows().size());
         assertEquals(asList("main1", "main2"), factory.getOutputFlows());
     }

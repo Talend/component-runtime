@@ -42,8 +42,9 @@ public class IndexedRecordToJsonTest {
     public void test() {
         PAssert
                 .that(pipeline
-                        .apply(Create.of(newIndexedRecord("first"), newIndexedRecord("second")).withCoder(
-                                AvroCoder.of(IndexedRecord.class, getSchema())))
+                        .apply(Create
+                                .of(newIndexedRecord("first"), newIndexedRecord("second"))
+                                .withCoder(AvroCoder.of(IndexedRecord.class, getSchema())))
                         .apply(new IndexedRecordToJson()))
                 .satisfies(values -> {
                     assertEquals(asList("first", "second"),

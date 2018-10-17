@@ -258,8 +258,9 @@ class UiSpecServiceTest {
 
         final Set<String> uiSchemaKeys = flattenUiSchema(payload.getUiSchema().stream())
                 .map(UiSchema::getKey)
-                .filter(it -> Stream.of("dataStore", "button_healthcheck_dataStore").noneMatch(
-                        ignored -> ignored.equals(it)))
+                .filter(it -> Stream
+                        .of("dataStore", "button_healthcheck_dataStore")
+                        .noneMatch(ignored -> ignored.equals(it)))
                 .filter(Objects::nonNull)
                 .collect(toSet());
         final Set<String> jsonSchemaKeys = flattenJsonSchema(Stream.of(new Pair("", payload.getJsonSchema())))
@@ -605,14 +606,23 @@ class UiSpecServiceTest {
     }
 
     private Stream<UiSchema> flattenUiSchema(final Stream<UiSchema> uiSchema) {
-        return uiSchema.flatMap(u -> u.getItems() == null ? Stream.of(u)
-                : Stream.concat(Stream.of(u), flattenUiSchema(u.getItems().stream())));
+        return uiSchema
+                .flatMap(u -> u.getItems() == null ? Stream.of(u)
+                        : Stream.concat(Stream.of(u), flattenUiSchema(u.getItems().stream())));
     }
 
     private Stream<Pair> flattenJsonSchema(final Stream<Pair> jsonSchemaStream) {
-        return jsonSchemaStream.flatMap(u -> u.schema.getProperties() == null ? Stream.of(u)
-                : Stream.concat(Stream.of(u), flattenJsonSchema(u.schema.getProperties().entrySet().stream().map(
-                        it -> new Pair(u.prefix + (u.prefix.isEmpty() ? "" : ".") + it.getKey(), it.getValue())))));
+        return jsonSchemaStream
+                .flatMap(u -> u.schema.getProperties() == null ? Stream.of(u)
+                        : Stream
+                                .concat(Stream.of(u),
+                                        flattenJsonSchema(u.schema
+                                                .getProperties()
+                                                .entrySet()
+                                                .stream()
+                                                .map(it -> new Pair(
+                                                        u.prefix + (u.prefix.isEmpty() ? "" : ".") + it.getKey(),
+                                                        it.getValue())))));
     }
 
     @Data

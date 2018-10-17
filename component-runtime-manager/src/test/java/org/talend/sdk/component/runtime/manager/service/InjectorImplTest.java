@@ -52,19 +52,20 @@ class InjectorImplTest {
     void init() {
         final Map<Class<?>, Object> services = new HashMap<>(2);
         services.put(LocalCache.class, new LocalCacheService("LocalCacheServiceTest"));
-        services.put(LocalConfiguration.class,
-                new LocalConfigurationService(Collections.singletonList(new LocalConfiguration() {
+        services
+                .put(LocalConfiguration.class,
+                        new LocalConfigurationService(Collections.singletonList(new LocalConfiguration() {
 
-                    @Override
-                    public String get(final String key) {
-                        return "test.foo.name".equals(key) ? "ok" : "ko";
-                    }
+                            @Override
+                            public String get(final String key) {
+                                return "test.foo.name".equals(key) ? "ok" : "ko";
+                            }
 
-                    @Override
-                    public Set<String> keys() {
-                        return singleton("foo.name");
-                    }
-                }), "test"));
+                            @Override
+                            public Set<String> keys() {
+                                return singleton("foo.name");
+                            }
+                        }), "test"));
         final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
         injector = new InjectorImpl("LocalCacheServiceTest",
                 new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry),

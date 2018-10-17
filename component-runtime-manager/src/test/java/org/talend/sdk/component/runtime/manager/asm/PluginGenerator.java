@@ -119,14 +119,16 @@ public class PluginGenerator {
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
         writer.visitAnnotation(Type.getDescriptor(Service.class), true).visitEnd();
-        writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), null);
+        writer
+                .visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                        null, Type.getInternalName(Object.class), null);
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
 
-        final MethodVisitor action = writer.visitMethod(ACC_PUBLIC, "doAction",
-                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+        final MethodVisitor action = writer
+                .visitMethod(ACC_PUBLIC, "doAction", "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null,
+                        new String[0]);
         final AnnotationVisitor actionAnnotation = action.visitAnnotation(Type.getDescriptor(Action.class), true);
         actionAnnotation.visit("family", "proc");
         actionAnnotation.visit("value", name + "Action");
@@ -148,8 +150,9 @@ public class PluginGenerator {
         final String className = packageName + "/AModel.class";
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-        writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), null);
+        writer
+                .visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                        null, Type.getInternalName(Object.class), null);
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
@@ -168,15 +171,18 @@ public class PluginGenerator {
         processorAnnotation.visit("family", "comp");
         processorAnnotation.visit("name", "proc");
         processorAnnotation.visitEnd();
-        writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), new String[] { Serializable.class.getName().replace(".", "/") });
+        writer
+                .visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                        null, Type.getInternalName(Object.class),
+                        new String[] { Serializable.class.getName().replace(".", "/") });
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
 
         // generate a processor
-        final MethodVisitor emitMethod = writer.visitMethod(ACC_PUBLIC, "emit",
-                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+        final MethodVisitor emitMethod = writer
+                .visitMethod(ACC_PUBLIC, "emit", "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null,
+                        new String[0]);
         emitMethod.visitAnnotation(Type.getDescriptor(ElementListener.class), true).visitEnd();
         emitMethod.visitCode();
         emitMethod.visitTypeInsn(NEW, packageName + "/AModel");

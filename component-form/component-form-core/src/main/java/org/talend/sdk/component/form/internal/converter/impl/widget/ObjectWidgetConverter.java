@@ -148,13 +148,16 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 .map(action -> {
                     final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), action);
                     final String path = property.getPath();
-                    trigger.setOptions(singletonList(new UiSchema.Option.Builder()
-                            .withPath(path.endsWith("[]") ? path.substring(0, path.length() - "[]".length()) : path)
-                            .withType(property.getType().toLowerCase(ROOT))
-                            .build()));
+                    trigger
+                            .setOptions(singletonList(new UiSchema.Option.Builder()
+                                    .withPath(path.endsWith("[]") ? path.substring(0, path.length() - "[]".length())
+                                            : path)
+                                    .withType(property.getType().toLowerCase(ROOT))
+                                    .build()));
                     final UiSchema button = new UiSchema();
-                    button.setTitle(action.getDisplayName() == null ? action.getName() + " (" + action.getType() + ')'
-                            : action.getDisplayName());
+                    button
+                            .setTitle(action.getDisplayName() == null ? action.getName() + " (" + action.getType() + ')'
+                                    : action.getDisplayName());
                     button.setWidget("button");
                     button.setTriggers(singletonList(trigger));
                     return button;
@@ -170,8 +173,9 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                     final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), ref);
                     if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
                         if ("datastore".equals(root.getProperty().getMetadata().get("configurationtype::type"))) {
-                            trigger.setParameters(
-                                    toParams(properties, root.getProperty(), ref, root.getProperty().getPath()));
+                            trigger
+                                    .setParameters(toParams(properties, root.getProperty(), ref,
+                                            root.getProperty().getPath()));
                         } else {
                             // find the matching datastore
                             properties
@@ -180,8 +184,12 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                                             .equals(nested.getMetadata().get("configurationtype::type"))
                                             && ref
                                                     .getName()
-                                                    .equals(nested.getMetadata().getOrDefault("action::healthcheck",
-                                                            nested.getMetadata().get("configurationtype::name"))))
+                                                    .equals(nested
+                                                            .getMetadata()
+                                                            .getOrDefault("action::healthcheck",
+                                                                    nested
+                                                                            .getMetadata()
+                                                                            .get("configurationtype::name"))))
                                     .findFirst()
                                     .ifPresent(datastore -> {
                                         final List<UiSchema.Parameter> parameters =
@@ -190,25 +198,28 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                                             trigger.setParameters(parameters);
                                         } else {
                                             final UiSchema.Parameter parameter = new UiSchema.Parameter();
-                                            parameter.setKey(ofNullable(ref.getProperties())
-                                                    .orElse(Collections.emptyList())
-                                                    .stream()
-                                                    .filter(p -> !p.getPath().contains("."))
-                                                    .findFirst()
-                                                    .map(SimplePropertyDefinition::getName)
-                                                    .orElse("datastore"));
+                                            parameter
+                                                    .setKey(ofNullable(ref.getProperties())
+                                                            .orElse(Collections.emptyList())
+                                                            .stream()
+                                                            .filter(p -> !p.getPath().contains("."))
+                                                            .findFirst()
+                                                            .map(SimplePropertyDefinition::getName)
+                                                            .orElse("datastore"));
                                             parameter.setPath(datastore.getPath());
-                                            trigger.setParameters(
-                                                    toParams(properties, datastore, ref, datastore.getPath()));
+                                            trigger
+                                                    .setParameters(
+                                                            toParams(properties, datastore, ref, datastore.getPath()));
                                         }
                                     });
                         }
                     }
 
                     final UiSchema button = new UiSchema();
-                    button.setTitle(ref.getDisplayName() == null || ref.getName().equals(ref.getDisplayName())
-                            ? "Validate Connection"
-                            : ref.getDisplayName());
+                    button
+                            .setTitle(ref.getDisplayName() == null || ref.getName().equals(ref.getDisplayName())
+                                    ? "Validate Connection"
+                                    : ref.getDisplayName());
                     button.setWidget("button");
                     button.setTriggers(singletonList(trigger));
                     synchronized (items) {
@@ -227,16 +238,18 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 .findFirst()
                 .ifPresent(ref -> {
                     final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), ref);
-                    trigger.setOptions(singletonList(new UiSchema.Option.Builder()
-                            .withPath(bindingProp.getPath().replace("[]", ""))
-                            .withType("array".equalsIgnoreCase(bindingProp.getType()) ? "array" : "object")
-                            .build()));
+                    trigger
+                            .setOptions(singletonList(new UiSchema.Option.Builder()
+                                    .withPath(bindingProp.getPath().replace("[]", ""))
+                                    .withType("array".equalsIgnoreCase(bindingProp.getType()) ? "array" : "object")
+                                    .build()));
                     if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
                         // find the matching dataset
                         Optional<SimplePropertyDefinition> findParameters = properties
                                 .stream()
-                                .filter(nested -> ref.getName().equals(
-                                        nested.getMetadata().get("configurationtype::name"))
+                                .filter(nested -> ref
+                                        .getName()
+                                        .equals(nested.getMetadata().get("configurationtype::name"))
                                         && "dataset".equals(nested.getMetadata().get("configurationtype::type")))
                                 .findFirst();
                         if (!findParameters.isPresent()) { // if not ambiguous grab the unique dataset
@@ -251,21 +264,23 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                         }
                         findParameters.ifPresent(dataset -> {
                             final UiSchema.Parameter parameter = new UiSchema.Parameter();
-                            parameter.setKey(ofNullable(ref.getProperties())
-                                    .orElse(Collections.emptyList())
-                                    .stream()
-                                    .filter(p -> !p.getPath().contains("."))
-                                    .findFirst()
-                                    .map(SimplePropertyDefinition::getName)
-                                    .orElse("dataset"));
+                            parameter
+                                    .setKey(ofNullable(ref.getProperties())
+                                            .orElse(Collections.emptyList())
+                                            .stream()
+                                            .filter(p -> !p.getPath().contains("."))
+                                            .findFirst()
+                                            .map(SimplePropertyDefinition::getName)
+                                            .orElse("dataset"));
                             parameter.setPath(dataset.getPath());
                             trigger.setParameters(toParams(properties, dataset, ref, dataset.getPath()));
                         });
                     }
 
                     final UiSchema button = new UiSchema();
-                    button.setTitle(
-                            ref.getDisplayName() == null || ref.getName().equals(ref.getDisplayName()) ? "Guess Schema"
+                    button
+                            .setTitle(ref.getDisplayName() == null || ref.getName().equals(ref.getDisplayName())
+                                    ? "Guess Schema"
                                     : ref.getDisplayName());
                     button.setWidget("button");
                     button.setTriggers(singletonList(trigger));

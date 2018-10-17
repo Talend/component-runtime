@@ -200,9 +200,10 @@ class ReflectionServiceTest {
     @Test
     void copiable() throws NoSuchMethodException {
         final Map<Class<?>, Object> precomputed = new HashMap<>();
-        precomputed.put(UserHttpClient.class,
-                new HttpClientFactoryImpl("test", reflectionService, JsonbBuilder.create(), emptyMap())
-                        .create(UserHttpClient.class, "http://foo"));
+        precomputed
+                .put(UserHttpClient.class,
+                        new HttpClientFactoryImpl("test", reflectionService, JsonbBuilder.create(), emptyMap())
+                                .create(UserHttpClient.class, "http://foo"));
         final Method httpMtd = TableOwner.class.getMethod("http", UserHttpClient.class);
         final HttpClient client1 = HttpClient.class
                 .cast(reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0]);
@@ -314,8 +315,10 @@ class ReflectionServiceTest {
     void object() throws NoSuchMethodException {
         final Object[] params =
                 reflectionService
-                        .parameterFactory(MethodsHolder.class.getMethod("object", MethodsHolder.Config.class,
-                                MethodsHolder.Config.class), emptyMap(), null)
+                        .parameterFactory(
+                                MethodsHolder.class
+                                        .getMethod("object", MethodsHolder.Config.class, MethodsHolder.Config.class),
+                                emptyMap(), null)
                         .apply(new HashMap<String, String>() {
 
                             {
@@ -432,10 +435,10 @@ class ReflectionServiceTest {
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,
             final Map<Class<?>, Object> services) throws NoSuchMethodException {
         final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);
-        return reflectionService.parameterFactory(constructor, services,
-                parameterModelService.buildParameterMetas(constructor,
-                        constructor.getDeclaringClass().getPackage().getName(),
-                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test"))));
+        return reflectionService
+                .parameterFactory(constructor, services, parameterModelService
+                        .buildParameterMetas(constructor, constructor.getDeclaringClass().getPackage().getName(),
+                                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test"))));
     }
 
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param)

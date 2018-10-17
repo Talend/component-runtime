@@ -82,8 +82,11 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
                 final String uri = request.uri();
                 final String[] parts = uri.split(":");
-                ctx.channel().attr(BASE).set(
-                        "https://" + parts[0] + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
+                ctx
+                        .channel()
+                        .attr(BASE)
+                        .set("https://" + parts[0]
+                                + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
             }
             ctx.writeAndFlush(response);
             return;
@@ -155,8 +158,10 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);
             HttpUtil.setContentLength(response, bytes.array().length);
 
-            Stream.of(resp.headers(), otherHeaders).filter(Objects::nonNull).forEach(
-                    h -> h.forEach((k, v) -> response.headers().set(k, v)));
+            Stream
+                    .of(resp.headers(), otherHeaders)
+                    .filter(Objects::nonNull)
+                    .forEach(h -> h.forEach((k, v) -> response.headers().set(k, v)));
             ctx.writeAndFlush(response);
 
         } finally {

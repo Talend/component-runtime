@@ -85,23 +85,26 @@ public class RecordConverters implements Serializable {
             case ARRAY: {
                 final List<Object> items =
                         value.asJsonArray().stream().map(it -> mapJson(factory, it)).collect(toList());
-                builder.withArray(factory
-                        .newEntryBuilder()
-                        .withName(key)
-                        .withType(Schema.Type.ARRAY)
-                        .withElementSchema(items.isEmpty() ? factory.newSchemaBuilder(Schema.Type.STRING).build()
-                                : toSchema(factory, items.iterator().next()))
-                        .build(), items);
+                builder
+                        .withArray(factory
+                                .newEntryBuilder()
+                                .withName(key)
+                                .withType(Schema.Type.ARRAY)
+                                .withElementSchema(
+                                        items.isEmpty() ? factory.newSchemaBuilder(Schema.Type.STRING).build()
+                                                : toSchema(factory, items.iterator().next()))
+                                .build(), items);
                 break;
             }
             case OBJECT: {
                 final Record record = json2Record(factory, value.asJsonObject());
-                builder.withRecord(factory
-                        .newEntryBuilder()
-                        .withName(key)
-                        .withType(Schema.Type.RECORD)
-                        .withElementSchema(record.getSchema())
-                        .build(), record);
+                builder
+                        .withRecord(factory
+                                .newEntryBuilder()
+                                .withName(key)
+                                .withType(Schema.Type.RECORD)
+                                .withElementSchema(record.getSchema())
+                                .build(), record);
                 break;
             }
             case TRUE:
@@ -266,43 +269,55 @@ public class RecordConverters implements Serializable {
                     final Object item = collection.iterator().next();
                     if (String.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
-                        builder.add(name,
-                                toArray(factory, v -> jsonProvider.createValue(String.class.cast(v)), collection));
+                        builder
+                                .add(name, toArray(factory, v -> jsonProvider.createValue(String.class.cast(v)),
+                                        collection));
                     } else if (Double.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
-                        builder.add(name,
-                                toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)), collection));
+                        builder
+                                .add(name, toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)),
+                                        collection));
                     } else if (Float.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
-                        builder.add(name,
-                                toArray(factory, v -> jsonProvider.createValue(Float.class.cast(v)), collection));
+                        builder
+                                .add(name, toArray(factory, v -> jsonProvider.createValue(Float.class.cast(v)),
+                                        collection));
                     } else if (Double.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
-                        builder.add(name,
-                                toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)), collection));
+                        builder
+                                .add(name, toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)),
+                                        collection));
                     } else if (Integer.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
-                        builder.add(name,
-                                toArray(factory, v -> jsonProvider.createValue(Integer.class.cast(v)), collection));
+                        builder
+                                .add(name, toArray(factory, v -> jsonProvider.createValue(Integer.class.cast(v)),
+                                        collection));
                     } else if (Long.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
-                        builder.add(name,
-                                toArray(factory, v -> jsonProvider.createValue(Long.class.cast(v)), collection));
+                        builder
+                                .add(name, toArray(factory, v -> jsonProvider.createValue(Long.class.cast(v)),
+                                        collection));
                     } else if (Boolean.class.isInstance(item)) {
-                        builder.add(name, toArray(factory,
-                                v -> Boolean.class.cast(v) ? JsonValue.TRUE : JsonValue.FALSE, collection));
+                        builder
+                                .add(name, toArray(factory,
+                                        v -> Boolean.class.cast(v) ? JsonValue.TRUE : JsonValue.FALSE, collection));
                     } else if (ZonedDateTime.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
-                        builder.add(name, toArray(factory,
-                                v -> jsonProvider.createValue(ZonedDateTime.class.cast(v).toInstant().toEpochMilli()),
-                                collection));
+                        builder
+                                .add(name,
+                                        toArray(factory, v -> jsonProvider
+                                                .createValue(ZonedDateTime.class.cast(v).toInstant().toEpochMilli()),
+                                                collection));
                     } else if (Date.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
-                        builder.add(name, toArray(factory, v -> jsonProvider.createValue(Date.class.cast(v).getTime()),
-                                collection));
+                        builder
+                                .add(name, toArray(factory, v -> jsonProvider.createValue(Date.class.cast(v).getTime()),
+                                        collection));
                     } else if (Record.class.isInstance(item)) {
-                        builder.add(name, toArray(factory,
-                                v -> buildRecord(factory, providerSupplier, Record.class.cast(v)).build(), collection));
+                        builder
+                                .add(name, toArray(factory,
+                                        v -> buildRecord(factory, providerSupplier, Record.class.cast(v)).build(),
+                                        collection));
                     } // else throw?
                 }
                 break;
@@ -315,8 +330,9 @@ public class RecordConverters implements Serializable {
 
     private JsonArray toArray(final JsonBuilderFactory factory, final Function<Object, JsonValue> valueFactory,
             final Collection<?> collection) {
-        final Collector<JsonValue, JsonArrayBuilder, JsonArray> collector = Collector.of(factory::createArrayBuilder,
-                JsonArrayBuilder::add, JsonArrayBuilder::addAll, JsonArrayBuilder::build);
+        final Collector<JsonValue, JsonArrayBuilder, JsonArray> collector = Collector
+                .of(factory::createArrayBuilder, JsonArrayBuilder::add, JsonArrayBuilder::addAll,
+                        JsonArrayBuilder::build);
         return collection.stream().map(valueFactory).collect(collector);
     }
 

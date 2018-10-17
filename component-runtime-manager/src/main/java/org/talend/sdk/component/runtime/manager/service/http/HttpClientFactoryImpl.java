@@ -67,11 +67,12 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         if (!HttpClient.class.isAssignableFrom(api)) {
             errors.add(api.getCanonicalName() + " should extends HttpClient");
         }
-        errors.addAll(methods
-                .stream()
-                .filter(m -> !m.isAnnotationPresent(Request.class))
-                .map(m -> "No @Request on " + m)
-                .collect(toList()));
+        errors
+                .addAll(methods
+                        .stream()
+                        .filter(m -> !m.isAnnotationPresent(Request.class))
+                        .map(m -> "No @Request on " + m)
+                        .collect(toList()));
         return errors;
     }
 
@@ -83,9 +84,14 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         validate(api);
         final HttpHandler handler =
                 new HttpHandler(api.getName(), plugin, new RequestParser(reflections, jsonb, services));
-        final T instance = api.cast(Proxy.newProxyInstance(api.getClassLoader(),
-                Stream.of(api, HttpClient.class, Serializable.class, Copiable.class).distinct().toArray(Class[]::new),
-                handler));
+        final T instance = api
+                .cast(Proxy
+                        .newProxyInstance(api.getClassLoader(),
+                                Stream
+                                        .of(api, HttpClient.class, Serializable.class, Copiable.class)
+                                        .distinct()
+                                        .toArray(Class[]::new),
+                                handler));
         HttpClient.class.cast(instance).base(base);
         return instance;
     }
@@ -123,8 +129,9 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             if (Copiable.class == method.getDeclaringClass()) {
                 final HttpHandler httpHandler = new HttpHandler(proxyType, plugin, requestParser);
                 httpHandler.base = base;
-                return Proxy.newProxyInstance(proxy.getClass().getClassLoader(), proxy.getClass().getInterfaces(),
-                        httpHandler);
+                return Proxy
+                        .newProxyInstance(proxy.getClass().getClassLoader(), proxy.getClass().getInterfaces(),
+                                httpHandler);
             }
             if (method.isDefault()) {
                 final Class<?> declaringClass = method.getDeclaringClass();

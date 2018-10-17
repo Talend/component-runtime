@@ -56,11 +56,12 @@ public class ConnectionSecurityProvider implements ContainerRequestFilter {
         final OnConnection onConnection = new OnConnection();
         onConnectionEvent.fire(onConnection);
         if (!onConnection.isValid()) {
-            requestContext.abortWith(Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .entity(new ErrorPayload(UNAUTHORIZED, "Invalid connection credentials"))
-                    .type(APPLICATION_JSON_TYPE)
-                    .build());
+            requestContext
+                    .abortWith(Response
+                            .status(Response.Status.UNAUTHORIZED)
+                            .entity(new ErrorPayload(UNAUTHORIZED, "Invalid connection credentials"))
+                            .type(APPLICATION_JSON_TYPE)
+                            .build());
         }
     }
 }

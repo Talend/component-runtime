@@ -72,10 +72,10 @@ public class MigrationHandlerFactory {
                 .filter(Objects::nonNull)
                 .reduce(NO_MIGRATION,
                         (current,
-                                partial) -> (incomingVersion, incomingData) -> current.migrate(incomingVersion,
-                                        partial.apply(incomingData)),
-                        (h1, h2) -> (incomingVersion, incomingData) -> h2.migrate(incomingVersion,
-                                h1.migrate(incomingVersion, incomingData)));
+                                partial) -> (incomingVersion, incomingData) -> current
+                                        .migrate(incomingVersion, partial.apply(incomingData)),
+                        (h1, h2) -> (incomingVersion, incomingData) -> h2
+                                .migrate(incomingVersion, h1.migrate(incomingVersion, incomingData)));
 
         if (parameterMetas != null && parameterMetas.size() == 1
                 && parameterMetas.iterator().next().getJavaType() == type) {
@@ -84,12 +84,15 @@ public class MigrationHandlerFactory {
         return ofNullable(type.getAnnotation(Version.class))
                 .map(Version::migrationHandler)
                 .filter(t -> t != MigrationHandler.class)
-                .flatMap(t -> Stream.of(t.getConstructors()).min(
-                        (o1, o2) -> o2.getParameterCount() - o1.getParameterCount()))
+                .flatMap(t -> Stream
+                        .of(t.getConstructors())
+                        .min((o1, o2) -> o2.getParameterCount() - o1.getParameterCount()))
                 .map(t -> services.getServices().computeIfAbsent(t.getDeclaringClass(), k -> {
                     try {
-                        return t.newInstance(
-                                reflections.parameterFactory(t, services.getServices(), null).apply(emptyMap()));
+                        return t
+                                .newInstance(reflections
+                                        .parameterFactory(t, services.getServices(), null)
+                                        .apply(emptyMap()));
                     } catch (final InstantiationException | IllegalAccessException e) {
                         throw new IllegalArgumentException(e);
                     } catch (final InvocationTargetException e) {
@@ -112,8 +115,12 @@ public class MigrationHandlerFactory {
 
     private Stream<ParameterMeta> getNestedConfigType(final ParameterMeta parameterMeta) {
         return concat(
-                (parameterMeta.getJavaType() instanceof Class && parameterMeta.getMetadata().keySet().stream().anyMatch(
-                        k -> k.startsWith("tcomp::configurationtype::"))) ? Stream.of(parameterMeta) : Stream.empty(),
+                (parameterMeta.getJavaType() instanceof Class && parameterMeta
+                        .getMetadata()
+                        .keySet()
+                        .stream()
+                        .anyMatch(k -> k.startsWith("tcomp::configurationtype::"))) ? Stream.of(parameterMeta)
+                                : Stream.empty(),
                 ofNullable(parameterMeta.getNestedParameters())
                         .map(Collection::stream)
                         .orElseGet(Stream::empty)
@@ -128,12 +135,17 @@ public class MigrationHandlerFactory {
         if (version != null && Integer.parseInt(version.trim()) < currentVersion) {
             final Map<String, String> toMigrate = stripPrefix(prefix, map);
             toMigrate.keySet().forEach(result::remove);
-            final Map<String, String> migrated = ofNullable(handler.migrate(Integer.parseInt(version.trim()),
-                    toMigrate.entrySet().stream().collect(
-                            toMap(e -> e.getKey().substring(prefix.length() + 1), Map.Entry::getValue))))
+            final Map<String, String> migrated = ofNullable(handler
+                    .migrate(Integer.parseInt(version.trim()), toMigrate
+                            .entrySet()
+                            .stream()
+                            .collect(toMap(e -> e.getKey().substring(prefix.length() + 1), Map.Entry::getValue))))
                                     .orElseGet(Collections::emptyMap);
-            result.putAll(
-                    migrated.entrySet().stream().collect(toMap(e -> prefix + '.' + e.getKey(), Map.Entry::getValue)));
+            result
+                    .putAll(migrated
+                            .entrySet()
+                            .stream()
+                            .collect(toMap(e -> prefix + '.' + e.getKey(), Map.Entry::getValue)));
             result.put(versionPath, currentVersion.toString());
         } else {
             log.debug("No version for {} so skipping any potential migration", p.getJavaType().toString());

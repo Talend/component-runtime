@@ -174,8 +174,9 @@ public class ActionService {
         case "builtin::roots":
             return findRoots(ctx.getLanguage(), ctx.getPlaceholderProvider());
         case "builtin::root::reloadFromId":
-            return ofNullable(params.get("id")).map(id -> createNewFormFromId(String.valueOf(id), ctx)).orElseGet(
-                    () -> CompletableFuture.completedFuture(emptyMap()));
+            return ofNullable(params.get("id"))
+                    .map(id -> createNewFormFromId(String.valueOf(id), ctx))
+                    .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
         case "builtin::root::reloadFromParentEntityId":
             return ofNullable(params.get("id"))
                     .map(id -> createNewFormFromParentEntityId(String.valueOf(id), ctx))
@@ -218,8 +219,9 @@ public class ActionService {
                 .map(String::trim)
                 .filter(it -> !it.isEmpty())
                 .collect(toList());
-        Invocation.Builder request = http.target(config.getOptionalValue(url, String.class).orElse(url)).request(
-                String.class.cast(params.getOrDefault("accept", APPLICATION_JSON)));
+        Invocation.Builder request = http
+                .target(config.getOptionalValue(url, String.class).orElse(url))
+                .request(String.class.cast(params.getOrDefault("accept", APPLICATION_JSON)));
         for (final String header : headers) {
             final String headerValue = placeholderProvider.apply(header);
             if (headerValue == null) {
@@ -234,8 +236,10 @@ public class ActionService {
         if (!Boolean.parseBoolean(String.valueOf(params.getOrDefault("object", "false")))) {
             list = rx.get(listType);
         } else {
-            list = rx.get(Object.class).thenApply(
-                    object -> List.class.cast(Map.class.cast(object).get(params.getOrDefault("objectKey", "items"))));
+            list = rx
+                    .get(Object.class)
+                    .thenApply(object -> List.class
+                            .cast(Map.class.cast(object).get(params.getOrDefault("objectKey", "items"))));
         }
 
         final String idName = String.class.cast(params.getOrDefault("id", "id"));
@@ -288,10 +292,14 @@ public class ActionService {
             final SimplePropertyDefinition refProp = node
                     .getProperties()
                     .stream()
-                    .filter(it -> it.getMetadata().getOrDefault("configurationtype::name", "").equals(
-                            parentFormSpec.getName())
-                            && it.getMetadata().getOrDefault("configurationtype::type", "").equals(
-                                    parentFormSpec.getConfigurationType()))
+                    .filter(it -> it
+                            .getMetadata()
+                            .getOrDefault("configurationtype::name", "")
+                            .equals(parentFormSpec.getName())
+                            && it
+                                    .getMetadata()
+                                    .getOrDefault("configurationtype::type", "")
+                                    .equals(parentFormSpec.getConfigurationType()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException(
                             "No parent matched for form " + node.getId() + "(entity=" + refId + ")"));
@@ -313,11 +321,12 @@ public class ActionService {
     }
 
     private NewForm addFormId(final String nodeId, final NewForm newForm) {
-        newForm.setProperties(ofNullable(newForm.getProperties())
-                .map(builderFactory::createObjectBuilder)
-                .orElseGet(builderFactory::createObjectBuilder)
-                .add("$formId", nodeId)
-                .build());
+        newForm
+                .setProperties(ofNullable(newForm.getProperties())
+                        .map(builderFactory::createObjectBuilder)
+                        .orElseGet(builderFactory::createObjectBuilder)
+                        .add("$formId", nodeId)
+                        .build());
         return newForm;
     }
 
@@ -349,19 +358,21 @@ public class ActionService {
         }
         final CompletionStage<ComponentIndices> allComponents =
                 componentClient.getAllComponents(context.getLanguage(), context.getPlaceholderProvider());
-        return getEnrichedNode(id, context).thenCompose(detail -> configurationClient
-                .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
-                .thenCompose(configs -> allComponents.thenCompose(components -> {
-                    final ConfigTypeNode family = configurationService.getFamilyOf(id, configs);
-                    return toUiNode(context, detail, components, family);
-                })));
+        return getEnrichedNode(id, context)
+                .thenCompose(detail -> configurationClient
+                        .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
+                        .thenCompose(configs -> allComponents.thenCompose(components -> {
+                            final ConfigTypeNode family = configurationService.getFamilyOf(id, configs);
+                            return toUiNode(context, detail, components, family);
+                        })));
     }
 
     private CompletionStage<ConfigTypeNode> getEnrichedNode(final String id, final UiSpecContext context) {
         return getNode(id, context.getLanguage(), context.getPlaceholderProvider())
                 .thenApply(node -> modelEnricherService.enrich(node, context.getLanguage()))
-                .thenCompose(node -> propertiesService.filterProperties(node.getProperties(), context).thenApply(
-                        newProps -> {
+                .thenCompose(node -> propertiesService
+                        .filterProperties(node.getProperties(), context)
+                        .thenApply(newProps -> {
                             node.setProperties(newProps);
                             return node;
                         }));
@@ -369,25 +380,31 @@ public class ActionService {
 
     private CompletionStage<UiNode> toUiNode(final UiSpecContext context, final ConfigTypeNode detail,
             final ComponentIndices iconComponents, final ConfigTypeNode family) {
-        return toUiSpec(detail, family, context).thenApply(ui -> new UiNode(ui, new Node(detail.getId(),
-                detail.getDisplayName(), family.getId(), family.getDisplayName(),
-                ofNullable(family.getId()).map(id -> configurationService.findIcon(id, iconComponents)).orElse(null),
-                detail.getEdges(), detail.getVersion(), detail.getName())));
+        return toUiSpec(detail, family, context)
+                .thenApply(ui -> new UiNode(ui,
+                        new Node(detail.getId(), detail.getDisplayName(), family.getId(), family.getDisplayName(),
+                                ofNullable(family.getId())
+                                        .map(id -> configurationService.findIcon(id, iconComponents))
+                                        .orElse(null),
+                                detail.getEdges(), detail.getVersion(), detail.getName())));
     }
 
     private CompletionStage<ConfigTypeNode> getNode(final String id, final String lang,
             final Function<String, String> placeholderProvider) {
         return id.isEmpty()
                 // todo: drop that hardcoded datastore string
-                ? CompletableFuture.completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore",
-                        "datastore", emptySet(), new ArrayList<>(), new ArrayList<>()))
+                ? CompletableFuture
+                        .completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore", "datastore",
+                                emptySet(), new ArrayList<>(), new ArrayList<>()))
                 : configurationClient.getDetails(lang, id, placeholderProvider);
     }
 
     private CompletionStage<Ui> toUiSpec(final ConfigTypeNode detail, final ConfigTypeNode family,
             final UiSpecContext context) {
-        return configurationService.filterNestedConfigurations(detail, context).thenCompose(
-                newDetail -> uiSpecService.convert(family.getName(), context.getLanguage(), newDetail, context));
+        return configurationService
+                .filterNestedConfigurations(detail, context)
+                .thenCompose(newDetail -> uiSpecService
+                        .convert(family.getName(), context.getLanguage(), newDetail, context));
     }
 
     private CompletableFuture<Map<String, Object>> findRoots(final String lang,
@@ -469,8 +486,14 @@ public class ActionService {
         }
 
         private boolean isNested(final ComparableConfigTypeNode o1, final ComparableConfigTypeNode o2) {
-            return o1.delegate.getProperties().stream().allMatch(
-                    it -> o2.getDelegate().getProperties().stream().anyMatch(n -> n.getPath().equals(it.getPath())));
+            return o1.delegate
+                    .getProperties()
+                    .stream()
+                    .allMatch(it -> o2
+                            .getDelegate()
+                            .getProperties()
+                            .stream()
+                            .anyMatch(n -> n.getPath().equals(it.getPath())));
         }
     }
 }

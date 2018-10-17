@@ -32,18 +32,21 @@ import lombok.NoArgsConstructor;
 public class FilterFactory {
 
     public static Filter and(final Filter first, final Filter second) {
-        if (Stream.of(first, second).anyMatch(f -> !FilterList.class.isInstance(f)
-                || !FilterList.class.cast(f).getFilters().stream().allMatch(PrefixFilter.class::isInstance))) {
+        if (Stream
+                .of(first, second)
+                .anyMatch(f -> !FilterList.class.isInstance(f)
+                        || !FilterList.class.cast(f).getFilters().stream().allMatch(PrefixFilter.class::isInstance))) {
             throw new IllegalArgumentException("And only works with filter list of prefix filters"); // for optims
         }
         final FilterList list1 = FilterList.class.cast(first);
         final FilterList list2 = FilterList.class.cast(second);
-        return Filters.prefixes(Stream
-                .of(list1.getFilters(), list2.getFilters())
-                .flatMap(Collection::stream)
-                .map(PrefixFilter.class::cast)
-                .map(PrefixFilter::getPrefix)
-                .distinct()
-                .toArray(String[]::new));
+        return Filters
+                .prefixes(Stream
+                        .of(list1.getFilters(), list2.getFilters())
+                        .flatMap(Collection::stream)
+                        .map(PrefixFilter.class::cast)
+                        .map(PrefixFilter::getPrefix)
+                        .distinct()
+                        .toArray(String[]::new));
     }
 }

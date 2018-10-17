@@ -66,9 +66,11 @@ public class ValidationServiceImpl implements ValidationService {
         return self
                 .getValidator(context, formId)
                 .thenApply(validator -> validator.apply(properties))
-                .thenApply(vr -> new Result(
-                        vr.getErrors().stream().map(e -> new ValidationError(e.getField(), e.getMessage())).collect(
-                                toList())));
+                .thenApply(vr -> new Result(vr
+                        .getErrors()
+                        .stream()
+                        .map(e -> new ValidationError(e.getField(), e.getMessage()))
+                        .collect(toList())));
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.validation.jsonschema")

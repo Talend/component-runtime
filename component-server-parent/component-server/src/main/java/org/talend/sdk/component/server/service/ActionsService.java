@@ -98,8 +98,12 @@ public class ActionsService {
     }
 
     private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
-        return Stream.concat(parameterMetas.stream(),
-                parameterMetas.stream().map(ParameterMeta::getNestedParameters).filter(Objects::nonNull).flatMap(
-                        this::toStream));
+        return Stream
+                .concat(parameterMetas.stream(),
+                        parameterMetas
+                                .stream()
+                                .map(ParameterMeta::getNestedParameters)
+                                .filter(Objects::nonNull)
+                                .flatMap(this::toStream));
     }
 }

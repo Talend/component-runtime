@@ -61,14 +61,15 @@ public class RecordBranchMapper extends DoFn<Record, Record> {
                     aggregate.getSchema().getEntries().stream().collect(factory::newRecordBuilder, (a, e) -> {
                         final boolean remappedBranch = e.getName().equals(sourceBranch);
                         final String branchName = remappedBranch ? targetBranch : e.getName();
-                        a.withArray(
-                                factory
-                                        .newEntryBuilder()
-                                        .withName(branchName)
-                                        .withType(Schema.Type.ARRAY)
-                                        .withElementSchema(e.getElementSchema())
-                                        .build(),
-                                remappedBranch ? branch : aggregate.getArray(Record.class, e.getName()));
+                        a
+                                .withArray(
+                                        factory
+                                                .newEntryBuilder()
+                                                .withName(branchName)
+                                                .withType(Schema.Type.ARRAY)
+                                                .withElementSchema(e.getElementSchema())
+                                                .build(),
+                                        remappedBranch ? branch : aggregate.getArray(Record.class, e.getName()));
                     }, RecordCollectors::merge).build();
             context.output(output);
         } else {

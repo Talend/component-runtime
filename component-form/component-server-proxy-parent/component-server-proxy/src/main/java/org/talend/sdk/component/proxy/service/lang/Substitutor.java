@@ -55,8 +55,9 @@ public class Substitutor {
                 return placeholders -> {
                     String output = value;
                     for (final Map.Entry<String, String> placeholder : toReplace.entrySet()) {
-                        output = output.replace(placeholder.getKey(),
-                                ofNullable(placeholders.apply(placeholder.getValue())).orElse(""));
+                        output = output
+                                .replace(placeholder.getKey(),
+                                        ofNullable(placeholders.apply(placeholder.getValue())).orElse(""));
                     }
                     return output;
                 };

@@ -57,12 +57,17 @@ public class AutoValueFluentApiFactory implements Serializable {
 
     private <T> Method findFactory(final Class<T> base, final String name) {
         // direct try but unlikely
-        return Stream.of(base.getMethods()).filter(m -> name.equals(m.getName())).min(new FactorySorter()).orElseGet(
-                () -> {
+        return Stream
+                .of(base.getMethods())
+                .filter(m -> name.equals(m.getName()))
+                .min(new FactorySorter())
+                .orElseGet(() -> {
                     // next try is enclosing class if exist
                     return ofNullable(base.getEnclosingClass())
-                            .flatMap(c -> Stream.of(c.getMethods()).filter(m -> name.equals(m.getName())).min(
-                                    new FactorySorter()))
+                            .flatMap(c -> Stream
+                                    .of(c.getMethods())
+                                    .filter(m -> name.equals(m.getName()))
+                                    .min(new FactorySorter()))
                             .orElseThrow(() -> new IllegalArgumentException("No factory '" + name + "' in " + base));
                 });
     }
@@ -113,9 +118,11 @@ public class AutoValueFluentApiFactory implements Serializable {
             value = createPrimitiveValue(value, paramType);
         } else {
             final String filter = prefix + configKey + '.';
-            final Map<String, Object> subObjectConfig =
-                    config.entrySet().stream().filter(e -> e.getKey().startsWith(filter)).collect(
-                            toMap(e -> e.getKey().substring(filter.length()), Map.Entry::getValue));
+            final Map<String, Object> subObjectConfig = config
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().startsWith(filter))
+                    .collect(toMap(e -> e.getKey().substring(filter.length()), Map.Entry::getValue));
             if (!subObjectConfig.isEmpty()) {
                 value = createObjectValue(subObjectConfig, paramType, prefix);
             }

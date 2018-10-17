@@ -110,8 +110,12 @@ public class JobImpl implements Job {
 
         @Override
         public ToBuilder from(final String id, final String branch) {
-            final Component from = nodes.stream().filter(node -> node.getId().equals(id)).findFirst().orElseThrow(
-                    () -> new IllegalStateException("No component with id '" + id + "' in created components"));
+            final Component from = nodes
+                    .stream()
+                    .filter(node -> node.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(
+                            () -> new IllegalStateException("No component with id '" + id + "' in created components"));
 
             edges
                     .stream()
@@ -129,15 +133,18 @@ public class JobImpl implements Job {
         public void doBuild() {
             final List<Component> orphans = nodes
                     .stream()
-                    .filter(n -> edges.stream().noneMatch(
-                            l -> l.getFrom().getNode().equals(n) || l.getTo().getNode().equals(n)))
+                    .filter(n -> edges
+                            .stream()
+                            .noneMatch(l -> l.getFrom().getNode().equals(n) || l.getTo().getNode().equals(n)))
                     .collect(toList());
             orphans.forEach(o -> log.warn("component '" + o + "' is orphan in this graph. it will be ignored."));
             nodes.removeAll(orphans);
 
             // set up sources
-            nodes.stream().filter(node -> edges.stream().noneMatch(l -> l.getTo().getNode().equals(node))).forEach(
-                    component -> component.setSource(true));
+            nodes
+                    .stream()
+                    .filter(node -> edges.stream().noneMatch(l -> l.getTo().getNode().equals(node)))
+                    .forEach(component -> component.setSource(true));
             calculateGraphOrder(0, new HashSet<>(nodes), new ArrayList<>(edges), levels);
         }
 
@@ -193,8 +200,11 @@ public class JobImpl implements Job {
 
         @Override
         public Builder to(final String id, final String branch) {
-            final Component to = nodes.stream().filter(node -> node.getId().equals(id)).findFirst().orElseThrow(
-                    () -> new IllegalStateException("No component with id '" + id + "' in created nodes"));
+            final Component to = nodes
+                    .stream()
+                    .filter(node -> node.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("No component with id '" + id + "' in created nodes"));
 
             edges
                     .stream()
@@ -248,9 +258,10 @@ public class JobImpl implements Job {
                             runner = newRunner(Thread.currentThread().getContextClassLoader(),
                                     "org.talend.sdk.component.runtime.beam.chain.impl.BeamExecutor");
                         } catch (final RuntimeException re) {
-                            log.error("Can't instantiate beam job integration, "
-                                    + "did you add org.talend.sdk.component:component-runtime-beam in your dependencies",
-                                    re);
+                            log
+                                    .error("Can't instantiate beam job integration, "
+                                            + "did you add org.talend.sdk.component:component-runtime-beam in your dependencies",
+                                            re);
                         }
                     } else {
                         runner = newRunner(Thread.currentThread().getContextClassLoader(), name);
@@ -428,8 +439,12 @@ public class JobImpl implements Job {
             } finally {
                 processors.values().forEach(Lifecycle::stop);
                 inputs.values().forEach(InputRunner::stop);
-                levels.values().stream().flatMap(Collection::stream).map(Component::getId).forEach(
-                        LocalSequenceHolder::clean);
+                levels
+                        .values()
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .map(Component::getId)
+                        .forEach(LocalSequenceHolder::clean);
             }
         }
 
@@ -606,9 +621,12 @@ public class JobImpl implements Job {
 
             @Override
             public void emit(final Object value) {
-                outputs.computeIfAbsent(name, k -> new ArrayList<>()).add(
-                        new RecordConverters().toRecord(value, () -> Jsonb.class.cast(services.get(Jsonb.class)),
-                                () -> RecordBuilderFactory.class.cast(services.get(RecordBuilderFactory.class))));
+                outputs
+                        .computeIfAbsent(name, k -> new ArrayList<>())
+                        .add(new RecordConverters()
+                                .toRecord(value, () -> Jsonb.class.cast(services.get(Jsonb.class)),
+                                        () -> RecordBuilderFactory.class
+                                                .cast(services.get(RecordBuilderFactory.class))));
             }
         }
     }
@@ -651,8 +669,9 @@ public class JobImpl implements Job {
                     synchronized (this) {
                         if (jsonb == null) {
                             jsonb = JsonbBuilder
-                                    .create(new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).setProperty(
-                                            "johnzon.cdi.activated", false));
+                                    .create(new JsonbConfig()
+                                            .withAdapters(new MultipleFormatDateAdapter())
+                                            .setProperty("johnzon.cdi.activated", false));
                         }
                     }
                 }

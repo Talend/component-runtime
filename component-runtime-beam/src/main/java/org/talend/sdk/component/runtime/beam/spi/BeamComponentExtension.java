@@ -123,17 +123,18 @@ public class BeamComponentExtension implements ComponentExtension {
         } catch (final RuntimeException re) { // create a passthrough impl to ensure it can be unwrapped
             if (component.isInterface()) {
                 final Object actualInstance = instance.instance();
-                return (T) Proxy.newProxyInstance(component.getClassLoader(),
-                        new Class<?>[] { component, Delegated.class }, (proxy, method, args) -> {
-                            if (Object.class == method.getDeclaringClass()) {
-                                return method.invoke(actualInstance, args);
-                            }
-                            if (Delegated.class == method.getDeclaringClass()) {
-                                return actualInstance;
-                            }
-                            throw new UnsupportedOperationException("this method is not supported (" + method + ")",
-                                    re);
-                        });
+                return (T) Proxy
+                        .newProxyInstance(component.getClassLoader(), new Class<?>[] { component, Delegated.class },
+                                (proxy, method, args) -> {
+                                    if (Object.class == method.getDeclaringClass()) {
+                                        return method.invoke(actualInstance, args);
+                                    }
+                                    if (Delegated.class == method.getDeclaringClass()) {
+                                        return actualInstance;
+                                    }
+                                    throw new UnsupportedOperationException(
+                                            "this method is not supported (" + method + ")", re);
+                                });
             }
             throw re;
         }

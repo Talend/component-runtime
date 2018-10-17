@@ -73,14 +73,15 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
 
         api.getExecutor().execute(() -> {
             final Map<String, String> headers = StreamSupport
-                    .stream(Spliterators.spliteratorUnknownSize(request.headers().iteratorAsString(),
-                            Spliterator.IMMUTABLE), false)
+                    .stream(Spliterators
+                            .spliteratorUnknownSize(request.headers().iteratorAsString(), Spliterator.IMMUTABLE), false)
                     .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
             final Attribute<String> baseAttr = ctx.channel().attr(Handlers.BASE);
-            Optional<Response> matching = api.getResponseLocator().findMatching(
-                    new RequestImpl((baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri(),
-                            request.method().name(), payload, headers),
-                    api.getHeaderFilter());
+            Optional<Response> matching = api
+                    .getResponseLocator()
+                    .findMatching(new RequestImpl(
+                            (baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri(),
+                            request.method().name(), payload, headers), api.getHeaderFilter());
             if (!matching.isPresent()) {
                 if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {
                     final Map<String, String> responseHeaders = new HashMap<>();
@@ -95,8 +96,11 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
 
                         final String uri = request.uri();
                         final String[] parts = uri.split(":");
-                        ctx.channel().attr(Handlers.BASE).set("https://" + parts[0]
-                                + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
+                        ctx
+                                .channel()
+                                .attr(Handlers.BASE)
+                                .set("https://" + parts[0]
+                                        + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
                     }
                 } else {
                     sendError(ctx, new HttpResponseStatus(HttpURLConnection.HTTP_BAD_REQUEST,

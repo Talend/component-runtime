@@ -61,8 +61,8 @@ public class LazyClient implements Client<Object> {
                 if (client == null) {
                     final String baseValue = base.get();
                     final AtomicInteger counter = new AtomicInteger(1);
-                    executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 32,
-                            new ThreadFactory() {
+                    executorService = Executors
+                            .newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 32, new ThreadFactory() {
 
                                 @Override
                                 public Thread newThread(final Runnable r) {
@@ -101,8 +101,9 @@ public class LazyClient implements Client<Object> {
                 throws IOException, ServletException {
             lazyClient.lazyInit(() -> {
                 final HttpServletRequest servletRequest = HttpServletRequest.class.cast(request);
-                return String.format("%s://%s:%d/%s", servletRequest.getScheme(), servletRequest.getServerName(),
-                        servletRequest.getServerPort(), "api/v1");
+                return String
+                        .format("%s://%s:%d/%s", servletRequest.getScheme(), servletRequest.getServerName(),
+                                servletRequest.getServerPort(), "api/v1");
             });
             chain.doFilter(request, response);
         }

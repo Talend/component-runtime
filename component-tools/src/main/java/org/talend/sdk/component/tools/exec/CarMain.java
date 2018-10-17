@@ -145,8 +145,9 @@ public class CarMain {
             throw new IllegalArgumentException(m2 + " doesn't exist");
         }
         final String component = installJars(m2File);
-        System.out.println("Installed " + jarLocation(CarMain.class).getName() + " in " + m2 + ", "
-                + "you can now register '" + component + "' component in your application.");
+        System.out
+                .println("Installed " + jarLocation(CarMain.class).getName() + " in " + m2 + ", "
+                        + "you can now register '" + component + "' component in your application.");
     }
 
     private static File findServerM2(final String serverHome) {
@@ -205,17 +206,19 @@ public class CarMain {
                         }
                         writer.write(line + "\n");
                     }
-                    final String toFilter =
-                            Stream.of(mainGav.contains(":") ? mainGav.split(":") : mainGav.split("/")).limit(2).collect(
-                                    Collectors.joining(":", "", ":"));
-                    writer.write("component.java.coordinates = " + Stream
-                            .concat(Stream.of(mainGav),
-                                    Stream
-                                            .of(components.trim().split(","))
-                                            .map(String::trim)
-                                            .filter(it -> !it.isEmpty())
-                                            .filter(it -> !it.startsWith(toFilter)))
-                            .collect(joining(",")));
+                    final String toFilter = Stream
+                            .of(mainGav.contains(":") ? mainGav.split(":") : mainGav.split("/"))
+                            .limit(2)
+                            .collect(Collectors.joining(":", "", ":"));
+                    writer
+                            .write("component.java.coordinates = " + Stream
+                                    .concat(Stream.of(mainGav),
+                                            Stream
+                                                    .of(components.trim().split(","))
+                                                    .map(String::trim)
+                                                    .filter(it -> !it.isEmpty())
+                                                    .filter(it -> !it.startsWith(toFilter)))
+                                    .collect(joining(",")));
                 }
             }
         } catch (final IOException ioe) {
@@ -288,8 +291,9 @@ public class CarMain {
         System.err.println("         --repo <repositoryName>: nexus repository name to upload dependencies to");
         System.err.println("         --user <username>: username to connect to nexus(optional)");
         System.err.println("         --pass <password>: password to connect to nexus(optional)");
-        System.err.println(
-                "         --threads <parallelThreads>: threads number to use during upload to nexus(optional)");
+        System.err
+                .println(
+                        "         --threads <parallelThreads>: threads number to use during upload to nexus(optional)");
         System.err.println("         --dir <tempDirectory>: temporary directory to use during upload(optional)");
     }
 
@@ -406,8 +410,9 @@ public class CarMain {
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
-        System.out.println("Installed " + jarLocation(CarMain.class).getName() + " on " + serverUrl + ", "
-                + "you can now register '" + mainGav + "' component in your application.");
+        System.out
+                .println("Installed " + jarLocation(CarMain.class).getName() + " on " + serverUrl + ", "
+                        + "you can now register '" + mainGav + "' component in your application.");
     }
 
     private static void uploadEntries(final String serverUrl, final String repositoryName, final String username,
@@ -504,8 +509,9 @@ public class CarMain {
         if (username == null || username.isEmpty()) {
             return null;
         }
-        return "Basic " + Base64.getEncoder().encodeToString(
-                (username + (password == null || password.isEmpty() ? "" : ":" + password)).getBytes());
+        return "Basic " + Base64
+                .getEncoder()
+                .encodeToString((username + (password == null || password.isEmpty() ? "" : ":" + password)).getBytes());
     }
 
     private static boolean artifactExists(final String nexusVersion, final String serverUrl, final String basicAuth,

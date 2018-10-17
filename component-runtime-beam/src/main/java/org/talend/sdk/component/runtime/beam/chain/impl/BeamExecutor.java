@@ -94,33 +94,37 @@ public class BeamExecutor implements Job.ExecutorBuilder {
             delegate.getLevels().values().stream().flatMap(Collection::stream).forEach(component -> {
                 if (component.isSource()) {
                     final Mapper mapper = mappers.get(component.getId());
-                    pCollections.put(component.getId(),
-                            pipeline.apply(toName("TalendIO", component), TalendIO.read(mapper)).apply(
-                                    toName("RecordNormalizer", component), RecordNormalizer.of(mapper.plugin())));
+                    pCollections
+                            .put(component.getId(),
+                                    pipeline
+                                            .apply(toName("TalendIO", component), TalendIO.read(mapper))
+                                            .apply(toName("RecordNormalizer", component),
+                                                    RecordNormalizer.of(mapper.plugin())));
                 } else {
                     final Processor processor = processors.get(component.getId());
                     final List<Job.Edge> joins = getEdges(delegate.getEdges(), component, e -> e.getTo().getNode());
                     final Map<String, PCollection<KV<String, Record>>> inputs =
                             joins.stream().collect(toMap(e -> e.getTo().getBranch(), e -> {
                                 final PCollection<Record> pc = pCollections.get(e.getFrom().getNode().getId());
-                                final PCollection<Record> filteredInput =
-                                        pc.apply(toName("RecordBranchFilter", component, e),
+                                final PCollection<Record> filteredInput = pc
+                                        .apply(toName("RecordBranchFilter", component, e),
                                                 RecordBranchFilter.of(processor.plugin(), e.getFrom().getBranch()));
                                 final PCollection<Record> mappedInput;
                                 if (e.getFrom().getBranch().equals(e.getTo().getBranch())) {
                                     mappedInput = filteredInput;
                                 } else {
-                                    mappedInput = filteredInput.apply(toName("RecordBranchMapper", component, e),
-                                            RecordBranchMapper.of(processor.plugin(), e.getFrom().getBranch(),
-                                                    e.getTo().getBranch()));
+                                    mappedInput = filteredInput
+                                            .apply(toName("RecordBranchMapper", component, e),
+                                                    RecordBranchMapper
+                                                            .of(processor.plugin(), e.getFrom().getBranch(),
+                                                                    e.getTo().getBranch()));
                                 }
                                 return mappedInput
                                         .apply(toName("RecordBranchUnwrapper", component, e),
                                                 RecordBranchUnwrapper.of(processor.plugin(), e.getTo().getBranch()))
-                                        .apply(toName("AutoKVWrapper", component, e),
-                                                AutoKVWrapper.of(processor.plugin(),
-                                                        delegate.getKeyProvider(component.getId()), component.getId(),
-                                                        e.getFrom().getBranch()));
+                                        .apply(toName("AutoKVWrapper", component, e), AutoKVWrapper
+                                                .of(processor.plugin(), delegate.getKeyProvider(component.getId()),
+                                                        component.getId(), e.getFrom().getBranch()));
                             }));
                     KeyedPCollectionTuple<String> join = null;
                     for (final Map.Entry<String, PCollection<KV<String, Record>>> entry : inputs.entrySet()) {
@@ -128,9 +132,9 @@ public class BeamExecutor implements Job.ExecutorBuilder {
                         join = join == null ? KeyedPCollectionTuple.of(branch, entry.getValue())
                                 : join.and(branch, entry.getValue());
                     }
-                    final PCollection<Record> preparedInput =
-                            join.apply(toName("CoGroupByKey", component), CoGroupByKey.create()).apply(
-                                    toName("CoGroupByKeyResultMappingTransform", component),
+                    final PCollection<Record> preparedInput = join
+                            .apply(toName("CoGroupByKey", component), CoGroupByKey.create())
+                            .apply(toName("CoGroupByKeyResultMappingTransform", component),
                                     new CoGroupByKeyResultMappingTransform<>(processor.plugin(), true));
 
                     if (getEdges(delegate.getEdges(), component, e -> e.getFrom().getNode()).isEmpty()) {
@@ -138,8 +142,8 @@ public class BeamExecutor implements Job.ExecutorBuilder {
                         preparedInput.apply(toName("Output", component), write);
                     } else {
                         final PTransform<PCollection<Record>, PCollection<Record>> process = TalendFn.asFn(processor);
-                        pCollections.put(component.getId(),
-                                preparedInput.apply(toName("Processor", component), process));
+                        pCollections
+                                .put(component.getId(), preparedInput.apply(toName("Processor", component), process));
                     }
                 }
             });
@@ -154,15 +158,20 @@ public class BeamExecutor implements Job.ExecutorBuilder {
             }
 
         } finally {
-            delegate.getLevels().values().stream().flatMap(Collection::stream).map(Job.Component::getId).forEach(
-                    JobImpl.LocalSequenceHolder::clean);
+            delegate
+                    .getLevels()
+                    .values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .map(Job.Component::getId)
+                    .forEach(JobImpl.LocalSequenceHolder::clean);
         }
     }
 
     private String toName(final String transform, final Job.Component component, final Job.Edge e) {
-        return String.format(transform + "/step=%s,from=%s(%s)-to=%s(%s)", component.getId(),
-                e.getFrom().getNode().getId(), e.getFrom().getBranch(), e.getTo().getNode().getId(),
-                e.getTo().getBranch());
+        return String
+                .format(transform + "/step=%s,from=%s(%s)-to=%s(%s)", component.getId(), e.getFrom().getNode().getId(),
+                        e.getFrom().getBranch(), e.getTo().getNode().getId(), e.getTo().getBranch());
     }
 
     private String toName(final String transform, final Job.Component component) {

@@ -49,9 +49,11 @@ abstract class BaseTask implements Runnable {
     protected final File[] classes;
 
     protected ComponentValidator.Component asComponent(final Annotation a) {
-        return ComponentValidator.Component.class.cast(Proxy.newProxyInstance(
-                Thread.currentThread().getContextClassLoader(), new Class<?>[] { ComponentValidator.Component.class },
-                (proxy, method, args) -> a.annotationType().getMethod(method.getName()).invoke(a)));
+        return ComponentValidator.Component.class
+                .cast(Proxy
+                        .newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                new Class<?>[] { ComponentValidator.Component.class },
+                                (proxy, method, args) -> a.annotationType().getMethod(method.getName()).invoke(a)));
     }
 
     protected Stream<Class<? extends Annotation>> componentMarkers() {
@@ -59,9 +61,10 @@ abstract class BaseTask implements Runnable {
     }
 
     protected AnnotationFinder newFinder() {
-        return new AnnotationFinder(new CompositeArchive(
-                Stream.of(classes).map(c -> new FileArchive(Thread.currentThread().getContextClassLoader(), c)).toArray(
-                        Archive[]::new))) {
+        return new AnnotationFinder(new CompositeArchive(Stream
+                .of(classes)
+                .map(c -> new FileArchive(Thread.currentThread().getContextClassLoader(), c))
+                .toArray(Archive[]::new))) {
 
             private final Map<Class<?>, List<Field>> fieldCache = new HashMap<>();
 
@@ -80,13 +83,19 @@ abstract class BaseTask implements Runnable {
     }
 
     protected Optional<ComponentValidator.Component> components(final Class<?> component) {
-        return componentMarkers().map(component::getAnnotation).filter(Objects::nonNull).findFirst().map(
-                this::asComponent);
+        return componentMarkers()
+                .map(component::getAnnotation)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(this::asComponent);
     }
 
     protected String findFamily(final ComponentValidator.Component c, final Class<?> pckMarker) {
-        return ofNullable(c).map(Component::family).filter(name -> !name.isEmpty()).orElseGet(
-                () -> findPackageOrFail(pckMarker, Components.class).getAnnotation(Components.class).family());
+        return ofNullable(c)
+                .map(Component::family)
+                .filter(name -> !name.isEmpty())
+                .orElseGet(
+                        () -> findPackageOrFail(pckMarker, Components.class).getAnnotation(Components.class).family());
     }
 
     protected Class<?> findPackageOrFail(final Class<?> component, final Class<? extends Annotation> api) {

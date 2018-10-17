@@ -36,9 +36,11 @@ public class LocalCacheService implements LocalCache, Serializable {
     @Override
     public <T> T computeIfAbsent(final String key, final long timeoutMs, final Supplier<T> value) {
         final String internalKey = internalKey(key);
-        final Element element = cache.compute(internalKey,
-                (k, e) -> e == null || e.isExpired() ? new Element(value.get(), System.currentTimeMillis() + timeoutMs)
-                        : e);
+        final Element element = cache
+                .compute(internalKey,
+                        (k, e) -> e == null || e.isExpired()
+                                ? new Element(value.get(), System.currentTimeMillis() + timeoutMs)
+                                : e);
         if (element == null) {
             return null;
         }

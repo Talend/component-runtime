@@ -88,8 +88,11 @@ public class CaptureJUnit4HttpApiTest {
         });
         server.start();
 
-        final Path output = TEMPORARY_FOLDER.getRoot().toPath().toAbsolutePath().resolve(
-                "talend/testing/http/" + getClass().getName() + "_doCapture.json");
+        final Path output = TEMPORARY_FOLDER
+                .getRoot()
+                .toPath()
+                .toAbsolutePath()
+                .resolve("talend/testing/http/" + getClass().getName() + "_doCapture.json");
 
         try {
             new JUnit4HttpApiPerMethodConfigurator(API).apply(new Statement() {
@@ -97,8 +100,10 @@ public class CaptureJUnit4HttpApiTest {
                 @Override
                 public void evaluate() throws Throwable {
                     final URL url = new URL("http://localhost:" + server.getAddress().getPort() + "/supertest");
-                    final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(
-                            new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", API.getPort()))));
+                    final HttpURLConnection connection = HttpURLConnection.class
+                            .cast(url
+                                    .openConnection(new Proxy(Proxy.Type.HTTP,
+                                            new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
                     connection.setRequestProperty("Authorization", "should be filtered");

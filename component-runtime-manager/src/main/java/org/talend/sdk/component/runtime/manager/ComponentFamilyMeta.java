@@ -104,12 +104,14 @@ public class ComponentFamilyMeta {
     public FamilyBundle findBundle(final ClassLoader loader, final Locale locale) {
         return bundles.computeIfAbsent(locale, l -> {
             try {
-                final ResourceBundle bundle = ResourceBundle.getBundle(
-                        (packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
+                final ResourceBundle bundle = ResourceBundle
+                        .getBundle((packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale,
+                                loader);
                 return new FamilyBundle(bundle, name + '.');
             } catch (final MissingResourceException mre) {
-                log.warn("No bundle for " + packageName + " (" + name
-                        + "), means the display names will be the technical names");
+                log
+                        .warn("No bundle for " + packageName + " (" + name
+                                + "), means the display names will be the technical names");
                 log.debug(mre.getMessage(), mre);
                 return NO_COMPONENT_BUNDLE;
             }
@@ -178,12 +180,14 @@ public class ComponentFamilyMeta {
         public ComponentBundle findBundle(final ClassLoader loader, final Locale locale) {
             return bundles.computeIfAbsent(locale, l -> {
                 try {
-                    final ResourceBundle bundle = ResourceBundle.getBundle(
-                            (packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
+                    final ResourceBundle bundle = ResourceBundle
+                            .getBundle((packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale,
+                                    loader);
                     return new ComponentBundle(bundle, parent.name + '.' + name + '.');
                 } catch (final MissingResourceException mre) {
-                    log.warn("No bundle for " + packageName + " (" + parent.name + " / " + name
-                            + "), means the display names will be the technical names");
+                    log
+                            .warn("No bundle for " + packageName + " (" + parent.name + " / " + name
+                                    + "), means the display names will be the technical names");
                     log.debug(mre.getMessage(), mre);
                     return NO_COMPONENT_BUNDLE;
                 }

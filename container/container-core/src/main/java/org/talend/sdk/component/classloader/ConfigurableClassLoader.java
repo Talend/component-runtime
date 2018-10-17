@@ -109,8 +109,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
                                 out.write(buffer, 0, read);
                             }
 
-                            resources.computeIfAbsent(entry.getName(), k -> new ArrayList<>()).add(
-                                    new Resource(resource, out.toByteArray()));
+                            resources
+                                    .computeIfAbsent(entry.getName(), k -> new ArrayList<>())
+                                    .add(new Resource(resource, out.toByteArray()));
                         }
                     }
                 } catch (final IOException e) {
@@ -236,20 +237,22 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Override
     public URL findResource(final String name) {
         return resources.isEmpty() ? super.findResource(name)
-                : ofNullable(super.findResource(name)).orElseGet(() -> ofNullable(resources.get(name))
-                        .filter(s -> !s.isEmpty())
-                        .map(s -> s.iterator().next())
-                        .map(r -> nestedResourceToURL(name, r))
-                        .orElse(null));
+                : ofNullable(super.findResource(name))
+                        .orElseGet(() -> ofNullable(resources.get(name))
+                                .filter(s -> !s.isEmpty())
+                                .map(s -> s.iterator().next())
+                                .map(r -> nestedResourceToURL(name, r))
+                                .orElse(null));
     }
 
     @Override
     public InputStream getResourceAsStream(final String name) {
-        return ofNullable(doGetResourceAsStream(name)).orElseGet(() -> ofNullable(resources.get(name))
-                .filter(s -> s.size() > 0)
-                .map(s -> s.iterator().next().resource)
-                .map(ByteArrayInputStream::new)
-                .orElse(null));
+        return ofNullable(doGetResourceAsStream(name))
+                .orElseGet(() -> ofNullable(resources.get(name))
+                        .filter(s -> s.size() > 0)
+                        .map(s -> s.iterator().next().resource)
+                        .map(ByteArrayInputStream::new)
+                        .orElse(null));
     }
 
     private InputStream doGetResourceAsStream(final String name) {

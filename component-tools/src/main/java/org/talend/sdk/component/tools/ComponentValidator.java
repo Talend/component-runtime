@@ -204,16 +204,19 @@ public class ComponentValidator extends BaseTask {
 
     private void validateOutputConnection(final List<Class<?>> components, final Set<String> errors) {
         // outputs must have only one input param
-        errors.addAll(components
-                .stream()
-                .flatMap(c -> of(c.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)))
-                .filter(m -> of(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Output.class)))
-                .filter(m -> of(m.getParameters()).filter(p -> !p.isAnnotationPresent(Output.class)).count() > 1)
-                .map(Method::getDeclaringClass)
-                .distinct()
-                .map(clazz -> "The Output component '" + clazz
-                        + "' must have only one single input branch parameter in its ElementListener method.")
-                .collect(toList()));
+        errors
+                .addAll(components
+                        .stream()
+                        .flatMap(c -> of(c.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)))
+                        .filter(m -> of(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Output.class)))
+                        .filter(m -> of(m.getParameters())
+                                .filter(p -> !p.isAnnotationPresent(Output.class))
+                                .count() > 1)
+                        .map(Method::getDeclaringClass)
+                        .distinct()
+                        .map(clazz -> "The Output component '" + clazz
+                                + "' must have only one single input branch parameter in its ElementListener method.")
+                        .collect(toList()));
     }
 
     private void validateLocalConfiguration(final Collection<Class<?>> components, final AnnotationFinder finder,
@@ -226,50 +229,54 @@ public class ComponentValidator extends BaseTask {
                 .orElse("");
 
         // first check TALEND-INF/local-configuration.properties
-        errors.addAll(Stream
-                .of(classes)
-                .map(root -> new File(root, "TALEND-INF/local-configuration.properties"))
-                .filter(File::exists)
-                .flatMap(props -> {
-                    final Properties properties = new Properties();
-                    try (final InputStream stream = new BufferedInputStream(new FileInputStream(props))) {
-                        properties.load(stream);
-                    } catch (final IOException e) {
-                        throw new IllegalStateException(e);
-                    }
-                    return properties
-                            .stringPropertyNames()
-                            .stream()
-                            .filter(it -> !it.toLowerCase(Locale.ROOT).startsWith(family + "."))
-                            .map(it -> "'" + it + "' does not start with '" + family + "', "
-                                    + "it is recommended to prefix all keys by the family");
-                })
-                .collect(toSet()));
+        errors
+                .addAll(Stream
+                        .of(classes)
+                        .map(root -> new File(root, "TALEND-INF/local-configuration.properties"))
+                        .filter(File::exists)
+                        .flatMap(props -> {
+                            final Properties properties = new Properties();
+                            try (final InputStream stream = new BufferedInputStream(new FileInputStream(props))) {
+                                properties.load(stream);
+                            } catch (final IOException e) {
+                                throw new IllegalStateException(e);
+                            }
+                            return properties
+                                    .stringPropertyNames()
+                                    .stream()
+                                    .filter(it -> !it.toLowerCase(Locale.ROOT).startsWith(family + "."))
+                                    .map(it -> "'" + it + "' does not start with '" + family + "', "
+                                            + "it is recommended to prefix all keys by the family");
+                        })
+                        .collect(toSet()));
 
         // then check the @DefaultValue annotation
-        errors.addAll(Stream
-                .concat(finder.findAnnotatedFields(DefaultValue.class).stream(),
-                        finder.findAnnotatedConstructorParameters(DefaultValue.class).stream())
-                .map(d -> {
-                    final DefaultValue annotation = d.getAnnotation(DefaultValue.class);
-                    if (annotation.value().startsWith("local_configuration:")
-                            && !annotation.value().toLowerCase(Locale.ROOT).startsWith(
-                                    "local_configuration:" + family + ".")) {
-                        return d + " does not start with family name (followed by a dot): '" + family + "'";
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(toSet()));
+        errors
+                .addAll(Stream
+                        .concat(finder.findAnnotatedFields(DefaultValue.class).stream(),
+                                finder.findAnnotatedConstructorParameters(DefaultValue.class).stream())
+                        .map(d -> {
+                            final DefaultValue annotation = d.getAnnotation(DefaultValue.class);
+                            if (annotation.value().startsWith("local_configuration:") && !annotation
+                                    .value()
+                                    .toLowerCase(Locale.ROOT)
+                                    .startsWith("local_configuration:" + family + ".")) {
+                                return d + " does not start with family name (followed by a dot): '" + family + "'";
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(toSet()));
     }
 
     private void validateLayout(final List<Class<?>> components, final Set<String> errors) {
 
         components
                 .stream()
-                .map(c -> parameterModelService.buildParameterMetas(findConstructor(c),
-                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
-                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"))))
+                .map(c -> parameterModelService
+                        .buildParameterMetas(findConstructor(c),
+                                ofNullable(c.getPackage()).map(Package::getName).orElse(""),
+                                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"))))
                 .flatMap(this::toFlatNonPrimitivConfig)
                 .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue, (p1, p2) -> p1))
                 .entrySet()
@@ -309,18 +316,19 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (!fieldsInGridLayout.isEmpty()) {
-            errors.addAll(fieldsInGridLayout
-                    .stream()
-                    .filter(fieldInLayout -> config
-                            .getValue()
-                            .getNestedParameters()
+            errors
+                    .addAll(fieldsInGridLayout
                             .stream()
-                            .map(ParameterMeta::getName)
-                            .noneMatch(field -> field.equals(fieldInLayout)))
-                    .map(fieldInLayout -> "Option '" + fieldInLayout
-                            + "' in @GridLayout doesn't exist in declaring class '" + config.getKey() + "'")
-                    .sorted()
-                    .collect(toSet()));
+                            .filter(fieldInLayout -> config
+                                    .getValue()
+                                    .getNestedParameters()
+                                    .stream()
+                                    .map(ParameterMeta::getName)
+                                    .noneMatch(field -> field.equals(fieldInLayout)))
+                            .map(fieldInLayout -> "Option '" + fieldInLayout
+                                    + "' in @GridLayout doesn't exist in declaring class '" + config.getKey() + "'")
+                            .sorted()
+                            .collect(toSet()));
 
             config
                     .getValue()
@@ -331,18 +339,19 @@ public class ComponentValidator extends BaseTask {
                             + " is not declared in any layout.")
                     .forEach(this.log::error);
         } else {
-            errors.addAll(fieldsInOptionOrder
-                    .stream()
-                    .filter(fieldInLayout -> config
-                            .getValue()
-                            .getNestedParameters()
+            errors
+                    .addAll(fieldsInOptionOrder
                             .stream()
-                            .map(ParameterMeta::getName)
-                            .noneMatch(field -> field.equals(fieldInLayout)))
-                    .map(fieldInLayout -> "Option '" + fieldInLayout
-                            + "' in @OptionOrder doesn't exist in declaring class '" + config.getKey() + "'")
-                    .sorted()
-                    .collect(toSet()));
+                            .filter(fieldInLayout -> config
+                                    .getValue()
+                                    .getNestedParameters()
+                                    .stream()
+                                    .map(ParameterMeta::getName)
+                                    .noneMatch(field -> field.equals(fieldInLayout)))
+                            .map(fieldInLayout -> "Option '" + fieldInLayout
+                                    + "' in @OptionOrder doesn't exist in declaring class '" + config.getKey() + "'")
+                            .sorted()
+                            .collect(toSet()));
 
             config
                     .getValue()
@@ -396,8 +405,10 @@ public class ComponentValidator extends BaseTask {
     private boolean isArrayOfObject(final ParameterMeta param) {
 
         return ARRAY.equals(param.getType()) && param.getNestedParameters() != null
-                && param.getNestedParameters().stream().anyMatch(
-                        p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
+                && param
+                        .getNestedParameters()
+                        .stream()
+                        .anyMatch(p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
 
     }
 
@@ -415,49 +426,53 @@ public class ComponentValidator extends BaseTask {
 
     private void validateDocumentation(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
-        errors.addAll(components
-                .stream()
-                .filter(c -> !c.isAnnotationPresent(Documentation.class))
-                .map(c -> "No @Documentation on '" + c.getName() + "'")
-                .sorted()
-                .collect(toSet()));
-        errors.addAll(finder
-                .findAnnotatedFields(Option.class)
-                .stream()
-                .filter(field -> !field.isAnnotationPresent(Documentation.class)
-                        && !field.getType().isAnnotationPresent(Documentation.class))
-                .map(field -> "No @Documentation on '" + field + "'")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(components
+                        .stream()
+                        .filter(c -> !c.isAnnotationPresent(Documentation.class))
+                        .map(c -> "No @Documentation on '" + c.getName() + "'")
+                        .sorted()
+                        .collect(toSet()));
+        errors
+                .addAll(finder
+                        .findAnnotatedFields(Option.class)
+                        .stream()
+                        .filter(field -> !field.isAnnotationPresent(Documentation.class)
+                                && !field.getType().isAnnotationPresent(Documentation.class))
+                        .map(field -> "No @Documentation on '" + field + "'")
+                        .sorted()
+                        .collect(toSet()));
     }
 
     private void validateInternationalization(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
-        errors.addAll(components
-                .stream()
-                .map(this::validateComponentResourceBundle)
-                .filter(Objects::nonNull)
-                .sorted()
-                .collect(toSet()));
-        errors.addAll(finder
-                .findAnnotatedFields(Option.class)
-                .stream()
-                .map(Field::getType)
-                .filter(Class::isEnum)
-                .distinct()
-                .flatMap(enumType -> Stream
-                        .of(enumType.getFields())
-                        .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers()))
-                        .filter(f -> {
-                            final ResourceBundle bundle = ofNullable(findResourceBundle(enumType))
-                                    .orElseGet(() -> findResourceBundle(f.getDeclaringClass()));
-                            final String key = enumType.getSimpleName() + "." + f.getName() + "._displayName";
-                            return bundle == null || !bundle.containsKey(key);
-                        })
-                        .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName() + "._displayName in "
-                                + enumType + " resource bundle"))
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(components
+                        .stream()
+                        .map(this::validateComponentResourceBundle)
+                        .filter(Objects::nonNull)
+                        .sorted()
+                        .collect(toSet()));
+        errors
+                .addAll(finder
+                        .findAnnotatedFields(Option.class)
+                        .stream()
+                        .map(Field::getType)
+                        .filter(Class::isEnum)
+                        .distinct()
+                        .flatMap(enumType -> Stream
+                                .of(enumType.getFields())
+                                .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers()))
+                                .filter(f -> {
+                                    final ResourceBundle bundle = ofNullable(findResourceBundle(enumType))
+                                            .orElseGet(() -> findResourceBundle(f.getDeclaringClass()));
+                                    final String key = enumType.getSimpleName() + "." + f.getName() + "._displayName";
+                                    return bundle == null || !bundle.containsKey(key);
+                                })
+                                .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName()
+                                        + "._displayName in " + enumType + " resource bundle"))
+                        .sorted()
+                        .collect(toSet()));
 
         for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
             final ResourceBundle resourceBundle = findResourceBundle(i);
@@ -467,20 +482,22 @@ public class ComponentValidator extends BaseTask {
                         .map(m -> i.getName() + "." + m.getName())
                         .sorted()
                         .collect(toSet());
-                errors.addAll(keys
-                        .stream()
-                        .filter(k -> !resourceBundle.containsKey(k))
-                        .map(k -> "Missing key " + k + " in " + i + " resource bundle")
-                        .sorted()
-                        .collect(toSet()));
+                errors
+                        .addAll(keys
+                                .stream()
+                                .filter(k -> !resourceBundle.containsKey(k))
+                                .map(k -> "Missing key " + k + " in " + i + " resource bundle")
+                                .sorted()
+                                .collect(toSet()));
 
-                errors.addAll(resourceBundle
-                        .keySet()
-                        .stream()
-                        .filter(k -> k.startsWith(i.getName() + ".") && !keys.contains(k))
-                        .map(k -> "Key " + k + " from " + i + " is no more used")
-                        .sorted()
-                        .collect(toSet()));
+                errors
+                        .addAll(resourceBundle
+                                .keySet()
+                                .stream()
+                                .filter(k -> k.startsWith(i.getName() + ".") && !keys.contains(k))
+                                .map(k -> "Key " + k + " from " + i + " is no more used")
+                                .sorted()
+                                .collect(toSet()));
             } else {
                 errors.add("No resource bundle for " + i);
             }
@@ -505,31 +522,34 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateHttpClient(final AnnotationFinder finder, final Set<String> errors) {
-        errors.addAll(finder
-                .findAnnotatedClasses(Request.class)
-                .stream()
-                .map(Class::getDeclaringClass)
-                .distinct()
-                .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream())
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(finder
+                        .findAnnotatedClasses(Request.class)
+                        .stream()
+                        .map(Class::getDeclaringClass)
+                        .distinct()
+                        .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream())
+                        .sorted()
+                        .collect(toSet()));
     }
 
     private void validateModel(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
-        errors.addAll(components
-                .stream()
-                .filter(c -> componentMarkers().filter(c::isAnnotationPresent).count() > 1)
-                .map(i -> i + " has conflicting component annotations, ensure it has a single one")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(components
+                        .stream()
+                        .filter(c -> componentMarkers().filter(c::isAnnotationPresent).count() > 1)
+                        .map(i -> i + " has conflicting component annotations, ensure it has a single one")
+                        .sorted()
+                        .collect(toSet()));
 
-        errors.addAll(components
-                .stream()
-                .filter(c -> countParameters(findConstructor(c).getParameters()) > 1)
-                .map(c -> "Component must use a single root option. '" + c.getName() + "'")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(components
+                        .stream()
+                        .filter(c -> countParameters(findConstructor(c).getParameters()) > 1)
+                        .map(c -> "Component must use a single root option. '" + c.getName() + "'")
+                        .sorted()
+                        .collect(toSet()));
 
         final ModelVisitor modelVisitor = new ModelVisitor();
         final ModelListener noop = new ModelListener() {
@@ -546,15 +566,16 @@ public class ComponentValidator extends BaseTask {
         }).filter(Objects::nonNull).sorted().collect(toSet()));
 
         // limited config types
-        errors.addAll(finder
-                .findAnnotatedFields(Structure.class)
-                .stream()
-                .filter(f -> !ParameterizedType.class.isInstance(f.getGenericType())
-                        || (!isListString(f) && !isMapString(f)))
-                .map(f -> f.getDeclaringClass() + "#" + f.getName()
-                        + " uses @Structure but is not a List<String> nor a Map<String, String>")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(finder
+                        .findAnnotatedFields(Structure.class)
+                        .stream()
+                        .filter(f -> !ParameterizedType.class.isInstance(f.getGenericType())
+                                || (!isListString(f) && !isMapString(f)))
+                        .map(f -> f.getDeclaringClass() + "#" + f.getName()
+                                + " uses @Structure but is not a List<String> nor a Map<String, String>")
+                        .sorted()
+                        .collect(toSet()));
     }
 
     private boolean isMapString(final Field f) {
@@ -586,27 +607,31 @@ public class ComponentValidator extends BaseTask {
 
         Set<String> uniqueDatastores = new HashSet<>(datastores);
         if (datastores.size() != uniqueDatastores.size()) {
-            errors.add("Duplicated DataStore found : " + datastores
-                    .stream()
-                    .collect(groupingBy(identity()))
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getValue().size() > 1)
-                    .map(Map.Entry::getKey)
-                    .collect(joining(", ")));
+            errors
+                    .add("Duplicated DataStore found : " + datastores
+                            .stream()
+                            .collect(groupingBy(identity()))
+                            .entrySet()
+                            .stream()
+                            .filter(e -> e.getValue().size() > 1)
+                            .map(Map.Entry::getKey)
+                            .collect(joining(", ")));
         }
 
         final List<Class<?>> checkableClasses = finder.findAnnotatedClasses(Checkable.class);
-        errors.addAll(checkableClasses
-                .stream()
-                .filter(d -> !d.isAnnotationPresent(DataStore.class))
-                .map(c -> c.getName() + " has @Checkable but is not a @DataStore")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(checkableClasses
+                        .stream()
+                        .filter(d -> !d.isAnnotationPresent(DataStore.class))
+                        .map(c -> c.getName() + " has @Checkable but is not a @DataStore")
+                        .sorted()
+                        .collect(toSet()));
 
-        final Map<String, String> checkableDataStoresMap =
-                checkableClasses.stream().filter(d -> d.isAnnotationPresent(DataStore.class)).collect(toMap(
-                        d -> d.getAnnotation(DataStore.class).value(), d -> d.getAnnotation(Checkable.class).value()));
+        final Map<String, String> checkableDataStoresMap = checkableClasses
+                .stream()
+                .filter(d -> d.isAnnotationPresent(DataStore.class))
+                .collect(toMap(d -> d.getAnnotation(DataStore.class).value(),
+                        d -> d.getAnnotation(Checkable.class).value()));
 
         final Set<String> healthchecks = finder
                 .findAnnotatedMethods(HealthCheck.class)
@@ -615,20 +640,24 @@ public class ComponentValidator extends BaseTask {
                 .map(m -> m.getAnnotation(HealthCheck.class).value())
                 .sorted()
                 .collect(toSet());
-        errors.addAll(checkableDataStoresMap
-                .entrySet()
-                .stream()
-                .filter(e -> !healthchecks.contains(e.getValue()))
-                .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue() + "'")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(checkableDataStoresMap
+                        .entrySet()
+                        .stream()
+                        .filter(e -> !healthchecks.contains(e.getValue()))
+                        .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue()
+                                + "'")
+                        .sorted()
+                        .collect(toSet()));
 
-        errors.addAll(datastoreClasses
-                .stream()
-                .map(clazz -> validateFamilyI18nKey(clazz,
-                        "${family}.datastore." + clazz.getAnnotation(DataStore.class).value() + "._displayName"))
-                .filter(Objects::nonNull)
-                .collect(toList()));
+        errors
+                .addAll(datastoreClasses
+                        .stream()
+                        .map(clazz -> validateFamilyI18nKey(clazz,
+                                "${family}.datastore." + clazz.getAnnotation(DataStore.class).value()
+                                        + "._displayName"))
+                        .filter(Objects::nonNull)
+                        .collect(toList()));
     }
 
     private void validateDataSet(final AnnotationFinder finder, final List<Class<?>> components,
@@ -638,52 +667,60 @@ public class ComponentValidator extends BaseTask {
                 datasetClasses.stream().collect(toMap(identity(), d -> d.getAnnotation(DataSet.class).value()));
         final Set<String> uniqueDatasets = new HashSet<>(datasets.values());
         if (datasets.size() != uniqueDatasets.size()) {
-            errors.add("Duplicated DataSet found : " + datasets
-                    .values()
-                    .stream()
-                    .collect(groupingBy(identity()))
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getValue().size() > 1)
-                    .map(Map.Entry::getKey)
-                    .collect(joining(", ")));
+            errors
+                    .add("Duplicated DataSet found : " + datasets
+                            .values()
+                            .stream()
+                            .collect(groupingBy(identity()))
+                            .entrySet()
+                            .stream()
+                            .filter(e -> e.getValue().size() > 1)
+                            .map(Map.Entry::getKey)
+                            .collect(joining(", ")));
         }
-        errors.addAll(datasets
-                .entrySet()
-                .stream()
-                .map(entry -> validateFamilyI18nKey(entry.getKey(),
-                        "${family}.dataset." + entry.getValue() + "._displayName"))
-                .filter(Objects::nonNull)
-                .collect(toList()));
+        errors
+                .addAll(datasets
+                        .entrySet()
+                        .stream()
+                        .map(entry -> validateFamilyI18nKey(entry.getKey(),
+                                "${family}.dataset." + entry.getValue() + "._displayName"))
+                        .filter(Objects::nonNull)
+                        .collect(toList()));
 
         // ensure there is always a source with a config matching without user entries each dataset
         final Map<Class<?>, Collection<ParameterMeta>> inputs = components
                 .stream()
                 .filter(this::isSource)
-                .collect(toMap(identity(), c -> parameterModelService.buildParameterMetas(findConstructor(c),
-                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
-                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools")))));
-        errors.addAll(datasets
-                .entrySet()
-                .stream()
-                .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().anyMatch(input -> {
-                    final Collection<ParameterMeta> allProps = flatten(input.getValue()).collect(toList());
-                    final Collection<ParameterMeta> datasetProperties =
-                            findNestedDataSets(allProps, dataset.getValue()).collect(toList());
-                    return !datasetProperties.isEmpty() && allProps
-                            .stream()
-                            // .filter(it -> it.getType() != OBJECT && it.getType() != ARRAY) // should it be done?
-                            .filter(it -> datasetProperties
+                .collect(toMap(identity(),
+                        c -> parameterModelService
+                                .buildParameterMetas(findConstructor(c),
+                                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
+                                        new BaseParameterEnricher.Context(
+                                                new LocalConfigurationService(emptyList(), "tools")))));
+        errors
+                .addAll(datasets
+                        .entrySet()
+                        .stream()
+                        .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().anyMatch(input -> {
+                            final Collection<ParameterMeta> allProps = flatten(input.getValue()).collect(toList());
+                            final Collection<ParameterMeta> datasetProperties =
+                                    findNestedDataSets(allProps, dataset.getValue()).collect(toList());
+                            return !datasetProperties.isEmpty() && allProps
                                     .stream()
-                                    .noneMatch(dit -> it.getPath().equals(dit.getPath())
-                                            || it.getPath().startsWith(dit.getPath() + '.')))
-                            .anyMatch(this::isRequired);
-                }))
-                .map(dataset -> "No source instantiable without adding parameters for @DataSet(\"" + dataset.getValue()
-                        + "\") (" + dataset.getKey().getName() + "), please ensure at least a source using this "
-                        + "dataset can be used just filling the dataset information.")
-                .sorted()
-                .collect(toSet()));
+                                    // .filter(it -> it.getType() != OBJECT && it.getType() != ARRAY) // should it be
+                                    // done?
+                                    .filter(it -> datasetProperties
+                                            .stream()
+                                            .noneMatch(dit -> it.getPath().equals(dit.getPath())
+                                                    || it.getPath().startsWith(dit.getPath() + '.')))
+                                    .anyMatch(this::isRequired);
+                        }))
+                        .map(dataset -> "No source instantiable without adding parameters for @DataSet(\""
+                                + dataset.getValue() + "\") (" + dataset.getKey().getName()
+                                + "), please ensure at least a source using this "
+                                + "dataset can be used just filling the dataset information.")
+                        .sorted()
+                        .collect(toSet()));
     }
 
     private boolean isRequired(final ParameterMeta parameterMeta) {
@@ -695,8 +732,10 @@ public class ComponentValidator extends BaseTask {
     }
 
     private Stream<ParameterMeta> findNestedDataSets(final Collection<ParameterMeta> options, final String name) {
-        return options.stream().filter(it -> "dataset".equals(it.getMetadata().get("tcomp::configurationtype::type"))
-                && name.equals(it.getMetadata().get("tcomp::configurationtype::name")));
+        return options
+                .stream()
+                .filter(it -> "dataset".equals(it.getMetadata().get("tcomp::configurationtype::type"))
+                        && name.equals(it.getMetadata().get("tcomp::configurationtype::name")));
     }
 
     private Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
@@ -713,9 +752,10 @@ public class ComponentValidator extends BaseTask {
                     + baseName.replace('.', '/') + ".properties at least.";
         }
 
-        final Collection<String> missingKeys =
-                of(keys).map(key -> key.replace("${family}", family)).filter(k -> !bundle.containsKey(k)).collect(
-                        toList());
+        final Collection<String> missingKeys = of(keys)
+                .map(key -> key.replace("${family}", family))
+                .filter(k -> !bundle.containsKey(k))
+                .collect(toList());
         if (!missingKeys.isEmpty()) {
             return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
         }
@@ -727,66 +767,78 @@ public class ComponentValidator extends BaseTask {
         errors.addAll(getActionsStream().flatMap(action -> {
             final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
             final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
-            return Stream.concat(
-                    annotatedMethods.stream().filter(m -> !returnedType.isAssignableFrom(m.getReturnType())).map(
-                            m -> m + " doesn't return a " + returnedType + ", please fix it"),
-                    annotatedMethods
+            return Stream
+                    .concat(annotatedMethods
                             .stream()
-                            .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
-                                    && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
-                            .map(m -> m + " is not declared into a service class"));
+                            .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
+                            .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
+                            annotatedMethods
+                                    .stream()
+                                    .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
+                                            && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
+                                    .map(m -> m + " is not declared into a service class"));
         }).sorted().collect(toSet()));
 
         // parameters for @DynamicValues
-        errors.addAll(finder
-                .findAnnotatedMethods(DynamicValues.class)
-                .stream()
-                .filter(m -> countParameters(m) != 0)
-                .map(m -> m + " should have no parameter")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(finder
+                        .findAnnotatedMethods(DynamicValues.class)
+                        .stream()
+                        .filter(m -> countParameters(m) != 0)
+                        .map(m -> m + " should have no parameter")
+                        .sorted()
+                        .collect(toSet()));
 
         // parameters for @HealthCheck
-        errors.addAll(finder
-                .findAnnotatedMethods(HealthCheck.class)
-                .stream()
-                .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
-                .map(m -> m + " should have its first parameter being a datastore (marked with @DataStore)")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(finder
+                        .findAnnotatedMethods(HealthCheck.class)
+                        .stream()
+                        .filter(m -> countParameters(m) != 1
+                                || !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
+                        .map(m -> m + " should have its first parameter being a datastore (marked with @DataStore)")
+                        .sorted()
+                        .collect(toSet()));
 
         // parameters for @DiscoverSchema
-        errors.addAll(finder
-                .findAnnotatedMethods(DiscoverSchema.class)
-                .stream()
-                .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
-                .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(finder
+                        .findAnnotatedMethods(DiscoverSchema.class)
+                        .stream()
+                        .filter(m -> countParameters(m) != 1
+                                || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
+                        .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
+                        .sorted()
+                        .collect(toSet()));
 
         // returned type for @Update, for now limit it on objects and not primitives
-        final Map<String, Method> updates = finder.findAnnotatedMethods(Update.class).stream().collect(
-                toMap(m -> m.getAnnotation(Update.class).value(), identity()));
-        errors.addAll(updates
-                .values()
+        final Map<String, Method> updates = finder
+                .findAnnotatedMethods(Update.class)
                 .stream()
-                .filter(m -> isPrimitiveLike(m.getReturnType()))
-                .map(m -> m + " should return an object")
-                .sorted()
-                .collect(toSet()));
+                .collect(toMap(m -> m.getAnnotation(Update.class).value(), identity()));
+        errors
+                .addAll(updates
+                        .values()
+                        .stream()
+                        .filter(m -> isPrimitiveLike(m.getReturnType()))
+                        .map(m -> m + " should return an object")
+                        .sorted()
+                        .collect(toSet()));
         final List<Field> updatableFields = finder.findAnnotatedFields(Updatable.class);
-        errors.addAll(updatableFields
-                .stream()
-                .filter(f -> f.getAnnotation(Updatable.class).after().contains(".") /* no '..' or '.' */)
-                .map(f -> "@Updatable.after should only reference direct child primitive fields")
-                .sorted()
-                .collect(toSet()));
-        errors.addAll(updatableFields
-                .stream()
-                .filter(f -> isPrimitiveLike(f.getType()))
-                .map(f -> "@Updatable should not be used on primitives: " + f)
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(updatableFields
+                        .stream()
+                        .filter(f -> f.getAnnotation(Updatable.class).after().contains(".") /* no '..' or '.' */)
+                        .map(f -> "@Updatable.after should only reference direct child primitive fields")
+                        .sorted()
+                        .collect(toSet()));
+        errors
+                .addAll(updatableFields
+                        .stream()
+                        .filter(f -> isPrimitiveLike(f.getType()))
+                        .map(f -> "@Updatable should not be used on primitives: " + f)
+                        .sorted()
+                        .collect(toSet()));
         errors.addAll(updatableFields.stream().map(f -> {
             final Method service = updates.get(f.getAnnotation(Updatable.class).value());
             if (service == null) {
@@ -797,20 +849,22 @@ public class ComponentValidator extends BaseTask {
             }
             return "@Updatable field '" + f + "' does not match returned type of '" + service + "'";
         }).filter(Objects::nonNull).sorted().collect(toSet()));
-        errors.addAll(updatableFields
-                .stream()
-                .filter(f -> updates.get(f.getAnnotation(Updatable.class).value()) == null)
-                .map(f -> "No @Update service found for field " + f + ", did you intend to use @Updatable?")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(updatableFields
+                        .stream()
+                        .filter(f -> updates.get(f.getAnnotation(Updatable.class).value()) == null)
+                        .map(f -> "No @Update service found for field " + f + ", did you intend to use @Updatable?")
+                        .sorted()
+                        .collect(toSet()));
 
-        errors.addAll(finder
-                .findAnnotatedFields(Proposable.class)
-                .stream()
-                .filter(f -> f.getType().isEnum())
-                .map(f -> f.toString() + " must not define @Proposable since it is an enum")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(finder
+                        .findAnnotatedFields(Proposable.class)
+                        .stream()
+                        .filter(f -> f.getType().isEnum())
+                        .map(f -> f.toString() + " must not define @Proposable since it is an enum")
+                        .sorted()
+                        .collect(toSet()));
 
         final Set<String> proposables = finder
                 .findAnnotatedFields(Proposable.class)
@@ -825,12 +879,13 @@ public class ComponentValidator extends BaseTask {
                 .sorted()
                 .collect(toSet());
         proposables.removeAll(dynamicValues);
-        errors.addAll(proposables
-                .stream()
-                .map(p -> "No @DynamicValues(\"" + p + "\"), add a service with this method: " + "@DynamicValues(\"" + p
-                        + "\") Values proposals();")
-                .sorted()
-                .collect(toSet()));
+        errors
+                .addAll(proposables
+                        .stream()
+                        .map(p -> "No @DynamicValues(\"" + p + "\"), add a service with this method: "
+                                + "@DynamicValues(\"" + p + "\") Values proposals();")
+                        .sorted()
+                        .collect(toSet()));
     }
 
     private Stream<Class<? extends Annotation>> getActionsStream() {
@@ -858,8 +913,9 @@ public class ComponentValidator extends BaseTask {
                     + baseName.replace('.', '/') + ".properties at least.";
         }
 
-        final String prefix = components(component).map(c -> findFamily(c, component) + "." + c.name()).orElseThrow(
-                () -> new IllegalStateException(component.getName()));
+        final String prefix = components(component)
+                .map(c -> findFamily(c, component) + "." + c.name())
+                .orElseThrow(() -> new IllegalStateException(component.getName()));
         final Collection<String> missingKeys =
                 of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(toList());
         if (!missingKeys.isEmpty()) {

@@ -55,8 +55,10 @@ class RecordConvertersTest {
     void booleanRoundTrip() throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final JsonObject json = JsonObject.class.cast(converter.toType(record, JsonObject.class,
-                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb));
+            final JsonObject json = JsonObject.class
+                    .cast(converter
+                            .toType(record, JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider,
+                                    () -> jsonb));
             assertTrue(json.getBoolean("value"));
             final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
             assertTrue(toRecord.getBoolean("value"));
@@ -67,8 +69,10 @@ class RecordConvertersTest {
     void stringRoundTrip() throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withString("value", "yes").build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final JsonObject json = JsonObject.class.cast(converter.toType(record, JsonObject.class,
-                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb));
+            final JsonObject json = JsonObject.class
+                    .cast(converter
+                            .toType(record, JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider,
+                                    () -> jsonb));
             assertEquals("yes", json.getString("value"));
             final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
             assertEquals("yes", toRecord.getString("value"));
@@ -81,8 +85,10 @@ class RecordConvertersTest {
         final Record record = recordBuilderFactory.newRecordBuilder().withBytes("value", bytes).build();
         try (final Jsonb jsonb =
                 JsonbBuilder.create(new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64))) {
-            final JsonObject json = JsonObject.class.cast(converter.toType(record, JsonObject.class,
-                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb));
+            final JsonObject json = JsonObject.class
+                    .cast(converter
+                            .toType(record, JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider,
+                                    () -> jsonb));
             assertEquals(Base64.getEncoder().encodeToString(bytes), json.getString("value"));
             final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
             assertArrayEquals(bytes, toRecord.getBytes("value"));
@@ -111,11 +117,16 @@ class RecordConvertersTest {
     @Test
     void convertListString() throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final Record record = converter.toRecord(Json
-                    .createObjectBuilder()
-                    .add("list",
-                            Json.createArrayBuilder().add(Json.createValue("a")).add(Json.createValue("b")).build())
-                    .build(), () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
+            final Record record = converter
+                    .toRecord(Json
+                            .createObjectBuilder()
+                            .add("list",
+                                    Json
+                                            .createArrayBuilder()
+                                            .add(Json.createValue("a"))
+                                            .add(Json.createValue("b"))
+                                            .build())
+                            .build(), () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<String> list = record.getArray(String.class, "list");
             assertEquals(asList("a", "b"), list);
         }
@@ -124,15 +135,16 @@ class RecordConvertersTest {
     @Test
     void convertListObject() throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final Record record = converter.toRecord(Json
-                    .createObjectBuilder()
-                    .add("list",
-                            Json
-                                    .createArrayBuilder()
-                                    .add(Json.createObjectBuilder().add("name", "a").build())
-                                    .add(Json.createObjectBuilder().add("name", "b").build())
-                                    .build())
-                    .build(), () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
+            final Record record = converter
+                    .toRecord(Json
+                            .createObjectBuilder()
+                            .add("list",
+                                    Json
+                                            .createArrayBuilder()
+                                            .add(Json.createObjectBuilder().add("name", "a").build())
+                                            .add(Json.createObjectBuilder().add("name", "b").build())
+                                            .build())
+                            .build(), () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<Record> list = record.getArray(Record.class, "list");
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }

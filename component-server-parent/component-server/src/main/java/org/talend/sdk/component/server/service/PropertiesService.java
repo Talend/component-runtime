@@ -107,15 +107,21 @@ public class PropertiesService {
             final Object instance = defaultValueInspector.createDemoInstance(rootInstance, p);
             final ParameterBundle bundle = p.findBundle(loader, locale);
             final ParameterBundle parentBundle = parent == null ? null : parent.findBundle(loader, locale);
-            return Stream.concat(
-                    Stream.of(new SimplePropertyDefinition(path, name,
-                            bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
-                            validation, rewriteMetadataForLocale(metadata, parentBundle, bundle),
-                            bundle.placeholder(parentBundle).orElse(p.getName()),
-                            !isEnum ? null
-                                    : p.getProposals().stream().collect(toLinkedMap(identity(),
-                                            key -> bundle.enumDisplayName(parentBundle, key).orElse(key))))),
-                    buildProperties(p.getNestedParameters(), loader, locale, instance, p));
+            return Stream
+                    .concat(Stream
+                            .of(new SimplePropertyDefinition(path, name,
+                                    bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
+                                    validation, rewriteMetadataForLocale(metadata, parentBundle, bundle),
+                                    bundle.placeholder(parentBundle).orElse(p.getName()),
+                                    !isEnum ? null
+                                            : p
+                                                    .getProposals()
+                                                    .stream()
+                                                    .collect(toLinkedMap(identity(),
+                                                            key -> bundle
+                                                                    .enumDisplayName(parentBundle, key)
+                                                                    .orElse(key))))),
+                            buildProperties(p.getNestedParameters(), loader, locale, instance, p));
         }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
         // see it
     }

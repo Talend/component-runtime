@@ -28,7 +28,11 @@ import lombok.NoArgsConstructor;
 public class Overrides {
 
     public static Map<String, String> override(final String prefix, final Map<String, String> input) {
-        return ofNullable(input).orElseGet(HashMap::new).entrySet().stream().collect(toMap(Map.Entry::getKey,
-                e -> ofNullable(System.getProperty(prefix + "." + e.getKey())).orElseGet(e::getValue)));
+        return ofNullable(input)
+                .orElseGet(HashMap::new)
+                .entrySet()
+                .stream()
+                .collect(toMap(Map.Entry::getKey,
+                        e -> ofNullable(System.getProperty(prefix + "." + e.getKey())).orElseGet(e::getValue)));
     }
 }

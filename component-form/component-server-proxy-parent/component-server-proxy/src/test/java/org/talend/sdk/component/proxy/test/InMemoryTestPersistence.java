@@ -67,17 +67,20 @@ public class InMemoryTestPersistence {
 
     void on(@ObservesAsync final OnFindById event) {
         final OnPersist persisted = findById(event.getId());
-        event.composeProperties(completedFuture(persisted.getProperties())).composeFormId(
-                completedFuture(persisted.getFormId()));
+        event
+                .composeProperties(completedFuture(persisted.getProperties()))
+                .composeFormId(completedFuture(persisted.getFormId()));
     }
 
     void on(@ObservesAsync final OnFindByFormId event) {
         client
                 .getAllConfigurations("en", k -> null)
                 .thenApply(nodes -> nodes.getNodes().get(event.getFormId()))
-                .thenApply(node -> event.composeResult(
-                        completedFuture(persist.stream().filter(it -> it.getFormId().equals(event.getFormId())).collect(
-                                toMap(persist -> {
+                .thenApply(node -> event
+                        .composeResult(completedFuture(persist
+                                .stream()
+                                .filter(it -> it.getFormId().equals(event.getFormId()))
+                                .collect(toMap(persist -> {
                                     try {
                                         return persist.getId().toCompletableFuture().get();
                                     } catch (final InterruptedException | ExecutionException e) {

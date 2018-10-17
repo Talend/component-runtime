@@ -136,9 +136,10 @@ public class ModelVisitor {
     }
 
     private void validateProcessor(final Class<?> input) {
-        final List<Method> producers =
-                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).collect(
-                        toList());
+        final List<Method> producers = Stream
+                .of(input.getMethods())
+                .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                .collect(toList());
         if (producers.size() != 1) {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }

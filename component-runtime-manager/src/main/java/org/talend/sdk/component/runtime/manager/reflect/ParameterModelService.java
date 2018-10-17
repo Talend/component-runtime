@@ -66,8 +66,10 @@ public class ParameterModelService {
 
     public ParameterModelService(final PropertyEditorRegistry registry) {
         this(StreamSupport
-                .stream(Spliterators.spliteratorUnknownSize(
-                        ServiceLoader.load(ParameterExtensionEnricher.class).iterator(), Spliterator.IMMUTABLE), false)
+                .stream(Spliterators
+                        .spliteratorUnknownSize(ServiceLoader.load(ParameterExtensionEnricher.class).iterator(),
+                                Spliterator.IMMUTABLE),
+                        false)
                 .collect(toList()), registry);
     }
 
@@ -132,17 +134,20 @@ public class ParameterModelService {
                     ? Class.class.cast(genericType).getComponentType()
                     : ParameterizedType.class.cast(genericType).getActualTypeArguments()[0];
             addI18nPackageIfPossible(i18nPackages, nestedType);
-            nested.addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].", nestedType,
-                    Class.class.isInstance(nestedType) ? Class.class.cast(nestedType).getAnnotations() : NO_ANNOTATIONS,
-                    i18nPackages, ignoreI18n, context));
+            nested
+                    .addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].", nestedType,
+                            Class.class.isInstance(nestedType) ? Class.class.cast(nestedType).getAnnotations()
+                                    : NO_ANNOTATIONS,
+                            i18nPackages, ignoreI18n, context));
             break;
         case ENUM:
             addI18nPackageIfPossible(i18nPackages, genericType);
-            proposals.addAll(Stream
-                    .of(((Class<? extends Enum<?>>) genericType).getEnumConstants())
-                    .map(Enum::name)
-                    // sorted() // don't sort, let the dev use the order he wants
-                    .collect(toList()));
+            proposals
+                    .addAll(Stream
+                            .of(((Class<? extends Enum<?>>) genericType).getEnumConstants())
+                            .map(Enum::name)
+                            // sorted() // don't sort, let the dev use the order he wants
+                            .collect(toList()));
             break;
         default:
         }
@@ -166,21 +171,27 @@ public class ParameterModelService {
         return Stream
                 .concat(Stream.of(annotations), Class.class.isInstance(genericType) // if a class concat its
                         // annotations
-                        ? Stream.of(Class.class.cast(genericType).getAnnotations()).filter(
-                                a -> Stream.of(annotations).noneMatch(o -> o.annotationType() == a.annotationType()))
+                        ? Stream
+                                .of(Class.class.cast(genericType).getAnnotations())
+                                .filter(a -> Stream
+                                        .of(annotations)
+                                        .noneMatch(o -> o.annotationType() == a.annotationType()))
                         : (ParameterizedType.class.isInstance(genericType) // if a list concat the item type annotations
                                 && ParameterizedType.class.cast(genericType).getActualTypeArguments().length == 1
-                                && Class.class.isInstance(
-                                        ParameterizedType.class.cast(genericType).getActualTypeArguments()[0])
-                                                ? Stream
-                                                        .of(Class.class
-                                                                .cast(ParameterizedType.class
-                                                                        .cast(genericType)
-                                                                        .getActualTypeArguments()[0])
-                                                                .getAnnotations())
-                                                        .filter(a -> Stream.of(annotations).noneMatch(
-                                                                o -> o.annotationType() == a.annotationType()))
-                                                : Stream.empty()))
+                                && Class.class
+                                        .isInstance(
+                                                ParameterizedType.class.cast(genericType).getActualTypeArguments()[0])
+                                                        ? Stream
+                                                                .of(Class.class
+                                                                        .cast(ParameterizedType.class
+                                                                                .cast(genericType)
+                                                                                .getActualTypeArguments()[0])
+                                                                        .getAnnotations())
+                                                                .filter(a -> Stream
+                                                                        .of(annotations)
+                                                                        .noneMatch(o -> o.annotationType() == a
+                                                                                .annotationType()))
+                                                        : Stream.empty()))
                 .distinct()
                 .flatMap(a -> enrichers.stream().map(e -> {
                     if (BaseParameterEnricher.class.isInstance(e)) {
@@ -258,37 +269,40 @@ public class ParameterModelService {
         final List<ParameterMeta> out = new ArrayList<>();
         Class<?> current = type;
         while (current != null && current != Object.class) {
-            out.addAll(Stream
-                    .of(current.getDeclaredFields())
-                    .filter(f -> f.isAnnotationPresent(Option.class))
-                    .filter(f -> !"$jacocoData".equals(f.getName()) && !Modifier.isStatic(f.getModifiers())
-                            && (f.getModifiers() & 0x00001000/* SYNTHETIC */) == 0)
-                    .filter(f -> fields.putIfAbsent(f.getName(), f) == null)
-                    .map(f -> {
-                        final String name = findName(f, f.getName());
-                        final String path = prefix + name;
-                        return buildParameter(name, path + ".", new ParameterMeta.Source() {
+            out
+                    .addAll(Stream
+                            .of(current.getDeclaredFields())
+                            .filter(f -> f.isAnnotationPresent(Option.class))
+                            .filter(f -> !"$jacocoData".equals(f.getName()) && !Modifier.isStatic(f.getModifiers())
+                                    && (f.getModifiers() & 0x00001000/* SYNTHETIC */) == 0)
+                            .filter(f -> fields.putIfAbsent(f.getName(), f) == null)
+                            .map(f -> {
+                                final String name = findName(f, f.getName());
+                                final String path = prefix + name;
+                                return buildParameter(name, path + ".", new ParameterMeta.Source() {
 
-                            @Override
-                            public String name() {
-                                return f.getName();
-                            }
+                                    @Override
+                                    public String name() {
+                                        return f.getName();
+                                    }
 
-                            @Override
-                            public Class<?> declaringClass() {
-                                return f.getDeclaringClass();
-                            }
-                        }, f.getGenericType(), f.getAnnotations(), i18nPackages, ignoreI18n, context);
-                    })
-                    .collect(toList()));
+                                    @Override
+                                    public Class<?> declaringClass() {
+                                        return f.getDeclaringClass();
+                                    }
+                                }, f.getGenericType(), f.getAnnotations(), i18nPackages, ignoreI18n, context);
+                            })
+                            .collect(toList()));
             current = current.getSuperclass();
         }
         return out;
     }
 
     public String findName(final AnnotatedElement parameter, final String defaultName) {
-        return ofNullable(parameter.getAnnotation(Option.class)).map(Option::value).filter(v -> !v.isEmpty()).orElse(
-                defaultName);
+        return ofNullable(parameter.getAnnotation(Option.class))
+                .map(Option::value)
+                .filter(v -> !v.isEmpty())
+                .orElse(defaultName);
     }
 
     private ParameterMeta.Type findType(final Type type) {

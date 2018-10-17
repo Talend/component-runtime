@@ -59,11 +59,14 @@ class ProcessorFlowsFactory implements FlowsFactory {
         Method listener = getListener();
         return concat(
                 concat(listener.getReturnType().equals(Void.TYPE) ? Stream.empty() : of(Branches.DEFAULT_BRANCH),
-                        of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
-                                p -> p.getAnnotation(Output.class).value())),
-                of(type.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).flatMap(
-                        m -> of(m.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
-                                p -> p.getAnnotation(Output.class).value()))).distinct().collect(toList());
+                        of(listener.getParameters())
+                                .filter(p -> p.isAnnotationPresent(Output.class))
+                                .map(p -> p.getAnnotation(Output.class).value())),
+                of(type.getMethods())
+                        .filter(m -> m.isAnnotationPresent(AfterGroup.class))
+                        .flatMap(m -> of(m.getParameters())
+                                .filter(p -> p.isAnnotationPresent(Output.class))
+                                .map(p -> p.getAnnotation(Output.class).value()))).distinct().collect(toList());
     }
 
     /**
@@ -72,8 +75,10 @@ class ProcessorFlowsFactory implements FlowsFactory {
      * @return listener method
      */
     private Method getListener() {
-        return of(type.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst().orElseThrow(
-                () -> new IllegalArgumentException("No @ElementListener method in " + type));
+        return of(type.getMethods())
+                .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + type));
     }
 
     /**

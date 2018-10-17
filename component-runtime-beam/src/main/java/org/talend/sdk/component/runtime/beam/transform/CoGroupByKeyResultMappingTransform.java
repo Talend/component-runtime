@@ -101,12 +101,13 @@ public class CoGroupByKeyResultMappingTransform<K>
             if (propagateKey) {
                 final Record internalRecord =
                         builderFactory.newRecordBuilder().withString("key", String.valueOf(element.getKey())).build();
-                builder.withRecord(builderFactory
-                        .newEntryBuilder()
-                        .withName("__talend_internal")
-                        .withType(Schema.Type.RECORD)
-                        .withElementSchema(internalRecord.getSchema())
-                        .build(), internalRecord);
+                builder
+                        .withRecord(builderFactory
+                                .newEntryBuilder()
+                                .withName("__talend_internal")
+                                .withType(Schema.Type.RECORD)
+                                .withElementSchema(internalRecord.getSchema())
+                                .build(), internalRecord);
             }
             return builder.build();
         }

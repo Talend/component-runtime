@@ -76,8 +76,10 @@ public class HttpRequest {
     }
 
     public Configurer.ConfigurerConfiguration getConfigurationOptions() {
-        final Map<String, Object> options = configurerOptions.entrySet().stream().collect(
-                toMap(Map.Entry::getKey, e -> e.getValue().apply(params)));
+        final Map<String, Object> options = configurerOptions
+                .entrySet()
+                .stream()
+                .collect(toMap(Map.Entry::getKey, e -> e.getValue().apply(params)));
 
         return configurerOptions.isEmpty() ? EMPTY_CONFIGURER_OPTIONS : new Configurer.ConfigurerConfiguration() {
 

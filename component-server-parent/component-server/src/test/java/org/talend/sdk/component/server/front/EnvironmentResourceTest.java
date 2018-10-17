@@ -40,8 +40,9 @@ class EnvironmentResourceTest {
     void environment() {
         final Environment environment = base.path("environment").request(APPLICATION_JSON_TYPE).get(Environment.class);
         assertEquals(1, environment.getLatestApiVersion());
-        Stream.of(environment.getCommit(), environment.getTime(), environment.getVersion()).forEach(
-                Assertions::assertNotNull);
+        Stream
+                .of(environment.getCommit(), environment.getTime(), environment.getVersion())
+                .forEach(Assertions::assertNotNull);
         assertTrue(environment.getLastUpdated().compareTo(new Date(0)) > 0);
 
     }

@@ -159,9 +159,10 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                     jsonb = ContainerFinder.Instance.get().find(plugin()).findService(Jsonb.class);
                 }
                 if (jsonb == null) { // for tests mainly
-                    jsonb = JsonbBuilder.create(
-                            new JsonbConfig().withAdapters(new MultipleFormatDateAdapter()).withBinaryDataStrategy(
-                                    BinaryDataStrategy.BASE_64));
+                    jsonb = JsonbBuilder
+                            .create(new JsonbConfig()
+                                    .withAdapters(new MultipleFormatDateAdapter())
+                                    .withBinaryDataStrategy(BinaryDataStrategy.BASE_64));
                 }
             }
         }
@@ -211,8 +212,13 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     @Override
     public void afterGroup(final OutputFactory output) {
-        afterGroup.forEach(after -> doInvoke(after,
-                parameterBuilderAfterGroup.get(after).stream().map(b -> b.apply(output)).toArray(Object[]::new)));
+        afterGroup
+                .forEach(after -> doInvoke(after,
+                        parameterBuilderAfterGroup
+                                .get(after)
+                                .stream()
+                                .map(b -> b.apply(output))
+                                .toArray(Object[]::new)));
     }
 
     @Override

@@ -26,7 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 public class PlaceholderProviderFactory {
 
     public Function<String, String> newProvider(final HttpServletRequest request) {
-        return key -> ofNullable(request.getAttribute(key)).map(String::valueOf).orElseGet(
-                () -> request.getHeader(key));
+        return key -> ofNullable(request.getAttribute(key))
+                .map(String::valueOf)
+                .orElseGet(() -> request.getHeader(key));
     }
 }

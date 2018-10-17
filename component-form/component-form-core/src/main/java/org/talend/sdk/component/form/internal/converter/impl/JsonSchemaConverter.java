@@ -81,16 +81,19 @@ public class JsonSchemaConverter implements PropertyConverter {
                                 context.getConfiguration()).isRequired())
                         .map(SimplePropertyDefinition::getName)
                         .collect(toSet())).filter(s -> !s.isEmpty()).ifPresent(jsonSchema::setRequired);
-                return CompletableFuture.completedFuture(context).thenCompose(
-                        c -> postHandling(context, jsonSchema, type));
+                return CompletableFuture
+                        .completedFuture(context)
+                        .thenCompose(c -> postHandling(context, jsonSchema, type));
             }
         });
     }
 
     private CompletionStage<PropertyContext<?>> postHandling(final PropertyContext<?> context,
             final JsonSchema jsonSchema, final String type) {
-        final String defaultValue = context.getProperty().getMetadata().getOrDefault("ui::defaultvalue::value",
-                context.getProperty().getDefaultValue());
+        final String defaultValue = context
+                .getProperty()
+                .getMetadata()
+                .getOrDefault("ui::defaultvalue::value", context.getProperty().getDefaultValue());
         convertDefaultValue(type, defaultValue).ifPresent(jsonSchema::setDefaultValue);
 
         final PropertyValidation validation = context.getProperty().getValidation();

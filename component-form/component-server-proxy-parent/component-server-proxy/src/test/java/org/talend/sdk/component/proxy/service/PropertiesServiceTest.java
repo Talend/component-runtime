@@ -153,8 +153,9 @@ class PropertiesServiceTest {
 
         persistEvent
                 .fireAsync(event)
-                .thenCompose(result -> service.filterProperties(srcProps, new UiSpecContext("en", k -> null)).thenApply(
-                        props -> {
+                .thenCompose(result -> service
+                        .filterProperties(srcProps, new UiSpecContext("en", k -> null))
+                        .thenApply(props -> {
                             final Collection<String> values = props.get(2).getProposalDisplayNames().values();
                             assertEquals(2, values.size());
                             assertEquals(Stream
@@ -197,15 +198,17 @@ class PropertiesServiceTest {
         persistEvent
                 .fireAsync(event)
                 .thenCompose(OnPersist::getId)
-                .thenCompose(id -> service.filterProperties(srcProps, new UiSpecContext("en", k -> null)).thenCompose(
-                        props -> service.replaceReferences(new UiSpecContext("en", k -> null), props,
-                                new HashMap<String, String>() {
+                .thenCompose(id -> service
+                        .filterProperties(srcProps, new UiSpecContext("en", k -> null))
+                        .thenCompose(props -> service
+                                .replaceReferences(new UiSpecContext("en", k -> null), props,
+                                        new HashMap<String, String>() {
 
-                                    {
-                                        put("configuration.param", "test");
-                                        put("configuration.something.$selfReference", id);
-                                    }
-                                })))
+                                            {
+                                                put("configuration.param", "test");
+                                                put("configuration.something.$selfReference", id);
+                                            }
+                                        })))
                 .thenApply(props -> {
                     assertNotNull(props.remove("configuration.something.$selfReference"));
                     assertEquals(new HashMap<String, String>() {

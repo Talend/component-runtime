@@ -66,8 +66,9 @@ public class RepositoryModelBuilder {
                                     .findFirst()
                                     .map(Config::getChildConfigs)
                                     .orElseGet(aggregator::getConfigs);
-                            if (configs.stream().noneMatch(
-                                    c -> c.getMeta().getJavaType() == item.getMeta().getJavaType())) {
+                            if (configs
+                                    .stream()
+                                    .noneMatch(c -> c.getMeta().getJavaType() == item.getMeta().getJavaType())) {
                                 configs.add(item);
                             }
                         }, (family1, family2) -> family1.getConfigs().addAll(family2.getConfigs())))
@@ -95,8 +96,9 @@ public class RepositoryModelBuilder {
         c.setIcon(familyIcon);
         c.setKey(getKey(familyName, config.getMetadata()));
         c.setMeta(translate(config, config.getPath().length(), "configuration"));
-        c.setId(IdGenerator.get(plugin, c.getKey().getFamily(), c.getKey().getConfigType(),
-                c.getKey().getConfigName()));
+        c
+                .setId(IdGenerator
+                        .get(plugin, c.getKey().getFamily(), c.getKey().getConfigType(), c.getKey().getConfigName()));
 
         if (Class.class.isInstance(config.getJavaType())) {
             final Class<?> clazz = Class.class.cast(config.getJavaType());
@@ -104,8 +106,9 @@ public class RepositoryModelBuilder {
             if (version != null) {
                 c.setVersion(version.value());
                 if (version.migrationHandler() != MigrationHandler.class) {
-                    c.setMigrationHandler(
-                            migrationHandlerFactory.findMigrationHandler(singletonList(c.getMeta()), clazz, services));
+                    c
+                            .setMigrationHandler(migrationHandlerFactory
+                                    .findMigrationHandler(singletonList(c.getMeta()), clazz, services));
                 }
             } else {
                 c.setVersion(-1);
@@ -132,8 +135,11 @@ public class RepositoryModelBuilder {
         return new ParameterMeta(config.getSource(), config.getJavaType(), config.getType(),
                 newPrefix + config.getPath().substring(replacedPrefixLen),
                 config.getPath().length() == replacedPrefixLen ? newPrefix : config.getName(), config.getI18nPackages(),
-                config.getNestedParameters().stream().map(it -> translate(it, replacedPrefixLen, newPrefix)).collect(
-                        toList()),
+                config
+                        .getNestedParameters()
+                        .stream()
+                        .map(it -> translate(it, replacedPrefixLen, newPrefix))
+                        .collect(toList()),
                 config.getProposals(), config.getMetadata(), config.isLogMissingResourceBundle());
     }
 }

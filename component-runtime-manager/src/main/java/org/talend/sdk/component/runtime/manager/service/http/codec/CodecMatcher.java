@@ -56,8 +56,9 @@ public class CodecMatcher<T> {
                     .filter(e -> mediaType.matches(e.getKey().replace("+", "\\+").replace("*", ".+")))
                     .findFirst()
                     .map(Map.Entry::getValue);
-            return matched.orElseThrow(
-                    () -> new IllegalStateException("No codec found for content-type: '" + contentType + "'"));
+            return matched
+                    .orElseThrow(
+                            () -> new IllegalStateException("No codec found for content-type: '" + contentType + "'"));
 
         });
     }

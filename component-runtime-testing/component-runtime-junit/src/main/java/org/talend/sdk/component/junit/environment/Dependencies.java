@@ -58,9 +58,10 @@ public class Dependencies {
         if (repos != null && !repos.isEmpty()) {
             for (final String repo : repos.split(",")) {
                 final String[] parts = repo.split("::");
-                final MavenRemoteRepository repository = MavenRemoteRepositories.createRemoteRepository(
-                        parts.length == 1 ? "repo_" + parts[0].replace(':', '_').replace('/', '_') : parts[0],
-                        parts.length == 1 ? parts[0] : parts[1], parts.length < 3 ? "default" : parts[2]);
+                final MavenRemoteRepository repository = MavenRemoteRepositories
+                        .createRemoteRepository(
+                                parts.length == 1 ? "repo_" + parts[0].replace(':', '_').replace('/', '_') : parts[0],
+                                parts.length == 1 ? parts[0] : parts[1], parts.length < 3 ? "default" : parts[2]);
                 repository.setUpdatePolicy(MavenUpdatePolicy.UPDATE_POLICY_DAILY);
                 repository.setChecksumPolicy(MavenChecksumPolicy.CHECKSUM_POLICY_IGNORE);
                 repositories.add(repository);
@@ -105,8 +106,8 @@ public class Dependencies {
             }
         }
         if (!Boolean.getBoolean("talend.component.junit.maven.central.skip")) {
-            final MavenRemoteRepository central = MavenRemoteRepositories.createRemoteRepository("central_test_default",
-                    "http://repo.maven.apache.org/maven2/", "default");
+            final MavenRemoteRepository central = MavenRemoteRepositories
+                    .createRemoteRepository("central_test_default", "http://repo.maven.apache.org/maven2/", "default");
             central.setChecksumPolicy(MavenChecksumPolicy.CHECKSUM_POLICY_WARN);
             central.setUpdatePolicy(MavenUpdatePolicy.UPDATE_POLICY_NEVER);
             repositories.add(central);
@@ -120,9 +121,10 @@ public class Dependencies {
 
     public static URL[] resolve(final MavenDependency dep) {
         return CACHE.computeIfAbsent(dep, d -> {
-            final ConfigurableMavenResolverSystem resolver =
-                    Maven.configureResolver().withClassPathResolution(true).workOffline(
-                            Boolean.getBoolean("talend.component.junit.maven.offline"));
+            final ConfigurableMavenResolverSystem resolver = Maven
+                    .configureResolver()
+                    .withClassPathResolution(true)
+                    .workOffline(Boolean.getBoolean("talend.component.junit.maven.offline"));
             REPOSITORIES.forEach(resolver::withRemoteRepo);
             resolver.addDependency(dep);
             return Stream.of(resolver.resolve().using(STRATEGY).asFile()).distinct().map(f -> {

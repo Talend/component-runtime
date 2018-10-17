@@ -44,8 +44,8 @@ class JoinInputFactoryTest {
 
     @Test
     void jsonp() {
-        final JoinInputFactory factory = new JoinInputFactory().withInput("__default__",
-                singleton(Json.createObjectBuilder().add("test", "foo").build()));
+        final JoinInputFactory factory = new JoinInputFactory()
+                .withInput("__default__", singleton(Json.createObjectBuilder().add("test", "foo").build()));
         assertTrue(factory.hasMoreData());
         final Object main = factory.read("__default__");
         assertTrue(Record.class.isInstance(main));

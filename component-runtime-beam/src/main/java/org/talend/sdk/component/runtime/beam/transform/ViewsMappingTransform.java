@@ -74,8 +74,10 @@ public class ViewsMappingTransform extends PTransform<PCollection<Record>, PColl
         }
 
         private MappingViewsFn(final Map<String, PCollectionView<?>> views, final String plugin) {
-            this.views = views.entrySet().stream().collect(
-                    toMap(e -> sanitizeConnectionName(e.getKey()), Map.Entry::getValue));
+            this.views = views
+                    .entrySet()
+                    .stream()
+                    .collect(toMap(e -> sanitizeConnectionName(e.getKey()), Map.Entry::getValue));
             this.plugin = plugin;
         }
 
@@ -88,20 +90,22 @@ public class ViewsMappingTransform extends PTransform<PCollection<Record>, PColl
             final RecordBuilderFactory factory = builderFactory();
             final Record.Builder builder = factory.newRecordBuilder();
             final Record element = context.element();
-            builder.withArray(factory
-                    .newEntryBuilder()
-                    .withName("__default__")
-                    .withType(Schema.Type.ARRAY)
-                    .withElementSchema(element.getSchema())
-                    .build(), singletonList(element));
+            builder
+                    .withArray(factory
+                            .newEntryBuilder()
+                            .withName("__default__")
+                            .withType(Schema.Type.ARRAY)
+                            .withElementSchema(element.getSchema())
+                            .build(), singletonList(element));
             views.forEach((n, v) -> {
                 final Record sideInput = Record.class.cast(context.sideInput(v));
-                builder.withArray(factory
-                        .newEntryBuilder()
-                        .withName(sanitizeConnectionName(n))
-                        .withType(Schema.Type.ARRAY)
-                        .withElementSchema(element.getSchema())
-                        .build(), singletonList(sideInput));
+                builder
+                        .withArray(factory
+                                .newEntryBuilder()
+                                .withName(sanitizeConnectionName(n))
+                                .withType(Schema.Type.ARRAY)
+                                .withElementSchema(element.getSchema())
+                                .build(), singletonList(sideInput));
             });
             return builder.build();
         }

@@ -64,24 +64,29 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return client.action(family, "dynamic_values", actionName, lang, emptyMap(), context).exceptionally(e -> {
             log.warn(e.getMessage(), e);
             return emptyMap();
-        }).thenApply(
-                values -> ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
-                    final Collection<?> dynamicValues = Collection.class.cast(c);
-                    return dynamicValues
-                            .stream()
-                            .filter(Map.class::isInstance)
-                            .filter(m -> Map.class.cast(m).get("id") != null
-                                    && Map.class.cast(m).get("id") instanceof String)
-                            .map(Map.class::cast)
-                            .map(entry -> {
-                                final UiSchema.NameValue val = new UiSchema.NameValue();
-                                val.setName(entry.get("label") == null ? (String) entry.get("id")
-                                        : String.class.cast(entry.get("label")));
-                                val.setValue(String.class.cast(entry.get("id")));
-                                return val;
-                            })
-                            .collect(toList());
-                }).orElse(emptyList()));
+        })
+                .thenApply(values -> ofNullable(values)
+                        .map(v -> v.get("items"))
+                        .filter(Collection.class::isInstance)
+                        .map(c -> {
+                            final Collection<?> dynamicValues = Collection.class.cast(c);
+                            return dynamicValues
+                                    .stream()
+                                    .filter(Map.class::isInstance)
+                                    .filter(m -> Map.class.cast(m).get("id") != null
+                                            && Map.class.cast(m).get("id") instanceof String)
+                                    .map(Map.class::cast)
+                                    .map(entry -> {
+                                        final UiSchema.NameValue val = new UiSchema.NameValue();
+                                        val
+                                                .setName(entry.get("label") == null ? (String) entry.get("id")
+                                                        : String.class.cast(entry.get("label")));
+                                        val.setValue(String.class.cast(entry.get("id")));
+                                        return val;
+                                    })
+                                    .collect(toList());
+                        })
+                        .orElse(emptyList()));
     }
 
     protected UiSchema.Trigger toTrigger(final Collection<SimplePropertyDefinition> properties,
@@ -90,8 +95,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         trigger.setAction(ref.getName());
         trigger.setFamily(ref.getFamily());
         trigger.setType(ref.getType());
-        trigger.setParameters(
-                toParams(properties, prop, ref, prop.getMetadata().get("action::" + ref.getType() + "::parameters")));
+        trigger
+                .setParameters(toParams(properties, prop, ref,
+                        prop.getMetadata().get("action::" + ref.getType() + "::parameters")));
         return trigger;
     }
 
@@ -153,8 +159,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         schema.setDescription(ctx.getProperty().getMetadata().get("documentation::value"));
         if (actions != null) {
             final List<UiSchema.Trigger> triggers = Stream
-                    .concat(Stream.concat(createValidationTrigger(ctx.getProperty()),
-                            createOtherActions(ctx.getProperty())), createSuggestionTriggers(ctx.getProperty()))
+                    .concat(Stream
+                            .concat(createValidationTrigger(ctx.getProperty()), createOtherActions(ctx.getProperty())),
+                            createSuggestionTriggers(ctx.getProperty()))
                     .collect(toList());
             if (!triggers.isEmpty()) {
                 schema.setTriggers(triggers);
@@ -170,8 +177,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         .stream()
                         .filter(a -> actionMatch(v, a) && "suggestions".equals(a.getType()))
                         .findFirst())
-                .map(ref -> Stream.of(toTrigger(properties, property, ref)).peek(
-                        trigger -> trigger.setOnEvent("focus")))
+                .map(ref -> Stream
+                        .of(toTrigger(properties, property, ref))
+                        .peek(trigger -> trigger.setOnEvent("focus")))
                 .orElseGet(Stream::empty);
     }
 

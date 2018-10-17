@@ -56,8 +56,9 @@ public class ProcessorTest {
     public void processor() {
         final Processor processor = COMPONENT_FACTORY.createProcessor(SampleProcessor.class, new Object());
 
-        final JoinInputFactory joinInputFactory = new JoinInputFactory().withInput("__default__",
-                asList(new SampleProcessor.Sample(1), Json.createObjectBuilder().add("data", 2).build()));
+        final JoinInputFactory joinInputFactory = new JoinInputFactory()
+                .withInput("__default__",
+                        asList(new SampleProcessor.Sample(1), Json.createObjectBuilder().add("data", 2).build()));
 
         final PCollection<Record> inputs =
                 pipeline.apply(Data.of(processor.plugin(), joinInputFactory.asInputRecords()));

@@ -104,9 +104,9 @@ public class SimpleFactory {
                 return emptyMap();
             }
             final String usedPrefix = ofNullable(byExample.prefix).orElse("configuration.");
-            final ParameterMeta params = new SimpleParameterModelService().build(usedPrefix, usedPrefix,
-                    byExample.instance.getClass(), new Annotation[0],
-                    new ArrayList<>(singletonList(byExample.instance.getClass().getPackage().getName())));
+            final ParameterMeta params = new SimpleParameterModelService()
+                    .build(usedPrefix, usedPrefix, byExample.instance.getClass(), new Annotation[0],
+                            new ArrayList<>(singletonList(byExample.instance.getClass().getPackage().getName())));
             return CONFIGURATION_MAPPER.map(params.getNestedParameters(), byExample.instance);
         }
 

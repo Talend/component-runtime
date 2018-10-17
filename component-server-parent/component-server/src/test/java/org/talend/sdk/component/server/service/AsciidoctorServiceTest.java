@@ -119,17 +119,19 @@ class AsciidoctorServiceTest {
                 + "<td class=\"tableblock halign-left valign-top\"><div class=\"content\"><div class=\"paragraph\">\n"
                 + "<p>Always enabled</p>\n" + "</div></div></td>\n" + "</tr>\n" + "</tbody>\n" + "</table>\n"
                 + "</div>\n" + "</div>\n" + "</div>",
-                adoc.toHtml("== activeif\n" + "\n" + "=== Configuration\n" + "\n"
-                        + "[cols=\"e,d,m,a\",options=\"header\"]\n" + "|===\n"
-                        + "|Path|Description|Default Value|Enabled If\n"
-                        + "|configuration|configuration configuration|-|Always enabled\n"
-                        + "|configuration.advanced|advanced configuration|false|Always enabled\n"
-                        + "|configuration.advancedOption|advancedOption configuration|-|All these conditions are meet:\n"
-                        + "\n" + "- `advanced` is equals to `false`\n" + "- the length of `query` is `0`\n" + "\n"
-                        + "|configuration.query|query configuration|-|All these conditions are meet:\n" + "\n"
-                        + "- `toggle` is equals to `true`\n" + "- `type` is equals to `mysql` or `oracle`\n" + "\n"
-                        + "|configuration.toggle|toggle configuration|false|Always enabled\n"
-                        + "|configuration.token|token configuration|-|`toggle` is equals to `true`\n"
-                        + "|configuration.type|type configuration|-|Always enabled\n" + "|===\n"));
+                adoc
+                        .toHtml("== activeif\n" + "\n" + "=== Configuration\n" + "\n"
+                                + "[cols=\"e,d,m,a\",options=\"header\"]\n" + "|===\n"
+                                + "|Path|Description|Default Value|Enabled If\n"
+                                + "|configuration|configuration configuration|-|Always enabled\n"
+                                + "|configuration.advanced|advanced configuration|false|Always enabled\n"
+                                + "|configuration.advancedOption|advancedOption configuration|-|All these conditions are meet:\n"
+                                + "\n" + "- `advanced` is equals to `false`\n" + "- the length of `query` is `0`\n"
+                                + "\n" + "|configuration.query|query configuration|-|All these conditions are meet:\n"
+                                + "\n" + "- `toggle` is equals to `true`\n"
+                                + "- `type` is equals to `mysql` or `oracle`\n" + "\n"
+                                + "|configuration.toggle|toggle configuration|false|Always enabled\n"
+                                + "|configuration.token|token configuration|-|`toggle` is equals to `true`\n"
+                                + "|configuration.type|type configuration|-|Always enabled\n" + "|===\n"));
     }
 }

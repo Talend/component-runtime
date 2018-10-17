@@ -84,8 +84,8 @@ public class ActionResource {
             @QueryParam("type") final String type, @QueryParam("action") final String action,
             @QueryParam("language") final String lang, @Context final HttpServletRequest request,
             final Map<String, Object> params) {
-        return service.createStage(family, type, action,
-                new UiSpecContext(ofNullable(lang).orElse("en"), placeholderProviderFactory.newProvider(request)),
-                params);
+        return service
+                .createStage(family, type, action, new UiSpecContext(ofNullable(lang).orElse("en"),
+                        placeholderProviderFactory.newProvider(request)), params);
     }
 }

@@ -154,8 +154,8 @@ public class RequestParser {
                     return url;
                 };
             } else if (parameters[i].isAnnotationPresent(QueryParams.class)) {
-                queryParamsProvider.queries.put(i,
-                        new Encodable("", parameters[i].getAnnotation(QueryParams.class).encode()));
+                queryParamsProvider.queries
+                        .put(i, new Encodable("", parameters[i].getAnnotation(QueryParams.class).encode()));
             } else if (parameters[i].isAnnotationPresent(Query.class)) {
                 final Query query = parameters[i].getAnnotation(Query.class);
                 queryParamsProvider.queries.put(i, new Encodable(query.value(), query.encode()));
@@ -164,8 +164,9 @@ public class RequestParser {
             } else if (parameters[i].isAnnotationPresent(Header.class)) {
                 headersProvider.headers.put(i, parameters[i].getAnnotation(Header.class).value());
             } else if (parameters[i].isAnnotationPresent(ConfigurerOption.class)) {
-                configurerOptionsProvider.putIfAbsent(parameters[i].getAnnotation(ConfigurerOption.class).value(),
-                        params -> params[index]);
+                configurerOptionsProvider
+                        .putIfAbsent(parameters[i].getAnnotation(ConfigurerOption.class).value(),
+                                params -> params[index]);
             } else { // payload
                 if (payloadProvider != null) {
                     throw new IllegalArgumentException(method + " has two payload parameters");
@@ -299,24 +300,26 @@ public class RequestParser {
     private Map<String, Encoder> createEncoder(final Codec codec) {
         final Map<String, Encoder> encoders = new HashMap<>();
         if (codec != null && codec.encoder().length != 0) {
-            encoders.putAll(stream(codec.encoder())
-                    .filter(Objects::nonNull)
-                    .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
-                            ? encoder.getAnnotation(ContentType.class).value()
-                            : "*/*", encoder -> {
-                                try {
-                                    final Constructor<?> constructor = Constructors.findConstructor(encoder);
-                                    final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services, null);
-                                    return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalArgumentException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw toRuntimeException(e);
-                                }
-                            }, (k, v) -> {
-                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                            })));
+            encoders
+                    .putAll(stream(codec.encoder())
+                            .filter(Objects::nonNull)
+                            .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
+                                    ? encoder.getAnnotation(ContentType.class).value()
+                                    : "*/*", encoder -> {
+                                        try {
+                                            final Constructor<?> constructor = Constructors.findConstructor(encoder);
+                                            final Function<Map<String, String>, Object[]> paramFactory =
+                                                    reflections.parameterFactory(constructor, services, null);
+                                            return Encoder.class
+                                                    .cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                        } catch (final InstantiationException | IllegalAccessException e) {
+                                            throw new IllegalArgumentException(e);
+                                        } catch (final InvocationTargetException e) {
+                                            throw toRuntimeException(e);
+                                        }
+                                    }, (k, v) -> {
+                                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                                    })));
         }
 
         // keep the put order
@@ -328,8 +331,9 @@ public class RequestParser {
 
         encoders.putIfAbsent("*/json", jsonpEncoder);
         encoders.putIfAbsent("*/*+json", jsonpEncoder);
-        encoders.putIfAbsent("*/*",
-                value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
+        encoders
+                .putIfAbsent("*/*",
+                        value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
 
         return sortMap(encoders);
 
@@ -338,24 +342,26 @@ public class RequestParser {
     private Map<String, Decoder> createDecoder(final Codec codec) {
         final Map<String, Decoder> decoders = new HashMap<>();
         if (codec != null && codec.decoder().length != 0) {
-            decoders.putAll(stream(codec.decoder())
-                    .filter(Objects::nonNull)
-                    .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
-                            ? decoder.getAnnotation(ContentType.class).value()
-                            : "*/*", decoder -> {
-                                try {
-                                    final Constructor<?> constructor = Constructors.findConstructor(decoder);
-                                    final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services, null);
-                                    return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalArgumentException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw toRuntimeException(e);
-                                }
-                            }, (k, v) -> {
-                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                            })));
+            decoders
+                    .putAll(stream(codec.decoder())
+                            .filter(Objects::nonNull)
+                            .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
+                                    ? decoder.getAnnotation(ContentType.class).value()
+                                    : "*/*", decoder -> {
+                                        try {
+                                            final Constructor<?> constructor = Constructors.findConstructor(decoder);
+                                            final Function<Map<String, String>, Object[]> paramFactory =
+                                                    reflections.parameterFactory(constructor, services, null);
+                                            return Decoder.class
+                                                    .cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                        } catch (final InstantiationException | IllegalAccessException e) {
+                                            throw new IllegalArgumentException(e);
+                                        } catch (final InvocationTargetException e) {
+                                            throw toRuntimeException(e);
+                                        }
+                                    }, (k, v) -> {
+                                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                                    })));
         }
         // add default decoders if not override by the user
         // keep the put order
@@ -399,8 +405,11 @@ public class RequestParser {
                     final Map<String, String> queryParams =
                             args[entry.getKey()] == null ? emptyMap() : (Map) args[entry.getKey()];
                     if (entry.getValue().encode) {
-                        return queryParams.entrySet().stream().filter(q -> q.getValue() != null).map(
-                                e -> new AbstractMap.SimpleEntry<>(e.getKey(), queryEncode(e.getValue())));
+                        return queryParams
+                                .entrySet()
+                                .stream()
+                                .filter(q -> q.getValue() != null)
+                                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), queryEncode(e.getValue())));
                     }
                     return queryParams.entrySet().stream();
                 }

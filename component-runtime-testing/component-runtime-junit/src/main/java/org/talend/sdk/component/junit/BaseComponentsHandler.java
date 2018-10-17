@@ -142,8 +142,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
             }
         };
 
-        STATE.set(new State(embeddedComponentManager, new ArrayList<>(), initState.get().emitter, null, null, null,
-                null));
+        STATE
+                .set(new State(embeddedComponentManager, new ArrayList<>(), initState.get().emitter, null, null, null,
+                        null));
         return embeddedComponentManager;
     }
 
@@ -216,15 +217,15 @@ public class BaseComponentsHandler implements ComponentsHandler {
         case 0:
             return Stream.empty();
         case 1:
-            return StreamDecorator.decorate(
-                    asStream(asIterator(mappers.iterator().next().create(), new AtomicInteger(maxRecords))),
-                    collect -> {
-                        try {
-                            collect.run();
-                        } finally {
-                            mapper.stop();
-                        }
-                    });
+            return StreamDecorator
+                    .decorate(asStream(asIterator(mappers.iterator().next().create(), new AtomicInteger(maxRecords))),
+                            collect -> {
+                                try {
+                                    collect.run();
+                                } finally {
+                                    mapper.stop();
+                                }
+                            });
         default: // N producers-1 consumer pattern
             final AtomicInteger threadCounter = new AtomicInteger(0);
             final ExecutorService es = Executors.newFixedThreadPool(mappers.size(), r -> new Thread(r) {
@@ -376,24 +377,26 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     private <C, T, A> A create(final Class<A> api, final Class<T> componentType, final C configuration) {
         final ComponentFamilyMeta.BaseMeta<? extends Lifecycle> meta = findMeta(componentType);
-        return api.cast(meta
-                .getInstantiator()
-                .apply(configuration == null || meta.getParameterMetas().isEmpty() ? emptyMap()
-                        : configurationByExample(configuration, meta
-                                .getParameterMetas()
-                                .stream()
-                                .filter(p -> p.getName().equals(p.getPath()))
-                                .findFirst()
-                                .map(p -> p.getName() + '.')
-                                .orElseThrow(() -> new IllegalArgumentException("Didn't find any option and therefore "
-                                        + "can't convert the configuration instance to a configuration")))));
+        return api
+                .cast(meta
+                        .getInstantiator()
+                        .apply(configuration == null || meta.getParameterMetas().isEmpty() ? emptyMap()
+                                : configurationByExample(configuration, meta
+                                        .getParameterMetas()
+                                        .stream()
+                                        .filter(p -> p.getName().equals(p.getPath()))
+                                        .findFirst()
+                                        .map(p -> p.getName() + '.')
+                                        .orElseThrow(() -> new IllegalArgumentException(
+                                                "Didn't find any option and therefore "
+                                                        + "can't convert the configuration instance to a configuration")))));
     }
 
     private <T> ComponentFamilyMeta.BaseMeta<? extends Lifecycle> findMeta(final Class<T> componentType) {
         return asManager()
                 .find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                .flatMap(f -> Stream.concat(f.getProcessors().values().stream(),
-                        f.getPartitionMappers().values().stream()))
+                .flatMap(f -> Stream
+                        .concat(f.getProcessors().values().stream(), f.getPartitionMappers().values().stream()))
                 .filter(m -> m.getType().getName().equals(componentType.getName()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No component " + componentType));
@@ -451,12 +454,13 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     @Override
     public <T> T findService(final String plugin, final Class<T> serviceClass) {
-        return serviceClass.cast(asManager()
-                .findPlugin(plugin)
-                .orElseThrow(() -> new IllegalArgumentException("cant find plugin '" + plugin + "'"))
-                .get(ComponentManager.AllServices.class)
-                .getServices()
-                .get(serviceClass));
+        return serviceClass
+                .cast(asManager()
+                        .findPlugin(plugin)
+                        .orElseThrow(() -> new IllegalArgumentException("cant find plugin '" + plugin + "'"))
+                        .get(ComponentManager.AllServices.class)
+                        .getServices()
+                        .get(serviceClass));
     }
 
     @Override
@@ -513,8 +517,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
         if (Record.class == recordType) {
             return recordType.cast(new RecordConverters().toRecord(r, state::jsonb, state::recordBuilderFactory));
         }
-        return recordType.cast(new RecordConverters().toType(r, recordType, state::jsonBuilderFactory,
-                state::jsonProvider, state::jsonb));
+        return recordType
+                .cast(new RecordConverters()
+                        .toType(r, recordType, state::jsonBuilderFactory, state::jsonProvider, state::jsonb));
     }
 
     static class PreState {

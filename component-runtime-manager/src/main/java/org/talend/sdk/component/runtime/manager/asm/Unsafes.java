@@ -61,8 +61,9 @@ public class Unsafes {
         if (UNSAFE != null) {
             UNSAFE_DEFINE_CLASS = AccessController.doPrivileged((PrivilegedAction<Method>) () -> {
                 try {
-                    return unsafeClass.getDeclaredMethod("defineClass", String.class, byte[].class, int.class,
-                            int.class, ClassLoader.class, ProtectionDomain.class);
+                    return unsafeClass
+                            .getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class,
+                                    ClassLoader.class, ProtectionDomain.class);
                 } catch (final Exception e) {
                     return null;
                 }
@@ -113,8 +114,8 @@ public class Unsafes {
                         (Class<T>) defineClassMethod.invoke(classLoader, proxyName, proxyBytes, 0, proxyBytes.length);
             } else {
                 requireNonNull(UNSAFE_DEFINE_CLASS, "No Unsafe.defineClass available");
-                definedClass = (Class<T>) UNSAFE_DEFINE_CLASS.invoke(UNSAFE, proxyName, proxyBytes, 0,
-                        proxyBytes.length, classLoader, null);
+                definedClass = (Class<T>) UNSAFE_DEFINE_CLASS
+                        .invoke(UNSAFE, proxyName, proxyBytes, 0, proxyBytes.length, classLoader, null);
             }
 
             return (Class<T>) Class.forName(definedClass.getName(), true, classLoader);

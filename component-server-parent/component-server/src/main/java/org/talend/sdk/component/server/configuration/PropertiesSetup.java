@@ -28,7 +28,11 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
             configuration.setProperties(new Properties());
         }
         configuration.getProperties().putAll(System.getProperties());
-        configuration.getProperties().stringPropertyNames().stream().filter(k -> System.getProperty(k) == null).forEach(
-                k -> System.setProperty(k, configuration.getProperties().getProperty(k)));
+        configuration
+                .getProperties()
+                .stringPropertyNames()
+                .stream()
+                .filter(k -> System.getProperty(k) == null)
+                .forEach(k -> System.setProperty(k, configuration.getProperties().getProperty(k)));
     }
 }

@@ -89,8 +89,9 @@ public class ComponentManagerService {
 
     @PostConstruct
     private void init() {
-        configuration.getMavenRepository().ifPresent(
-                repo -> System.setProperty("talend.component.manager.m2.repository", repo));
+        configuration
+                .getMavenRepository()
+                .ifPresent(repo -> System.setProperty("talend.component.manager.m2.repository", repo));
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
@@ -151,8 +152,11 @@ public class ComponentManagerService {
     }
 
     public Date findLastUpdated() {
-        return instance.find(Stream::of).map(Container::getLastModifiedTimestamp).max(Date::compareTo).orElseGet(
-                () -> new Date(0));
+        return instance
+                .find(Stream::of)
+                .map(Container::getLastModifiedTimestamp)
+                .max(Date::compareTo)
+                .orElseGet(() -> new Date(0));
     }
 
     @AllArgsConstructor
@@ -186,8 +190,8 @@ public class ComponentManagerService {
                     .getComponents()
                     .values()
                     .stream()
-                    .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
-                            c.getProcessors().values().stream()))
+                    .flatMap(c -> Stream
+                            .concat(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream()))
                     .peek(componentDao::createOrUpdate)
                     .map(ComponentFamilyMeta.BaseMeta::getId)
                     .collect(toSet());
@@ -209,8 +213,11 @@ public class ComponentManagerService {
                     .collect(toList());
 
             final Collection<String> configs = ofNullable(plugin.get(RepositoryModel.class))
-                    .map(r -> r.getFamilies().stream().flatMap(f -> configAsStream(f.getConfigs().stream())).collect(
-                            toList()))
+                    .map(r -> r
+                            .getFamilies()
+                            .stream()
+                            .flatMap(f -> configAsStream(f.getConfigs().stream()))
+                            .collect(toList()))
                     .orElse(emptyList())
                     .stream()
                     .map(configurationDao::createOrUpdate)

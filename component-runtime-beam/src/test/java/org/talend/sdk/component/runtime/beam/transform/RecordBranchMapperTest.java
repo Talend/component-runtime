@@ -40,8 +40,9 @@ public class RecordBranchMapperTest implements Serializable {
 
     @Test
     public void test() {
-        PAssert.that(buildBasePipeline(pipeline).apply(RecordBranchMapper.of(null, "b1", "other"))).satisfies(
-                values -> {
+        PAssert
+                .that(buildBasePipeline(pipeline).apply(RecordBranchMapper.of(null, "b1", "other")))
+                .satisfies(values -> {
                     final List<Record> items = StreamSupport.stream(values.spliterator(), false).collect(toList());
                     assertEquals(2, items.size());
                     items.forEach(item -> {

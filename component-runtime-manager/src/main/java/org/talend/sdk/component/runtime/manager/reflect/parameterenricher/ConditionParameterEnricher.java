@@ -49,8 +49,11 @@ public class ConditionParameterEnricher extends BaseParameterEnricher {
                         .map(ai -> onParameterAnnotation(parameterName, parameterType, ai))
                         .collect(HashMap::new, (map, entry) -> {
                             final String suffix = "::" + (map.size() / 4);
-                            map.putAll(entry.entrySet().stream().collect(
-                                    toMap(e -> e.getKey() + suffix, Map.Entry::getValue)));
+                            map
+                                    .putAll(entry
+                                            .entrySet()
+                                            .stream()
+                                            .collect(toMap(e -> e.getKey() + suffix, Map.Entry::getValue)));
                         }, HashMap::putAll);
                 metas.putAll(toMeta(annotation, type, m -> !"value".equals(m.getName())));
                 return metas;
@@ -77,9 +80,10 @@ public class ConditionParameterEnricher extends BaseParameterEnricher {
                             final ActiveIf.EvaluationStrategyOption[] options =
                                     ActiveIf.class.cast(annotation).evaluationStrategyOptions();
                             if (options.length > 0) {
-                                return String.valueOf(invoke)
-                                        + Stream.of(options).map(o -> o.name() + '=' + o.value()).collect(
-                                                joining(",", "(", ")"));
+                                return String.valueOf(invoke) + Stream
+                                        .of(options)
+                                        .map(o -> o.name() + '=' + o.value())
+                                        .collect(joining(",", "(", ")"));
                             }
                         }
                         return String.valueOf(invoke);

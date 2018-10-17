@@ -44,8 +44,9 @@ class DocumentationResourceTest {
 
     @Test
     void wsDoc() {
-        final DocumentationContent content = ws.read(DocumentationContent.class, "GET",
-                "/documentation/component/" + client.getJdbcId() + "?format=html", null);
+        final DocumentationContent content = ws
+                .read(DocumentationContent.class, "GET",
+                        "/documentation/component/" + client.getJdbcId() + "?format=html", null);
         assertEquals("html", content.getType());
         assertEquals(
                 "<div class=\"sect1\">\n" + "<h2 id=\"_input\">input</h2>\n" + "<div class=\"sectionbody\">\n"

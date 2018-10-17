@@ -160,8 +160,10 @@ public class ComponentResource {
         if (ids.length == 0) {
             return new Dependencies(emptyMap());
         }
-        return new Dependencies(
-                Stream.of(ids).map(id -> componentDao.findById(id)).collect(toMap(ComponentFamilyMeta.BaseMeta::getId,
+        return new Dependencies(Stream
+                .of(ids)
+                .map(id -> componentDao.findById(id))
+                .collect(toMap(ComponentFamilyMeta.BaseMeta::getId,
                         meta -> componentManagerService.manager().findPlugin(meta.getParent().getPlugin()).map(c -> {
                             ComponentExtension.ComponentContext context =
                                     c.get(ComponentContexts.class).getContexts().get(meta.getType());
@@ -178,8 +180,9 @@ public class ComponentResource {
                                         .filter(extArtifact -> dependencies
                                                 .stream()
                                                 .map(d -> d.getGroup() + ":" + d.getArtifact())
-                                                .noneMatch(ga -> ga.equals(
-                                                        extArtifact.getGroup() + ":" + extArtifact.getArtifact())));
+                                                .noneMatch(ga -> ga
+                                                        .equals(extArtifact.getGroup() + ":"
+                                                                + extArtifact.getArtifact())));
                                 artifacts = Stream.concat(dependencies.stream(), addDeps);
                             } else {
                                 artifacts = deps;
@@ -253,25 +256,25 @@ public class ComponentResource {
                     description = "should the icon binary format be included in the payload.", in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) final boolean includeIconContent) {
         final Locale locale = localeMapper.mapLocale(language);
-        return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent),
-                k -> new ComponentIndices(manager
+        return indicesPerRequest
+                .computeIfAbsent(new RequestKey(locale, includeIconContent), k -> new ComponentIndices(manager
                         .find(c -> c
                                 .execute(
                                         () -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                                .flatMap(component -> Stream.concat(
-                                        component
+                                .flatMap(component -> Stream
+                                        .concat(component
                                                 .getPartitionMappers()
                                                 .values()
                                                 .stream()
                                                 .map(mapper -> toComponentIndex(c, locale, c.getId(), mapper,
                                                         c.get(ComponentManager.OriginalId.class), includeIconContent)),
-                                        component
-                                                .getProcessors()
-                                                .values()
-                                                .stream()
-                                                .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
-                                                        c.get(ComponentManager.OriginalId.class),
-                                                        includeIconContent)))))
+                                                component
+                                                        .getProcessors()
+                                                        .values()
+                                                        .stream()
+                                                        .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
+                                                                c.get(ComponentManager.OriginalId.class),
+                                                                includeIconContent)))))
                         .collect(toList())));
     }
 
@@ -409,8 +412,9 @@ public class ComponentResource {
                 })).filter(Objects::nonNull).map(meta -> {
                     final Optional<Container> plugin = manager.findPlugin(meta.getParent().getPlugin());
                     if (!plugin.isPresent()) {
-                        errors.put(meta.getId(),
-                                new ErrorPayload(PLUGIN_MISSING, "No plugin '" + meta.getParent().getPlugin() + "'"));
+                        errors
+                                .put(meta.getId(), new ErrorPayload(PLUGIN_MISSING,
+                                        "No plugin '" + meta.getParent().getPlugin() + "'"));
                         return null;
                     }
 
@@ -418,8 +422,9 @@ public class ComponentResource {
 
                     final Optional<DesignModel> model = ofNullable(meta.get(DesignModel.class));
                     if (!model.isPresent()) {
-                        errors.put(meta.getId(),
-                                new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
+                        errors
+                                .put(meta.getId(), new ErrorPayload(DESIGN_MODEL_MISSING,
+                                        "No design model '" + meta.getId() + "'"));
                         return null;
                     }
 
@@ -434,13 +439,19 @@ public class ComponentResource {
                     componentDetail.setOutputFlows(model.get().getOutputFlows());
                     componentDetail
                             .setType(ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor" : "input");
-                    componentDetail.setDisplayName(
-                            meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
-                    componentDetail.setProperties(propertiesService
-                            .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
-                            .collect(toList()));
-                    componentDetail.setActions(actionsService.findActions(meta.getParent().getName(), container, locale,
-                            meta, meta.getParent().findBundle(container.getLoader(), locale)));
+                    componentDetail
+                            .setDisplayName(meta
+                                    .findBundle(container.getLoader(), locale)
+                                    .displayName()
+                                    .orElse(meta.getName()));
+                    componentDetail
+                            .setProperties(propertiesService
+                                    .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
+                                    .collect(toList()));
+                    componentDetail
+                            .setActions(actionsService
+                                    .findActions(meta.getParent().getName(), container, locale, meta,
+                                            meta.getParent().findBundle(container.getLoader(), locale)));
 
                     return componentDetail;
                 }).filter(Objects::nonNull).collect(toList());
@@ -481,8 +492,9 @@ public class ComponentResource {
                                 .getParent()
                                 .findBundle(loader, locale)
                                 .category(category)
-                                .orElseGet(() -> category.replace("/" + meta.getParent().getName() + "/",
-                                        "/" + familyDisplayName + "/")))
+                                .orElseGet(() -> category
+                                        .replace("/" + meta.getParent().getName() + "/",
+                                                "/" + familyDisplayName + "/")))
                         .collect(toList()))
                 .orElseGet(Collections::emptyList);
         return new ComponentIndex(

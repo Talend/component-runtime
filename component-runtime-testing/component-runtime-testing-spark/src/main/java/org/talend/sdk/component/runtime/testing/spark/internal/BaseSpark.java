@@ -215,8 +215,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                 .forEach(dep -> {
                     try {
                         LOGGER.debug("Copying " + dep.getName() + " dependency");
-                        Files.copy(dep.toPath(), new File(libFolder, dep.getName()).toPath(),
-                                StandardCopyOption.REPLACE_EXISTING);
+                        Files
+                                .copy(dep.toPath(), new File(libFolder, dep.getName()).toPath(),
+                                        StandardCopyOption.REPLACE_EXISTING);
                     } catch (final IOException e) {
                         fail(e.getMessage());
                     }
@@ -224,9 +225,10 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
 
         if (version == Version.SPARK_1) {
             try {
-                Files.write(new File(sparkHome, "RELEASE").toPath(),
-                        "fake release file cause it is tested in 1.6.3".getBytes(StandardCharsets.UTF_8),
-                        StandardOpenOption.CREATE_NEW);
+                Files
+                        .write(new File(sparkHome, "RELEASE").toPath(),
+                                "fake release file cause it is tested in 1.6.3".getBytes(StandardCharsets.UTF_8),
+                                StandardOpenOption.CREATE_NEW);
             } catch (final IOException e) {
                 fail(e.getMessage());
             }
@@ -309,8 +311,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
             return file.getAbsolutePath();
         }).collect(joining(File.pathSeparator));
         submit(main,
-                Stream.concat(args == null ? Stream.empty() : Stream.of(args), Stream.of("--jars", classpath)).toArray(
-                        String[]::new));
+                Stream
+                        .concat(args == null ? Stream.empty() : Stream.of(args), Stream.of("--jars", classpath))
+                        .toArray(String[]::new));
     }
 
     /**
@@ -352,19 +355,25 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                 .getAbsolutePath();
 
         final String[] submitArgs = Stream
-                .concat(Stream.concat(Stream.concat(Stream.of("org.apache.spark.deploy.SparkSubmit", "--verbose"),
-                        new HashMap<String, String>() {
+                .concat(Stream
+                        .concat(Stream
+                                .concat(Stream.of("org.apache.spark.deploy.SparkSubmit", "--verbose"),
+                                        new HashMap<String, String>() {
 
-                            { // overridable by args, it is just defaults
-                                put("--executor-memory", "512m"); // 256m fails so don't reduce it too much if you try
-                                // to go that way
-                                put("--driver-memory", "512m");
-                                put("--total-executor-cores", "1");
-                                put("--deploy-mode", "cluster");
-                            }
-                        }.entrySet().stream().filter(e -> Stream.of(args).noneMatch(p -> p.equals(e.getKey()))).flatMap(
-                                e -> Stream.of(e.getKey(), e.getValue()))),
-                        Stream.of("--master", getSparkMaster(), "--class", main.getName(), bundle)),
+                                            { // overridable by args, it is just defaults
+                                                put("--executor-memory", "512m"); // 256m fails so don't reduce it too
+                                                                                  // much if you try
+                                                // to go that way
+                                                put("--driver-memory", "512m");
+                                                put("--total-executor-cores", "1");
+                                                put("--deploy-mode", "cluster");
+                                            }
+                                        }
+                                                .entrySet()
+                                                .stream()
+                                                .filter(e -> Stream.of(args).noneMatch(p -> p.equals(e.getKey())))
+                                                .flatMap(e -> Stream.of(e.getKey(), e.getValue()))),
+                                Stream.of("--master", getSparkMaster(), "--class", main.getName(), bundle)),
                         args == null ? Stream.empty() : Stream.of(args))
                 .toArray(String[]::new);
         LOGGER.info("Submitting: " + asList(submitArgs));
@@ -524,15 +533,20 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
             final File sparkHome = config.sparkHome;
             try {
                 final String classpath = Stream
-                        .of(ofNullable(new File(sparkHome, config.version.libFolder()).listFiles()).orElseThrow(
-                                () -> new IllegalArgumentException("No spark dependencies in " + sparkHome)))
+                        .of(ofNullable(new File(sparkHome, config.version.libFolder()).listFiles())
+                                .orElseThrow(
+                                        () -> new IllegalArgumentException("No spark dependencies in " + sparkHome)))
                         .map(File::getAbsolutePath)
                         .collect(joining(File.pathSeparator));
                 LOGGER.debug("Launching " + asList(mainAndArgs));
-                final ProcessBuilder builder = new ProcessBuilder().redirectErrorStream(true).command(Stream
-                        .concat(Stream.of(new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(),
-                                "-cp", classpath), Stream.of(mainAndArgs))
-                        .collect(toList()));
+                final ProcessBuilder builder = new ProcessBuilder()
+                        .redirectErrorStream(true)
+                        .command(Stream
+                                .concat(Stream
+                                        .of(new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(),
+                                                "-cp", classpath),
+                                        Stream.of(mainAndArgs))
+                                .collect(toList()));
                 final Map<String, String> environment = builder.environment();
                 environment.put("SPARK_HOME", sparkHome.getAbsolutePath());
                 environment.put("SPARK_SCALA_VERSION", scalaVersion); // using jarLocation we can determine it if needed

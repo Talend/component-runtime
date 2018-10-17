@@ -39,8 +39,10 @@ public class ConfigurationReader {
             return;
         }
         requireNonNull(definitions, "Definitions can't be null to visit a configuration");
-        entries.forEach((key, value) -> findDefinition(key)
-                .ifPresent(def -> visitor.onEntry(new ConfigurationVisitor.ConfigurationEntry(key, value, def))));
+        entries
+                .forEach((key, value) -> findDefinition(key)
+                        .ifPresent(
+                                def -> visitor.onEntry(new ConfigurationVisitor.ConfigurationEntry(key, value, def))));
     }
 
     private Optional<SimplePropertyDefinition> findDefinition(final String key) {

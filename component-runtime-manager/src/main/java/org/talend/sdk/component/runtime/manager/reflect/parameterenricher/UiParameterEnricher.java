@@ -85,8 +85,10 @@ public class UiParameterEnricher extends BaseParameterEnricher {
                                             final StringBuilder builder = new StringBuilder("");
                                             for (int i = 0; i < length; i++) {
                                                 final Object annot = Array.get(invoke, i);
-                                                mtds.forEach(p -> builder
-                                                        .append(toString(Annotation.class.cast(annot), p, o -> null)));
+                                                mtds
+                                                        .forEach(p -> builder
+                                                                .append(toString(Annotation.class.cast(annot), p,
+                                                                        o -> null)));
                                                 if (i + 1 < length) {
                                                     builder.append('|');
                                                 }
@@ -119,8 +121,9 @@ public class UiParameterEnricher extends BaseParameterEnricher {
                 final String string = String.valueOf(invoke);
                 if (string.startsWith("local_configuration:")) {
                     return getContext()
-                            .map(context -> context.getConfiguration().get(
-                                    string.substring("local_configuration:".length())))
+                            .map(context -> context
+                                    .getConfiguration()
+                                    .get(string.substring("local_configuration:".length())))
                             .orElse(string);
                 }
                 return string;

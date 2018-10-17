@@ -86,8 +86,11 @@ public class ConfigurationService {
                 .getNodes()
                 .values()
                 .stream()
-                .flatMap(node -> node.getEdges().stream().map(edgeId -> configs.getNodes().get(edgeId)).filter(
-                        config -> config.getParentId() != null && families.containsKey(config.getParentId())))
+                .flatMap(node -> node
+                        .getEdges()
+                        .stream()
+                        .map(edgeId -> configs.getNodes().get(edgeId))
+                        .filter(config -> config.getParentId() != null && families.containsKey(config.getParentId())))
                 .map(root -> {
                     final ConfigTypeNode family = families.get(root.getParentId());
                     return new Node(root.getId(), root.getDisplayName(), family.getId(), family.getDisplayName(),
@@ -153,8 +156,11 @@ public class ConfigurationService {
     private void enrichTriggers(final ConfigTypeNode it, final String appended) {
         it.getProperties().forEach(prop -> {
             final Map<String, String> metadata = prop.getMetadata();
-            metadata.keySet().stream().filter(k -> k.startsWith("action::") && k.split("::").length == 2).forEach(
-                    act -> {
+            metadata
+                    .keySet()
+                    .stream()
+                    .filter(k -> k.startsWith("action::") && k.split("::").length == 2)
+                    .forEach(act -> {
                         final String key = act + "::parameters";
                         final String originalValue = metadata.get(key);
                         final Map<String, String> newMetadata = new HashMap<>(metadata);

@@ -31,22 +31,20 @@ public class EnvironmentsConfigurationParser {
 
     public EnvironmentsConfigurationParser(final Class<?> testClass) {
         final Optional<Environments> config = ofNullable(testClass.getAnnotation(Environments.class));
-        environments =
-                Stream
-                        .concat(config.map(Environments::value).map(Stream::of).orElseGet(Stream::empty),
-                                ofNullable(testClass.getAnnotation(Environment.class)).map(Stream::of).orElseGet(
-                                        Stream::empty))
-                        .map(e -> {
-                            try {
-                                return e.value().getConstructor().newInstance();
-                            } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException ex) {
-                                throw new IllegalStateException(ex);
-                            } catch (final InvocationTargetException ex) {
-                                throw new IllegalStateException(ex.getTargetException());
-                            }
-                        })
-                        .map(DecoratingEnvironmentProvider::new)
-                        .collect(toList());
+        environments = Stream
+                .concat(config.map(Environments::value).map(Stream::of).orElseGet(Stream::empty),
+                        ofNullable(testClass.getAnnotation(Environment.class)).map(Stream::of).orElseGet(Stream::empty))
+                .map(e -> {
+                    try {
+                        return e.value().getConstructor().newInstance();
+                    } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException ex) {
+                        throw new IllegalStateException(ex);
+                    } catch (final InvocationTargetException ex) {
+                        throw new IllegalStateException(ex.getTargetException());
+                    }
+                })
+                .map(DecoratingEnvironmentProvider::new)
+                .collect(toList());
         parallel = config.map(Environments::parallel).orElse(false);
     }
 

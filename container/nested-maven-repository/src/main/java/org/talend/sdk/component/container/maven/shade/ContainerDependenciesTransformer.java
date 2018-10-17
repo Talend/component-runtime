@@ -45,11 +45,12 @@ public class ContainerDependenciesTransformer extends ArtifactTransformer {
         final Collection<String> existing = new HashSet<>();
         artifacts.forEach(artifact -> {
             try {
-                final String path = String.format("%s%s/%s/%s/%s-%s%s.%s", repositoryBase,
-                        artifact.getGroupId().replace(".", "/"), artifact.getArtifactId(), artifact.getVersion(),
-                        artifact.getArtifactId(), artifact.getVersion(),
-                        ofNullable(artifact.getClassifier()).map(c -> '-' + c).orElse(""),
-                        ofNullable(artifact.getType()).orElse("jar"));
+                final String path = String
+                        .format("%s%s/%s/%s/%s-%s%s.%s", repositoryBase, artifact.getGroupId().replace(".", "/"),
+                                artifact.getArtifactId(), artifact.getVersion(), artifact.getArtifactId(),
+                                artifact.getVersion(),
+                                ofNullable(artifact.getClassifier()).map(c -> '-' + c).orElse(""),
+                                ofNullable(artifact.getType()).orElse("jar"));
                 final StringBuilder current = new StringBuilder();
                 final String[] parts = path.split("/");
                 for (int i = 0; i < parts.length - 1; i++) {

@@ -57,8 +57,9 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
             newInstance(config.responseLocator(), ResponseLocator.class).ifPresent(this::setResponseLocator);
             newInstance(config.headerFilter(), Predicate.class).ifPresent(this::setHeaderFilter);
             newInstance(config.executor(), Executor.class).ifPresent(this::setExecutor);
-            newInstance(config.sslContext(), Supplier.class).map(s -> SSLContext.class.cast(s.get())).ifPresent(
-                    this::setSslContext);
+            newInstance(config.sslContext(), Supplier.class)
+                    .map(s -> SSLContext.class.cast(s.get()))
+                    .ifPresent(this::setSslContext);
             setSkipProxyHeaders(config.skipProxyHeaders());
             if (config.useSsl()) {
                 activeSsl();

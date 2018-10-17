@@ -318,8 +318,9 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         private void createSerialisation(final ClassWriter cw, final String pluginId) {
-            final MethodVisitor mv = cw.visitMethod(Modifier.PUBLIC, "writeReplace", "()Ljava/lang/Object;", null,
-                    new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
+            final MethodVisitor mv = cw
+                    .visitMethod(Modifier.PUBLIC, "writeReplace", "()Ljava/lang/Object;", null,
+                            new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
 
             mv.visitCode();
 
@@ -328,8 +329,9 @@ public class BeamIOTransformer implements ClassFileTransformer {
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitLdcInsn(pluginId);
-            mv.visitMethodInsn(INVOKESTATIC, wrapperType, "replace",
-                    "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;", false);
+            mv
+                    .visitMethodInsn(INVOKESTATIC, wrapperType, "replace",
+                            "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;", false);
             mv.visitInsn(ARETURN);
 
             mv.visitMaxs(-1, -1);

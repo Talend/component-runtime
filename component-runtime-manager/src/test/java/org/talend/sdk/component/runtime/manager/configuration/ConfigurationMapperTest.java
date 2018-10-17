@@ -43,10 +43,11 @@ class ConfigurationMapperTest {
     private final ConfigurationMapper mapper = new ConfigurationMapper();
 
     private Map<String, String> configurationByExample(final Object instance) {
-        return mapper.map(new SimpleParameterModelService()
-                .build("configuration.", "configuration.", instance.getClass(), new Annotation[0],
-                        new ArrayList<>(singletonList(instance.getClass().getPackage().getName())))
-                .getNestedParameters(), instance);
+        return mapper
+                .map(new SimpleParameterModelService()
+                        .build("configuration.", "configuration.", instance.getClass(), new Annotation[0],
+                                new ArrayList<>(singletonList(instance.getClass().getPackage().getName())))
+                        .getNestedParameters(), instance);
     }
 
     @Test

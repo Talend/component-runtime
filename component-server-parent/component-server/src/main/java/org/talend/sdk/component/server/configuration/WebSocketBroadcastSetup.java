@@ -144,8 +144,13 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 ServerContainer.class.cast(sce.getServletContext().getAttribute(ServerContainer.class.getName()));
 
         final JAXRSServiceFactoryBean factory = JAXRSServiceFactoryBean.class
-                .cast(bus.getExtension(ServerRegistry.class).getServers().iterator().next().getEndpoint().get(
-                        JAXRSServiceFactoryBean.class.getName()));
+                .cast(bus
+                        .getExtension(ServerRegistry.class)
+                        .getServers()
+                        .iterator()
+                        .next()
+                        .getEndpoint()
+                        .get(JAXRSServiceFactoryBean.class.getName()));
 
         final String appBase = StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(applications.iterator(), Spliterator.IMMUTABLE), false)
@@ -160,8 +165,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         final DestinationRegistry registry;
         try {
             final HTTPTransportFactory transportFactory = HTTPTransportFactory.class
-                    .cast(bus.getExtension(DestinationFactoryManager.class).getDestinationFactory(
-                            "http://cxf.apache.org/transports/http" + "/configuration"));
+                    .cast(bus
+                            .getExtension(DestinationFactoryManager.class)
+                            .getDestinationFactory("http://cxf.apache.org/transports/http" + "/configuration"));
             registry = transportFactory.getRegistry();
         } catch (final BusException e) {
             throw new IllegalStateException(e);
@@ -213,12 +219,14 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                                                 throws InstantiationException {
                                             final Map<String, List<String>> headers = new HashMap<>();
                                             if (!ori.getProduceTypes().isEmpty()) {
-                                                headers.put(HttpHeaders.CONTENT_TYPE, singletonList(
-                                                        ori.getProduceTypes().iterator().next().toString()));
+                                                headers
+                                                        .put(HttpHeaders.CONTENT_TYPE, singletonList(
+                                                                ori.getProduceTypes().iterator().next().toString()));
                                             }
                                             if (!ori.getConsumeTypes().isEmpty()) {
-                                                headers.put(HttpHeaders.ACCEPT, singletonList(
-                                                        ori.getConsumeTypes().iterator().next().toString()));
+                                                headers
+                                                        .put(HttpHeaders.ACCEPT, singletonList(
+                                                                ori.getConsumeTypes().iterator().next().toString()));
                                             }
                                             return (T) new JAXRSEndpoint(appBase, controller, servletContext,
                                                     ori.getHttpMethod(), uri, headers);
@@ -226,19 +234,20 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                                     })
                                     .build();
                         }),
-                        Stream.of(ServerEndpointConfig.Builder
-                                .create(Endpoint.class, "/websocket" + version + "/bus")
-                                .configurator(new ServerEndpointConfig.Configurator() {
+                        Stream
+                                .of(ServerEndpointConfig.Builder
+                                        .create(Endpoint.class, "/websocket" + version + "/bus")
+                                        .configurator(new ServerEndpointConfig.Configurator() {
 
-                                    @Override
-                                    public <T> T getEndpointInstance(final Class<T> clazz)
-                                            throws InstantiationException {
+                                            @Override
+                                            public <T> T getEndpointInstance(final Class<T> clazz)
+                                                    throws InstantiationException {
 
-                                        return (T) new JAXRSEndpoint(appBase, controller, servletContext, "GET", "/",
-                                                emptyMap());
-                                    }
-                                })
-                                .build()))
+                                                return (T) new JAXRSEndpoint(appBase, controller, servletContext, "GET",
+                                                        "/", emptyMap());
+                                            }
+                                        })
+                                        .build()))
                 .sorted(Comparator.comparing(ServerEndpointConfig::getPath))
                 .peek(e -> log.info("Deploying WebSocket(path={})", e.getPath()))
                 .forEach(config -> {
@@ -291,8 +300,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                             if (del < 0) {
                                 headers.put(line.trim(), emptyList());
                             } else {
-                                headers.put(line.substring(0, del).trim(),
-                                        singletonList(line.substring(del + 1).trim()));
+                                headers
+                                        .put(line.substring(0, del).trim(),
+                                                singletonList(line.substring(del + 1).trim()));
                             }
                         }
                         if (done) {
@@ -1027,9 +1037,12 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
             return sosi = new ServletByteArrayOutputStream(session, () -> {
                 final StringBuilder top = new StringBuilder("MESSAGE\r\n");
                 top.append("status: ").append(getStatus()).append("\r\n");
-                headers.forEach(
-                        (k, v) -> top.append(k).append(": ").append(v.stream().collect(Collectors.joining(","))).append(
-                                "\r\n"));
+                headers
+                        .forEach((k, v) -> top
+                                .append(k)
+                                .append(": ")
+                                .append(v.stream().collect(Collectors.joining(",")))
+                                .append("\r\n"));
                 top.append("\r\n");// empty line, means the next bytes are the payload
                 return top.toString();
             });
@@ -1436,8 +1449,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
             this.request = request;
             this.response = response;
             this.registry = registry;
-            this.request.setAttribute(AbstractHTTPDestination.CXF_CONTINUATION_MESSAGE,
-                    message.getExchange().getInMessage());
+            this.request
+                    .setAttribute(AbstractHTTPDestination.CXF_CONTINUATION_MESSAGE,
+                            message.getExchange().getInMessage());
             this.callback = message.getExchange().get(ContinuationCallback.class);
         }
 

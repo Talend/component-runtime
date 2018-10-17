@@ -42,9 +42,11 @@ public class BeamComponentResourceTest {
     @Test
     void getDependencies() {
         final String compId = client.getBeamSampleId();
-        final Dependencies dependencies =
-                base.path("component/dependencies").queryParam("identifier", compId).request(APPLICATION_JSON_TYPE).get(
-                        Dependencies.class);
+        final Dependencies dependencies = base
+                .path("component/dependencies")
+                .queryParam("identifier", compId)
+                .request(APPLICATION_JSON_TYPE)
+                .get(Dependencies.class);
         assertEquals(1, dependencies.getDependencies().size());
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertNotNull(definition);
@@ -58,9 +60,11 @@ public class BeamComponentResourceTest {
     @Test
     void getDependenciesNonBeam() {
         final String compId = client.getJdbcId();
-        final Dependencies dependencies =
-                base.path("component/dependencies").queryParam("identifier", compId).request(APPLICATION_JSON_TYPE).get(
-                        Dependencies.class);
+        final Dependencies dependencies = base
+                .path("component/dependencies")
+                .queryParam("identifier", compId)
+                .request(APPLICATION_JSON_TYPE)
+                .get(Dependencies.class);
         assertEquals(1, dependencies.getDependencies().size());
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertNotNull(definition);

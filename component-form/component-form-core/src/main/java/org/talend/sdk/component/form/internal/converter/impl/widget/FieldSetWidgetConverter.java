@@ -18,19 +18,19 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
-import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
@@ -65,24 +65,41 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
             uiSchema.setItems(new ArrayList<>());
 
             final List<SimplePropertyDefinition> properties = new ArrayList<>();
-            final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family, uiSchema.getItems(),
-                    properties, client, jsonSchema, this.properties, actions, lang, customPropertyConverters);
 
             // Create Nested UI Items
-            final Stream<SimplePropertyDefinition> nestedProperties = context.findDirectChild(this.properties);
-            final Stream<SimplePropertyDefinition> sortedProperties =
-                    order == null ? nestedProperties.sorted(comparing(SimplePropertyDefinition::getPath))
-                            : nestedProperties.sorted(comparing(it -> order.indexOf(it.getName())));
-            return CompletableFuture
-                    .allOf(sortedProperties
-                            .map(it -> new PropertyContext(it, context.getRootContext(), context.getConfiguration()))
-                            .map(CompletionStages::toStage)
-                            .map(uiSchemaConverter::convert)
-                            .toArray(CompletableFuture[]::new))
-                    .thenApply(done -> {
-                        addActions(context, uiSchema, properties);
-                        return context;
-                    });
+            final List<SimplePropertyDefinition> sortedProperties =
+                    context.findDirectChild(this.properties).collect(toList());
+            if (order == null) {
+                sortedProperties.sort(comparing(SimplePropertyDefinition::getPath));
+            } else {
+                sortedProperties.sort(comparing(it -> {
+                    final int i = order.indexOf(it.getName());
+                    if (i < 0) {
+                        return Integer.MAX_VALUE;
+                    }
+                    return i;
+                }));
+            }
+            final Collection<CompletionStage<ListItem>> futures = new ArrayList<>();
+            for (int i = 0; i < sortedProperties.size(); i++) {
+                final SimplePropertyDefinition definition = sortedProperties.get(i);
+                final int index = i;
+                final Collection<UiSchema> schemas = new ArrayList<>();
+                final CompletableFuture<PropertyContext<?>> propContext = completedFuture(
+                        new PropertyContext<>(definition, context.getRootContext(), context.getConfiguration()));
+                final UiSchemaConverter converter = new UiSchemaConverter(null, family, schemas, properties, client,
+                        jsonSchema, this.properties, actions, lang, customPropertyConverters);
+                futures.add(converter.convert(propContext).thenApply(pc -> {
+                    final ListItem item = new ListItem(index, new String[] { definition.getName() });
+                    item.getUiSchemas().addAll(schemas);
+                    return item;
+                }));
+            }
+            return CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).thenApply(done -> {
+                ListItem.merge(futures, uiSchema);
+                addActions(context, uiSchema, properties);
+                return context;
+            });
         });
     }
 }

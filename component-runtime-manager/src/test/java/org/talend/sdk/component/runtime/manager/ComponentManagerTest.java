@@ -104,10 +104,11 @@ class ComponentManagerTest {
         pluginFolder.mkdirs();
 
         // just some jars with classes we can scan
-        final File plugin1 = pluginGenerator.createPlugin(pluginFolder, "plugin1.jar",
-                "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
-        final File plugin2 = pluginGenerator.createPlugin(pluginFolder, "plugin2.jar",
-                "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.5:runtime");
+        final File plugin1 = pluginGenerator
+                .createPlugin(pluginFolder, "plugin1.jar", "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+        final File plugin2 = pluginGenerator
+                .createPlugin(pluginFolder, "plugin2.jar",
+                        "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.5:runtime");
 
         // ensure jmx value is free and we don't get a test luck
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();

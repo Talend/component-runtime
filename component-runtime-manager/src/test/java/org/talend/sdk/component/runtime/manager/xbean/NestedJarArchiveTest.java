@@ -79,9 +79,10 @@ class NestedJarArchiveTest {
                     final String className = packageName + "/Components.class";
                     nestedStream.putNextEntry(new ZipEntry(className));
                     final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                    writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER,
-                            className.substring(0, className.length() - ".class".length()), null,
-                            Type.getInternalName(Object.class), null);
+                    writer
+                            .visit(V1_8, ACC_PUBLIC + ACC_SUPER,
+                                    className.substring(0, className.length() - ".class".length()), null,
+                                    Type.getInternalName(Object.class), null);
                     writer.visitSource(className.replace(".class", ".java"), null);
                     final AnnotationVisitor componentAnnotation =
                             writer.visitAnnotation(Type.getDescriptor(Processor.class), true);

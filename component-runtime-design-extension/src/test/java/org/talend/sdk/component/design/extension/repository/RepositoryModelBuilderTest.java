@@ -81,35 +81,42 @@ class RepositoryModelBuilderTest {
                     .orElseThrow(IllegalArgumentException::new);
             assertEquals(3, theTestFamily.getConfigs().size(),
                     theTestFamily.getConfigs().stream().map(c -> c.getKey().getConfigName()).collect(joining(", ")));
-            theTestFamily.getConfigs().forEach(it -> assertTrue(it.getKey().getConfigName().startsWith("Connection-"),
-                    it.getKey().getConfigName()));
+            theTestFamily
+                    .getConfigs()
+                    .forEach(it -> assertTrue(it.getKey().getConfigName().startsWith("Connection-"),
+                            it.getKey().getConfigName()));
         }
     }
 
     @Test
     void notRootConfig() {
         final PropertyEditorRegistry registry = new PropertyEditorRegistry();
-        final RepositoryModel model = new RepositoryModelBuilder().create(new ComponentManager.AllServices(emptyMap()),
-                singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test") {
+        final RepositoryModel model = new RepositoryModelBuilder()
+                .create(new ComponentManager.AllServices(emptyMap()),
+                        singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test") {
 
-                    {
-                        final ParameterMeta store = new ParameterMeta(null, DataStore1.class, ParameterMeta.Type.OBJECT,
-                                "config.store", "store", new String[0], emptyList(), emptyList(),
-                                new HashMap<String, String>() {
+                            {
+                                final ParameterMeta store = new ParameterMeta(null, DataStore1.class,
+                                        ParameterMeta.Type.OBJECT, "config.store", "store", new String[0], emptyList(),
+                                        emptyList(), new HashMap<String, String>() {
 
-                                    {
-                                        put("tcomp::configurationtype::type", "datastore");
-                                        put("tcomp::configurationtype::name", "testDatastore");
-                                    }
-                                }, false);
-                        final ParameterMeta wrapper =
-                                new ParameterMeta(null, WrappingStore.class, ParameterMeta.Type.OBJECT, "config",
-                                        "config", new String[0], singletonList(store), emptyList(), emptyMap(), false);
-                        getPartitionMappers().put("test", new PartitionMapperMeta(this, "mapper", "noicon", 1,
-                                PartitionMapper1.class, singletonList(wrapper), m -> null, (a, b) -> null, true) {
-                        });
-                    }
-                }), new MigrationHandlerFactory(new ReflectionService(new ParameterModelService(registry), registry)));
+                                            {
+                                                put("tcomp::configurationtype::type", "datastore");
+                                                put("tcomp::configurationtype::name", "testDatastore");
+                                            }
+                                        }, false);
+                                final ParameterMeta wrapper = new ParameterMeta(null, WrappingStore.class,
+                                        ParameterMeta.Type.OBJECT, "config", "config", new String[0],
+                                        singletonList(store), emptyList(), emptyMap(), false);
+                                getPartitionMappers()
+                                        .put("test",
+                                                new PartitionMapperMeta(this, "mapper", "noicon", 1,
+                                                        PartitionMapper1.class, singletonList(wrapper), m -> null,
+                                                        (a, b) -> null, true) {
+                                                });
+                            }
+                        }), new MigrationHandlerFactory(
+                                new ReflectionService(new ParameterModelService(registry), registry)));
         final List<Config> configs =
                 model.getFamilies().stream().flatMap(f -> f.getConfigs().stream()).collect(toList());
         assertEquals(1, configs.size());

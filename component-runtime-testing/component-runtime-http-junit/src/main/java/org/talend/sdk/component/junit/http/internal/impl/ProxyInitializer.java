@@ -53,8 +53,9 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
             degzip = true;
             handler = new ServingProxyHandler(api);
         }
-        pipeline.addLast("logging", new LoggingHandler(LogLevel.valueOf(api.getLogLevel()))).addLast("http-decoder",
-                new HttpRequestDecoder());
+        pipeline
+                .addLast("logging", new LoggingHandler(LogLevel.valueOf(api.getLogLevel())))
+                .addLast("http-decoder", new HttpRequestDecoder());
         if (degzip) {
             pipeline.addLast("gzip-decompressor", new HttpContentDecompressor());
         }

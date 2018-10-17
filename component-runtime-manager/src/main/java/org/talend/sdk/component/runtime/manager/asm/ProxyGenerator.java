@@ -116,8 +116,9 @@ public class ProxyGenerator implements Serializable {
     }
 
     private void createSerialisation(final ClassWriter cw, final String pluginId, final String key) {
-        final MethodVisitor mv = cw.visitMethod(Modifier.PUBLIC, "writeReplace", "()Ljava/lang/Object;", null,
-                new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
+        final MethodVisitor mv = cw
+                .visitMethod(Modifier.PUBLIC, "writeReplace", "()Ljava/lang/Object;", null,
+                        new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
 
         mv.visitCode();
 
@@ -125,8 +126,9 @@ public class ProxyGenerator implements Serializable {
         mv.visitInsn(DUP);
         mv.visitLdcInsn(pluginId);
         mv.visitLdcInsn(key);
-        mv.visitMethodInsn(INVOKESPECIAL, "org/talend/sdk/component/runtime/serialization/SerializableService",
-                "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
+        mv
+                .visitMethodInsn(INVOKESPECIAL, "org/talend/sdk/component/runtime/serialization/SerializableService",
+                        "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
         mv.visitInsn(ARETURN);
 
         mv.visitMaxs(-1, -1);
@@ -171,8 +173,9 @@ public class ProxyGenerator implements Serializable {
             if (withInterceptors) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInsn(ACONST_NULL);
-                mv.visitFieldInsn(PUTFIELD, proxyClassFileName, FIELD_INTERCEPTOR_HANDLER,
-                        Type.getDescriptor(InterceptorHandler.class));
+                mv
+                        .visitFieldInsn(PUTFIELD, proxyClassFileName, FIELD_INTERCEPTOR_HANDLER,
+                                Type.getDescriptor(InterceptorHandler.class));
             }
 
             mv.visitInsn(RETURN);
@@ -263,8 +266,9 @@ public class ProxyGenerator implements Serializable {
         mv.visitVarInsn(ALOAD, 0);
 
         // get the invocationHandler field from this class
-        mv.visitFieldInsn(GETFIELD, proxyClassFileName, FIELD_INTERCEPTOR_HANDLER,
-                Type.getDescriptor(InterceptorHandler.class));
+        mv
+                .visitFieldInsn(GETFIELD, proxyClassFileName, FIELD_INTERCEPTOR_HANDLER,
+                        Type.getDescriptor(InterceptorHandler.class));
 
         // add the Method from the static array as first parameter
         mv.visitFieldInsn(GETSTATIC, proxyClassFileName, FIELD_INTERCEPTED_METHODS, Type.getDescriptor(Method[].class));
@@ -286,16 +290,18 @@ public class ProxyGenerator implements Serializable {
         pushMethodParameterArray(mv, parameterTypes);
 
         // invoke the invocationHandler
-        mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(InterceptorHandler.class), "invoke",
-                "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;", true);
+        mv
+                .visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(InterceptorHandler.class), "invoke",
+                        "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;", true);
 
         // cast the result
         mv.visitTypeInsn(CHECKCAST, getCastType(returnType));
 
         if (returnType.isPrimitive() && (!Void.TYPE.equals(returnType))) {
             // get the primitive value
-            mv.visitMethodInsn(INVOKEVIRTUAL, getWrapperType(returnType), getPrimitiveMethod(returnType),
-                    "()" + Type.getDescriptor(returnType), false);
+            mv
+                    .visitMethodInsn(INVOKEVIRTUAL, getWrapperType(returnType), getPrimitiveMethod(returnType),
+                            "()" + Type.getDescriptor(returnType), false);
         }
 
         // push return
@@ -320,8 +326,9 @@ public class ProxyGenerator implements Serializable {
 
                 mv.visitLdcInsn(Type.getType("L" + exceptionType.getCanonicalName().replace('.', '/') + ";"));
                 mv.visitVarInsn(ALOAD, length);
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/reflect/InvocationTargetException", "getCause",
-                        "()Ljava/lang/Throwable;", false);
+                mv
+                        .visitMethodInsn(INVOKEVIRTUAL, "java/lang/reflect/InvocationTargetException", "getCause",
+                                "()Ljava/lang/Throwable;", false);
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z", false);
 
@@ -332,8 +339,9 @@ public class ProxyGenerator implements Serializable {
                 mv.visitLabel(l7);
 
                 mv.visitVarInsn(ALOAD, length);
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/reflect/InvocationTargetException", "getCause",
-                        "()Ljava/lang/Throwable;", false);
+                mv
+                        .visitMethodInsn(INVOKEVIRTUAL, "java/lang/reflect/InvocationTargetException", "getCause",
+                                "()Ljava/lang/Throwable;", false);
                 mv.visitTypeInsn(CHECKCAST, getCastType(exceptionType));
                 mv.visitInsn(ATHROW);
                 mv.visitLabel(l6);
@@ -342,8 +350,9 @@ public class ProxyGenerator implements Serializable {
                     mv.visitTypeInsn(NEW, "java/lang/reflect/UndeclaredThrowableException");
                     mv.visitInsn(DUP);
                     mv.visitVarInsn(ALOAD, length);
-                    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/reflect/UndeclaredThrowableException", "<init>",
-                            "(Ljava/lang/Throwable;)V", false);
+                    mv
+                            .visitMethodInsn(INVOKESPECIAL, "java/lang/reflect/UndeclaredThrowableException", "<init>",
+                                    "(Ljava/lang/Throwable;)V", false);
                     mv.visitInsn(ATHROW);
                 }
             }
@@ -374,8 +383,9 @@ public class ProxyGenerator implements Serializable {
                 final String wrapperType = getWrapperType(parameterType);
                 mv.visitVarInsn(getVarInsn(parameterType), index);
 
-                mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf",
-                        "(" + Type.getDescriptor(parameterType) + ")L" + wrapperType + ";", false);
+                mv
+                        .visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf",
+                                "(" + Type.getDescriptor(parameterType) + ")L" + wrapperType + ";", false);
                 mv.visitInsn(AASTORE);
 
                 if (Long.TYPE.equals(parameterType) || Double.TYPE.equals(parameterType)) {
@@ -522,8 +532,9 @@ public class ProxyGenerator implements Serializable {
         final String[] interfaceNames = { Type.getInternalName(Serializable.class) };
         final String superClassName = Type.getInternalName(classToProxy);
 
-        cw.visit(findJavaVersion(classToProxy), ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null,
-                superClassName, interfaceNames);
+        cw
+                .visit(findJavaVersion(classToProxy), ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null,
+                        superClassName, interfaceNames);
         cw.visitSource(classFileName + ".java", null);
 
         if (!Serializable.class.isAssignableFrom(classToProxy)) {

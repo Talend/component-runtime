@@ -63,14 +63,15 @@ public class DesignContainerListener implements ContainerListenerExtension {
         // Create Design Model
         componentFamilyMetas
                 .stream()
-                .flatMap(family -> Stream.concat(family.getPartitionMappers().values().stream(),
-                        family.getProcessors().values().stream()))
+                .flatMap(family -> Stream
+                        .concat(family.getPartitionMappers().values().stream(),
+                                family.getProcessors().values().stream()))
                 .forEach(meta -> {
                     final ComponentExtension.ComponentContext context =
                             container.get(ComponentContexts.class).getContexts().get(meta.getType());
                     final ComponentExtension owningExtension = context.owningExtension();
-                    meta.set(DesignModel.class,
-                            ofNullable(owningExtension)
+                    meta
+                            .set(DesignModel.class, ofNullable(owningExtension)
                                     .map(e -> e.unwrap(FlowsFactory.class, meta))
                                     .map(e -> new DesignModel(meta.getId(), e.getInputFlows(), e.getOutputFlows()))
                                     .orElseGet(() -> {
@@ -81,8 +82,11 @@ public class DesignContainerListener implements ContainerListenerExtension {
                 });
 
         // Create Repository Model
-        container.set(RepositoryModel.class, repositoryModelBuilder.create(
-                container.get(ComponentManager.AllServices.class), componentFamilyMetas, migrationHandlerFactory));
+        container
+                .set(RepositoryModel.class,
+                        repositoryModelBuilder
+                                .create(container.get(ComponentManager.AllServices.class), componentFamilyMetas,
+                                        migrationHandlerFactory));
     }
 
     /**

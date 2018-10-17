@@ -138,12 +138,14 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                 f.forEach((format, output) -> {
                     switch (format.toLowerCase(ENGLISH)) {
                     case "html":
-                        asciidoctorExecutor.render(workDir, version, log, "html5", this.output, new File(output), title,
-                                attributes, templateDir, templateEngine);
+                        asciidoctorExecutor
+                                .render(workDir, version, log, "html5", this.output, new File(output), title,
+                                        attributes, templateDir, templateEngine);
                         break;
                     case "pdf":
-                        asciidoctorExecutor.render(workDir, version, log, "pdf", this.output, new File(output), title,
-                                attributes, templateDir, templateEngine);
+                        asciidoctorExecutor
+                                .render(workDir, version, log, "pdf", this.output, new File(output), title, attributes,
+                                        templateDir, templateEngine);
                         break;
                     default:
                         throw new IllegalArgumentException("unknown format: '" + format + "', supported: [html, pdf]");
@@ -154,9 +156,10 @@ public class AsciidocDocumentationGenerator extends BaseTask {
     }
 
     private String toAsciidoc(final Class<?> aClass) {
-        final Collection<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(
-                Constructors.findConstructor(aClass), ofNullable(aClass.getPackage()).map(Package::getName).orElse(""),
-                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools")));
+        final Collection<ParameterMeta> parameterMetas = parameterModelService
+                .buildParameterMetas(Constructors.findConstructor(aClass),
+                        ofNullable(aClass.getPackage()).map(Package::getName).orElse(""),
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools")));
         return levelPrefix + " "
                 + componentMarkers()
                         .filter(aClass::isAnnotationPresent)
@@ -171,8 +174,8 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                         .map(v -> v + "\n\n")
                         .orElse("")
                 + (parameterMetas.isEmpty() ? ""
-                        : (levelPrefix + "= Configuration\n\n"
-                                + toAsciidocRows(sort(parameterMetas), null, null).collect(joining("\n",
+                        : (levelPrefix + "= Configuration\n\n" + toAsciidocRows(sort(parameterMetas), null, null)
+                                .collect(joining("\n",
                                         "[cols=\"d,d,m,a,e\",options=\"header\"]\n|===\n|Display Name|Description|Default Value|Enabled If|Configuration Path\n",
                                         "\n|===\n\n"))));
     }
@@ -185,8 +188,9 @@ public class AsciidocDocumentationGenerator extends BaseTask {
             final ParameterBundle parentBundle) {
         return parameterMetas.stream().flatMap(p -> {
             final Object instance = defaultValueInspector.createDemoInstance(parentInstance, p);
-            return Stream.concat(Stream.of(toAsciidoctor(p, instance, parentBundle)),
-                    toAsciidocRows(p.getNestedParameters(), instance, findBundle(p)));
+            return Stream
+                    .concat(Stream.of(toAsciidoctor(p, instance, parentBundle)),
+                            toAsciidocRows(p.getNestedParameters(), instance, findBundle(p)));
         });
     }
 
@@ -214,9 +218,11 @@ public class AsciidocDocumentationGenerator extends BaseTask {
         case 1:
             return renderCondition(path, conditionEntries.iterator().next());
         default:
-            final String conditions =
-                    conditionEntries.stream().map(c -> renderCondition(path, c)).map(c -> "- " + c).collect(
-                            joining("\n", "\n", "\n"));
+            final String conditions = conditionEntries
+                    .stream()
+                    .map(c -> renderCondition(path, c))
+                    .map(c -> "- " + c)
+                    .collect(joining("\n", "\n", "\n"));
             switch (globalOperator.toUpperCase(ROOT)) {
             case "OR":
                 return "One of these conditions is meet:\n" + conditions;
@@ -265,8 +271,10 @@ public class AsciidocDocumentationGenerator extends BaseTask {
         final String inline = p.getMetadata().get("documentation");
         if (inline != null) {
             if (inline.startsWith("resource:")) {
-                final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                        inline.substring("resource:".length()));
+                final InputStream stream = Thread
+                        .currentThread()
+                        .getContextClassLoader()
+                        .getResourceAsStream(inline.substring("resource:".length()));
                 if (stream != null) {
                     try (final BufferedReader reader =
                             new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {

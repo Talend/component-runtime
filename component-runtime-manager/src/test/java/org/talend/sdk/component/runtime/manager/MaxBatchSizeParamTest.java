@@ -63,8 +63,10 @@ class MaxBatchSizeParamTest {
                                 .orElseGet(() -> fail("No parent config found"));
 
                         if ("BulkProcessorWithoutAfterGroup".equals(c.getName())) {
-                            assertTrue(parent.getNestedParameters().stream().noneMatch(
-                                    meta -> "$maxBatchSize".equals(meta.getName())));
+                            assertTrue(parent
+                                    .getNestedParameters()
+                                    .stream()
+                                    .noneMatch(meta -> "$maxBatchSize".equals(meta.getName())));
 
                         } else {
                             final ParameterMeta maxBatchSize = parent

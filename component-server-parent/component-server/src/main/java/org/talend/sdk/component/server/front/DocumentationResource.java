@@ -172,8 +172,9 @@ public class DocumentationResource {
                                             .getComponents()
                                             .values()
                                             .stream()
-                                            .flatMap(f -> Stream.concat(f.getPartitionMappers().values().stream(),
-                                                    f.getProcessors().values().stream()))
+                                            .flatMap(f -> Stream
+                                                    .concat(f.getPartitionMappers().values().stream(),
+                                                            f.getProcessors().values().stream()))
                                             .filter(c -> c.getId().equals(id))
                                             .findFirst()
                                             .map(c -> selectById(c.getName(), value)))
@@ -214,9 +215,11 @@ public class DocumentationResource {
         }
 
         // first try to find configuration level, default is 2 (==)
-        final TreeMap<Integer, List<Integer>> configurationLevels =
-                lines.stream().filter(it -> it.endsWith("= Configuration")).map(it -> it.indexOf(' ')).collect(
-                        groupingBy(identity(), TreeMap::new, toList()));
+        final TreeMap<Integer, List<Integer>> configurationLevels = lines
+                .stream()
+                .filter(it -> it.endsWith("= Configuration"))
+                .map(it -> it.indexOf(' '))
+                .collect(groupingBy(identity(), TreeMap::new, toList()));
         if (configurationLevels.isEmpty()) {
             // no standard configuration, just return it all
             return value;

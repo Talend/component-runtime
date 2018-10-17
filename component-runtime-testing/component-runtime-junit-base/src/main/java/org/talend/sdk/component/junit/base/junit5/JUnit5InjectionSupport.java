@@ -59,8 +59,10 @@ public interface JUnit5InjectionSupport extends ParameterResolver, TestInstanceP
     default void postProcessTestInstance(final Object testInstance, final ExtensionContext context) {
         Class<?> testClass = context.getRequiredTestClass();
         while (testClass != Object.class) {
-            Stream.of(testClass.getDeclaredFields()).filter(c -> c.isAnnotationPresent(injectionMarker())).forEach(
-                    f -> {
+            Stream
+                    .of(testClass.getDeclaredFields())
+                    .filter(c -> c.isAnnotationPresent(injectionMarker()))
+                    .forEach(f -> {
                         if (!supports(f.getType())) {
                             throw new IllegalArgumentException("@" + injectionMarker() + " not supported on " + f);
                         }

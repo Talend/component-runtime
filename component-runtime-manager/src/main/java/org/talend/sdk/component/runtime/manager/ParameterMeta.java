@@ -122,16 +122,18 @@ public class ParameterMeta {
                     final String sourceName = source.name();
                     fallbacks.add(declaringClass.getName() + '.' + sourceName);
                     if (declaringClass.getEnclosingClass() != null) {
-                        fallbacks.add(declaringClass.getEnclosingClass().getSimpleName() + '$'
-                                + declaringClass.getSimpleName() + '.' + sourceName);
+                        fallbacks
+                                .add(declaringClass.getEnclosingClass().getSimpleName() + '$'
+                                        + declaringClass.getSimpleName() + '.' + sourceName);
                     }
                     fallbacks.add(declaringClass.getSimpleName() + '.' + sourceName);
                 }
                 if (type != null) {
                     fallbacks.add(type.getName() + '.' + name);
                     if (type.getEnclosingClass() != null) {
-                        fallbacks.add(
-                                type.getEnclosingClass().getSimpleName() + '$' + type.getSimpleName() + '.' + name);
+                        fallbacks
+                                .add(type.getEnclosingClass().getSimpleName() + '$' + type.getSimpleName() + '.'
+                                        + name);
                     }
                     fallbacks.add(type.getSimpleName() + '.' + name);
                 }

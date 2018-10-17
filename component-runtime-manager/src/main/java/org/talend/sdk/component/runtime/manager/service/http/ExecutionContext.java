@@ -58,9 +58,12 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
         HttpURLConnection urlConnection = null;
         try {
             final HttpRequest request = requestCreator.apply(base, params);
-            String queryParams =
-                    request.getQueryParams().entrySet().stream().map(kv -> kv.getKey() + "=" + kv.getValue()).collect(
-                            joining("&"));
+            String queryParams = request
+                    .getQueryParams()
+                    .entrySet()
+                    .stream()
+                    .map(kv -> kv.getKey() + "=" + kv.getValue())
+                    .collect(joining("&"));
             final URL url = new URL(request.getUrl() + (queryParams.isEmpty() ? "" : "?" + queryParams));
             urlConnection = HttpURLConnection.class.cast(url.openConnection());
             urlConnection.setRequestMethod(request.getMethodType());
@@ -70,8 +73,9 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
             final byte[] body = hasBody ? request.getBody().get() : null;
 
             if (request.getConfigurer() != null) {
-                request.getConfigurer().configure(new DefaultConnection(urlConnection, body),
-                        request.getConfigurationOptions());
+                request
+                        .getConfigurer()
+                        .configure(new DefaultConnection(urlConnection, body), request.getConfigurationOptions());
             }
 
             if (hasBody) {
@@ -106,8 +110,11 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
                                 : decoderMatcher.select(getDecoders(), contentType),
                         headers(urlConnection), null, response, getResponseType());
             } catch (final IOException e) {
-                error = ofNullable(urlConnection.getErrorStream()).map(s -> slurp(s, -1)).orElseGet(
-                        () -> ofNullable(e.getMessage()).map(s -> s.getBytes(StandardCharsets.UTF_8)).orElse(null));
+                error = ofNullable(urlConnection.getErrorStream())
+                        .map(s -> slurp(s, -1))
+                        .orElseGet(() -> ofNullable(e.getMessage())
+                                .map(s -> s.getBytes(StandardCharsets.UTF_8))
+                                .orElse(null));
                 final Response<Object> errorResponse = new ResponseImpl(responseCode,
                         byte[].class == getResponseType() ? PassthroughDecoder.INSTANCE
                                 : decoderMatcher.select(getDecoders(), contentType),
@@ -143,8 +150,12 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
     }
 
     private Map<String, List<String>> headers(final HttpURLConnection urlConnection) {
-        return urlConnection.getHeaderFields().keySet().stream().filter(Objects::nonNull).collect(
-                toMap(e -> e, urlConnection.getHeaderFields()::get, (k, v) -> {
+        return urlConnection
+                .getHeaderFields()
+                .keySet()
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(toMap(e -> e, urlConnection.getHeaderFields()::get, (k, v) -> {
                     throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
                 }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
     }
