@@ -132,6 +132,15 @@ public class BeamComponentExtension implements ComponentExtension {
                                     if (Delegated.class == method.getDeclaringClass()) {
                                         return actualInstance;
                                     }
+                                    if ("plugin".equals(method.getName()) && method.getParameterCount() == 0) {
+                                        return instance.plugin();
+                                    }
+                                    if ("name".equals(method.getName()) && method.getParameterCount() == 0) {
+                                        return instance.name();
+                                    }
+                                    if ("family".equals(method.getName()) && method.getParameterCount() == 0) {
+                                        return instance.family();
+                                    }
                                     throw new UnsupportedOperationException(
                                             "this method is not supported (" + method + ")", re);
                                 });
