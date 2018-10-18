@@ -138,7 +138,7 @@ public class BeamComponentExtension implements ComponentExtension {
                                     if ("name".equals(method.getName()) && method.getParameterCount() == 0) {
                                         return instance.name();
                                     }
-                                    if ("family".equals(method.getName()) && method.getParameterCount() == 0) {
+                                    if ("rootName".equals(method.getName()) && method.getParameterCount() == 0) {
                                         return instance.family();
                                     }
                                     throw new UnsupportedOperationException(
