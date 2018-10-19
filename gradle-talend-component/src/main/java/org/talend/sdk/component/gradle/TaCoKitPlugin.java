@@ -46,12 +46,16 @@ public class TaCoKitPlugin implements Plugin<Project> {
 
             final DependencyHandler dependencyHandler = project.getDependencies();
             final DependencySet dependencies = configuration.getDependencies();
-            dependencies.add(
-                    dependencyHandler.create("org.talend.sdk.component:component-api:" + extension.getApiVersion()));
-            dependencies.add(
-                    dependencyHandler.create("org.talend.sdk.component:component-tools:" + extension.getSdkVersion()));
-            dependencies.add(dependencyHandler.create(
-                    "org.talend.sdk.component:component-runtime-design-extension:" + extension.getSdkVersion()));
+            dependencies
+                    .add(dependencyHandler
+                            .create("org.talend.sdk.component:component-api:" + extension.getApiVersion()));
+            dependencies
+                    .add(dependencyHandler
+                            .create("org.talend.sdk.component:component-tools:" + extension.getSdkVersion()));
+            dependencies
+                    .add(dependencyHandler
+                            .create("org.talend.sdk.component:component-runtime-design-extension:"
+                                    + extension.getSdkVersion()));
         });
 
         // create the web configuration for our web task
@@ -65,8 +69,9 @@ public class TaCoKitPlugin implements Plugin<Project> {
 
             final DependencyHandler dependencyHandler = project.getDependencies();
             final DependencySet dependencies = configuration.getDependencies();
-            dependencies.add(dependencyHandler
-                    .create("org.talend.sdk.component:component-tools-webapp:" + extension.getSdkVersion()));
+            dependencies
+                    .add(dependencyHandler
+                            .create("org.talend.sdk.component:component-tools-webapp:" + extension.getSdkVersion()));
         });
 
         // tasks
@@ -82,8 +87,13 @@ public class TaCoKitPlugin implements Plugin<Project> {
                         "Creates the Talend Component Kit dependencies file used by the runtime to build the component classloader");
             }
         }, "talendComponentKitDependencies");
-        project.afterEvaluate(p -> p.getTasksByName("compileJava", false).stream().findFirst().ifPresent(
-                compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitDependencies"))));
+        project
+                .afterEvaluate(p -> p
+                        .getTasksByName("compileJava", false)
+                        .stream()
+                        .findFirst()
+                        .ifPresent(compileJava -> compileJava
+                                .setFinalizedBy(singleton("talendComponentKitDependencies"))));
 
         // validation
         project.task(new HashMap<String, Object>() {
@@ -94,8 +104,13 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put("description", "Validates that the module components are respecting the component standards.");
             }
         }, "talendComponentKitValidation");
-        project.afterEvaluate(p -> p.getTasksByName("classes", false).stream().findFirst().ifPresent(
-                compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitValidation"))));
+        project
+                .afterEvaluate(p -> p
+                        .getTasksByName("classes", false)
+                        .stream()
+                        .findFirst()
+                        .ifPresent(
+                                compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitValidation"))));
 
         // documentation
         project.task(new HashMap<String, Object>() {
@@ -106,8 +121,13 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put("description", "Generates an asciidoc file with the documentation of the components.");
             }
         }, "talendComponentKitDocumentation");
-        project.afterEvaluate(p -> p.getTasksByName("classes", false).stream().findFirst().ifPresent(
-                compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitDocumentation"))));
+        project
+                .afterEvaluate(p -> p
+                        .getTasksByName("classes", false)
+                        .stream()
+                        .findFirst()
+                        .ifPresent(compileJava -> compileJava
+                                .setFinalizedBy(singleton("talendComponentKitDocumentation"))));
 
         // web
         project.task(new HashMap<String, Object>() {

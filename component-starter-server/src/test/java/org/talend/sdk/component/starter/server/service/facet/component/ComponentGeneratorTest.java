@@ -61,9 +61,10 @@ class ComponentGeneratorTest {
                 new ProjectRequest.StructureConfiguration(
                         new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "string", null))),
                         false)));
-        final Map<String, String> files =
-                generator.create("com.foo", build, "superfamily", "supercategory", sources, emptyList()).collect(toMap(
-                        FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator
+                .create("com.foo", build, "superfamily", "supercategory", sources, emptyList())
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                        i -> new String(i.getContent(), StandardCharsets.UTF_8)));
         assertEquals(9, files.size());
 
         assertTrue(files.keySet().stream().anyMatch(k -> k.contains(".png")));

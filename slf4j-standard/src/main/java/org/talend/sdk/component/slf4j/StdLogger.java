@@ -295,9 +295,11 @@ public class StdLogger extends MarkerIgnoringBase {
     }
 
     private void log(final String level, final String message, final Throwable throwable, final PrintStream out) {
-        final StringBuilder builder =
-                new StringBuilder(message.length() + level.length() + 3).append('[').append(level).append("] ").append(
-                        message);
+        final StringBuilder builder = new StringBuilder(message.length() + level.length() + 3)
+                .append('[')
+                .append(level)
+                .append("] ")
+                .append(message);
         out.println(builder);
         if (throwable != null) {
             throwable.printStackTrace(out);

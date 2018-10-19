@@ -57,9 +57,10 @@ public class ValidateTask extends TaCoKitTask {
         set(configuration, "setValidateOutputConnection", extension.isValidateOutputConnection());
 
         final Class<?> validator = tccl.loadClass("org.talend.sdk.component.tools.ComponentValidator");
-        final Runnable runnable =
-                Runnable.class.cast(validator.getConstructor(config, File[].class, Object.class).newInstance(
-                        configuration, findClasses().toArray(File[]::new), getLogger()));
+        final Runnable runnable = Runnable.class
+                .cast(validator
+                        .getConstructor(config, File[].class, Object.class)
+                        .newInstance(configuration, findClasses().toArray(File[]::new), getLogger()));
         runnable.run();
     }
 

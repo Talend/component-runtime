@@ -134,21 +134,23 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         final String defaultFamily = getFamilyFromPackageInfo(pkg, module);
         return Stream
-                .concat(Stream.concat(
-                        of(pkg.getClasses())
+                .concat(Stream
+                        .concat(of(pkg.getClasses())
                                 .flatMap(this::unwrapInnerClasses)
-                                .filter(c -> AnnotationUtil.findAnnotation(c, PARTITION_MAPPER, PROCESSOR,
-                                        EMITTER) != null)
+                                .filter(c -> AnnotationUtil
+                                        .findAnnotation(c, PARTITION_MAPPER, PROCESSOR, EMITTER) != null)
                                 .flatMap(clazz -> fromComponent(clazz, defaultFamily)),
+                                of(pkg.getClasses())
+                                        .flatMap(this::unwrapInnerClasses)
+                                        .filter(c -> of(c.getAllFields())
+                                                .anyMatch(f -> AnnotationUtil.findAnnotation(f, OPTION) != null))
+                                        .flatMap(c -> fromConfiguration(defaultFamily, c.getName(), c))),
                         of(pkg.getClasses())
                                 .flatMap(this::unwrapInnerClasses)
-                                .filter(c -> of(c.getAllFields())
-                                        .anyMatch(f -> AnnotationUtil.findAnnotation(f, OPTION) != null))
-                                .flatMap(c -> fromConfiguration(defaultFamily, c.getName(), c))),
-                        of(pkg.getClasses())
-                                .flatMap(this::unwrapInnerClasses)
-                                .flatMap(c -> of(c.getMethods()).filter(m -> ACTIONS.stream().anyMatch(
-                                        action -> AnnotationUtil.findAnnotation(m, action) != null)))
+                                .flatMap(c -> of(c.getMethods())
+                                        .filter(m -> ACTIONS
+                                                .stream()
+                                                .anyMatch(action -> AnnotationUtil.findAnnotation(m, action) != null)))
                                 .map(m -> ACTIONS
                                         .stream()
                                         .map(action -> AnnotationUtil.findAnnotation(m, action))
@@ -200,11 +202,12 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private Stream<PsiClass> unwrapInnerClasses(final PsiClass c) {
         try {
-            return Stream.concat(Stream.of(c),
-                    Stream
-                            .of(c.getAllInnerClasses())
-                            .filter(ic -> Stream.of(ic.getModifiers()).anyMatch(m -> JvmModifier.STATIC == m))
-                            .flatMap(this::unwrapInnerClasses));
+            return Stream
+                    .concat(Stream.of(c),
+                            Stream
+                                    .of(c.getAllInnerClasses())
+                                    .filter(ic -> Stream.of(ic.getModifiers()).anyMatch(m -> JvmModifier.STATIC == m))
+                                    .flatMap(this::unwrapInnerClasses));
         } catch (final NoSuchMethodError nsme) {
             return Stream.empty(); // old idea versions dont have getModifiers()
         }
@@ -240,8 +243,9 @@ public class SuggestionServiceImpl implements SuggestionService {
             return Stream.empty();
         }
 
-        return Stream.of(new Suggestion(family + "." + DISPLAY_NAME, Suggestion.Type.Family), new Suggestion(
-                family + "." + removeQuotes(name.getText()) + "." + DISPLAY_NAME, Suggestion.Type.Component));
+        return Stream
+                .of(new Suggestion(family + "." + DISPLAY_NAME, Suggestion.Type.Family), new Suggestion(
+                        family + "." + removeQuotes(name.getText()) + "." + DISPLAY_NAME, Suggestion.Type.Component));
     }
 
     private Stream<Suggestion> extractConfigTypes(final String family, final PsiClass configClass) {
@@ -257,37 +261,43 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private Stream<Suggestion> fromConfiguration(final String family, final String configurationName,
             final PsiClass configClazz) {
-        return Stream.concat(of(configClazz.getAllFields())
-                .filter(field -> AnnotationUtil.findAnnotation(field, OPTION) != null)
-                .flatMap(field -> {
-                    final PsiAnnotation fOption = AnnotationUtil.findAnnotation(field, OPTION);
-                    final PsiAnnotationMemberValue fOptionValue = fOption.findAttributeValue("value");
+        return Stream
+                .concat(of(configClazz.getAllFields())
+                        .filter(field -> AnnotationUtil.findAnnotation(field, OPTION) != null)
+                        .flatMap(field -> {
+                            final PsiAnnotation fOption = AnnotationUtil.findAnnotation(field, OPTION);
+                            final PsiAnnotationMemberValue fOptionValue = fOption.findAttributeValue("value");
 
-                    String fieldName = removeQuotes(fOptionValue.getText());
-                    if (fieldName.isEmpty()) {
-                        fieldName = field.getName();
-                    }
+                            String fieldName = removeQuotes(fOptionValue.getText());
+                            if (fieldName.isEmpty()) {
+                                fieldName = field.getName();
+                            }
 
-                    final Suggestion displayNameSuggestion = new Suggestion(
-                            configurationName + "." + fieldName + "." + DISPLAY_NAME, Suggestion.Type.Configuration);
-                    final PsiType type = field.getType();
-                    if ("java.lang.String".equals(type.getCanonicalText())) {
-                        return Stream.of(displayNameSuggestion,
-                                new Suggestion(configurationName + "." + fieldName + "." + PLACEHOLDER,
-                                        Suggestion.Type.Configuration));
-                    }
-                    final PsiClass clazz = findClass(type);
-                    if (clazz != null && clazz.isEnum()) {
-                        return Stream.concat(Stream.of(displayNameSuggestion),
-                                Stream
-                                        .of(clazz.getFields())
-                                        .filter(PsiEnumConstant.class::isInstance)
-                                        .map(f -> clazz.getName().substring(clazz.getName().lastIndexOf('.') + 1) + '.'
-                                                + f.getName() + "._displayName")
-                                        .map(v -> new Suggestion(v, Suggestion.Type.Configuration)));
-                    }
-                    return Stream.of(displayNameSuggestion);
-                }), extractConfigTypes(family, configClazz));
+                            final Suggestion displayNameSuggestion =
+                                    new Suggestion(configurationName + "." + fieldName + "." + DISPLAY_NAME,
+                                            Suggestion.Type.Configuration);
+                            final PsiType type = field.getType();
+                            if ("java.lang.String".equals(type.getCanonicalText())) {
+                                return Stream
+                                        .of(displayNameSuggestion,
+                                                new Suggestion(configurationName + "." + fieldName + "." + PLACEHOLDER,
+                                                        Suggestion.Type.Configuration));
+                            }
+                            final PsiClass clazz = findClass(type);
+                            if (clazz != null && clazz.isEnum()) {
+                                return Stream
+                                        .concat(Stream.of(displayNameSuggestion),
+                                                Stream
+                                                        .of(clazz.getFields())
+                                                        .filter(PsiEnumConstant.class::isInstance)
+                                                        .map(f -> clazz
+                                                                .getName()
+                                                                .substring(clazz.getName().lastIndexOf('.') + 1) + '.'
+                                                                + f.getName() + "._displayName")
+                                                        .map(v -> new Suggestion(v, Suggestion.Type.Configuration)));
+                            }
+                            return Stream.of(displayNameSuggestion);
+                        }), extractConfigTypes(family, configClazz));
     }
 
     private PsiClass findClass(final PsiType type) {
@@ -301,35 +311,43 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     private String getFamilyFromPackageInfo(final PsiPackage psiPackage, final Module module) {
-        return of(FilenameIndex.getFilesByName(psiPackage.getProject(), "package-info.java",
-                GlobalSearchScope.moduleScope(module))).map(psiFile -> {
-                    if (!PsiJavaFile.class.cast(psiFile).getPackageName().equals(psiPackage.getQualifiedName())) {
-                        return null;
-                    }
-                    final String[] family = { null };
-                    PsiJavaFile.class.cast(psiFile).accept(new JavaRecursiveElementWalkingVisitor() {
+        return of(FilenameIndex
+                .getFilesByName(psiPackage.getProject(), "package-info.java", GlobalSearchScope.moduleScope(module)))
+                        .map(psiFile -> {
+                            if (!PsiJavaFile.class
+                                    .cast(psiFile)
+                                    .getPackageName()
+                                    .equals(psiPackage.getQualifiedName())) {
+                                return null;
+                            }
+                            final String[] family = { null };
+                            PsiJavaFile.class.cast(psiFile).accept(new JavaRecursiveElementWalkingVisitor() {
 
-                        @Override
-                        public void visitAnnotation(final PsiAnnotation annotation) {
-                            super.visitAnnotation(annotation);
-                            if (!COMPONENTS.equals(annotation.getQualifiedName())) {
-                                return;
+                                @Override
+                                public void visitAnnotation(final PsiAnnotation annotation) {
+                                    super.visitAnnotation(annotation);
+                                    if (!COMPONENTS.equals(annotation.getQualifiedName())) {
+                                        return;
+                                    }
+                                    final PsiAnnotationMemberValue familyAttribute =
+                                            annotation.findAttributeValue("family");
+                                    if (familyAttribute == null) {
+                                        return;
+                                    }
+                                    family[0] = removeQuotes(familyAttribute.getText());
+                                }
+                            });
+                            return family[0];
+                        })
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElseGet(() -> {
+                            final PsiPackage parent = psiPackage.getParentPackage();
+                            if (parent == null) {
+                                return null;
                             }
-                            final PsiAnnotationMemberValue familyAttribute = annotation.findAttributeValue("family");
-                            if (familyAttribute == null) {
-                                return;
-                            }
-                            family[0] = removeQuotes(familyAttribute.getText());
-                        }
-                    });
-                    return family[0];
-                }).filter(Objects::nonNull).findFirst().orElseGet(() -> {
-                    final PsiPackage parent = psiPackage.getParentPackage();
-                    if (parent == null) {
-                        return null;
-                    }
-                    return getFamilyFromPackageInfo(parent, module);
-                });
+                            return getFamilyFromPackageInfo(parent, module);
+                        });
     }
 
     private String removeQuotes(final String s) {

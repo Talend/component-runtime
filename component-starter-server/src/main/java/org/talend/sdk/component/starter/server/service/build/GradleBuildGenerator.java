@@ -67,12 +67,15 @@ public class GradleBuildGenerator implements BuildGenerator {
             imports.add("org.apache.cxf.tools.common.ToolContext");
             imports.add("org.apache.cxf.tools.wadlto.WADLToJava");
 
-            tasks.add("def wadlGeneratedFolder = \"$buildDir/generated-sources/cxf\"\n" + "task generateWadlClient {\n"
-                    + "  def wadl = \"$projectDir/src/main/resources/wadl/client.xml\"\n" + "\n"
-                    + "  inputs.file(wadl)\n" + "  outputs.dir(wadlGeneratedFolder)\n" + "\n" + "  doLast {\n"
-                    + "    new File(wadlGeneratedFolder).mkdirs()\n" + "\n" + "    new WADLToJava([\n"
-                    + "      \"-d\", wadlGeneratedFolder,\n" + "      \"-p\", \"com.application.client.wadl\",\n"
-                    + "      wadl\n" + "    ] as String[]).run(new ToolContext())\n" + "  }\n" + "}");
+            tasks
+                    .add("def wadlGeneratedFolder = \"$buildDir/generated-sources/cxf\"\n"
+                            + "task generateWadlClient {\n"
+                            + "  def wadl = \"$projectDir/src/main/resources/wadl/client.xml\"\n" + "\n"
+                            + "  inputs.file(wadl)\n" + "  outputs.dir(wadlGeneratedFolder)\n" + "\n" + "  doLast {\n"
+                            + "    new File(wadlGeneratedFolder).mkdirs()\n" + "\n" + "    new WADLToJava([\n"
+                            + "      \"-d\", wadlGeneratedFolder,\n"
+                            + "      \"-p\", \"com.application.client.wadl\",\n" + "      wadl\n"
+                            + "    ] as String[]).run(new ToolContext())\n" + "  }\n" + "}");
             javaMainSourceSets.add("srcDir wadlGeneratedFolder");
             javaMainSourceSets.add("project.tasks.compileJava.dependsOn project.tasks.generateWadlClient");
         }

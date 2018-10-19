@@ -1,9 +1,23 @@
 
 
+== Version 1.1.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1112[TCOMP-1112^]: Let beam PTransform define an @ElementListener method to set the component design (inputs/outputs)
+- link:https://jira.talendforge.org/browse/TCOMP-1113[TCOMP-1113^]: Simplify the scanning by assuming there is a TALEND-INF/dependencies.txt in components
+
+
 == Version 1.1.1
+
+=== Backlog Task
+
+- link:https://jira.talendforge.org/browse/TCOMP-1086[TCOMP-1086^]: Fix documentation about DiscoverSchema
+
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1064[TCOMP-1064^]: Update action can't receive List<MyClass> parameter
 - link:https://jira.talendforge.org/browse/TCOMP-1110[TCOMP-1110^]: When a configuration has no layout and uses @AfterGroup the configuration is lost
 
 
@@ -13,11 +27,6 @@
 
 
 == Version 1.1.0
-
-=== Backlog Task
-
-- link:https://jira.talendforge.org/browse/TCOMP-936[TCOMP-936^]: Fix/add support for Enum and List parameters in suggestions method
-
 
 === Bug
 
@@ -59,7 +68,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1013[TCOMP-1013^]: Add an operator support in @ActiveIfs (OR/AND switch)
 - link:https://jira.talendforge.org/browse/TCOMP-1014[TCOMP-1014^]: Ensure a dataset has a source which has no other required parameters in the validator
 - link:https://jira.talendforge.org/browse/TCOMP-1029[TCOMP-1029^]: Extend ActiveIf EvaluationStrategy with CONTAINS strategy
-- link:https://jira.talendforge.org/browse/TCOMP-1039[TCOMP-1039^]: Integrate Updatable configuration feature into Studio
 - link:https://jira.talendforge.org/browse/TCOMP-1063[TCOMP-1063^]: Integrate Record API to the studio
 - link:https://jira.talendforge.org/browse/TCOMP-1069[TCOMP-1069^]: restrict input branches for output components to only one.
 - link:https://jira.talendforge.org/browse/TCOMP-1071[TCOMP-1071^]: support actions i18n display name

@@ -74,8 +74,10 @@ public class ServerInfo {
     @PostConstruct
     private void init() {
         saxFactory = SAXParserFactory.newInstance();
-        doUpdate(() -> Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                "starter-versions.properties"));
+        doUpdate(() -> Thread
+                .currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("starter-versions.properties"));
 
         if (!configuration.getAutoRefresh()) {
             return;

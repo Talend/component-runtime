@@ -101,9 +101,11 @@ public class ProjectGenerator {
 
         // build dependencies to give them to the build
         final Collection<String> facets = ofNullable(request.getFacets()).orElse(emptyList());
-        final List<Dependency> dependencies = new ArrayList<>(
-                facets.stream().map(this.facets::get).flatMap(f -> f.dependencies(facets, versionSnapshot)).collect(
-                        toSet()));
+        final List<Dependency> dependencies = new ArrayList<>(facets
+                .stream()
+                .map(this.facets::get)
+                .flatMap(f -> f.dependencies(facets, versionSnapshot))
+                .collect(toSet()));
         dependencies.sort((o1, o2) -> {
             { // by scope
                 final int scope1 = scopesOrdering.indexOf(o1.getScope());
@@ -130,8 +132,9 @@ public class ProjectGenerator {
         dependencies.add(0, componentApi);
 
         // create the build to be able to generate the files
-        final Build build = generator.createBuild(request.getBuildConfiguration(), request.getPackageBase(),
-                dependencies, facets, versionSnapshot);
+        final Build build = generator
+                .createBuild(request.getBuildConfiguration(), request.getPackageBase(), dependencies, facets,
+                        versionSnapshot);
         files.put(build.getBuildFileName(), build.getBuildFileContent().getBytes(StandardCharsets.UTF_8));
 
         // generate facet files
@@ -148,9 +151,11 @@ public class ProjectGenerator {
 
         // generate README.adoc if needed
         if (!files.containsKey("README.adoc")) {
-            files.put("README.adoc",
-                    readmeGenerator.createReadme(request.getBuildConfiguration().getName(), filePerFacet).getBytes(
-                            StandardCharsets.UTF_8));
+            files
+                    .put("README.adoc",
+                            readmeGenerator
+                                    .createReadme(request.getBuildConfiguration().getName(), filePerFacet)
+                                    .getBytes(StandardCharsets.UTF_8));
         }
 
         // handle logging - centralized since we want a single setup per project
@@ -167,12 +172,15 @@ public class ProjectGenerator {
             }
             return s1;
         }).filter(s -> !s.isEmpty()).ifPresent(scope -> {
-            dependencies.add(
-                    new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versionSnapshot.getLog4j2(), scope));
-            files.put(
-                    ("test".equals(scope) ? build.getTestResourcesDirectory() : build.getMainResourcesDirectory())
+            dependencies
+                    .add(new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versionSnapshot.getLog4j2(),
+                            scope));
+            files
+                    .put(("test".equals(scope) ? build.getTestResourcesDirectory() : build.getMainResourcesDirectory())
                             + "/log4j2.xml",
-                    tpl.render("generator/logging/log4j2.mustache", emptyMap()).getBytes(StandardCharsets.UTF_8));
+                            tpl
+                                    .render("generator/logging/log4j2.mustache", emptyMap())
+                                    .getBytes(StandardCharsets.UTF_8));
         });
 
         componentGenerator

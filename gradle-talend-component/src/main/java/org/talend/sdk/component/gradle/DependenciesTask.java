@@ -61,8 +61,9 @@ public class DependenciesTask extends DefaultTask {
             writer.write(" \n The following files have been resolved:\n\n");
             artifacts.stream().filter(d -> "jar".equals(d.getType())).forEach(d -> {
                 try {
-                    writer.write("    " + d.getModuleVersion().getId().getGroup() + ':' + d.getName() + ':'
-                            + d.getType() + ':' + d.getModuleVersion().getId().getVersion() + ":compile\n");
+                    writer
+                            .write("    " + d.getModuleVersion().getId().getGroup() + ':' + d.getName() + ':'
+                                    + d.getType() + ':' + d.getModuleVersion().getId().getVersion() + ":compile\n");
                 } catch (final IOException e) {
                     throw new IllegalStateException(e);
                 }

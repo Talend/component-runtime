@@ -70,9 +70,10 @@ public class PropertiesCompletionProvider extends CompletionProvider<CompletionP
                     .filter(p -> !Objects.equals(p.getKey(), element.getText()))
                     .map(IProperty::getKey)
                     .collect(toList());
-            resultSet.addAllElements(
-                    service.computeKeySuggestions(project, module, getPropertiesPackage(module, completionParameters),
-                            containerElements, truncateIdeaDummyIdentifier(element)));
+            resultSet
+                    .addAllElements(service
+                            .computeKeySuggestions(project, module, getPropertiesPackage(module, completionParameters),
+                                    containerElements, truncateIdeaDummyIdentifier(element)));
         }
     }
 

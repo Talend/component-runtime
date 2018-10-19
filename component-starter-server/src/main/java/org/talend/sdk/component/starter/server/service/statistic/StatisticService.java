@@ -52,10 +52,13 @@ public class StatisticService {
     public void save(final CreateProject event) {
         final String project = event.getRequest().getBuildConfiguration().getGroup() + ':'
                 + event.getRequest().getBuildConfiguration().getArtifact();
-        logger.info(jsonb.toJson(new Representation(project,
-                event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
-                event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size(),
-                ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
+        logger
+                .info(jsonb
+                        .toJson(new Representation(project,
+                                event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
+                                event.getRequest().getProcessors() == null ? 0
+                                        : event.getRequest().getProcessors().size(),
+                                ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
     }
 
     @Data
@@ -156,8 +159,8 @@ public class StatisticService {
             skip = true;
             try {
                 if (!executorService.awaitTermination(shutdownTimeout, MILLISECONDS)) {
-                    log.warn(
-                            "Some statistics have been missed, this is not important but reporting can not be 100% accurate");
+                    log
+                            .warn("Some statistics have been missed, this is not important but reporting can not be 100% accurate");
                 }
             } catch (final InterruptedException e) {
                 Thread.interrupted();

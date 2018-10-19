@@ -45,8 +45,9 @@ public class TaCoKitTask extends DefaultTask {
                 .stream()
                 .collect(toMap(this::toGav, ResolvedArtifact::getFile));
 
-        artifacts.putIfAbsent(mainGav(),
-                AbstractArchiveTask.class.cast(getProject().getTasks().getAt("jar")).getArchivePath());
+        artifacts
+                .putIfAbsent(mainGav(),
+                        AbstractArchiveTask.class.cast(getProject().getTasks().getAt("jar")).getArchivePath());
         return artifacts;
     }
 
@@ -55,10 +56,11 @@ public class TaCoKitTask extends DefaultTask {
     }
 
     protected String toGav(final ResolvedArtifact a) {
-        return String.format("%s:%s:%s%s:%s:%s", a.getModuleVersion().getId().getGroup(), a.getName(),
-                ofNullable(a.getType()).orElse("jar"),
-                a.getClassifier() == null || a.getClassifier().isEmpty() ? "" : (":" + a.getClassifier()),
-                a.getModuleVersion().getId().getVersion(), "compile");
+        return String
+                .format("%s:%s:%s%s:%s:%s", a.getModuleVersion().getId().getGroup(), a.getName(),
+                        ofNullable(a.getType()).orElse("jar"),
+                        a.getClassifier() == null || a.getClassifier().isEmpty() ? "" : (":" + a.getClassifier()),
+                        a.getModuleVersion().getId().getVersion(), "compile");
     }
 
     protected void executeInContext(final Runnable task) {

@@ -64,9 +64,12 @@ public class MavenBuildGenerator implements BuildGenerator {
         return new Build(buildConfiguration.getArtifact(), buildConfiguration.getGroup(),
                 buildConfiguration.getVersion(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "pom.xml",
-                renderer.render("generator/maven/pom.xml",
-                        new Pom(buildConfiguration, dependencies, createPlugins(facets, packageBase,
-                                plugins.get(buildConfiguration.getPackaging()), versions), versions.getKit())),
+                renderer
+                        .render("generator/maven/pom.xml",
+                                new Pom(buildConfiguration, dependencies,
+                                        createPlugins(facets, packageBase,
+                                                plugins.get(buildConfiguration.getPackaging()), versions),
+                                        versions.getKit())),
                 "target", generateWrapperFiles());
     }
 
@@ -74,27 +77,29 @@ public class MavenBuildGenerator implements BuildGenerator {
             final Collection<Plugin> plugins, final ServerInfo.Snapshot versions) {
         final Collection<Plugin> buildPlugins = new ArrayList<>(plugins);
 
-        buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", versions.getSurefire(),
-                emptySet(), new LinkedHashMap<String, String>() {
+        buildPlugins
+                .add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", versions.getSurefire(), emptySet(),
+                        new LinkedHashMap<String, String>() {
 
-                    {
-                        put("trimStackTrace", "false");
-                        put("runOrder", "alphabetical");
-                    }
-                }.entrySet()));
+                            {
+                                put("trimStackTrace", "false");
+                                put("runOrder", "alphabetical");
+                            }
+                        }.entrySet()));
 
         if (facets.contains(WADLFacet.Constants.NAME)) {
-            buildPlugins.add(new Plugin("org.apache.cxf", "cxf-wadl2java-plugin", versions.getCxf(),
-                    singleton(new Execution("generate-http-client-from-wadl", "generate-sources", "wadl2java")),
-                    new LinkedHashMap<String, String>() {
+            buildPlugins
+                    .add(new Plugin("org.apache.cxf", "cxf-wadl2java-plugin", versions.getCxf(),
+                            singleton(new Execution("generate-http-client-from-wadl", "generate-sources", "wadl2java")),
+                            new LinkedHashMap<String, String>() {
 
-                        {
-                            put("wadlOptions", "\n            <wadlOption>\n"
-                                    + "              <wadl>${project.basedir}/src/main/resources/wadl/client.xml</wadl>\n"
-                                    + "              <packagename>" + packageBase + ".client.wadl</packagename>\n"
-                                    + "            </wadlOption>\n          ");
-                        }
-                    }.entrySet()));
+                                {
+                                    put("wadlOptions", "\n            <wadlOption>\n"
+                                            + "              <wadl>${project.basedir}/src/main/resources/wadl/client.xml</wadl>\n"
+                                            + "              <packagename>" + packageBase
+                                            + ".client.wadl</packagename>\n" + "            </wadlOption>\n          ");
+                                }
+                            }.entrySet()));
         }
 
         return buildPlugins;

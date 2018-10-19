@@ -123,8 +123,9 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
                 try {
                     downloader.download(ProgressManager.getInstance().getProgressIndicator());
                 } catch (IOException e) {
-                    getApplication().invokeLater(() -> MessagesEx.showErrorDialog(e.getMessage(),
-                            getMessage("download.project.file.error")));
+                    getApplication()
+                            .invokeLater(() -> MessagesEx
+                                    .showErrorDialog(e.getMessage(), getMessage("download.project.file.error")));
                 }
             }, getMessage("download.project.file"), true, null);
 
