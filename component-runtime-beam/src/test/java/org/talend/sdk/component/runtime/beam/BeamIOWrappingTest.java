@@ -135,7 +135,8 @@ public class BeamIOWrappingTest implements Serializable {
         final Object source = newComponent("beamio_unbounded_input", ComponentManager.ComponentType.MAPPER);
         assertThat(source, instanceOf(BeamUnboundedSource.class));
 
-        final Mapper mapper = new BeamMapperImpl((PTransform<PBegin, ?>) source, getPlugin(), "test", "beamio_unbounded_input");
+        final Mapper mapper =
+                new BeamMapperImpl((PTransform<PBegin, ?>) source, getPlugin(), "test", "beamio_unbounded_input");
         mapper.start();
         assertEquals(1, mapper.assess());
 
@@ -333,6 +334,7 @@ public class BeamIOWrappingTest implements Serializable {
 
     @PartitionMapper(family = "test", name = "beamio_unbounded_input")
     public static class BeamUnboundedSource extends DelegatingTransform<PBegin, PCollection<Long>> {
+
         public BeamUnboundedSource(@Option("from") final long from) {
             super(GenerateSequence.from(from));
         }
