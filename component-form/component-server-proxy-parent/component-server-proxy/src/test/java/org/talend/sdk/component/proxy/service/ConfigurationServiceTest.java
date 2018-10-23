@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -59,8 +61,14 @@ class ConfigurationServiceTest {
                 .queryParam("type", "reloadForm")
                 .queryParam("action", "builtin::root::reloadFromId")
                 .request(APPLICATION_JSON_TYPE)
-                .post(entity(singletonMap("id", "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSNkYXRhc2V0I2RhdGFzZXQtMg"),
+                .post(entity(singletonMap("id",
+                        Base64
+                                .getUrlEncoder()
+                                .withoutPadding()
+                                .encodeToString("test-component#TheTestFamily#dataset#dataset-2"
+                                        .getBytes(StandardCharsets.UTF_8))),
                         APPLICATION_JSON_TYPE), new GenericType<Map<String, Object>>() {
+
                         });
         final Ui uiSpec = jsonb.fromJson(jsonb.toJson(wrapper), Ui.class);
         final Iterator<UiSchema> uiSchemas = uiSpec.getUiSchema().iterator();
