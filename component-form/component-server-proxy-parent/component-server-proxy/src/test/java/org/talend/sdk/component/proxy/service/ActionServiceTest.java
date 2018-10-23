@@ -64,7 +64,8 @@ class ActionServiceTest {
         server.start();
         try {
             final Map<String, Object> result = service
-                    .findBuiltInAction("builtin::http::dynamic_values(url=${remoteHttpService}/foo,headers=cookie)",
+                    .findBuiltInAction("TheTestFamily",
+                            "builtin::http::dynamic_values(url=${remoteHttpService}/foo,headers=cookie)",
                             new UiSpecContext("en", key -> {
                                 if (key.equalsIgnoreCase("remoteHttpService")) {
                                     return "http://localhost:" + server.getAddress().getPort();
@@ -97,8 +98,8 @@ class ActionServiceTest {
     @Test
     void references() throws Exception {
         final Map<String, Object> result = service
-                .findBuiltInAction("builtin::references(type=thetype,name=thename)", new UiSpecContext("en", null),
-                        emptyMap())
+                .findBuiltInAction("TheTestFamily", "builtin::references(type=thetype,name=thename)",
+                        new UiSpecContext("en", null), emptyMap())
                 .toCompletableFuture()
                 .get();
         assertEquals(singletonMap("items", asList(new HashMap<String, Object>() {
@@ -119,8 +120,8 @@ class ActionServiceTest {
     @Test
     void reloadFromParentId() throws Exception {
         final Map<String, Object> result = service
-                .findBuiltInAction("builtin::root::reloadFromParentEntityId", new UiSpecContext("en", k -> null),
-                        singletonMap("id", "actionServices.reloadFromParentId"))
+                .findBuiltInAction("TheTestFamily", "builtin::root::reloadFromParentEntityId",
+                        new UiSpecContext("en", k -> null), singletonMap("id", "actionServices.reloadFromParentId"))
                 .toCompletableFuture()
                 .get();
         final ActionService.NewForm form = jsonb.fromJson(jsonb.toJson(result), ActionService.NewForm.class);

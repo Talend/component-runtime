@@ -20,6 +20,8 @@ import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
@@ -70,8 +72,12 @@ class ValidationServiceImplTest {
     @RepeatedTest(2) // to test caching
     void validateKo() throws ExecutionException, InterruptedException {
         final JsonBuilderFactory factory = Json.createBuilderFactory(emptyMap());
+        final String id = Base64
+                .getUrlEncoder()
+                .withoutPadding()
+                .encodeToString("test-component#TheTestFamily#dataset#dataset-2".getBytes(StandardCharsets.UTF_8));
         final ValidationService.Result errors = service
-                .validate(context, "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSNkYXRhc2V0I2RhdGFzZXQtMg",
+                .validate(context, id,
                         factory.createObjectBuilder().add("configuration", factory.createObjectBuilder()).build())
                 .toCompletableFuture()
                 .get();

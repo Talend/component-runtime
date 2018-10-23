@@ -152,13 +152,16 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                 .thenCompose(byId -> byId
                         .getFormId()
                         .thenCompose(formId -> configurationClient
-                                .getDetails(context.language(), formId, context::findPlaceholder)
-                                .thenCompose(detail -> configurationService
-                                        .filterNestedConfigurations(detail, uiSpecContext)))
-                        .thenCompose(detail -> byId
-                                .getProperties()
-                                .thenCompose(props -> configurationService
-                                        .replaceReferences(uiSpecContext, detail, props))));
+                                .getAllConfigurations(context.language(), context::findPlaceholder)
+                                .thenApply(nodes -> configurationService.getFamilyOf(formId, nodes))
+                                .thenCompose(family -> configurationClient
+                                        .getDetails(context.language(), formId, context::findPlaceholder)
+                                        .thenCompose(detail -> configurationService
+                                                .filterNestedConfigurations(family.getName(), detail, uiSpecContext)))
+                                .thenCompose(detail -> byId
+                                        .getProperties()
+                                        .thenCompose(props -> configurationService
+                                                .replaceReferences(uiSpecContext, detail, props)))));
     }
 
     @Override

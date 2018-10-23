@@ -24,6 +24,8 @@ import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,7 +69,7 @@ class PropertiesServiceTest {
     void filterDatasetDatastore() throws ExecutionException, InterruptedException {
         assertDatastoreDataset(
                 service
-                        .filterProperties(
+                        .filterProperties("TheTestFamily",
                                 asList(newProperty("configuration", "OBJECT", metadata("thedataset", "dataset")),
                                         newProperty("configuration.param", "NUMBER", emptyMap()),
                                         newProperty("configuration.something", "OBJECT",
@@ -83,7 +85,7 @@ class PropertiesServiceTest {
     @Test
     void filterNestedRefs() throws ExecutionException, InterruptedException {
         assertDatastoreDataset(service
-                .filterProperties(
+                .filterProperties("TheTestFamily",
                         asList(newProperty("configuration", "OBJECT", metadata("thedataset", "dataset")),
                                 newProperty("configuration.param", "NUMBER", emptyMap()),
                                 newProperty("configuration.something", "OBJECT", metadata("thedatastore", "datastore")),
@@ -102,7 +104,7 @@ class PropertiesServiceTest {
     @Test
     void filterMultipleRefs() throws ExecutionException, InterruptedException {
         final List<SimplePropertyDefinition> filtered = service
-                .filterProperties(
+                .filterProperties("TheTestFamily",
                         asList(newProperty("configuration", "OBJECT", metadata("thedataset", "dataset")),
                                 newProperty("configuration.param", "NUMBER", emptyMap()),
                                 newProperty("configuration.something", "OBJECT", metadata("thedatastore", "datastore")),
@@ -127,40 +129,43 @@ class PropertiesServiceTest {
 
     @Test
     void dropDownRefs() throws ExecutionException, InterruptedException {
-
         final List<SimplePropertyDefinition> srcProps =
                 asList(newProperty("configuration", "OBJECT", metadata("thedataset", "dataset")),
                         newProperty("configuration.param", "NUMBER", emptyMap()),
-                        newProperty("configuration.something", "OBJECT", metadata("dataset-1", "dataset")),
-                        newProperty("configuration.something.value", "STRING", emptyMap()));
+                        newProperty("configuration.connection", "OBJECT", metadata("Connection-1", "datastore")),
+                        newProperty("configuration.connection.url", "STRING", emptyMap()),
+                        newProperty("configuration.connection.username", "STRING", emptyMap()),
+                        newProperty("configuration.connection.password", "STRING", emptyMap()));
 
-        final OnPersist event = new OnPersist(null, null,
-                "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE", null,
-                srcProps
-                        .stream()
-                        .filter(it -> it.getPath().startsWith("configuration.something"))
-                        .map(it -> new SimplePropertyDefinition(it.getPath().substring("configuration.".length()),
-                                it.getName(), it.getDisplayName(), it.getType(), it.getDefaultValue(),
-                                it.getValidation(), it.getMetadata(), it.getPlaceholder(),
-                                it.getProposalDisplayNames()))
-                        .collect(toList()),
-                new HashMap<String, String>() {
+        final String formId = Base64
+                .getUrlEncoder()
+                .withoutPadding()
+                .encodeToString("test-component#TheTestFamily2#dataset#Connection-1".getBytes(StandardCharsets.UTF_8));
+        final OnPersist event = new OnPersist(null, null, formId, null, srcProps
+                .stream()
+                .filter(it -> it.getPath().startsWith("configuration.connection"))
+                .map(it -> new SimplePropertyDefinition(it.getPath().substring("configuration.".length()), it.getName(),
+                        it.getDisplayName(), it.getType(), it.getDefaultValue(), it.getValidation(), it.getMetadata(),
+                        it.getPlaceholder(), it.getProposalDisplayNames()))
+                .collect(toList()), new HashMap<String, String>() {
 
                     {
-                        put("something.value", "somevalue");
+                        put("connection.url", "http://localhost");
+                        put("connection.username", "admin");
+                        put("connection.password", "azerty");
                     }
                 });
 
         persistEvent
                 .fireAsync(event)
                 .thenCompose(result -> service
-                        .filterProperties(srcProps, new UiSpecContext("en", k -> null))
+                        .filterProperties("TheTestFamily2", srcProps, new UiSpecContext("en", k -> null))
                         .thenApply(props -> {
                             final Collection<String> values = props.get(2).getProposalDisplayNames().values();
                             assertEquals(2, values.size());
                             assertEquals(Stream
-                                    .of("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE1",
-                                            "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE2")
+                                    .of("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ1",
+                                            "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ2")
                                     .collect(toSet()), new HashSet<>(values));
                             return null;
                         }))
@@ -199,7 +204,7 @@ class PropertiesServiceTest {
                 .fireAsync(event)
                 .thenCompose(OnPersist::getId)
                 .thenCompose(id -> service
-                        .filterProperties(srcProps, new UiSpecContext("en", k -> null))
+                        .filterProperties("TheTestFamily", srcProps, new UiSpecContext("en", k -> null))
                         .thenCompose(props -> service
                                 .replaceReferences(new UiSpecContext("en", k -> null), props,
                                         new HashMap<String, String>() {
