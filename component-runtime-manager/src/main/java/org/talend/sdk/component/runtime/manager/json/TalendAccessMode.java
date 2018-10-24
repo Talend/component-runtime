@@ -15,15 +15,16 @@
  */
 package org.talend.sdk.component.runtime.manager.json;
 
-import static java.util.stream.Collectors.toMap;
-
 import java.util.Map;
+import java.util.stream.Stream;
 
+import org.apache.johnzon.mapper.access.AccessMode;
+import org.apache.johnzon.mapper.access.FieldAccessMode;
 import org.apache.johnzon.mapper.access.FieldAndMethodAccessMode;
 
-// javabean makes the name of a property starting with 2 uppercase not matching the field name
-// in the studio it leads to duplicates so cleaning these kind of names
 public class TalendAccessMode extends FieldAndMethodAccessMode {
+
+    private final AccessMode fields = new FieldAccessMode(false, false);
 
     public TalendAccessMode() {
         super(true, true, false);
@@ -31,18 +32,12 @@ public class TalendAccessMode extends FieldAndMethodAccessMode {
 
     @Override
     public Map<String, Reader> doFindReaders(final Class<?> clazz) {
-        final Map<String, Reader> reader = super.doFindReaders(clazz);
-        return reader.entrySet().stream().filter(it -> {
-            final String key = it.getKey();
-            if (isBrokenJavaBeanName(key)) {
-                final String propName = Character.toLowerCase(key.charAt(0)) + key.substring(1);
-                return !reader.containsKey(propName); // if the field is here we drop the method
-            }
-            return true;
-        }).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    private boolean isBrokenJavaBeanName(final String key) {
-        return key.length() >= 2 && Character.isUpperCase(key.charAt(0)) && Character.isUpperCase(key.charAt(1));
+        if (Stream.of(clazz.getInterfaces()).anyMatch(it -> it.getName().startsWith("routines.system."))) {
+            final Map<String, Reader> readers = fields.findReaders(clazz);
+            if (!readers.isEmpty()) {
+                return readers;
+            } // else let's try the methods
+        }
+        return super.doFindReaders(clazz);
     }
 }
