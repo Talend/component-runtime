@@ -9,6 +9,7 @@ talend.component.server.execution.dataset.retriever.timeout:: Default value: `18
 talend.component.server.execution.pool.wait:: Default value: `PT10S`. How long the application waits during shutdown for the execution tasks to complete
 talend.component.server.jaxrs.exceptionhandler.defaultMessage:: Default value: `false`. If set it will replace any message for exceptions. Set to `false` to use the actual exception message.
 talend.component.server.maven.repository:: The local maven repository used to locate components and their dependencies
+talend.component.server.metrics.active:: Default value: `true`. Should the /api/v1/metrics endpoint be activated.
 talend.component.server.monitoring.brave.service.name:: Default value: `component-server`. The name used by the brave integration (zipkin)
 talend.component.server.security.command.handler:: Default value: `securityNoopHandler`. How to validate a command/request. Accepted values: securityNoopHandler.
 talend.component.server.security.connection.handler:: Default value: `securityNoopHandler`. How to validate a connection. Accepted values: securityNoopHandler.
