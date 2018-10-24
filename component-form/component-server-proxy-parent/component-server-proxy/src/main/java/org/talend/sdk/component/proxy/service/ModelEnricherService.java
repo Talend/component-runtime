@@ -63,6 +63,7 @@ import javax.json.spi.JsonProvider;
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ActionReference;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -168,6 +169,17 @@ public class ModelEnricherService {
             final ConfigTypeNode copy = new ConfigTypeNode(node.getId(), node.getVersion(), node.getParentId(),
                     node.getConfigurationType(), node.getName(), node.getDisplayName(), node.getEdges(),
                     new ArrayList<>(), new ArrayList<>(node.getActions()));
+            patch.doPatchProperties(copy.getProperties(), node.getProperties());
+            patch.appendBuiltInActions(copy.getActions());
+            return copy;
+        }).orElse(node);
+    }
+
+    public ComponentDetail enrich(final ComponentDetail node, final String lang) {
+        return doEnrich("component", lang, patch -> {
+            final ComponentDetail copy = new ComponentDetail(node.getId(), node.getDisplayName(), node.getIcon(),
+                    node.getType(), node.getVersion(), new ArrayList<>(), new ArrayList<>(node.getActions()),
+                    node.getInputFlows(), node.getOutputFlows(), node.getLinks());
             patch.doPatchProperties(copy.getProperties(), node.getProperties());
             patch.appendBuiltInActions(copy.getActions());
             return copy;
