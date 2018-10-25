@@ -2,10 +2,18 @@
 
 == Version 1.1.2
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1123[TCOMP-1123^]: Processor component onNext duplicate columns in record for rowStructs
+- link:https://jira.talendforge.org/browse/TCOMP-1126[TCOMP-1126^]: UiSpecService shouldn't show the documentation by default
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1112[TCOMP-1112^]: Let beam PTransform define an @ElementListener method to set the component design (inputs/outputs)
 - link:https://jira.talendforge.org/browse/TCOMP-1113[TCOMP-1113^]: Simplify the scanning by assuming there is a TALEND-INF/dependencies.txt in components
+- link:https://jira.talendforge.org/browse/TCOMP-1124[TCOMP-1124^]: Add /metrics endpoint
+- link:https://jira.talendforge.org/browse/TCOMP-1125[TCOMP-1125^]: Extend CustomPropertyConverter to pass the convertion context
 
 
 == Version 1.1.1

@@ -79,7 +79,10 @@ public class UiSchemaConverter implements PropertyConverter {
                         .stream()
                         .filter(it -> it.supports(context))
                         .findFirst()
-                        .map(it -> it.convert(cs))
+                        .map(it -> it
+                                .convert(cs,
+                                        new CustomPropertyConverter.ConverterContext(family, schemas,
+                                                includedProperties, client, jsonSchema, properties, actions, lang)))
                         .orElseGet(() -> {
                             final SimplePropertyDefinition property = context.getProperty();
                             final String type = property.getType().toLowerCase(Locale.ROOT);
