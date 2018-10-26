@@ -96,12 +96,17 @@ public class MetricsRegistrar {
                             output.getParentFile().mkdirs();
                             Files.copy(stream, output.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         }
-                        loader.load(output.getParentFile().getAbsolutePath());
-                        System.setProperty(systemProp, "-");
-                    } catch (final ArchLoaderException | IOException e) {
+                    } catch (final IOException e) {
                         log.error(e.getMessage());
                         return false;
                     }
+                }
+                try {
+                    loader.load(output.exists() ? output.getParentFile().getAbsolutePath() : null);
+                    System.setProperty(systemProp, "-");
+                } catch (final ArchLoaderException e) {
+                    log.error(e.getMessage());
+                    return false;
                 }
             } else if (!"-".equals(path)) {
                 try {
