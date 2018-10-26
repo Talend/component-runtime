@@ -136,7 +136,8 @@ class ActionServiceTest {
         assertEquals(3, form.getUiSchema().size());
         assertEquals(
                 "{\"configuration\":{\"limit\":0.0,\"connection\":{"
-                        + "\"$selfReference\":\"actionServices.reloadFromParentId\",\"url\":\"http://foo\"}},"
+                        + "\"$selfReference\":\"actionServices.reloadFromParentId\",\"url\":\"http://foo\","
+                        + "\"$selfReferenceType\":\"dataset\"}},"
                         + "\"$formId\":\"dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE\"}",
                 form.getProperties().toString());
     }

@@ -152,7 +152,23 @@ public class ActionService {
         if ("dynamic_values".equals(type)) {
             return self.findProposable(family, type, action, context);
         }
-        return client.action(family, type, action, context.getLanguage(), params, context);
+        final Map<String, Object> newProps = new HashMap<>(params);
+        final CompletableFuture<?>[] referenceResolutions =
+                params.entrySet().stream().filter(it -> it.getKey().endsWith(".$selfReference")).map(it -> {
+                    final String configType =
+                            ofNullable(params.get(it.getKey() + "Type")).map(String::valueOf).orElse(null);
+                    return referenceService.findPropertiesById(configType, it.getKey(), context).thenApply(form -> {
+                        final String prefix = it.getKey().replace(".$selfReference", ".");
+                        synchronized (newProps) {
+                            ofNullable(form.getProperties())
+                                    .ifPresent(props -> props.forEach((k, v) -> newProps.put(prefix + k, v)));
+                        }
+                        return form;
+                    });
+                }).toArray(CompletableFuture[]::new);
+        return CompletableFuture
+                .allOf(referenceResolutions)
+                .thenCompose(ignored -> client.action(family, type, action, context.getLanguage(), newProps, context));
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.actions.proposables",
@@ -180,7 +196,8 @@ public class ActionService {
                     .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
         case "builtin::root::reloadFromParentEntityId":
             return ofNullable(params.get("id"))
-                    .map(id -> createNewFormFromParentEntityId(family, String.valueOf(id), ctx))
+                    .map(id -> createNewFormFromParentEntityId(String.valueOf(params.get("type")), family,
+                            String.valueOf(id), ctx))
                     .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
         default:
             if (action.startsWith("builtin::http::dynamic_values(")) {
@@ -258,9 +275,9 @@ public class ActionService {
     }
 
     private CompletableFuture<Map<String, Object>> createNewFormFromParentEntityId(final String family,
-            final String entityId, final UiSpecContext context) {
+            final String configType, final String entityId, final UiSpecContext context) {
         return referenceService
-                .findPropertiesById(entityId, context)
+                .findPropertiesById(configType, entityId, context)
                 .thenCompose(form -> configurationClient
                         .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
                         .thenCompose(nodes -> {
@@ -304,10 +321,18 @@ public class ActionService {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException(
                             "No parent matched for form " + node.getId() + "(entity=" + refId + ")"));
-            configInstance.put(refProp.getPath() + ".$selfReference", refId); // assumed not in an array
+
+            // assumed not in an array
+            configInstance.put(refProp.getPath() + ".$selfReference", refId);
+            configInstance.put(refProp.getPath() + ".$selfReferenceType", node.getConfigurationType());
+
             return propertiesService
                     .filterProperties(family, node.getProperties(), context)
-                    .thenCompose(props -> propertiesService.replaceReferences(context, props, configInstance))
+                    .thenCompose(props -> propertiesService.replaceReferences(context, props, configInstance)) // todo:
+                                                                                                               // drop
+                                                                                                               // since
+                                                                                                               // we use
+                                                                                                               // $selfReference
                     .thenApply(props -> {
                         if (node.getProperties() != null && !node.getProperties().isEmpty()) {
                             final Map<String, String> mergedWithDefaults =

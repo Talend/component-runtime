@@ -185,7 +185,9 @@ public class PropertiesService {
             final String sanitizedPath = it.getPath().replace(".$selfReference", "");
             ofNullable(instance.get(it.getPath())).ifPresent(val -> config.put(it.getPath(), val));
             return referenceService
-                    .findPropertiesById(id, context)
+                    .findPropertiesById(
+                            ofNullable(instance.get(it.getPath() + "Type")).map(String::valueOf).orElse(null), id,
+                            context)
                     .thenCompose(form -> configurations
                             .getDetails(context.getLanguage(), form.getFormId(), context.getPlaceholderProvider())
                             .thenCompose(detail -> configurations

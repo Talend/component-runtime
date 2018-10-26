@@ -118,7 +118,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             final List<UiSchema.Parameter> resolvedParams = properties
                     .stream()
                     .filter(p -> p.getPath().equals(propertiesPrefix)
-                            || p.getPath().equals(propertiesPrefix + ".$selfReference"))
+                            || p.getPath().equals(propertiesPrefix + ".$selfReference")
+                            || p.getPath().equals(propertiesPrefix + ".$selfReferenceType"))
                     // .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
                     .map(o -> {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();

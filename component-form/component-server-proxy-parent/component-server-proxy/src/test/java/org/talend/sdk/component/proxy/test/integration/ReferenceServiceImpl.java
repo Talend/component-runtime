@@ -49,7 +49,8 @@ public class ReferenceServiceImpl implements ReferenceService {
     }
 
     @Override
-    public CompletionStage<Form> findPropertiesById(final String id, final UiSpecContext context) {
+    public CompletionStage<Form> findPropertiesById(final String configType, final String id,
+            final UiSpecContext context) {
         if (id.equals("actionServices.reloadFromParentId")) {
             return completedFuture(Form
                     .builder()
