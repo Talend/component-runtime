@@ -89,7 +89,7 @@ public class UiSchemaConverter implements PropertyConverter {
                             final Map<String, String> metadata = property.getMetadata();
                             switch (type) {
                             case "object":
-                                return convertObject(context, metadata);
+                                return convertObject(context, metadata, null);
                             case "boolean":
                                 includedProperties.add(property);
                                 return new ToggleWidgetConverter(schemas, properties, actions, jsonSchema, lang)
@@ -148,7 +148,7 @@ public class UiSchemaConverter implements PropertyConverter {
     }
 
     public CompletionStage<PropertyContext<?>> convertObject(final PropertyContext<?> outputContext,
-            final Map<String, String> metadata) {
+            final Map<String, String> metadata, final UiSchema parentUiSchema) {
         final Map<String, String> gridLayouts = metadata
                 .entrySet()
                 .stream()
@@ -172,6 +172,6 @@ public class UiSchemaConverter implements PropertyConverter {
         }
         final String forcedOrder = metadata.get("ui::optionsorder::value");
         return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema, forcedOrder, lang,
-                customConverters).convert(CompletableFuture.completedFuture(outputContext));
+                customConverters, parentUiSchema).convert(CompletableFuture.completedFuture(outputContext));
     }
 }

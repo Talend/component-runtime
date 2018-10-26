@@ -14,6 +14,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1113[TCOMP-1113^]: Simplify the scanning by assuming there is a TALEND-INF/dependencies.txt in components
 - link:https://jira.talendforge.org/browse/TCOMP-1124[TCOMP-1124^]: Add /metrics endpoint
 - link:https://jira.talendforge.org/browse/TCOMP-1125[TCOMP-1125^]: Extend CustomPropertyConverter to pass the convertion context
+- link:https://jira.talendforge.org/browse/TCOMP-1127[TCOMP-1127^]: Record doesn't support null values
 
 
 == Version 1.1.1

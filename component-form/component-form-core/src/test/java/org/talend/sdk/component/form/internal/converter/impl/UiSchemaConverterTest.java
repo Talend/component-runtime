@@ -15,7 +15,9 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,11 +42,48 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 class UiSchemaConverterTest {
 
+    private static final PropertyValidation NVAL = new PropertyValidation();
+
+    private static final LinkedHashMap<String, String> NPROPS = new LinkedHashMap<>();
+
+    @Test
+    void listOfObject() throws Exception {
+        final List<SimplePropertyDefinition> properties = asList(
+                new SimplePropertyDefinition("configuration", "configuration", "configuration", "OBJECT", null, NVAL,
+                        emptyMap(), null, NPROPS),
+                new SimplePropertyDefinition("configuration.list", "list", "list", "ARRAY", null, NVAL, emptyMap(),
+                        null, NPROPS),
+                new SimplePropertyDefinition("configuration.list[].name", "name", "name", "STRING", null, NVAL,
+                        emptyMap(), null, NPROPS));
+        final PropertyContext<Object> propertyContext =
+                new PropertyContext<>(properties.iterator().next(), null, new PropertyContext.Configuration(false));
+        final List<UiSchema> schemas = new ArrayList<>();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonSchema jsonSchema = new JsonSchema();
+            new JsonSchemaConverter(jsonb, jsonSchema, properties)
+                    .convert(completedFuture(propertyContext))
+                    .toCompletableFuture()
+                    .get();
+            new UiSchemaConverter(null, "test", schemas, properties, null, jsonSchema, properties, emptyList(), "en",
+                    emptyList()).convert(completedFuture(propertyContext)).toCompletableFuture().get();
+        }
+        assertEquals(1, schemas.size());
+        final UiSchema configuration = schemas.iterator().next();
+        assertEquals("configuration", configuration.getKey());
+        assertEquals(1, configuration.getItems().size());
+        final UiSchema list = configuration.getItems().iterator().next();
+        assertEquals("configuration.list", list.getKey());
+        assertEquals("collapsibleFieldset", list.getItemWidget());
+        assertEquals(1, list.getItems().size());
+        final UiSchema name = list.getItems().iterator().next();
+        assertEquals("configuration.list[].name", name.getKey());
+        assertEquals("text", name.getWidget());
+    }
+
     @Test
     void customConverter() throws Exception {
-        final List<SimplePropertyDefinition> properties =
-                singletonList(new SimplePropertyDefinition("entry", "entry", "Entry", "String", null,
-                        new PropertyValidation(), Collections.emptyMap(), null, new LinkedHashMap<>()));
+        final List<SimplePropertyDefinition> properties = singletonList(new SimplePropertyDefinition("entry", "entry",
+                "Entry", "String", null, NVAL, emptyMap(), null, NPROPS));
         final PropertyContext<Object> propertyContext =
                 new PropertyContext<>(properties.iterator().next(), null, new PropertyContext.Configuration(false));
         final List<UiSchema> schemas = new ArrayList<>();
