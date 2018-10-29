@@ -153,11 +153,6 @@ public class ActionService {
             return self.findProposable(family, type, action, context);
         }
         final Map<String, Object> newProps = new HashMap<>(params);
-        params.entrySet().stream().filter(it -> !it.getKey().matches(".*\\.\\$selfReference(Type)?$")).forEach(it -> {
-            synchronized (newProps) {
-                newProps.put(it.getKey(), it.getValue());
-            }
-        });
         final CompletableFuture<?>[] referenceResolutions =
                 params.entrySet().stream().filter(it -> it.getKey().endsWith(".$selfReference")).map(it -> {
                     final String configType =
