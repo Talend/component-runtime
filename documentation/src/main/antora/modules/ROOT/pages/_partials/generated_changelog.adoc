@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1123[TCOMP-1123^]: Processor component onNext duplicate columns in record for rowStructs
 - link:https://jira.talendforge.org/browse/TCOMP-1126[TCOMP-1126^]: UiSpecService shouldn't show the documentation by default
+- link:https://jira.talendforge.org/browse/TCOMP-1130[TCOMP-1130^]: component form - default value of maxBatchSize prop loose it type.
 
 
 === Work Item

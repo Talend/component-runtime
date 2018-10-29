@@ -96,8 +96,9 @@ public class BeamIOTransformer implements ClassFileTransformer {
                 return false;
             }
 
-            return doesHierarchyContain(clazz, asList("org.apache.beam.sdk.transforms.DoFn",
-                    "org.apache.beam.sdk.io.Source", "org.apache.beam.sdk.io.Source$Reader"));
+            return doesHierarchyContain(clazz,
+                    asList("org.apache.beam.sdk.transforms.DoFn", "org.apache.beam.sdk.io.Source",
+                            "org.apache.beam.sdk.io.Source$Reader", "org.apache.beam.sdk.coders.Coder"));
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             return false;
         }
