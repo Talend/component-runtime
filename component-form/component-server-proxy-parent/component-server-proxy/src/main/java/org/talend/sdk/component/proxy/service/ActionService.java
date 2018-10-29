@@ -160,10 +160,16 @@ public class ActionService {
                     return referenceService
                             .findPropertiesById(configType, String.valueOf(it.getValue()), context)
                             .thenApply(form -> {
-                                final String prefix = it.getKey().replace(".$selfReference", ".");
+                                final String prefix = it.getKey().replace(".$selfReference", "");
                                 synchronized (newProps) {
                                     ofNullable(form.getProperties())
-                                            .ifPresent(props -> props.forEach((k, v) -> newProps.put(prefix + k, v)));
+                                            .ifPresent(props -> props
+                                                    .entrySet()
+                                                    .stream()
+                                                    .filter(k -> k.getKey().indexOf(".") > 0)
+                                                    .forEach(k -> newProps
+                                                            .put(prefix + k.getKey().substring(k.getKey().indexOf(".")),
+                                                                    k.getValue())));
                                 }
                                 return form;
                             });
