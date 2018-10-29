@@ -72,6 +72,8 @@ Accept: application/json
 ^@
 ----
 
+include::ref-server-configuration.adoc[leveloffset=+1]
+
 == HTTPS activation
 
 Using the server ZIP (or https://github.com/Talend/component-runtime/blob/master/.docker/Dockerfile[Docker image]), you can configure HTTPS by adding properties to `MEECROWAVE_OPTS`. Assuming that you have a certificate in `/opt/certificates/component.p12` (don't forget to add/mount it in the Docker image if you use it), you can activate it as follows:
@@ -358,8 +360,6 @@ More details are available in the link:https://logging.apache.org/log4j/2.x/manu
 
 TIP: You can compose previous layout (message format) and appenders (where logs are written).
 
-include::server-uispec.adoc[leveloffset=+1]
-
 == Docker
 
 The server image is deployed on Docker. Its version is suffixed with a timestamp to ensure
@@ -451,16 +451,16 @@ and `TRACING_KAFKA_TOPIC` will receive brave tracing logs.
 
 The component server use Geronimo OpenTracing to monitor request.
 
-The tracing can be activated by setting environment variable `TRACING_ON` to `true`.
+The tracing can be activated by setting the `TRACING_ON` environment variable to `true`.
 
 You can choose the reporter type by setting `talend_component_server_monitoring_brave_reporter_type` environment variable
 to `log` (this is the default value in this docker image) or to `noop`
 which will deactivate the tracing. __Other type of reporter may be added in the future.__
 
-The tracing rate is configurable by setting environment variable `TRACING_SAMPLING_RATE`,
-it accepts `0` (none) and `1` (all, default) as value to ensure the consistency of the reporting.
+The tracing rate is configurable by setting the `TRACING_SAMPLING_RATE` environment variable.
+It accepts `0` (none) and `1` (all, default) as values to ensure the consistency of the reporting.
 
-Run docker image with tracing on
+Run docker image with tracing on.
 
 [source,sh]
 ----
