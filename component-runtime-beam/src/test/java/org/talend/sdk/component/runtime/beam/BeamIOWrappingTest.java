@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -48,7 +49,9 @@ import java.util.stream.Stream;
 
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.coders.Coder;
+import org.apache.beam.sdk.io.CountingSource;
 import org.apache.beam.sdk.io.FileBasedSink;
+import org.apache.beam.sdk.io.GenerateSequence;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
@@ -114,6 +117,8 @@ public class BeamIOWrappingTest implements Serializable {
         mapper.start();
         assertEquals(2, mapper.assess());
 
+        assertFalse(mapper.isStream());
+
         final Input input = mapper.create();
         assertNotNull(input);
         input.start();
@@ -123,6 +128,19 @@ public class BeamIOWrappingTest implements Serializable {
         input.stop();
 
         mapper.stop();
+    }
+
+    @Test
+    public void mapper_stream() {
+        final Object source = newComponent("beamio_unbounded_input", ComponentManager.ComponentType.MAPPER);
+        assertThat(source, instanceOf(BeamUnboundedSource.class));
+
+        final Mapper mapper =
+                new BeamMapperImpl((PTransform<PBegin, ?>) source, getPlugin(), "test", "beamio_unbounded_input");
+        mapper.start();
+        assertEquals(1, mapper.assess());
+
+        assertTrue(mapper.isStream());
     }
 
     @Test
@@ -311,6 +329,14 @@ public class BeamIOWrappingTest implements Serializable {
                     ctx.output(ctx.element().getData());
                 }
             })).apply(ParDo.of(new MySink(true)));
+        }
+    }
+
+    @PartitionMapper(family = "test", name = "beamio_unbounded_input")
+    public static class BeamUnboundedSource extends DelegatingTransform<PBegin, PCollection<Long>> {
+
+        public BeamUnboundedSource(@Option("from") final long from) {
+            super(GenerateSequence.from(from));
         }
     }
 
