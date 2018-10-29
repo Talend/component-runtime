@@ -153,18 +153,25 @@ public class ActionService {
             return self.findProposable(family, type, action, context);
         }
         final Map<String, Object> newProps = new HashMap<>(params);
+        params.entrySet().stream().filter(it -> !it.getKey().matches(".*\\.\\$selfReference(Type)?$")).forEach(it -> {
+            synchronized (newProps) {
+                newProps.put(it.getKey(), it.getValue());
+            }
+        });
         final CompletableFuture<?>[] referenceResolutions =
                 params.entrySet().stream().filter(it -> it.getKey().endsWith(".$selfReference")).map(it -> {
                     final String configType =
                             ofNullable(params.get(it.getKey() + "Type")).map(String::valueOf).orElse(null);
-                    return referenceService.findPropertiesById(configType, it.getKey(), context).thenApply(form -> {
-                        final String prefix = it.getKey().replace(".$selfReference", ".");
-                        synchronized (newProps) {
-                            ofNullable(form.getProperties())
-                                    .ifPresent(props -> props.forEach((k, v) -> newProps.put(prefix + k, v)));
-                        }
-                        return form;
-                    });
+                    return referenceService
+                            .findPropertiesById(configType, String.valueOf(it.getValue()), context)
+                            .thenApply(form -> {
+                                final String prefix = it.getKey().replace(".$selfReference", ".");
+                                synchronized (newProps) {
+                                    ofNullable(form.getProperties())
+                                            .ifPresent(props -> props.forEach((k, v) -> newProps.put(prefix + k, v)));
+                                }
+                                return form;
+                            });
                 }).toArray(CompletableFuture[]::new);
         return CompletableFuture
                 .allOf(referenceResolutions)
