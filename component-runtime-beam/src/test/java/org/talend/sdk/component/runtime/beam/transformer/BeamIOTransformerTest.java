@@ -15,10 +15,12 @@
  */
 package org.talend.sdk.component.runtime.beam.transformer;
 
+import static java.util.Collections.emptyMap;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,18 +33,31 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReaderFactory;
+import javax.json.JsonWriterFactory;
+
+import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CustomCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.BoundedSource;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.display.DisplayData;
+import org.apache.beam.sdk.util.SerializableUtils;
+import org.apache.beam.sdk.values.PBegin;
+import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
+import org.talend.test.wrapped.JdbcSource;
 
 class BeamIOTransformerTest {
 
@@ -84,12 +99,40 @@ class BeamIOTransformerTest {
         });
     }
 
+    @Test
+    void coderSerialization() {
+        scenario((transformer, loader) -> {
+            final Class<?> coder = loader.loadClass(JdbcSource.WorkAroundCoder.class.getName());
+            assertEquals(loader, coder.getClassLoader());
+            final Field collection = coder.getDeclaredField("collection");
+            if (!collection.isAccessible()) {
+                collection.setAccessible(true);
+            }
+            final Object instance = newInstance(coder, loader);
+            final PCollection<JsonObject> collectionInstance = PBegin
+                    .in(Pipeline.create(PipelineOptionsFactory.create()))
+                    .apply(Create.empty(JsonpJsonObjectCoder.of("test")));
+            collection.set(instance, collectionInstance);
+            final JsonObject original = Json.createObjectBuilder().add("init", true).build();
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Coder.class.cast(instance).encode(original, out);
+            out.flush();
+            final Coder<?> deserialized = SerializableUtils.ensureSerializable((Coder<?>) instance);
+            final ByteArrayInputStream inStream = new ByteArrayInputStream(out.toByteArray());
+            assertEquals(original, deserialized.decode(inStream));
+
+        });
+    }
+
     private Object newInstance(final Class<?> aClass, final ClassLoader validationLoader) {
         try {
             final Object instance = aClass.getConstructor().newInstance();
-            SetValidator.class
-                    .cast(instance)
-                    .setValidator(() -> assertEquals(Thread.currentThread().getContextClassLoader(), validationLoader));
+            if (SetValidator.class.isInstance(instance)) {
+                SetValidator.class
+                        .cast(instance)
+                        .setValidator(
+                                () -> assertEquals(Thread.currentThread().getContextClassLoader(), validationLoader));
+            }
             return instance;
         } catch (final Throwable t) {
             throw new IllegalStateException(t);
@@ -109,8 +152,8 @@ class BeamIOTransformerTest {
                 final Thread thread = Thread.currentThread();
                 final ClassLoader originalLoader = thread.getContextClassLoader();
                 final String prefix = BeamIOTransformerTest.class.getName() + "$";
-                final Predicate<String> parentPredicate =
-                        it -> SetValidator.class.getName().equals(it) || !it.startsWith(prefix);
+                final Predicate<String> parentPredicate = it -> SetValidator.class.getName().equals(it)
+                        || !(it.startsWith(prefix) || it.startsWith(JdbcSource.class.getName()));
                 try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("test",
                         new URL[] { jarLocation(BeamIOTransformerTest.class).toURI().toURL() }, originalLoader,
                         parentPredicate, parentPredicate.negate(), new String[0])) {
@@ -119,6 +162,8 @@ class BeamIOTransformerTest {
                     loader.registerTransformer(transformer);
                     containerFinder.set(plugin -> new LightContainer() {
 
+                        private final JavaProxyEnricherFactory factory = new JavaProxyEnricherFactory();
+
                         @Override
                         public ClassLoader classloader() {
                             return loader;
@@ -126,6 +171,18 @@ class BeamIOTransformerTest {
 
                         @Override
                         public <T> T findService(final Class<T> key) {
+                            if (key == JsonReaderFactory.class) {
+                                return key
+                                        .cast(factory
+                                                .asSerializable(loader, "test", JsonReaderFactory.class.getName(),
+                                                        Json.createReaderFactory(emptyMap())));
+                            }
+                            if (key == JsonWriterFactory.class) {
+                                return key
+                                        .cast(factory
+                                                .asSerializable(loader, "test", JsonWriterFactory.class.getName(),
+                                                        Json.createWriterFactory(emptyMap())));
+                            }
                             return null;
                         }
                     });

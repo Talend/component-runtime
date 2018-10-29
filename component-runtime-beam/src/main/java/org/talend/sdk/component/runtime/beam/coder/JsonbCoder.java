@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -60,6 +61,23 @@ public class JsonbCoder<T> extends CustomCoder<T> {
     public T decode(final InputStream inputStream) throws IOException {
         final long maxBytes = VarInt.decodeLong(inputStream);
         return jsonb.fromJson(new GZIPInputStream(new NoCloseInputStream(inputStream, maxBytes)), type);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final JsonbCoder<?> that = JsonbCoder.class.cast(o);
+        return Objects.equals(type, that.type) && (jsonb != null && that.jsonb != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
     }
 
     public static <T> JsonbCoder<T> of(final Class<T> type, final String plugin) {
