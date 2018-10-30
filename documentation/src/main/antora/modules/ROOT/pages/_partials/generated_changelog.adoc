@@ -20,6 +20,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1125[TCOMP-1125^]: Extend CustomPropertyConverter to pass the convertion context
 - link:https://jira.talendforge.org/browse/TCOMP-1127[TCOMP-1127^]: Record doesn't support null values
 - link:https://jira.talendforge.org/browse/TCOMP-1133[TCOMP-1133^]: CXF 3.2.7 upgrade
+- link:https://jira.talendforge.org/browse/TCOMP-1134[TCOMP-1134^]: Ensure any input/output have a dataset
+- link:https://jira.talendforge.org/browse/TCOMP-1135[TCOMP-1135^]: Ensure any dataset has a datastore
+- link:https://jira.talendforge.org/browse/TCOMP-1136[TCOMP-1136^]: deprecate "generate" mojo
 
 
 == Version 1.1.1
