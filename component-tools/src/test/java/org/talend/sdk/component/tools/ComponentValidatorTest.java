@@ -68,6 +68,8 @@ class ComponentValidatorTest {
         boolean success() default false;
 
         boolean validateDocumentation() default false;
+
+        boolean validateDataSet() default true;
     }
 
     @Slf4j
@@ -119,7 +121,7 @@ class ComponentValidatorTest {
             cfg.setValidateSerializable(true);
             cfg.setValidateMetadata(true);
             cfg.setValidateInternationalization(true);
-            cfg.setValidateDataSet(true);
+            cfg.setValidateDataSet(config.validateDataSet());
             cfg.setValidateActions(true);
             cfg.setValidateComponent(true);
             cfg.setValidateModel(true);
@@ -194,7 +196,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage("org.talend.test.failure.action.dynamicvalues")
+    @ComponentPackage(value = "org.talend.test.failure.action.dynamicvalues", validateDataSet = false)
     void testFailureActionDynamicValues(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage(
@@ -296,7 +298,8 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.failure.documentation.component", validateDocumentation = true)
+    @ComponentPackage(value = "org.talend.test.failure.documentation.component", validateDocumentation = true,
+            validateDataSet = false)
     void testFailureDocumentationComponent(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("Some error were detected:\n"
@@ -304,7 +307,8 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.failure.documentation.option", validateDocumentation = true)
+    @ComponentPackage(value = "org.talend.test.failure.documentation.option", validateDocumentation = true,
+            validateDataSet = false)
     void testFailureDocumentationOption(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("Some error were detected:\n"
@@ -312,7 +316,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.failure.layout")
+    @ComponentPackage(value = "org.talend.test.failure.layout", validateDataSet = false)
     void testFailureLayoutOption(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("Some error were detected:\n"
@@ -322,7 +326,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.failure.missingaction18n")
+    @ComponentPackage("org.talend.test.failure.missingaction18n")
     void testMissingActionI18n(final ExceptionSpec spec) {
         spec
                 .expectMessage("org.talend.test.failure.missingaction18n.Messages is missing the key(s): "
@@ -376,6 +380,22 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.failure.inputmissingdataset")
+    void testFailureMissingDataSetInInput(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("- The component org.talend.test.failure.inputmissingdataset.MyComponent "
+                        + "is missing a dataset in its configuration (see @DataSet)");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.outputmissingdataset")
+    void testFailureMissingDataSetInOutput(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("- The component org.talend.test.failure.outputmissingdataset.MyComponent "
+                        + "is missing a dataset in its configuration (see @DataSet)");
+    }
+
+    @Test
     @ComponentPackage("org.talend.test.failure.noi18ndatastorewithbundle")
     void testFailureI18nDatastoreWithBundle(final ExceptionSpec expectedException) {
         expectedException
@@ -409,7 +429,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.valid.localconfiguration", success = true)
+    @ComponentPackage(value = "org.talend.test.valid.localconfiguration", success = true, validateDataSet = false)
     void testValidLocalConfigurationKey() {
         // no-op
     }
@@ -421,7 +441,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.valid.update", success = true)
+    @ComponentPackage(value = "org.talend.test.valid.update", success = true, validateDataSet = false)
     void testValidUpdate() {
         // no-op
     }

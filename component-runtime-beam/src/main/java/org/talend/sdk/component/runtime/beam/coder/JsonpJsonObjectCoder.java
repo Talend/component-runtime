@@ -69,6 +69,20 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
         }
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return JsonpJsonObjectCoder.class.isInstance(obj) && JsonpJsonObjectCoder.class.cast(obj).isValid();
+    }
+
+    @Override
+    public int hashCode() {
+        return JsonpJsonObjectCoder.class.hashCode();
+    }
+
+    private boolean isValid() {
+        return readerFactory != null && writerFactory != null;
+    }
+
     public static JsonpJsonObjectCoder of(final String plugin) {
         if (plugin == null) {
             final ComponentManager instance = ComponentManager.instance();

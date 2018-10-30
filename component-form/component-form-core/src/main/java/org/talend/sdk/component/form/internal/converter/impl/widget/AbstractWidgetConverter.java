@@ -117,7 +117,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             final String propertiesPrefix = pathResolver.resolveProperty(prop.getPath(), paramRef);
             final List<UiSchema.Parameter> resolvedParams = properties
                     .stream()
-                    .filter(p -> p.getPath().equals(propertiesPrefix))
+                    .filter(p -> p.getPath().equals(propertiesPrefix)
+                            || p.getPath().equals(propertiesPrefix + ".$selfReference")
+                            || p.getPath().equals(propertiesPrefix + ".$selfReferenceType"))
                     // .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
                     .map(o -> {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
@@ -156,7 +158,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             schema.setRequired(ctx.isRequired());
         }
         schema.setPlaceholder(ctx.getProperty().getPlaceholder());
-        schema.setDescription(ctx.getProperty().getMetadata().get("documentation::value"));
+        if (ctx.getConfiguration().isIncludeDocumentationMetadata()) {
+            schema.setDescription(ctx.getProperty().getMetadata().get("documentation::value"));
+        }
         if (actions != null) {
             final List<UiSchema.Trigger> triggers = Stream
                     .concat(Stream

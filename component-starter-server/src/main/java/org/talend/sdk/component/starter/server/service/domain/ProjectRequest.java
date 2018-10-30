@@ -15,9 +15,8 @@
  */
 package org.talend.sdk.component.starter.server.service.domain;
 
-import static java.util.Collections.emptyList;
-
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;
@@ -62,7 +61,7 @@ public class ProjectRequest {
     @RequiredArgsConstructor
     public static class DataStructure {
 
-        private final Collection<Entry> entries;
+        private final List<Entry> entries;
     }
 
     @Getter
@@ -79,8 +78,6 @@ public class ProjectRequest {
     @Getter
     @RequiredArgsConstructor
     public static class ProcessorConfiguration {
-
-        public static final DataStructure OBJECT_MAP = new DataStructure(emptyList());
 
         private final String name;
 

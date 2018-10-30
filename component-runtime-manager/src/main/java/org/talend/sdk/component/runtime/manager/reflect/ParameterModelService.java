@@ -73,8 +73,20 @@ public class ParameterModelService {
                 .collect(toList()), registry);
     }
 
-    public boolean isService(final Parameter parameter) {
-        final Class<?> type = parameter.getType();
+    public boolean isService(final Param parameter) {
+        final Class<?> type;
+        if (Class.class.isInstance(parameter.type)) {
+            type = Class.class.cast(parameter.type);
+        } else if (ParameterizedType.class.isInstance(parameter.type)) {
+            final Type rawType = ParameterizedType.class.cast(parameter.type).getRawType();
+            if (Class.class.isInstance(rawType)) {
+                type = Class.class.cast(rawType);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
         return !parameter.isAnnotationPresent(Option.class) && (type.isAnnotationPresent(Service.class)
                 || parameter.isAnnotationPresent(Configuration.class)
                 || type.isAnnotationPresent(Internationalized.class)
@@ -83,25 +95,47 @@ public class ParameterModelService {
                 || type.getName().startsWith("javax."));
     }
 
-    private List<ParameterMeta> doBuildParameterMetas(final Executable executable, final String i18nPackage,
-            final boolean ignoreI18n, final BaseParameterEnricher.Context context) {
-        return Stream.of(executable.getParameters()).filter(p -> !isService(p)).map(parameter -> {
-            final String name = findName(parameter, parameter.getName());
+    public List<ParameterMeta> buildParameterMetas(final Stream<Param> parameters, final Class<?> declaringClass,
+            final String i18nPackage, final boolean ignoreI18n, final BaseParameterEnricher.Context context) {
+        return parameters.filter(p -> !isService(p)).map(parameter -> {
+            final String name = findName(parameter, parameter.name);
             return buildParameter(name, name, new ParameterMeta.Source() {
 
                 @Override
                 public String name() {
-                    return parameter.getName();
+                    return parameter.name;
                 }
 
                 @Override
                 public Class<?> declaringClass() {
-                    return executable.getDeclaringClass();
+                    return declaringClass;
                 }
-            }, parameter.getParameterizedType(), Stream
-                    .concat(Stream.of(parameter.getType().getAnnotations()), Stream.of(parameter.getAnnotations()))
-                    .toArray(Annotation[]::new), new ArrayList<>(singletonList(i18nPackage)), ignoreI18n, context);
+            }, parameter.type,
+                    Stream
+                            .concat(extractTypeAnnotation(parameter), Stream.of(parameter.getAnnotations()))
+                            .distinct()
+                            .toArray(Annotation[]::new),
+                    new ArrayList<>(singletonList(i18nPackage)), ignoreI18n, context);
         }).collect(toList());
+    }
+
+    private Stream<Annotation> extractTypeAnnotation(final Param parameter) {
+        if (Class.class.isInstance(parameter.type)) {
+            return Stream.of(Class.class.cast(parameter.type).getAnnotations());
+        }
+        if (ParameterizedType.class.isInstance(parameter.type)) {
+            final ParameterizedType parameterizedType = ParameterizedType.class.cast(parameter.type);
+            if (Class.class.isInstance(parameterizedType.getRawType())) {
+                return Stream.of(Class.class.cast(parameterizedType.getRawType()).getAnnotations());
+            }
+        }
+        return Stream.empty();
+    }
+
+    private List<ParameterMeta> doBuildParameterMetas(final Executable executable, final String i18nPackage,
+            final boolean ignoreI18n, final BaseParameterEnricher.Context context) {
+        return buildParameterMetas(Stream.of(executable.getParameters()).map(Param::new),
+                executable.getDeclaringClass(), i18nPackage, ignoreI18n, context);
     }
 
     public List<ParameterMeta> buildServiceParameterMetas(final Executable executable, final String i18nPackage,
@@ -341,5 +375,44 @@ public class ParameterModelService {
             return ParameterMeta.Type.STRING;
         }
         return ParameterMeta.Type.OBJECT;
+    }
+
+    public static class Param implements AnnotatedElement {
+
+        private final Type type;
+
+        private final String name;
+
+        private final Annotation[] annotations;
+
+        public Param(final Type type, final Annotation[] annotations, final String name) {
+            this.type = type;
+            this.annotations = annotations;
+            this.name = name;
+        }
+
+        public Param(final Parameter parameter) {
+            this(parameter.getParameterizedType(), parameter.getAnnotations(), parameter.getName());
+        }
+
+        @Override
+        public <T extends Annotation> T getAnnotation(final Class<T> annotationClass) {
+            return Stream
+                    .of(getAnnotations())
+                    .filter(it -> it.annotationType() == annotationClass)
+                    .findFirst()
+                    .map(annotationClass::cast)
+                    .orElse(null);
+        }
+
+        @Override
+        public Annotation[] getAnnotations() {
+            return annotations;
+        }
+
+        @Override
+        public Annotation[] getDeclaredAnnotations() {
+            return getAnnotations();
+        }
     }
 }

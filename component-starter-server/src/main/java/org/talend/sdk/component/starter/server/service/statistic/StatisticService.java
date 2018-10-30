@@ -52,10 +52,13 @@ public class StatisticService {
     public void save(final CreateProject event) {
         final String project = event.getRequest().getBuildConfiguration().getGroup() + ':'
                 + event.getRequest().getBuildConfiguration().getArtifact();
-        logger.info(jsonb.toJson(new Representation(project,
-                event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
-                event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size(),
-                ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
+        logger
+                .info(jsonb
+                        .toJson(new Representation(project,
+                                event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
+                                event.getRequest().getProcessors() == null ? 0
+                                        : event.getRequest().getProcessors().size(),
+                                ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
     }
 
     @Data
@@ -101,7 +104,7 @@ public class StatisticService {
         private void init() {
             final AtomicInteger counter = new AtomicInteger(1);
             executorService = Executors.newFixedThreadPool(threads, r -> {
-                final Thread thread = new Thread();
+                final Thread thread = new Thread(r);
                 thread.setName("talend-starter-statistcs-" + counter.getAndIncrement());
                 thread.setPriority(Thread.NORM_PRIORITY);
                 thread.setDaemon(false);
@@ -121,21 +124,19 @@ public class StatisticService {
                         statistics.save(createProject);
                         return;
                     } catch (final Exception te) {
-                        final Throwable e = te.getCause();
-                        if (e != null) {
-                            if (retries - 1 == i) { // no need to retry
-                                failed(createProject);
-                                throw RuntimeException.class.isInstance(e) ? RuntimeException.class.cast(e)
-                                        : new IllegalStateException(e);
-                            }
+                        final Throwable e = ofNullable(te.getCause()).orElse(te);
+                        if (retries - 1 == i) { // no need to retry
+                            failed(createProject);
+                            throw RuntimeException.class.isInstance(e) ? RuntimeException.class.cast(e)
+                                    : new IllegalStateException(e);
+                        }
 
-                            if (retrySleep > 0) {
-                                try {
-                                    sleep(retrySleep);
-                                } catch (final InterruptedException ie) {
-                                    Thread.interrupted();
-                                    break;
-                                }
+                        if (retrySleep > 0) {
+                            try {
+                                sleep(retrySleep);
+                            } catch (final InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                                break;
                             }
                         }
                     }
@@ -156,12 +157,13 @@ public class StatisticService {
             skip = true;
             try {
                 if (!executorService.awaitTermination(shutdownTimeout, MILLISECONDS)) {
-                    log.warn(
-                            "Some statistics have been missed, this is not important but reporting can not be 100% accurate");
+                    log
+                            .warn("Some statistics have been missed, this is not important but reporting can not be 100% accurate");
+                    executorService.shutdownNow();
                 }
             } catch (final InterruptedException e) {
-                Thread.interrupted();
                 log.warn("interruption during statistics shutdown, {}", e.getMessage());
+                Thread.currentThread().interrupt();
             }
         }
     }

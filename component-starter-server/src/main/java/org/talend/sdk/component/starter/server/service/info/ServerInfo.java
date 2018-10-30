@@ -74,8 +74,10 @@ public class ServerInfo {
     @PostConstruct
     private void init() {
         saxFactory = SAXParserFactory.newInstance();
-        doUpdate(() -> Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                "starter-versions.properties"));
+        doUpdate(() -> Thread
+                .currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("starter-versions.properties"));
 
         if (!configuration.getAutoRefresh()) {
             return;
@@ -194,7 +196,7 @@ public class ServerInfo {
 
         private String avroJackson;
 
-        private String surefire = "2.22.0";
+        private String surefire = "2.22.1";
 
         private String cxf;
 

@@ -54,8 +54,9 @@ public class TalendComponentKitTesting implements FacetGenerator {
 
     @Override
     public Stream<Dependency> dependencies(final Collection<String> facets, final ServerInfo.Snapshot versions) {
-        return Stream.of(Dependency.junit(),
-                new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"));
+        return Stream
+                .of(Dependency.junit(), new Dependency("org.talend.sdk.component", "component-runtime-junit",
+                        versions.getKit(), "test"));
     }
 
     @Override
@@ -70,8 +71,9 @@ public class TalendComponentKitTesting implements FacetGenerator {
         }
 
         final String testJava = build.getTestJavaDirectory() + '/' + packageBase.replace('.', '/');
-        return Stream.concat(createSourceTest(testJava, packageBase, sources),
-                createProcessorsTest(testJava, packageBase, processors));
+        return Stream
+                .concat(createSourceTest(testJava, packageBase, sources),
+                        createProcessorsTest(testJava, packageBase, processors));
     }
 
     @Override
@@ -99,23 +101,24 @@ public class TalendComponentKitTesting implements FacetGenerator {
                     : emptySet();
 
             final Collection<InMemoryFile> files = new ArrayList<>();
-            files.add(new FacetGenerator.InMemoryFile(testJava + "/source/" + testClassName + ".java",
-                    tpl.render("generator/facet/test/SourceTest.mustache", new HashMap<String, Object>() {
+            files
+                    .add(new FacetGenerator.InMemoryFile(testJava + "/source/" + testClassName + ".java",
+                            tpl.render("generator/facet/test/SourceTest.mustache", new HashMap<String, Object>() {
 
-                        {
-                            put("rootPackage", packageBase);
-                            put("classPackage", packageBase + ".source");
-                            put("testClassName", testClassName);
-                            put("sourceClassName", baseName);
-                            put("sourceName", source.getName());
-                            put("mapperName", mapperName);
-                            put("hasConfig", hasConfig);
-                            put("configurationClassName", configurationClassName);
-                            put("configFields", configFields);
-                            put("outputRecordName", outputRecordName);
-                            put("isGeneric", source.getOutputStructure().isGeneric());
-                        }
-                    })));
+                                {
+                                    put("rootPackage", packageBase);
+                                    put("classPackage", packageBase + ".source");
+                                    put("testClassName", testClassName);
+                                    put("sourceClassName", baseName);
+                                    put("sourceName", source.getName());
+                                    put("mapperName", mapperName);
+                                    put("hasConfig", hasConfig);
+                                    put("configurationClassName", configurationClassName);
+                                    put("configFields", configFields);
+                                    put("outputRecordName", outputRecordName);
+                                    put("isGeneric", source.getOutputStructure().isGeneric());
+                                }
+                            })));
 
             return files.stream();
         });
@@ -136,10 +139,15 @@ public class TalendComponentKitTesting implements FacetGenerator {
             final boolean hasConfig =
                     processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
                             && !processor.getConfiguration().getEntries().isEmpty();
-            final Set<String> configFields = hasConfig
-                    ? processor.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(
-                            toSet())
-                    : emptySet();
+            final Set<String> configFields =
+                    hasConfig
+                            ? processor
+                                    .getConfiguration()
+                                    .getEntries()
+                                    .stream()
+                                    .map(e -> capitalize(e.getName()))
+                                    .collect(toSet())
+                            : emptySet();
 
             // input branches names
             final Set<Map.Entry<String, String>> inputBranches =
@@ -176,24 +184,25 @@ public class TalendComponentKitTesting implements FacetGenerator {
                     || outputBranches.stream().anyMatch(e -> "Record".equals(e.getValue()));
 
             final Collection<InMemoryFile> files = new ArrayList<>();
-            files.add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java",
-                    tpl.render("generator/facet/test/ProcessorTest.mustache", new HashMap<String, Object>() {
+            files
+                    .add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java",
+                            tpl.render("generator/facet/test/ProcessorTest.mustache", new HashMap<String, Object>() {
 
-                        {
-                            put("rootPackage", packageBase);
-                            put("classPackage", packageBase + "." + classDir);
-                            put("testClassName", testClassName);
-                            put("processorClassName", baseName);
-                            put("hasConfig", hasConfig);
-                            put("configurationClassName", configurationClassName);
-                            put("configFields", configFields);
-                            put("isOutput", isOutput);
-                            put("processorName", processor.getName());
-                            put("inputBranches", inputBranches);
-                            put("outputBranches", outputBranches);
-                            put("isGeneric", isGeneric);
-                        }
-                    })));
+                                {
+                                    put("rootPackage", packageBase);
+                                    put("classPackage", packageBase + "." + classDir);
+                                    put("testClassName", testClassName);
+                                    put("processorClassName", baseName);
+                                    put("hasConfig", hasConfig);
+                                    put("configurationClassName", configurationClassName);
+                                    put("configFields", configFields);
+                                    put("isOutput", isOutput);
+                                    put("processorName", processor.getName());
+                                    put("inputBranches", inputBranches);
+                                    put("outputBranches", outputBranches);
+                                    put("isGeneric", isGeneric);
+                                }
+                            })));
 
             return files.stream();
         });

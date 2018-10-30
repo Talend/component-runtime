@@ -50,6 +50,9 @@ public class PropertiesService {
     private ConfigurationClient configurations;
 
     @Inject
+    private ConfigurationService configurationService;
+
+    @Inject
     private ReferenceService referenceService;
 
     /**
@@ -60,8 +63,8 @@ public class PropertiesService {
      * @param context current conversion context.
      * @return the new properties list.
      */
-    public CompletionStage<List<SimplePropertyDefinition>>
-            filterProperties(final Collection<SimplePropertyDefinition> properties, final UiSpecContext context) {
+    public CompletionStage<List<SimplePropertyDefinition>> filterProperties(final String family,
+            final Collection<SimplePropertyDefinition> properties, final UiSpecContext context) {
         final Collection<SimplePropertyDefinition> nestedConfigurations = dropChildren(properties
                 .stream()
                 .filter(this::isConfiguration)
@@ -92,7 +95,11 @@ public class PropertiesService {
                                 .getNodes()
                                 .values()
                                 .stream()
-                                .filter(node -> type.equals(node.getConfigurationType()) && name.equals(node.getName()))
+                                .filter(node -> configurationService
+                                        .getFamilyOf(node.getId(), nodes)
+                                        .getName()
+                                        .equals(family) && type.equals(node.getConfigurationType())
+                                        && name.equals(node.getName()))
                                 .findFirst()
                                 .map(node -> findPotentialIdsAndNames(node, context))
                                 .orElseGet(() -> completedFuture(new LinkedHashMap<>()))
@@ -116,7 +123,11 @@ public class PropertiesService {
                                         .noneMatch(prefix -> prefix.getPath().equals(it.getPath())
                                                 || it.getPath().startsWith(prefix.getPath() + '.'))),
                                 // not the best naming convention but enough for now
-                                nestedConfigurations.stream().peek(it -> it.setPath(it.getPath() + ".$selfReference")))
+                                nestedConfigurations.stream().peek(it -> {
+                                    it.setPath(it.getPath() + ".$selfReference");
+                                    it.getMetadata().remove("configurationtype::type");
+                                    it.getMetadata().remove("configurationtype::name");
+                                }))
                         .collect(toList()));
     }
 
@@ -174,29 +185,39 @@ public class PropertiesService {
             final String sanitizedPath = it.getPath().replace(".$selfReference", "");
             ofNullable(instance.get(it.getPath())).ifPresent(val -> config.put(it.getPath(), val));
             return referenceService
-                    .findPropertiesById(id, context)
+                    .findPropertiesById(
+                            ofNullable(instance.get(it.getPath() + "Type")).map(String::valueOf).orElse(null), id,
+                            context)
                     .thenCompose(form -> configurations
                             .getDetails(context.getLanguage(), form.getFormId(), context.getPlaceholderProvider())
-                            .thenCompose(detail -> filterProperties(detail.getProperties(), context)
-                                    .thenCompose(props -> replaceReferences(context, props, form.getProperties())
-                                            .thenApply(nestedProps -> {
-                                                final String root = detail
-                                                        .getProperties()
-                                                        .stream()
-                                                        .map(SimplePropertyDefinition::getPath)
-                                                        .sorted()
-                                                        .iterator()
-                                                        .next();
-                                                config
-                                                        .putAll(nestedProps
-                                                                .entrySet()
-                                                                .stream()
-                                                                .collect(toMap(e -> e.getKey().startsWith(root)
-                                                                        ? sanitizedPath
-                                                                                + e.getKey().substring(root.length())
-                                                                        : e.getKey(), Map.Entry::getValue)));
-                                                return null;
-                                            }))));
+                            .thenCompose(detail -> configurations
+                                    .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
+                                    .thenApply(nodes -> configurationService.getFamilyOf(detail.getId(), nodes))
+                                    .thenCompose(familyNode -> filterProperties(familyNode.getName(),
+                                            detail.getProperties(), context)
+                                                    .thenCompose(props -> replaceReferences(context, props,
+                                                            form.getProperties()).thenApply(nestedProps -> {
+                                                                final String root = detail
+                                                                        .getProperties()
+                                                                        .stream()
+                                                                        .map(SimplePropertyDefinition::getPath)
+                                                                        .sorted()
+                                                                        .iterator()
+                                                                        .next();
+                                                                config
+                                                                        .putAll(nestedProps
+                                                                                .entrySet()
+                                                                                .stream()
+                                                                                .collect(toMap(
+                                                                                        e -> e.getKey().startsWith(root)
+                                                                                                ? sanitizedPath + e
+                                                                                                        .getKey()
+                                                                                                        .substring(root
+                                                                                                                .length())
+                                                                                                : e.getKey(),
+                                                                                        Map.Entry::getValue)));
+                                                                return null;
+                                                            })))));
         }).toArray(CompletableFuture[]::new)).thenApply(ignored -> config);
     }
 }

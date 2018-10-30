@@ -72,8 +72,9 @@ public class BasicAuthConfig implements Serializable {
 
     public String getAuthorizationHeader() {
         try {
-            return "Basic " + Base64.getEncoder().encodeToString(
-                    (this.getUsername() + ":" + this.getPassword()).getBytes("UTF-8"));
+            return "Basic " + Base64
+                    .getEncoder()
+                    .encodeToString((this.getUsername() + ":" + this.getPassword()).getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

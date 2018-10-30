@@ -46,23 +46,32 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
 
     private final Collection<CustomPropertyConverter> customPropertyConverters;
 
+    private final UiSchema providedUiSchema;
+
     public FieldSetWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Client client, final String family, final JsonSchema jsonSchema, final String order,
-            final String lang, final Collection<CustomPropertyConverter> customPropertyConverters) {
+            final String lang, final Collection<CustomPropertyConverter> customPropertyConverters,
+            final UiSchema providedUiSchema) {
         super(schemas, properties, actions, jsonSchema, lang);
         this.client = client;
         this.family = family;
         this.customPropertyConverters = customPropertyConverters;
         this.order = ofNullable(order).map(it -> asList(it.split(","))).orElse(null);
+        this.providedUiSchema = providedUiSchema;
     }
 
     @Override
     public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
-            final UiSchema uiSchema = newUiSchema(context);
-            uiSchema.setWidget("fieldset");
-            uiSchema.setItems(new ArrayList<>());
+            final UiSchema uiSchema;
+            if (providedUiSchema == null) {
+                uiSchema = newUiSchema(context);
+                uiSchema.setWidget("fieldset");
+                uiSchema.setItems(new ArrayList<>());
+            } else {
+                uiSchema = providedUiSchema;
+            }
 
             final List<SimplePropertyDefinition> properties = new ArrayList<>();
 

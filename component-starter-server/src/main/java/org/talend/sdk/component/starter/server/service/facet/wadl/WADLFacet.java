@@ -39,9 +39,10 @@ public class WADLFacet implements FacetGenerator {
     private String specification;
 
     void register(@Observes final GeneratorRegistration init) {
-        try (final BufferedReader reader = new BufferedReader(
-                new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                        "generator/facet/wadl/specification.xml")))) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(Thread
+                .currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("generator/facet/wadl/specification.xml")))) {
             specification = reader.lines().collect(joining("\n"));
         } catch (final IOException e) {
             throw new IllegalStateException(e);

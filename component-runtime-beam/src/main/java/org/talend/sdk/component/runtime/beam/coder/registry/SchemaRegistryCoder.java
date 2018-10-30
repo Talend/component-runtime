@@ -77,6 +77,16 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
         return new AvroRecord(decoded);
     }
 
+    @Override
+    public int hashCode() {
+        return SchemaRegistryCoder.class.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return SchemaRegistryCoder.class.isInstance(obj);
+    }
+
     // todo: add caching here
     private AvroCoder<IndexedRecord> getCoder(final Schema avro) {
         return AvroCoder.of(IndexedRecord.class, avro);

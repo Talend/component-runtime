@@ -22,6 +22,7 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -49,6 +50,7 @@ public class PropertyContext<T> {
         return properties.stream().filter(this::isDirectChild);
     }
 
+    @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static final class Configuration {

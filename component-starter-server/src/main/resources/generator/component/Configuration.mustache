@@ -1,6 +1,10 @@
 package {{package}};
 
 import java.io.Serializable;
+{{#datasetName}}
+
+import {{datasetPackage}}.{{datasetName}};
+{{/datasetName}}
 
 {{#structure.size}}
 import org.talend.sdk.component.api.configuration.Option;

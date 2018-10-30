@@ -188,6 +188,50 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.microprofile.metrics</groupId>
+      <artifactId>microprofile-metrics-api</artifactId>
+      <version>1.1.1</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.annotation.versioning</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-metrics</artifactId>
+      <version>1.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource</groupId>
+      <artifactId>sigar</artifactId>
+      <version>1.6.4</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource</groupId>
+      <artifactId>sigar</artifactId>
+      <version>1.6.4</version>
+      <classifier>native</classifier>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 
   <build>

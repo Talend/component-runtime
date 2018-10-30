@@ -78,8 +78,10 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
@@ -453,6 +455,8 @@ public class ComponentValidator extends BaseTask {
                         .filter(Objects::nonNull)
                         .sorted()
                         .collect(toSet()));
+
+        // enum
         errors
                 .addAll(finder
                         .findAnnotatedFields(Option.class)
@@ -473,6 +477,28 @@ public class ComponentValidator extends BaseTask {
                                         + "._displayName in " + enumType + " resource bundle"))
                         .sorted()
                         .collect(toSet()));
+
+        // others - just logged for now, we can add it to errors if we encounter it too often
+        final List<String> missingOptionTranslations =
+                finder.findAnnotatedFields(Option.class).stream().distinct().filter(field -> {
+                    final ResourceBundle bundle = ofNullable(findResourceBundle(field.getDeclaringClass()))
+                            .orElseGet(() -> findResourceBundle(field.getType()));
+                    final String key =
+                            field.getDeclaringClass().getSimpleName() + "." + field.getName() + "._displayName";
+                    return bundle == null || !bundle.containsKey(key);
+                })
+                        .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
+                                + f.getName() + ">")
+                        .sorted()
+                        .collect(toList());
+        if (!missingOptionTranslations.isEmpty()) {
+            // represent it as a single entry to enable "copy/paste fixed" pattern
+            errors
+                    .add(missingOptionTranslations
+                            .stream()
+                            .distinct()
+                            .collect(joining("\n", "Missing resource bundle entries:\n", "")));
+        }
 
         for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
             final ResourceBundle resourceBundle = findResourceBundle(i);
@@ -688,15 +714,22 @@ public class ComponentValidator extends BaseTask {
                         .collect(toList()));
 
         // ensure there is always a source with a config matching without user entries each dataset
-        final Map<Class<?>, Collection<ParameterMeta>> inputs = components
+        final BaseParameterEnricher.Context context =
+                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"));
+        final Map<Class<?>, Collection<ParameterMeta>> componentNeedingADataSet = components
                 .stream()
-                .filter(this::isSource)
+                .filter(c -> isSource(c) || isOutput(c))
                 .collect(toMap(identity(),
                         c -> parameterModelService
                                 .buildParameterMetas(findConstructor(c),
-                                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
-                                        new BaseParameterEnricher.Context(
-                                                new LocalConfigurationService(emptyList(), "tools")))));
+                                        ofNullable(c.getPackage()).map(Package::getName).orElse(""), context)));
+
+        final Map<? extends Class<?>, Collection<ParameterMeta>> inputs = componentNeedingADataSet
+                .entrySet()
+                .stream()
+                .filter(it -> isSource(it.getKey()))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         errors
                 .addAll(datasets
                         .entrySet()
@@ -721,6 +754,32 @@ public class ComponentValidator extends BaseTask {
                                 + "dataset can be used just filling the dataset information.")
                         .sorted()
                         .collect(toSet()));
+
+        // "cloud" rule - ensure all input/output have a dataset at least
+        errors
+                .addAll(componentNeedingADataSet
+                        .entrySet()
+                        .stream()
+                        .filter(it -> flatten(it.getValue())
+                                .noneMatch(prop -> "dataset"
+                                        .equals(prop.getMetadata().get("tcomp::configurationtype::type"))))
+                        .map(it -> "The component " + it.getKey().getName()
+                                + " is missing a dataset in its configuration (see @DataSet)")
+                        .sorted()
+                        .collect(toSet()));
+
+        // "cloud" rule - ensure all datasets have a datastore
+        errors.addAll(datasetClasses.stream().map(ds -> {
+            final List<ParameterMeta> dataset = parameterModelService
+                    .buildParameterMetas(Stream.of(new ParameterModelService.Param(ds, ds.getAnnotations(), "dataset")),
+                            ds, ofNullable(ds.getPackage()).map(Package::getName).orElse(""), true, context);
+            if (flatten(dataset)
+                    .noneMatch(prop -> "datastore".equals(prop.getMetadata().get("tcomp::configurationtype::type")))) {
+                return "The dataset " + ds.getName()
+                        + " is missing a datastore reference in its configuration (see @DataStore)";
+            }
+            return null;
+        }).filter(Objects::nonNull).sorted().collect(toSet()));
     }
 
     private boolean isRequired(final ParameterMeta parameterMeta) {
@@ -729,6 +788,14 @@ public class ComponentValidator extends BaseTask {
 
     private boolean isSource(final Class<?> component) {
         return component.isAnnotationPresent(PartitionMapper.class) || component.isAnnotationPresent(Emitter.class);
+    }
+
+    private boolean isOutput(final Class<?> component) {
+        return component.isAnnotationPresent(Processor.class) && Stream
+                .of(component.getMethods())
+                .filter(it -> it.isAnnotationPresent(ElementListener.class) || it.isAnnotationPresent(AfterGroup.class))
+                .allMatch(it -> void.class == it.getReturnType()
+                        && Stream.of(it.getParameters()).noneMatch(param -> param.isAnnotationPresent(Output.class)));
     }
 
     private Stream<ParameterMeta> findNestedDataSets(final Collection<ParameterMeta> options, final String name) {
@@ -902,7 +969,10 @@ public class ComponentValidator extends BaseTask {
     }
 
     private int countParameters(final Parameter[] params) {
-        return (int) Stream.of(params).filter(p -> !parameterModelService.isService(p)).count();
+        return (int) Stream
+                .of(params)
+                .filter(p -> !parameterModelService.isService(new ParameterModelService.Param(p)))
+                .count();
     }
 
     private String validateComponentResourceBundle(final Class<?> component) {

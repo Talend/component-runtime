@@ -67,8 +67,9 @@ public class BeamFacet implements FacetGenerator {
             return Stream.empty();
         }
         final String testJava = build.getTestJavaDirectory() + '/' + packageBase.replace('.', '/');
-        return Stream.concat(createSourceTest(testJava, packageBase, sources),
-                createProcessorsTest(testJava, packageBase, processors));
+        return Stream
+                .concat(createSourceTest(testJava, packageBase, sources),
+                        createProcessorsTest(testJava, packageBase, processors));
     }
 
     private Stream<InMemoryFile> createSourceTest(final String testJava, final String packageBase,
@@ -91,23 +92,24 @@ public class BeamFacet implements FacetGenerator {
                     : emptySet();
 
             final Collection<InMemoryFile> files = new ArrayList<>();
-            files.add(new FacetGenerator.InMemoryFile(testJava + "/source/" + testClassName + ".java",
-                    tpl.render("generator/facet/beam/BeamSourceTest.mustache", new HashMap<String, Object>() {
+            files
+                    .add(new FacetGenerator.InMemoryFile(testJava + "/source/" + testClassName + ".java",
+                            tpl.render("generator/facet/beam/BeamSourceTest.mustache", new HashMap<String, Object>() {
 
-                        {
-                            put("rootPackage", packageBase);
-                            put("classPackage", packageBase + ".source");
-                            put("testClassName", testClassName);
-                            put("sourceClassName", baseName);
-                            put("sourceName", source.getName());
-                            put("mapperName", mapperName);
-                            put("hasConfig", hasConfig);
-                            put("configurationClassName", configurationClassName);
-                            put("configFields", configFields);
-                            put("outputRecordName", outputRecordName);
-                            put("isGeneric", source.getOutputStructure().isGeneric());
-                        }
-                    })));
+                                {
+                                    put("rootPackage", packageBase);
+                                    put("classPackage", packageBase + ".source");
+                                    put("testClassName", testClassName);
+                                    put("sourceClassName", baseName);
+                                    put("sourceName", source.getName());
+                                    put("mapperName", mapperName);
+                                    put("hasConfig", hasConfig);
+                                    put("configurationClassName", configurationClassName);
+                                    put("configFields", configFields);
+                                    put("outputRecordName", outputRecordName);
+                                    put("isGeneric", source.getOutputStructure().isGeneric());
+                                }
+                            })));
 
             return files.stream();
         });
@@ -128,10 +130,15 @@ public class BeamFacet implements FacetGenerator {
             final boolean hasConfig =
                     processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
                             && !processor.getConfiguration().getEntries().isEmpty();
-            final Set<String> configFields = hasConfig
-                    ? processor.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(
-                            toSet())
-                    : emptySet();
+            final Set<String> configFields =
+                    hasConfig
+                            ? processor
+                                    .getConfiguration()
+                                    .getEntries()
+                                    .stream()
+                                    .map(e -> capitalize(e.getName()))
+                                    .collect(toSet())
+                            : emptySet();
 
             // input branches names
             final Set<Map.Entry<String, String>> inputBranches =
@@ -168,24 +175,25 @@ public class BeamFacet implements FacetGenerator {
                     || outputBranches.stream().anyMatch(e -> "Record".equals(e.getValue()));
 
             final Collection<InMemoryFile> files = new ArrayList<>();
-            files.add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java",
-                    tpl.render("generator/facet/beam/BeamProcessorTest.mustache", new HashMap<String, Object>() {
+            files
+                    .add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java", tpl
+                            .render("generator/facet/beam/BeamProcessorTest.mustache", new HashMap<String, Object>() {
 
-                        {
-                            put("rootPackage", packageBase);
-                            put("classPackage", packageBase + "." + classDir);
-                            put("testClassName", testClassName);
-                            put("processorClassName", baseName);
-                            put("hasConfig", hasConfig);
-                            put("configurationClassName", configurationClassName);
-                            put("configFields", configFields);
-                            put("isOutput", isOutput);
-                            put("processorName", processor.getName());
-                            put("inputBranches", inputBranches);
-                            put("outputBranches", outputBranches);
-                            put("isGeneric", isGeneric);
-                        }
-                    })));
+                                {
+                                    put("rootPackage", packageBase);
+                                    put("classPackage", packageBase + "." + classDir);
+                                    put("testClassName", testClassName);
+                                    put("processorClassName", baseName);
+                                    put("hasConfig", hasConfig);
+                                    put("configurationClassName", configurationClassName);
+                                    put("configFields", configFields);
+                                    put("isOutput", isOutput);
+                                    put("processorName", processor.getName());
+                                    put("inputBranches", inputBranches);
+                                    put("outputBranches", outputBranches);
+                                    put("isGeneric", isGeneric);
+                                }
+                            })));
 
             return files.stream();
         });
@@ -193,15 +201,19 @@ public class BeamFacet implements FacetGenerator {
 
     @Override
     public Stream<Dependency> dependencies(final Collection<String> facets, final ServerInfo.Snapshot versions) {
-        return Stream.of(Dependency.junit(),
-                new Dependency("org.talend.sdk.component", "component-runtime-beam", versions.getKit(), "test"),
-                new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"),
-                new Dependency("org.talend.sdk.component", "component-runtime-beam-junit", versions.getKit(), "test"),
-                new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
-                new Dependency("org.apache.beam", "beam-runners-direct-java", versions.getBeam(), "test"),
-                // for avro
-                new Dependency("org.codehaus.jackson", "jackson-core-asl", versions.getAvroJackson(), "test"),
-                new Dependency("org.codehaus.jackson", "jackson-mapper-asl", versions.getAvroJackson(), "test"));
+        return Stream
+                .of(Dependency.junit(),
+                        new Dependency("org.talend.sdk.component", "component-runtime-beam", versions.getKit(), "test"),
+                        new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(),
+                                "test"),
+                        new Dependency("org.talend.sdk.component", "component-runtime-beam-junit", versions.getKit(),
+                                "test"),
+                        new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
+                        new Dependency("org.apache.beam", "beam-runners-direct-java", versions.getBeam(), "test"),
+                        // for avro
+                        new Dependency("org.codehaus.jackson", "jackson-core-asl", versions.getAvroJackson(), "test"),
+                        new Dependency("org.codehaus.jackson", "jackson-mapper-asl", versions.getAvroJackson(),
+                                "test"));
     }
 
     @Override

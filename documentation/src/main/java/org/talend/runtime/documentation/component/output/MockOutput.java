@@ -83,8 +83,10 @@ public class MockOutput implements Serializable {
                         .collect(factory::createObjectBuilder, (b, a) -> b.add(a.getKey(), a.getValue()),
                                 JsonObjectBuilder::addAll)
                         .build() : record;
-                newRec = client.create(outputConfig.getCommonConfig().getTableName().name(),
-                        outputConfig.getDataStore().getAuthorizationHeader(), outputConfig.isNoResponseBody(), copy);
+                newRec = client
+                        .create(outputConfig.getCommonConfig().getTableName().name(),
+                                outputConfig.getDataStore().getAuthorizationHeader(), outputConfig.isNoResponseBody(),
+                                copy);
                 if (newRec != null) {
                     success.emit(newRec);
                 }
@@ -93,9 +95,10 @@ public class MockOutput implements Serializable {
                 if (sysId == null || sysId.isEmpty()) {
                     reject.emit(new Reject(1, "sys_id is required to update the record", null, record));
                 } else {
-                    newRec = client.update(outputConfig.getCommonConfig().getTableName().name(), sysId,
-                            outputConfig.getDataStore().getAuthorizationHeader(), outputConfig.isNoResponseBody(),
-                            record);
+                    newRec = client
+                            .update(outputConfig.getCommonConfig().getTableName().name(), sysId,
+                                    outputConfig.getDataStore().getAuthorizationHeader(),
+                                    outputConfig.isNoResponseBody(), record);
 
                     if (newRec != null) {
                         success.emit(newRec);
@@ -106,8 +109,9 @@ public class MockOutput implements Serializable {
                 if (sysId == null || sysId.isEmpty()) {
                     reject.emit(new Reject(2, "sys_id is required to delete the record", null, record));
                 } else {
-                    client.deleteRecordById(outputConfig.getCommonConfig().getTableName().name(), sysId,
-                            outputConfig.getDataStore().getAuthorizationHeader());
+                    client
+                            .deleteRecordById(outputConfig.getCommonConfig().getTableName().name(), sysId,
+                                    outputConfig.getDataStore().getAuthorizationHeader());
                     success.emit(record);
                 }
                 break;
@@ -118,8 +122,9 @@ public class MockOutput implements Serializable {
         } catch (HttpException httpError) {
             final JsonObject error = (JsonObject) httpError.getResponse().error(JsonObject.class);
             if (error != null && error.containsKey("error")) {
-                reject.emit(
-                        new Reject(httpError.getResponse().status(), error.getJsonObject("error").getString("message"),
+                reject
+                        .emit(new Reject(httpError.getResponse().status(),
+                                error.getJsonObject("error").getString("message"),
                                 error.getJsonObject("error").getString("detail"), record));
             } else {
                 reject.emit(new Reject(httpError.getResponse().status(), "unknown", "unknown", record));

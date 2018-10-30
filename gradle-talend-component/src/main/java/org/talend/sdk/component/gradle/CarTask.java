@@ -50,12 +50,18 @@ public class CarTask extends TaCoKitTask {
 
         final Object config = configImpl.getConstructor().newInstance();
         config.getClass().getMethod("setMainGav", String.class).invoke(config, mainGav());
-        config.getClass().getMethod("setVersion", String.class).invoke(config,
-                String.valueOf(getProject().getVersion()));
+        config
+                .getClass()
+                .getMethod("setVersion", String.class)
+                .invoke(config, String.valueOf(getProject().getVersion()));
         config.getClass().getMethod("setArtifacts", Map.class).invoke(config, artifacts());
         config.getClass().getMethod("setCustomMetadata", Map.class).invoke(config, extension.getCarMetadata());
-        config.getClass().getMethod("setOutput", File.class).invoke(config, ofNullable(extension.getCarOutput())
-                .orElseGet(() -> new File(getProject().getBuildDir(), "libs/" + getProject().getName() + ".car")));
+        config
+                .getClass()
+                .getMethod("setOutput", File.class)
+                .invoke(config, ofNullable(extension.getCarOutput())
+                        .orElseGet(
+                                () -> new File(getProject().getBuildDir(), "libs/" + getProject().getName() + ".car")));
 
         Runnable.class.cast(impl.getConstructor(configImpl, Object.class).newInstance(config, getLogger())).run();
     }

@@ -45,28 +45,30 @@ public class Suggestion {
     }
 
     public LookupElement newLookupElement(final int priority) {
-        return PrioritizedLookupElement.withPriority(
-                LookupElementBuilder.create(this, getKey()).withRenderer(new LookupElementRenderer<LookupElement>() {
+        return PrioritizedLookupElement
+                .withPriority(LookupElementBuilder
+                        .create(this, getKey())
+                        .withRenderer(new LookupElementRenderer<LookupElement>() {
 
-                    @Override
-                    public void renderElement(final LookupElement element,
-                            final LookupElementPresentation presentation) {
-                        final Suggestion suggestion = Suggestion.class.cast(element.getObject());
-                        presentation.setItemText(suggestion.getKey());
-                        if (Type.Family.equals(suggestion.getType())) {
-                            presentation.setIcon(AllIcons.Nodes.ModuleGroup);
-                            presentation.appendTailText("  Family", true);
-                        } else if (Type.Component.equals(suggestion.getType())) {
-                            presentation.setIcon(Icons.TACOKIT);
-                            presentation.appendTailText("  Component", true);
-                        } else if (Type.Configuration.equals(suggestion.getType())) {
-                            presentation.setIcon(AllIcons.Hierarchy.Class);
-                            presentation.appendTailText("  Configuration", true);
-                        } else if (Type.Action.equals(suggestion.getType())) {
-                            presentation.setIcon(AllIcons.Actions.Submit1);
-                            presentation.appendTailText("  Action", true);
-                        }
-                    }
-                }), priority);
+                            @Override
+                            public void renderElement(final LookupElement element,
+                                    final LookupElementPresentation presentation) {
+                                final Suggestion suggestion = Suggestion.class.cast(element.getObject());
+                                presentation.setItemText(suggestion.getKey());
+                                if (Type.Family.equals(suggestion.getType())) {
+                                    presentation.setIcon(AllIcons.Nodes.ModuleGroup);
+                                    presentation.appendTailText("  Family", true);
+                                } else if (Type.Component.equals(suggestion.getType())) {
+                                    presentation.setIcon(Icons.TACOKIT);
+                                    presentation.appendTailText("  Component", true);
+                                } else if (Type.Configuration.equals(suggestion.getType())) {
+                                    presentation.setIcon(AllIcons.Hierarchy.Class);
+                                    presentation.appendTailText("  Configuration", true);
+                                } else if (Type.Action.equals(suggestion.getType())) {
+                                    presentation.setIcon(AllIcons.Actions.Submit1);
+                                    presentation.appendTailText("  Action", true);
+                                }
+                            }
+                        }), priority);
     }
 }

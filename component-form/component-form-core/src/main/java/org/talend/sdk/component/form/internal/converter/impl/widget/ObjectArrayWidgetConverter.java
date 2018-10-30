@@ -69,7 +69,7 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
                             new SimplePropertyDefinition(original.getPath() + "[]", original.getName(), null,
                                     original.getType(), original.getDefaultValue(), original.getValidation(),
                                     metaToPropagate, original.getPlaceholder(), original.getProposalDisplayNames()),
-                            context.getRootContext(), context.getConfiguration()), metaToPropagate);
+                            context.getRootContext(), context.getConfiguration()), metaToPropagate, arraySchema);
         });
     }
 }

@@ -72,6 +72,11 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.documentation.active", defaultValue = "true")
     private Boolean supportsDocumentation;
 
+    @Inject
+    @Documentation("Should the /api/v1/metrics endpoint be activated.")
+    @ConfigProperty(name = "talend.component.server.metrics.active", defaultValue = "true")
+    private Boolean supportsMetrics;
+
     // sync with org.talend.sdk.component.server.service.security.SecurityExtension.addSecurityHandlers
     @Inject
     @Documentation("How to validate a connection. Accepted values: securityNoopHandler.")

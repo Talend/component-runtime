@@ -364,7 +364,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 return true;
             }
             if (sub.startsWith("sun.")) {
-                final String subSun = name.substring("sun.".length());
+                final String subSun = sub.substring("sun.".length());
                 if (subSun.startsWith("accessibility.")) {
                     return true;
                 }

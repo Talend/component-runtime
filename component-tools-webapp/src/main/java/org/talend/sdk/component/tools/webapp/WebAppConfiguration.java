@@ -22,6 +22,7 @@ import javax.enterprise.inject.Produces;
 import org.talend.sdk.component.form.api.ActionService;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.form.internal.converter.PropertyContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +37,9 @@ public class WebAppConfiguration {
 
     @Produces
     public UiSpecService<Object> uiSpecService(final Client client) {
-        return new UiSpecService<>(client);
+        final UiSpecService<Object> service = new UiSpecService<>(client);
+        service.setConfiguration(new PropertyContext.Configuration(true));
+        return service;
     }
 
     public void release(@Disposes final UiSpecService<Object> uiSpecService) {

@@ -52,6 +52,18 @@ class RecordConvertersTest {
     private final RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
 
     @Test
+    void nullSupport() throws Exception {
+        final Record record = recordBuilderFactory.newRecordBuilder().withString("value", null).build();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonObject json = JsonObject.class
+                    .cast(converter
+                            .toType(record, JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider,
+                                    () -> jsonb));
+            assertNull(json.getJsonString("value"));
+        }
+    }
+
+    @Test
     void booleanRoundTrip() throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {

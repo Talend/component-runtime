@@ -234,35 +234,74 @@ public class RecordConverters implements Serializable {
         schema.getEntries().forEach(entry -> {
             final String name = entry.getName();
             switch (entry.getType()) {
-            case STRING:
-                builder.add(name, record.get(String.class, name));
+            case STRING: {
+                final String value = record.get(String.class, name);
+                if (value != null) {
+                    builder.add(name, value);
+                }
                 break;
-            case INT:
-                builder.add(name, record.get(Integer.class, name));
+            }
+            case INT: {
+                final Integer value = record.get(Integer.class, name);
+                if (value != null) {
+                    builder.add(name, value);
+                }
                 break;
-            case LONG:
-                builder.add(name, record.get(Long.class, name));
+            }
+            case LONG: {
+                final Long value = record.get(Long.class, name);
+                if (value != null) {
+                    builder.add(name, value);
+                }
                 break;
-            case FLOAT:
-                builder.add(name, record.get(Float.class, name));
+            }
+            case FLOAT: {
+                final Float value = record.get(Float.class, name);
+                if (value != null) {
+                    builder.add(name, value);
+                }
                 break;
-            case DOUBLE:
-                builder.add(name, record.get(Double.class, name));
+            }
+            case DOUBLE: {
+                final Double value = record.get(Double.class, name);
+                if (value != null) {
+                    builder.add(name, value);
+                }
                 break;
-            case BOOLEAN:
-                builder.add(name, record.get(Boolean.class, name));
+            }
+            case BOOLEAN: {
+                final Boolean value = record.get(Boolean.class, name);
+                if (value != null) {
+                    builder.add(name, value);
+                }
                 break;
-            case BYTES:
-                builder.add(name, Base64.getEncoder().encodeToString(record.get(byte[].class, name)));
+            }
+            case BYTES: {
+                final byte[] value = record.get(byte[].class, name);
+                if (value != null) {
+                    builder.add(name, Base64.getEncoder().encodeToString(value));
+                }
                 break;
-            case DATETIME:
-                builder.add(name, record.get(ZonedDateTime.class, name).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+            }
+            case DATETIME: {
+                final ZonedDateTime value = record.get(ZonedDateTime.class, name);
+                if (value != null) {
+                    builder.add(name, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                }
                 break;
-            case RECORD:
-                builder.add(name, buildRecord(factory, providerSupplier, record.get(Record.class, name)));
+            }
+            case RECORD: {
+                final Record value = record.get(Record.class, name);
+                if (value != null) {
+                    builder.add(name, buildRecord(factory, providerSupplier, value));
+                }
                 break;
+            }
             case ARRAY:
                 final Collection<?> collection = record.get(Collection.class, name);
+                if (collection == null) {
+                    break;
+                }
                 if (collection.isEmpty()) {
                     builder.add(name, factory.createArrayBuilder().build());
                 } else { // only homogeneous collections
@@ -337,6 +376,10 @@ public class RecordConverters implements Serializable {
     }
 
     public <T> T coerce(final Class<T> expectedType, final Object value, final String name) {
+        if (value == null) {
+            return null;
+        }
+
         // datetime cases
         if (Long.class.isInstance(value) && expectedType != Long.class) {
             if (expectedType == ZonedDateTime.class) {

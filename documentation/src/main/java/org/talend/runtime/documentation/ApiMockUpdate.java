@@ -186,11 +186,15 @@ public class ApiMockUpdate {
                             capture(files, executor, "/api/v1/component/index", target, emptyMap(),
                                     t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
                             capture(files, executor, "/api/v1/component/details", target, emptyMap(),
-                                    t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
-                                            byte[].class)),
+                                    t -> t
+                                            .queryParam("identifiers", componentId)
+                                            .request(APPLICATION_JSON_TYPE)
+                                            .get(byte[].class)),
                             capture(files, executor, "/api/v1/component/dependencies", target, emptyMap(),
-                                    t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
-                                            byte[].class)),
+                                    t -> t
+                                            .queryParam("identifiers", componentId)
+                                            .request(APPLICATION_JSON_TYPE)
+                                            .get(byte[].class)),
                             capture(files, executor, "/api/v1/component/dependency/{id}", target,
                                     map("id", componentId),
                                     t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
@@ -200,8 +204,9 @@ public class ApiMockUpdate {
                                     t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
                             capture(files, executor, "/api/v1/component/migrate/{id}/{configurationVersion}", target,
                                     map("id", componentId, "configurationVersion", "1"),
-                                    t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
-                                            byte[].class)),
+                                    t -> t
+                                            .request(APPLICATION_JSON_TYPE)
+                                            .post(entity("{}", APPLICATION_JSON_TYPE), byte[].class)),
 
                             // configuration type
                             capture(files, executor, "/api/v1/configurationtype/index", target, emptyMap(),
@@ -213,8 +218,9 @@ public class ApiMockUpdate {
                                             .get(byte[].class)),
                             capture(files, executor, "/api/v1/configurationtype/migrate/{id}/{configurationVersion}",
                                     target, map("id", configurationId, "configurationVersion", "1"),
-                                    t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
-                                            byte[].class)))
+                                    t -> t
+                                            .request(APPLICATION_JSON_TYPE)
+                                            .post(entity("{}", APPLICATION_JSON_TYPE), byte[].class)))
                     .get(10, MINUTES);
         } catch (final TimeoutException e) {
             log.error(e.getMessage(), e);

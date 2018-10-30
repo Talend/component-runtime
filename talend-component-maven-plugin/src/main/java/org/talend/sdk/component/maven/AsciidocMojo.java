@@ -161,8 +161,9 @@ public class AsciidocMojo extends ClasspathMojoBase {
                     dot = artifactName.lastIndexOf('.');
                 }
                 if (dot > 0) {
-                    helper.attachArtifact(project, artifact,
-                            artifactName.substring(dot + 1).replace('.', '-') + "-documentation");
+                    helper
+                            .attachArtifact(project, artifact,
+                                    artifactName.substring(dot + 1).replace('.', '-') + "-documentation");
                 } else {
                     helper.attachArtifact(project, artifact, artifactName + "-documentation");
                 }

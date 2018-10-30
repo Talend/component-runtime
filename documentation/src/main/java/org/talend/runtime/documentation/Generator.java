@@ -164,8 +164,10 @@ public class Generator {
 
     private static void updateComponentServerApi(final File generatedDir) throws Exception {
         final File output = new File(generatedDir, "generated_rest-resources.adoc");
-        try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                "META-INF/resources/documentation/openapi.json");
+        try (final InputStream source = Thread
+                .currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("META-INF/resources/documentation/openapi.json");
                 final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
             final String newJson = IO.slurp(source);
             String oldJson = !output.exists() ? "{}" : String.join("\n", Files.readAllLines(output.toPath()));
@@ -186,15 +188,17 @@ public class Generator {
                     .add("servers",
                             builderFactory
                                     .createArrayBuilder()
-                                    .add(builderFactory.createObjectBuilder().add("url",
-                                            "https://tacokitexample.000webhostapp.com")))
+                                    .add(builderFactory
+                                            .createObjectBuilder()
+                                            .add("url", "https://tacokitexample.000webhostapp.com")))
                     .build();
             if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
-                    writer.write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
-                            + "(window.talend = (window.talend || {})).swaggerUi = " + newApi.toString()
-                            + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
-                                    .getBytes(StandardCharsets.UTF_8));
+                    writer
+                            .write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
+                                    + "(window.talend = (window.talend || {})).swaggerUi = " + newApi.toString()
+                                    + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
+                                            .getBytes(StandardCharsets.UTF_8));
                 }
             }
         }
@@ -251,8 +255,11 @@ public class Generator {
                 .filter(f -> f.getName().endsWith(".adoc"))
                 .map(file -> {
                     final Document document = asciidoctor.loadFile(file, emptyMap());
-                    if (document.getAttributes().keySet().stream().noneMatch(
-                            it -> it.startsWith("page-documentationindex"))) {
+                    if (document
+                            .getAttributes()
+                            .keySet()
+                            .stream()
+                            .noneMatch(it -> it.startsWith("page-documentationindex"))) {
                         return null;
                     }
                     final String name = file.getName();
@@ -328,8 +335,13 @@ public class Generator {
             stream.println("These jars use the following prefix:");
             stream.println();
             stream.println("[.talend-filterlist]");
-            new KnownJarsFilter().getExcludes().stream().sorted().distinct().map(prefix -> "- " + prefix).forEach(
-                    stream::println);
+            new KnownJarsFilter()
+                    .getExcludes()
+                    .stream()
+                    .sorted()
+                    .distinct()
+                    .map(prefix -> "- " + prefix)
+                    .forEach(stream::println);
             stream.println();
             stream.println();
             stream.println("= Package Scanning");
@@ -427,8 +439,12 @@ public class Generator {
                 if (file.getFileName().toString().endsWith(".svg")) {
                     icons
                             .add(new Icon(
-                                    file.getFileName().toString().replace(".svg", "").replace('-', '_').toUpperCase(
-                                            ENGLISH),
+                                    file
+                                            .getFileName()
+                                            .toString()
+                                            .replace(".svg", "")
+                                            .replace('-', '_')
+                                            .toUpperCase(ENGLISH),
                                     "_images/icons/" + iconBase.relativize(file).toString(),
                                     file.toFile().getParentFile().getName().equals("svg-deprecated")));
                 }
@@ -510,11 +526,14 @@ public class Generator {
 
             final Map<String, TreeMap<String, List<JiraIssue>>> issues = IntStream
                     .range(0, (loggedVersions.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
-                    .mapToObj(pageIdx -> loggedVersions.subList(pageIdx * maxVersionPerQuery,
-                            min(maxVersionPerQuery * (pageIdx + 1), loggedVersions.size())))
+                    .mapToObj(pageIdx -> loggedVersions
+                            .subList(pageIdx * maxVersionPerQuery,
+                                    min(maxVersionPerQuery * (pageIdx + 1), loggedVersions.size())))
                     .map(pageVersions -> "project=" + project + " AND labels=\"changelog\""
-                            + pageVersions.stream().map(v -> "fixVersion=" + v.getName()).collect(
-                                    joining(" OR ", " AND (", ")")))
+                            + pageVersions
+                                    .stream()
+                                    .map(v -> "fixVersion=" + v.getName())
+                                    .collect(joining(" OR ", " AND (", ")")))
                     .flatMap(jql -> Stream
                             .of(searchFrom.apply(jql, 0L))
                             .flatMap(it -> paginate.apply(jql, it))
@@ -534,31 +553,36 @@ public class Generator {
                     .stream()
                     .map(versionnedIssues -> new StringBuilder("\n\n== Version ")
                             .append(versionnedIssues.getKey())
-                            .append(versionnedIssues.getValue().entrySet().stream().collect(
-                                    (Supplier<StringBuilder>) StringBuilder::new,
-                                    (builder, issuesByType) -> builder
-                                            .append("\n\n=== ")
-                                            .append(issuesByType.getKey())
-                                            .append("\n\n")
-                                            .append(issuesByType.getValue().stream().collect(
-                                                    (Supplier<StringBuilder>) StringBuilder::new,
-                                                    // note: for now we don't
-                                                    // use the description since
-                                                    // it is not that
-                                                    // useful
-                                                    (a, i) -> a
-                                                            .append("- link:")
-                                                            .append(jiraBase)
-                                                            .append("/browse/")
-                                                            .append(i.getKey())
-                                                            .append("[")
-                                                            .append(i.getKey())
-                                                            .append("^]")
-                                                            .append(": ")
-                                                            .append(i.getFields().getSummary().trim())
-                                                            .append("\n"),
-                                                    StringBuilder::append)),
-                                    StringBuilder::append)))
+                            .append(versionnedIssues
+                                    .getValue()
+                                    .entrySet()
+                                    .stream()
+                                    .collect((Supplier<StringBuilder>) StringBuilder::new,
+                                            (builder, issuesByType) -> builder
+                                                    .append("\n\n=== ")
+                                                    .append(issuesByType.getKey())
+                                                    .append("\n\n")
+                                                    .append(issuesByType
+                                                            .getValue()
+                                                            .stream()
+                                                            .collect((Supplier<StringBuilder>) StringBuilder::new,
+                                                                    // note: for now we don't
+                                                                    // use the description since
+                                                                    // it is not that
+                                                                    // useful
+                                                                    (a, i) -> a
+                                                                            .append("- link:")
+                                                                            .append(jiraBase)
+                                                                            .append("/browse/")
+                                                                            .append(i.getKey())
+                                                                            .append("[")
+                                                                            .append(i.getKey())
+                                                                            .append("^]")
+                                                                            .append(": ")
+                                                                            .append(i.getFields().getSummary().trim())
+                                                                            .append("\n"),
+                                                                    StringBuilder::append)),
+                                            StringBuilder::append)))
                     .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                     .toString();
 
@@ -706,8 +730,11 @@ public class Generator {
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             final ParameterExtensionEnricher enricher = new UiParameterEnricher();
             try (final Jsonb jsonb = newJsonb()) {
-                finder.findAnnotatedClasses(Ui.class).stream().sorted(Comparator.comparing(Class::getName)).forEach(
-                        type -> {
+                finder
+                        .findAnnotatedClasses(Ui.class)
+                        .stream()
+                        .sorted(Comparator.comparing(Class::getName))
+                        .forEach(type -> {
                             final Map<String, String> meta = new TreeMap<>(enricher
                                     .onParameterAnnotation("theparameter", Object.class, generateAnnotation(type))
                                     .entrySet()
@@ -774,20 +801,21 @@ public class Generator {
             return jsonb.toJson(schema);
         }
         if (returnedType == org.talend.sdk.component.api.record.Schema.class) {
-            return jsonb.toJson(new SchemaImpl.BuilderImpl()
-                    .withType(org.talend.sdk.component.api.record.Schema.Type.RECORD)
-                    .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                            .withName("column1")
-                            .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
-                            .withNullable(false)
-                            .withComment("The column 1")
-                            .build())
-                    .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                            .withName("column2")
-                            .withType(org.talend.sdk.component.api.record.Schema.Type.INT)
-                            .withComment("The int column")
-                            .build())
-                    .build());
+            return jsonb
+                    .toJson(new SchemaImpl.BuilderImpl()
+                            .withType(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                            .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                                    .withName("column1")
+                                    .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                                    .withNullable(false)
+                                    .withComment("The column 1")
+                                    .build())
+                            .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                                    .withName("column2")
+                                    .withType(org.talend.sdk.component.api.record.Schema.Type.INT)
+                                    .withComment("The int column")
+                                    .build())
+                            .build());
         }
         if (returnedType == ValidationResult.class) {
             final ValidationResult status = new ValidationResult();
@@ -803,8 +831,10 @@ public class Generator {
 
     private static String createSample(final Class<?> type) {
         if (type.isEnum()) {
-            return Stream.of(type.getEnumConstants()).map(e -> Enum.class.cast(e).name()).collect(
-                    joining("\"|\"", "\"", "\""));
+            return Stream
+                    .of(type.getEnumConstants())
+                    .map(e -> Enum.class.cast(e).name())
+                    .collect(joining("\"|\"", "\"", "\""));
         }
         return "\"...\"";
     }
@@ -819,8 +849,11 @@ public class Generator {
             try (final Jsonb jsonb = newJsonb()) {
                 final AnnotationFinder finder = new AnnotationFinder(
                         api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-                finder.findAnnotatedClasses(Condition.class).stream().sorted(comparing(Class::getName)).forEach(
-                        type -> {
+                finder
+                        .findAnnotatedClasses(Condition.class)
+                        .stream()
+                        .sorted(comparing(Class::getName))
+                        .forEach(type -> {
                             stream.println();
                             stream.println("= " + capitalizeWords(type.getSimpleName()));
                             stream.println();
@@ -832,10 +865,12 @@ public class Generator {
                             stream.println();
                             stream.println("[source,js]");
                             stream.println("----");
-                            stream.println(jsonb
-                                    .toJson(new TreeMap<>(enricher.onParameterAnnotation("test", String.class,
-                                            generateAnnotation(type))))
-                                    .replace("tcomp::", ""));
+                            stream
+                                    .println(jsonb
+                                            .toJson(new TreeMap<>(enricher
+                                                    .onParameterAnnotation("test", String.class,
+                                                            generateAnnotation(type))))
+                                            .replace("tcomp::", ""));
                             stream.println("----");
                             stream.println();
                         });
@@ -854,8 +889,11 @@ public class Generator {
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             try (final Jsonb jsonb = newJsonb()) {
-                finder.findAnnotatedClasses(ConfigurationType.class).stream().sorted(comparing(Class::getName)).forEach(
-                        type -> {
+                finder
+                        .findAnnotatedClasses(ConfigurationType.class)
+                        .stream()
+                        .sorted(comparing(Class::getName))
+                        .forEach(type -> {
                             stream.println();
                             stream.println("= " + capitalizeWords(type.getAnnotation(ConfigurationType.class).value()));
                             stream.println();
@@ -866,8 +904,11 @@ public class Generator {
                             stream.println();
                             stream.println("[source,js]");
                             stream.println("----");
-                            stream.println(jsonb.toJson(new TreeMap<>(
-                                    enricher.onParameterAnnotation("value", String.class, generateAnnotation(type)))));
+                            stream
+                                    .println(jsonb
+                                            .toJson(new TreeMap<>(enricher
+                                                    .onParameterAnnotation("value", String.class,
+                                                            generateAnnotation(type)))));
                             stream.println("----");
                             stream.println();
                         });
@@ -891,12 +932,18 @@ public class Generator {
                     final Validation val = validation.getAnnotation(Validation.class);
                     return createConstraint(validation, val);
 
-                }), finder.findAnnotatedClasses(Validations.class).stream().flatMap(
-                        validations -> Stream.of(validations.getAnnotation(Validations.class).value()).map(
-                                validation -> createConstraint(validations, validation))))
+                }), finder
+                        .findAnnotatedClasses(Validations.class)
+                        .stream()
+                        .flatMap(validations -> Stream
+                                .of(validations.getAnnotation(Validations.class).value())
+                                .map(validation -> createConstraint(validations, validation))))
                         .sorted((o1, o2) -> {
-                            final int types = Stream.of(o1.types).map(Class::getName).collect(joining("/")).compareTo(
-                                    Stream.of(o2.types).map(Class::getName).collect(joining("/")));
+                            final int types = Stream
+                                    .of(o1.types)
+                                    .map(Class::getName)
+                                    .collect(joining("/"))
+                                    .compareTo(Stream.of(o2.types).map(Class::getName).collect(joining("/")));
                             if (types == 0) {
                                 return o1.name.compareTo(o2.name);
                             }
@@ -912,16 +959,21 @@ public class Generator {
                             stream.println("- Name: `" + constraint.name + "`");
                             stream.println("- Parameter Type: `" + constraint.paramType + "`");
                             stream.println("- Supported Types:");
-                            Stream.of(constraint.types).map(Class::getName).map(it -> "-- `" + it + "`").forEach(
-                                    stream::println);
+                            Stream
+                                    .of(constraint.types)
+                                    .map(Class::getName)
+                                    .map(it -> "-- `" + it + "`")
+                                    .forEach(stream::println);
                             stream.println("- Sample:");
                             stream.println();
                             stream.println("[source,js]");
                             stream.println("----");
-                            stream.println(jsonb
-                                    .toJson(new TreeMap<>(enricher.onParameterAnnotation("test", constraint.types[0],
-                                            generateAnnotation(constraint.marker))))
-                                    .replace("tcomp::", ""));
+                            stream
+                                    .println(jsonb
+                                            .toJson(new TreeMap<>(enricher
+                                                    .onParameterAnnotation("test", constraint.types[0],
+                                                            generateAnnotation(constraint.marker))))
+                                            .replace("tcomp::", ""));
                             stream.println("----");
                             stream.println();
                         });
@@ -937,8 +989,10 @@ public class Generator {
     }
 
     private static String extractDoc(final Class<?> validation) {
-        return ofNullable(validation.getAnnotation(Documentation.class)).map(Documentation::value).orElse("-").replace(
-                "|", "\\|");
+        return ofNullable(validation.getAnnotation(Documentation.class))
+                .map(Documentation::value)
+                .orElse("-")
+                .replace("|", "\\|");
     }
 
     private static String getParamType(final Class<?> validation) {
@@ -953,160 +1007,68 @@ public class Generator {
     // generate a "mock" annotation to be able to generate sample metadata - mainly
     // for @Ui
     private static <T extends Annotation> T generateAnnotation(final Class<?> type) {
-        return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { type },
-                (proxy, method, args) -> {
-                    if ("annotationType".equals(method.getName()) && Annotation.class == method.getDeclaringClass()) {
-                        return type;
-                    }
-                    if (method.isDefault()) {
-                        return Defaults
-                                .of(method.getDeclaringClass())
-                                .unreflectSpecial(method, method.getDeclaringClass())
-                                .bindTo(proxy)
-                                .invokeWithArguments(args);
-                    }
-                    final Class<?> returnType = method.getReturnType();
-                    if (int.class == returnType) {
-                        return 1234;
-                    }
-                    if (boolean.class == returnType) {
-                        return false;
-                    }
-                    if (double.class == returnType) {
-                        return 12.34;
-                    }
-                    if (String.class == returnType) {
-                        return "test";
-                    }
-                    if (Class.class == returnType) {
-                        return AutoLayout.class;
-                    }
-                    if (String[].class == returnType) {
-                        return new String[] { "value1", "value2" };
-                    }
-                    if (ActiveIf.EvaluationStrategy.class == returnType) {
-                        return ActiveIf.EvaluationStrategy.DEFAULT;
-                    }
-                    if (ActiveIf.EvaluationStrategyOption[].class == returnType) {
-                        return new ActiveIf.EvaluationStrategyOption[0];
-                    }
-                    if (ActiveIfs.Operator.class == returnType) {
-                        return ActiveIfs.Operator.AND;
-                    }
-                    if (Structure.Type.class == returnType) {
-                        return Structure.Type.IN;
-                    }
-                    if (GridLayout.Row[].class == returnType) {
-                        return new GridLayout.Row[] { new GridLayout.Row() {
-
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return GridLayout.Row.class;
+        return (T) Proxy
+                .newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { type },
+                        (proxy, method, args) -> {
+                            if ("annotationType".equals(method.getName())
+                                    && Annotation.class == method.getDeclaringClass()) {
+                                return type;
                             }
-
-                            @Override
-                            public String[] value() {
-                                return new String[] { "first" };
+                            if (method.isDefault()) {
+                                return Defaults
+                                        .of(method.getDeclaringClass())
+                                        .unreflectSpecial(method, method.getDeclaringClass())
+                                        .bindTo(proxy)
+                                        .invokeWithArguments(args);
                             }
-                        }, new GridLayout.Row() {
-
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return GridLayout.Row.class;
+                            final Class<?> returnType = method.getReturnType();
+                            if (int.class == returnType) {
+                                return 1234;
                             }
-
-                            @Override
-                            public String[] value() {
-                                return new String[] { "second", "third" };
-                            }
-                        } };
-                    }
-                    if (ActiveIf[].class == returnType) {
-                        return new ActiveIf[] { new ActiveIf() {
-
-                            @Override
-                            public EvaluationStrategyOption[] evaluationStrategyOptions() {
-                                return new EvaluationStrategyOption[0];
-                            }
-
-                            @Override
-                            public String target() {
-                                return "sibling1";
-                            }
-
-                            @Override
-                            public String[] value() {
-                                return new String[] { "value1", "value2" };
-                            }
-
-                            @Override
-                            public boolean negate() {
+                            if (boolean.class == returnType) {
                                 return false;
                             }
-
-                            @Override
-                            public EvaluationStrategy evaluationStrategy() {
-                                return EvaluationStrategy.DEFAULT;
+                            if (double.class == returnType) {
+                                return 12.34;
                             }
-
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return ActiveIf.class;
+                            if (String.class == returnType) {
+                                return "test";
                             }
-                        }, new ActiveIf() {
-
-                            @Override
-                            public EvaluationStrategyOption[] evaluationStrategyOptions() {
-                                return new EvaluationStrategyOption[0];
+                            if (Class.class == returnType) {
+                                return AutoLayout.class;
                             }
-
-                            @Override
-                            public String target() {
-                                return "../../other";
+                            if (String[].class == returnType) {
+                                return new String[] { "value1", "value2" };
                             }
-
-                            @Override
-                            public String[] value() {
-                                return new String[] { "SELECTED" };
+                            if (ActiveIf.EvaluationStrategy.class == returnType) {
+                                return ActiveIf.EvaluationStrategy.DEFAULT;
                             }
-
-                            @Override
-                            public boolean negate() {
-                                return true;
+                            if (ActiveIf.EvaluationStrategyOption[].class == returnType) {
+                                return new ActiveIf.EvaluationStrategyOption[0];
                             }
-
-                            @Override
-                            public EvaluationStrategy evaluationStrategy() {
-                                return EvaluationStrategy.LENGTH;
+                            if (ActiveIfs.Operator.class == returnType) {
+                                return ActiveIfs.Operator.AND;
                             }
-
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return ActiveIf.class;
+                            if (Structure.Type.class == returnType) {
+                                return Structure.Type.IN;
                             }
-                        } };
-                    }
-                    if (GridLayout[].class == returnType) {
-                        return new GridLayout[] { new GridLayout() {
-
-                            @Override
-                            public Row[] value() {
-                                return new Row[] { new Row() {
+                            if (GridLayout.Row[].class == returnType) {
+                                return new GridLayout.Row[] { new GridLayout.Row() {
 
                                     @Override
                                     public Class<? extends Annotation> annotationType() {
-                                        return Row.class;
+                                        return GridLayout.Row.class;
                                     }
 
                                     @Override
                                     public String[] value() {
                                         return new String[] { "first" };
                                     }
-                                }, new Row() {
+                                }, new GridLayout.Row() {
 
                                     @Override
                                     public Class<? extends Annotation> annotationType() {
-                                        return Row.class;
+                                        return GridLayout.Row.class;
                                     }
 
                                     @Override
@@ -1115,53 +1077,148 @@ public class Generator {
                                     }
                                 } };
                             }
-
-                            @Override
-                            public String[] names() {
-                                return new String[] { FormType.MAIN };
-                            }
-
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return GridLayout.class;
-                            }
-                        }, new GridLayout() {
-
-                            @Override
-                            public Row[] value() {
-                                return new Row[] { new Row() {
+                            if (ActiveIf[].class == returnType) {
+                                return new ActiveIf[] { new ActiveIf() {
 
                                     @Override
-                                    public Class<? extends Annotation> annotationType() {
-                                        return Row.class;
+                                    public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                                        return new EvaluationStrategyOption[0];
+                                    }
+
+                                    @Override
+                                    public String target() {
+                                        return "sibling1";
                                     }
 
                                     @Override
                                     public String[] value() {
-                                        return new String[] { "another" };
+                                        return new String[] { "value1", "value2" };
+                                    }
+
+                                    @Override
+                                    public boolean negate() {
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public EvaluationStrategy evaluationStrategy() {
+                                        return EvaluationStrategy.DEFAULT;
+                                    }
+
+                                    @Override
+                                    public Class<? extends Annotation> annotationType() {
+                                        return ActiveIf.class;
+                                    }
+                                }, new ActiveIf() {
+
+                                    @Override
+                                    public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                                        return new EvaluationStrategyOption[0];
+                                    }
+
+                                    @Override
+                                    public String target() {
+                                        return "../../other";
+                                    }
+
+                                    @Override
+                                    public String[] value() {
+                                        return new String[] { "SELECTED" };
+                                    }
+
+                                    @Override
+                                    public boolean negate() {
+                                        return true;
+                                    }
+
+                                    @Override
+                                    public EvaluationStrategy evaluationStrategy() {
+                                        return EvaluationStrategy.LENGTH;
+                                    }
+
+                                    @Override
+                                    public Class<? extends Annotation> annotationType() {
+                                        return ActiveIf.class;
                                     }
                                 } };
                             }
+                            if (GridLayout[].class == returnType) {
+                                return new GridLayout[] { new GridLayout() {
 
-                            @Override
-                            public String[] names() {
-                                return new String[] { FormType.ADVANCED };
-                            }
+                                    @Override
+                                    public Row[] value() {
+                                        return new Row[] { new Row() {
 
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return GridLayout.class;
+                                            @Override
+                                            public Class<? extends Annotation> annotationType() {
+                                                return Row.class;
+                                            }
+
+                                            @Override
+                                            public String[] value() {
+                                                return new String[] { "first" };
+                                            }
+                                        }, new Row() {
+
+                                            @Override
+                                            public Class<? extends Annotation> annotationType() {
+                                                return Row.class;
+                                            }
+
+                                            @Override
+                                            public String[] value() {
+                                                return new String[] { "second", "third" };
+                                            }
+                                        } };
+                                    }
+
+                                    @Override
+                                    public String[] names() {
+                                        return new String[] { FormType.MAIN };
+                                    }
+
+                                    @Override
+                                    public Class<? extends Annotation> annotationType() {
+                                        return GridLayout.class;
+                                    }
+                                }, new GridLayout() {
+
+                                    @Override
+                                    public Row[] value() {
+                                        return new Row[] { new Row() {
+
+                                            @Override
+                                            public Class<? extends Annotation> annotationType() {
+                                                return Row.class;
+                                            }
+
+                                            @Override
+                                            public String[] value() {
+                                                return new String[] { "another" };
+                                            }
+                                        } };
+                                    }
+
+                                    @Override
+                                    public String[] names() {
+                                        return new String[] { FormType.ADVANCED };
+                                    }
+
+                                    @Override
+                                    public Class<? extends Annotation> annotationType() {
+                                        return GridLayout.class;
+                                    }
+                                } };
                             }
-                        } };
-                    }
-                    return null;
-                });
+                            return null;
+                        });
     }
 
     private static Jsonb newJsonb() {
-        return JsonbBuilder.create(
-                new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL).withFormatting(
-                        true));
+        return JsonbBuilder
+                .create(new JsonbConfig()
+                        .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
+                        .withFormatting(true));
     }
 
     @RequiredArgsConstructor

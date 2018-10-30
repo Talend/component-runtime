@@ -4,6 +4,10 @@ KAFKA_VERSION=1.1.0
 GERONIMO_OPENTRACING_VERSION=1.0.0
 OPENTRACING_API_VERSION=0.31.0
 MICROPROFILE_OPENTRACING_API_VERSION=1.1
+GERONIMO_METRICS=1.0.0
+MICROPROFILE_METRICS_API_VERSION=1.1.1
+SIGAR_VERSION=1.6.4 # don't change without checking code, it is hardcoded for now (don't think it will evolve soon)
+
 SERVER_VERSION=$(grep "<version>" pom.xml  | head -n 1 | sed "s/.*>\\(.*\\)<.*/\\1/")
 DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION:-$SERVER_VERSION}
 # if snapshot use the date as version
@@ -37,6 +41,10 @@ cd $DOCKER_TMP_DIR
 echo "Grabbing libraries (kafka client + opentracing stack)"
 for i in \
     org.apache.kafka:kafka-clients:$KAFKA_VERSION \
+    org.eclipse.microprofile.metrics:microprofile-metrics-api:$MICROPROFILE_METRICS_API_VERSION \
+    org.apache.geronimo:geronimo-metrics:$GERONIMO_METRICS \
+    org.fusesource:sigar:$SIGAR_VERSION \
+    org.fusesource:sigar:$SIGAR_VERSION:jar:native \
     org.eclipse.microprofile.opentracing:microprofile-opentracing-api:$MICROPROFILE_OPENTRACING_API_VERSION \
     io.opentracing:opentracing-api:$OPENTRACING_API_VERSION \
     org.apache.geronimo:geronimo-opentracing:$GERONIMO_OPENTRACING_VERSION
@@ -52,6 +60,9 @@ docker build --tag "$IMAGE" \
   --build-arg GERONIMO_OPENTRACING_VERSION=$GERONIMO_OPENTRACING_VERSION \
   --build-arg OPENTRACING_API_VERSION=$OPENTRACING_API_VERSION \
   --build-arg MICROPROFILE_OPENTRACING_API_VERSION=$MICROPROFILE_OPENTRACING_API_VERSION \
+  --build-arg MICROPROFILE_METRICS_API_VERSION=$MICROPROFILE_METRICS_API_VERSION \
+  --build-arg SIGAR_VERSION=$SIGAR_VERSION \
+  --build-arg GERONIMO_METRICS=$GERONIMO_METRICS \
   --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) \
   --build-arg GIT_URL=$(git config --get remote.origin.url) \
   --build-arg GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) \

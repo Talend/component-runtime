@@ -25,6 +25,7 @@ import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -56,11 +57,19 @@ public class MyComponent implements Serializable {
 
     }
 
-    @DataSet("dataset-2")
-    public static class MyDataSet implements Serializable {
+    @DataStore("datastore-2")
+    public static class MyDataStore implements Serializable {
 
         @Option
         @Documentation("the user to log in")
         private String user;
+    }
+
+    @DataSet("dataset-2")
+    public static class MyDataSet implements Serializable {
+
+        @Option
+        @Documentation("...")
+        private MyDataStore datastore;
     }
 }

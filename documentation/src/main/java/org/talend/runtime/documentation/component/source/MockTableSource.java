@@ -58,9 +58,10 @@ public class MockTableSource implements Serializable {
             }
 
             // Read next page from data set
-            final JsonArray result = tableAPI.getRecords(ds.getCommonConfig().getTableName().name(),
-                    ds.getDataStore().getAuthorizationHeader(), ds.buildQuery(),
-                    ds.getCommonConfig().getFieldsCommaSeparated(), ds.getOffset(), evalLimit(ds));
+            final JsonArray result = tableAPI
+                    .getRecords(ds.getCommonConfig().getTableName().name(), ds.getDataStore().getAuthorizationHeader(),
+                            ds.buildQuery(), ds.getCommonConfig().getFieldsCommaSeparated(), ds.getOffset(),
+                            evalLimit(ds));
 
             // advance the data set offset
             if (ds.getOffset() < ds.getMaxRecords()) {

@@ -103,7 +103,9 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withString(final String name, final String value) {
-            return withString(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(STRING).build(), value);
+            return withString(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(STRING).withNullable(true).build(),
+                    value);
         }
 
         public Builder withString(final Schema.Entry entry, final String value) {
@@ -112,7 +114,9 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withBytes(final String name, final byte[] value) {
-            return withBytes(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BYTES).build(), value);
+            return withBytes(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BYTES).withNullable(true).build(),
+                    value);
         }
 
         public Builder withBytes(final Schema.Entry entry, final byte[] value) {
@@ -121,25 +125,34 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final String name, final Date value) {
-            return withDateTime(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).build(),
+            return withDateTime(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).withNullable(true).build(),
                     value);
         }
 
         public Builder withDateTime(final Schema.Entry entry, final Date value) {
+            if (value == null && !entry.isNullable()) {
+                throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
+            }
             return withTimestamp(entry, value == null ? -1 : value.getTime());
         }
 
         public Builder withDateTime(final String name, final ZonedDateTime value) {
-            return withDateTime(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).build(),
+            return withDateTime(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).withNullable(true).build(),
                     value);
         }
 
         public Builder withDateTime(final Schema.Entry entry, final ZonedDateTime value) {
+            if (value == null && !entry.isNullable()) {
+                throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
+            }
             return withTimestamp(entry, value == null ? -1 : value.toInstant().toEpochMilli());
         }
 
         public Builder withTimestamp(final String name, final long value) {
-            return withTimestamp(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).build(),
+            return withTimestamp(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).withNullable(true).build(),
                     value);
         }
 
@@ -149,7 +162,9 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withInt(final String name, final int value) {
-            return withInt(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(INT).build(), value);
+            return withInt(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(INT).withNullable(true).build(),
+                    value);
         }
 
         public Builder withInt(final Schema.Entry entry, final int value) {
@@ -158,7 +173,9 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withLong(final String name, final long value) {
-            return withLong(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(LONG).build(), value);
+            return withLong(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(LONG).withNullable(true).build(),
+                    value);
         }
 
         public Builder withLong(final Schema.Entry entry, final long value) {
@@ -167,7 +184,9 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withFloat(final String name, final float value) {
-            return withFloat(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(FLOAT).build(), value);
+            return withFloat(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(FLOAT).withNullable(true).build(),
+                    value);
         }
 
         public Builder withFloat(final Schema.Entry entry, final float value) {
@@ -176,7 +195,9 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDouble(final String name, final double value) {
-            return withDouble(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DOUBLE).build(), value);
+            return withDouble(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DOUBLE).withNullable(true).build(),
+                    value);
         }
 
         public Builder withDouble(final Schema.Entry entry, final double value) {
@@ -185,7 +206,9 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withBoolean(final String name, final boolean value) {
-            return withBoolean(new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BOOLEAN).build(), value);
+            return withBoolean(
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BOOLEAN).withNullable(true).build(),
+                    value);
         }
 
         public Builder withBoolean(final Schema.Entry entry, final boolean value) {
@@ -217,7 +240,11 @@ public final class RecordImpl implements Record {
         }
 
         private <T> Builder append(final Schema.Entry entry, final T value) {
-            values.put(entry.getName(), value);
+            if (value != null) {
+                values.put(entry.getName(), value);
+            } else if (!entry.isNullable()) {
+                throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
+            }
             entries.add(entry);
             return this;
         }

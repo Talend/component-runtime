@@ -83,8 +83,9 @@ public class SearchIndexation {
 
         final File siteMapFile = new File(args[0]);
         final String urlMarker = "/component-runtime/";
-        final SiteMap siteMap = SiteMap.class.cast(new SiteMapParser(false /* we index a local file with remote urls */)
-                .parseSiteMap(siteMapFile.toURI().toURL()));
+        final SiteMap siteMap = SiteMap.class
+                .cast(new SiteMapParser(false /* we index a local file with remote urls */)
+                        .parseSiteMap(siteMapFile.toURI().toURL()));
         final ExecutorService pool = Executors.newFixedThreadPool(Integer.getInteger("talend.algolia.indexation", 256));
         final List<Future<List<JsonObject>>> updates = siteMap.getSiteMapUrls().stream().filter(url -> {
             // filter not indexed pages
@@ -97,8 +98,10 @@ public class SearchIndexation {
             final File adocSource = new File(siteMapFile.getParentFile().getParentFile().getParentFile(),
                     "src/main/antora/modules/ROOT/pages"
                             + path.substring(path.lastIndexOf('/'), path.length() - ".html".length()) + ".adoc");
-            if (!adocSource.exists() || Files.readAllLines(adocSource.toPath()).stream().anyMatch(
-                    line -> line.trim().startsWith(":page-talend_skipindexation:"))) {
+            if (!adocSource.exists() || Files
+                    .readAllLines(adocSource.toPath())
+                    .stream()
+                    .anyMatch(line -> line.trim().startsWith(":page-talend_skipindexation:"))) {
                 return Collections.<JsonObject> emptyList();
             }
             log.debug("Indexing {}", target);
@@ -118,8 +121,10 @@ public class SearchIndexation {
                             }
                         }.format(url.getLastModified()))
                         .add("timestamp", url.getLastModified().getTime());
-                IntStream.rangeClosed(0, 3).forEach(i -> select(document, factory, ".doc " + "h" + (i + 1))
-                        .ifPresent(value -> builder.add("lvl" + i, value)));
+                IntStream
+                        .rangeClosed(0, 3)
+                        .forEach(i -> select(document, factory, ".doc " + "h" + (i + 1))
+                                .ifPresent(value -> builder.add("lvl" + i, value)));
 
                 selectMeta(document, "description").ifPresent(description -> builder.add("description", description));
                 selectMeta(document, "keywords").ifPresent(keywords -> builder.add("keywords", keywords));
@@ -139,8 +144,12 @@ public class SearchIndexation {
                  */
                 return singletonList(builder
                         .add("text",
-                                texts.stream().map(Element::text).collect(Collector.of(factory::createArrayBuilder,
-                                        JsonArrayBuilder::add, JsonArrayBuilder::addAll)))
+                                texts
+                                        .stream()
+                                        .map(Element::text)
+                                        .collect(Collector
+                                                .of(factory::createArrayBuilder, JsonArrayBuilder::add,
+                                                        JsonArrayBuilder::addAll)))
                         .build());
             } catch (final Exception e) {
                 log.warn(target + ": " + e.getMessage());
@@ -166,8 +175,10 @@ public class SearchIndexation {
                 } catch (final InterruptedException | ExecutionException e) {
                     throw new IllegalStateException(e);
                 }
-            }).flatMap(Collection::stream).sorted(comparing(o -> o.getString("title"))).collect(
-                    groupingBy(o -> o.getString("version")));
+            })
+                    .flatMap(Collection::stream)
+                    .sorted(comparing(o -> o.getString("title")))
+                    .collect(groupingBy(o -> o.getString("version")));
             byVersion.forEach((version, records) -> {
                 final File file = new File(siteMapFile.getParentFile(), "main/" + version + "/search-index.json");
                 try (final OutputStream output = new WriteIfDifferentStream(file)) {
@@ -181,8 +192,9 @@ public class SearchIndexation {
     }
 
     private static String extractTitle(final Document document) {
-        final String title = ofNullable(document.title()).filter(t -> !t.isEmpty()).orElseGet(
-                () -> document.getElementsByTag("h1").text());
+        final String title = ofNullable(document.title())
+                .filter(t -> !t.isEmpty())
+                .orElseGet(() -> document.getElementsByTag("h1").text());
         if (title.contains(":: ")) {
             return title.substring(title.lastIndexOf(":: ") + 2).trim();
         }
@@ -204,7 +216,10 @@ public class SearchIndexation {
         if (select.isEmpty()) {
             return Optional.empty();
         }
-        return of(select.stream().map(Element::text).map(Json::createValue).collect(factory::createArrayBuilder,
-                JsonArrayBuilder::add, JsonArrayBuilder::addAll));
+        return of(select
+                .stream()
+                .map(Element::text)
+                .map(Json::createValue)
+                .collect(factory::createArrayBuilder, JsonArrayBuilder::add, JsonArrayBuilder::addAll));
     }
 }

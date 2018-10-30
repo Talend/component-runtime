@@ -110,7 +110,7 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
 
     @Override
     public boolean isStream() {
-        return false;
+        return UnboundedSource.class.isInstance(flow.source);
     }
 
     @Override

@@ -66,9 +66,10 @@ class ProjectResourceTest {
 
     @Test
     void configuration(final WebTarget target) {
-        final FactoryConfiguration config =
-                target.path("project/configuration").request(MediaType.APPLICATION_JSON_TYPE).get(
-                        FactoryConfiguration.class);
+        final FactoryConfiguration config = target
+                .path("project/configuration")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(FactoryConfiguration.class);
         final String debug = config.toString();
         assertEquals(new HashSet<>(asList("Gradle", "Maven")), new HashSet<>(config.getBuildTypes()), debug);
         assertEquals(new HashMap<String, List<FactoryConfiguration.Facet>>() {
@@ -100,31 +101,33 @@ class ProjectResourceTest {
                         "application/.mvn/wrapper/maven-wrapper.properties", "application/pom.xml",
                         "application/README.adoc")
                 .collect(toSet()), files.keySet());
-        Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
-                token -> assertTrue(files.get("application/pom.xml").contains(token), token));
+        Stream
+                .of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
+                .forEach(token -> assertTrue(files.get("application/pom.xml").contains(token), token));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
-        assertEquals(
-                resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml")
-                        .replace("@runtime.version@", versions.getSnapshot().getKit())
-                        .replace("@api.version@", versions.getSnapshot().getApiKit()),
-                files.get("application/pom.xml"));
+        final ServerInfo.Snapshot snapshot = versions.getSnapshot();
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml")
+                .replace("@runtime.version@", snapshot.getKit())
+                .replace("@surefire.version@", snapshot.getSurefire())
+                .replace("@api.version@", snapshot.getApiKit()), files.get("application/pom.xml"));
     }
 
     @Test
     void formProject(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setBuildType("Gradle");
-        final Map<String, String> files = createZip(projectModel,
-                model -> target
-                        .path("project/zip/form")
-                        .queryParam("compressionType", "gzip")
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .accept("application/zip")
-                        .post(Entity.entity(
-                                new Form().param("project",
-                                        Base64.getEncoder().encodeToString(
-                                                jsonb.toJson(projectModel).getBytes(StandardCharsets.UTF_8))),
-                                APPLICATION_FORM_URLENCODED_TYPE), InputStream.class));
+        final Map<String, String> files = createZip(projectModel, model -> target
+                .path("project/zip/form")
+                .queryParam("compressionType", "gzip")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .accept("application/zip")
+                .post(Entity
+                        .entity(new Form()
+                                .param("project", Base64
+                                        .getEncoder()
+                                        .encodeToString(jsonb.toJson(projectModel).getBytes(StandardCharsets.UTF_8))),
+                                APPLICATION_FORM_URLENCODED_TYPE),
+                        InputStream.class));
         assertTrue(files.containsKey("application/build.gradle"));
     }
 
@@ -155,8 +158,9 @@ class ProjectResourceTest {
                         "application/src/test/", "application/src/test/resources/log4j2.xml", "application/pom.xml",
                         "application/README.adoc")
                 .collect(toSet()), files.keySet());
-        Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
-                token -> assertTrue(files.get("application/pom.xml").contains(token), token));
+        Stream
+                .of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
+                .forEach(token -> assertTrue(files.get("application/pom.xml").contains(token), token));
         assertEquals("= A Talend generated Component Starter Project\n" + "\n" + "== Test\n" + "\n"
                 + "=== Talend Component Kit Testing\n" + "\n"
                 + "Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.\n"
@@ -169,8 +173,10 @@ class ProjectResourceTest {
         projectModel.setBuildType("Gradle");
         projectModel.setFacets(singletonList("Talend Component Kit Testing"));
         final String buildFile = createZip(projectModel, target).get("application/build.gradle");
-        assertTrue(buildFile.contains("group: 'org.talend.sdk.component', name: 'component-runtime-junit', version: '"
-                + versions.getSnapshot().getKit() + "'"), buildFile);
+        assertTrue(buildFile
+                .contains("group: 'org.talend.sdk.component', name: 'component-runtime-junit', version: '"
+                        + versions.getSnapshot().getKit() + "'"),
+                buildFile);
     }
 
     @Test
@@ -335,10 +341,13 @@ class ProjectResourceTest {
     }
 
     private void assertWadl(final Map<String, String> files) {
-        assertTrue(files.get("application/src/main/resources/wadl/client.xml").contains(
-                "<application xmlns=\"http://wadl.dev.java.net/2009/02\""));
-        assertTrue(files.get("application/README.adoc").contains(
-                "Generates the needed classes to call HTTP endpoints defined by a WADL located at `src/main/resources/wadl/client.xml`.\n"));
+        assertTrue(files
+                .get("application/src/main/resources/wadl/client.xml")
+                .contains("<application xmlns=\"http://wadl.dev.java.net/2009/02\""));
+        assertTrue(files
+                .get("application/README.adoc")
+                .contains(
+                        "Generates the needed classes to call HTTP endpoints defined by a WADL located at `src/main/resources/wadl/client.xml`.\n"));
     }
 
     private Map<String, String> createZip(final ProjectModel projectModel, final WebTarget target) throws IOException {
@@ -356,8 +365,9 @@ class ProjectResourceTest {
         try (final ZipInputStream stream = new ZipInputStream(request.apply(projectModel))) {
             ZipEntry entry;
             while ((entry = stream.getNextEntry()) != null) {
-                files.put(entry.getName(),
-                        new BufferedReader(new InputStreamReader(stream)).lines().collect(joining("\n")));
+                files
+                        .put(entry.getName(),
+                                new BufferedReader(new InputStreamReader(stream)).lines().collect(joining("\n")));
             }
         }
         return files;

@@ -886,7 +886,6 @@
         <swagger2markup.skip>true</swagger2markup.skip>
         <component.front.build.skip>true</component.front.build.skip>
         <indexation.skip>true</indexation.skip>
-        <talend.documentation.pdf.skip>true</talend.documentation.pdf.skip>
       </properties>
     </profile>
   </profiles>

@@ -21,12 +21,10 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -101,37 +99,41 @@ public class ProjectGenerator {
 
         // build dependencies to give them to the build
         final Collection<String> facets = ofNullable(request.getFacets()).orElse(emptyList());
-        final List<Dependency> dependencies = new ArrayList<>(
-                facets.stream().map(this.facets::get).flatMap(f -> f.dependencies(facets, versionSnapshot)).collect(
-                        toSet()));
-        dependencies.sort((o1, o2) -> {
-            { // by scope
-                final int scope1 = scopesOrdering.indexOf(o1.getScope());
-                final int scope2 = scopesOrdering.indexOf(o2.getScope());
-                final int scopeDiff = scope1 - scope2;
-                if (scopeDiff != 0) {
-                    return scopeDiff;
-                }
-            }
+        final List<Dependency> dependencies = facets
+                .stream()
+                .map(this.facets::get)
+                .flatMap(f -> f.dependencies(facets, versionSnapshot))
+                .distinct()
+                .sorted((o1, o2) -> {
+                    { // by scope
+                        final int scope1 = scopesOrdering.indexOf(o1.getScope());
+                        final int scope2 = scopesOrdering.indexOf(o2.getScope());
+                        final int scopeDiff = scope1 - scope2;
+                        if (scopeDiff != 0) {
+                            return scopeDiff;
+                        }
+                    }
 
-            { // by group
-                final int comp = o1.getGroup().compareTo(o2.getGroup());
-                if (comp != 0) {
-                    return comp;
-                }
-            }
+                    { // by group
+                        final int comp = o1.getGroup().compareTo(o2.getGroup());
+                        if (comp != 0) {
+                            return comp;
+                        }
+                    }
 
-            // by name
-            return o1.getArtifact().compareTo(o2.getArtifact());
-        });
+                    // by name
+                    return o1.getArtifact().compareTo(o2.getArtifact());
+                })
+                .collect(toList());
         // force component-api and force it first
         final Dependency componentApi = Dependency.componentApi(versionSnapshot.getApiKit());
         dependencies.remove(componentApi);
         dependencies.add(0, componentApi);
 
         // create the build to be able to generate the files
-        final Build build = generator.createBuild(request.getBuildConfiguration(), request.getPackageBase(),
-                dependencies, facets, versionSnapshot);
+        final Build build = generator
+                .createBuild(request.getBuildConfiguration(), request.getPackageBase(), dependencies, facets,
+                        versionSnapshot);
         files.put(build.getBuildFileName(), build.getBuildFileContent().getBytes(StandardCharsets.UTF_8));
 
         // generate facet files
@@ -148,9 +150,11 @@ public class ProjectGenerator {
 
         // generate README.adoc if needed
         if (!files.containsKey("README.adoc")) {
-            files.put("README.adoc",
-                    readmeGenerator.createReadme(request.getBuildConfiguration().getName(), filePerFacet).getBytes(
-                            StandardCharsets.UTF_8));
+            files
+                    .put("README.adoc",
+                            readmeGenerator
+                                    .createReadme(request.getBuildConfiguration().getName(), filePerFacet)
+                                    .getBytes(StandardCharsets.UTF_8));
         }
 
         // handle logging - centralized since we want a single setup per project
@@ -167,12 +171,15 @@ public class ProjectGenerator {
             }
             return s1;
         }).filter(s -> !s.isEmpty()).ifPresent(scope -> {
-            dependencies.add(
-                    new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versionSnapshot.getLog4j2(), scope));
-            files.put(
-                    ("test".equals(scope) ? build.getTestResourcesDirectory() : build.getMainResourcesDirectory())
+            dependencies
+                    .add(new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versionSnapshot.getLog4j2(),
+                            scope));
+            files
+                    .put(("test".equals(scope) ? build.getTestResourcesDirectory() : build.getMainResourcesDirectory())
                             + "/log4j2.xml",
-                    tpl.render("generator/logging/log4j2.mustache", emptyMap()).getBytes(StandardCharsets.UTF_8));
+                            tpl
+                                    .render("generator/logging/log4j2.mustache", emptyMap())
+                                    .getBytes(StandardCharsets.UTF_8));
         });
 
         componentGenerator

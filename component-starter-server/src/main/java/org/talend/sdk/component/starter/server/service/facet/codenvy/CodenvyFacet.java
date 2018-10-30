@@ -67,14 +67,15 @@ public class CodenvyFacet implements FacetGenerator {
     public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
             final Collection<ProjectRequest.SourceConfiguration> sources,
             final Collection<ProjectRequest.ProcessorConfiguration> processors, final ServerInfo.Snapshot versions) {
-        return Stream.of(new InMemoryFile(".codenvy.json",
-                tpl.render("generator/facet/codenvy/codenvy.json", new HashMap<String, String>() {
+        return Stream
+                .of(new InMemoryFile(".codenvy.json",
+                        tpl.render("generator/facet/codenvy/codenvy.json", new HashMap<String, String>() {
 
-                    {
-                        put("group", build.getGroup());
-                        put("artifact", build.getArtifact());
-                        put("version", build.getVersion());
-                    }
-                })));
+                            {
+                                put("group", build.getGroup());
+                                put("artifact", build.getArtifact());
+                                put("version", build.getVersion());
+                            }
+                        })));
     }
 }

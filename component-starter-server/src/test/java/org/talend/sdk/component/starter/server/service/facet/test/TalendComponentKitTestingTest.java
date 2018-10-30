@@ -18,13 +18,13 @@ package org.talend.sdk.component.starter.server.service.facet.test;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.starter.server.service.Resources.resourceFileToString;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -53,7 +53,7 @@ class TalendComponentKitTestingTest {
     void testSourceWithoutConf() {
         final Set<ProjectRequest.SourceConfiguration> sources =
                 singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false,
-                        new ProjectRequest.DataStructure(emptySet()),
+                        new ProjectRequest.DataStructure(new ArrayList<>()),
                         new ProjectRequest.StructureConfiguration(null, true)));
 
         String testFile = generator
@@ -105,8 +105,9 @@ class TalendComponentKitTestingTest {
 
     @Test
     void testProcessorWithoutConf() {
-        final Set<ProjectRequest.ProcessorConfiguration> processors = singleton(
-                new ProjectRequest.ProcessorConfiguration("mycomp", "", new ProjectRequest.DataStructure(emptySet()),
+        final Set<ProjectRequest.ProcessorConfiguration> processors =
+                singleton(new ProjectRequest.ProcessorConfiguration("mycomp", "",
+                        new ProjectRequest.DataStructure(new ArrayList<>()),
                         singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
                         singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true))));
 
@@ -173,11 +174,12 @@ class TalendComponentKitTestingTest {
     }
 
     private ProjectRequest.DataStructure complexConfig() {
-        return new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("host", "string", null),
+        return new ProjectRequest.DataStructure(new ArrayList<>(asList(new ProjectRequest.Entry("host", "string", null),
                 new ProjectRequest.Entry("port", "string", null),
                 new ProjectRequest.Entry("credential", "object",
-                        new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("username", "string", null),
-                                new ProjectRequest.Entry("password", "string", null))))));
+                        new ProjectRequest.DataStructure(
+                                new ArrayList<>(asList(new ProjectRequest.Entry("username", "string", null),
+                                        new ProjectRequest.Entry("password", "string", null))))))));
     }
 
 }

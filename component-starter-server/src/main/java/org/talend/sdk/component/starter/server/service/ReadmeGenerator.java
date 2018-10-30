@@ -34,8 +34,10 @@ import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 public class ReadmeGenerator {
 
     public String createReadme(final String name, final Map<FacetGenerator, List<String>> filesPerFacet) {
-        final Map<String, List<FacetGenerator>> facetByCategory = filesPerFacet.keySet().stream().collect(
-                toMap(f -> f.category().getHumanName(), f -> new ArrayList<>(singletonList(f)), (u, u2) -> {
+        final Map<String, List<FacetGenerator>> facetByCategory = filesPerFacet
+                .keySet()
+                .stream()
+                .collect(toMap(f -> f.category().getHumanName(), f -> new ArrayList<>(singletonList(f)), (u, u2) -> {
                     if (u == null) {
                         return u2;
                     }

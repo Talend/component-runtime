@@ -43,6 +43,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -110,8 +111,11 @@ public class ProjectResource {
         final List<String> buildTypes = new ArrayList<>(generator.getGenerators().keySet());
         buildTypes.sort(String::compareTo);
 
-        final Map<String, List<FactoryConfiguration.Facet>> facets =
-                generator.getFacets().values().stream().collect(toMap(e -> e.category().getHumanName(),
+        final Map<String, List<FactoryConfiguration.Facet>> facets = generator
+                .getFacets()
+                .values()
+                .stream()
+                .collect(toMap(e -> e.category().getHumanName(),
                         e -> new ArrayList<>(singletonList(new FactoryConfiguration.Facet(e.name(), e.description()))),
                         (u, u2) -> {
                             if (u == null) {
@@ -185,8 +189,8 @@ public class ProjectResource {
         try (final Git git = Git
                 .cloneRepository()
                 .setBranch("master")
-                .setURI(String.format(starterConfiguration.getGithubRepository(), organization,
-                        githubConfig.getRepository()))
+                .setURI(String
+                        .format(starterConfiguration.getGithubRepository(), organization, githubConfig.getRepository()))
                 .setDirectory(workDir)
                 .setProgressMonitor(NullProgressMonitor.INSTANCE)
                 .setCredentialsProvider(credentialsProvider)
@@ -208,8 +212,10 @@ public class ProjectResource {
                         };
 
                         // drop the root folder to import it directly into the repo
-                        final String path = entry.getName().substring(
-                                ofNullable(project.getModel().getArtifact()).orElse("application").length() + 1);
+                        final String path = entry
+                                .getName()
+                                .substring(ofNullable(project.getModel().getArtifact()).orElse("application").length()
+                                        + 1);
                         final File out = new File(workDir, path);
                         out.getParentFile().mkdirs();
 
@@ -219,12 +225,13 @@ public class ProjectResource {
                         if (path.equals("README.adoc") || path.endsWith(".json")) {
                             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                                 final String content = reader.lines().collect(joining("\n"));
-                                Files.write(out.toPath(),
-                                        content
-                                                .replace("@organization@", organization)
-                                                .replace("@repository@", githubConfig.getRepository())
-                                                .getBytes(StandardCharsets.UTF_8),
-                                        StandardOpenOption.CREATE_NEW);
+                                Files
+                                        .write(out.toPath(),
+                                                content
+                                                        .replace("@organization@", organization)
+                                                        .replace("@repository@", githubConfig.getRepository())
+                                                        .getBytes(StandardCharsets.UTF_8),
+                                                StandardOpenOption.CREATE_NEW);
                             }
                         } else {
                             Files.copy(in, out.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -240,19 +247,22 @@ public class ProjectResource {
                 try (final Writer writer = new FileWriter(gitIgnore)) {
                     switch (ofNullable(project.getModel().getBuildType()).orElse("Maven").toLowerCase(ENGLISH)) {
                     case "gradle":
-                        writer.write(".gradle\n" + "/build/\n" + "\n" + "# Ignore Gradle GUI config\n"
-                                + "gradle-app.setting\n" + "\n"
-                                + "# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)\n"
-                                + "!gradle-wrapper.jar\n" + "\n" + "# Cache of project\n" + ".gradletasknamecache\n"
-                                + "\n" + "# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898\n"
-                                + "# gradle/wrapper/gradle-wrapper.properties\n");
+                        writer
+                                .write(".gradle\n" + "/build/\n" + "\n" + "# Ignore Gradle GUI config\n"
+                                        + "gradle-app.setting\n" + "\n"
+                                        + "# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)\n"
+                                        + "!gradle-wrapper.jar\n" + "\n" + "# Cache of project\n"
+                                        + ".gradletasknamecache\n" + "\n"
+                                        + "# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898\n"
+                                        + "# gradle/wrapper/gradle-wrapper.properties\n");
 
                         break;
                     default: // maven
-                        writer.write(
-                                "target/\n" + "pom.xml.tag\n" + "pom.xml.releaseBackup\n" + "pom.xml.versionsBackup\n"
-                                        + "pom.xml.next\n" + "release.properties\n" + "dependency-reduced-pom.xml\n"
-                                        + "buildNumber.properties\n" + ".mvn/timing.properties\n");
+                        writer
+                                .write("target/\n" + "pom.xml.tag\n" + "pom.xml.releaseBackup\n"
+                                        + "pom.xml.versionsBackup\n" + "pom.xml.next\n" + "release.properties\n"
+                                        + "dependency-reduced-pom.xml\n" + "buildNumber.properties\n"
+                                        + ".mvn/timing.properties\n");
                     }
                 }
             }
@@ -292,13 +302,14 @@ public class ProjectResource {
     @Path("zip/form")
     @Produces("application/zip")
     public Response createZip(@FormParam("project") final String compressedModel, @Context final Providers providers) {
-        final MessageBodyReader<ProjectModel> jsonReader = providers.getMessageBodyReader(ProjectModel.class,
-                ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE);
+        final MessageBodyReader<ProjectModel> jsonReader = providers
+                .getMessageBodyReader(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE);
         final ProjectModel model;
         try (final InputStream gzipInputStream =
                 new ByteArrayInputStream(Base64.getUrlDecoder().decode(compressedModel))) {
-            model = jsonReader.readFrom(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE,
-                    new MultivaluedHashMap<>(), gzipInputStream);
+            model = jsonReader
+                    .readFrom(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE,
+                            new MultivaluedHashMap<>(), gzipInputStream);
         } catch (final IOException e) {
             throw new WebApplicationException(Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -347,32 +358,29 @@ public class ProjectResource {
                         .map(s -> s
                                 .stream()
                                 .map(i -> new ProjectRequest.SourceConfiguration(i.getName(), i.getIcon(), i.isStream(),
-                                        toStructure(false, i.getConfigurationStructure()).getStructure(),
-                                        toStructure(i.isGenericOutput(), i.getOutputStructure())))
+                                        toStructure(false, i.getConfigurationStructure(), true).getStructure(),
+                                        toStructure(i.isGenericOutput(), i.getOutputStructure(), false)))
                                 .collect(toList()))
                         .orElse(emptyList()),
-                ofNullable(
-                        model.getProcessors())
-                                .map(s -> s
-                                        .stream()
-                                        .map(i -> new ProjectRequest.ProcessorConfiguration(i.getName(), i.getIcon(),
-                                                toStructure(false, i.getConfigurationStructure()).getStructure(),
-                                                ofNullable(i.getInputStructures())
-                                                        .map(is -> is.stream().collect(
-                                                                toMap(n -> unifiedName(n.getName()),
-                                                                        nm -> toStructure(nm.isGeneric(),
-                                                                                nm.getStructure()))))
-                                                        .orElse(emptyMap()),
-                                                ofNullable(i.getOutputStructures())
-                                                        .map(is -> is
-                                                                .stream()
-                                                                .collect(toMap(n -> unifiedName(n.getName()),
-                                                                        nm -> toStructure(nm.isGeneric(),
-                                                                                nm.getStructure()))))
-                                                        .orElse(emptyMap())))
-                                        .collect(toList()))
-                                .orElse(emptyList()),
+                ofNullable(model.getProcessors())
+                        .map(s -> s
+                                .stream()
+                                .map(i -> new ProjectRequest.ProcessorConfiguration(i.getName(), i.getIcon(),
+                                        toStructure(false, i.getConfigurationStructure(), true).getStructure(),
+                                        mapStructures(i.getInputStructures()), mapStructures(i.getOutputStructures())))
+                                .collect(toList()))
+                        .orElse(emptyList()),
                 model.getFamily(), model.getCategory());
+    }
+
+    private Map<String, ProjectRequest.StructureConfiguration>
+            mapStructures(final Collection<ProjectModel.NamedModel> inputStructures) {
+        return ofNullable(inputStructures)
+                .map(is -> is
+                        .stream()
+                        .collect(toMap(n -> unifiedName(n.getName()),
+                                nm -> toStructure(nm.isGeneric(), nm.getStructure(), false))))
+                .orElse(emptyMap());
     }
 
     private String unifiedName(final String name) {
@@ -382,16 +390,24 @@ public class ProjectResource {
         return name;
     }
 
-    private ProjectRequest.StructureConfiguration toStructure(final boolean generic, final ProjectModel.Model model) {
-        return new ProjectRequest.StructureConfiguration(
-                !generic ? new ProjectRequest.DataStructure(model == null || model.getEntries() == null ? emptyList()
-                        : model
-                                .getEntries()
-                                .stream()
-                                .map(e -> new ProjectRequest.Entry(e.getName(), e.getType(),
-                                        e.getModel() != null ? toStructure(false, e.getModel()).getStructure() : null))
-                                .collect(toList()))
-                        : null,
-                generic);
+    private ProjectRequest.StructureConfiguration toStructure(final boolean generic, final ProjectModel.Model model,
+            final boolean rootConfiguration) {
+        if (generic) {
+            return new ProjectRequest.StructureConfiguration(null, generic);
+        }
+        final boolean hasEntries = !(model == null || model.getEntries() == null);
+        if (!hasEntries) {
+            if (rootConfiguration) {
+                return new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(new ArrayList<>()),
+                        generic);
+            }
+            return new ProjectRequest.StructureConfiguration(null, generic);
+        }
+        return new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(model
+                .getEntries()
+                .stream()
+                .map(e -> new ProjectRequest.Entry(e.getName(), e.getType(),
+                        e.getModel() != null ? toStructure(false, e.getModel(), false).getStructure() : null))
+                .collect(toList())), generic);
     }
 }

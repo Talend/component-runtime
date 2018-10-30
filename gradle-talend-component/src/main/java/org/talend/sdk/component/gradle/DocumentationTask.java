@@ -49,8 +49,9 @@ public class DocumentationTask extends TaCoKitTask {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
         final Class<?> impl = tccl.loadClass("org.talend.sdk.component.tools.AsciidocDocumentationGenerator");
-        final Constructor<?> constructor = impl.getConstructor(File[].class, File.class, String.class, int.class,
-                Map.class, Map.class, File.class, String.class, Object.class, File.class, String.class, Locale.class);
+        final Constructor<?> constructor = impl
+                .getConstructor(File[].class, File.class, String.class, int.class, Map.class, Map.class, File.class,
+                        String.class, Object.class, File.class, String.class, Locale.class);
         final File[] classes = findClasses().toArray(File[]::new);
         extension.getDocumentationLocales().forEach(locale -> {
             try {
@@ -61,14 +62,15 @@ public class DocumentationTask extends TaCoKitTask {
                             "resources/main/TALEND-INF/documentation" + suffix + ".adoc");
                 });
                 Runnable.class
-                        .cast(constructor.newInstance(classes, output,
-                                extension.getDocumentationTitle() == null ? getProject().getName()
-                                        : extension.getDocumentationTitle(),
-                                extension.getDocumentationLevel(), extension.getDocumentationFormats(),
-                                extension.getDocumentationAttributes(), extension.getDocumentationTemplateDir(),
-                                extension.getDocumentationTemplateEngine(), getLogger(),
-                                new File(getProject().getBuildDir(), "talend-component/workdir"),
-                                getProject().getVersion().toString(), locale))
+                        .cast(constructor
+                                .newInstance(classes, output,
+                                        extension.getDocumentationTitle() == null ? getProject().getName()
+                                                : extension.getDocumentationTitle(),
+                                        extension.getDocumentationLevel(), extension.getDocumentationFormats(),
+                                        extension.getDocumentationAttributes(), extension.getDocumentationTemplateDir(),
+                                        extension.getDocumentationTemplateEngine(), getLogger(),
+                                        new File(getProject().getBuildDir(), "talend-component/workdir"),
+                                        getProject().getVersion().toString(), locale))
                         .run();
             } catch (final InstantiationException | IllegalAccessException e) {
                 throw new IllegalStateException(e);

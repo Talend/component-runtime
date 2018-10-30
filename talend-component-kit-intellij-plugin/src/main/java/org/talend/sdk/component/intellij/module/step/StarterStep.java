@@ -149,20 +149,25 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
             Platform.setImplicitExit(false);
             jfxPanel = new JFXPanel();
             add(jfxPanel, BorderLayout.CENTER);
-            final String css = Base64.getMimeEncoder().encodeToString(
-                    ("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none  !important;} "
-                            + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;} "
-                            + "input {height:25px !important;}").getBytes(StandardCharsets.UTF_8));
+            final String css = Base64
+                    .getMimeEncoder()
+                    .encodeToString(
+                            ("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none  !important;} "
+                                    + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;} "
+                                    + "input {height:25px !important;}").getBytes(StandardCharsets.UTF_8));
             Platform.runLater(() -> {
                 browser = new WebView();
                 webEngine = browser.getEngine();
-                webEngine.getLoadWorker().stateProperty().addListener(
-                        (ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
+                webEngine
+                        .getLoadWorker()
+                        .stateProperty()
+                        .addListener((ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
                                 Worker.State newValue) -> {
                             if (newValue != Worker.State.SUCCEEDED) {
                                 if (newValue == Worker.State.CANCELLED || newValue == Worker.State.FAILED) {
-                                    panelLoaded.completeExceptionally(
-                                            new IllegalStateException("failed loading panel: " + newValue));
+                                    panelLoaded
+                                            .completeExceptionally(
+                                                    new IllegalStateException("failed loading panel: " + newValue));
                                 }
                                 return;
                             }

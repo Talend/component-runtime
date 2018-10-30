@@ -103,8 +103,9 @@ class PipelineInit {
         if (Boolean.getBoolean("talend.runner.skip-defaults")) {
             return Stream.empty();
         }
-        return Stream.of("--blockOnRun=false", "--enforceImmutability=false", "--enforceEncodability=false",
-                "--targetParallelism=" + Math.max(1, Runtime.getRuntime().availableProcessors()));
+        return Stream
+                .of("--blockOnRun=false", "--enforceImmutability=false", "--enforceEncodability=false",
+                        "--targetParallelism=" + Math.max(1, Runtime.getRuntime().availableProcessors()));
     }
 
     private static class TransformCounter extends Pipeline.PipelineVisitor.Defaults {

@@ -22,6 +22,8 @@ import java.io.Serializable;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
@@ -67,10 +69,19 @@ public class MyComponent implements Serializable {
         private MyNestedConfig nested = new MyNestedConfig();
     }
 
+    @DataStore
+    public static class NestedNestedConfig implements Serializable {
+    }
+
+    @DataSet
     public static class MyNestedConfig implements Serializable {
 
         @Option
         @Documentation("the user to log in")
         private String user = "unknown";
+
+        @Option
+        @Documentation("the datastore")
+        private NestedNestedConfig datastore;
     }
 }

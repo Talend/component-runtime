@@ -116,8 +116,9 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
     protected void logDeprecated() {
         getLog().warn("");
         getLog().warn("");
-        getLog().warn(
-                "This mojo (" + getClass().getSimpleName() + ") is deprecated, use it only if you know what you do");
+        getLog()
+                .warn("This mojo (" + getClass().getSimpleName()
+                        + ") is deprecated, use it only if you know what you do");
         getLog().warn("");
         getLog().warn("");
     }

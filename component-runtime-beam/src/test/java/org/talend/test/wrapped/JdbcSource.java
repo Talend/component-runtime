@@ -17,11 +17,13 @@ package org.talend.test.wrapped;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectStreamException;
 import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -75,6 +77,8 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
 
     // the io shouldnt require a coder since user can set it on the pipeline
     public static class WorkAroundCoder extends Coder<JsonObject> {
+
+        private static final long serialVersionUID = 1L;
 
         private transient PCollection<JsonObject> collection;
 
@@ -144,6 +148,29 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
         @Experimental(Experimental.Kind.CODER_TYPE_ENCODING)
         public TypeDescriptor<JsonObject> getEncodedTypeDescriptor() {
             return delegate().getEncodedTypeDescriptor();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            return Objects.equals(delegate(), WorkAroundCoder.class.cast(o).delegate());
+        }
+
+        @Override
+        public int hashCode() {
+            return WorkAroundCoder.class.hashCode();
+        }
+
+        Object writeReplace() throws ObjectStreamException {
+            if (delegate == null) {
+                delegate(); // force it to be init before the serialization
+            }
+            return this;
         }
     }
 

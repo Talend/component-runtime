@@ -1,0 +1,31 @@
+package {{package}};
+
+import java.io.Serializable;
+
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.meta.Documentation;
+
+@DataSet("default")
+@Documentation("TODO fill the documentation for this configuration")
+public class {{baseName}}DataSet implements Serializable {
+
+    //
+    // fill the reusable configuration for input/output components
+    // -> it must also enable to instantiate a source component without additional *required* configuration
+    // -> any input/output components must have a reference to a dataset to be valid for Talend Platform (cloud)
+    //
+
+    @Option
+    @Documentation("The connection of the configuration")
+    private {{baseName}}DataStore connection;
+
+    public {{baseName}}DataStore getConnection() {
+        return connection;
+    }
+
+    public {{baseName}}DataSet setConnection({{baseName}}DataStore connection) {
+        this.connection = connection;
+        return this;
+    }
+}
