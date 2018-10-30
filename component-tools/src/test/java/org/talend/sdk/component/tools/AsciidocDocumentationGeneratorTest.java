@@ -58,7 +58,13 @@ class AsciidocDocumentationGeneratorTest {
                             + "|configuration|configuration configuration|-|Always enabled|configuration\n"
                             + "|input|the input value|-|Always enabled|configuration.input\n"
                             + "|nested|it is nested|-|Always enabled|configuration.nested\n"
-                            + "|user|the user to log in|unknown|Always enabled|configuration.nested.user\n" + "|===\n",
+                            + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore\n"
+                            + "|user|the user to log in|unknown|Always enabled|configuration.nested.user\n" + "|===\n"
+                            + "\n" + "== my2\n" + "\n" + "super my component2\n" + "\n" + "=== Configuration\n" + "\n"
+                            + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                            + "|Display Name|Description|Default Value|Enabled If|Configuration Path\n"
+                            + "|ds|ds configuration|-|Always enabled|ds\n"
+                            + "|datastore|the datastore|-|Always enabled|ds.datastore\n" + "|===\n",
                     reader.lines().collect(joining("\n")));
         }
     }

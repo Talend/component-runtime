@@ -435,10 +435,10 @@ class ReflectionServiceTest {
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,
             final Map<Class<?>, Object> services) throws NoSuchMethodException {
         final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);
-        return reflectionService
-                .parameterFactory(constructor, services, parameterModelService
-                        .buildParameterMetas(constructor, constructor.getDeclaringClass().getPackage().getName(),
-                                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test"))));
+        final List<ParameterMeta> metas = parameterModelService
+                .buildParameterMetas(constructor, constructor.getDeclaringClass().getPackage().getName(),
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        return reflectionService.parameterFactory(constructor, services, metas);
     }
 
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param)

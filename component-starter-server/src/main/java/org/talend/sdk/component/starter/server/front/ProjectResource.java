@@ -43,6 +43,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -357,33 +358,29 @@ public class ProjectResource {
                         .map(s -> s
                                 .stream()
                                 .map(i -> new ProjectRequest.SourceConfiguration(i.getName(), i.getIcon(), i.isStream(),
-                                        toStructure(false, i.getConfigurationStructure()).getStructure(),
-                                        toStructure(i.isGenericOutput(), i.getOutputStructure())))
+                                        toStructure(false, i.getConfigurationStructure(), true).getStructure(),
+                                        toStructure(i.isGenericOutput(), i.getOutputStructure(), false)))
                                 .collect(toList()))
                         .orElse(emptyList()),
-                ofNullable(
-                        model.getProcessors())
-                                .map(s -> s
-                                        .stream()
-                                        .map(i -> new ProjectRequest.ProcessorConfiguration(i.getName(), i.getIcon(),
-                                                toStructure(false, i.getConfigurationStructure()).getStructure(),
-                                                ofNullable(i.getInputStructures())
-                                                        .map(is -> is
-                                                                .stream()
-                                                                .collect(toMap(n -> unifiedName(n.getName()),
-                                                                        nm -> toStructure(nm.isGeneric(),
-                                                                                nm.getStructure()))))
-                                                        .orElse(emptyMap()),
-                                                ofNullable(i.getOutputStructures())
-                                                        .map(is -> is
-                                                                .stream()
-                                                                .collect(toMap(n -> unifiedName(n.getName()),
-                                                                        nm -> toStructure(nm.isGeneric(),
-                                                                                nm.getStructure()))))
-                                                        .orElse(emptyMap())))
-                                        .collect(toList()))
-                                .orElse(emptyList()),
+                ofNullable(model.getProcessors())
+                        .map(s -> s
+                                .stream()
+                                .map(i -> new ProjectRequest.ProcessorConfiguration(i.getName(), i.getIcon(),
+                                        toStructure(false, i.getConfigurationStructure(), true).getStructure(),
+                                        mapStructures(i.getInputStructures()), mapStructures(i.getOutputStructures())))
+                                .collect(toList()))
+                        .orElse(emptyList()),
                 model.getFamily(), model.getCategory());
+    }
+
+    private Map<String, ProjectRequest.StructureConfiguration>
+            mapStructures(final Collection<ProjectModel.NamedModel> inputStructures) {
+        return ofNullable(inputStructures)
+                .map(is -> is
+                        .stream()
+                        .collect(toMap(n -> unifiedName(n.getName()),
+                                nm -> toStructure(nm.isGeneric(), nm.getStructure(), false))))
+                .orElse(emptyMap());
     }
 
     private String unifiedName(final String name) {
@@ -393,16 +390,24 @@ public class ProjectResource {
         return name;
     }
 
-    private ProjectRequest.StructureConfiguration toStructure(final boolean generic, final ProjectModel.Model model) {
-        return new ProjectRequest.StructureConfiguration(
-                !generic ? new ProjectRequest.DataStructure(model == null || model.getEntries() == null ? emptyList()
-                        : model
-                                .getEntries()
-                                .stream()
-                                .map(e -> new ProjectRequest.Entry(e.getName(), e.getType(),
-                                        e.getModel() != null ? toStructure(false, e.getModel()).getStructure() : null))
-                                .collect(toList()))
-                        : null,
-                generic);
+    private ProjectRequest.StructureConfiguration toStructure(final boolean generic, final ProjectModel.Model model,
+            final boolean rootConfiguration) {
+        if (generic) {
+            return new ProjectRequest.StructureConfiguration(null, generic);
+        }
+        final boolean hasEntries = !(model == null || model.getEntries() == null);
+        if (!hasEntries) {
+            if (rootConfiguration) {
+                return new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(new ArrayList<>()),
+                        generic);
+            }
+            return new ProjectRequest.StructureConfiguration(null, generic);
+        }
+        return new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(model
+                .getEntries()
+                .stream()
+                .map(e -> new ProjectRequest.Entry(e.getName(), e.getType(),
+                        e.getModel() != null ? toStructure(false, e.getModel(), false).getStructure() : null))
+                .collect(toList())), generic);
     }
 }

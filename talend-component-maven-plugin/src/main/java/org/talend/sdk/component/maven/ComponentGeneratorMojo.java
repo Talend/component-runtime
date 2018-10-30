@@ -40,8 +40,6 @@ import java.util.Properties;
 import java.util.stream.Stream;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.shared.utils.io.FileUtils;
@@ -53,6 +51,7 @@ import lombok.Getter;
 /**
  * Generates components in place.
  */
+@Deprecated
 @Mojo(name = "generate")
 public class ComponentGeneratorMojo extends AbstractMojo {
 
@@ -83,7 +82,9 @@ public class ComponentGeneratorMojo extends AbstractMojo {
     private final Freemarkers freemarkers = new Freemarkers(getClass().getSimpleName());
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() {
+        getLog().warn("This mojo is deprecated and will be deleted in a future release");
+
         switch (type.toLowerCase(ENGLISH)) {
         case "input":
             initGenerationState();

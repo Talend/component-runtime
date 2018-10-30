@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.valid;
+package org.talend.test.failure.outputmissingdataset;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
@@ -22,13 +22,10 @@ import java.io.Serializable;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.type.DataSet;
-import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.AfterGroup;
-import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.record.Record;
 
 @Documentation("super my component")
 @Version
@@ -36,52 +33,19 @@ import org.talend.sdk.component.api.processor.Processor;
 @Processor(family = "test", name = "my")
 public class MyComponent implements Serializable {
 
-    public MyComponent(@Option("configuration") final MyConfig config) {
+    public MyComponent(@Option("configuration") final Conf config) {
         // no-op
     }
 
-    @BeforeGroup
-    public void beforeGroup() {
-
-    }
-
     @ElementListener
-    public Foo passthrough(final Foo item) {
-        return item;
+    public void onElement(final Record record) {
+        // no-op
     }
 
-    @AfterGroup
-    public void afterGroup() {
-
-    }
-
-    public static class Foo {
-    }
-
-    public static class MyConfig implements Serializable {
-
-        @Option
-        @Documentation("the input value")
-        private String input;
-
-        @Option
-        @Documentation("it is nested")
-        private MyNestedConfig nested = new MyNestedConfig();
-    }
-
-    @DataStore
-    public static class NestedNestedConfig implements Serializable {
-    }
-
-    @DataSet
-    public static class MyNestedConfig implements Serializable {
+    public static class Conf implements Serializable {
 
         @Option
         @Documentation("the user to log in")
-        private String user = "unknown";
-
-        @Option
-        @Documentation("the datastore")
-        private NestedNestedConfig datastore;
+        private String user;
     }
 }

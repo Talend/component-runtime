@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.valid.datasetassourceconfig;
+package org.talend.test.failure.inputmissingdataset;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
@@ -24,8 +24,6 @@ import javax.json.JsonObject;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.type.DataSet;
-import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -36,7 +34,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Emitter(family = "test", name = "my")
 public class MyComponent implements Serializable {
 
-    public MyComponent(@Option("configuration") final MyDataSet config) {
+    public MyComponent(@Option("configuration") final Conf config) {
         // no-op
     }
 
@@ -45,19 +43,10 @@ public class MyComponent implements Serializable {
         return null;
     }
 
-    @DataStore("datastore")
-    public static class MyDataStore implements Serializable {
+    public static class Conf implements Serializable {
 
         @Option
         @Documentation("the user to log in")
         private String user;
-    }
-
-    @DataSet("dataset")
-    public static class MyDataSet implements Serializable {
-
-        @Option
-        @Documentation("...")
-        private MyDataStore datastore;
     }
 }

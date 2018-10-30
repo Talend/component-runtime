@@ -7,15 +7,19 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1123[TCOMP-1123^]: Processor component onNext duplicate columns in record for rowStructs
 - link:https://jira.talendforge.org/browse/TCOMP-1126[TCOMP-1126^]: UiSpecService shouldn't show the documentation by default
 - link:https://jira.talendforge.org/browse/TCOMP-1130[TCOMP-1130^]: component form - default value of maxBatchSize prop loose it type.
+- link:https://jira.talendforge.org/browse/TCOMP-1131[TCOMP-1131^]: [beam integration] Ensure Coder is contextual (classloader)
+- link:https://jira.talendforge.org/browse/TCOMP-1132[TCOMP-1132^]: Ensure beam custom Coders implement equals.hashCode for beam contract
 
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1112[TCOMP-1112^]: Let beam PTransform define an @ElementListener method to set the component design (inputs/outputs)
 - link:https://jira.talendforge.org/browse/TCOMP-1113[TCOMP-1113^]: Simplify the scanning by assuming there is a TALEND-INF/dependencies.txt in components
+- link:https://jira.talendforge.org/browse/TCOMP-1120[TCOMP-1120^]: BeamMapperImpl.isStream not accurate for UnboundedSource
 - link:https://jira.talendforge.org/browse/TCOMP-1124[TCOMP-1124^]: Add /metrics endpoint
 - link:https://jira.talendforge.org/browse/TCOMP-1125[TCOMP-1125^]: Extend CustomPropertyConverter to pass the convertion context
 - link:https://jira.talendforge.org/browse/TCOMP-1127[TCOMP-1127^]: Record doesn't support null values
+- link:https://jira.talendforge.org/browse/TCOMP-1133[TCOMP-1133^]: CXF 3.2.7 upgrade
 
 
 == Version 1.1.1

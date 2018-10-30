@@ -16,6 +16,7 @@
 package org.talend.sdk.component.starter.server.service.facet.component;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
@@ -100,7 +102,8 @@ public class ComponentGenerator {
             return Stream.empty();
         }
 
-        final String serviceName = names.toJavaName(build.getArtifact()) + "Service";
+        final String baseName = names.toJavaName(build.getArtifact());
+        final String serviceName = baseName + "Service";
         final String usedFamily = ofNullable(family).orElse(build.getArtifact());
 
         final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
@@ -128,8 +131,44 @@ public class ComponentGenerator {
                             }
                         })));
 
+        final String configurationsPackageName = packageBase + ".configuration";
+        final boolean hasConfigurations = (sources != null && !sources.isEmpty())
+                || (processors != null && processors.stream().anyMatch(ComponentGenerator::isOutput));
+        final String datasetName;
+        if (hasConfigurations) {
+            final String basePath = mainJava + "/"
+                    + configurationsPackageName.substring(configurationsPackageName.lastIndexOf('.') + 1) + "/";
+            final Map<String, Object> templateVariables = new HashMap<String, Object>() {
+
+                {
+                    put("baseName", baseName);
+                    put("package", configurationsPackageName);
+                }
+            };
+            files
+                    .addAll(Stream
+                            .of("DataSet", "DataStore")
+                            .map(it -> new FacetGenerator.InMemoryFile(basePath + baseName + it + ".java",
+                                    tpl.render("generator/component/" + it + ".mustache", templateVariables)))
+                            .collect(toList()));
+            datasetName = baseName + "DataSet";
+
+            messageProperties
+                    .put(configurationsPackageName,
+                            new TreeMap<>(singletonMap(baseName + "DataSet.connection", "Connection")));
+
+            final Map<String, String> baseProperty = messageProperties.get(packageBase);
+            final String capitalizedFamily = capitalize(family);
+            baseProperty.put(family + ".dataset.default", capitalizedFamily + " DataSet");
+            baseProperty.put(family + ".datastore.default", capitalizedFamily + " DataStore");
+        } else {
+            datasetName = null;
+        }
+
         if (sources != null && !sources.isEmpty()) {
-            files.addAll(createSourceFiles(packageBase, sources, mainJava, serviceName).collect(toList()));
+            files
+                    .addAll(createSourceFiles(packageBase, sources, mainJava, serviceName, configurationsPackageName,
+                            datasetName).collect(toList()));
 
             messageProperties.put(packageBase + ".source", new TreeMap<String, String>() {
 
@@ -150,7 +189,9 @@ public class ComponentGenerator {
         }
 
         if (processors != null && !processors.isEmpty()) {
-            files.addAll(createProcessorFiles(packageBase, processors, mainJava, serviceName).collect(toList()));
+            files
+                    .addAll(createProcessorFiles(packageBase, processors, mainJava, serviceName,
+                            configurationsPackageName, datasetName).collect(toList()));
             messageProperties.put(packageBase + ".output", new TreeMap<String, String>() {
 
                 {
@@ -191,6 +232,29 @@ public class ComponentGenerator {
         return files.stream();
     }
 
+    private void ensureConfigurationHasDataSet(final ProjectRequest.DataStructure it, final String datasetTypeName) {
+        it
+                .getEntries()
+                .add(0, new ProjectRequest.Entry(findNotUsedNameForDataSet(it.getEntries()), datasetTypeName, null));
+    }
+
+    private String findNotUsedNameForDataSet(final Collection<ProjectRequest.Entry> entries) {
+        // first try dataset
+        return Stream
+                .of("dataset", "dataSet", "configurationDataset", "configurationDataSet", "_dataset")
+                .filter(it -> entries.stream().noneMatch(e -> it.equals(e.getName())))
+                .findFirst()
+                .orElseGet(() -> { // sequence logic to ensure we match something
+                    int current = 1;
+                    final AtomicReference<String> name = new AtomicReference<>();
+                    do {
+                        name.set("dataset" + current);
+                        current++;
+                    } while (entries.stream().anyMatch(e -> name.get().equals(e.getName())));
+                    return name.get();
+                });
+    }
+
     private Stream<StringTuple2> toProperties(final String componentName,
             final Collection<ProjectRequest.Entry> structure) {
         return structure.stream().flatMap(e -> {
@@ -222,10 +286,12 @@ public class ComponentGenerator {
 
     private Stream<FacetGenerator.InMemoryFile> createProcessorFiles(final String packageBase,
             final Collection<ProjectRequest.ProcessorConfiguration> processors, final String mainJava,
-            final String serviceName) {
+            final String serviceName, final String datasetPackage, final String datasetName) {
         return processors.stream().flatMap(processor -> {
-            final boolean isOutput =
-                    processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
+            final boolean isOutput = isOutput(processor);
+            if (isOutput) {
+                ensureConfigurationHasDataSet(processor.getConfiguration(), datasetName);
+            }
 
             final String className = names.toProcessorName(processor);
             final String configurationClassName = names.toConfigurationName(className);
@@ -246,8 +312,7 @@ public class ComponentGenerator {
                         generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), outputClassName,
                                 files);
                         return new Connection(e.getKey(), javaName, outputClassName, isDefault(e.getKey()));
-                    }).collect(toList()) : emptyList();
-            outputNames.sort(connectionComparator);
+                    }).sorted(connectionComparator).collect(toList()) : emptyList();
 
             final List<Connection> inputNames = processor.getInputStructures() != null
                     ? processor.getInputStructures().entrySet().stream().map(e -> {
@@ -260,12 +325,11 @@ public class ComponentGenerator {
                         generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), inputClassName,
                                 files);
                         return new Connection(e.getKey(), javaName, inputClassName, isDefault(e.getKey()));
-                    }).collect(toList())
+                    }).sorted(connectionComparator).collect(toList())
                     : emptyList();
-            inputNames.sort(connectionComparator);
 
             generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(),
-                    configurationClassName, files);
+                    configurationClassName, files, datasetPackage, !isOutput ? null : datasetName);
 
             files
                     .add(new FacetGenerator.InMemoryFile(
@@ -302,10 +366,12 @@ public class ComponentGenerator {
 
     private Stream<FacetGenerator.InMemoryFile> createSourceFiles(final String packageBase,
             final Collection<ProjectRequest.SourceConfiguration> sources, final String mainJava,
-            final String serviceName) {
+            final String serviceName, final String datasetPackage, final String datasetName) {
         return sources.stream().flatMap(source -> {
             final boolean generic = source.getOutputStructure() == null || source.getOutputStructure().isGeneric()
                     || source.getOutputStructure().getStructure() == null;
+
+            ensureConfigurationHasDataSet(source.getConfiguration(), datasetName);
 
             final String baseName = names.toJavaName(source.getName());
             final String sourceName = names.toSourceName(baseName);
@@ -350,7 +416,7 @@ public class ComponentGenerator {
                                 }
                             })));
             generateConfiguration(null, sourcePackage, mainJava, source.getConfiguration(), configurationClassName,
-                    files);
+                    files, datasetPackage, datasetName);
             generateModel(null, sourcePackage, mainJava, generic ? null : source.getOutputStructure().getStructure(),
                     modelClassName, files);
             return files.stream();
@@ -392,7 +458,8 @@ public class ComponentGenerator {
 
     private void generateConfiguration(final String root, final String packageBase, final String mainJava,
             final ProjectRequest.DataStructure structure, final String configurationClassName,
-            final Collection<FacetGenerator.InMemoryFile> files) {
+            final Collection<FacetGenerator.InMemoryFile> files, final String datasetPackage,
+            final String datasetName) {
         files
                 .add(new FacetGenerator.InMemoryFile(
                         mainJava + "/" + packageBase.substring(packageBase.lastIndexOf('.') + 1) + "/"
@@ -412,7 +479,7 @@ public class ComponentGenerator {
                                                             final String cn = li > 0 ? fqn.substring(li + 1) : fqn;
                                                             generateConfiguration(
                                                                     (root == null ? "" : root) + capitalize(cn), pck,
-                                                                    mainJava, nested, cn, files);
+                                                                    mainJava, nested, cn, files, null, null);
                                                         }), isCredential(e.getName(), e.getType())))
                                                 .collect(toList()) : emptyList();
 
@@ -420,7 +487,10 @@ public class ComponentGenerator {
                                 put("package", packageBase);
                                 put("structure", structures);
                                 put("hasCredential", structures.stream().anyMatch(s -> s.isCredential));
-
+                                ofNullable(datasetName).ifPresent(it -> {
+                                    put("datasetPackage", datasetPackage);
+                                    put("datasetName", it);
+                                });
                             }
                         })));
     }

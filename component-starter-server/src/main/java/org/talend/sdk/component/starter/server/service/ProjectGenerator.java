@@ -21,12 +21,10 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -101,31 +99,32 @@ public class ProjectGenerator {
 
         // build dependencies to give them to the build
         final Collection<String> facets = ofNullable(request.getFacets()).orElse(emptyList());
-        final List<Dependency> dependencies = new ArrayList<>(facets
+        final List<Dependency> dependencies = facets
                 .stream()
                 .map(this.facets::get)
                 .flatMap(f -> f.dependencies(facets, versionSnapshot))
-                .collect(toSet()));
-        dependencies.sort((o1, o2) -> {
-            { // by scope
-                final int scope1 = scopesOrdering.indexOf(o1.getScope());
-                final int scope2 = scopesOrdering.indexOf(o2.getScope());
-                final int scopeDiff = scope1 - scope2;
-                if (scopeDiff != 0) {
-                    return scopeDiff;
-                }
-            }
+                .distinct()
+                .sorted((o1, o2) -> {
+                    { // by scope
+                        final int scope1 = scopesOrdering.indexOf(o1.getScope());
+                        final int scope2 = scopesOrdering.indexOf(o2.getScope());
+                        final int scopeDiff = scope1 - scope2;
+                        if (scopeDiff != 0) {
+                            return scopeDiff;
+                        }
+                    }
 
-            { // by group
-                final int comp = o1.getGroup().compareTo(o2.getGroup());
-                if (comp != 0) {
-                    return comp;
-                }
-            }
+                    { // by group
+                        final int comp = o1.getGroup().compareTo(o2.getGroup());
+                        if (comp != 0) {
+                            return comp;
+                        }
+                    }
 
-            // by name
-            return o1.getArtifact().compareTo(o2.getArtifact());
-        });
+                    // by name
+                    return o1.getArtifact().compareTo(o2.getArtifact());
+                })
+                .collect(toList());
         // force component-api and force it first
         final Dependency componentApi = Dependency.componentApi(versionSnapshot.getApiKit());
         dependencies.remove(componentApi);

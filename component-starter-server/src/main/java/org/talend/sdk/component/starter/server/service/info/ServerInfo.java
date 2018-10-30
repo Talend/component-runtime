@@ -196,7 +196,7 @@ public class ServerInfo {
 
         private String avroJackson;
 
-        private String surefire = "2.22.0";
+        private String surefire = "2.22.1";
 
         private String cxf;
 

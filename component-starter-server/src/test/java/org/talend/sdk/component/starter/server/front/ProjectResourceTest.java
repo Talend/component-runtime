@@ -105,11 +105,11 @@ class ProjectResourceTest {
                 .of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
                 .forEach(token -> assertTrue(files.get("application/pom.xml").contains(token), token));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
-        assertEquals(
-                resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml")
-                        .replace("@runtime.version@", versions.getSnapshot().getKit())
-                        .replace("@api.version@", versions.getSnapshot().getApiKit()),
-                files.get("application/pom.xml"));
+        final ServerInfo.Snapshot snapshot = versions.getSnapshot();
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml")
+                .replace("@runtime.version@", snapshot.getKit())
+                .replace("@surefire.version@", snapshot.getSurefire())
+                .replace("@api.version@", snapshot.getApiKit()), files.get("application/pom.xml"));
     }
 
     @Test

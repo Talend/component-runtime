@@ -17,19 +17,32 @@
 package org.talend.sdk.component.starter.server.service.facet.util;
 
 import static java.util.Locale.ENGLISH;
+import static java.util.stream.Collectors.joining;
 import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.talend.sdk.component.starter.server.service.Strings;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 
 @ApplicationScoped
 public class NameConventions {
 
     public String toJavaName(final String name) {
-        return capitalize(name.replace("-", "_").replace(" ", "_"));
+        return Stream
+                .of(name)
+                // first split on all separators we don't want
+                .flatMap(s -> Stream.of(s.split("[^\\p{Alnum}]")))
+                // drop empty strings
+                .map(String::trim)
+                .filter(it -> !it.isEmpty())
+                // capitablize
+                .map(Strings::capitalize)
+                // join
+                .collect(joining());
     }
 
     public String sanitizeConnectionName(final String name) {
@@ -63,6 +76,9 @@ public class NameConventions {
             return "java.io.File";
         case "string":
         default:
+            if (type.endsWith("DataSet")) {
+                return type;
+            }
             return "String";
         }
     }

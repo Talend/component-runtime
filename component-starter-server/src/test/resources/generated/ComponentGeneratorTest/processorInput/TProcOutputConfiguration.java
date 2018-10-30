@@ -1,4 +1,4 @@
-package com.foo.source;
+package com.foo.output;
 
 import java.io.Serializable;
 
@@ -11,34 +11,20 @@ import org.talend.sdk.component.api.meta.Documentation;
 @GridLayout({
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
-    @GridLayout.Row({ "dataset" }),
-    @GridLayout.Row({ "name" })
+    @GridLayout.Row({ "dataset" })
 })
 @Documentation("TODO fill the documentation for this configuration")
-public class MycompMapperConfiguration implements Serializable {
+public class TProcOutputConfiguration implements Serializable {
     @Option
     @Documentation("TODO fill the documentation for this parameter")
     private TestDataSet dataset;
-
-    @Option
-    @Documentation("TODO fill the documentation for this parameter")
-    private String name;
 
     public TestDataSet getDataset() {
         return dataset;
     }
 
-    public MycompMapperConfiguration setDataset(TestDataSet dataset) {
+    public TProcOutputConfiguration setDataset(TestDataSet dataset) {
         this.dataset = dataset;
-        return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public MycompMapperConfiguration setName(String name) {
-        this.name = name;
         return this;
     }
 }

@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
@@ -45,7 +46,7 @@ class ComponentGeneratorConfigurationTest {
         return Stream
                 .of(
                         // no field
-                        new Scenario(new ProjectRequest.DataStructure(emptyList()),
+                        new Scenario(new ProjectRequest.DataStructure(new ArrayList<>()),
                                 "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
                                         + "import org.talend.sdk.component.api.configuration.Option;\n"
                                         + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n"
@@ -58,7 +59,7 @@ class ComponentGeneratorConfigurationTest {
                         // string field
                         new Scenario(
                                 new ProjectRequest.DataStructure(
-                                        singleton(new ProjectRequest.Entry("name", "String", null))),
+                                        new ArrayList<>(singleton(new ProjectRequest.Entry("name", "String", null)))),
                                 "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
                                         + "import org.talend.sdk.component.api.configuration.Option;\n"
                                         + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n"
@@ -78,8 +79,8 @@ class ComponentGeneratorConfigurationTest {
                         // string field + int field
                         new Scenario(
                                 new ProjectRequest.DataStructure(
-                                        asList(new ProjectRequest.Entry("name", "String", null),
-                                                new ProjectRequest.Entry("age", "int", null))),
+                                        new ArrayList<>(asList(new ProjectRequest.Entry("name", "String", null),
+                                                new ProjectRequest.Entry("age", "int", null)))),
                                 "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
                                         + "import org.talend.sdk.component.api.configuration.Option;\n"
                                         + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n"

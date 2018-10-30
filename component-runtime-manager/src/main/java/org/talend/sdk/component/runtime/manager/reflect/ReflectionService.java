@@ -615,7 +615,8 @@ public class ReflectionService {
 
     private void doValidate(final List<ParameterMeta> metas, final Map<String, Object> preparedLists,
             final Map<String, Object> normalizedConfig) {
-        if (metas != null && !Boolean.getBoolean("talend.component.configuration.validation.skip")) {
+        if (metas != null && !Boolean.getBoolean("talend.component.configuration.validation.skip")
+                && !metas.isEmpty()) {
             final String error = Stream
                     .concat(metas
                             .stream()
