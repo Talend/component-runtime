@@ -69,7 +69,7 @@ class ActionResourceTest {
 
         assertEquals(1, result.size());
         final List<Map<String, String>> items = List.class.cast(result.get("items"));
-        assertEquals(4, items.size());
+        assertEquals(5, items.size());
         final Map<String, String> itemsMap = items.stream().collect(toMap(e -> e.get("id"), e -> e.get("label")));
         assertEquals(new HashMap<String, String>() {
 
@@ -78,6 +78,8 @@ class ActionResourceTest {
                 put("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0y", "Connection-2");
                 put("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0z", "Connection-3");
                 put("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSN0ZXN0I2RlZmF1bHR0ZXN0", "defaulttest");
+                put("dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzdG9yZSNNdWx0aURhdGFzZXQtQ29ubmVjdGlvbg",
+                        "MultiDataset-Connection");
             }
         }, itemsMap);
     }

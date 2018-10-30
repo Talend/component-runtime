@@ -13,19 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.proxy.test.component.multidataset;
 
+import lombok.Data;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.constraint.Required;
-import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 
-@DataSet("dataset-2")
-public class DataSet2 {
+@Data
+@Checkable("validate-connection-1")
+@DataStore("MultiDataset-Connection")
+public class Connection {
 
-    @Option
     @Required
-    private Connection2 connection;
-
     @Option
-    private int limit = 1000;
+    private String url;
+
+    @Required
+    @Option
+    private String username;
+
+    @Required
+    @Option
+    @Credential
+    private String password;
+
 }

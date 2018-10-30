@@ -19,8 +19,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -51,28 +49,20 @@ public class ReferenceServiceImpl implements ReferenceService {
     }
 
     @Override
-    public CompletionStage<Form> findPropertiesById(final String configType, final String id,
-            final UiSpecContext context) {
+    public CompletionStage<Form> findPropertiesById(final String id, final UiSpecContext context) {
         if (id.equals("actionServices.reloadFromParentId")) {
             return completedFuture(Form
                     .builder()
                     .formId("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ")
                     .properties(singletonMap("configuration.url", "http://foo"))
                     .build());
-        } else if (id.equals("connectionIdFromPersistence")) {
-            final String formId = Base64
-                    .getUrlEncoder()
-                    .withoutPadding()
-                    .encodeToString(
-                            "test-component#TheTestFamily2#datastore#Connection-1".getBytes(StandardCharsets.UTF_8));
-            return completedFuture(Form.builder().formId(formId).properties(new HashMap<String, String>() {
-
-                {
-                    put("configuration.url", "value1");
-                    put("configuration.username", "value2");
-                    put("$formId", formId);
-                }
-            }).build());
+        }
+        if (id.equals("actionServices.multiDataset")) {
+            return completedFuture(Form
+                    .builder()
+                    .formId("dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzdG9yZSNNdWx0aURhdGFzZXQtQ29ubmVjdGlvbg")
+                    .properties(singletonMap("", ""))
+                    .build());
         }
         final OnPersist byId = persistence.findById(id);
         return CompletableFuture

@@ -27,7 +27,7 @@ public interface ReferenceService {
 
     CompletionStage<Values> findReferencesByTypeAndName(String type, String name, UiSpecContext context);
 
-    CompletionStage<Form> findPropertiesById(String configType, String id, UiSpecContext context);
+    CompletionStage<Form> findPropertiesById(String id, UiSpecContext context);
 
     @Data
     @Builder
