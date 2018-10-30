@@ -16,7 +16,6 @@
 package org.talend.sdk.component.proxy.test.component;
 
 import static java.util.Arrays.asList;
-import static org.apache.webbeans.util.Asserts.assertNotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -52,9 +51,11 @@ public class TheService {
 
     @Suggestions(value = "suggestions")
     public SuggestionValues suggestions(final Connection2 connection) {
-        assertNotNull(connection);
-        return new SuggestionValues(true,
-                asList(new SuggestionValues.Item("1", "item1"), new SuggestionValues.Item("2", "item2")));
+        if (connection == null) {
+            throw new NullPointerException();
+        }
+        return new SuggestionValues(true, asList(new SuggestionValues.Item("1", connection.getUrl()),
+                new SuggestionValues.Item("2", connection.getUsername())));
     }
 
 }

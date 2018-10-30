@@ -23,20 +23,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpServer;
+
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.proxy.api.persistence.OnPersist;
 import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
 
 @CdiInject
 @WithServer
@@ -48,6 +51,9 @@ class ActionServiceTest {
     @Inject
     @UiSpecProxy
     private Jsonb jsonb;
+
+    @Inject
+    private Event<OnPersist> persistEvent;
 
     @Test
     void http() throws Exception {
@@ -140,5 +146,39 @@ class ActionServiceTest {
                         + "\"$selfReferenceType\":\"dataset\"}},"
                         + "\"$formId\":\"dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE\"}",
                 form.getProperties().toString());
+    }
+
+    @Test
+    void createStage() throws Exception {
+        Map<String, Object> result = service
+                .createStage("TheTestFamily2", "suggestions", "suggestions-values", new UiSpecContext("en", k -> null),
+                        new HashMap<String, Object>() {
+
+                            {
+                                put("connection.$selfReference", "connectionIdFromPersistence");
+                                put("$formId",
+                                        Base64
+                                                .getUrlEncoder()
+                                                .withoutPadding()
+                                                .encodeToString("test-component#TheTestFamily2#datastore#Connection-1"
+                                                        .getBytes(StandardCharsets.UTF_8)));
+                            }
+                        })
+                .toCompletableFuture()
+                .get();
+        result.remove("cacheable");
+        assertEquals(singletonMap("items", asList(new HashMap<String, Object>() {
+
+            {
+                put("id", "1");
+                put("label", "value1");
+            }
+        }, new HashMap<String, Object>() {
+
+            {
+                put("id", "2");
+                put("label", "value2");
+            }
+        })), result);
     }
 }
