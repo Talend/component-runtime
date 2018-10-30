@@ -57,6 +57,15 @@ public class ReferenceServiceImpl implements ReferenceService {
                     .formId("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ")
                     .properties(singletonMap("configuration.url", "http://foo"))
                     .build());
+        } else if (id.equals("ActionServiceTest#createStage#connectionId")) {
+            return completedFuture(Form.builder().formId("newFormId").properties(new HashMap<String, String>() {
+
+                {
+                    put("configuration.url", "value1");
+                    put("configuration.username", "value2");
+                    put("$formId", "newFormId");
+                }
+            }).build());
         }
         final OnPersist byId = persistence.findById(id);
         return CompletableFuture

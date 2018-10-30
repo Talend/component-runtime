@@ -141,4 +141,33 @@ class ActionServiceTest {
                         + "\"$formId\":\"dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE\"}",
                 form.getProperties().toString());
     }
+
+    @Test
+    void createStage() throws Exception {
+        Map<String, Object> result = service
+                .createStage("TheTestFamily", "suggestions", "suggestions", new UiSpecContext("en", k -> null),
+                        new HashMap<String, Object>() {
+
+                            {
+                                put("connection.$selfReference", "ActionServiceTest#createStage#connectionId");
+                                // Check ReferenceServiceImpl for the value according this id
+                            }
+                        })
+                .toCompletableFuture()
+                .get();
+        result.remove("cacheable");
+        assertEquals(singletonMap("items", asList(new HashMap<String, Object>() {
+
+            {
+                put("id", "1");
+                put("label", "value1");
+            }
+        }, new HashMap<String, Object>() {
+
+            {
+                put("id", "2");
+                put("label", "value2");
+            }
+        })), result);
+    }
 }

@@ -166,7 +166,7 @@ public class ActionService {
                                             .ifPresent(props -> props
                                                     .entrySet()
                                                     .stream()
-                                                    .filter(k -> k.getKey().indexOf(".") > 0)
+                                                    .filter(k -> !"$formId".equals(k.getKey()))
                                                     .forEach(k -> newProps
                                                             .put(prefix + k.getKey().substring(k.getKey().indexOf(".")),
                                                                     k.getValue())));
