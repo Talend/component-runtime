@@ -159,20 +159,32 @@ public class ActionService {
                             ofNullable(params.get(it.getKey() + "Type")).map(String::valueOf).orElse(null);
                     return referenceService
                             .findPropertiesById(configType, String.valueOf(it.getValue()), context)
-                            .thenApply(form -> {
-                                final String prefix = it.getKey().replace(".$selfReference", "");
-                                synchronized (newProps) {
-                                    ofNullable(form.getProperties())
-                                            .ifPresent(props -> props
-                                                    .entrySet()
-                                                    .stream()
-                                                    .filter(k -> !"$formId".equals(k.getKey()))
-                                                    .forEach(k -> newProps
-                                                            .put(prefix + k.getKey().substring(k.getKey().indexOf(".")),
-                                                                    k.getValue())));
-                                }
-                                return form;
-                            });
+                            .thenCompose(form -> configurationClient
+                                    .getDetails(context.getLanguage(), form.getFormId(),
+                                            context.getPlaceholderProvider())
+                                    .thenApply(node -> {
+                                        final String propPrefix = node
+                                                .getProperties()
+                                                .stream()
+                                                .filter(p -> p.getName().equals(p.getPath()))
+                                                .findFirst()
+                                                .orElseThrow(() -> new IllegalStateException(
+                                                        "Can't find configuration for id :" + form.getFormId()))
+                                                .getName();
+                                        final String actionPrefix = it.getKey().replace(".$selfReference", "");
+                                        synchronized (newProps) {
+                                            ofNullable(form.getProperties())
+                                                    .ifPresent(props -> props
+                                                            .entrySet()
+                                                            .stream()
+                                                            .filter(k -> k.getKey().startsWith(propPrefix))
+                                                            .forEach(k -> newProps
+                                                                    .put(actionPrefix
+                                                                            + k.getKey().substring(propPrefix.length()),
+                                                                            k.getValue())));
+                                        }
+                                        return form;
+                                    }));
                 }).toArray(CompletableFuture[]::new);
         return CompletableFuture
                 .allOf(referenceResolutions)
@@ -337,10 +349,10 @@ public class ActionService {
             return propertiesService
                     .filterProperties(family, node.getProperties(), context)
                     .thenCompose(props -> propertiesService.replaceReferences(context, props, configInstance)) // todo:
-                                                                                                               // drop
-                                                                                                               // since
-                                                                                                               // we use
-                                                                                                               // $selfReference
+                    // drop
+                    // since
+                    // we use
+                    // $selfReference
                     .thenApply(props -> {
                         if (node.getProperties() != null && !node.getProperties().isEmpty()) {
                             final Map<String, String> mergedWithDefaults =
