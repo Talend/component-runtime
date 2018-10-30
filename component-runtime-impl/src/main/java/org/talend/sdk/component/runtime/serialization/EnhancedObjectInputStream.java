@@ -32,7 +32,7 @@ public class EnhancedObjectInputStream extends ObjectInputStream {
     }
 
     @Override
-    protected Class<?> resolveClass(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+    protected Class<?> resolveClass(final ObjectStreamClass desc) throws ClassNotFoundException {
         final String name = desc.getName();
         try {
             return Class.forName(name, false, loader);
@@ -70,7 +70,7 @@ public class EnhancedObjectInputStream extends ObjectInputStream {
     }
 
     @Override
-    protected Class<?> resolveProxyClass(final String[] interfaces) throws IOException, ClassNotFoundException {
+    protected Class<?> resolveProxyClass(final String[] interfaces) throws ClassNotFoundException {
         final Class[] interfaceTypes = new Class[interfaces.length];
         for (int i = 0; i < interfaces.length; i++) {
             interfaceTypes[i] = Class.forName(interfaces[i], false, loader);

@@ -66,6 +66,16 @@ public class FullSerializationRecordCoder extends CustomCoder<Record> {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return FullSerializationRecordCoder.class.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return FullSerializationRecordCoder.class.isInstance(obj);
+    }
+
     public static FullSerializationRecordCoder of() {
         return new FullSerializationRecordCoder();
     }

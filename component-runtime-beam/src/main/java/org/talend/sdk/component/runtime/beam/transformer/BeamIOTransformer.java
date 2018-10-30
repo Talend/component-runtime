@@ -26,7 +26,6 @@ import static org.apache.xbean.asm7.Opcodes.NEW;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -92,31 +91,16 @@ public class BeamIOTransformer implements ClassFileTransformer {
     private boolean shouldForceContextualSerialization(final ClassLoader tmpLoader, final String className) {
         try {
             final Class<?> clazz = tmpLoader.loadClass(className.replace('/', '.'));
-            if (doesUseCustomSerialization(clazz)) {
+            if (clazz.getClassLoader() == tmpLoader.getParent()) {
                 return false;
             }
 
-            return doesHierarchyContain(clazz, asList("org.apache.beam.sdk.transforms.DoFn",
-                    "org.apache.beam.sdk.io.Source", "org.apache.beam.sdk.io.Source$Reader"));
+            return doesHierarchyContain(clazz,
+                    asList("org.apache.beam.sdk.transforms.DoFn", "org.apache.beam.sdk.io.Source",
+                            "org.apache.beam.sdk.io.Source$Reader", "org.apache.beam.sdk.coders.Coder"));
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             return false;
         }
-    }
-
-    private boolean doesUseCustomSerialization(final Class<?> clazz) {
-        if (Externalizable.class.isAssignableFrom(clazz)) {
-            return true;
-        }
-        // todo: we should check the byte[] and not the clazz since in a transformer chain
-        // and previous transformer can have done it
-        // -> for now it is enough since it is faster than re-reading the bytecode and we have 1 transformer
-        try {
-            clazz.getDeclaredMethod("writeReplace", ObjectOutputStream.class);
-            return true;
-        } catch (final NoSuchMethodException e) {
-            // ok, let's check further
-        }
-        return false;
     }
 
     private boolean doesHierarchyContain(final Class<?> clazz, final Collection<String> types) {
@@ -291,9 +275,14 @@ public class BeamIOTransformer implements ClassFileTransformer {
     // todo: we probably want to rewrite some well known method (@ProcessElement) to set the TCCL properly too
     private static class ComponentClassVisitor extends ClassVisitor {
 
+        private static final String[] OBJECT_STREAM_EXCEPTION =
+                { Type.getType(ObjectStreamException.class).getInternalName() };
+
         private final ComponentClassWriter writer;
 
         private final String plugin;
+
+        private boolean hasWriteReplace;
 
         private ComponentClassVisitor(final ComponentClassWriter cv, final String plugin) {
             super(ASM7, cv);
@@ -305,6 +294,9 @@ public class BeamIOTransformer implements ClassFileTransformer {
         public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature,
                 final String[] exceptions) {
             final MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+            if ("writeReplace".equals(name)) {
+                hasWriteReplace = true;
+            }
             if (Modifier.isPublic(access) && !Modifier.isStatic(access)) {
                 return new TCCLAdviceAdapter(mv, access, name, desc, plugin);
             }
@@ -318,9 +310,12 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         private void createSerialisation(final ClassWriter cw, final String pluginId) {
+            if (hasWriteReplace) {
+                return;
+            }
             final MethodVisitor mv = cw
                     .visitMethod(Modifier.PUBLIC, "writeReplace", "()Ljava/lang/Object;", null,
-                            new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
+                            OBJECT_STREAM_EXCEPTION);
 
             mv.visitCode();
 

@@ -45,4 +45,14 @@ public class NoCheckpointCoder extends Coder<UnboundedSource.CheckpointMark> {
     public void verifyDeterministic() {
         // no-op
     }
+
+    @Override
+    public int hashCode() {
+        return NoCheckpointCoder.class.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return NoCheckpointCoder.class.isInstance(obj);
+    }
 }
