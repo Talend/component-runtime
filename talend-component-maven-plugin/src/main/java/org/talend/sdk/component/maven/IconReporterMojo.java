@@ -194,8 +194,9 @@ public class IconReporterMojo extends ClasspathMojoBase {
         private final Collection<IconModel> icons = new TreeSet<>(comparing(icon -> icon.module + '#' + icon.name));
 
         void doReport(final File output, final String title, final String css, final String js, final String missing) {
-            final boolean hasMissingIcons = icons.stream().anyMatch(it -> it.base64.equals(missing));
-            final boolean hasCustomIcons = icons.stream().anyMatch(it -> it.custom);
+            final long missingIconsCount = icons.stream().filter(it -> it.base64.equals(missing)).count();
+            final long customIconsCount = icons.stream().filter(it -> it.custom).count();
+            final long validIcons = icons.size() - missingIconsCount - customIconsCount;
 
             output.getParentFile().mkdirs();
             try (final PrintStream stream = new PrintStream(new FileOutputStream(output))) {
@@ -215,6 +216,11 @@ public class IconReporterMojo extends ClasspathMojoBase {
                                     + "href=\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css\" "
                                     + "integrity=\"sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=\" "
                                     + "crossorigin=\"anonymous\" />");
+                    stream
+                            .println("      <link rel=\"stylesheet\" "
+                                    + "href=\"https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.13/css/mdb.min.css\" "
+                                    + "integrity=\"sha256-REjZf+g6soUYYHr2eOC4oR1+kiH4sQqdE1fTBWMiKiw=\" "
+                                    + "crossorigin=\"anonymous\" />");
                     stream.println("      <style>");
                     stream.println("        img { max-width: 250px; }");
                     stream.println("        image-container { width: 250px; }");
@@ -224,41 +230,95 @@ public class IconReporterMojo extends ClasspathMojoBase {
                 stream.println(" <body>");
                 stream.println("   <div class=\"container\">");
                 stream.println("     <h1>Components Icons</h1>");
-                if (hasMissingIcons) {
-                    stream.println("     <div class=\"alert alert-danger\" role=\"alert\">");
-                    stream.println("       <strong>Danger!</strong> missing icons in use!");
-                    stream.println("     </div>");
-                }
-                if (hasCustomIcons) {
+                if (icons.isEmpty()) {
                     stream.println("     <div class=\"alert alert-warning\" role=\"alert\">");
-                    stream.println("       <strong>Warning!</strong> custom icons in use!");
+                    stream.println("       <strong>Error!</strong> no icon found!");
                     stream.println("     </div>");
-                }
-                stream.println("     <table class=\"table table-bordered table-striped\">");
-                stream.println("       <thead class=\"thead-dark\">");
-                stream.println("         <tr>");
-                stream.println("           <td scope=\"col\">Module</td>");
-                stream.println("           <td scope=\"col\">Name</td>");
-                stream.println("           <td scope=\"col\" class=\"image-container\">Preview</td>");
-                stream.println("           <td scope=\"col\">Custom</td>");
-                stream.println("         </tr>");
-                stream.println("       </thead>");
-                stream.println("       <tbody>");
-                icons.forEach(icon -> {
-                    stream
-                            .println("         <tr" + (icon.base64.equals(missing) ? " class=\"table-danger\""
-                                    : (icon.custom ? " class=\"table-warning\"" : "")) + ">");
-                    stream.println("           <td>" + escapeHtml4(icon.module) + "</td>");
-                    stream.println("           <td>" + escapeHtml4(icon.name) + "</td>");
-                    stream.println("           <td class=\"image-container\"><img src=\"" + icon.base64 + "\"></td>");
-                    stream.println("           <td>" + icon.custom + "</td>");
-                    stream.println("         </tr>");
-                });
-                stream.println("       </tbody>");
-                stream.println("     </table>");
-                stream.println("   </div>");
-                if (js != null && !js.isEmpty()) {
-                    stream.println(js);
+                } else {
+                    if (missingIconsCount > 0) {
+                        stream.println("     <div class=\"alert alert-danger\" role=\"alert\">");
+                        stream.println("       <strong>Danger!</strong> missing icons in use!");
+                        stream.println("     </div>");
+                    }
+                    if (customIconsCount > 0) {
+                        stream.println("     <div class=\"alert alert-warning\" role=\"alert\">");
+                        stream.println("       <strong>Warning!</strong> custom icons in use!");
+                        stream.println("       Check out <a href=\"http://talend.surge.sh/icons/\">surge</a>.");
+                        stream.println("     </div>");
+                    }
+                    stream.println("     <div class=\"col-sm-12\">");
+                    stream.println("      <canvas class=\"pieChartReport\"></canvas>");
+                    stream.println("     </div>");
+                    stream.println("     <div class=\"col-sm-12\">");
+                    stream.println("       <table class=\"table table-bordered table-striped\">");
+                    stream.println("         <thead class=\"thead-dark\">");
+                    stream.println("           <tr>");
+                    stream.println("             <td scope=\"col\">Module</td>");
+                    stream.println("             <td scope=\"col\">Name</td>");
+                    stream.println("             <td scope=\"col\" class=\"image-container\">Preview</td>");
+                    stream.println("             <td scope=\"col\">Custom</td>");
+                    stream.println("           </tr>");
+                    stream.println("         </thead>");
+                    stream.println("         <tbody>");
+                    stream.println("       </div>");
+                    icons.forEach(icon -> {
+                        stream
+                                .println("         <tr" + (icon.base64.equals(missing) ? " class=\"table-danger\""
+                                        : (icon.custom ? " class=\"table-warning\"" : "")) + ">");
+                        stream.println("           <td>" + escapeHtml4(icon.module) + "</td>");
+                        stream.println("           <td>" + escapeHtml4(icon.name) + "</td>");
+                        stream
+                                .println("           <td class=\"image-container\"><img src=\"" + icon.base64
+                                        + "\"></td>");
+                        stream.println("           <td>" + icon.custom + "</td>");
+                        stream.println("         </tr>");
+                    });
+                    stream.println("       </tbody>");
+                    stream.println("     </table>");
+                    stream.println("   </div>");
+                    if (js != null && !js.isEmpty()) {
+                        stream.println(js);
+                    } else {
+                        stream
+                                .println(
+                                        "   <script src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js\" "
+                                                + "integrity=\"sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=\" "
+                                                + "crossorigin=\"anonymous\"></script>");
+                        stream
+                                .println("   <script "
+                                        + "src=\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/popper.min.js\" "
+                                        + "integrity=\"sha256-buCJtv5E9D2vlgk/iJYywBD8xf1M3lL7mzKJn3Oqa1A=\" "
+                                        + "crossorigin=\"anonymous\"></script>");
+                        stream
+                                .println("   <script "
+                                        + "src=\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js\" "
+                                        + "integrity=\"sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=\" "
+                                        + "crossorigin=\"anonymous\"></script>");
+                        stream
+                                .println("   <script "
+                                        + "src=\"https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.13/js/mdb.min.js\" "
+                                        + "integrity=\"sha256-fgXwKP0uZcyaHIUbCNj9VU/7D8/hJRfeFs/+NuVo51w=\" "
+                                        + "crossorigin=\"anonymous\"></script>");
+                        stream.println("   <script>");
+                        stream.println("     (function () {");
+                        stream
+                                .println(
+                                        "       var ctx = document.getElementsByClassName('pieChartReport')[0].getContext('2d');");
+                        stream.println("       new Chart(ctx, {");
+                        stream.println("         type: 'pie',");
+                        stream.println("         data: {");
+                        stream.println("           labels: [ \"Missing Icons\", \"Custom Icons\", \"Valid Icons\" ],");
+                        stream.println("           datasets: [{");
+                        stream
+                                .println("             data: [ " + missingIconsCount + ", " + customIconsCount + ", "
+                                        + validIcons + " ],");
+                        stream.println("               backgroundColor: [ \"#f8d7da\", \"#fff3cd\", \"#b8daff\" ]");
+                        stream.println("           }]");
+                        stream.println("         }");
+                        stream.println("       });");
+                        stream.println("     })();");
+                        stream.println("   </script>");
+                    }
                 }
                 stream.println(" </body>");
                 stream.println("</html>");
