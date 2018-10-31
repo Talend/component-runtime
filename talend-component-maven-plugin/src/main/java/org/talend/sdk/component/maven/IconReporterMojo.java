@@ -127,17 +127,19 @@ public class IconReporterMojo extends ClasspathMojoBase {
         final List<Class<?>> icons = finder.findAnnotatedClasses(Icon.class);
         final List<Package> packages = finder.findAnnotatedPackages(Icon.class);
         if (!icons.isEmpty()) {
+            final List<IconModel> foundIcons = Stream
+                    .concat(icons.stream(), packages.stream())
+                    .map(type -> type.getAnnotation(Icon.class))
+                    .map(icon -> {
+                        final boolean isCustom = icon.value() == CUSTOM;
+                        final String name = isCustom ? icon.custom() : icon.value().getKey();
+                        return new IconModel(project.getArtifactId(), name, findIcon(name), isCustom);
+                    })
+                    .collect(toList());
             final GlobalReporter reporter = getReporter();
-            reporter.icons
-                    .addAll(Stream
-                            .concat(icons.stream(), packages.stream())
-                            .map(type -> type.getAnnotation(Icon.class))
-                            .map(icon -> {
-                                final boolean isCustom = icon.value() == CUSTOM;
-                                final String name = isCustom ? icon.custom() : icon.value().getKey();
-                                return new IconModel(project.getArtifactId(), name, findIcon(name), isCustom);
-                            })
-                            .collect(toList()));
+            synchronized (reporter) {
+                reporter.icons.addAll(foundIcons);
+            }
         }
     }
 
@@ -210,9 +212,9 @@ public class IconReporterMojo extends ClasspathMojoBase {
                 } else {
                     stream
                             .println("    <link rel=\"stylesheet\" "
-                                    + "href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css\" "
-                                    + "integrity=\"sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm\" "
-                                    + "crossorigin=\"anonymous\">");
+                                    + "href=\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css\" "
+                                    + "integrity=\"sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=\" "
+                                    + "crossorigin=\"anonymous\" />");
                     stream.println("      <style>");
                     stream.println("        img { max-width: 250px; }");
                     stream.println("        image-container { width: 250px; }");
@@ -257,21 +259,6 @@ public class IconReporterMojo extends ClasspathMojoBase {
                 stream.println("   </div>");
                 if (js != null && !js.isEmpty()) {
                     stream.println(js);
-                } else {
-                    stream
-                            .println("   <script src=\"https://code.jquery.com/jquery-3.2.1.slim.min.js\" "
-                                    + "integrity=\"sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN\" "
-                                    + "crossorigin=\"anonymous\"></script>\n");
-                    stream
-                            .println("<script "
-                                    + "src=\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js\" "
-                                    + "integrity=\"sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q\" "
-                                    + "crossorigin=\"anonymous\"></script>\n");
-                    stream
-                            .println(
-                                    "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js\" "
-                                            + "integrity=\"sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl\" "
-                                            + "crossorigin=\"anonymous\"></script>");
                 }
                 stream.println(" </body>");
                 stream.println("</html>");
