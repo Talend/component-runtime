@@ -334,6 +334,18 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage("org.talend.test.failure.customicon")
+    void testFailureCustomIcon(final ExceptionSpec spec) {
+        spec.expectMessage("Some error were detected:\n- No icon: 'missing' found");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.customicon", success = true)
+    void testValidCustomIcon() {
+        // no-op
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid.datastore", success = true)
     void testSuccessDataStore() {
         // no-op
@@ -502,8 +514,23 @@ class ComponentValidatorTest {
             try {
                 Files.copy(localConfig.toPath(), output.toPath());
             } catch (final IOException e) {
-                fail("cant create test plugin");
+                fail("cant create test plugin: " + e.getMessage());
             }
+        }
+        final File icons = new File(root, "icons");
+        if (icons.exists()) {
+            new File(pluginDir, "icons").mkdirs();
+            ofNullable(icons.listFiles())
+                    .map(Stream::of)
+                    .orElseGet(Stream::empty)
+                    .filter(c -> c.getName().endsWith(".png"))
+                    .forEach(c -> {
+                        try {
+                            Files.copy(c.toPath(), new File(pluginDir, "icons/" + c.getName()).toPath());
+                        } catch (final IOException e) {
+                            fail("cant create test plugin: " + e.getMessage());
+                        }
+                    });
         }
     }
 }
