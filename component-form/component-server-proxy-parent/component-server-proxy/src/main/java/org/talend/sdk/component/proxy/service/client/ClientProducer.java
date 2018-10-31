@@ -65,7 +65,7 @@ public class ClientProducer {
             public CompletionStage<Ui> convert(final String family, final String lang, final ConfigTypeNode node,
                     final UiSpecContext context) {
                 return configurationService
-                        .filterNestedConfigurations(node, context)
+                        .filterNestedConfigurations(family, node, context)
                         .thenApply(configurationService::enforceFormIdInTriggersIfPresent)
                         .thenCompose(config -> super.convert(family, lang, config, context));
             }

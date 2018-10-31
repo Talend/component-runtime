@@ -17,6 +17,7 @@ package org.talend.sdk.component.proxy.service;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -40,6 +41,7 @@ import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 @CdiInject
@@ -101,6 +103,18 @@ class ConfigurationFormatterImplTest {
                 put("age", "20.0");
             }
         }, flatten);
+    }
+
+    @Test
+    void flattenMaxBatchSize() {
+        final JsonObject model = formatter
+                .unflatten(asList(
+                        new SimplePropertyDefinition("configuration", "configuration", "configuration", "OBJECT", null,
+                                new PropertyValidation(), emptyMap(), null, new LinkedHashMap<>()),
+                        new SimplePropertyDefinition("configuration.$maxBatchSize", "$maxBatchSize", "$maxBatchSize",
+                                "NUMBER", null, new PropertyValidation(), emptyMap(), null, new LinkedHashMap<>())),
+                        singletonMap("configuration.$maxBatchSize", "1000.0"));
+        assertEquals(1000., model.getJsonObject("configuration").getJsonNumber("$maxBatchSize").doubleValue());
     }
 
     @Test

@@ -15,30 +15,44 @@
  */
 package org.talend.sdk.component.proxy.service;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
-import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.form.model.uischema.UiSchema;
-import org.talend.sdk.component.proxy.service.client.UiSpecContext;
-import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
-import org.talend.sdk.component.proxy.test.CdiInject;
-import org.talend.sdk.component.proxy.test.WithServer;
-
-import javax.inject.Inject;
-import javax.json.bind.Jsonb;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.form.model.uischema.UiSchema;
+import org.talend.sdk.component.proxy.api.persistence.OnPersist;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+import org.talend.sdk.component.proxy.test.CdiInject;
+import org.talend.sdk.component.proxy.test.WithServer;
+
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpServer;
 
 @CdiInject
 @WithServer
@@ -50,6 +64,9 @@ class ActionServiceTest {
     @Inject
     @UiSpecProxy
     private Jsonb jsonb;
+
+    @Inject
+    private Event<OnPersist> persistEvent;
 
     @Test
     void http() throws Exception {
@@ -99,8 +116,8 @@ class ActionServiceTest {
     @Test
     void references() throws Exception {
         final Map<String, Object> result = service
-                .findBuiltInAction("builtin::references(type=thetype,name=thename)", new UiSpecContext("en", null),
-                        emptyMap())
+                .findBuiltInAction("builtin::references(family=TheTestFamily,type=thetype,name=thename)",
+                        new UiSpecContext("en", null), emptyMap())
                 .toCompletableFuture()
                 .get();
         assertEquals(singletonMap("items", asList(new HashMap<String, Object>() {
@@ -135,11 +152,46 @@ class ActionServiceTest {
         assertEquals("dataset-1", form.getJsonSchema().getTitle());
         assertEquals(3, form.getJsonSchema().getProperties().size()); // testConfig, config, $datasetMetadata
         assertEquals(3, form.getUiSchema().size());
-        assertEquals(
-                "{\"configuration\":{\"limit\":0.0,\"connection\":{"
-                        + "\"$selfReference\":\"actionServices.reloadFromParentId\",\"url\":\"http://foo\"}},"
-                        + "\"$formId\":\"dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE\"}",
+        assertJson(
+                "{\"testConfig\":{},\"$datasetMetadata\":{},"
+                        + "\"$formId\":\"dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE\","
+                        + "\"configuration\":{\"limit\":0.0,\"connection\":{\"$selfReference\":\"actionServices"
+                        + ".reloadFromParentId\",\"url\":\"http://foo\",\"$selfReferenceType\":\"dataset\"}}}",
                 form.getProperties().toString());
+    }
+
+    @Test
+    void createStage() throws Exception {
+        Map<String, Object> result = service
+                .createStage("TheTestFamily2", "suggestions", "suggestions-values", new UiSpecContext("en", k -> null),
+                        new HashMap<String, Object>() {
+
+                            {
+                                put("connection.$selfReference", "connectionIdFromPersistence");
+                                put("$formId",
+                                        Base64
+                                                .getUrlEncoder()
+                                                .withoutPadding()
+                                                .encodeToString("test-component#TheTestFamily2#datastore#Connection-1"
+                                                        .getBytes(StandardCharsets.UTF_8)));
+                            }
+                        })
+                .toCompletableFuture()
+                .get();
+        result.remove("cacheable");
+        assertEquals(singletonMap("items", asList(new HashMap<String, Object>() {
+
+            {
+                put("id", "1");
+                put("label", "value1");
+            }
+        }, new HashMap<String, Object>() {
+
+            {
+                put("id", "2");
+                put("label", "value2");
+            }
+        })), result);
     }
 
     @Test
@@ -155,15 +207,17 @@ class ActionServiceTest {
         assertNotNull(form.getUiSchema());
         assertNotNull(form.getProperties());
         assertNotNull(form.getMetadata());
-        assertEquals("dataset", form.getMetadata().getId());
-        assertEquals("dataset", form.getJsonSchema().getTitle());
-        assertEquals(3, form.getJsonSchema().getProperties().size()); // childrenType, restConfig, $datasetMetadata
+        assertNull(form.getMetadata().getId());
+        assertEquals("MultiDataset-One", form.getJsonSchema().getTitle());
+        assertEquals(3, form.getJsonSchema().getProperties().size()); // restConfig, $datasetMetadata, configuration
         assertEquals(3, form.getUiSchema().size());
 
-        UiSchema childrenType = form
+        final UiSchema childrenType = form
                 .getUiSchema()
                 .stream()
-                .filter(uiSchema -> uiSchema.getKey().equals("childrenType"))
+                .filter(it -> "$datasetMetadata".equals(it.getKey()))
+                .flatMap(it -> it.getItems().stream())
+                .filter(uiSchema -> uiSchema.getKey().equals("$datasetMetadata.childrenType"))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No childrenType UI schema found"));
         assertEquals("datalist", childrenType.getWidget());
@@ -180,12 +234,13 @@ class ActionServiceTest {
     @Test
     void reloadFromParentIdAndType() throws Exception {
         final Map<String, Object> parameters = new HashMap<>();
-        parameters.put("id", "actionServices.multiDataset");
+        parameters.put("id", "dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzZXQjTXVsdGlEYXRhc2V0LVR3bw");
         // we select MultiDataset-Two (see unit test above)
-        parameters.put("type", "dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzZXQjTXVsdGlEYXRhc2V0LVR3bw");
         final Map<String, Object> result = service
-                .findBuiltInAction("builtin::root::reloadFromParentEntityIdAndType", new UiSpecContext("en", k -> null),
-                        parameters)
+                .findBuiltInAction(
+                        "builtin::root::reloadFromParentEntityIdAndType(" + "type=dataset,"
+                                + "parentId=actionServices.multiDataset)",
+                        new UiSpecContext("en", k -> null), parameters)
                 .toCompletableFuture()
                 .get();
         final ActionService.NewForm form = jsonb.fromJson(jsonb.toJson(result), ActionService.NewForm.class);
@@ -199,10 +254,76 @@ class ActionServiceTest {
         assertEquals("MultiDataset-Two", form.getJsonSchema().getTitle());
         assertEquals(3, form.getJsonSchema().getProperties().size()); // testConfig, config, $datasetMetadata
         assertEquals(3, form.getUiSchema().size());
-        assertEquals(
-                "{\"configuration\":{\"connection\":{\"$selfReference\":\"actionServices.multiDataset\"}},\"$formId\":\"dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzZXQjTXVsdGlEYXRhc2V0LVR3bw\"}",
+
+        // it is important to ensure we have 1. the selfReference 2. the enrichment
+        assertJson("{\n" + "  \"testConfig\":{\n" + "\n" + "  },\n" + "  \"$datasetMetadata\":{\n"
+                + "    \"childrenType\":\"dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzZXQjTXVsdGlEYXRhc2V0LVR3bw\"\n"
+                + "  },\n"
+                + "  \"$formId\":\"dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzZXQjTXVsdGlEYXRhc2V0LVR3bw\",\n"
+                + "  \"configuration\":{\n" + "    \"connection\":{\n"
+                + "      \"$selfReference\":\"actionServices.multiDataset\",\n"
+                + "      \"$selfReferenceType\":\"dataset\"\n" + "    }\n" + "  }\n" + "}",
                 form.getProperties().toString());
         // this is really the form for MultiDataset-Two
         assertEquals("MultiDataset-Two", form.getMetadata().getName());
+    }
+
+    private static void assertJson(final String oldValue, final String newValue) {
+        try (final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig().withFormatting(true))) {
+            final JsonObject oldJson = jsonb.fromJson(oldValue, JsonObject.class);
+            final JsonObject newJson = jsonb.fromJson(newValue, JsonObject.class);
+            final boolean condition = areEquals(oldJson, newJson);
+            if (!condition) { // to have a nice debug view in the IDE in case of failure
+                assertEquals(jsonb.toJson(jsonb.fromJson(oldValue, Map.class)),
+                        jsonb.toJson(jsonb.fromJson(newValue, Map.class)));
+            }
+        } catch (final Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    private static boolean areEquals(final JsonValue oldValue, final JsonValue newValue) {
+        if (!oldValue.getValueType().equals(newValue.getValueType())) {
+            return false;
+        }
+        switch (oldValue.getValueType()) {
+        case STRING:
+            return JsonString.class.cast(oldValue).getString().equals(JsonString.class.cast(newValue).getString());
+        case NUMBER:
+            return JsonNumber.class.cast(oldValue).doubleValue() == JsonNumber.class.cast(newValue).doubleValue();
+        case OBJECT:
+            final JsonObject oldObject = oldValue.asJsonObject();
+            final JsonObject newObject = newValue.asJsonObject();
+            if (!oldObject.keySet().equals(newObject.keySet())) {
+                return false;
+            }
+            return oldObject
+                    .keySet()
+                    .stream()
+                    .map(key -> areEquals(oldObject.get(key), newObject.get(key)))
+                    .reduce(true, (a, b) -> a && b);
+        case ARRAY:
+            final JsonArray oldArray = oldValue.asJsonArray();
+            final JsonArray newArray = newValue.asJsonArray();
+            if (oldArray.size() != newArray.size()) {
+                return false;
+            }
+            if (oldArray.isEmpty()) {
+                return true;
+            }
+            final Iterator<JsonValue> oldIt = oldArray.iterator();
+            final Iterator<JsonValue> newIt = newArray.iterator();
+            while (oldIt.hasNext()) {
+                final JsonValue oldItem = oldIt.next();
+                final JsonValue newItem = newIt.next();
+                if (!areEquals(oldItem, newItem)) {
+                    return false;
+                }
+            }
+            return true;
+        default:
+            // value type check was enough
+            return true;
+        }
     }
 }
