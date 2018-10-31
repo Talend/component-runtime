@@ -276,6 +276,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                     stream.println("       </tbody>");
                     stream.println("     </table>");
                     stream.println("   </div>");
+                    stream.println(" </div>");
                     if (js != null && !js.isEmpty()) {
                         stream.println(js);
                     } else {
@@ -286,8 +287,8 @@ public class IconReporterMojo extends ClasspathMojoBase {
                                                 + "crossorigin=\"anonymous\"></script>");
                         stream
                                 .println("   <script "
-                                        + "src=\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/popper.min.js\" "
-                                        + "integrity=\"sha256-buCJtv5E9D2vlgk/iJYywBD8xf1M3lL7mzKJn3Oqa1A=\" "
+                                        + "src=\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js\" "
+                                        + "integrity=\"sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=\" "
                                         + "crossorigin=\"anonymous\"></script>");
                         stream
                                 .println("   <script "
