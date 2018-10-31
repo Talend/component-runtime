@@ -32,19 +32,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -94,7 +82,20 @@ public class ModelEnricherService {
                     new ActionReference("builtin::family", "builtin::http::dynamic_values", "dynamic_values", "http",
                             new ArrayList<>()),
                     new ActionReference("builtin::family", "builtin::references", "suggestions", "references",
-                            new ArrayList<>()))
+                            new ArrayList<>()),
+                    new ActionReference("builtin::family", "builtin::childrenTypes", "suggestions", "childrenTypes",
+                            new ArrayList<>(singleton(new SimplePropertyDefinition("parentId", "parentId",
+                                    "Parent identifier", "STRING", null, null,
+                                    singletonMap("definition::parameter::index", "0"), null, new LinkedHashMap<>())))),
+                    new ActionReference("builtin::family", "builtin::root::reloadFromParentEntityIdAndType",
+                            "reloadFromParentEntityIdAndType", "reloadFromParentEntityIdAndType",
+                            Arrays
+                                    .asList(new SimplePropertyDefinition("id", "id", "Configuration Identifier",
+                                            "STRING", null, null, singletonMap("definition::parameter::index", "0"),
+                                            null, new LinkedHashMap<>()),
+                                            new SimplePropertyDefinition("type", "type", "type", "STRING", null, null,
+                                                    singletonMap("definition::parameter::index", "1"), null,
+                                                    new LinkedHashMap<>()))))
             .map(act -> new ActionReference(act.getFamily(), act.getName(), act.getType(), act.getDisplayName(), Stream
                     .concat(act.getProperties().stream(), Stream
                             .of(new SimplePropertyDefinition("$formId", "$formId", "$formId", "STRING", null,

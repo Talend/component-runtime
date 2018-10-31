@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.proxy.test.component.multidataset;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
-@DataSet("dataset-2")
-public class DataSet2 {
+@DataSet("MultiDataset-Two")
+public class DataSetTwo {
+
+    @Option
+    private Connection connection;
 
     @Option
     @Required
-    private Connection2 connection;
+    private String datasetTwoConfig;
 
-    @Option
-    private int limit = 1000;
 }

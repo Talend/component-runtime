@@ -17,14 +17,12 @@ package org.talend.sdk.component.proxy.test.component;
 
 import java.util.Map;
 
-import lombok.Data;
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 
-@Data
 @Version(migrationHandler = Connection2.Connection2Migration.class)
 @DataStore("Connection-2")
 public class Connection2 {

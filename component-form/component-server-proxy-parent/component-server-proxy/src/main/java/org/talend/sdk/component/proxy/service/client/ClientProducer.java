@@ -65,7 +65,7 @@ public class ClientProducer {
             public CompletionStage<Ui> convert(final String family, final String lang, final ConfigTypeNode node,
                     final UiSpecContext context) {
                 return configurationService
-                        .filterNestedConfigurations(family, node, context)
+                        .filterNestedConfigurations(node, context)
                         .thenApply(configurationService::enforceFormIdInTriggersIfPresent)
                         .thenCompose(config -> super.convert(family, lang, config, context));
             }
@@ -108,7 +108,7 @@ public class ClientProducer {
                     final String action, final String lang, final Map<String, Object> params,
                     final UiSpecContext context) {
                 if (actionService.isBuiltin(action)) {
-                    return actionService.findBuiltInAction(family, action, context, params).toCompletableFuture();
+                    return actionService.findBuiltInAction(action, context, params).toCompletableFuture();
                 }
                 return super.action(family, type, action, lang, params, context);
             }

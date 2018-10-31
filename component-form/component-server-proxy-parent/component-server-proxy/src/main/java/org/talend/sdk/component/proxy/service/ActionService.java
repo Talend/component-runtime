@@ -15,36 +15,10 @@
  */
 package org.talend.sdk.component.proxy.service;
 
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
-import static java.util.Comparator.comparing;
-import static java.util.Objects.requireNonNull;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
-import javax.cache.annotation.CacheResult;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.ws.rs.client.CompletionStageRxInvoker;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.GenericType;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.Config;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
@@ -66,12 +40,35 @@ import org.talend.sdk.component.proxy.service.lang.Substitutor;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
+import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.cache.annotation.CacheResult;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.ws.rs.client.CompletionStageRxInvoker;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Slf4j
 @ApplicationScoped
@@ -140,55 +137,18 @@ public class ActionService {
     private Jsonb jsonb;
 
     private final GenericType<List<Map<String, Object>>> listType = new GenericType<List<Map<String, Object>>>() {
-
     };
 
     public CompletionStage<Map<String, Object>> createStage(final String family, final String type, final String action,
             final UiSpecContext context, final Map<String, Object> params) {
         // family is ignored since we virtually add it for all families (=local exec)
         if (isBuiltin(action)) {
-            return findBuiltInAction(family, action, context, params);
+            return findBuiltInAction(action, context, params);
         }
         if ("dynamic_values".equals(type)) {
             return self.findProposable(family, type, action, context);
         }
-        final Map<String, Object> newProps = new HashMap<>(params);
-        final CompletableFuture<?>[] referenceResolutions =
-                params.entrySet().stream().filter(it -> it.getKey().endsWith(".$selfReference")).map(it -> {
-                    final String configType =
-                            ofNullable(params.get(it.getKey() + "Type")).map(String::valueOf).orElse(null);
-                    return referenceService
-                            .findPropertiesById(configType, String.valueOf(it.getValue()), context)
-                            .thenCompose(form -> configurationClient
-                                    .getDetails(context.getLanguage(), form.getFormId(),
-                                            context.getPlaceholderProvider())
-                                    .thenApply(node -> {
-                                        final String propPrefix = node
-                                                .getProperties()
-                                                .stream()
-                                                .filter(p -> p.getName().equals(p.getPath()))
-                                                .findFirst()
-                                                .orElseThrow(() -> new IllegalStateException(
-                                                        "Can't find configuration for id :" + form.getFormId()))
-                                                .getName();
-                                        final String actionPrefix = it.getKey().replace(".$selfReference", "");
-                                        synchronized (newProps) {
-                                            ofNullable(form.getProperties())
-                                                    .ifPresent(props -> props
-                                                            .entrySet()
-                                                            .stream()
-                                                            .filter(k -> k.getKey().startsWith(propPrefix))
-                                                            .forEach(k -> newProps
-                                                                    .put(actionPrefix
-                                                                            + k.getKey().substring(propPrefix.length()),
-                                                                            k.getValue())));
-                                        }
-                                        return form;
-                                    }));
-                }).toArray(CompletableFuture[]::new);
-        return CompletableFuture
-                .allOf(referenceResolutions)
-                .thenCompose(ignored -> client.action(family, type, action, context.getLanguage(), newProps, context));
+        return client.action(family, type, action, context.getLanguage(), params, context);
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.actions.proposables",
@@ -205,20 +165,28 @@ public class ActionService {
 
     // IMPORTANT: ensure to register the action in
     // org.talend.sdk.component.proxy.service.ModelEnricherService.BUILTIN_ACTIONS
-    public CompletionStage<Map<String, Object>> findBuiltInAction(final String family, final String action,
-            final UiSpecContext ctx, final Map<String, Object> params) {
+    public CompletionStage<Map<String, Object>> findBuiltInAction(final String action, final UiSpecContext ctx,
+            final Map<String, Object> params) {
         switch (action) {
         case "builtin::roots":
             return findRoots(ctx.getLanguage(), ctx.getPlaceholderProvider());
         case "builtin::root::reloadFromId":
             return ofNullable(params.get("id"))
                     .map(id -> createNewFormFromId(String.valueOf(id), ctx))
-                    .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
+                    .orElseGet(() -> completedFuture(emptyMap()));
         case "builtin::root::reloadFromParentEntityId":
             return ofNullable(params.get("id"))
-                    .map(id -> createNewFormFromParentEntityId(String.valueOf(params.get("type")), family,
-                            String.valueOf(id), ctx))
-                    .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
+                    .map(id -> createNewFormFromParentEntityId(String.valueOf(id), ctx))
+                    .orElseGet(() -> completedFuture(emptyMap()));
+        case "builtin::root::reloadFromParentEntityIdAndType":
+            return createNewFormFromParentEntityIdAndType(
+                    ofNullable(params.get("id"))
+                            .map(String::valueOf)
+                            .orElseThrow(() -> new IllegalArgumentException("id parameter not provided")),
+                    ofNullable(params.get("type"))
+                            .map(String::valueOf)
+                            .orElseThrow(() -> new IllegalArgumentException("value parameter not provided")),
+                    ctx);
         default:
             if (action.startsWith("builtin::http::dynamic_values(")) {
                 return http(ctx.getPlaceholderProvider(), csvToParams(action, "builtin::http::dynamic_values("));
@@ -294,37 +262,81 @@ public class ActionService {
                 .thenApply(jsonMapService::toJsonMap);
     }
 
-    private CompletableFuture<Map<String, Object>> createNewFormFromParentEntityId(final String family,
-            final String configType, final String entityId, final UiSpecContext context) {
+    private CompletableFuture<Map<String, Object>> createNewFormFromParentEntityId(final String entityId,
+            final UiSpecContext context) {
         return referenceService
-                .findPropertiesById(configType, entityId, context)
+                .findPropertiesById(entityId, context)
                 .thenCompose(form -> configurationClient
                         .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
                         .thenCompose(nodes -> {
-                            final ConfigTypeNode childSpec = nodes
+                            final List<ConfigTypeNode> childrenSpec = nodes
                                     .getNodes()
                                     .values()
                                     .stream()
                                     .filter(node -> node.getParentId() != null
                                             && node.getParentId().equals(form.getFormId()))
-                                    .min(comparing(ComparableConfigTypeNode::new))
-                                    .orElseThrow(
-                                            () -> new IllegalStateException("No child form for " + form.getFormId()));
+                                    .collect(toList());
                             final ConfigTypeNode parentSpec = nodes.getNodes().get(form.getFormId());
+                            // only one child type found, we render the child form
+                            if (childrenSpec.size() == 1) {
+                                final ConfigTypeNode childSpec = childrenSpec.get(0);
+                                return configurationClient
+                                        .getDetails(context.getLanguage(), parentSpec.getId(),
+                                                context.getPlaceholderProvider())
+                                        .thenCompose(parent -> configurationClient
+                                                .getDetails(context.getLanguage(), childSpec.getId(),
+                                                        context.getPlaceholderProvider())
+                                                .thenCompose(child -> toNewForm(context, child, entityId, parentSpec)));
+                                // no children found -> error
+                            } else if (childrenSpec.size() == 0) {
+                                throw new IllegalStateException("No child form for " + form.getFormId());
+                                // more than one children found
+                                // we re-render the parent type creation form and add a new field to it
+                            } else {
+                                // we arbitrary take the first child to retrieve the configuration type
+                                final ConfigTypeNode childSpec = childrenSpec.get(0);
+                                // we create the configuration type of the child
+                                final ConfigTypeNode childConfigType = new ConfigTypeNode(
+                                        childSpec.getConfigurationType(), 0, "", childSpec.getConfigurationType(),
+                                        childSpec.getConfigurationType(), childSpec.getConfigurationType(),
+                                        Collections.emptySet(), Collections.emptyList(), Collections.emptySet());
+                                return createChildrenChooserForm(context, childConfigType, childrenSpec, entityId);
+                            }
+                        }))
+                .thenApply(jsonMapService::toJsonMap)
+                .toCompletableFuture();
+    }
+
+    private CompletionStage<Map<String, Object>> createNewFormFromParentEntityIdAndType(String entityId, String type,
+            UiSpecContext context) {
+        return referenceService
+                .findPropertiesById(entityId, context)
+                .thenCompose(form -> configurationClient
+                        .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
+                        .thenCompose(nodes -> {
+                            final ConfigTypeNode parentSpec = nodes.getNodes().get(form.getFormId());
+                            final ConfigTypeNode childSpec = nodes
+                                    .getNodes()
+                                    .values()
+                                    .stream()
+                                    .filter(node -> node.getParentId() != null
+                                            && node.getParentId().equals(form.getFormId()) && node.getId().equals(type))
+                                    .findFirst()
+                                    .orElseThrow(() -> new IllegalArgumentException(
+                                            "No child for " + entityId + " and type " + type));
                             return configurationClient
                                     .getDetails(context.getLanguage(), parentSpec.getId(),
                                             context.getPlaceholderProvider())
                                     .thenCompose(parent -> configurationClient
                                             .getDetails(context.getLanguage(), childSpec.getId(),
                                                     context.getPlaceholderProvider())
-                                            .thenCompose(child -> toNewForm(family, context, child, entityId, parent)));
+                                            .thenCompose(child -> toNewForm(context, child, entityId, parent)));
                         }))
-                .thenApply(jsonMapService::toJsonMap)
-                .toCompletableFuture();
+                .thenApply(jsonMapService::toJsonMap);
     }
 
-    private CompletionStage<NewForm> toNewForm(final String family, final UiSpecContext context,
-            final ConfigTypeNode node, final String refId, final ConfigTypeNode parentFormSpec) {
+    private CompletionStage<NewForm> toNewForm(final UiSpecContext context, final ConfigTypeNode node,
+            final String refId, final ConfigTypeNode parentFormSpec) {
         return self.getNewForm(context, node.getId()).thenCompose(newForm -> {
             final Map<String, String> configInstance = new HashMap<>();
             final SimplePropertyDefinition refProp = node
@@ -341,18 +353,10 @@ public class ActionService {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException(
                             "No parent matched for form " + node.getId() + "(entity=" + refId + ")"));
-
-            // assumed not in an array
-            configInstance.put(refProp.getPath() + ".$selfReference", refId);
-            configInstance.put(refProp.getPath() + ".$selfReferenceType", node.getConfigurationType());
-
+            configInstance.put(refProp.getPath() + ".$selfReference", refId); // assumed not in an array
             return propertiesService
-                    .filterProperties(family, node.getProperties(), context)
-                    .thenCompose(props -> propertiesService.replaceReferences(context, props, configInstance)) // todo:
-                    // drop
-                    // since
-                    // we use
-                    // $selfReference
+                    .filterProperties(node.getProperties(), context)
+                    .thenCompose(props -> propertiesService.replaceReferences(context, props, configInstance))
                     .thenApply(props -> {
                         if (node.getProperties() != null && !node.getProperties().isEmpty()) {
                             final Map<String, String> mergedWithDefaults =
@@ -364,6 +368,47 @@ public class ActionService {
                         return addFormId(node.getId(), newForm);
                     });
         });
+    }
+
+    private CompletionStage<NewForm> createChildrenChooserForm(final UiSpecContext context, ConfigTypeNode node,
+            List<ConfigTypeNode> childrenSpec, String parentEntityId) {
+        CompletionStage<Node> configType = configurationClient
+                .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
+                .thenApply(nodes -> new ConfigTypeNode()) // TODO: default family here, do we need to retrieve the
+                                                          // family from all nodes here ?
+                .thenApply(family -> new Node(node.getId(), node.getDisplayName(), family.getId(),
+                        // TODO: do we need an icon here ?
+                        family.getDisplayName(), null, node.getEdges(), node.getVersion(), node.getName()));
+
+        ConfigTypeNode formModel = modelEnricherService.enrich(node, context.getLanguage());
+        formModel.getProperties().add(createChildrenChooserProperty(childrenSpec, parentEntityId));
+        return uiSpecService
+                // TODO don't we need a family here
+                .convert("", context.getLanguage(), formModel, context)
+                .thenCombine(configType, UiNode::new)
+                .thenApply(this::toNewFormResponse);
+    }
+
+    private LinkedHashMap<String, String> createConfigTypesValues(List<ConfigTypeNode> configTypes) {
+        return configTypes
+                .stream()
+                .collect(Collectors
+                        .toMap(ConfigTypeNode::getId, ConfigTypeNode::getDisplayName, (x, y) -> x, LinkedHashMap::new));
+    }
+
+    private SimplePropertyDefinition createChildrenChooserProperty(List<ConfigTypeNode> childrenTypes,
+            String parentEntityId) {
+        PropertyValidation validation = new PropertyValidation();
+        validation.setRequired(true);
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("action::reloadFromParentEntityIdAndType", "builtin::root::reloadFromParentEntityIdAndType");
+        // TODO can we avoid the hard-coded reference to "connection". We have the value in parentEntityId
+        metadata.put("action::reloadFromParentEntityIdAndType::parameters", "$datasetMetadata.connection,.");
+        String name = "childrenType";
+        LinkedHashMap<String, String> values = createConfigTypesValues(childrenTypes);
+        validation.setEnumValues(values.keySet());
+        // TODO manage translations
+        return new SimplePropertyDefinition(name, name, name, "enum", "", validation, metadata, "", values);
     }
 
     private NewForm addFormId(final String nodeId, final NewForm newForm) {
@@ -397,27 +442,26 @@ public class ActionService {
 
     private CompletionStage<UiNode> findUiSpec(final String id, final UiSpecContext context) {
         if (id.isEmpty()) {
-            return CompletableFuture
-                    .completedFuture(datastoreNode)
+            return completedFuture(datastoreNode)
                     .thenApply(node -> modelEnricherService.enrich(node, context.getLanguage()))
                     .thenCompose(detail -> toUiNode(context, detail, null, noFamily));
         }
         final CompletionStage<ComponentIndices> allComponents =
                 componentClient.getAllComponents(context.getLanguage(), context.getPlaceholderProvider());
-        return configurationClient
-                .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
-                .thenApply(nodes -> configurationService.getFamilyOf(id, nodes))
-                .thenCompose(familyNode -> getEnrichedNode(id, context, familyNode.getName())
-                        .thenCompose(detail -> allComponents
-                                .thenCompose(components -> toUiNode(context, detail, components, familyNode))));
+        return getEnrichedNode(id, context)
+                .thenCompose(detail -> configurationClient
+                        .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
+                        .thenCompose(configs -> allComponents.thenCompose(components -> {
+                            final ConfigTypeNode family = configurationService.getFamilyOf(id, configs);
+                            return toUiNode(context, detail, components, family);
+                        })));
     }
 
-    private CompletionStage<ConfigTypeNode> getEnrichedNode(final String id, final UiSpecContext context,
-            final String family) {
+    private CompletionStage<ConfigTypeNode> getEnrichedNode(final String id, final UiSpecContext context) {
         return getNode(id, context.getLanguage(), context.getPlaceholderProvider())
                 .thenApply(node -> modelEnricherService.enrich(node, context.getLanguage()))
                 .thenCompose(node -> propertiesService
-                        .filterProperties(family, node.getProperties(), context)
+                        .filterProperties(node.getProperties(), context)
                         .thenApply(newProps -> {
                             node.setProperties(newProps);
                             return node;
@@ -439,16 +483,15 @@ public class ActionService {
             final Function<String, String> placeholderProvider) {
         return id.isEmpty()
                 // todo: drop that hardcoded datastore string
-                ? CompletableFuture
-                        .completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore", "datastore",
-                                emptySet(), new ArrayList<>(), new ArrayList<>()))
+                ? completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore", "datastore",
+                        emptySet(), new ArrayList<>(), new ArrayList<>()))
                 : configurationClient.getDetails(lang, id, placeholderProvider);
     }
 
     private CompletionStage<Ui> toUiSpec(final ConfigTypeNode detail, final ConfigTypeNode family,
             final UiSpecContext context) {
         return configurationService
-                .filterNestedConfigurations(family.getName(), detail, context)
+                .filterNestedConfigurations(detail, context)
                 .thenCompose(newDetail -> uiSpecService
                         .convert(family.getName(), context.getLanguage(), newDetail, context));
     }

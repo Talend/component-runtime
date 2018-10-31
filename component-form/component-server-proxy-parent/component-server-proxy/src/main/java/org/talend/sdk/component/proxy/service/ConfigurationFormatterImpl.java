@@ -28,7 +28,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -116,11 +115,9 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
 
         final JsonObjectBuilder json = factory.createObjectBuilder();
 
-        final Collection<String> matched = new HashSet<>();
         new ArrayList<>(definitions)
                 .stream()
                 .filter(it -> it.getPath().equals(prefix + it.getName()))
-                .peek(it -> matched.add(it.getPath()))
                 .forEach(prop -> onProperty(prefix, definitions, config, json, prop));
 
         // handle virtual properties ($xxx) which are not spec-ed
@@ -128,8 +125,6 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
                 .entrySet()
                 .stream()
                 .filter(it -> it.getKey().startsWith("$") && !it.getKey().contains("."))
-                .filter(it -> matched.add(prefix + it.getKey())) // if matched from the def (with type) don't override
-                                                                 // it
                 .forEach(e -> json.add(e.getKey(), e.getValue()));
 
         return json.build();

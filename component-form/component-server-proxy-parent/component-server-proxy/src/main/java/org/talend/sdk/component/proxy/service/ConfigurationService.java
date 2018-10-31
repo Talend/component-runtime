@@ -56,10 +56,10 @@ public class ConfigurationService {
     @Inject
     private PropertiesService propertiesService;
 
-    public CompletionStage<ConfigTypeNode> filterNestedConfigurations(final String family, final ConfigTypeNode node,
+    public CompletionStage<ConfigTypeNode> filterNestedConfigurations(final ConfigTypeNode node,
             final UiSpecContext context) {
         return propertiesService
-                .filterProperties(family, node.getProperties(), context)
+                .filterProperties(node.getProperties(), context)
                 .thenApply(props -> new ConfigTypeNode(node.getId(), node.getVersion(), node.getParentId(),
                         node.getConfigurationType(), node.getName(), node.getDisplayName(), node.getEdges(), props,
                         node.getActions()));

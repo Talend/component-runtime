@@ -125,8 +125,8 @@ class ModelEnricherServiceTest {
 
         final Collection<UiSchema.NameValue> proposals =
                 ui.getUiSchema().iterator().next().getItems().iterator().next().getTitleMap();
-        assertEquals(4, proposals.size());
-        assertEquals(asList("Connection-1", "Connection-2", "Connection-3", "defaulttest"),
+        assertEquals(5, proposals.size());
+        assertEquals(asList("Connection-1", "Connection-2", "Connection-3", "MultiDataset-Connection", "defaulttest"),
                 proposals.stream().map(UiSchema.NameValue::getName).collect(toList()));
     }
 
