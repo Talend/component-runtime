@@ -93,8 +93,8 @@ Several methods allow you to debug custom components created with Talend Compone
 === Debugging the runtime or the Guess schema option of a component
 
 . From your development tool, create a new *Remote configuration*, and copy the *Command line arguments for running remote JVM* field. For example, `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`, where:
-** *suspend* defines whether you need to access the defined configuration to run the remote JVM. Possible values are `n` (no, default value) or `y` (yes).
-** *address* is the port used for the remote configuration. Make sure this port is available. +
+** the *suspend* parameter of the -agentlib argument specifies whether you want to suspend the debugged JVM until the debugger attaches to it. Possible values are `n` (no, default value) or `y` (yes).
+** the *address* parameter of the -agentlib argument is the port used for the remote configuration. Make sure this port is available. +
 +
 image::talend_studio_debug_remote_config_1.png[IntelliJ remote configuration, 70%]
 . Open Talend Studio.
