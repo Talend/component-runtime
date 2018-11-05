@@ -51,6 +51,10 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        executeInLoader();
+    }
+
+    protected void executeInLoader() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             getLog().info(getClass().getSimpleName() + " is skipped");
             return;

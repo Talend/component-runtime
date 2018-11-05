@@ -57,6 +57,14 @@ public class PartitionMapperImplTest {
     }
 
     @Test
+    void createStreaming() {
+        final PartitionMapperImpl mapper =
+                new PartitionMapperImpl("Root", "Test", null, "Plugin", true, new SampleMapper());
+        final Input input = mapper.create();
+        assertTrue(StreamingInputImpl.class.isInstance(input));
+    }
+
+    @Test
     void serialization() throws IOException, ClassNotFoundException {
         final Mapper mapper = new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper());
         final Mapper copy = Serializer.roundTrip(mapper);

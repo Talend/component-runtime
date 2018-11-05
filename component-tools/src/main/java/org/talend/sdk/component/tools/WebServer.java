@@ -81,7 +81,7 @@ public class WebServer implements Runnable {
             try {
                 latch.await(2, MINUTES);
             } catch (final InterruptedException e) {
-                Thread.interrupted();
+                Thread.currentThread().interrupt();
                 return;
             }
             log.info("\n\n  You can now access the UI at http://localhost:" + port + "\n\n");

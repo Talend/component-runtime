@@ -269,7 +269,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                     try {
                         latch.await(timeout, MINUTES);
                     } catch (final InterruptedException e) {
-                        Thread.interrupted();
+                        Thread.currentThread().interrupt();
                     } finally {
                         permissions.release();
                     }
@@ -282,7 +282,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                     try {
                         permissions.acquire();
                     } catch (final InterruptedException e) {
-                        Thread.interrupted();
+                        Thread.currentThread().interrupt();
                         fail(e.getMessage());
                     }
                     return !records.isEmpty();
@@ -304,7 +304,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                         try {
                             f.get(5, SECONDS);
                         } catch (final InterruptedException e) {
-                            Thread.interrupted();
+                            Thread.currentThread().interrupt();
                         } catch (final ExecutionException | TimeoutException e) {
                             // no-op
                         } finally {

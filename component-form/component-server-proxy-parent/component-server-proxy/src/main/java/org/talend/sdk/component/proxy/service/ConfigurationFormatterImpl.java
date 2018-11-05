@@ -123,13 +123,12 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
                 .peek(it -> matched.add(it.getPath()))
                 .forEach(prop -> onProperty(prefix, definitions, config, json, prop));
 
-        // handle virtual properties ($xxx) which are not spec-ed
+        // handle virtual *properties* ($xxx) which are not spec-ed, ex: foo.$maxBatchSize
         config
                 .entrySet()
                 .stream()
                 .filter(it -> it.getKey().startsWith("$") && !it.getKey().contains("."))
-                .filter(it -> matched.add(prefix + it.getKey())) // if matched from the def (with type) don't override
-                                                                 // it
+                .filter(it -> matched.add(prefix + it.getKey())) // if matched from the def (w/ type) don't override it
                 .forEach(e -> json.add(e.getKey(), e.getValue()));
 
         return json.build();

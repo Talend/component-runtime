@@ -16,7 +16,6 @@
 package org.talend.sdk.component.proxy.test.component;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.action.Suggestable;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
@@ -29,8 +28,4 @@ public class DataSet2 {
 
     @Option
     private int limit = 1000;
-
-    @Option
-    @Suggestable(value = "suggestions", parameters = "connection")
-    private String item;
 }

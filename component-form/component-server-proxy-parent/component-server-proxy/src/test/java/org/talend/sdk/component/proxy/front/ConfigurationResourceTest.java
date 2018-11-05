@@ -162,9 +162,9 @@ class ConfigurationResourceTest {
     void listRootConfigs(final WebTarget proxyClient) {
         final Nodes roots = proxyClient.path("configurations").request(APPLICATION_JSON_TYPE).get(Nodes.class);
         assertNotNull(roots);
-        assertEquals(4, roots.getNodes().size());
+        assertEquals(5, roots.getNodes().size());
         roots.getNodes().forEach((k, c) -> assertNotNull(c.getIcon()));
-        assertEquals(asList("Connection-1", "Connection-2", "Connection-3", "defaulttest"),
+        assertEquals(asList("Connection-1", "Connection-2", "Connection-3", "MultiDataset-Connection", "defaulttest"),
                 roots.getNodes().values().stream().map(Node::getLabel).sorted().collect(toList()));
     }
 

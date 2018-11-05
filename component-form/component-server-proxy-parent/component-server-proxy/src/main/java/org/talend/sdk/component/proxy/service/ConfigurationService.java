@@ -16,13 +16,16 @@
 package org.talend.sdk.component.proxy.service;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.talend.sdk.component.proxy.model.ProxyErrorDictionary.NO_FAMILY_FOR_CONFIGURATION;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -181,5 +184,15 @@ public class ConfigurationService {
                 .stream()
                 .filter(p -> "true".equals(p.getMetadata().get("proxyserver::formId")))
                 .findFirst();
+    }
+
+    public List<ConfigTypeNode> findChildren(final String formId, final ConfigTypeNodes nodes) {
+        return nodes
+                .getNodes()
+                .values()
+                .stream()
+                .filter(node -> node.getParentId() != null && node.getParentId().equals(formId))
+                .sorted(comparing(ConfigTypeNode::getDisplayName).thenComparing(ConfigTypeNode::getName))
+                .collect(toList());
     }
 }

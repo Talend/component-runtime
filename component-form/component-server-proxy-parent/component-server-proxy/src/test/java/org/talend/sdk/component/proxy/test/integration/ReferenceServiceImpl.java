@@ -51,15 +51,15 @@ public class ReferenceServiceImpl implements ReferenceService {
     }
 
     @Override
-    public CompletionStage<Form> findPropertiesById(final String configType, final String id,
-            final UiSpecContext context) {
+    public CompletionStage<Form> findPropertiesById(final String table, final String id, final UiSpecContext context) {
         if (id.equals("actionServices.reloadFromParentId")) {
             return completedFuture(Form
                     .builder()
                     .formId("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ")
                     .properties(singletonMap("configuration.url", "http://foo"))
                     .build());
-        } else if (id.equals("connectionIdFromPersistence")) {
+        }
+        if (id.equals("connectionIdFromPersistence")) {
             final String formId = Base64
                     .getUrlEncoder()
                     .withoutPadding()
@@ -73,6 +73,13 @@ public class ReferenceServiceImpl implements ReferenceService {
                     put("$formId", formId);
                 }
             }).build());
+        }
+        if (id.equals("actionServices.multiDataset")) {
+            return completedFuture(Form
+                    .builder()
+                    .formId("dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzdG9yZSNNdWx0aURhdGFzZXQtQ29ubmVjdGlvbg")
+                    .properties(singletonMap("", ""))
+                    .build());
         }
         final OnPersist byId = persistence.findById(id);
         return CompletableFuture

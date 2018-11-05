@@ -77,7 +77,7 @@ jobs:
       env:
       - STEP=Deploy Artifacts
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: mvn clean deploy -e -q $DEPLOY_OPTS
+      script: travis_wait 50 mvn clean deploy -e -q $DEPLOY_OPTS
       jdk: oraclejdk8
 
     - stage: master_build

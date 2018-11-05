@@ -120,7 +120,7 @@ public class WebsocketClient {
 
             latch.await(1, MINUTES);
         } catch (final InterruptedException e) {
-            Thread.interrupted();
+            Thread.currentThread().interrupt();
             fail(e.getMessage());
         }
         try {

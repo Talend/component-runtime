@@ -134,7 +134,9 @@ public class ComponentValidator extends BaseTask {
             // but it should be enough for now
             components.forEach(c -> {
                 try {
-                    findPackageOrFail(c, Icon.class);
+                    final Class<?> pck = findPackageOrFail(c, Icon.class);
+                    final Icon annotation = pck.getAnnotation(Icon.class);
+                    ofNullable(validateIcon(annotation)).ifPresent(errors::add);
                 } catch (final IllegalArgumentException iae) {
                     errors.add(iae.getMessage());
                 }
@@ -202,6 +204,16 @@ public class ComponentValidator extends BaseTask {
             throw new IllegalStateException(
                     "Some error were detected:" + preparedErrors.stream().collect(joining("\n- ", "\n- ", "")));
         }
+    }
+
+    private String validateIcon(final Icon annotation) {
+        if (annotation.value() == Icon.IconType.CUSTOM) {
+            final String icon = annotation.custom();
+            if (classes.length > 0 && !new File(classes[0], "icons/" + icon + "_icon32.png").exists()) {
+                return "No icon: '" + icon + "' found, did you create 'icons/" + icon + "_icon32.png' in resources?";
+            }
+        }
+        return null;
     }
 
     private void validateOutputConnection(final List<Class<?>> components, final Set<String> errors) {
@@ -618,10 +630,11 @@ public class ComponentValidator extends BaseTask {
 
     private void validateMetadata(final List<Class<?>> components, final Set<String> errors) {
         errors.addAll(components.stream().map(component -> {
-            if (!component.isAnnotationPresent(Version.class) || !component.isAnnotationPresent(Icon.class)) {
+            final Icon icon = component.getAnnotation(Icon.class);
+            if (!component.isAnnotationPresent(Version.class) || icon == null) {
                 return "Component " + component + " should use @Icon and @Version";
             }
-            return null;
+            return validateIcon(icon);
         }).filter(Objects::nonNull).sorted().collect(toSet()));
     }
 

@@ -15,16 +15,12 @@
  */
 package org.talend.sdk.component.proxy.test.component;
 
-import static java.util.Arrays.asList;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
-import org.talend.sdk.component.api.service.completion.SuggestionValues;
-import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
@@ -47,15 +43,6 @@ public class TheService {
     @DynamicValues("action-with-error")
     public Values actionWithError() {
         throw new IllegalStateException("This is an error from the action.");
-    }
-
-    @Suggestions(value = "suggestions")
-    public SuggestionValues suggestions(final Connection2 connection) {
-        if (connection == null) {
-            throw new NullPointerException();
-        }
-        return new SuggestionValues(true, asList(new SuggestionValues.Item("1", connection.getUrl()),
-                new SuggestionValues.Item("2", connection.getUsername())));
     }
 
 }

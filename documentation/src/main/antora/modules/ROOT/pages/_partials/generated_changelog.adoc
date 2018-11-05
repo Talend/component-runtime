@@ -4,11 +4,19 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1121[TCOMP-1121^]: [tacokit proxy] suggestion trigger creation issue
+- link:https://jira.talendforge.org/browse/TCOMP-1122[TCOMP-1122^]: [tacokit proxy] slefRefrence filter configuration type by name, type and family
 - link:https://jira.talendforge.org/browse/TCOMP-1123[TCOMP-1123^]: Processor component onNext duplicate columns in record for rowStructs
 - link:https://jira.talendforge.org/browse/TCOMP-1126[TCOMP-1126^]: UiSpecService shouldn't show the documentation by default
+- link:https://jira.talendforge.org/browse/TCOMP-1129[TCOMP-1129^]: form core - $selfReference breaks triggers
 - link:https://jira.talendforge.org/browse/TCOMP-1130[TCOMP-1130^]: component form - default value of maxBatchSize prop loose it type.
 - link:https://jira.talendforge.org/browse/TCOMP-1131[TCOMP-1131^]: [beam integration] Ensure Coder is contextual (classloader)
 - link:https://jira.talendforge.org/browse/TCOMP-1132[TCOMP-1132^]: Ensure beam custom Coders implement equals.hashCode for beam contract
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1143[TCOMP-1143^]: Ensure icons are validated and fail the build if a custom one is missing (validate mojo)
 
 
 === Work Item
@@ -20,6 +28,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1125[TCOMP-1125^]: Extend CustomPropertyConverter to pass the convertion context
 - link:https://jira.talendforge.org/browse/TCOMP-1127[TCOMP-1127^]: Record doesn't support null values
 - link:https://jira.talendforge.org/browse/TCOMP-1133[TCOMP-1133^]: CXF 3.2.7 upgrade
+- link:https://jira.talendforge.org/browse/TCOMP-1134[TCOMP-1134^]: Ensure any input/output have a dataset
+- link:https://jira.talendforge.org/browse/TCOMP-1135[TCOMP-1135^]: Ensure any dataset has a datastore
+- link:https://jira.talendforge.org/browse/TCOMP-1136[TCOMP-1136^]: deprecate "generate" mojo
 
 
 == Version 1.1.1

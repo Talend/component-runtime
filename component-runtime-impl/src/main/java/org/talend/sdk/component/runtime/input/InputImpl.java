@@ -57,10 +57,9 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     @Override
     public Object next() {
         if (next == null) {
-            next = findMethods(Producer.class).findFirst().get();
-            converters = new RecordConverters();
+            init();
         }
-        final Object record = doInvoke(this.next);
+        final Object record = readNext();
         if (record == null) {
             return null;
         }
@@ -75,6 +74,15 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     @Override
     public Object getDelegate() {
         return delegate;
+    }
+
+    protected Object readNext() {
+        return doInvoke(this.next);
+    }
+
+    protected void init() {
+        next = findMethods(Producer.class).findFirst().get();
+        converters = new RecordConverters();
     }
 
     private Jsonb jsonb() {
@@ -101,22 +109,22 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
         return recordBuilderFactory;
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    protected Object writeReplace() throws ObjectStreamException {
         return new SerializationReplacer(plugin(), rootName(), name(), serializeDelegate());
     }
 
     @AllArgsConstructor
-    private static class SerializationReplacer implements Serializable {
+    protected static class SerializationReplacer implements Serializable {
 
-        private final String plugin;
+        protected String plugin;
 
-        private final String component;
+        protected String component;
 
-        private final String name;
+        protected String name;
 
-        private final byte[] value;
+        protected byte[] value;
 
-        Object readResolve() throws ObjectStreamException {
+        protected Object readResolve() throws ObjectStreamException {
             try {
                 return new InputImpl(component, name, plugin, loadDelegate());
             } catch (final IOException | ClassNotFoundException e) {
@@ -124,7 +132,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
             }
         }
 
-        private Serializable loadDelegate() throws IOException, ClassNotFoundException {
+        protected Serializable loadDelegate() throws IOException, ClassNotFoundException {
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
                     ContainerFinder.Instance.get().find(plugin).classloader())) {
                 return Serializable.class.cast(ois.readObject());

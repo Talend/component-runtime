@@ -74,8 +74,9 @@ public class PropertiesService {
                     // note: we can move to suggestions later
                     enrichedMetadata
                             .put("action::dynamic_values",
-                                    "builtin::references(type=" + ref.getMetadata().get("configurationtype::type")
-                                            + ",name=" + ref.getMetadata().get("configurationtype::name") + ")");
+                                    "builtin::references(family=" + family + "," + "type="
+                                            + ref.getMetadata().get("configurationtype::type") + "," + "name="
+                                            + ref.getMetadata().get("configurationtype::name") + ")");
 
                     return new SimplePropertyDefinition(ref.getPath(), ref.getName(), ref.getDisplayName(), "STRING",
                             null,
