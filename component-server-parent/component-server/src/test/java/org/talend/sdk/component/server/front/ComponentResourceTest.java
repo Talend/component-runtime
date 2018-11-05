@@ -313,7 +313,7 @@ class ComponentResourceTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(7, index.getComponents().size());
+        assertEquals(8, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
@@ -323,8 +323,10 @@ class ComponentResourceTest {
         assertComponent("the-test-component", "chain", "file", "file", component, 1);
         assertComponent("the-test-component", "chain", "list", "The List Component", component, 1);
         assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
+        assertComponent("collection-of-object", "config", "configurationWithArrayOfObject",
+                "configurationWithArrayOfObject", component, 1);
         assertComponent("file-component", "file", "output", "output", component, 1);
         assertComponent("jdbc-component", "jdbc", "input", "input", component, 2);
-        list.forEach(c -> assertNotNull(c.getId().getPluginLocation().startsWith("org.talend.test2:")));
+        assertTrue(list.stream().anyMatch(c -> c.getId().getPluginLocation().startsWith("org.talend.test2:")));
     }
 }

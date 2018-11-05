@@ -104,6 +104,12 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             final String version = "0.0.1";
             createComponent(m2, groupId, artifactId, version, generator::createFilePlugin);
         }
+        {
+            final String groupId = "org.talend.test";
+            final String artifactId = "collection-of-object";
+            final String version = "0.0.1";
+            createComponent(m2, groupId, artifactId, version, generator::createConfigPlugin);
+        }
         if (Boolean.getBoolean("components.server.beam.active")) {
             final String groupId = System.getProperty("components.sample.beam.groupId");
             final String artifactId = System.getProperty("components.sample.beam.artifactId");
@@ -207,6 +213,17 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
         private File createFilePlugin(final File target) {
             return createRepackaging(target, "org/talend/sdk/component/server/test/file", null);
+        }
+
+        private File createConfigPlugin(final File target) {
+            return createRepackaging(target, "org/talend/sdk/component/server/test/configuration", out -> {
+                try {
+                    out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
+                    out.closeEntry();
+                } catch (final IOException e) {
+                    fail(e.getMessage());
+                }
+            });
         }
 
         private File createRepackaging(final File target, final String sourcePackage,

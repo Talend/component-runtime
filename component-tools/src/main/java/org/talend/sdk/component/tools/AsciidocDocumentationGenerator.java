@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Locale;
@@ -198,8 +199,27 @@ public class AsciidocDocumentationGenerator extends BaseTask {
         final ParameterBundle bundle = findBundle(p);
         return "|" + bundle.displayName(parent).orElse(p.getName()) + '|'
                 + bundle.documentation(parent).orElseGet(() -> findDocumentation(p)) + '|'
-                + ofNullable(defaultValueInspector.findDefault(instance, p)).orElse("-") + '|'
+                + ofNullable(findDefault(p, instance)).orElse("-") + '|'
                 + renderConditions(p.getPath(), p.getMetadata()) + '|' + p.getPath();
+    }
+
+    private String findDefault(final ParameterMeta p, final Object instance) {
+        switch (p.getType()) {
+            case NUMBER:
+            case BOOLEAN:
+            case STRING:
+            case ENUM:
+                return ofNullable(instance).map(String::valueOf).map(it -> it.isEmpty() ? "<empty>" : it).orElse(null);
+            case ARRAY:
+                return instance == null ?
+                        null :
+                        String.valueOf(Collection.class.isInstance(instance) ?
+                                Collection.class.cast(instance).size() :
+                                Array.getLength(instance));
+            case OBJECT:
+            default:
+                return null;
+        }
     }
 
     private String renderConditions(final String path, final Map<String, String> metadata) {

@@ -84,6 +84,9 @@ public class DefaultValueInspector {
         if (param.getPath().startsWith("$") || param.getName().startsWith("$")) { // virtual param
             return null;
         }
+        if (Collection.class.isInstance(rootInstance)) {
+            return findCollectionField(rootInstance, param);
+        }
         Class<?> current = rootInstance.getClass();
         while (current != null) {
             try {
@@ -97,14 +100,19 @@ public class DefaultValueInspector {
             }
             current = current.getSuperclass();
         }
-        if (Collection.class.isInstance(rootInstance)) {
-            final Collection<?> collection = Collection.class.cast(rootInstance);
-            if (!collection.isEmpty()) {
-                return findField(collection.iterator().next(), param);
-            }
-            return null;
-        }
         throw new IllegalArgumentException("Didn't find field '" + param.getName() + "' in " + rootInstance);
+    }
+
+    private Object findCollectionField(final Object rootInstance, final ParameterMeta param) {
+        final Collection<?> collection = Collection.class.cast(rootInstance);
+        if (!collection.isEmpty()) {
+            final Object next = collection.iterator().next();
+            if (param.getPath().endsWith("[${index}]")) {
+                return next;
+            }
+            return findField(next, param);
+        }
+        return null;
     }
 
     private String findName(final ParameterMeta meta) {
