@@ -107,7 +107,7 @@
     <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
     <jaxrs-analyzer-extension.version>0.0.6</jaxrs-analyzer-extension.version>
     <groovy.version>3.0.0-alpha-3</groovy.version>
-    <gmavenplus.version>1.6</gmavenplus.version>
+    <gmavenplus.version>1.6.2</gmavenplus.version>
     <dependency-plugin.version>3.0.2</dependency-plugin.version>
     <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
     <clean-plugin.version>3.0.0</clean-plugin.version>
