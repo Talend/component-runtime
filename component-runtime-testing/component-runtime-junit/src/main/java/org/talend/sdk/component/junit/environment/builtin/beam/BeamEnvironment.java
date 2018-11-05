@@ -15,13 +15,9 @@
  */
 package org.talend.sdk.component.junit.environment.builtin.beam;
 
-import static java.util.Optional.ofNullable;
-
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependencies;
@@ -47,43 +43,25 @@ public abstract class BeamEnvironment extends ClassLoaderEnvironment {
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             skipBeamSdk = false;
         }
-        resetBeamCache();
+        resetBeamCache(false);
         final AutoCloseable delegate = super.doStart(clazz, annotations);
         return () -> {
-            try {
-                delegate.close();
-            } finally {
-                resetBeamCache();
-            }
+            resetBeamCache(true);
+            delegate.close();
         };
     }
 
-    private void resetBeamCache() {
-        // if beam 2.4.0 includes it: PipelineOptionsfactory.resetCache()
-
+    private void resetBeamCache(final boolean highLevelLog) {
         try { // until resetCache() is part of beam do it the hard way
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final Class<?> pof = loader.loadClass("org.apache.beam.sdk.options.PipelineOptionsFactory");
 
-            Stream.of("COMBINED_CACHE", "INTERFACE_CACHE", "SUPPORTED_PIPELINE_RUNNERS").forEach(mapField -> {
-                try {
-                    final Field field = pof.getDeclaredField(mapField);
-                    field.setAccessible(true);
-                    ofNullable(Map.class.cast(field.get(null))).ifPresent(Map::clear);
-                } catch (final Exception e) {
-                    // no-op: this is a best effort clean until beam supports it correctly
-                }
-            });
-
-            // 2. reinit
-            // todo: SUPPORTED_PIPELINE_RUNNERS reinit but it is final so we just expect the user to set the runner for
-            // now
-
-            final Method initializeRegistry = pof.getDeclaredMethod("resetRegistry");
+            final Method initializeRegistry = pof.getDeclaredMethod("resetCache");
             initializeRegistry.setAccessible(true);
             initializeRegistry.invoke(null);
         } catch (final NoClassDefFoundError | Exception ex) {
-            log.warn(ex.getMessage());
+            final Consumer<String> logger = highLevelLog ? log::warn : log::debug;
+            logger.accept(ex.getMessage());
         }
     }
 
