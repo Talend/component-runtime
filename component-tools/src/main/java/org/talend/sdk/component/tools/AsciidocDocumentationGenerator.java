@@ -205,20 +205,19 @@ public class AsciidocDocumentationGenerator extends BaseTask {
 
     private String findDefault(final ParameterMeta p, final Object instance) {
         switch (p.getType()) {
-            case NUMBER:
-            case BOOLEAN:
-            case STRING:
-            case ENUM:
-                return ofNullable(instance).map(String::valueOf).map(it -> it.isEmpty() ? "<empty>" : it).orElse(null);
-            case ARRAY:
-                return instance == null ?
-                        null :
-                        String.valueOf(Collection.class.isInstance(instance) ?
-                                Collection.class.cast(instance).size() :
-                                Array.getLength(instance));
-            case OBJECT:
-            default:
-                return null;
+        case NUMBER:
+        case BOOLEAN:
+        case STRING:
+        case ENUM:
+            return ofNullable(instance).map(String::valueOf).map(it -> it.isEmpty() ? "<empty>" : it).orElse(null);
+        case ARRAY:
+            return instance == null ? null
+                    : String
+                            .valueOf(Collection.class.isInstance(instance) ? Collection.class.cast(instance).size()
+                                    : Array.getLength(instance));
+        case OBJECT:
+        default:
+            return null;
         }
     }
 

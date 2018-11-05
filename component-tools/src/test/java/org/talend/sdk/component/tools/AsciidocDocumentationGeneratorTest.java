@@ -46,8 +46,8 @@ class AsciidocDocumentationGeneratorTest {
     void generateAdoc(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
         final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
         new AsciidocDocumentationGenerator(
-                new File[] {
-                        copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(), info.getTestMethod().get().getName()) },
+                new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
+                        info.getTestMethod().get().getName()) },
                 output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
@@ -59,8 +59,8 @@ class AsciidocDocumentationGeneratorTest {
                             + "|input|the input value|-|Always enabled|configuration.input\n"
                             + "|nested|it is nested|-|Always enabled|configuration.nested\n"
                             + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore\n"
-                            + "|user|the user to log in|unknown|Always enabled|configuration.nested.user\n" + "|===\n" + "\n"
-                            + "== my2\n" + "\n" + "super my component2\n" + "\n" + "=== Configuration\n" + "\n"
+                            + "|user|the user to log in|unknown|Always enabled|configuration.nested.user\n" + "|===\n"
+                            + "\n" + "== my2\n" + "\n" + "super my component2\n" + "\n" + "=== Configuration\n" + "\n"
                             + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
                             + "|Display Name|Description|Default Value|Enabled If|Configuration Path\n"
                             + "|ds|ds configuration|-|Always enabled|ds\n"
@@ -101,14 +101,16 @@ class AsciidocDocumentationGeneratorTest {
                 output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
-            assertEquals("== activeif\n" + "\n" + "=== Configuration\n" + "\n" + "[cols=\"d,d,m,a,e\",options=\"header\"]\n"
-                    + "|===\n" + "|Display Name|Description|Default Value|Enabled If|Configuration Path\n"
+            assertEquals("== activeif\n" + "\n" + "=== Configuration\n" + "\n"
+                    + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "|Display Name|Description|Default Value|Enabled If|Configuration Path\n"
                     + "|configuration|configuration configuration|-|Always enabled|configuration\n"
                     + "|advanced|advanced configuration|false|Always enabled|configuration.advanced\n"
                     + "|advancedOption|advancedOption configuration|-|All of the following conditions are met:\n" + "\n"
                     + "- `advanced` is equal to `false`\n" + "- `query` is empty\n" + "|configuration.advancedOption\n"
                     + "|query|query configuration|-|All of the following conditions are met:\n" + "\n"
-                    + "- `toggle` is equal to `true`\n" + "- `type` is equal to `mysql` or `oracle`\n" + "|configuration.query\n"
+                    + "- `toggle` is equal to `true`\n" + "- `type` is equal to `mysql` or `oracle`\n"
+                    + "|configuration.query\n"
                     + "|toggle|toggle configuration|false|Always enabled|configuration.toggle\n"
                     + "|token|token configuration|-|`toggle` is equal to `true`|configuration.token\n"
                     + "|type|type configuration|-|Always enabled|configuration.type\n" + "|===\n",
@@ -123,8 +125,8 @@ class AsciidocDocumentationGeneratorTest {
         final File outputHtml = new File(temporaryFolder.getRoot(), testMethod + ".html");
         final File outputPdf = new File(temporaryFolder.getRoot(), testMethod + ".pdf");
         new AsciidocDocumentationGenerator(
-                new File[] {
-                        copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(), info.getTestMethod().get().getName()) },
+                new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
+                        info.getTestMethod().get().getName()) },
                 output, "SuperTitle", 2, new HashMap<String, String>() {
 
                     {
@@ -150,7 +152,10 @@ class AsciidocDocumentationGeneratorTest {
         final File scannable = new File(tmp, getClass().getName() + "_" + name);
         final File classDir = new File(scannable, pckPath);
         classDir.mkdirs();
-        ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty).filter(c -> c.getName().endsWith(".class"))
+        ofNullable(root.listFiles())
+                .map(Stream::of)
+                .orElseGet(Stream::empty)
+                .filter(c -> c.getName().endsWith(".class"))
                 .forEach(c -> {
                     try {
                         Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());

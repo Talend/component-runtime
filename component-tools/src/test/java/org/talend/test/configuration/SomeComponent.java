@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Processor(name = "configurationWithArrayOfObject")
 @RequiredArgsConstructor
 public class SomeComponent {
+
     private final AggregateConfiguration configuration;
 
     @ElementListener

@@ -44,7 +44,8 @@ public class AggregateConfiguration implements Serializable {
     @Option
     @Required
     @Documentation("The list of operation that will be executed.")
-    private List<AggregateConfiguration.AggregateOperation> operations = asList(new AggregateConfiguration.AggregateOperation());
+    private List<AggregateConfiguration.AggregateOperation> operations =
+            asList(new AggregateConfiguration.AggregateOperation());
 
     @Data
     @OptionsOrder({ "fieldPath", "operation", "outputFieldPath" })
