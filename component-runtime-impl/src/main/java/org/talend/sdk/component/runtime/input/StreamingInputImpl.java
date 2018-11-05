@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.AllArgsConstructor;
@@ -34,6 +35,8 @@ public class StreamingInputImpl extends InputImpl {
     private transient Thread shutdownHook;
 
     private final AtomicBoolean running = new AtomicBoolean();
+
+    private transient Semaphore semaphore;
 
     public StreamingInputImpl(final String rootName, final String name, final String plugin,
             final Serializable instance, final RetryConfiguration retryConfiguration) {
@@ -49,28 +52,57 @@ public class StreamingInputImpl extends InputImpl {
 
     @Override
     protected Object readNext() {
-        final RetryStrategy strategy = retryConfiguration.getStrategy();
-        int retries = retryConfiguration.getMaxRetries();
-        while (running.get() && retries > 0) {
-            final Object next = super.readNext();
-            if (next != null) {
-                strategy.reset();
-                return next;
-            }
-
-            retries--;
-            try {
-                final long millis = strategy.nextPauseDuration();
-                if (millis < 0) { // assume it means "give up"
-                    prepareStop();
-                } else if (millis > 0) {
-                    sleep(millis);
-                } // else if millis == 0 no need to call any method
-            } catch (final InterruptedException e) {
-                prepareStop(); // stop the stream
-            }
+        if (!running.get()) {
+            return null;
         }
-        return null;
+        try {
+            semaphore.acquire();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        }
+
+        try {
+            final RetryStrategy strategy = retryConfiguration.getStrategy();
+            int retries = retryConfiguration.getMaxRetries();
+            while (running.get() && retries > 0) {
+                final Object next = super.readNext();
+                if (next != null) {
+                    strategy.reset();
+                    return next;
+                }
+
+                retries--;
+                try {
+                    final long millis = strategy.nextPauseDuration();
+                    if (millis < 0) { // assume it means "give up"
+                        prepareStop();
+                    } else if (millis > 0) { // we can wait 1s but not minutes to quit
+                        if (millis < 1000) {
+                            sleep(millis);
+                        } else {
+                            long remaining = millis;
+                            while (running.get() && remaining > 0) {
+                                final long current = Math.min(remaining, 250);
+                                remaining -= current;
+                                sleep(current);
+                            }
+                        }
+                    } // else if millis == 0 no need to call any method
+                } catch (final InterruptedException e) {
+                    prepareStop(); // stop the stream
+                }
+            }
+            return null;
+        } finally {
+            semaphore.release();
+        }
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        semaphore = new Semaphore(1);
     }
 
     @Override
@@ -94,6 +126,11 @@ public class StreamingInputImpl extends InputImpl {
             } catch (final IllegalStateException itse) {
                 // ok to ignore
             }
+        }
+        try {
+            semaphore.acquire();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
