@@ -188,7 +188,7 @@ public class SimpleComponentRuleTest {
                         try {
                             latch.await(1, MINUTES);
                         } catch (final InterruptedException e) {
-                            Thread.interrupted();
+                            Thread.currentThread().interrupt();
                             fail();
                         }
                         return done.compareAndSet(false, true) ? Thread.currentThread().getName() : null;
