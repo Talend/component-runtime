@@ -477,4 +477,3 @@
 - link:https://jira.talendforge.org/browse/TCOMP-719[TCOMP-719^]: Support Input Definition
 - link:https://jira.talendforge.org/browse/TCOMP-720[TCOMP-720^]: Support Output Definition
 - link:https://jira.talendforge.org/browse/TCOMP-721[TCOMP-721^]: Initial Widget Definitions
-

@@ -46,7 +46,7 @@ When you generate your project and import it in your IDE, icon and version both 
 
 - *@Icon*: Sets an icon key used to represent the component.
 You can use a custom key with the `custom()` method but the icon may not be rendered properly. The icon defaults to *Star*. +
-You can check the link:icons.html[icon gallery] to check out the available icons before creating your own. +
+You can use a custom icon from the link:icons.html[icon gallery] or create your own. +
 Learn how to set a custom icon for your component in xref:component-defining-custom-icon.adoc[this section].
 - *@Version*: Sets the component version. 1 by default. +
 Learn how to manage different versions and migrations between your component versions in xref:component-versions-and-migration.adoc[this section].

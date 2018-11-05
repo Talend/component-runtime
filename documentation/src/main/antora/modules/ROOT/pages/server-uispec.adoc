@@ -43,10 +43,10 @@ Converters are sorted respecting to the `@Priority` value. If the annotation is 
 
 === Enabling help/hints
 
-It is possible to show under the inputs the help about each property.
+It is possible to show the help about each property under the inputs.
 To do that, you must set a `PropertyContext.Configuration` instance on `UiSpecService` with the `includeDocumentationMetadata` attribute set to `true`.
 
-IMPORTANT: this is only available with default documentation so it will likely be in english only.
+NOTE: This feature is only available with default content of the `@Documentation` annotation of a property. This means that hints are only available in the default language of the component.
 
 === Client in Play
 

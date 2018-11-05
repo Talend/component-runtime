@@ -52,8 +52,8 @@ Adjust the migration code structure you need behind the `MigrationHandler`, base
 
 == Difference between migrating a component configuration and a nested configuration
 
-A nested configuration will always migrate itself with any root prefix whereas the component configuration
-always roots the full configuration. Typically if your model is the following:
+A nested configuration always migrates itself with any root prefix, whereas a component configuration always roots the full configuration. +
+For example, if your model is the following:
 
 [source,java]
 ----

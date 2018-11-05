@@ -3,27 +3,38 @@
 :description: How to install and configure components developed with Talend Component Kit in Talend Open Studio
 :keywords: component server, deploy, install
 
-Before integrating your components into the Studio, learn how to build and deploy them using xref:build-tools-maven.adoc[Maven] or xref:build-tools-gradle.adoc[Gradle] Talend Component Kit plugins.
+Integrate components developed using Talend Component Kit to link:https://sourceforge.net/projects/talend-studio/[Talend Studio] in a few steps. Also learn how to enable the developer and debugging modes to iterate on your component development.
 
-== Design
+image::tutorial_build_job_run.png[Job run,70%]
 
-The Studio integration relies on the Component Server (see <<documentation-rest.adoc#, Web>> for more details).
+== Version compatibility
 
-When the plugin is deployed, it starts a local server that the Studio uses to gather data about the components.
+The version of Talend Component Kit you need to use to develop new components depends on the version of Talend Studio in which components will be integrated.
+
+[options="header",role="table-striped table-hover table-ordered"]
+|===
+|*Talend product*|*Talend Component Kit version*
+|Studio 7.1.1|Framework until 1.1.1
+|Studio 7.0.1|Framework until 0.0.5
+|===
 
 == Installing the components
 
-. Copy `org.talend.sdk.component.studio-integration.jar` in the `$STUDIO_HOME/plugins` directory of the Studio.
-. Restart the Studio.
-. Make sure that the `component-server` dependencies and `commons-cli` 1.4 are in the Studio Maven repository. +
-If you install any other component, ensure its dependencies are in the repository as well.
+Learn how to build and deploy components to Talend Studio using xref:build-tools-maven.adoc[Maven] or xref:build-tools-gradle.adoc[Gradle] Talend Component Kit plugins.
 
-TIP: you can set the `maven.repository` value to `global` in `$STUDIO_HOME/configuration/config.ini` to reuse your local Maven repository.
+This can be done using the `deploy-in-studio` goal from your development environment.
 
-== Configuring the components
+If you are unfamiliar with component development, you can also follow xref:tutorial-create-my-first-component.adoc[this example] to go through the entire process, from creating a project to using your new component in Talend Studio.
 
-The configuration is done in the `$STUDIO_HOME/configuration/config.ini` file.
+== Configuring the component server
 
+The Studio integration relies on the Component Server, that the Studio uses to gather data about components created using Talend Component Kit.
+
+You can change the default configuration of component server by modifying the `$STUDIO_HOME/configuration/config.ini` file.
+
+The following parameters are available:
+
+[options="header",role="table-striped table-hover table-ordered"]
 |===
 | Name | Description | Default
 | component.environment | Enables the developer mode when set to `dev` | -
@@ -34,7 +45,7 @@ The configuration is done in the `$STUDIO_HOME/configuration/config.ini` file.
 | component.java.coordinates | A list of comma-separated GAV (groupId:artifactId:version) of components to register | -
 | component.java.registry | A properties file with values matching component GAV (groupId:artifactId:version) registered at startup | -
 | component.java.port | Sets the port to use for the server | random
-| components.server.beam.active | Active, if set to true, beam support (_Experimental_). It requires beam sdk java core dependencies to be available. | false
+| components.server.beam.active | Active, if set to true, Beam support (_Experimental_). It requires Beam SDK Java core dependencies to be available. | false
 
 | component.server.jul.forceConsole
 a| Adds a console handler to JUL to see logs in the console. This can be helpful in development because the formatting is clearer than the OSGi one in `workspace/.metadata/.log`.
@@ -46,18 +57,13 @@ is `%1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS %1$Tp %2$s%n%4$s: %5$s%6$s%n`, but for 
 | false
 |===
 
-A common developer `configuration/config.ini` file uses the following specific entries:
+Here is an example of a common developer `configuration/config.ini` file:
 
-.configuration/config.ini
+.configuration/config.ini example
 [source,properties]
 ----
 # use local .m2 instead of embedded studio one
 maven.repository = global
-
-# load these component modules
-component.java.coordinates = \
-    group1:artifact1:0.0.1,\
-    group2:artifact2:0.2.1
 
 # during development, see developer model part
 component.environment = dev
@@ -67,7 +73,56 @@ component.server.jul.forceConsole = true
 java.util.logging.SimpleFormatter.format = [%4$s] %5$s%6$s%n
 ----
 
-=== Random port when running concurrent studio instances
+[[developer-mode]]
+=== Enabling the developer mode
+
+The developer mode is especially useful to iterate on your component development and to avoid closing and restarting Talend Studio every time you make a change to a component. It adds a Talend Component Kit button in the main toolbar:
+
+image::studio-reload-button.png[Studio Reload Button,70%]
+
+When clicking this button, all components developed with the Talend Component Kit framework are reloaded. The cache is invalidated and the components refreshed.
+
+IMPORTANT: You still need to add and remove the components to see the changes.
+
+To enable it, simply set the `component.environment` parameter to `dev` in the `config.ini` configuration file of the component server.
+
+== Debugging your custom component in Talend Studio
+
+Several methods allow you to debug custom components created with Talend Component Kit in Talend Studio.
+
+=== Debugging the runtime or the Guess schema option of a component
+
+. From your development tool, create a new *Remote configuration*, and copy the *Command line arguments for running remote JVM* field. For example, `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`, where:
+** the *suspend* parameter of the -agentlib argument specifies whether you want to suspend the debugged JVM until the debugger attaches to it. Possible values are `n` (no, default value) or `y` (yes).
+** the *address* parameter of the -agentlib argument is the port used for the remote configuration. Make sure this port is available. +
++
+image::talend_studio_debug_remote_config_1.png[IntelliJ remote configuration, 70%]
+. Open Talend Studio.
+. Create a new Job that uses the component you want to debug or open an existing one that already uses it.
+. Go to the *Run* tab of the Job and select *Use specific JVM arguments*.
+. Click *New* to add an argument.
+. In the popup window, paste the arguments copied from the IDE. +
++
+image::talend_studio_debug_remote_config_2.png[IntelliJ remote configuration, 70%]
+. Enter the corresponding debug mode:
+** To debug the runtime, run the Job and access the remote host configured in the IDE.
+** To debug the *Guess schema* option, click the *Guess schema* action button of the component and access the remote host configured in the IDE.
+
+=== Debugging UI actions and validations
+
+. From your development tool, create a new *Remote configuration*, and copy the *Command line arguments for running remote JVM* field. For example, `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`, where:
+** *suspend* defines whether you need to access the defined configuration to run the remote JVM. Possible values are `n` (no, default value) or `y` (yes).
+** *address* is the port used for the remote configuration. Make sure this port is available. +
++
+image::talend_studio_debug_remote_config_1.png[IntelliJ remote configuration, 70%]
+. Access the installation directory of your Talend Sutdio.
+. Open the `.ini` file corresponding to your Operating System. For example, `TOS_DI-win-x86_64.ini`.
+. Paste the arguments copied from the IDE in a new line of the file. +
++
+image::talend_studio_debug_remote_config_3.png[IntelliJ remote configuration, 60%]
+. Go to Talend Studio to use the component, and access the host host configured in the IDE.
+
+== Random port when running concurrent studio instances
 
 If you run multiple Studio instances automatically in parallel, you can run into some issues with the random port computation. For example on a CI platform. For that purpose, you can create the  `$HOME/.talend/locks/org.talend.sdk.component.studio-integration.lock` file.
 
@@ -75,19 +130,6 @@ Then, when a server starts, it acquires a lock on that file and prevents another
 
 However, it is highly unlikely to happen on a desktop. In that case, forcing a different value through `component.java.port` in your `config.ini` file is a better solution for local installations.
 
-[[developer-mode]]
-=== Developer mode
-
-The developer mode adds a Talend Component Kit button in the main toolbar:
-
-image::studio-reload-button.png[Studio Reload Button]
-
-When clicking this button, all components developed with the Talend Component Kit framework are reloaded.
-The cache is invalidated and the components refreshed.
-
-IMPORTANT: You still need to add and remove the components to see the changes.
-
-The developer mode can be very useful to see some updates in components without having to restart entirely the Studio.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
