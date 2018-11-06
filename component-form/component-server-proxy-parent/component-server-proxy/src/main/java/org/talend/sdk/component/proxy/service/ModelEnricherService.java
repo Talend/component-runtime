@@ -15,10 +15,10 @@
  */
 package org.talend.sdk.component.proxy.service;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -120,11 +120,8 @@ public class ModelEnricherService {
                                                     new LinkedHashMap<>())))),
                             new ActionReference("builtin::family", "builtin::root::reloadFromParentEntityIdAndType",
                                     "reloadFromParentEntityIdAndType", "reloadFromParentEntityIdAndType",
-                                    new ArrayList<>(asList(new SimplePropertyDefinition("id", "id",
-                                            "Configuration Identifier", "STRING", null, null,
-                                            singletonMap("definition::parameter::index", "0"), null,
-                                            new LinkedHashMap<>()),
-                                            new SimplePropertyDefinition("type", "type", "type", "STRING", null, null,
+                                    new ArrayList<>(singletonList(
+                                            new SimplePropertyDefinition("id", "id", "id", "STRING", null, null,
                                                     singletonMap(
                                                             "definition::parameter::index", "1"),
                                                     null, new LinkedHashMap<>())))))
