@@ -106,11 +106,6 @@ public class ModelEnricherService {
                                                     "Parent identifier", "STRING", null, null,
                                                     singletonMap("definition::parameter::index", "0"), null,
                                                     new LinkedHashMap<>())))),
-                            new ActionReference("builtin::family", "builtin::root::reloadFromParentEntityIdAndType",
-                                    "reloadFromParentEntityIdAndType", "reloadFromParentEntityIdAndType",
-                                    new ArrayList<>(singleton(new SimplePropertyDefinition("type", "type", "type",
-                                            "STRING", null, null, singletonMap("definition::parameter::index", "0"),
-                                            null, new LinkedHashMap<>())))),
                             new ActionReference("builtin::family", "builtin::childrenTypes", "suggestions",
                                     "childrenTypes",
                                     new ArrayList<>(
