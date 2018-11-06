@@ -94,7 +94,10 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
             int index = 0;
             final Map<String, String> converted = new HashMap<>();
             for (final JsonValue value : array) {
-                converted.putAll(flattenValue(new AbstractMap.SimpleEntry<>(e.getKey() + '[' + index + ']', value)));
+                if (value.getValueType() != JsonValue.ValueType.NULL) { // ignore null values
+                    converted
+                            .putAll(flattenValue(new AbstractMap.SimpleEntry<>(e.getKey() + '[' + index + ']', value)));
+                }
                 index++;
             }
             return converted;
