@@ -146,8 +146,8 @@ public class Github {
         return stream.toArray(CompletableFuture[]::new);
     }
 
-    private Contributor loadContributor(String token, Client client, WebTarget gravatarBase,
-            GithubContributor contributor) {
+    private Contributor loadContributor(final String token, final Client client, final WebTarget gravatarBase,
+                                        final GithubContributor contributor) {
         if (contributor.url == null) { // anon contributor
 
             try {
