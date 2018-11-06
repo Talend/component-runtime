@@ -1,0 +1,64 @@
+= Implementing streaming on a component
+:page-partial:
+:description: How to make your input component ready for a continuous flow of data.
+:keywords: stream, infinite, partition mapper, input
+
+By default, input components are designed to receive a one-time batch of data to process. By enabling the streaming mode, you can instead set your component to process a continuous incoming flow of data.
+
+When streaming is enabled on an input component, the component tries to pull data from its producer. When no data is pulled, it waits for a defined period of time before trying to pull data again, and so on. This period of time between tries is defined by a strategy.
+
+This document explains how to configure this strategy and the cases where it can fit your needs.
+
+== Choosing between batch and streaming
+
+Before enabling streaming on your component, make sure that it fits the scope and requirements of your project and that regular batch processing cannot be used instead.
+
+Streaming is designed to help you dealing with real-time or near real-time data processing cases, and should be used only for such cases.
+Enabling streaming will impact the performance when processing batches of data.
+
+== Enabling streaming from the Component Kit starter
+
+You can enable streaming right from the design phase of the project by enabling the *Stream* toggle in the basic configuration of your future component in the Component Kit Starter.
+
+Doing so adds a default streaming-ready configuration to your component when generating the project. +
+This default configuration implements a constant pause duration of 500 ms between retries, with no limit of retries.
+
+image::starter/starter_enabling_streaming.png[Stream Toggle,80%]
+
+== Configuring streaming from the project
+
+If streaming was not enabled at all during the project generation or if you need to implement a more specific configuration, you can change the default settings according to your needs:
+
+. Add the `infinite=true` parameter to your component class.
+. Define the number of retries allowed in the component family xref:services-built-in.adoc#_localconfiguration[LocalConfiguration], using the `talend.input.streaming.retry.maxRetries` parameter. It is set by default to `Integer.MAX_VALUE`.
+. Define the pausing strategy between retries in the component family `LocalConfiguration`, using the `talend.input.streaming.retry.strategy` parameter. Possible values are:
+** `constant` (default). It sets a constant pause duration between retries.
+** `exponential`. It sets an exponential backoff pause duration. +
++
+NOTE: See tables below for more details about each strategy.
+
+=== Constant strategy
+
+[options="header, autowidth",role="table-striped table-hover table-ordered"]
+|===
+|Parameter|Description|Default value
+|`talend.input.streaming.retry.constant.timeout`|Pause duration for the `constant` strategy, in ms.|`500`
+|===
+
+=== Exponential strategy
+
+[options="header, autowidth",role="table-striped table-hover table-ordered"]
+|====
+|Parameter|Description|Default value
+|`talend.input.streaming.retry.exponential.exponent`|Exponent of the exponential calculation.|`1.5`
+|`talend.input.streaming.retry.exponential.randomizationFactor`|Randomization factor used in the calculation.|`0.5`
+|`talend.input.streaming.retry.exponential.maxDuration`|Maximum pausing duration between two retries.|`5*60*1000` (5 minutes)
+|`talend.input.streaming.retry.exponential.initialBackOff`|Initial backoff value.|`1000` (1 second)
+|====
+
+The values of these parameters are then used in the following calculation to determine the exact pausing duration between two retries:
+
+
+`currentIntervalMillis = Math.min(initialBackOff * Math.pow(exponent, iteration), max);` +
+`randomOffset = (Math.random() * 2 - 1) * randomizationFactor * currentIntervalMillis;` +
+`nextBackoffMillis = Math.min(max, Math.round(currentIntervalMillis + randomOffset));`
