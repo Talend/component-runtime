@@ -258,11 +258,16 @@ public class ActionService {
     private CompletionStage<Map<String, Object>> references(final UiSpecContext context,
             final Map<String, Object> params) {
         // family is not yet used, required changes in the SPI, to do when the module moves
-        final String family =
-                String.class.cast(requireNonNull(params.get("family"), "reference family must not be null"));
+        final String family = ofNullable(params.get("family")).map(String::valueOf).orElse(null);
+        if (family == null) {
+            log.error("No family sent to builtin::references trigger, this will likely break very soon");
+        }
         final String type = String.class.cast(requireNonNull(params.get("type"), "reference type must not be null"));
         final String name = String.class.cast(requireNonNull(params.get("name"), "reference name must not be null"));
-        return referenceService.findReferencesByTypeAndName(type, name, context).thenApply(jsonMapService::toJsonMap);
+        // todo: add family in this spi and likely make {family, type, name} an object named "ConfigurationTypeKey"
+        return referenceService
+                .findReferencesByTypeAndName(family, type, name, context)
+                .thenApply(jsonMapService::toJsonMap);
     }
 
     private Map<String, Object> csvToParams(final String value, final String prefix) {

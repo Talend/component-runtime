@@ -25,7 +25,14 @@ import lombok.Data;
 
 public interface ReferenceService {
 
+    @Deprecated // this method must disappear since the family is missing from the lookup which leads to inconsistent
+                // results
     CompletionStage<Values> findReferencesByTypeAndName(String type, String name, UiSpecContext context);
+
+    default CompletionStage<Values> findReferencesByTypeAndName(String family, String type, String name,
+            UiSpecContext context) {
+        return findReferencesByTypeAndName(type, name, context);
+    }
 
     CompletionStage<Form> findPropertiesById(String configType, String id, UiSpecContext context);
 
