@@ -136,6 +136,30 @@ class ReflectionServiceTest {
     }
 
     @Test
+    void validationRequiredList() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredList.class);
+        factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.list[0]", "1");
+            }
+        });
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(emptyMap()));
+    }
+
+    @Test
+    void validationRequiredListObject() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredListObject.class);
+        factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.list[0].regex", "az");
+            }
+        });
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(emptyMap()));
+    }
+
+    @Test
     void validationMinListKo() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig2.class);
         assertThrows(IllegalArgumentException.class, () -> factory.apply(new HashMap<String, String>() {
@@ -541,6 +565,20 @@ class ReflectionServiceTest {
         private String regex;
     }
 
+    public static class RequiredList {
+
+        @Option
+        @Required
+        private List<String> list;
+    }
+
+    public static class RequiredListObject {
+
+        @Option
+        @Required
+        private List<SomeConfig5> list;
+    }
+
     public static class FakeComponent {
 
         public FakeComponent(@Configuration("myconfig") final MyConfig config) {
@@ -564,6 +602,14 @@ class ReflectionServiceTest {
         }
 
         public FakeComponent(@Option("root") final SomeConfig5 config5) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final RequiredList root) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final RequiredListObject root) {
             // no-op
         }
     }

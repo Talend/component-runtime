@@ -583,7 +583,7 @@ public class ReflectionService {
                     return specificConfig;
                 }, Map.Entry::getValue));
 
-        doValidate(metas, preparedLists, normalizedConfig);
+        doValidate(metas, preparedObjects, preparedLists, normalizedConfig);
 
         // now bind it all to the recipe and builder the instance
         preparedMaps.forEach(recipe::setProperty);
@@ -613,15 +613,17 @@ public class ReflectionService {
         return ofNullable(m.getSource()).map(ParameterMeta.Source::name).orElse(m.getName());
     }
 
-    private void doValidate(final List<ParameterMeta> metas, final Map<String, Object> preparedLists,
-            final Map<String, Object> normalizedConfig) {
+    private void doValidate(final List<ParameterMeta> metas, final Map<String, Object> preparedObjects,
+            final Map<String, Object> preparedLists, final Map<String, Object> normalizedConfig) {
         if (metas != null && !Boolean.getBoolean("talend.component.configuration.validation.skip")
                 && !metas.isEmpty()) {
             final String error = Stream
                     .concat(metas
                             .stream()
                             .filter(it -> "true".equalsIgnoreCase(it.getMetadata().get("tcomp::validation::required")))
-                            .filter(it -> !normalizedConfig.containsKey(it.getName()))
+                            .filter(it -> !normalizedConfig.containsKey(it.getName())
+                                    && !preparedLists.containsKey(it.getName())
+                                    && !preparedObjects.containsKey(it.getName()))
                             .map(it -> "Missing configuration " + it.getPath()),
                             Stream
                                     .concat(metas
