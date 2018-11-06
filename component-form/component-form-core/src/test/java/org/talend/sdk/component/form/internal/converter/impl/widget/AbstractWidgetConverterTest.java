@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
@@ -39,7 +41,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
+import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 class AbstractWidgetConverterTest {
@@ -190,5 +194,35 @@ class AbstractWidgetConverterTest {
                     .orElseThrow(IllegalStateException::new);
             assertEquals("filterLines", parameter.getKey());
         }
+    }
+
+    @Test
+    void triggerWithParameters() {
+        final AtomicReference<UiSchema.Trigger> trigger = new AtomicReference<>();
+        final Set<SimplePropertyDefinition> singleton = singleton(new SimplePropertyDefinition("foo", "foo", null,
+                "enum", null, new PropertyValidation(), new HashMap<String, String>() {
+
+                    {
+                        put("action::ty", "other::foo(bar=dummy)");
+                        // put("action::ty::parameters", "."); // ignored in this test
+                    }
+                }, null, new LinkedHashMap<>()));
+        new AbstractWidgetConverter(new ArrayList<>(), singleton, emptyList(), new JsonSchema(), "en") {
+
+            @Override
+            public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> context) {
+                throw new UnsupportedOperationException();
+            }
+
+            {
+                trigger
+                        .set(toTrigger(singleton, singleton.iterator().next(),
+                                new ActionReference("fam", "other::foo", "ty", null, emptyList())));
+            }
+        };
+        final UiSchema.Trigger output = trigger.get();
+        assertEquals("fam", output.getFamily());
+        assertEquals("ty", output.getType());
+        assertEquals("other::foo(bar=dummy)", output.getAction());
     }
 }

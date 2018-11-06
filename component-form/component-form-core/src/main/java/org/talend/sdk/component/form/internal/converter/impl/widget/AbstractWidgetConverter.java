@@ -92,7 +92,15 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     protected UiSchema.Trigger toTrigger(final Collection<SimplePropertyDefinition> properties,
             final SimplePropertyDefinition prop, final ActionReference ref) {
         final UiSchema.Trigger trigger = new UiSchema.Trigger();
-        trigger.setAction(ref.getName());
+        trigger
+                .setAction(prop
+                        .getMetadata()
+                        .entrySet()
+                        .stream()
+                        .filter(it -> matchAction(it, ref))
+                        .findFirst()
+                        .map(Map.Entry::getValue)
+                        .orElseGet(ref::getName));
         trigger.setFamily(ref.getFamily());
         trigger.setType(ref.getType());
         trigger
@@ -219,12 +227,15 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 .filter(it -> it.getKey().startsWith("action::") && !isBuiltInAction(it.getKey()))
                 .map(v -> actions
                         .stream()
-                        .filter(a -> actionMatch(v.getValue(), a)
-                                && v.getKey().substring("action::".length()).equals(a.getType()))
+                        .filter(a -> matchAction(v, a))
                         .findFirst()
                         .map(ref -> toTrigger(properties, property, ref))
                         .orElse(null))
                 .filter(Objects::nonNull);
+    }
+
+    private boolean matchAction(final Map.Entry<String, String> v, final ActionReference a) {
+        return actionMatch(v.getValue(), a) && v.getKey().substring("action::".length()).equals(a.getType());
     }
 
     private Stream<UiSchema.Trigger> createValidationTrigger(final SimplePropertyDefinition property) {
