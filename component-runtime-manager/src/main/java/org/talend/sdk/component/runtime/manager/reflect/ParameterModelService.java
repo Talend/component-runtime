@@ -194,7 +194,7 @@ public class ParameterModelService {
     private void addI18nPackageIfPossible(final Collection<String> i18nPackages, final Type type) {
         if (Class.class.isInstance(type)) {
             final Package typePck = Class.class.cast(type).getPackage();
-            if (typePck != null && !typePck.getName().isEmpty()) {
+            if (typePck != null && !typePck.getName().isEmpty() && !i18nPackages.contains(typePck.getName())) {
                 i18nPackages.add(typePck.getName());
             }
         }

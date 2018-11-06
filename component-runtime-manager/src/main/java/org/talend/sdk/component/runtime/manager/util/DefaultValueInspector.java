@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager.util;
 
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 
@@ -23,6 +25,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
@@ -47,7 +53,19 @@ public class DefaultValueInspector {
             if (Class.class.isInstance(rawType) && Collection.class.isAssignableFrom(Class.class.cast(rawType))
                     && pt.getActualTypeArguments().length == 1
                     && Class.class.isInstance(pt.getActualTypeArguments()[0])) {
-                return tryCreatingObjectInstance(pt.getActualTypeArguments()[0]);
+                final Object instance = tryCreatingObjectInstance(pt.getActualTypeArguments()[0]);
+                final Class<?> collectionType = Class.class.cast(rawType);
+                if (Set.class == collectionType) {
+                    return singleton(instance);
+                }
+                if (SortedSet.class == collectionType) {
+                    return new TreeSet<>(singletonList(instance));
+                }
+                if (List.class == collectionType || Collection.class == collectionType) {
+                    return singletonList(instance);
+                }
+                // todo?
+                return null;
             }
         }
         return null;
