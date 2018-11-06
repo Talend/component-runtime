@@ -99,7 +99,7 @@ jobs:
     - stage: master_build
       env:
       - STEP=Sonatype Audit
-      script: travis_wait 50 mvn ossindex:audit
+      script: travis_wait 50 mvn ossindex:audit -B
       jdk: oraclejdk8
 
 stages:
