@@ -22,6 +22,7 @@ import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
@@ -58,7 +59,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -90,6 +102,7 @@ import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
+import org.jruby.Ruby;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
@@ -131,35 +144,45 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = PRIVATE)
 public class Generator {
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) {
         if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
             return;
         }
 
-        final Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
-        generatedTypes(generatedDir);
-        generatedConstraints(generatedDir);
-        generatedConditions(generatedDir);
-        generatedActions(generatedDir);
-        generatedUi(generatedDir);
-        generatedServerConfiguration(generatedDir);
-        updateComponentServerApi(generatedDir);
-        generatedProxyServerConfiguration(generatedDir);
-        generatedJUnitEnvironment(generatedDir);
-        generatedScanningExclusions(generatedDir);
-        generatedDocumentationIndex(generatedDir, asciidoctor);
-        generatedIcons(generatedDir, new File(generatedDir.getParentFile().getParentFile(), "assets/images/icons"));
 
-        final boolean offline = "offline=true".equals(args[4]);
-        if (offline) {
-            log.info("System is offline, skipping jira changelog and github contributor generation");
-            return;
+        final File iconOutput = new File(generatedDir.getParentFile().getParentFile(), "assets/images/icons");
+
+        try (final Tasks tasks = new Tasks()) {
+            tasks.register((ThrowingSupplier<Asciidoctor>) Asciidoctor.Factory::create).thenApply(adoc -> {
+                generatedDocumentationIndex(generatedDir, adoc);
+                return null;
+            }).thenAccept(ignored -> {
+                // shutdown jruby which leaks threads by default
+                Ruby.getGlobalRuntime().getJITCompiler().tearDown();
+            });
+            tasks.register(() -> generatedTypes(generatedDir));
+            tasks.register(() -> generatedConstraints(generatedDir));
+            tasks.register(() -> generatedConditions(generatedDir));
+            tasks.register(() -> generatedActions(generatedDir));
+            tasks.register(() -> generatedUi(generatedDir));
+            tasks.register(() -> generatedServerConfiguration(generatedDir));
+            tasks.register(() -> updateComponentServerApi(generatedDir));
+            tasks.register(() -> generatedProxyServerConfiguration(generatedDir));
+            tasks.register(() -> generatedJUnitEnvironment(generatedDir));
+            tasks.register(() -> generatedScanningExclusions(generatedDir));
+            tasks.register(() -> generatedIcons(generatedDir, iconOutput));
+
+            final boolean offline = "offline=true".equals(args[4]);
+            if (offline) {
+                log.info("System is offline, skipping jira changelog and github contributor generation");
+            } else {
+                tasks.register(() -> generatedContributors(generatedDir, args[5], args[6]));
+                tasks.register(() -> generatedJira(generatedDir, args[1], args[2], args[3]));
+            }
         }
-        generatedContributors(generatedDir, args[5], args[6]);
-        generatedJira(generatedDir, args[1], args[2], args[3]);
     }
 
     private static void updateComponentServerApi(final File generatedDir) throws Exception {
@@ -245,8 +268,7 @@ public class Generator {
         }
     }
 
-    private static void generatedDocumentationIndex(final File generatedDir, final Asciidoctor asciidoctor)
-            throws Exception {
+    private static void generatedDocumentationIndex(final File generatedDir, final Asciidoctor asciidoctor) {
         final File baseDir = jarLocation(Generator.class).getParentFile().getParentFile();
         final File pages = new File(baseDir, "src/main/antora/modules/ROOT/pages/");
 
@@ -288,6 +310,8 @@ public class Generator {
             writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
             writer.write(jsonb.toJson(items).getBytes(StandardCharsets.UTF_8));
             writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -517,7 +541,7 @@ public class Generator {
                             final long nextStartAt = issues.getStartAt() + issues.getMaxResults();
                             final Stream<JiraIssues> fetched = Stream.of(issues);
                             return issues.getTotal() > nextStartAt
-                                    ? Stream.concat(fetched, apply(jql, searchFrom.apply(jql, nextStartAt)))
+                                    ? Stream.concat(fetched, apply(jql, searchFrom.apply(jql, nextStartAt))).parallel()
                                     : fetched;
                         }
                     };
@@ -1323,5 +1347,172 @@ public class Generator {
         private String path;
 
         private boolean legacy;
+    }
+
+    @FunctionalInterface
+    private interface ThrowingSupplier<T> {
+
+        T get() throws Exception;
+    }
+
+    @FunctionalInterface
+    private interface ThrowingRunnable<T> {
+
+        void run() throws Exception;
+    }
+
+    private static class Tasks implements AutoCloseable {
+
+        private final ForkJoinPool executorService;
+
+        private final Collection<Future<?>> tasks = new ArrayList<>();
+
+        private final Collection<Throwable> errors = new ArrayList<>();
+
+        public Tasks() {
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            executorService = new ForkJoinPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 8),
+                    p -> new ForkJoinWorkerThread(p) {
+
+                        {
+                            setContextClassLoader(loader);
+                        }
+                    }, (r, executor) -> errors.add(new IllegalStateException("Task rejected: " + r)), false);
+        }
+
+        <T> CompletionStage<T> register(final ThrowingSupplier<T> runnable) {
+            final CompletableFuture<T> out = new CompletableFuture<T>() {
+
+                @Override // register it as part of the await logic
+                public CompletableFuture<Void> thenAccept(final Consumer<? super T> action) {
+                    final ManualFuture<Void> future = new ManualFuture<>();
+                    tasks.add(future);
+                    return super.thenAccept(a -> {
+                        try {
+                            action.accept(a);
+                        } finally {
+                            future.onSuccess(null);
+                        }
+                    });
+                }
+
+                @Override
+                public <U> CompletableFuture<U> thenApply(final Function<? super T, ? extends U> fn) {
+                    final ManualFuture<Void> future = new ManualFuture<>();
+                    tasks.add(future);
+                    return super.thenApply(a -> {
+                        try {
+                            return fn.apply(a);
+                        } finally {
+                            future.onSuccess(null);
+                        }
+                    });
+                }
+            };
+            tasks.add(executorService.submit(() -> {
+                try {
+                    out.complete(runnable.get());
+                } catch (final Exception e) {
+                    out.completeExceptionally(e);
+                    errors.add(e);
+                    throw new IllegalStateException(e);
+                }
+            }));
+            return out;
+        }
+
+        void register(final ThrowingRunnable runnable) {
+            register(() -> {
+                runnable.run();
+                return null;
+            });
+        }
+
+        @Override
+        public void close() {
+            executorService.shutdown();
+            tasks.forEach(it -> {
+                try {
+                    it.get();
+                } catch (final InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch (final ExecutionException e) {
+                    final Throwable cause = e.getCause();
+                    errors.add(cause);
+                    throw new IllegalStateException(cause);
+                }
+            });
+            try {
+                if (!executorService.awaitTermination(5, SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            if (!errors.isEmpty()) {
+                throw new IllegalStateException(errors.stream().map(Throwable::getMessage).collect(joining("\n")));
+            }
+        }
+    }
+
+    private static class ManualFuture<T> implements Future<T> {
+
+        private final CountDownLatch latch = new CountDownLatch(1);
+
+        private final AtomicBoolean done = new AtomicBoolean(false);
+
+        private final AtomicBoolean cancelled = new AtomicBoolean(false);
+
+        private volatile T instance;
+
+        private volatile Exception error;
+
+        @Override
+        public boolean cancel(final boolean mayInterruptIfRunning) {
+            latch.countDown();
+            cancelled.set(true);
+            return true;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return cancelled.get();
+        }
+
+        @Override
+        public boolean isDone() {
+            return done.get();
+        }
+
+        @Override
+        public T get() throws InterruptedException, ExecutionException {
+            latch.await();
+            return getResult();
+        }
+
+        @Override
+        public T get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException {
+            latch.await(timeout, unit);
+            return getResult();
+        }
+
+        private T getResult() throws ExecutionException {
+            if (error != null) {
+                throw new ExecutionException(error);
+            }
+            return instance;
+        }
+
+        public void onFailure(final Exception o) {
+            error = o;
+            done.set(true);
+            latch.countDown();
+        }
+
+        public void onSuccess(final T o) {
+            instance = o;
+            done.set(true);
+            latch.countDown();
+        }
     }
 }

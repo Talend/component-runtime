@@ -12,6 +12,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1130[TCOMP-1130^]: component form - default value of maxBatchSize prop loose it type.
 - link:https://jira.talendforge.org/browse/TCOMP-1131[TCOMP-1131^]: [beam integration] Ensure Coder is contextual (classloader)
 - link:https://jira.talendforge.org/browse/TCOMP-1132[TCOMP-1132^]: Ensure beam custom Coders implement equals.hashCode for beam contract
+- link:https://jira.talendforge.org/browse/TCOMP-1148[TCOMP-1148^]: Asciidoctor documentation fails for collection of objects
+- link:https://jira.talendforge.org/browse/TCOMP-1149[TCOMP-1149^]: [testing] BeamEnvironment does not reset PipelineOptionsFactory properly for beam > 2.4
 
 
 === New Feature
@@ -31,6 +33,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1134[TCOMP-1134^]: Ensure any input/output have a dataset
 - link:https://jira.talendforge.org/browse/TCOMP-1135[TCOMP-1135^]: Ensure any dataset has a datastore
 - link:https://jira.talendforge.org/browse/TCOMP-1136[TCOMP-1136^]: deprecate "generate" mojo
+- link:https://jira.talendforge.org/browse/TCOMP-1145[TCOMP-1145^]: [dependency upgrade] Beam 2.8.0
+- link:https://jira.talendforge.org/browse/TCOMP-1146[TCOMP-1146^]: implement infinite=true in PartitionMapper/Input
+- link:https://jira.talendforge.org/browse/TCOMP-1150[TCOMP-1150^]: Upgrade rat plugin to 0.13
 
 
 == Version 1.1.1
@@ -477,3 +482,4 @@
 - link:https://jira.talendforge.org/browse/TCOMP-719[TCOMP-719^]: Support Input Definition
 - link:https://jira.talendforge.org/browse/TCOMP-720[TCOMP-720^]: Support Output Definition
 - link:https://jira.talendforge.org/browse/TCOMP-721[TCOMP-721^]: Initial Widget Definitions
+

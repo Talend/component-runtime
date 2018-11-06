@@ -18,7 +18,7 @@ package org.talend.runtime.documentation;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -27,11 +27,14 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbProperty;
@@ -42,6 +45,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.talend.sdk.component.maven.MavenDecrypter;
 import org.talend.sdk.component.maven.Server;
@@ -66,83 +70,39 @@ public class Github {
         final String token =
                 "Basic " + Base64.getEncoder().encodeToString((user + ':' + password).getBytes(StandardCharsets.UTF_8));
 
-        final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
+        final Client client =
+                ClientBuilder.newClient().register(new JsonbJaxrsProvider<>()).register(new GZIPFeature());
         final WebTarget gravatarBase = client.target(Gravatars.GRAVATAR_BASE);
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        final ForkJoinPool pool = new ForkJoinPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 8),
-                p -> new ForkJoinWorkerThread(p) {
+        final ExecutorService pool =
+                Executors.newCachedThreadPool(r -> new Thread(r, Github.class.getName() + "-" + r.hashCode()));
+        try { // we try to parallelize as much as possible remote calls
+            final CompletableFuture<List<GithubContributor>>[] contributorLookups = toArray(Stream
+                    .of("component-api", "component-runtime")
+                    .map(repo -> toStage(pool,
+                            () -> contributors(client, token,
+                                    "https://api.github" + ".com/repos/talend" + "/" + repo + "/contributors")
+                                            .collect(toList()))));
 
-                    { // needed on java11 otherwise
-                      // it uses apploader which is not the one we must use with mvn exec plugin
-                        setContextClassLoader(loader);
-                    }
-                }, null, false);
-        try {
-            return pool
-                    .submit(() -> Stream
-                            .of("component-api", "component-runtime")
-                            .flatMap(repo -> contributors(client, token,
-                                    "https://api.github.com/repos/talend/" + repo + "/contributors").parallel())
+            return allOf(contributorLookups)
+                    .thenApply(ignored -> toArray(Stream
+                            .of(contributorLookups)
+                            .flatMap(it -> getResult(it).stream())
                             .collect(toMap(e -> normalizeLogin(e.login), identity(), (c1, c2) -> {
                                 c1.contributions += c2.contributions;
                                 return c1;
                             }))
                             .values()
                             .stream()
-                            .map(contributor -> {
-                                if (contributor.url == null) { // anon contributor
-
-                                    try {
-                                        final Contributor gravatar =
-                                                Gravatars.loadGravatar(gravatarBase, contributor.email);
-                                        return Contributor
-                                                .builder()
-                                                .name(contributor.name)
-                                                .commits(contributor.contributions)
-                                                .description(gravatar.getDescription())
-                                                .gravatar(gravatar.getGravatar())
-                                                .build();
-                                    } catch (final Exception e) {
-                                        log.warn(e.getMessage(), e);
-                                        return new Contributor(contributor.email, contributor.email, "",
-                                                Gravatars.url(contributor.email), contributor.contributions);
-                                    }
-                                }
-                                final GithubUser user = client
-                                        .target(contributor.url)
-                                        .request(APPLICATION_JSON_TYPE)
-                                        .header("Authorization", token)
-                                        .get(GithubUser.class);
-                                return Contributor
-                                        .builder()
-                                        .id(contributor.login)
-                                        .name(ofNullable(user.name).orElse(contributor.name))
-                                        .description((user.bio == null ? "" : user.bio)
-                                                + (user.blog != null && !user.blog.trim().isEmpty()
-                                                        && (user.bio == null || !user.bio.contains(user.blog))
-                                                                ? "\n\nBlog: " + user.blog
-                                                                : ""))
-                                        .commits(contributor.contributions)
-                                        .gravatar(ofNullable(contributor.avatarUrl).orElseGet(() -> {
-                                            final String gravatarId =
-                                                    contributor.gravatarId == null || contributor.gravatarId.isEmpty()
-                                                            ? contributor.email
-                                                            : contributor.gravatarId;
-                                            try {
-                                                final Contributor gravatar =
-                                                        Gravatars.loadGravatar(gravatarBase, gravatarId);
-                                                return gravatar.getGravatar();
-                                            } catch (final Exception e) {
-                                                log.warn(e.getMessage(), e);
-                                                return Gravatars.url(gravatarId);
-                                            }
-                                        }))
-                                        .build();
-                            })
-                            .filter(Objects::nonNull)
-                            .sorted(comparing(Contributor::getCommits).reversed())
-                            .collect(toList()))
-                    .get(15, MINUTES);
+                            .map(contributor -> toStage(pool,
+                                    () -> loadContributor(token, client, gravatarBase, contributor)))))
+                    .thenCompose(contribs -> allOf(contribs)
+                            .thenApply(ignored -> Stream
+                                    .of(contribs)
+                                    .map(this::getResult)
+                                    .filter(Objects::nonNull)
+                                    .sorted(comparing(Contributor::getCommits).reversed())
+                                    .collect(toList())))
+                    .get();
         } catch (final ExecutionException ee) {
             if (WebApplicationException.class.isInstance(ee.getCause())) {
                 final Response response = WebApplicationException.class.cast(ee.getCause()).getResponse();
@@ -151,12 +111,84 @@ public class Github {
                 }
             }
             throw new IllegalStateException(ee.getCause());
-        } catch (final InterruptedException | TimeoutException e) {
+        } catch (final InterruptedException e) {
             throw new IllegalStateException(e);
         } finally {
             client.close();
             pool.shutdownNow();
         }
+    }
+
+    private <T> T getResult(final Future<T> f) {
+        try {
+            return f.get();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        } catch (final ExecutionException e) {
+            throw new IllegalStateException(e.getCause());
+        }
+    }
+
+    private static <T> CompletableFuture<T> toStage(final ExecutorService pool, final Supplier<T> supplier) {
+        final CompletableFuture<T> stage = new CompletableFuture<>();
+        pool.submit(() -> {
+            try {
+                stage.complete(supplier.get());
+            } catch (final Exception e) {
+                stage.completeExceptionally(e);
+            }
+        });
+        return stage;
+    }
+
+    private static <T> CompletableFuture<T>[] toArray(final Stream<CompletableFuture<T>> stream) {
+        return stream.toArray(CompletableFuture[]::new);
+    }
+
+    private Contributor loadContributor(String token, Client client, WebTarget gravatarBase,
+            GithubContributor contributor) {
+        if (contributor.url == null) { // anon contributor
+
+            try {
+                final Contributor gravatar = Gravatars.loadGravatar(gravatarBase, contributor.email);
+                return Contributor
+                        .builder()
+                        .name(contributor.name)
+                        .commits(contributor.contributions)
+                        .description(gravatar.getDescription())
+                        .gravatar(gravatar.getGravatar())
+                        .build();
+            } catch (final Exception e) {
+                log.warn(e.getMessage(), e);
+                return new Contributor(contributor.email, contributor.email, "", Gravatars.url(contributor.email),
+                        contributor.contributions);
+            }
+        }
+        final GithubUser user = client
+                .target(contributor.url)
+                .request(APPLICATION_JSON_TYPE)
+                .header("Authorization", token)
+                .get(GithubUser.class);
+        return Contributor
+                .builder()
+                .id(contributor.login)
+                .name(ofNullable(user.name).orElse(contributor.name))
+                .description((user.bio == null ? "" : user.bio) + (user.blog != null && !user.blog.trim().isEmpty()
+                        && (user.bio == null || !user.bio.contains(user.blog)) ? "\n\nBlog: " + user.blog : ""))
+                .commits(contributor.contributions)
+                .gravatar(ofNullable(contributor.avatarUrl).orElseGet(() -> {
+                    final String gravatarId =
+                            contributor.gravatarId == null || contributor.gravatarId.isEmpty() ? contributor.email
+                                    : contributor.gravatarId;
+                    try {
+                        return Gravatars.loadGravatar(gravatarBase, gravatarId).getGravatar();
+                    } catch (final Exception e) {
+                        log.warn(e.getMessage(), e);
+                        return Gravatars.url(gravatarId);
+                    }
+                }))
+                .build();
     }
 
     // handle duplicates
@@ -173,7 +205,12 @@ public class Github {
 
     private Stream<GithubContributor> contributors(final Client client, final String token, final String url) {
         return Stream
-                .of(client.target(url).request(APPLICATION_JSON_TYPE).header("Authorization", token).get())
+                .of(client
+                        .target(url)
+                        .queryParam("per_page", 100)
+                        .request(APPLICATION_JSON_TYPE)
+                        .header("Authorization", token)
+                        .get())
                 .flatMap(response -> {
                     final String link = response.getHeaderString("Link");
                     if (response.getStatus() > 299) {
