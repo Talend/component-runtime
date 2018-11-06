@@ -147,7 +147,7 @@ public class Github {
     }
 
     private Contributor loadContributor(final String token, final Client client, final WebTarget gravatarBase,
-                                        final GithubContributor contributor) {
+            final GithubContributor contributor) {
         if (contributor.url == null) { // anon contributor
 
             try {

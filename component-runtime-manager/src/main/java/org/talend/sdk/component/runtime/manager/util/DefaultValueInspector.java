@@ -19,6 +19,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -32,21 +33,24 @@ import java.util.TreeSet;
 
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 public class DefaultValueInspector {
 
     // for now we use instantiation to find the defaults assuming it will be cached
     // but we can move it later in design module to directly read it from the bytecode
-    public Object createDemoInstance(final Object rootInstance, final ParameterMeta param) {
+    public Instance createDemoInstance(final Object rootInstance, final ParameterMeta param) {
         if (rootInstance != null) {
             final Object field = findField(rootInstance, param);
             if (field != null) {
-                return field;
+                return new Instance(field, false);
             }
         }
 
         final Type javaType = param.getJavaType();
         if (Class.class.isInstance(javaType)) {
-            return tryCreatingObjectInstance(javaType);
+            return new Instance(tryCreatingObjectInstance(javaType), true);
         } else if (ParameterizedType.class.isInstance(javaType)) {
             final ParameterizedType pt = ParameterizedType.class.cast(javaType);
             final Type rawType = pt.getRawType();
@@ -56,13 +60,13 @@ public class DefaultValueInspector {
                 final Object instance = tryCreatingObjectInstance(pt.getActualTypeArguments()[0]);
                 final Class<?> collectionType = Class.class.cast(rawType);
                 if (Set.class == collectionType) {
-                    return singleton(instance);
+                    return new Instance(singleton(instance), true);
                 }
                 if (SortedSet.class == collectionType) {
-                    return new TreeSet<>(singletonList(instance));
+                    return new Instance(new TreeSet<>(singletonList(instance)), true);
                 }
                 if (List.class == collectionType || Collection.class == collectionType) {
-                    return singletonList(instance);
+                    return new Instance(singletonList(instance), true);
                 }
                 // todo?
                 return null;
@@ -173,5 +177,14 @@ public class DefaultValueInspector {
             // ignore, we'll skip the defaults
         }
         return null;
+    }
+
+    @Data
+    @AllArgsConstructor(access = PRIVATE)
+    public static class Instance {
+
+        private final Object value;
+
+        private final boolean created;
     }
 }

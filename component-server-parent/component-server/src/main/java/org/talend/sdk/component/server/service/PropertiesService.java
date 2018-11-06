@@ -72,12 +72,12 @@ public class PropertiesService {
     }
 
     public Stream<SimplePropertyDefinition> buildProperties(final List<ParameterMeta> meta, final ClassLoader loader,
-            final Locale locale, final Object rootInstance) {
+            final Locale locale, final DefaultValueInspector.Instance rootInstance) {
         return buildProperties(meta, loader, locale, rootInstance, null);
     }
 
     private Stream<SimplePropertyDefinition> buildProperties(final List<ParameterMeta> meta, final ClassLoader loader,
-            final Locale locale, final Object rootInstance, final ParameterMeta parent) {
+            final Locale locale, final DefaultValueInspector.Instance rootInstance, final ParameterMeta parent) {
         return meta.stream().flatMap(p -> {
             final String path = sanitizePropertyName(p.getPath());
             final String name = sanitizePropertyName(p.getName());
@@ -104,7 +104,9 @@ public class PropertiesService {
                 metadata = ofNullable(sanitizedMetadata).orElseGet(HashMap::new);
                 metadata.put("definition::parameter::index", String.valueOf(meta.indexOf(p)));
             }
-            final Object instance = defaultValueInspector.createDemoInstance(rootInstance, p);
+            final DefaultValueInspector.Instance instance = defaultValueInspector
+                    .createDemoInstance(
+                            ofNullable(rootInstance).map(DefaultValueInspector.Instance::getValue).orElse(null), p);
             final ParameterBundle bundle = p.findBundle(loader, locale);
             final ParameterBundle parentBundle = parent == null ? null : parent.findBundle(loader, locale);
             return Stream
@@ -138,12 +140,15 @@ public class PropertiesService {
         return copy;
     }
 
-    private String toDefault(final Object instance, final ParameterMeta p) {
-        if (Collection.class.isInstance(instance) || Map.class.isInstance(instance)) {
-            // @Experimental("not primitives are a challenge, for now use that but can change if not adapted")
-            return defaultMapper.toJson(instance);
+    private String toDefault(final DefaultValueInspector.Instance instance, final ParameterMeta p) {
+        if (instance.isCreated()) {
+            return null;
         }
-        return defaultValueInspector.findDefault(instance, p);
+        if (Collection.class.isInstance(instance.getValue()) || Map.class.isInstance(instance.getValue())) {
+            // @Experimental("not primitives are a challenge, for now use that but can change if not adapted")
+            return defaultMapper.toJson(instance.getValue());
+        }
+        return defaultValueInspector.findDefault(instance.getValue(), p);
     }
 
     private String sanitizePropertyName(final String path) {

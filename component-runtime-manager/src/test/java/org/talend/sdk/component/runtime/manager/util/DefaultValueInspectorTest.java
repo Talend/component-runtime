@@ -38,7 +38,7 @@ class DefaultValueInspectorTest {
     @Test
     void createListInstance() {
         final DefaultValueInspector inspector = new DefaultValueInspector();
-        final Object demoInstance = inspector
+        final DefaultValueInspector.Instance demoInstance = inspector
                 .createDemoInstance(new Wrapper(), new ParameterMeta(null,
                         new JohnzonParameterizedType(List.class, Foo.class), ARRAY, "foos", "foos", null,
                         singletonList(new ParameterMeta(null, Foo.class, OBJECT, "foos[${index}]", "foos[${index}]",
@@ -47,9 +47,10 @@ class DefaultValueInspectorTest {
                                         null, emptyList(), null, emptyMap(), false)),
                                 null, emptyMap(), false)),
                         null, emptyMap(), false));
-        assertNotNull(demoInstance);
-        assertTrue(Collection.class.isInstance(demoInstance));
-        final Collection<?> list = Collection.class.cast(demoInstance);
+        assertNotNull(demoInstance.getValue());
+        assertTrue(demoInstance.isCreated());
+        assertTrue(Collection.class.isInstance(demoInstance.getValue()));
+        final Collection<?> list = Collection.class.cast(demoInstance.getValue());
         assertEquals(1, list.size());
         final Object first = list.iterator().next();
         assertNotNull(first);

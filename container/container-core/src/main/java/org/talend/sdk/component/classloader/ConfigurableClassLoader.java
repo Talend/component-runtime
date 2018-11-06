@@ -615,7 +615,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     for (final ClassFileTransformer transformer : transformers) {
                         try {
                             bytes = transformer.transform(this, resourceName, null, null, bytes);
-                        } catch (IllegalClassFormatException e) {
+                        } catch (final IllegalClassFormatException e) {
                             log.error(e.getMessage() + ", will ignore the transformers", e);
                             break;
                         }

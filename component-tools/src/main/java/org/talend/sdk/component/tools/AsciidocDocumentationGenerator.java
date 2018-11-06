@@ -185,17 +185,20 @@ public class AsciidocDocumentationGenerator extends BaseTask {
         return parameterMetas.stream().sorted(comparing(ParameterMeta::getPath)).collect(toList());
     }
 
-    private Stream<String> toAsciidocRows(final Collection<ParameterMeta> parameterMetas, final Object parentInstance,
-            final ParameterBundle parentBundle) {
+    private Stream<String> toAsciidocRows(final Collection<ParameterMeta> parameterMetas,
+            final DefaultValueInspector.Instance parentInstance, final ParameterBundle parentBundle) {
         return parameterMetas.stream().flatMap(p -> {
-            final Object instance = defaultValueInspector.createDemoInstance(parentInstance, p);
+            final DefaultValueInspector.Instance instance = defaultValueInspector
+                    .createDemoInstance(
+                            ofNullable(parentInstance).map(DefaultValueInspector.Instance::getValue).orElse(null), p);
             return Stream
                     .concat(Stream.of(toAsciidoctor(p, instance, parentBundle)),
                             toAsciidocRows(p.getNestedParameters(), instance, findBundle(p)));
         });
     }
 
-    private String toAsciidoctor(final ParameterMeta p, final Object instance, final ParameterBundle parent) {
+    private String toAsciidoctor(final ParameterMeta p, final DefaultValueInspector.Instance instance,
+            final ParameterBundle parent) {
         final ParameterBundle bundle = findBundle(p);
         return "|" + bundle.displayName(parent).orElse(p.getName()) + '|'
                 + bundle.documentation(parent).orElseGet(() -> findDocumentation(p)) + '|'
@@ -203,18 +206,25 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                 + renderConditions(p.getPath(), p.getMetadata()) + '|' + p.getPath();
     }
 
-    private String findDefault(final ParameterMeta p, final Object instance) {
+    private String findDefault(final ParameterMeta p, final DefaultValueInspector.Instance instance) {
+        if (instance == null || instance.getValue() == null || instance.isCreated()) {
+            return null;
+        }
+
         switch (p.getType()) {
         case NUMBER:
         case BOOLEAN:
         case STRING:
         case ENUM:
-            return ofNullable(instance).map(String::valueOf).map(it -> it.isEmpty() ? "<empty>" : it).orElse(null);
+            return ofNullable(instance.getValue())
+                    .map(String::valueOf)
+                    .map(it -> it.isEmpty() ? "<empty>" : it)
+                    .orElse(null);
         case ARRAY:
-            return instance == null ? null
-                    : String
-                            .valueOf(Collection.class.isInstance(instance) ? Collection.class.cast(instance).size()
-                                    : Array.getLength(instance));
+            return String
+                    .valueOf(Collection.class.isInstance(instance.getValue())
+                            ? Collection.class.cast(instance.getValue()).size()
+                            : Array.getLength(instance.getValue()));
         case OBJECT:
         default:
             return null;
