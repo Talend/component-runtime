@@ -1,5 +1,6 @@
 = Implementing streaming on a component
 :page-partial:
+:stem:
 :description: How to make your input component ready for a continuous flow of data.
 :keywords: stream, infinite, partition mapper, input
 
@@ -35,7 +36,7 @@ If streaming was not enabled at all during the project generation or if you need
 ** `constant` (default). It sets a constant pause duration between retries.
 ** `exponential`. It sets an exponential backoff pause duration. +
 +
-NOTE: See tables below for more details about each strategy.
+NOTE: See the tables below for more details about each strategy.
 
 === Constant strategy
 
@@ -56,9 +57,30 @@ NOTE: See tables below for more details about each strategy.
 |`talend.input.streaming.retry.exponential.initialBackOff`|Initial backoff value.|`1000` (1 second)
 |====
 
-The values of these parameters are then used in the following calculation to determine the exact pausing duration between two retries:
+The values of these parameters are then used in the following calculations to determine the exact pausing duration between two retries.
 
+NOTE: For more clarity in the formulas below, parameter names have been replaced with variables.
 
-`currentIntervalMillis = Math.min(initialBackOff * Math.pow(exponent, iteration), max);` +
-`randomOffset = (Math.random() * 2 - 1) * randomizationFactor * currentIntervalMillis;` +
-`nextBackoffMillis = Math.min(max, Math.round(currentIntervalMillis + randomOffset));`
+First, the current interval duration is calculated:
+
+asciimath:[A = min(B xx E^I, F)]
+
+Where:
+
+* A: currentIntervalMillis
+* B: initialBackOff
+* E: exponent
+* I: iteration
+* F: maxDuration
+
+Then, from the current interval duration, the next interval duration is calculated:
+
+asciimath:[D = min(F, A + ((R xx 2-1) xx C xx A))]
+
+Where:
+
+* D: nextBackoffMillis
+* F: maxDuration
+* A: currentIntervalMillis
+* R: random
+* C: randomizationFactor
