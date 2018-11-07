@@ -70,7 +70,7 @@ Where:
 * A: currentIntervalMillis
 * B: initialBackOff
 * E: exponent
-* I: iteration
+* I: current number of retries
 * F: maxDuration
 
 Then, from the current interval duration, the next interval duration is calculated:
