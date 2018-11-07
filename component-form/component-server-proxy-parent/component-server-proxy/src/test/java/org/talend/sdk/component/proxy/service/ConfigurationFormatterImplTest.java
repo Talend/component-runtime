@@ -134,6 +134,22 @@ class ConfigurationFormatterImplTest {
     }
 
     @Test
+    void flattenArrayWithNull() {
+        final JsonObject from = factory
+                .createObjectBuilder()
+                .add("urls", factory.createArrayBuilder().add("a").addNull().add("b").build())
+                .build();
+        final Map<String, String> flatten = formatter.flatten(from);
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("urls[0]", "a");
+                put("urls[2]", "b");
+            }
+        }, flatten);
+    }
+
+    @Test
     void flattenObjectArray() {
         final JsonObject from = factory
                 .createObjectBuilder()
