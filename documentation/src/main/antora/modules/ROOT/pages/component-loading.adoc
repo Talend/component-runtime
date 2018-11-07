@@ -138,7 +138,7 @@ To create the nested `MAVEN-INF/repository` repository, you can use the `nested-
       <configuration>
         <transformers>
           <transformer implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer">
-            <session>${session}</project>
+            <session>${session}</session>
           </transformer>
         </transformers>
       </configuration>
@@ -175,7 +175,7 @@ You can enrich `maven-shade-plugin` to do it:
       <configuration>
         <transformers>
           <transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer">
-            <session>${session}</project>
+            <session>${session}</session>
           </transformer>
         </transformers>
       </configuration>
