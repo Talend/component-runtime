@@ -685,9 +685,10 @@ public class ComponentManager implements AutoCloseable {
     // nothing more
     public Optional<Object> createComponent(final String plugin, final String name, final ComponentType componentType,
             final int version, final Map<String, String> configuration) {
+        final String familyName = container.buildAutoIdFromName(plugin);
         return find(pluginContainer -> Stream.of(pluginContainer.get(ContainerComponentRegistry.class)))
                 .filter(Objects::nonNull)
-                .map(r -> r.getComponents().get(container.buildAutoIdFromName(plugin)))
+                .map(r -> r.getComponents().get(familyName))
                 .filter(Objects::nonNull)
                 .map(component -> ofNullable(componentType.findMeta(component).get(name))
                         .map(comp -> comp
