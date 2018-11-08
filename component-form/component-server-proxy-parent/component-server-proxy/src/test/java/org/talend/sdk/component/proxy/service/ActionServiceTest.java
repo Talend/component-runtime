@@ -234,7 +234,9 @@ class ActionServiceTest {
     @Test
     void reloadFromParentIdAndType() throws Exception {
         final Map<String, Object> parameters = new HashMap<>();
-        parameters.put("id", "dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzZXQjTXVsdGlEYXRhc2V0LVR3bw");
+        parameters
+                .put("$datasetMetadata.childrenType",
+                        "dGVzdC1jb21wb25lbnQjTXVsdGlEYXRhc2V0RmFtaWx5I2RhdGFzZXQjTXVsdGlEYXRhc2V0LVR3bw");
         // we select MultiDataset-Two (see unit test above)
         final Map<String, Object> result = service
                 .findBuiltInAction(

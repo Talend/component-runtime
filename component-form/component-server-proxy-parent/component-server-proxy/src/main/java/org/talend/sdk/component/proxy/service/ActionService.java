@@ -247,9 +247,29 @@ public class ActionService {
                                 .map(String::valueOf)
                                 .orElseThrow(() -> new IllegalArgumentException("parentId parameter not provided")),
                         ctx,
-                        ofNullable(params.get("id"))
+                        ofNullable(params.get("$datasetMetadata.childrenType"))
                                 .map(String::valueOf)
-                                .orElseThrow(() -> new IllegalArgumentException("id parameter not provided")));
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                        "$datasetMetadata.childrenType parameter not provided"))).thenApply(form -> {
+                                            /*
+                                             * fixme: when a specific trigger is available to handle reload of only part
+                                             * of a form.
+                                             * for now we keep the $datasetMetadata on reload
+                                             */
+                                            Map.class
+                                                    .cast(Map.class
+                                                            .cast(form.get("properties"))
+                                                            .computeIfAbsent("$datasetMetadata",
+                                                                    k -> new HashMap<String, Object>()))
+                                                    .putAll(params
+                                                            .entrySet()
+                                                            .stream()
+                                                            .collect(toMap(e -> e
+                                                                    .getKey()
+                                                                    .substring(17 /* "$datasetMetadat.".length()+1 */),
+                                                                    Map.Entry::getValue)));
+                                            return form;
+                                        });
             }
             throw new IllegalArgumentException("Unknown action: " + action);
         }
@@ -412,7 +432,7 @@ public class ActionService {
                 .put("action::reloadFromParentEntityIdAndType",
                         "builtin::root::reloadFromParentEntityIdAndType(" + "parentId=" + parentEntityId + ",type="
                                 + childrenTypes.iterator().next().getConfigurationType() + ")");
-        metadata.put("action::reloadFromParentEntityIdAndType::parameters", ".");
+        metadata.put("action::reloadFromParentEntityIdAndType::parameters", "..");
         final String simpleName = "childrenType";
         final String path =
                 ofNullable(propertyPrefix).filter(it -> !it.isEmpty()).map(p -> p + '.').orElse("") + simpleName;
