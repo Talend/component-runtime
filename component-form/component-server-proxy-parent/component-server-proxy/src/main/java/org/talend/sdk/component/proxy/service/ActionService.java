@@ -26,7 +26,14 @@ import static java.util.stream.Collectors.toMap;
 import static javax.json.stream.JsonCollectors.toJsonObject;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -246,8 +253,8 @@ public class ActionService {
                                         "$datasetMetadata.childrenType parameter not provided"))).thenApply(form -> {
                                             /*
                                              * fixme: when a specific trigger is available to handle reload of only part
-                                             * of
-                                             * a form. for now we keep the $datasetMetadata on reload
+                                             * of a form.
+                                             * for now we keep the $datasetMetadata on reload
                                              */
                                             Map.class
                                                     .cast(Map.class
@@ -257,12 +264,10 @@ public class ActionService {
                                                     .putAll(params
                                                             .entrySet()
                                                             .stream()
-                                                            .map(e -> new AbstractMap.SimpleEntry<>(e
+                                                            .collect(toMap(e -> e
                                                                     .getKey()
                                                                     .substring(17 /* "$datasetMetadat.".length()+1 */),
-                                                                    e.getValue()))
-                                                            .collect(toMap(AbstractMap.SimpleEntry::getKey,
-                                                                    AbstractMap.SimpleEntry::getValue)));
+                                                                    Map.Entry::getValue)));
                                             return form;
                                         });
             }
