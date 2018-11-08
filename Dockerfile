@@ -50,7 +50,7 @@ RUN unzip server.zip && mv component-server-distribution/* . && rm -Rf component
     mv geronimo-opentracing.jar lib/ && \
     mv opentracing-api.jar lib/ && \
     mv microprofile-opentracing-api.jar lib/ && \
-    mkdir -p /opt/talend/sigar && cp sigar-native.jar /opt/talend/sigar && \
+    mkdir -p /opt/talend/sigar && mv sigar-native.jar /opt/talend/sigar && \
     cd /opt/talend/sigar && \
         unzip sigar-native.jar && rm sigar-native.jar && \
         for i in libsigar*; do mv $i $(echo $i | sed "s/\-$SIGAR_VERSION//"); done && \
