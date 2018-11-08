@@ -38,6 +38,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1146[TCOMP-1146^]: implement infinite=true in PartitionMapper/Input
 - link:https://jira.talendforge.org/browse/TCOMP-1150[TCOMP-1150^]: Upgrade rat plugin to 0.13
 - link:https://jira.talendforge.org/browse/TCOMP-1154[TCOMP-1154^]: Required validation at runtime ignores lists and nested objects
+- link:https://jira.talendforge.org/browse/TCOMP-1157[TCOMP-1157^]: [dependency upgrade] Tomcat 9.0.13
 
 
 == Version 1.1.1
