@@ -38,7 +38,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     @Override
     public Type getType() {
-        return mapType(delegate.getType());
+        return mapType(delegate);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 return entries;
             }
             entries = delegate.getFields().stream().map(field -> {
-                final Type type = mapType(field.schema().getType());
+                final Type type = mapType(field.schema());
                 final AvroSchema elementSchema =
                         new AvroSchema(type == Type.ARRAY ? field.schema().getElementType() : field.schema());
                 return new SchemaImpl.EntryImpl(field.name(), type, field.defaultValue() == null,
@@ -92,15 +92,15 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         throw new IllegalArgumentException("Unsupported type: " + type);
     }
 
-    private Type mapType(final Schema.Type delegateType) {
-        switch (delegateType) {
+    private Type mapType(final Schema schema) {
+        switch (schema.getType()) {
         case LONG:
-            if (Boolean.parseBoolean(readProp(delegate, Type.DATETIME.name()))) {
+            if (Boolean.parseBoolean(readProp(schema, Type.DATETIME.name()))) {
                 return Type.DATETIME;
             }
             return Type.LONG;
         default:
-            return Type.valueOf(delegateType.name());
+            return Type.valueOf(schema.getType().name());
         }
     }
 }
