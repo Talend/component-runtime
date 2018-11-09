@@ -125,7 +125,7 @@
             </goals>
             <configuration>
               <excludes> <!-- internal -->
-                <exclude>**/BaseComponentsHandler$State</exclude>
+                <exclude>**/BaseComponentsHandler*</exclude>
               </excludes>
             </configuration>
           </execution>

@@ -18,6 +18,7 @@ package org.talend.sdk.component.junit;
 import static java.lang.Math.abs;
 import static java.util.Collections.emptyIterator;
 import static java.util.Collections.emptyMap;
+import static java.util.Locale.ROOT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.joining;
@@ -48,6 +49,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -80,7 +82,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BaseComponentsHandler implements ComponentsHandler {
 
-    protected static final ThreadLocal<State> STATE = new ThreadLocal<>();
+    protected static final Local<State> STATE = loadStateHolder();
+
+    private static Local<State> loadStateHolder() {
+        switch (System.getProperty("talend.component.junit.handler.state", "thread").toLowerCase(ROOT)) {
+        case "static":
+            return new Local.StaticImpl<>();
+        default:
+            return new Local.ThreadLocalImpl<>();
+        }
+    }
 
     private final ThreadLocal<PreState> initState = ThreadLocal.withInitial(PreState::new);
 
@@ -628,6 +639,55 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
         public <T> List<T> get(final Class<T> type, final String name) {
             return (List<T>) data.get(name);
+        }
+    }
+
+    interface Local<T> {
+
+        void set(T value);
+
+        T get();
+
+        void remove();
+
+        class StaticImpl<T> implements Local<T> {
+
+            private final AtomicReference<T> state = new AtomicReference<>();
+
+            @Override
+            public void set(final T value) {
+                state.set(value);
+            }
+
+            @Override
+            public T get() {
+                return state.get();
+            }
+
+            @Override
+            public void remove() {
+                state.set(null);
+            }
+        }
+
+        class ThreadLocalImpl<T> implements Local<T> {
+
+            private final ThreadLocal<T> threadLocal = new ThreadLocal<>();
+
+            @Override
+            public void set(final T value) {
+                threadLocal.set(value);
+            }
+
+            @Override
+            public T get() {
+                return threadLocal.get();
+            }
+
+            @Override
+            public void remove() {
+                threadLocal.remove();
+            }
         }
     }
 }
