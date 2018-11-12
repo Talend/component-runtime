@@ -65,5 +65,6 @@ public class DependencyMojo extends AbstractMojo {
         } catch (final IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+        getLog().info("Generated " + output.getAbsolutePath());
     }
 }

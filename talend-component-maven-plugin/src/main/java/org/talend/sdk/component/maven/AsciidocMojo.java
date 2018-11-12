@@ -160,6 +160,7 @@ public class AsciidocMojo extends ClasspathMojoBase {
                 if (dot < 0) {
                     dot = artifactName.lastIndexOf('.');
                 }
+                getLog().info("Attaching " + artifact.getAbsolutePath());
                 if (dot > 0) {
                     helper
                             .attachArtifact(project, artifact,

@@ -204,6 +204,8 @@ public class ComponentValidator extends BaseTask {
             throw new IllegalStateException(
                     "Some error were detected:" + preparedErrors.stream().collect(joining("\n- ", "\n- ", "")));
         }
+
+        log.info("Validated components: " + components.stream().map(Class::getSimpleName).collect(joining(", ")));
     }
 
     private String validateIcon(final Icon annotation) {

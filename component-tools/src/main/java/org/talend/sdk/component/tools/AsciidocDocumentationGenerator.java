@@ -133,6 +133,7 @@ public class AsciidocDocumentationGenerator extends BaseTask {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+        log.info("Generated " + output.getAbsolutePath());
 
         ofNullable(formats).ifPresent(f -> {
             try (final AsciidoctorExecutor asciidoctorExecutor = new AsciidoctorExecutor()) {
