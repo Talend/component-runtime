@@ -37,13 +37,13 @@ public class SerializationOverClusterIT {
 
     private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
-    private static final SparkClusterRule SPARK = new SparkClusterRule("2.11", "2.2.1", 1);
+    private static final SparkClusterRule SPARK = new SparkClusterRule("2.11", "2.3.2", 1);
 
     @ClassRule
     public static final TestRule RULE = outerRule(TEMPORARY_FOLDER).around(SPARK);
 
     @Test
-    public void run() throws IOException {
+    public void run() {
         final File input = new File(TEMPORARY_FOLDER.getRoot(), Main.class.getName() + ".input");
         final File output = new File(TEMPORARY_FOLDER.getRoot(), Main.class.getName() + ".output");
         SPARK.submit(Main.class, "--runner=SparkRunner", "--inputFile=" + input.getAbsolutePath(),

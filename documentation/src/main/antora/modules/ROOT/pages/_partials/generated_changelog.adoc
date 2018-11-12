@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1148[TCOMP-1148^]: Asciidoctor documentation fails for collection of objects
 - link:https://jira.talendforge.org/browse/TCOMP-1149[TCOMP-1149^]: [testing] BeamEnvironment does not reset PipelineOptionsFactory properly for beam > 2.4
 - link:https://jira.talendforge.org/browse/TCOMP-1155[TCOMP-1155^]: [proxy server] arrays not supporting null values in ConfigurationFormatter
+- link:https://jira.talendforge.org/browse/TCOMP-1159[TCOMP-1159^]: AvroSchema does not support DATETTIME type (beam module)
 
 
 === New Feature

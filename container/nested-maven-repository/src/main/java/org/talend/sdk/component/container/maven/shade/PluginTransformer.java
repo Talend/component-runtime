@@ -37,19 +37,25 @@ public class PluginTransformer extends ArtifactTransformer {
             return;
         }
 
-        final Properties properties = artifacts.stream().collect(Properties::new, (props, artifact) -> {
-            final String filename = String
-                    .format("%s-%s%s.%s", artifact.getArtifactId(), artifact.getVersion(),
-                            ofNullable(artifact.getClassifier()).filter(c -> !c.isEmpty()).map(c -> '-' + c).orElse(""),
-                            ofNullable(artifact.getType()).orElse("jar"));
-            final String pluginName = artifact.getArtifactId()
-                    + (ofNullable(artifact.getClassifier()).filter(c -> !c.isEmpty()).map(c -> '-' + c).orElse(""));
-            props
-                    .setProperty(pluginName,
-                            String
-                                    .format("%s/%s/%s/%s", artifact.getGroupId().replace(".", "/"),
-                                            artifact.getArtifactId(), artifact.getVersion(), filename));
-        }, Hashtable::putAll);
+        final Properties properties =
+                artifacts.stream().filter(this::isComponent).collect(Properties::new, (props, artifact) -> {
+                    final String filename = String
+                            .format("%s-%s%s.%s", artifact.getArtifactId(), artifact.getVersion(),
+                                    ofNullable(artifact.getClassifier())
+                                            .filter(c -> !c.isEmpty())
+                                            .map(c -> '-' + c)
+                                            .orElse(""),
+                                    ofNullable(artifact.getType()).orElse("jar"));
+                    final String pluginName = artifact.getArtifactId() + (ofNullable(artifact.getClassifier())
+                            .filter(c -> !c.isEmpty())
+                            .map(c -> '-' + c)
+                            .orElse(""));
+                    props
+                            .setProperty(pluginName,
+                                    String
+                                            .format("%s/%s/%s/%s", artifact.getGroupId().replace(".", "/"),
+                                                    artifact.getArtifactId(), artifact.getVersion(), filename));
+                }, Hashtable::putAll);
         jarOutputStream.putNextEntry(new ZipEntry(pluginListResource));
         properties.store(jarOutputStream, "plugin list");
     }

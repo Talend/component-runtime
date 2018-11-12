@@ -41,7 +41,7 @@ public class ContainerDependenciesTransformer extends ArtifactTransformer {
     private Collection<String> ignoredPathsRuntime = null;
 
     @Override
-    public void modifyOutputStream(final JarOutputStream jarOutputStream) throws IOException {
+    public void modifyOutputStream(final JarOutputStream jarOutputStream) {
         final Collection<String> existing = new HashSet<>();
         artifacts.forEach(artifact -> {
             try {

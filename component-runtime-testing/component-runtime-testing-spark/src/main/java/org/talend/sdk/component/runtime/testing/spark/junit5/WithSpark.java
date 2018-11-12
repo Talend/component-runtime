@@ -45,7 +45,7 @@ public @interface WithSpark {
     /**
      * @return spark version.
      */
-    String sparkVersion() default "2.2.1";
+    String sparkVersion() default "2.4.0";
 
     /**
      * @return where to find winutils for hadoop.

@@ -21,10 +21,12 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.NONE;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
@@ -41,17 +43,14 @@ import org.apache.maven.plugins.shade.relocation.Relocator;
 import org.apache.maven.plugins.shade.resource.ResourceTransformer;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.project.ProjectBuildingResult;
-import org.apache.maven.shared.artifact.resolve.ArtifactResolver;
-import org.apache.maven.shared.artifact.resolve.ArtifactResolverException;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.apache.maven.shared.dependency.graph.filter.ArtifactDependencyNodeFilter;
 import org.apache.maven.shared.dependency.graph.traversal.CollectingDependencyNodeVisitor;
 import org.apache.maven.shared.dependency.graph.traversal.FilteringDependencyNodeVisitor;
+import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResolver;
+import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResolverException;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
@@ -87,11 +86,9 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
         if (userArtifacts != null && !userArtifacts.isEmpty()) {
             final ArtifactResolver resolver;
             final DependencyGraphBuilder graphBuilder;
-            final ProjectBuilder projectBuilder;
             final PlexusContainer container = session.getContainer();
             try {
                 resolver = ArtifactResolver.class.cast(container.lookup(ArtifactResolver.class, "default"));
-                projectBuilder = ProjectBuilder.class.cast(container.lookup(ProjectBuilder.class, "default"));
                 graphBuilder = includeTransitiveDependencies
                         ? DependencyGraphBuilder.class.cast(container.lookup(DependencyGraphBuilder.class, "default"))
                         : null;
@@ -113,12 +110,12 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                     if (includeTransitiveDependencies) {
                         final DefaultProjectBuildingRequest request =
                                 new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+                        if (request.getProject() == null) {
+                            request.setProject(session.getCurrentProject());
+                        }
 
                         try {
-                            final ProjectBuildingResult projectBuildingResult =
-                                    projectBuilder.build(artifact, true, request);
-                            final DependencyNode transitives =
-                                    graphBuilder.buildDependencyGraph(projectBuildingResult.getProject(), filter);
+                            final DependencyNode transitives = graphBuilder.buildDependencyGraph(request, filter);
                             final CollectingDependencyNodeVisitor visitor = new CollectingDependencyNodeVisitor();
                             transitives
                                     .accept(new FilteringDependencyNodeVisitor(visitor,
@@ -132,7 +129,7 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                                                     throw new IllegalStateException(e);
                                                 }
                                             }));
-                        } catch (final ProjectBuildingException | DependencyGraphBuilderException e) {
+                        } catch (final DependencyGraphBuilderException e) {
                             throw new IllegalStateException(e);
                         }
                     }
@@ -193,8 +190,7 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
     }
 
     @Override
-    public void processResource(final String resource, final InputStream inputStream, final List<Relocator> list)
-            throws IOException {
+    public void processResource(final String resource, final InputStream inputStream, final List<Relocator> list) {
         // no-op
     }
 
@@ -202,6 +198,18 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
     private ArtifactFilter newScopeFilter(final String singleScope) {
         return "provided".equals(singleScope) ? artifact -> Artifact.SCOPE_PROVIDED.equals(artifact.getScope())
                 : new ScopeArtifactFilter(singleScope);
+    }
+
+    protected boolean isComponent(final Artifact artifact) {
+        final File file = artifact.getFile();
+        if (file.isDirectory()) {
+            return new File(file, "TALEND-INF/dependencies.txt").exists();
+        }
+        try (final JarFile jar = new JarFile(file)) {
+            return jar.getEntry("TALEND-INF/dependencies.txt") != null;
+        } catch (final IOException ioe) {
+            return false;
+        }
     }
 
     @Data
