@@ -38,10 +38,11 @@ talendComponentKit {
     // documentation
     skipDocumentation = false
     documentationOutput = new File(....)
-    documentationLevel = 2 // first level will be == in the generated adoc
-    documentationTitle = 'My Component Family' // default to project name
-    documentationFormats = [:] // adoc attributes
+    documentationLevel = 2 // first level will be == in the generated .adoc
+    documentationTitle = 'My Component Family' // defaults to ${project.name}
+    documentationAttributes = [:] // adoc attributes
     documentationFormats = [:] // renderings to do
+    documentationVersion = 1.1 // defaults to the .pom version
 
     // validation
     skipValidation = false
@@ -57,14 +58,22 @@ talendComponentKit {
     validateActions = true
     validateLocalConfiguration = true
     validateOutputConnection = true
+    validateLayout = true
+    validateDocumentation = true
 
     // web
     serverArguments = []
     serverPort = 8080
 
     // car
+    carAttach = true
+    carClassifier = component // classifier to use if carAttach is set to true
     carOutput = new File(....)
     carMetadata = [:] // custom meta (string key-value pairs)
+    carPackaging = ${project.packaging}
+
+    // deploy-in-studio
+    studioHome = "C:\<pathToSutdio>"
 }
 ----
 
