@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.util.Arrays.asList;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
@@ -27,6 +28,9 @@ import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 
 public class AvroSchemaBuilder implements Schema.Builder {
+
+    private static final org.apache.avro.Schema NULL_SCHEMA =
+            org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL);
 
     private static final AvroSchema BYTES_SCHEMA =
             new AvroSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BYTES));
@@ -84,9 +88,13 @@ public class AvroSchemaBuilder implements Schema.Builder {
             break;
         default:
         }
+        final org.apache.avro.Schema schema =
+                Unwrappable.class.cast(entrySchemaBuilder.build()).unwrap(org.apache.avro.Schema.class);
         fields
                 .add(new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
-                        Unwrappable.class.cast(entrySchemaBuilder.build()).unwrap(org.apache.avro.Schema.class),
+                        entry.isNullable() && schema.getType() != org.apache.avro.Schema.Type.UNION
+                                ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
+                                : schema,
                         entry.getComment(), toJsonNode(entry.getDefaultValue())));
         return this;
     }

@@ -31,6 +31,15 @@ public final class AvroSchemas {
         EMPTY_SCHEMA.setFields(emptyList());
     }
 
+    public static Schema unwrapUnion(final Schema schema) {
+        switch (schema.getType()) {
+        case UNION:
+            return schema.getTypes().get(schema.getTypes().size() - 1);
+        default:
+            return schema;
+        }
+    }
+
     public static Schema getEmptySchema() {
         return EMPTY_SCHEMA;
     }

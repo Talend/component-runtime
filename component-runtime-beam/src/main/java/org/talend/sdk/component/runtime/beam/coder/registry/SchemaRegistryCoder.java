@@ -48,16 +48,16 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
         final Schema avro =
                 value == null ? AvroSchemas.getEmptySchema() : Unwrappable.class.cast(schema).unwrap(Schema.class);
         final String id = generateRecordName(avro.getFields());
-
         // write the id first
         outputStream.write(id.getBytes(StandardCharsets.UTF_8));
         outputStream.write('\n');
 
         // then the record with the default avro coder
         registry().putIfAbsent(id, schema);
-        getCoder(avro)
-                .encode(value == null ? EMPTY_RECORD : Unwrappable.class.cast(value).unwrap(IndexedRecord.class),
-                        outputStream);
+        if (value != null) {
+            getCoder(avro).encode(Unwrappable.class.cast(value).unwrap(IndexedRecord.class), outputStream);
+        }
+        outputStream.flush();
     }
 
     @Override
@@ -72,8 +72,11 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
         if (schema == null) {
             throw new IllegalStateException("Invalid schema id: '" + id + "'");
         }
-        final IndexedRecord decoded = getCoder(Schemas.EMPTY_RECORD == schema ? AvroSchemas.getEmptySchema()
-                : Unwrappable.class.cast(schema).unwrap(Schema.class)).decode(inputStream);
+        final Schema unwrappedSchema = Unwrappable.class.cast(schema).unwrap(Schema.class);
+        if (Schemas.EMPTY_RECORD == schema) {
+            return new AvroRecord(EMPTY_RECORD);
+        }
+        final IndexedRecord decoded = getCoder(unwrappedSchema).decode(inputStream);
         return new AvroRecord(decoded);
     }
 

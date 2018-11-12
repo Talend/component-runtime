@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toObject;
 
 import java.util.List;
@@ -71,8 +72,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             }
             entries = delegate.getFields().stream().map(field -> {
                 final Type type = mapType(field.schema());
-                final AvroSchema elementSchema =
-                        new AvroSchema(type == Type.ARRAY ? field.schema().getElementType() : field.schema());
+                final AvroSchema elementSchema = new AvroSchema(
+                        type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
                 return new SchemaImpl.EntryImpl(field.name(), type, field.defaultValue() == null,
                         field.defaultValue() != null ? toObject(field.defaultValue()) : null, elementSchema,
                         field.doc());
@@ -93,6 +94,10 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     private Type mapType(final Schema schema) {
+        return doMapType(unwrapUnion(schema));
+    }
+
+    private Type doMapType(final Schema schema) {
         switch (schema.getType()) {
         case LONG:
             if (Boolean.parseBoolean(readProp(schema, Type.DATETIME.name()))) {

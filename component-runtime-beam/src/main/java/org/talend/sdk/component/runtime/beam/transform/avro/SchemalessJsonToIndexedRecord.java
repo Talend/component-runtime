@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 import javax.json.JsonArray;
@@ -48,19 +49,19 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
     public static class Fn extends DoFn<JsonObject, IndexedRecord> {
 
         private static final Schema BOOLEAN =
-                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.BOOLEAN));
+                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.BOOLEAN)));
 
         private static final Schema DOUBLE =
-                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.DOUBLE));
+                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.DOUBLE)));
 
         private static final Schema LONG =
-                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.LONG));
+                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.LONG)));
 
         private static final Schema INT =
-                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.INT));
+                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.INT)));
 
         private static final Schema STRING =
-                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING));
+                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)));
 
         private static final Schema NULL = Schema.create(Schema.Type.NULL);
 

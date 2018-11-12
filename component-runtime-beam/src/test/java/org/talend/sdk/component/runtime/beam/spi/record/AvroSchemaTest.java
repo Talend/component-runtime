@@ -18,7 +18,11 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 import static org.junit.Assert.assertEquals;
 import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
+import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
+import java.util.Iterator;
+
+import org.apache.avro.Schema;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
@@ -33,5 +37,24 @@ class AvroSchemaTest {
                         .build())
                 .getDelegate();
         assertEquals(DATETIME, new AvroSchema(avro).getEntries().iterator().next().getType());
+    }
+
+    @Test
+    void ensureNullableArePropagated() {
+        final org.apache.avro.Schema avro = AvroSchema.class
+                .cast(new AvroSchemaBuilder()
+                        .withType(RECORD)
+                        .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                                .withType(STRING)
+                                .withName("name")
+                                .withNullable(true)
+                                .build())
+                        .build())
+                .getDelegate();
+        final Schema schema = avro.getFields().iterator().next().schema();
+        assertEquals(2, schema.getTypes().size());
+        final Iterator<Schema> types = schema.getTypes().iterator();
+        assertEquals(Schema.Type.NULL, types.next().getType());
+        assertEquals(Schema.Type.STRING, types.next().getType());
     }
 }

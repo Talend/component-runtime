@@ -16,6 +16,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1149[TCOMP-1149^]: [testing] BeamEnvironment does not reset PipelineOptionsFactory properly for beam > 2.4
 - link:https://jira.talendforge.org/browse/TCOMP-1155[TCOMP-1155^]: [proxy server] arrays not supporting null values in ConfigurationFormatter
 - link:https://jira.talendforge.org/browse/TCOMP-1159[TCOMP-1159^]: AvroSchema does not support DATETTIME type (beam module)
+- link:https://jira.talendforge.org/browse/TCOMP-1168[TCOMP-1168^]: Avro record implementation ignores nullable/union
 
 
 === New Feature
@@ -48,6 +49,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1164[TCOMP-1164^]: Validate mojo does not log any success information
 - link:https://jira.talendforge.org/browse/TCOMP-1165[TCOMP-1165^]: Dependency mojo does not log any success information
 - link:https://jira.talendforge.org/browse/TCOMP-1166[TCOMP-1166^]: Documentation mojo does not log generated files properly
+- link:https://jira.talendforge.org/browse/TCOMP-1167[TCOMP-1167^]: Beam-Avro record name generation should use avro fingerprint to be more unique than current logic
 
 
 == Version 1.1.1

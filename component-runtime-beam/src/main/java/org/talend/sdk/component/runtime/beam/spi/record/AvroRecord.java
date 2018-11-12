@@ -15,10 +15,13 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
@@ -40,6 +43,9 @@ import org.talend.sdk.component.runtime.record.RecordConverters;
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
+
+    private static final org.apache.avro.Schema NULL_SCHEMA =
+            org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL);
 
     private final IndexedRecord delegate;
 
@@ -114,7 +120,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (collection == null) {
             return null;
         }
-        final org.apache.avro.Schema elementType = delegate.getSchema().getField(name).schema().getElementType();
+        final org.apache.avro.Schema elementType =
+                unwrapUnion(delegate.getSchema().getField(name).schema()).getElementType();
         return doMapCollection(type, collection, elementType);
     }
 
@@ -159,7 +166,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return null;
         }
         final Object value = delegate.get(field.pos());
-        return doMap(expectedType, field.schema(), value);
+        final org.apache.avro.Schema schema = field.schema();
+        return doMap(expectedType, unwrapUnion(schema), value);
     }
 
     private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchema, final Object value) {
@@ -185,6 +193,14 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     private org.apache.avro.Schema toSchema(final Schema.Entry entry) {
+        final org.apache.avro.Schema schema = doToSchema(entry);
+        if (entry.isNullable() && schema.getType() != UNION) {
+            return org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema));
+        }
+        return schema;
+    }
+
+    private org.apache.avro.Schema doToSchema(final Schema.Entry entry) {
         final Schema.Builder builder = new AvroSchemaBuilder().withType(entry.getType());
         switch (entry.getType()) {
         case ARRAY:
