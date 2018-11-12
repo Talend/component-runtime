@@ -41,6 +41,13 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1154[TCOMP-1154^]: Required validation at runtime ignores lists and nested objects
 - link:https://jira.talendforge.org/browse/TCOMP-1157[TCOMP-1157^]: [dependency upgrade] Tomcat 9.0.13
 - link:https://jira.talendforge.org/browse/TCOMP-1158[TCOMP-1158^]: Enable JUnit test collector to use a static storage instead of thread related one
+- link:https://jira.talendforge.org/browse/TCOMP-1160[TCOMP-1160^]: Upgrade spark to 2.4.0
+- link:https://jira.talendforge.org/browse/TCOMP-1161[TCOMP-1161^]: Upgrade shade plugin to 3.2.1
+- link:https://jira.talendforge.org/browse/TCOMP-1162[TCOMP-1162^]: Upgrade nested-maven-repository shade transformers to support last maven versions
+- link:https://jira.talendforge.org/browse/TCOMP-1163[TCOMP-1163^]: Upgrade openwebbeans to 2.0.8
+- link:https://jira.talendforge.org/browse/TCOMP-1164[TCOMP-1164^]: Validate mojo does not log any success information
+- link:https://jira.talendforge.org/browse/TCOMP-1165[TCOMP-1165^]: Dependency mojo does not log any success information
+- link:https://jira.talendforge.org/browse/TCOMP-1166[TCOMP-1166^]: Documentation mojo does not log generated files properly
 
 
 == Version 1.1.1
