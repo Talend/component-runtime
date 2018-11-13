@@ -13,16 +13,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
   <parent>
-    <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime</artifactId>
     <version>1.1.2-SNAPSHOT</version>
   </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-
   <artifactId>talend-component-kit-intellij-plugin</artifactId>
+
   <name>Component Runtime :: Intellij Plugin</name>
   <description>Provides Talend Component Kit Integration with Intellij Idea.</description>
 
@@ -42,6 +43,19 @@
     <retrofit.version>1.9.0</retrofit.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>intellij-client</id>
+      <url>https://dl.bintray.com/jetbrains/intellij-plugin-service/</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>intellij-client</id>
+      <url>https://dl.bintray.com/jetbrains/intellij-plugin-service/</url>
+    </pluginRepository>
+  </pluginRepositories>
+
   <build>
     <resources>
       <resource>
@@ -59,7 +73,6 @@
         </includes>
       </resource>
     </resources>
-
     <plugins>
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
@@ -124,19 +137,6 @@
       </plugin>
     </plugins>
   </build>
-
-  <repositories>
-    <repository>
-      <id>intellij-client</id>
-      <url>https://dl.bintray.com/jetbrains/intellij-plugin-service/</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>intellij-client</id>
-      <url>https://dl.bintray.com/jetbrains/intellij-plugin-service/</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <profiles>
     <profile>

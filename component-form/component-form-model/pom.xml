@@ -14,14 +14,16 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>component-form</artifactId>
-    <groupId>org.talend.sdk.component</groupId>
-    <version>1.1.2-SNAPSHOT</version>
-  </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-form</artifactId>
+    <version>1.1.2-SNAPSHOT</version>
+  </parent>
+
   <artifactId>component-form-model</artifactId>
+
   <name>Component Runtime :: Form :: Model</name>
   <description>This module owns the UISpec model classes. It doesn't have any logic which MUST be in other modules.</description>
 

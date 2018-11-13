@@ -14,14 +14,16 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>component-runtime</artifactId>
-    <groupId>org.talend.sdk.component</groupId>
-    <version>1.1.2-SNAPSHOT</version>
-  </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime</artifactId>
+    <version>1.1.2-SNAPSHOT</version>
+  </parent>
+
   <artifactId>documentation</artifactId>
+
   <name>Component Runtime :: Documentation</name>
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
@@ -204,6 +206,19 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>bintray</id>
+      <url>https://jcenter.bintray.com</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>bintray</id>
+      <url>https://jcenter.bintray.com</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <build>
     <plugins>
@@ -419,7 +434,7 @@
             <artifactId>jruby-complete</artifactId>
             <version>${jruby.version}</version>
           </dependency>
-          <dependency> <!-- to reuse maven one -->
+          <dependency><!-- to reuse maven one -->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.5.6</version>
@@ -561,7 +576,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin> <!-- mvn package -Pgen-doc [once] && mvn frontend:yarn@yarn-dev -Pgen-doc -->
+      <plugin><!-- mvn package -Pgen-doc [once] && mvn frontend:yarn@yarn-dev -Pgen-doc -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
@@ -719,7 +734,7 @@
         </executions>
       </plugin>
 
-      <plugin> <!-- mvn initialize asciidoctor:process-asciidoc@pdf -e -->
+      <plugin><!-- mvn initialize asciidoctor:process-asciidoc@pdf -e -->
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
         <version>1.5.7.1</version>
@@ -889,17 +904,4 @@
       </properties>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <id>bintray</id>
-      <url>https://jcenter.bintray.com</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>bintray</id>
-      <url>https://jcenter.bintray.com</url>
-    </pluginRepository>
-  </pluginRepositories>
 </project>

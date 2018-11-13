@@ -14,14 +14,16 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>component-runtime</artifactId>
-    <groupId>org.talend.sdk.component</groupId>
-    <version>1.1.2-SNAPSHOT</version>
-  </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime</artifactId>
+    <version>1.1.2-SNAPSHOT</version>
+  </parent>
+
   <artifactId>component-runtime-manager</artifactId>
+
   <name>Component Runtime :: Manager</name>
   <description>Core of the framework, the manager allows to access components and instantiate them.</description>
 
@@ -87,7 +89,7 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency> <!-- for java >= 9 support -->
+    <dependency><!-- for java >= 9 support -->
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
     </dependency>

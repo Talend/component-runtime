@@ -13,15 +13,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>component-runtime</artifactId>
-    <groupId>org.talend.sdk.component</groupId>
-    <version>1.1.2-SNAPSHOT</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime</artifactId>
+    <version>1.1.2-SNAPSHOT</version>
+  </parent>
+
   <artifactId>gradle-talend-component</artifactId>
+
   <name>Component Runtime :: Gradle Plugin</name>
   <description>Provides Talend Component Kit Tools wrapped as gradle tasks.</description>
 
@@ -66,4 +68,3 @@
     </plugins>
   </build>
 </project>
-

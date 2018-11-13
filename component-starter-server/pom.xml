@@ -14,14 +14,16 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>component-runtime</artifactId>
-    <groupId>org.talend.sdk.component</groupId>
-    <version>1.1.2-SNAPSHOT</version>
-  </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime</artifactId>
+    <version>1.1.2-SNAPSHOT</version>
+  </parent>
+
   <artifactId>component-starter-server</artifactId>
+
   <name>Component Runtime :: Starter Server</name>
   <description>Web application allowing to generate maven or gradle project skeleton to speed up component
     development.
@@ -34,7 +36,7 @@
   </properties>
 
   <dependencies>
-    <dependency> <!-- override until we upgrade meecrowave -->
+    <dependency><!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
       <version>${johnzon.version}</version>
@@ -121,7 +123,7 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency> <!-- for java >= 9 support -->
+    <dependency><!-- for java >= 9 support -->
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
     </dependency>
@@ -143,7 +145,6 @@
         </excludes>
       </resource>
     </resources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -239,7 +240,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin> <!-- frontend build (nodejs), generated at prepare-package to be there for tests -->
+      <plugin><!-- frontend build (nodejs), generated at prepare-package to be there for tests -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>

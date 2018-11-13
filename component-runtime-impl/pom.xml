@@ -14,15 +14,17 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
   <parent>
-    <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime</artifactId>
     <version>1.1.2-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
 
   <artifactId>component-runtime-impl</artifactId>
   <packaging>bundle</packaging>
+
   <name>Component Runtime :: Impl</name>
   <description>
     Module responsible to understand the API model and make it runnable.

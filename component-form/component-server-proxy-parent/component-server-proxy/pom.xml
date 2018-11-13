@@ -14,14 +14,16 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>component-server-proxy-parent</artifactId>
-    <groupId>org.talend.sdk.component</groupId>
-    <version>1.1.2-SNAPSHOT</version>
-  </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-server-proxy-parent</artifactId>
+    <version>1.1.2-SNAPSHOT</version>
+  </parent>
+
   <artifactId>component-server-proxy</artifactId>
+
   <name>Component Runtime :: Form :: Server Proxy Parent :: Impl</name>
   <description>Rest Proxy for Component Server</description>
 
@@ -115,7 +117,7 @@
       <version>2.2</version>
       <classifier>cdi</classifier>
       <exclusions>
-        <exclusion> <!-- we will use the existing impl, like ehcache -->
+        <exclusion><!-- we will use the existing impl, like ehcache -->
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-jcs-core</artifactId>
         </exclusion>
@@ -132,8 +134,8 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-proxy-dependencies</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
       <type>pom</type>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.typesafe.play</groupId>
