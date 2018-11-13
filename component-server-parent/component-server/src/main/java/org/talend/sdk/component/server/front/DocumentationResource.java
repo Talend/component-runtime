@@ -16,7 +16,6 @@
 package org.talend.sdk.component.server.front;
 
 import static java.util.Optional.ofNullable;
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -219,7 +218,7 @@ public class DocumentationResource {
                 .stream()
                 .filter(it -> it.endsWith("= Configuration"))
                 .map(it -> it.indexOf(' '))
-                .collect(groupingBy(identity(), TreeMap::new, toList()));
+                .collect(groupingBy(it -> it, TreeMap::new, toList()));
         if (configurationLevels.isEmpty()) {
             // no standard configuration, just return it all
             return value;
