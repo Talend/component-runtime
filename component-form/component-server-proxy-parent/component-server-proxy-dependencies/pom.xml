@@ -189,5 +189,17 @@
       <artifactId>johnzon-jaxrs</artifactId>
       <version>${johnzon.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-jcache-simple</artifactId>
+      <version>1.0.1</version>
+      <classifier>cdi</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 </project>
