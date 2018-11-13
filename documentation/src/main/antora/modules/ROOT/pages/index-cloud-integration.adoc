@@ -10,7 +10,3 @@
 Learn about the component server with the following articles:
 
 * xref:documentation-rest.adoc[Component server and HTTP API]
-
-For more advanced cases, you can check the UiSpec Server documentation. The UiSpec server is a companion application for the Component Server. It provides a client to the Component Server which serves UiSpec payload to integrate with the client JavaScript UiForm library.
-
-* xref:server-uispec.adoc[UiSpec Server]

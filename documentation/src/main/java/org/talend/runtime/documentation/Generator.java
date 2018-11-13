@@ -122,7 +122,6 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
 import org.talend.sdk.component.api.service.schema.Type;
 import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
-import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
@@ -170,7 +169,6 @@ public class Generator {
             tasks.register(() -> generatedUi(generatedDir));
             tasks.register(() -> generatedServerConfiguration(generatedDir));
             tasks.register(() -> updateComponentServerApi(generatedDir));
-            tasks.register(() -> generatedProxyServerConfiguration(generatedDir));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
             tasks.register(() -> generatedIcons(generatedDir, iconOutput));
@@ -648,19 +646,6 @@ public class Generator {
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
             stream.println();
             generateConfigTableContent(stream, ComponentServerConfiguration.class);
-            stream.println();
-        }
-    }
-
-    private static void generatedProxyServerConfiguration(final File generatedDir) {
-        final File file = new File(generatedDir, "generated_proxy-server-configuration.adoc");
-        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println();
-            stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
-            stream.println("If you use `playx-microprofile-config`, you can also use typesafe configuration.");
-            stream.println();
-            stream.println();
-            generateConfigTableContent(stream, ProxyConfiguration.class);
             stream.println();
         }
     }

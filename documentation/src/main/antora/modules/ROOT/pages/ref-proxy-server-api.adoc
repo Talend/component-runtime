@@ -1,5 +1,0 @@
-= UiSpec proxy server API
-:page-partial:
-:page-talend_skipindexation:
-
-include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+1]

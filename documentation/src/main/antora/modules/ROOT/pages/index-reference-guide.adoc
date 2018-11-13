@@ -25,16 +25,6 @@ include::{partialsdir}/generated_constraints.adoc[leveloffset=+2]
 
 include::{partialsdir}/generated_junit-environments.adoc[]
 
-== Proxy server API
-
-include::{partialsdir}/generated_proxy-server-api.adoc[]
-
-== Proxy server configuration
-
-include::{partialsdir}/generated_proxy-server-configuration.adoc[]
-
-include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+1]
-
 == Scanning
 
 include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]
