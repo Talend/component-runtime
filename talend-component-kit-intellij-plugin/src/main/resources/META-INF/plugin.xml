@@ -15,7 +15,7 @@
 -->
 <idea-plugin url="https://talend.github.io/component-runtime/">
   <id>org.talend.sdk.component.intellij.plugin</id>
-  <name>Talend Component Kit - Intellij Plugin</name>
+  <name>Talend Component Kit</name>
   <version>${project.version}</version>
   <idea-version since-build="172"/>
   <vendor email="contact@talend.com" url="https://www.talend.com">Talend</vendor>
