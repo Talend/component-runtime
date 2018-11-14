@@ -23,6 +23,7 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSE
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
+import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,11 +51,13 @@ import org.apache.xbean.finder.archive.CompositeArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.ziplock.IO;
 import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.server.service.IconResolver;
 
 import lombok.Data;
 
 // not yet a "documented" plugin since it does make sense only for huge component reposities/projects
+@Audience(TALEND_INTERNAL)
 @Mojo(name = "icon-report", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
         threadSafe = true)
 public class IconReporterMojo extends ClasspathMojoBase {
@@ -198,6 +201,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
             final long customIconsCount = icons.stream().filter(it -> it.custom).count();
             final long validIcons = icons.size() - missingIconsCount - customIconsCount;
 
+            final Bootstrap bootstrap = new Bootstrap();
             output.getParentFile().mkdirs();
             try (final PrintStream stream = new PrintStream(new FileOutputStream(output))) {
                 stream.println("<!DOCTYPE html>");
@@ -211,16 +215,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                 if (css != null && !css.isEmpty()) {
                     stream.println(css);
                 } else {
-                    stream
-                            .println("    <link rel=\"stylesheet\" "
-                                    + "href=\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css\" "
-                                    + "integrity=\"sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=\" "
-                                    + "crossorigin=\"anonymous\" />");
-                    stream
-                            .println("      <link rel=\"stylesheet\" "
-                                    + "href=\"https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.13/css/mdb.min.css\" "
-                                    + "integrity=\"sha256-REjZf+g6soUYYHr2eOC4oR1+kiH4sQqdE1fTBWMiKiw=\" "
-                                    + "crossorigin=\"anonymous\" />");
+                    bootstrap.css(stream);
                     stream.println("      <style>");
                     stream.println("        img { max-width: 250px; }");
                     stream.println("        image-container { width: 250px; }");
@@ -280,21 +275,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                     if (js != null && !js.isEmpty()) {
                         stream.println(js);
                     } else {
-                        stream
-                                .println(
-                                        "   <script src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js\" "
-                                                + "integrity=\"sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=\" "
-                                                + "crossorigin=\"anonymous\"></script>");
-                        stream
-                                .println("   <script "
-                                        + "src=\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js\" "
-                                        + "integrity=\"sha256-EGs9T1xMHdvM1geM8jPpoo8EZ1V1VRsmcJz8OByENLA=\" "
-                                        + "crossorigin=\"anonymous\"></script>");
-                        stream
-                                .println("   <script "
-                                        + "src=\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js\" "
-                                        + "integrity=\"sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=\" "
-                                        + "crossorigin=\"anonymous\"></script>");
+                        bootstrap.js(stream);
                         stream
                                 .println("   <script "
                                         + "src=\"https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.13/js/mdb.min.js\" "

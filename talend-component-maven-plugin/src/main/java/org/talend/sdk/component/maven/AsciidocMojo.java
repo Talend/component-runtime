@@ -20,6 +20,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
 import java.util.Collection;
@@ -33,12 +34,14 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
+import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.tools.AsciidocDocumentationGenerator;
 
 /**
  * Generates an asiidoc documentation for the component,
  * it can also render it as HTML or PDF documents.
  */
+@Audience(PUBLIC)
 @Mojo(name = "asciidoc", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
         threadSafe = true)
 public class AsciidocMojo extends ClasspathMojoBase {

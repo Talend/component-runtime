@@ -16,6 +16,7 @@
 package org.talend.sdk.component.maven;
 
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
 import java.util.Map;
@@ -24,11 +25,13 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
+import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.tools.CarBundler;
 
 /**
  * Bundles the component as a component archive (.car).
  */
+@Audience(PUBLIC)
 @Mojo(name = "car", requiresDependencyResolution = COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class CarMojo extends DependencyAwareMojo {
 

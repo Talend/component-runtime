@@ -16,6 +16,7 @@
 package org.talend.sdk.component.maven;
 
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.util.Collection;
 
@@ -24,6 +25,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
+import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.tools.WebServer;
 
 import lombok.Data;
@@ -32,6 +34,7 @@ import lombok.Data;
  * Starts a small web server where you can test the rendering of your
  * component forms.
  */
+@Audience(PUBLIC)
 @Mojo(name = "web", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class WebMojo extends AbstractMojo {
 

@@ -16,11 +16,13 @@
 package org.talend.sdk.component.maven;
 
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.tools.StudioInstaller;
 
 // mvn talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
@@ -28,6 +30,7 @@ import org.talend.sdk.component.tools.StudioInstaller;
 /**
  * Deploys into a local Talend Studio Integration instance the current component module.
  */
+@Audience(PUBLIC)
 @Mojo(name = "deploy-in-studio", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class DeployStudioMojo extends DependencyAwareMojo {
 

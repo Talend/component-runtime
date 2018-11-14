@@ -52,6 +52,7 @@ import lombok.Data;
 // with the studio and lighter in the sense
 // it doesn't handle properties since studio will then load the plugin to handle
 // them but that's an option if desired
+@Deprecated
 @Mojo(name = "metadata", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
 

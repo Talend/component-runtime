@@ -17,6 +17,7 @@ package org.talend.sdk.component.maven;
 
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
 
@@ -24,12 +25,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.tools.ComponentValidator;
 
 /**
  * Validate ComponentManager constraints to ensure a component doesn't have any
  * "simple" error before being packaged.
  */
+@Audience(PUBLIC)
 @Mojo(name = "validate", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
         threadSafe = true)
 public class ValidateComponentMojo extends ClasspathMojoBase {

@@ -17,6 +17,7 @@ package org.talend.sdk.component.maven;
 
 import static java.util.stream.Collectors.joining;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,10 +31,12 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.talend.sdk.component.maven.api.Audience;
 
 /**
  * Creates the file descriptor listing dependencies needed at runtime for the module.
  */
+@Audience(PUBLIC)
 @Mojo(name = "dependencies", requiresDependencyResolution = COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DependencyMojo extends AbstractMojo {
 

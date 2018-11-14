@@ -15,10 +15,12 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -35,40 +37,17 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.apache.ziplock.Files;
 import org.apache.ziplock.IO;
-import org.eclipse.aether.RepositorySystem;
-import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.repository.LocalRepositoryManager;
-import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.ArtifactRequest;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.ArtifactResult;
+import org.talend.sdk.component.maven.api.Audience;
 
-// @Experimental, resolve each car for each component which is a dependency of th eproject
+@Audience(TALEND_INTERNAL)
 @Mojo(name = "prepare-repository", defaultPhase = PACKAGE, threadSafe = true,
         requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
-public class BuildComponentM2RepositoryMojo extends AbstractMojo {
-
-    @Parameter(defaultValue = "${session}", readonly = true)
-    private MavenSession session;
-
-    @Parameter(defaultValue = "${project}", readonly = true)
-    private MavenProject project;
-
-    @Parameter(property = "talend-m2.scopes", defaultValue = "compile,runtime")
-    private List<String> scopes;
-
-    @Parameter(property = "talend-m2.packagings", defaultValue = "jar,bundle")
-    private List<String> packagings;
+public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
 
     @Parameter(property = "talend-m2.registryBase")
     private File componentRegistryBase;
@@ -80,46 +59,18 @@ public class BuildComponentM2RepositoryMojo extends AbstractMojo {
     @Parameter(property = "talend-m2.clean", defaultValue = "true")
     private boolean cleanBeforeGeneration;
 
-    @Parameter(defaultValue = "false", property = "talend.skip")
-    private boolean skip;
-
-    @Parameter(defaultValue = "${repositorySystemSession}")
-    private RepositorySystemSession repositorySystemSession;
-
-    @Parameter(defaultValue = "${project.remoteProjectRepositories}")
-    private List<RemoteRepository> remoteRepositories;
-
     @Parameter(defaultValue = "component", property = "talend.car.classifier")
     private String classifier;
 
-    @Component
-    private RepositorySystem repositorySystem;
-
     @Override
-    public void execute() {
-        if (skip) {
-            getLog().info("Execution skipped");
-            return;
-        }
-
-        final LocalRepositoryManager lrm = repositorySystemSession.getLocalRepositoryManager();
-        final Set<Artifact> componentArtifacts = project
-                .getArtifacts()
-                .stream()
-                .filter(art -> scopes.contains(art.getScope()))
-                .filter(dep -> packagings.contains(dep.getType()))
-                .map(dep -> new DefaultArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getClassifier(),
-                        dep.getType(), dep.getVersion()))
-                .map(dep -> resolve(lrm, dep, dep.getClassifier(), "jar"))
-                .filter(art -> {
-                    try (final JarFile file = new JarFile(art.getFile())) { // filter components with this marker
-                        return file.getEntry("TALEND-INF/dependencies.txt") != null;
-                    } catch (final IOException e) {
-                        return false;
-                    }
-                })
-                .map(art -> resolve(lrm, art, classifier, "car"))
-                .collect(toSet());
+    public void doExecute() {
+        final Set<Artifact> componentArtifacts = getArtifacts(it -> {
+            try (final JarFile file = new JarFile(it.getFile())) { // filter components with this marker
+                return ofNullable(file.getEntry("TALEND-INF/dependencies.txt")).map(ok -> it).orElse(null);
+            } catch (final IOException e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).map(art -> resolve(art, classifier, "car")).collect(toSet());
 
         if (cleanBeforeGeneration && m2Root.exists()) {
             Files.remove(m2Root);
@@ -183,30 +134,5 @@ public class BuildComponentM2RepositoryMojo extends AbstractMojo {
         }
 
         getLog().info("Created component repository at " + m2Root);
-    }
-
-    private Artifact resolve(final LocalRepositoryManager lrm, final Artifact dep, final String classifier,
-            final String type) {
-        final Artifact artifact =
-                new DefaultArtifact(dep.getGroupId(), dep.getArtifactId(), classifier, type, dep.getVersion());
-        final File location = new File(lrm.getRepository().getBasedir(), lrm.getPathForLocalArtifact(artifact));
-        if (!location.exists()) {
-            return resolve(artifact);
-        }
-        return artifact.setFile(location);
-    }
-
-    private Artifact resolve(final Artifact art) {
-        final ArtifactRequest artifactRequest =
-                new ArtifactRequest().setArtifact(art).setRepositories(remoteRepositories);
-        try {
-            final ArtifactResult result = repositorySystem.resolveArtifact(repositorySystemSession, artifactRequest);
-            if (result.isMissing()) {
-                throw new IllegalStateException("Can't find " + art);
-            }
-            return result.getArtifact();
-        } catch (final ArtifactResolutionException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
     }
 }
