@@ -16,6 +16,7 @@
 package org.talend.sdk.component.maven;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
@@ -33,7 +34,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.AbstractMap;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,6 +41,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -111,7 +112,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
 
         output.getParentFile().mkdirs();
 
-        final Map<Artifact, List<Artifact>> conflicts = detectConflicts(modules);
+        final Map<Artifact, ConflictingDependency> conflicts = detectConflicts(modules);
 
         final Bootstrap bootstrap = new Bootstrap();
         try (final PrintStream stream = new PrintStream(new FileOutputStream(output))) {
@@ -165,27 +166,41 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                     .println(
                             "       <div class=\"tab-pane active\" id=\"conflicts\" role=\"tabpanel\" aria-labelledby=\"conflicts-tab\">");
             stream.println("         <h2>Conflicting Dependencies Report</h2>");
-            writeDependencyList(stream,
-                    conflicts
-                            .entrySet()
-                            .stream()
-                            .map(it -> new Item(it.getKey(), emptyList(), it.getValue()))
-                            .collect(toList()),
-                    emptyList(), Item::getDependencies, false);
+            writeTable(stream, () -> conflicts.forEach((conflictingDep, meta) -> {
+                meta.getModules().stream().limit(1).forEach(module -> {
+                    stream.println("             <tr>");
+                    stream
+                            .println("               <td>" + escapeHtml4(conflictingDep.getGroup() + ':'
+                                    + conflictingDep.getArtifact() + ":["
+                                    + meta.versions.stream().map(Artifact::getVersion).collect(Collectors.joining("|")))
+                                    + "</td>");
+                    stream.println("               <td>" + escapeHtml4(module.toCoordinate()) + "</td>");
+                    stream.println("             </tr>");
+                });
+                meta.getModules().stream().skip(1).forEach(module -> {
+                    stream.println("             <tr>");
+                    stream.println("               <td></td>");
+                    stream.println("               <td>" + escapeHtml4(module.toCoordinate()) + "</td>");
+                    stream.println("             </tr>");
+                });
+            }), () -> {
+                stream.println("                 <td scope=\"col\">Dependency</td>");
+                stream.println("                 <td scope=\"col\">Module</td>");
+            });
             stream.println("       </div>");
 
             stream
                     .println(
                             "       <div class=\"tab-pane\" id=\"global\" role=\"tabpanel\" aria-labelledby=\"global-tab\">");
             stream.println("         <h2>Global Dependencies Report</h2>");
-            writeDependencyList(stream, modules, conflicts.keySet(), Item::getDependencies, true);
+            writeDependencyList(stream, modules, conflicts.keySet(), Item::getDependencies);
             stream.println("       </div>");
 
             stream
                     .println(
                             "       <div class=\"tab-pane\" id=\"blacklist\" role=\"tabpanel\" aria-labelledby=\"blacklist-tab\">");
             stream.println("         <h2>Repository Dependencies Blacklist</h2>");
-            writeDependencyList(stream, modules, emptyList() /* don't highlight anything */, Item::getBlacklist, true);
+            writeDependencyList(stream, modules, emptyList() /* don't highlight anything */, Item::getBlacklist);
             stream.println("       </div>");
 
             stream.println("     </div>");
@@ -207,20 +222,8 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
     }
 
     private void writeDependencyList(final PrintStream stream, final Collection<Item> modules,
-            final Collection<Artifact> conflicts, final Function<Item, Collection<Artifact>> extractor,
-            final boolean moduleFirst) {
-        final String moduleColumn = "                 <td scope=\"col\">Module</td>";
-        final String dependencyColumn = "                 <td scope=\"col\">Dependency</td>";
-        stream.println("         <div class=\"col-sm-12\">");
-        stream.println("           <table class=\"table table-bordered table-striped\">");
-        stream.println("             <thead class=\"thead-dark\">");
-        stream.println("               <tr>");
-        stream.println(moduleFirst ? moduleColumn : dependencyColumn);
-        stream.println(moduleFirst ? dependencyColumn : moduleColumn);
-        stream.println("               </tr>");
-        stream.println("             </thead>");
-        stream.println("             <tbody>");
-        modules.forEach(it -> {
+            final Collection<Artifact> conflicts, final Function<Item, Collection<Artifact>> extractor) {
+        writeTable(stream, () -> modules.forEach(it -> {
             final Collection<Artifact> deps = extractor.apply(it);
             deps.stream().limit(1).forEach(dep -> {
                 stream
@@ -236,13 +239,28 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                 stream.println("               <td>" + escapeHtml4(dep.toCoordinate()) + "</td>");
                 stream.println("             </tr>");
             });
+        }), () -> {
+            stream.println("                 <td scope=\"col\">Module</td>");
+            stream.println("                 <td scope=\"col\">Dependency</td>");
         });
+    }
+
+    private void writeTable(final PrintStream stream, final Runnable content, final Runnable columns) {
+        stream.println("         <div class=\"col-sm-12\">");
+        stream.println("           <table class=\"table table-bordered table-striped\">");
+        stream.println("             <thead class=\"thead-dark\">");
+        stream.println("               <tr>");
+        columns.run();
+        stream.println("               </tr>");
+        stream.println("             </thead>");
+        stream.println("             <tbody>");
+        content.run();
         stream.println("             </tbody>");
         stream.println("           </table>");
         stream.println("         </div>");
     }
 
-    private Map<Artifact, List<Artifact>> detectConflicts(final Collection<Item> modules) {
+    private Map<Artifact, ConflictingDependency> detectConflicts(final Collection<Item> modules) {
         return modules
                 .stream()
                 .flatMap(it -> it
@@ -252,8 +270,19 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                 .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue,
                         (l1, l2) -> Stream.concat(l1.stream(), l2.stream()).collect(toList())))
                 .entrySet()
+                .stream() // for all deps
+                .filter(it -> it.getValue().size() > 1) // used in multiple modules
+                .collect(toMap(Map.Entry::getKey,
+                        it -> new ConflictingDependency(singleton(it.getKey()), it.getValue())))
+                .entrySet()
                 .stream()
-                .filter(it -> new HashSet<>(it.getValue()).size() > 1)
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (d1, d2) -> new ConflictingDependency(
+                                Stream.concat(d1.versions.stream(), d2.versions.stream()).distinct().collect(toList()),
+                                Stream.concat(d1.modules.stream(), d2.modules.stream()).distinct().collect(toList()))))
+                .entrySet()
+                .stream()
+                .filter(it -> it.getValue().getVersions().size() > 1)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -265,5 +294,13 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
         private final Collection<org.talend.sdk.component.dependencies.maven.Artifact> blacklist;
 
         private final List<org.talend.sdk.component.dependencies.maven.Artifact> dependencies;
+    }
+
+    @Data
+    private static class ConflictingDependency {
+
+        private final Collection<Artifact> versions;
+
+        private final Collection<Artifact> modules;
     }
 }
