@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.AbstractMap;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -137,6 +138,11 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                 stream.println("       <strong>Danger!</strong> some dependencies conflict detected!");
                 stream.println("     </div>");
             }
+            if (modules.stream().flatMap(it -> it.getDependencies().stream()).anyMatch(this::isSnapshot)) {
+                stream.println("     <div class=\"alert alert-warning\" role=\"alert\">");
+                stream.println("       <strong>Warning!</strong> some dependencies are in snapshot!");
+                stream.println("     </div>");
+            }
 
             stream.println("     <ul class=\"nav nav-tabs\" id=\"tabs\" role=\"tablist\">");
             stream.println("       <li class=\"nav-item\">");
@@ -165,21 +171,21 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                             .stream()
                             .map(it -> new Item(it.getKey(), emptyList(), it.getValue()))
                             .collect(toList()),
-                    emptyList(), Item::getDependencies);
+                    emptyList(), Item::getDependencies, false);
             stream.println("       </div>");
 
             stream
                     .println(
                             "       <div class=\"tab-pane\" id=\"global\" role=\"tabpanel\" aria-labelledby=\"global-tab\">");
             stream.println("         <h2>Global Dependencies Report</h2>");
-            writeDependencyList(stream, modules, conflicts.keySet(), Item::getDependencies);
+            writeDependencyList(stream, modules, conflicts.keySet(), Item::getDependencies, true);
             stream.println("       </div>");
 
             stream
                     .println(
                             "       <div class=\"tab-pane\" id=\"blacklist\" role=\"tabpanel\" aria-labelledby=\"blacklist-tab\">");
             stream.println("         <h2>Repository Dependencies Blacklist</h2>");
-            writeDependencyList(stream, modules, emptyList() /* don't highlight anything */, Item::getBlacklist);
+            writeDependencyList(stream, modules, emptyList() /* don't highlight anything */, Item::getBlacklist, true);
             stream.println("       </div>");
 
             stream.println("     </div>");
@@ -196,21 +202,30 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
         }
     }
 
+    private boolean isSnapshot(final Artifact it) {
+        return !it.getGroup().startsWith("org.talend.components") && it.getVersion().contains("-SNAPSHOT");
+    }
+
     private void writeDependencyList(final PrintStream stream, final Collection<Item> modules,
-            final Collection<Artifact> conflicts, final Function<Item, Collection<Artifact>> extractor) {
+            final Collection<Artifact> conflicts, final Function<Item, Collection<Artifact>> extractor,
+            final boolean moduleFirst) {
+        final String moduleColumn = "                 <td scope=\"col\">Module</td>";
+        final String dependencyColumn = "                 <td scope=\"col\">Dependency</td>";
         stream.println("         <div class=\"col-sm-12\">");
         stream.println("           <table class=\"table table-bordered table-striped\">");
         stream.println("             <thead class=\"thead-dark\">");
         stream.println("               <tr>");
-        stream.println("                 <td scope=\"col\">Module</td>");
-        stream.println("                 <td scope=\"col\">Dependency</td>");
+        stream.println(moduleFirst ? moduleColumn : dependencyColumn);
+        stream.println(moduleFirst ? dependencyColumn : moduleColumn);
         stream.println("               </tr>");
         stream.println("             </thead>");
         stream.println("             <tbody>");
         modules.forEach(it -> {
             final Collection<Artifact> deps = extractor.apply(it);
             deps.stream().limit(1).forEach(dep -> {
-                stream.println("             <tr" + (conflicts.contains(dep) ? " class=\"table-danger\"" : "") + ">");
+                stream
+                        .println("             <tr" + (conflicts.contains(dep) ? " class=\"table-danger\""
+                                : (isSnapshot(dep) ? " class=\"table-warning\"" : "")) + ">");
                 stream.println("               <td>" + escapeHtml4(it.componentModule.toCoordinate()) + "</td>");
                 stream.println("               <td>" + escapeHtml4(dep.toCoordinate()) + "</td>");
                 stream.println("             </tr>");
@@ -238,7 +253,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                         (l1, l2) -> Stream.concat(l1.stream(), l2.stream()).collect(toList())))
                 .entrySet()
                 .stream()
-                .filter(it -> it.getValue().size() > 1)
+                .filter(it -> new HashSet<>(it.getValue()).size() > 1)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
