@@ -1,0 +1,42 @@
+= Compatibility between Talend Component Kit and Talend applications
+:page-partial:
+:description: Learn which version of Talend Component Kit you can use for your components to be compatible with the right version of your Talend applications.
+:keywords: versions, Studio, Cloud, compatibility
+
+You can integrate and start using components developed using Talend Component Kit in Talend applications very easily.
+
+As both the development framework and Talend applications evolve over time, you need to ensure compatibility between the components you develop and the versions of Talend applications that you are targeting, by making sure that you use the right version of Talend Component Kit.
+
+image::tutorial_build_job_run.png[Job run,70%]
+
+== Version compatibility
+
+The version of Talend Component Kit you need to use to develop new components depends on the version of Talend Studio in which components will be integrated.
+
+[options="header",role="table-striped table-hover table-ordered"]
+|===
+|*Talend product*|*Talend Component Kit version*
+|Studio 7.1.1|Framework until 1.1.1
+|Studio 7.0.1|Framework until 0.0.5
+|===
+
+Talend recommends using the latest version of Talend Component Kit.
+
+TIP: You can use a Snapshot of the version under development using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
+
+== Changing the Talend Component Kit version of your project
+
+By default, creating a project using the Component Kit Starter will use the latest release of Talend Component Kit.
+
+However, you can manually change the version of Talend Component Kit you use directly in the generated project.
+
+. Go to your IDE and access the project root .pom file.
+. Look for the `org.talend.sdk.component` dependency nodes.
+. Replace the *version* in the relevant nodes with the version that you need to use for your project.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:studio.adoc[Integrating components into Talend Studio]
+- xref:build-tools-maven.adoc[Building components with Maven]
+endif::[]
