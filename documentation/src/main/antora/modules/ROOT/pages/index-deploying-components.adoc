@@ -12,3 +12,5 @@ To be able to see and use your newly developed components, you need to integrate
 Currently, you can deploy your components created using Talend Component Kit in the following applications:
 
 * xref:studio.adoc[Integrating components to Talend Studio]
+
+Check the versions of the framework that are compatible with your version of Talend Studio in xref:compatibility.adoc[this document].

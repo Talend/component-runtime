@@ -11,12 +11,7 @@ image::tutorial_build_job_run.png[Job run,70%]
 
 The version of Talend Component Kit you need to use to develop new components depends on the version of Talend Studio in which components will be integrated.
 
-[options="header",role="table-striped table-hover table-ordered"]
-|===
-|*Talend product*|*Talend Component Kit version*
-|Studio 7.1.1|Framework until 1.1.1
-|Studio 7.0.1|Framework until 0.0.5
-|===
+Refer to xref:compatibility.adoc[this document] to learn about compatibility between Talend Component Kit and the different versions of Talend applications.
 
 == Installing the components
 
