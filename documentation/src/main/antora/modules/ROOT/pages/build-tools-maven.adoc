@@ -104,7 +104,7 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 [options="header,autowidth"]
 |===
 |Name |Description |User property |Default
-|validateInternationalization |Validates that resource bundles are presents and contain commonly used keys (for example, `_displayName`)|`talend.validation.internationalization`| true
+|validateInternationalization|Validates that resource bundles are presents and contain commonly used keys (for example, `_displayName`)|`talend.validation.internationalization`| true
 |validateModel| Ensures that components pass validations of the `ComponentManager` and Talend Component runtime|`talend.validation.model`| true
 |validateSerializable| Ensures that components are `Serializable`. This is a sanity check, the component is not actually serialized here. If you have a doubt, make sure to test it. It also checks that any `@Internationalized` class is valid and has its keys.|`talend.validation.serializable`| true
 |validateMetadata| Ensures that components have an `@Icon` and a `@Version` defined.|`talend.validation.metadata`| true
@@ -426,7 +426,7 @@ This command has some optional parameters:
 [options="header,autowidth"]
 |===
 |Name |Description |User property |Default
-|attach |Specifies whether the component should archive should be attached. |`talend.car.attach`| true
+|attach |Specifies whether the component archive should be attached. |`talend.car.attach`| true
 |classifier |The classifier to use if attach is set to true. |`talend.car.attach`| component
 |metadata |Additional custom metadata to bundle in the component archive. |-| -
 |output |Specifies the output path and name of the archive |`talend.car.output`| ${project.build.directory}/${project.build.finalName}.car

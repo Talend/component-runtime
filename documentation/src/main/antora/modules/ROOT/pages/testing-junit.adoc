@@ -23,9 +23,9 @@ The mocked components are provided under the `test` family:
 * `emitter`     : a mock of an input component
 * `collector`   : a mock of an output component
 
-TIP: the collector is by default "per thread". If you are executing a Beam (or concurrent) job it will not work.
-To switch to a JVM wide storage you can set the system property `talend.component.junit.handler.state` to `static` (default being `thread`).
-This is likely done in a `maven-surefire-plugin` `execution`.
+TIP: The collector is "per thread" by default. If you are executing a Beam (or concurrent) job, it will not work.
+To switch to a JVM wide storage, set the `talend.component.junit.handler.state` system property to `static` (default being `thread`).
+You can do it in a `maven-surefire-plugin` `execution`.
 
 === JUnit 4
 
