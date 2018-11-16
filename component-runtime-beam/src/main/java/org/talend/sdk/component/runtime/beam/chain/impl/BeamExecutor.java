@@ -29,6 +29,7 @@ import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.join.CoGroupByKey;
 import org.apache.beam.sdk.transforms.join.KeyedPCollectionTuple;
 import org.apache.beam.sdk.values.KV;
@@ -38,11 +39,13 @@ import org.apache.beam.sdk.values.TupleTag;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.beam.TalendFn;
 import org.talend.sdk.component.runtime.beam.TalendIO;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.transform.AutoKVWrapper;
 import org.talend.sdk.component.runtime.beam.transform.CoGroupByKeyResultMappingTransform;
 import org.talend.sdk.component.runtime.beam.transform.RecordBranchFilter;
 import org.talend.sdk.component.runtime.beam.transform.RecordBranchMapper;
 import org.talend.sdk.component.runtime.beam.transform.RecordBranchUnwrapper;
+import org.talend.sdk.component.runtime.beam.transform.RecordKVUnwrapper;
 import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.chain.Job;
@@ -126,16 +129,27 @@ public class BeamExecutor implements Job.ExecutorBuilder {
                                                 .of(processor.plugin(), delegate.getKeyProvider(component.getId()),
                                                         component.getId(), e.getFrom().getBranch()));
                             }));
-                    KeyedPCollectionTuple<String> join = null;
-                    for (final Map.Entry<String, PCollection<KV<String, Record>>> entry : inputs.entrySet()) {
-                        final TupleTag<Record> branch = new TupleTag<>(entry.getKey());
-                        join = join == null ? KeyedPCollectionTuple.of(branch, entry.getValue())
-                                : join.and(branch, entry.getValue());
+                    final PCollection<Record> preparedInput;
+                    if (inputs.size() == 1) {
+                        final Map.Entry<String, PCollection<KV<String, Record>>> input =
+                                inputs.entrySet().iterator().next();
+                        preparedInput = input
+                                .getValue()
+                                .apply(toName("RecordKVUnwrapper", component), ParDo.of(new RecordKVUnwrapper()))
+                                .setCoder(SchemaRegistryCoder.of())
+                                .apply(toName("RecordNormalizer", component), RecordNormalizer.of(processor.plugin()));
+                    } else {
+                        KeyedPCollectionTuple<String> join = null;
+                        for (final Map.Entry<String, PCollection<KV<String, Record>>> entry : inputs.entrySet()) {
+                            final TupleTag<Record> branch = new TupleTag<>(entry.getKey());
+                            join = join == null ? KeyedPCollectionTuple.of(branch, entry.getValue())
+                                    : join.and(branch, entry.getValue());
+                        }
+                        preparedInput = join
+                                .apply(toName("CoGroupByKey", component), CoGroupByKey.create())
+                                .apply(toName("CoGroupByKeyResultMappingTransform", component),
+                                        new CoGroupByKeyResultMappingTransform<>(processor.plugin(), true));
                     }
-                    final PCollection<Record> preparedInput = join
-                            .apply(toName("CoGroupByKey", component), CoGroupByKey.create())
-                            .apply(toName("CoGroupByKeyResultMappingTransform", component),
-                                    new CoGroupByKeyResultMappingTransform<>(processor.plugin(), true));
 
                     if (getEdges(delegate.getEdges(), component, e -> e.getFrom().getNode()).isEmpty()) {
                         final PTransform<PCollection<Record>, PDone> write = TalendIO.write(processor);
