@@ -202,6 +202,10 @@ The model allows you to define meta information without restrictions. However, i
 - each dataset has a corresponding source (mapper or emitter) which has a configuration that is usable if the software only fills the dataset part. All other properties must not be required.
 ====
 
+The `validateDataSet` validation checks that each input or output (processor without output branch) component uses a dataset and that this dataset has a datastore.
+
+image::datastore_and_dataset_validation.png[Dataset validation,50%,window="_blank",link="_images/datastore_and_dataset_validation.png"]
+
 == Defining links between properties
 
 If you need to define a binding between properties, you can use a set of annotations:
