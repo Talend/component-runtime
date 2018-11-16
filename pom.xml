@@ -194,7 +194,7 @@
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <surefire-plugin.version>3.0.0-M1</surefire-plugin.version>
 
-    <jruby.version>9.2.1.0</jruby.version>
+    <jruby.version>9.2.4.0</jruby.version>
     <node.version>v8.9.0</node.version>
     <yarn.version>v1.3.2</yarn.version>
     <frontend.version>1.6</frontend.version>

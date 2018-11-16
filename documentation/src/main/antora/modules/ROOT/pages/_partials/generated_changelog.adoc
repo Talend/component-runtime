@@ -5,11 +5,13 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1170[TCOMP-1170^]: [regression] http testing module pom imports netty and jsonb stack
+- link:https://jira.talendforge.org/browse/TCOMP-1181[TCOMP-1181^]: tacokit can't pass the long type field from ui rightly
 
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1171[TCOMP-1171^]: Remove component proxy server from the project
+- link:https://jira.talendforge.org/browse/TCOMP-1182[TCOMP-1182^]: Ensure the property editor for the configuration registers the default converters
 
 
 == Version 1.1.2
