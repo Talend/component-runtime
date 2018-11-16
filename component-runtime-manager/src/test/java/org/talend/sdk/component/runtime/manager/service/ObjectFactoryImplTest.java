@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class ObjectFactoryImplTest {
 
     @BeforeEach
     void init() {
-        factory = new ObjectFactoryImpl("ObjectFactoryImplTest");
+        factory = new ObjectFactoryImpl("ObjectFactoryImplTest", new PropertyEditorRegistry());
         DynamicContainerFinder.LOADERS.put("ObjectFactoryImplTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(ObjectFactory.class, factory);
     }

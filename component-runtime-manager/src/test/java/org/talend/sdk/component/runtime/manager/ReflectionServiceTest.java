@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 
 import javax.json.bind.JsonbBuilder;
 
+import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
@@ -69,10 +70,22 @@ import lombok.Data;
 
 class ReflectionServiceTest {
 
-    private final ParameterModelService parameterModelService = new ParameterModelService(new PropertyEditorRegistry());
+    private final PropertyEditorRegistry registry = new PropertyEditorRegistry() {
 
-    private final ReflectionService reflectionService =
-            new ReflectionService(parameterModelService, new PropertyEditorRegistry());
+        {
+            register(new AbstractConverter(Integer.class) {
+
+                @Override
+                protected Object toObjectImpl(final String text) {
+                    return Double.valueOf(text).intValue();
+                }
+            });
+        }
+    };
+
+    private final ParameterModelService parameterModelService = new ParameterModelService(registry);
+
+    private final ReflectionService reflectionService = new ReflectionService(parameterModelService, registry);
 
     @Test
     void configurationFromLocalConf() throws NoSuchMethodException {
@@ -119,6 +132,18 @@ class ReflectionServiceTest {
                 }
             })[0]).isSet("set2", 10);
         }
+    }
+
+    @Test
+    void instantiateEvenWithBadNumberType() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig.class);
+        SomeConfig.class.cast(factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.requiredString", "set");
+                put("root.integer", "5.0");
+            }
+        })[0]).isSet("set", 5);
     }
 
     @Test

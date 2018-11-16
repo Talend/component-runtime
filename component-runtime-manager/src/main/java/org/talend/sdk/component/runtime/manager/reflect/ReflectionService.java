@@ -370,6 +370,7 @@ public class ReflectionService {
 
         final String prefix = name + ".";
         final ObjectRecipe recipe = new ObjectRecipe(clazz);
+        recipe.setRegistry(propertyEditorRegistry);
         recipe.allow(org.apache.xbean.recipe.Option.FIELD_INJECTION);
         recipe.allow(org.apache.xbean.recipe.Option.PRIVATE_PROPERTIES);
         recipe.allow(org.apache.xbean.recipe.Option.CASE_INSENSITIVE_PROPERTIES);

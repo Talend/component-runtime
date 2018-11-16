@@ -22,6 +22,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.talend.sdk.component.api.service.factory.ObjectFactory;
@@ -34,9 +35,12 @@ public class ObjectFactoryImpl implements ObjectFactory, Serializable {
 
     private final String plugin;
 
+    private final PropertyEditorRegistry registry;
+
     @Override
     public ObjectFactoryInstance createInstance(final String type) {
         final ObjectRecipe recipe = new ObjectRecipe(type);
+        recipe.setRegistry(registry);
         return new ObjectFactoryInstanceImpl(recipe);
     }
 
