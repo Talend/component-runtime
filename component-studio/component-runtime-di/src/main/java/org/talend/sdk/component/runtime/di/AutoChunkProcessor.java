@@ -17,6 +17,10 @@ package org.talend.sdk.component.runtime.di;
 
 import org.talend.sdk.component.runtime.output.Processor;
 
+/*
+ * This class is kept for backward compatibility with the studio
+ * fixme : remove this class when the studio integration is updated with the class from runtime-manager
+ */
 public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager.chain.AutoChunkProcessor {
 
     public AutoChunkProcessor(final int chunkSize, final Processor processor) {
