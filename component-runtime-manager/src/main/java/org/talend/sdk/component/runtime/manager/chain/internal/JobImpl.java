@@ -58,6 +58,7 @@ import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
@@ -65,6 +66,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 
 public class JobImpl implements Job {
@@ -328,16 +330,16 @@ public class JobImpl implements Job {
                         return new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(mapper));
                     }).collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
-            final Map<String, Processor> processors = levels
+            final Map<String, ProcessorRunner> processors = levels
                     .values()
                     .stream()
                     .flatMap(Collection::stream)
                     .filter(component -> !component.isSource())
-                    .map(component -> new AbstractMap.SimpleEntry<>(component.getId(), manager
+                    .map(component -> new AbstractMap.SimpleEntry<>(component.getId(), new ProcessorRunner(manager
                             .findProcessor(component.getNode().getFamily(), component.getNode().getComponent(),
                                     component.getNode().getVersion(), component.getNode().getConfiguration())
                             .orElseThrow(
-                                    () -> new IllegalStateException("No processor found for:" + component.getNode()))))
+                                    () -> new IllegalStateException("No processor found for:" + component.getNode())))))
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
             try {
@@ -413,15 +415,14 @@ public class JobImpl implements Job {
                                 }
                                 return;
                             }
-                            final Processor processor = processors.get(component.getId());
+                            final ProcessorRunner processor = processors.get(component.getId());
+
                             final DataOutputFactory dataOutputFactory = new DataOutputFactory(getManager()
                                     .findPlugin(processor.plugin())
                                     .get()
                                     .get(ComponentManager.AllServices.class)
                                     .getServices());
-                            processor.beforeGroup();
-                            processor.onNext(dataInputFactory, dataOutputFactory);
-                            processor.afterGroup(dataOutputFactory);
+                            processor.onNextElement(dataInputFactory, dataOutputFactory);
                             dataOutputFactory.getOutputs().forEach((branch, data) -> data.forEach(item -> {
                                 final String key = getKeyProvider(component.getId())
                                         .apply(new GroupContextImpl(item, component.getId(), branch));
@@ -600,6 +601,50 @@ public class JobImpl implements Job {
                 }
             }
         }
+    }
+
+    public static class ProcessorRunner implements Lifecycle {
+
+        @Delegate
+        private final Processor processor;
+
+        private int maxBatchSize = 1;
+
+        private int currentCount = 0;
+
+        public ProcessorRunner(final Processor processor) {
+            this.processor = processor;
+            if (ProcessorImpl.class.isInstance(processor)) {
+                ProcessorImpl.class
+                        .cast(processor)
+                        .getInternalConfiguration()
+                        .entrySet()
+                        .stream()
+                        .filter(it -> it.getKey().endsWith("$maxBatchSize") && it.getValue() != null
+                                && !it.getValue().trim().isEmpty())
+                        .findFirst()
+                        .ifPresent(val -> {
+                            try {
+                                maxBatchSize = Integer.parseInt(val.getValue().trim());
+                            } catch (final NumberFormatException nfe) {
+                                throw new IllegalArgumentException("Invalid configuratoin: " + val);
+                            }
+                        });
+            }
+        }
+
+        public void onNextElement(final InputFactory input, final OutputFactory output) {
+            if (currentCount == 0) {
+                processor.beforeGroup();
+            }
+            processor.onNext(input, output);
+            currentCount++;
+            if (currentCount >= maxBatchSize) {
+                currentCount = 0;
+                processor.afterGroup(output);
+            }
+        }
+
     }
 
     @Data

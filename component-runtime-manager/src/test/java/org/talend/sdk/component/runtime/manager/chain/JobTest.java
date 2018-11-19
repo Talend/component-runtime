@@ -182,7 +182,8 @@ class JobTest {
                     .component("salary", "db://input?__version=1&tableName=salary")
                     .component("concat", "processor://concat?__version=1")
                     .component("concat_2", "processor://concat?__version=1")
-                    .component("outFile", "file://out?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
+                    .component("outFile",
+                            "file://out?__version=1&configuration.file=" + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
                     .from("users")
                     .to("concat", "str1")
@@ -219,7 +220,8 @@ class JobTest {
                     .component("salary", "db://input?__version=1&tableName=salary")
                     .component("concat", "processor://concat?__version=1")
                     .component("concat_2", "processor://concat?__version=1")
-                    .component("outFile", "file://out?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
+                    .component("outFile",
+                            "file://out?__version=1&configuration.file=" + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
                     .from("users")
                     .to("concat", "str1")
@@ -248,6 +250,30 @@ class JobTest {
     }
 
     @Test
+    void maxBatchSize(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
+        final File out = new File(temporaryFolder.getRoot(), testName + "-out.txt");
+        try (final ComponentManager ignored = newTestManager(jar)) {
+            Job
+                    .components()
+                    .component("users", "db://input?__version=1&tableName=users")
+                    .component("outFile",
+                            "file://out?configuration.$maxBatchSize=2&__version=1&configuration.file="
+                                    + encode(out.getAbsolutePath(), "utf-8"))
+                    .connections()
+                    .from("users")
+                    .to("outFile")
+                    .build()
+                    .run();
+
+            assertTrue(out.isFile());
+            assertEquals(asList("sophia", "emma", "liam", "ava"), Files.readAllLines(out.toPath()));
+        }
+    }
+
+    @Test
     void contextualKeyProvider(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
@@ -271,7 +297,8 @@ class JobTest {
                     .component("concat", "processor://concat?__version=1")
                     .property(GroupKeyProvider.class.getName(), foreignKeyProvider)
                     .component("concat_2", "processor://concat?__version=1")
-                    .component("outFile", "file://out?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
+                    .component("outFile",
+                            "file://out?__version=1&configuration.file=" + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
                     .from("users")
                     .to("concat", "str1")
