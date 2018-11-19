@@ -70,6 +70,7 @@ import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
+import org.talend.sdk.component.runtime.manager.chain.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.output.OutputFactory;
