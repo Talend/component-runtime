@@ -110,6 +110,37 @@ public class TalendIOTest implements Serializable {
     }
 
     @Test
+    public void inputMaxNumRecords() {
+        final TalendIO.Read read = TalendIO.read(new TheTestMapper() {
+
+            @Override
+            public Input create() {
+                return new BaseTestInput() {
+
+                    private transient Iterator<String> chain;
+
+                    @Override
+                    public Object next() {
+                        if (chain == null) {
+                            chain = asList("a", "b").iterator();
+                        }
+                        return chain.hasNext() ? new Sample(chain.next()) : null;
+                    }
+                };
+            }
+        }).withMaxNumRecords(1);
+        final PCollection<Record> out = pipeline.apply(read);
+        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Record, String>() {
+
+            @ProcessElement
+            public void toData(final ProcessContext sample) {
+                sample.output(sample.element().getString("data"));
+            }
+        }))).containsInAnyOrder("a");
+        assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
+    }
+
+    @Test
     public void output() {
         Output.DATA.clear();
         pipeline

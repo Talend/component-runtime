@@ -19,8 +19,10 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.beam.sdk.annotations.Experimental.Kind.SOURCE_SINK;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import javax.json.bind.Jsonb;
@@ -57,7 +59,7 @@ import lombok.NoArgsConstructor;
 @Experimental(SOURCE_SINK)
 public final class TalendIO {
 
-    public static Base<PBegin, PCollection<Record>, Mapper> read(final Mapper mapper) {
+    public static Read read(final Mapper mapper) {
         return mapper.isStream() ? new InfiniteRead(mapper) : new Read(mapper);
     }
 
@@ -99,19 +101,42 @@ public final class TalendIO {
         }
     }
 
-    private static class Read extends Base<PBegin, PCollection<Record>, Mapper> {
+    public static class Read extends Base<PBegin, PCollection<Record>, Mapper> {
+
+        /** If non-negative, the maximum number of records to read from a source. */
+        private final long maxNumRecords;
 
         private Read(final Mapper delegate) {
             super(delegate);
+            maxNumRecords = -1;
+        }
+
+        private Read(final Mapper delegate, final long maxNumRecords) {
+            super(delegate);
+            this.maxNumRecords = maxNumRecords;
+        }
+
+        /**
+         * Limit the Read to a certain number of records per source. Typically used for "quick" or
+         * quota sampling where a certain number of rows are required, but without any
+         * statistically significant sampling strategy.
+         * 
+         * @param maxNumRecords If non-negative, the number of rows to fetch per source.
+         * @return A new transform with the limitation for the number of rows.
+         */
+        public Read withMaxNumRecords(final long maxNumRecords) {
+            return new Read(delegate, maxNumRecords);
         }
 
         @Override
         public PCollection<Record> expand(final PBegin incoming) {
-            return incoming.apply(org.apache.beam.sdk.io.Read.from(new BoundedSourceImpl(delegate)));
+            return incoming
+                    .apply(org.apache.beam.sdk.io.Read
+                            .from(new BoundedSourceImpl(delegate, new AtomicLong(maxNumRecords))));
         }
     }
 
-    private static class InfiniteRead extends Base<PBegin, PCollection<Record>, Mapper> {
+    private static class InfiniteRead extends Read {
 
         private InfiniteRead(final Mapper delegate) {
             super(delegate);
@@ -181,12 +206,22 @@ public final class TalendIO {
 
         private Mapper mapper;
 
+        private AtomicLong maxNumRecords;
+
         @Override
         public List<? extends BoundedSource<Record>> split(final long desiredBundleSizeBytes,
                 final PipelineOptions options) {
+            // If limiting on records, use a single source to fetch them sequentially.
+            if (maxNumRecords.get() >= 0) {
+                return Collections.singletonList(this);
+            }
             mapper.start();
             try {
-                return mapper.split(desiredBundleSizeBytes).stream().map(BoundedSourceImpl::new).collect(toList());
+                return mapper
+                        .split(desiredBundleSizeBytes)
+                        .stream()
+                        .map(m -> new BoundedSourceImpl(m, maxNumRecords))
+                        .collect(toList());
             } finally {
                 mapper.stop();
             }
@@ -206,7 +241,7 @@ public final class TalendIO {
         public BoundedReader<Record> createReader(final PipelineOptions options) {
             mapper.start();
             try {
-                return new BoundedReaderImpl<>(this, mapper.create());
+                return new BoundedReaderImpl<>(this, mapper.create(), maxNumRecords);
             } finally {
                 mapper.stop();
             }
@@ -284,11 +319,14 @@ public final class TalendIO {
 
         private Object current;
 
+        private final AtomicLong remainingRecords;
+
         private volatile Converter converter;
 
-        BoundedReaderImpl(final BoundedSource<T> source, final Input input) {
+        BoundedReaderImpl(final BoundedSource<T> source, final Input input, final AtomicLong remainingRecords) {
             this.source = source;
             this.input = input;
+            this.remainingRecords = remainingRecords;
         }
 
         @Override
@@ -299,6 +337,11 @@ public final class TalendIO {
 
         @Override
         public boolean advance() {
+            // Fail the advance once the remaining records reaches zero. Only positive values are decremented.
+            if (remainingRecords.getAndUpdate(x -> x > 0 ? x - 1 : x) == 0) {
+                return false;
+            }
+
             final Object next = input.next();
             if (next != null && !Record.class.isInstance(next)) {
                 if (converter == null) {

@@ -577,7 +577,7 @@ public class ComponentManager implements AutoCloseable {
                                             "org.apache.beam.repackaged.", "org.apache.beam.vendor.",
                                             "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
                                             "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
-                                            "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.",
+                                            "com.fasterxml.jackson.databind.", "com.thoughtworks.paranamer.",
                                             "org.apache.commons.compress.", "org.tukaani.xz.", "org.objenesis.",
                                             "org.joda.time.", "org.xerial.snappy.", "avro.shaded.", "org.apache.avro.",
                                             // scala - most engines
