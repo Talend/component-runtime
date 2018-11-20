@@ -15,14 +15,13 @@
  */
 package org.talend.sdk.component.runtime.manager.chain.internal;
 
-import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.util.Overrides.override;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,20 +31,108 @@ public class DSLParser {
 
     public static Step parse(final String rawUri) {
         final URI uri = URI.create(rawUri);
-        final Map<String, String> query = parseQuery(uri.getQuery());
+        final Map<String, String> query = parseQuery(uri.getRawQuery());
         final String version = query.remove("__version");
         return new Step(uri.getScheme(), uri.getAuthority(), version != null ? Integer.parseInt(version.trim()) : -1,
                 query);
     }
 
+    // taken from tomcat and adapted to this need
     private static Map<String, String> parseQuery(final String query) {
-        return query == null ? new HashMap<>() : Stream.of(query.split("&")).map(s -> {
-            final int equal = s.indexOf('=');
-            if (equal > 0) {
-                return new String[] { s.substring(0, equal), s.substring(equal + 1, s.length()) };
+        final Map<String, String> parameters = new HashMap<>();
+        if (query == null || query.trim().isEmpty()) {
+            return parameters;
+        }
+
+        final byte[] bytes = query.getBytes(StandardCharsets.UTF_8);
+
+        int pos = 0;
+        int end = bytes.length;
+
+        String name;
+        String value;
+        while (pos < end) {
+            int nameStart = pos;
+            int nameEnd = -1;
+            int valueStart = -1;
+            int valueEnd = -1;
+
+            boolean parsingName = true;
+            boolean decodeName = false;
+            boolean decodeValue = false;
+            boolean parameterComplete = false;
+
+            do {
+                switch (bytes[pos]) {
+                case '=':
+                    if (parsingName) {
+                        nameEnd = pos;
+                        parsingName = false;
+                        valueStart = ++pos;
+                    } else {
+                        pos++;
+                    }
+                    break;
+                case '&':
+                    if (parsingName) {
+                        // Name finished. No value.
+                        nameEnd = pos;
+                    } else {
+                        // Value finished
+                        valueEnd = pos;
+                    }
+                    parameterComplete = true;
+                    pos++;
+                    break;
+                case '%':
+                case '+':
+                    // Decoding required
+                    if (parsingName) {
+                        decodeName = true;
+                    } else {
+                        decodeValue = true;
+                    }
+                    pos++;
+                    break;
+                default:
+                    pos++;
+                    break;
+                }
+            } while (!parameterComplete && pos < end);
+
+            if (pos == end) {
+                if (nameEnd == -1) {
+                    nameEnd = pos;
+                } else if (valueStart > -1 && valueEnd == -1) {
+                    valueEnd = pos;
+                }
             }
-            return new String[] { s, "true" };
-        }).collect(toMap(s -> s[0], s -> s[1]));
+
+            if (nameEnd <= nameStart) {
+                continue;
+            }
+
+            name = new String(bytes, nameStart, nameEnd - nameStart);
+            if (decodeName) {
+                name = decode(name);
+            }
+            if (valueStart >= 0) {
+                value = new String(bytes, valueStart, valueEnd - valueStart);
+                if (decodeValue) {
+                    value = decode(value);
+                }
+            } else {
+                value = "true"; // tomcat defaults to "", but for us (configuration) true is likely better
+            }
+
+            parameters.put(name, value);
+        }
+        return parameters;
+    }
+
+    private static String decode(final String query) {
+        // cheap impl
+        return URI.create("foo://bar?" + query).getQuery();
     }
 
     @Data

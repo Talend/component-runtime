@@ -12,6 +12,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1171[TCOMP-1171^]: Remove component proxy server from the project
 - link:https://jira.talendforge.org/browse/TCOMP-1182[TCOMP-1182^]: Ensure the property editor for the configuration registers the default converters
+- link:https://jira.talendforge.org/browse/TCOMP-1183[TCOMP-1183^]: Upgrade JRuby to 9.2.4.0
+- link:https://jira.talendforge.org/browse/TCOMP-1184[TCOMP-1184^]: Avoid to do a group by key in BeamExecutor (job DSL) when not needed
 
 
 == Version 1.1.2
