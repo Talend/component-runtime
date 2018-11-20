@@ -249,7 +249,7 @@ h2 {
   font-weight: 400;
   margin-top: 50px;
   line-height: 2em;
-  border-top: 1px solid #29567959;
+  border-top: 0.3px solid #29567959;
 }
 h2 > a{
   color: #295679;
@@ -329,6 +329,7 @@ main {
 div.navigation-container {
   display: inline-flex;
   overflow: auto;
+  width: 19%;
 }
 .maincontent {
   padding-right: 0;
@@ -613,11 +614,27 @@ aside.navigation > div.panels {
 }
 
 .tree-toggler > span {
-  padding-left: 3px;
+  padding-left: 10px;
+  font-weight: 600;
+  font-size: 1.7rem;
+  padding-top:
 }
+
+label.tree-toggler.nav-header {
+  margin-bottom:7px;
+  margin-top:7px
+}
+
 ul.tree > li > a {
   color: #535353;
-  padding: 0px 0 3px 14px !important;
+  padding: 5px 0 5px 30px !important;
+  font-size: 1.4rem;
+  line-height: 1.5rem;
+}
+
+.nav>li>a:focus, .nav>li>a:hover {
+    text-decoration: none;
+    background-color: #ffffff;
 }
 
 .nav-filter-group {
