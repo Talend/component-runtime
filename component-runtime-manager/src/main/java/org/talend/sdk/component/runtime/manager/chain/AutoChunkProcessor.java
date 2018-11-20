@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.junit;
+package org.talend.sdk.component.runtime.manager.chain;
 
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.output.InputFactory;
@@ -22,25 +22,13 @@ import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Processor wrapper allowing to "auto" manage the chunking/grouping.
- */
 @RequiredArgsConstructor
 public class AutoChunkProcessor implements Lifecycle {
 
-    /**
-     * The size of the chunks.
-     */
     private final int chunkSize;
 
-    /**
-     * The delegate processor.
-     */
     private final Processor processor;
 
-    /**
-     * Internal counter to handle the chunking.
-     */
     private int processedItemCount = 0;
 
     public void onElement(final InputFactory ins, final OutputFactory outs) {

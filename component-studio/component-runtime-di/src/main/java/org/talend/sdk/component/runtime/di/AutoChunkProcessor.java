@@ -15,66 +15,15 @@
  */
 package org.talend.sdk.component.runtime.di;
 
-import org.talend.sdk.component.runtime.base.Lifecycle;
-import org.talend.sdk.component.runtime.output.InputFactory;
-import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
-import lombok.RequiredArgsConstructor;
+/*
+ * This class is kept for backward compatibility with the studio
+ * fixme : remove this class when the studio integration is updated with the class from runtime-manager
+ */
+public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager.chain.AutoChunkProcessor {
 
-@RequiredArgsConstructor
-public class AutoChunkProcessor implements Lifecycle {
-
-    private final int chunkSize;
-
-    private final Processor processor;
-
-    private int processedItemCount = 0;
-
-    public void onElement(final InputFactory ins, final OutputFactory outs) {
-        if (processedItemCount == 0) {
-            processor.beforeGroup();
-        }
-        try {
-            processor.onNext(ins, outs);
-            processedItemCount++;
-        } finally {
-            if (processedItemCount == chunkSize) {
-                processor.afterGroup(outs);
-                processedItemCount = 0;
-            }
-        }
-    }
-
-    public void flush(final OutputFactory outs) {
-        if (processedItemCount > 0) {
-            processor.afterGroup(outs);
-            processedItemCount = 0;
-        }
-    }
-
-    @Override
-    public void stop() {
-        processor.stop();
-    }
-
-    @Override
-    public String plugin() {
-        return processor.plugin();
-    }
-
-    @Override
-    public String rootName() {
-        return processor.rootName();
-    }
-
-    @Override
-    public String name() {
-        return processor.name();
-    }
-
-    @Override
-    public void start() {
-        processor.start();
+    public AutoChunkProcessor(final int chunkSize, final Processor processor) {
+        super(chunkSize, processor);
     }
 }

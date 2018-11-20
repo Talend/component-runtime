@@ -129,6 +129,12 @@
               <excludes> <!-- internal -->
                 <exclude>**/BaseComponentsHandler*</exclude>
               </excludes>
+             <ignored>
+               <difference>
+                 <differenceType>8001</differenceType>
+                 <className>org/talend/sdk/component/junit/AutoChunkProcessor</className>
+               </difference>
+             </ignored>
             </configuration>
           </execution>
         </executions>

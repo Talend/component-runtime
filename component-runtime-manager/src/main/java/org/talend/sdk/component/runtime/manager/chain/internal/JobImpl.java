@@ -37,6 +37,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
@@ -52,12 +53,14 @@ import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.jsonb.MultipleFormatDateAdapter;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.chain.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
 import org.talend.sdk.component.runtime.manager.chain.GroupKeyProvider;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
@@ -328,16 +331,38 @@ public class JobImpl implements Job {
                         return new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(mapper));
                     }).collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
-            final Map<String, Processor> processors = levels
+            final Map<String, AutoChunkProcessor> processors = levels
                     .values()
                     .stream()
                     .flatMap(Collection::stream)
                     .filter(component -> !component.isSource())
-                    .map(component -> new AbstractMap.SimpleEntry<>(component.getId(), manager
-                            .findProcessor(component.getNode().getFamily(), component.getNode().getComponent(),
-                                    component.getNode().getVersion(), component.getNode().getConfiguration())
-                            .orElseThrow(
-                                    () -> new IllegalStateException("No processor found for:" + component.getNode()))))
+                    .map(component -> {
+                        final Processor processor = manager
+                                .findProcessor(component.getNode().getFamily(), component.getNode().getComponent(),
+                                        component.getNode().getVersion(), component.getNode().getConfiguration())
+                                .orElseThrow(() -> new IllegalStateException(
+                                        "No processor found for:" + component.getNode()));
+                        final AtomicInteger maxBatchSize = new AtomicInteger(1);
+                        if (ProcessorImpl.class.isInstance(processor)) {
+                            ProcessorImpl.class
+                                    .cast(processor)
+                                    .getInternalConfiguration()
+                                    .entrySet()
+                                    .stream()
+                                    .filter(it -> it.getKey().endsWith("$maxBatchSize") && it.getValue() != null
+                                            && !it.getValue().trim().isEmpty())
+                                    .findFirst()
+                                    .ifPresent(val -> {
+                                        try {
+                                            maxBatchSize.set(Integer.parseInt(val.getValue().trim()));
+                                        } catch (final NumberFormatException nfe) {
+                                            throw new IllegalArgumentException("Invalid configuratoin: " + val);
+                                        }
+                                    });
+                        }
+                        return new AbstractMap.SimpleEntry<>(component.getId(),
+                                new AutoChunkProcessor(maxBatchSize.get(), processor));
+                    })
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
             try {
@@ -413,15 +438,14 @@ public class JobImpl implements Job {
                                 }
                                 return;
                             }
-                            final Processor processor = processors.get(component.getId());
+                            final AutoChunkProcessor processor = processors.get(component.getId());
+
                             final DataOutputFactory dataOutputFactory = new DataOutputFactory(getManager()
                                     .findPlugin(processor.plugin())
                                     .get()
                                     .get(ComponentManager.AllServices.class)
                                     .getServices());
-                            processor.beforeGroup();
-                            processor.onNext(dataInputFactory, dataOutputFactory);
-                            processor.afterGroup(dataOutputFactory);
+                            processor.onElement(dataInputFactory, dataOutputFactory);
                             dataOutputFactory.getOutputs().forEach((branch, data) -> data.forEach(item -> {
                                 final String key = getKeyProvider(component.getId())
                                         .apply(new GroupContextImpl(item, component.getId(), branch));
