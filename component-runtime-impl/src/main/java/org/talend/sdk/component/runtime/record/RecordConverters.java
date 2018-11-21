@@ -383,8 +383,11 @@ public class RecordConverters implements Serializable {
         // datetime cases
         if (Long.class.isInstance(value) && expectedType != Long.class) {
             if (expectedType == ZonedDateTime.class) {
-                return expectedType
-                        .cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Number.class.cast(value).longValue()), UTC));
+                final long epochMilli = Number.class.cast(value).longValue();
+                if (epochMilli == -1L) { // not <0 which can be a bug
+                    return null;
+                }
+                return expectedType.cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC));
             }
             if (expectedType == Date.class) {
                 return expectedType.cast(new Date(Number.class.cast(value).longValue()));

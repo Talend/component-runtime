@@ -19,18 +19,50 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Date;
+
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 
 class RecordBuilderImplTest {
 
     @Test
-    void nullSupport() {
+    void nullSupportString() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder.withString("test", null);
         final Record record = builder.build();
         assertEquals(1, record.getSchema().getEntries().size());
         assertNull(record.getString("test"));
+    }
+
+    @Test
+    void nullSupportDate() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withDateTime("test", (Date) null);
+        final Record record = builder.build();
+        assertEquals(1, record.getSchema().getEntries().size());
+        assertNull(record.getDateTime("test"));
+    }
+
+    @Test
+    void nullSupportBytes() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withBytes("test", null);
+        final Record record = builder.build();
+        assertEquals(1, record.getSchema().getEntries().size());
+        assertNull(record.getBytes("test"));
+    }
+
+    @Test
+    void nullSupportCollections() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder
+                .withArray(new SchemaImpl.EntryImpl("test", Schema.Type.ARRAY, true, null,
+                        new SchemaImpl(Schema.Type.STRING, null, null), null), null);
+        final Record record = builder.build();
+        assertEquals(1, record.getSchema().getEntries().size());
+        assertNull(record.getArray(String.class, "test"));
     }
 
     @Test

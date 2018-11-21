@@ -45,6 +45,6 @@ public final class AvroSchemas {
     }
 
     public static String sanitizeConnectionName(final String name) {
-        return name.replace("-", "_").replace(" ", "_");
+        return name.replace('-', '_').replace(' ', '_');
     }
 }

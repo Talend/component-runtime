@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1170[TCOMP-1170^]: [regression] http testing module pom imports netty and jsonb stack
 - link:https://jira.talendforge.org/browse/TCOMP-1181[TCOMP-1181^]: tacokit can't pass the long type field from ui rightly
+- link:https://jira.talendforge.org/browse/TCOMP-1187[TCOMP-1187^]: Job DSL does not support correctly parameters when they are URI/URL
 
 
 === Work Item
