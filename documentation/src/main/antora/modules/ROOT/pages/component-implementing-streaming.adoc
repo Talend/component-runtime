@@ -24,7 +24,7 @@ You can enable streaming right from the design phase of the project by enabling 
 Doing so adds a default streaming-ready configuration to your component when generating the project. +
 This default configuration implements a constant pause duration of 500 ms between retries, with no limit of retries.
 
-image::starter/starter_enabling_streaming.png[Stream Toggle,80%]
+image::starter/starter_enabling_streaming.png[Stream Toggle,80%,window="_blank",link="_images/starter/starter_enabling_streaming.png"]
 
 == Configuring streaming from the project
 

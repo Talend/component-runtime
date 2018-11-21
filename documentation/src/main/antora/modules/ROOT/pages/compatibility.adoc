@@ -7,7 +7,7 @@ You can integrate and start using components developed using Talend Component Ki
 
 As both the development framework and Talend applications evolve over time, you need to ensure compatibility between the components you develop and the versions of Talend applications that you are targeting, by making sure that you use the right version of Talend Component Kit.
 
-image::tutorial_build_job_run.png[Job run,70%]
+image::tutorial_build_job_run.png[Job run,70%,window="_blank",link="_images/tutorial_build_job_run.png"]
 
 == Compatibility matrix
 
