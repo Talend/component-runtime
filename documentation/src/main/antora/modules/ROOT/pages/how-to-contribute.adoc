@@ -202,8 +202,8 @@ image:my_image.png[The image,300]
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="_images/gallery/widgets/studio/list.png"]
-|image::gallery/widgets/web/list.png[Web List,window="_blank",link="_images/gallery/widgets/web/list.png"]
+|image::gallery/widgets/studio/list.png[Studio List,100%,window="_blank",link="_images/gallery/widgets/studio/list.png"]
+|image::gallery/widgets/web/list.png[Web List,100%,window="_blank",link="_images/gallery/widgets/web/list.png"]
 |===
 
 == Section 1 title
