@@ -612,6 +612,8 @@ public class ComponentManager implements AutoCloseable {
         if (settings.exists()) {
             try {
                 final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
                 final DocumentBuilder builder = factory.newDocumentBuilder();
 
                 final Document document = builder.parse(settings);
