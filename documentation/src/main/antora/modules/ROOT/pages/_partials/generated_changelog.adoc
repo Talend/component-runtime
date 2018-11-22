@@ -7,6 +7,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1170[TCOMP-1170^]: [regression] http testing module pom imports netty and jsonb stack
 - link:https://jira.talendforge.org/browse/TCOMP-1181[TCOMP-1181^]: tacokit can't pass the long type field from ui rightly
 - link:https://jira.talendforge.org/browse/TCOMP-1187[TCOMP-1187^]: Job DSL does not support correctly parameters when they are URI/URL
+- link:https://jira.talendforge.org/browse/TCOMP-1189[TCOMP-1189^]: Ensure primitive are not nullable in Record model (builder)
 
 
 === Work Item
@@ -16,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1183[TCOMP-1183^]: Upgrade JRuby to 9.2.4.0
 - link:https://jira.talendforge.org/browse/TCOMP-1184[TCOMP-1184^]: Avoid to do a group by key in BeamExecutor (job DSL) when not needed
 - link:https://jira.talendforge.org/browse/TCOMP-1188[TCOMP-1188^]: Tolerate null for dates in Records
+- link:https://jira.talendforge.org/browse/TCOMP-1190[TCOMP-1190^]: Enable secure processing for DocumentBuilderFactory instances
 
 
 == Version 1.1.2

@@ -36,6 +36,7 @@ import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.apache.xbean.asm7.ClassReader;
 import org.apache.xbean.asm7.ClassVisitor;
@@ -128,7 +129,12 @@ public class BeamIOTransformer implements ClassFileTransformer {
 
     public static class SerializationWrapper implements Serializable {
 
-        private static final ThreadLocal<Boolean> SKIP = new ThreadLocal<>();
+        private static class SkipState {
+
+            private final LinkedList<Object> stack = new LinkedList<>();
+        }
+
+        private static final ThreadLocal<SkipState> SKIP = new ThreadLocal<>();
 
         private final String plugin;
 
@@ -140,7 +146,10 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         private byte[] serialize(final Object delegate) {
-            SKIP.set(true);
+            final SkipState enteringSkipState = SKIP.get();
+            if (enteringSkipState == null) {
+                SKIP.set(new SkipState());
+            }
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try (final ObjectOutputStream oos = new ObjectOutputStream(baos) {
 
@@ -157,7 +166,9 @@ public class BeamIOTransformer implements ClassFileTransformer {
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             } finally {
-                SKIP.remove();
+                if (enteringSkipState == null) {
+                    SKIP.remove();
+                }
             }
             return baos.toByteArray();
         }
@@ -180,9 +191,13 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         public static Object replace(final Object delegate, final String plugin) {
-            final Boolean skip = SKIP.get();
-            if (skip == null || !skip) {
+            final SkipState skip = SKIP.get();
+            if (skip == null) {
                 SKIP.remove();
+                return new SerializationWrapper(delegate, plugin);
+            }
+            if (!skip.stack.contains(delegate)) {
+                skip.stack.add(delegate);
                 return new SerializationWrapper(delegate, plugin);
             }
             return null;
