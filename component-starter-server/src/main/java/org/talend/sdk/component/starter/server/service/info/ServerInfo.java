@@ -80,7 +80,7 @@ public class ServerInfo {
         try {
             saxFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
             saxFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        } catch (ParserConfigurationException | SAXNotRecognizedException | SAXNotSupportedException ex) {
+        } catch (final ParserConfigurationException | SAXNotRecognizedException | SAXNotSupportedException ex) {
             // ignore
         }
 

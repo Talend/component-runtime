@@ -8,6 +8,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1181[TCOMP-1181^]: tacokit can't pass the long type field from ui rightly
 - link:https://jira.talendforge.org/browse/TCOMP-1187[TCOMP-1187^]: Job DSL does not support correctly parameters when they are URI/URL
 - link:https://jira.talendforge.org/browse/TCOMP-1189[TCOMP-1189^]: Ensure primitive are not nullable in Record model (builder)
+- link:https://jira.talendforge.org/browse/TCOMP-1191[TCOMP-1191^]: [beam] BeamIOTransformer does not support serialization of complex objects correctly
+- link:https://jira.talendforge.org/browse/TCOMP-1192[TCOMP-1192^]: Ensure Avro schema union is interpreted as nullable in Record Schema model
 
 
 === Work Item
@@ -18,6 +20,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1184[TCOMP-1184^]: Avoid to do a group by key in BeamExecutor (job DSL) when not needed
 - link:https://jira.talendforge.org/browse/TCOMP-1188[TCOMP-1188^]: Tolerate null for dates in Records
 - link:https://jira.talendforge.org/browse/TCOMP-1190[TCOMP-1190^]: Enable secure processing for DocumentBuilderFactory instances
+- link:https://jira.talendforge.org/browse/TCOMP-1193[TCOMP-1193^]: Add injectable ContainerInfo with the containerId (plugin) in services
 
 
 == Version 1.1.2
