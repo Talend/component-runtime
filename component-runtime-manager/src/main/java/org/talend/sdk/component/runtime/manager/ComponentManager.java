@@ -169,6 +169,7 @@ import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.ContainerInfo;
 import org.talend.sdk.component.runtime.manager.service.InjectorImpl;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
@@ -981,6 +982,7 @@ public class ComponentManager implements AutoCloseable {
         services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId, propertyEditorRegistry));
         services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
+        services.put(ContainerInfo.class, new ContainerInfo(containerId));
     }
 
     protected static Collection<LocalConfiguration> createRawLocalConfigurations() {
