@@ -127,6 +127,11 @@ div.documentationindex-before {
   color:  #555555;
 }
 
+code {
+  color: #646676;
+  background-color: #f2f6f9;
+}
+
 #pagination {
   margin-top: 2rem;
   display: flex;
@@ -209,7 +214,7 @@ body {
   font-family: 'Source Sans Pro', sans-serif;
   display: flex;
   flex-direction: column;
-  font-size: 16px;
+  font-size: 1.7rem;
   line-height: 20px !important;
   min-height: 100vh;
   height: 100vh;
@@ -465,6 +470,7 @@ pre {
 }
 .admonitionblock td.content > code {
   background-color: unset !important;
+  color: unset !important;
 }
 .admonitionblock td.content {
   display: block;
