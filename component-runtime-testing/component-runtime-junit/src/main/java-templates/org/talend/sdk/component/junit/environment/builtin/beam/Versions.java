@@ -18,5 +18,6 @@ package org.talend.sdk.component.junit.environment.builtin.beam;
 public interface Versions {
 
     String BEAM_VERSION = "${beam.version}";
+    String KIT_VERSION = "${project.version}";
 
 }

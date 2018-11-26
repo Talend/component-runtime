@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import org.talend.sdk.component.junit.environment.DecoratingEnvironmentProvider;
 import org.talend.sdk.component.junit.environment.EnvironmentsConfigurationParser;
 
-class EnvironmentsExtension implements TestTemplateInvocationContextProvider {
+public class EnvironmentsExtension implements TestTemplateInvocationContextProvider {
 
     @Override
     public boolean supportsTestTemplate(final ExtensionContext context) {

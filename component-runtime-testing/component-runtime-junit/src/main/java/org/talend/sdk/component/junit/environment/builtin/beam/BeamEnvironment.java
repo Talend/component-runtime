@@ -15,14 +15,14 @@
  */
 package org.talend.sdk.component.junit.environment.builtin.beam;
 
+import static org.jboss.shrinkwrap.resolver.api.maven.ScopeType.RUNTIME;
+import static org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependencies.createDependency;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
-import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependencies;
 import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependency;
-import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependencyExclusion;
 import org.talend.sdk.component.junit.environment.ClassLoaderEnvironment;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,19 +30,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class BeamEnvironment extends ClassLoaderEnvironment {
 
-    private boolean skipBeamSdk;
-
     private String beamVersion;
+
+    private String kitVersion;
 
     @Override
     protected AutoCloseable doStart(final Class<?> clazz, final Annotation[] annotations) {
         beamVersion = System.getProperty("talend.junit.beam.version", Versions.BEAM_VERSION);
-        try {
-            BeamEnvironment.class.getClassLoader().loadClass("org.talend.sdk.component.runtime.beam.TalendIO");
-            skipBeamSdk = true;
-        } catch (final NoClassDefFoundError | ClassNotFoundException e) {
-            skipBeamSdk = false;
-        }
+        kitVersion = System.getProperty("talend.junit.kit.version", Versions.KIT_VERSION);
         resetBeamCache(false);
         final AutoCloseable delegate = super.doStart(clazz, annotations);
         return () -> {
@@ -67,12 +62,15 @@ public abstract class BeamEnvironment extends ClassLoaderEnvironment {
 
     @Override
     protected MavenDependency[] rootDependencies() {
-        return new MavenDependency[] { MavenDependencies
-                .createDependency(rootDependencyBase() + ":jar:" + beamVersion, ScopeType.RUNTIME, false,
-                        skipBeamSdk
-                                ? new MavenDependencyExclusion[] {
-                                        MavenDependencies.createExclusion("org.apache.beam", "beam-sdks-java-core") }
-                                : new MavenDependencyExclusion[0]) };
+        return new MavenDependency[] { getRunnerDependency(), getComponentRuntimeBeamDependency() };
+    }
+
+    protected MavenDependency getRunnerDependency() {
+        return createDependency(rootDependencyBase() + ":jar:" + beamVersion, RUNTIME, false);
+    }
+
+    protected MavenDependency getComponentRuntimeBeamDependency() {
+        return createDependency("org.talend.sdk.component:component-runtime-beam:jar:" + kitVersion, RUNTIME, false);
     }
 
     @Override

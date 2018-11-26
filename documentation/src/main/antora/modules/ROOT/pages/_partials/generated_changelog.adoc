@@ -10,6 +10,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1189[TCOMP-1189^]: Ensure primitive are not nullable in Record model (builder)
 - link:https://jira.talendforge.org/browse/TCOMP-1191[TCOMP-1191^]: [beam] BeamIOTransformer does not support serialization of complex objects correctly
 - link:https://jira.talendforge.org/browse/TCOMP-1192[TCOMP-1192^]: Ensure Avro schema union is interpreted as nullable in Record Schema model
+- link:https://jira.talendforge.org/browse/TCOMP-1194[TCOMP-1194^]: [testing] Ensure BeamEnvironment adds component-runtime-beam
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1185[TCOMP-1185^]: Support maxBatchSize in Job test runner for standalone mode
 
 
 === Work Item
@@ -21,6 +27,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1188[TCOMP-1188^]: Tolerate null for dates in Records
 - link:https://jira.talendforge.org/browse/TCOMP-1190[TCOMP-1190^]: Enable secure processing for DocumentBuilderFactory instances
 - link:https://jira.talendforge.org/browse/TCOMP-1193[TCOMP-1193^]: Add injectable ContainerInfo with the containerId (plugin) in services
+- link:https://jira.talendforge.org/browse/TCOMP-1195[TCOMP-1195^]: Enable user to extend BeamEnvironment test tempalte more easily
 
 
 == Version 1.1.2

@@ -49,7 +49,7 @@ class JoinInputFactoryTest {
         assertTrue(factory.hasMoreData());
         final Object main = factory.read("__default__");
         assertTrue(Record.class.isInstance(main));
-        assertEquals("{\"test\":\"foo\"}", main.toString());
+        assertEquals("AvroRecord{delegate={\"test\": \"foo\"}}", main.toString());
         assertFalse(factory.hasMoreData());
     }
 }

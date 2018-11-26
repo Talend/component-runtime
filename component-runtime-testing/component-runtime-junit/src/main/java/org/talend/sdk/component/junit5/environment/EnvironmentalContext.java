@@ -33,7 +33,7 @@ import org.talend.sdk.component.junit.environment.EnvironmentProvider;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-class EnvironmentalContext implements TestTemplateInvocationContext {
+public class EnvironmentalContext implements TestTemplateInvocationContext {
 
     private final EnvironmentProvider provider;
 
@@ -50,7 +50,7 @@ class EnvironmentalContext implements TestTemplateInvocationContext {
     }
 
     @AllArgsConstructor
-    private static class EnvironmentalLifecycle implements BeforeEachCallback, AfterEachCallback, ExecutionCondition {
+    public static class EnvironmentalLifecycle implements BeforeEachCallback, AfterEachCallback, ExecutionCondition {
 
         private final EnvironmentProvider provider;
 

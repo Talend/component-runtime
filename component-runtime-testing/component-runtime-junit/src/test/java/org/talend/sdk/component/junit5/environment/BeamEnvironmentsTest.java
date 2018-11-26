@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.ServiceLoader;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.junit.environment.Environment;
 import org.talend.sdk.component.junit.environment.EnvironmentConfiguration;
 import org.talend.sdk.component.junit.environment.builtin.beam.DirectRunnerEnvironment;
@@ -46,7 +45,7 @@ class BeamEnvironmentsTest {
     private static final Collection<String> EXECUTIONS = new ArrayList<>();
 
     @EnvironmentalTest
-    void execute(final TestInfo info) throws ClassNotFoundException {
+    void execute() throws ClassNotFoundException {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         final String runner = ServiceLoader
                 .load(classLoader.loadClass("org.apache.beam.sdk.runners.PipelineRunnerRegistrar"))
