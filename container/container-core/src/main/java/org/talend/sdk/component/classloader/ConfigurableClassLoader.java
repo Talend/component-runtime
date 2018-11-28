@@ -98,6 +98,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 if (url == null) {
                     throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
                 }
+                final Map<String, Resource> resources = new HashMap<>();
+                Manifest manifest = null;
                 try (final JarInputStream jarInputStream = new JarInputStream(url.openStream())) {
                     ZipEntry entry;
                     while ((entry = jarInputStream.getNextEntry()) != null) {
@@ -109,14 +111,21 @@ public class ConfigurableClassLoader extends URLClassLoader {
                                 out.write(buffer, 0, read);
                             }
 
-                            resources
-                                    .computeIfAbsent(entry.getName(), k -> new ArrayList<>())
-                                    .add(new Resource(resource, out.toByteArray()));
+                            final Resource res = new Resource(resource, out.toByteArray());
+                            resources.put(entry.getName(), res);
+                            if ("META-INF/MANIFEST.MF".equals(entry.getName())) {
+                                manifest = new Manifest();
+                                try (final InputStream mftStream = new ByteArrayInputStream(res.resource)) {
+                                    manifest.read(mftStream);
+                                }
+                            }
                         }
                     }
                 } catch (final IOException e) {
                     throw new IllegalStateException(e);
                 }
+                ofNullable(manifest).ifPresent(mft -> resources.values().forEach(it -> it.manifest = mft));
+                resources.forEach((k, v) -> this.resources.computeIfAbsent(k, i -> new ArrayList<>()).add(v));
             });
         }
     }
@@ -631,6 +640,19 @@ public class ConfigurableClassLoader extends URLClassLoader {
             if (resources != null && !resources.isEmpty()) {
                 final Resource resource = resources.iterator().next();
                 clazz = defineClass(name, resource.resource, 0, resource.resource.length);
+
+                final int i = name.lastIndexOf('.');
+                if (i != -1) {
+                    final String pckName = name.substring(0, i);
+                    final Package pck = super.getPackage(pckName);
+                    if (pck == null) {
+                        if (resource.manifest == null) {
+                            definePackage(pckName, null, null, null, null, null, null, null);
+                        } else {
+                            definePackage(pckName, resource.manifest, null);
+                        }
+                    }
+                }
             }
         }
         if (postLoad(resolve, clazz)) {
@@ -645,6 +667,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
         private final String entry;
 
         private final byte[] resource;
+
+        private Manifest manifest;
     }
 
     @RequiredArgsConstructor

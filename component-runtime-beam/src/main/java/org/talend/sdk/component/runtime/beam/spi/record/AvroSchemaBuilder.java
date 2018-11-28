@@ -90,7 +90,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
         case LONG:
         case STRING:
         case DATETIME:
-            default: // todo: avoid to create this builder, we have constants for the schemas anyway
+        default: // todo: avoid to create this builder, we have constants for the schemas anyway
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
