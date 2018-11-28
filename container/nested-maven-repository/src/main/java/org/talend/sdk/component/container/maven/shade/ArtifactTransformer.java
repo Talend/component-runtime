@@ -43,6 +43,8 @@ import org.apache.maven.plugins.shade.relocation.Relocator;
 import org.apache.maven.plugins.shade.resource.ResourceTransformer;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
@@ -86,9 +88,11 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
         if (userArtifacts != null && !userArtifacts.isEmpty()) {
             final ArtifactResolver resolver;
             final DependencyGraphBuilder graphBuilder;
+            final ProjectBuilder projectBuilder;
             final PlexusContainer container = session.getContainer();
             try {
                 resolver = ArtifactResolver.class.cast(container.lookup(ArtifactResolver.class, "default"));
+                projectBuilder = ProjectBuilder.class.cast(container.lookup(ProjectBuilder.class, "default"));
                 graphBuilder = includeTransitiveDependencies
                         ? DependencyGraphBuilder.class.cast(container.lookup(DependencyGraphBuilder.class, "default"))
                         : null;
@@ -108,11 +112,29 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                     final Artifact artifact =
                             resolver.resolveArtifact(session.getProjectBuildingRequest(), art).getArtifact();
                     if (includeTransitiveDependencies) {
+                        final MavenProject fakeProject;
+                        try {
+                            fakeProject = projectBuilder
+                                    .build(resolver
+                                            .resolveArtifact(session.getProjectBuildingRequest(),
+                                                    new DefaultArtifact(art.getGroupId(), art.getArtifactId(),
+                                                            art.getVersion(), art.getScope(), "pom", null,
+                                                            new DefaultArtifactHandler() {
+
+                                                                {
+                                                                    setExtension("pom");
+                                                                }
+                                                            }))
+                                            .getArtifact()
+                                            .getFile(), session.getProjectBuildingRequest())
+                                    .getProject();
+                        } catch (final ProjectBuildingException e) {
+                            throw new IllegalStateException(e);
+                        }
+                        fakeProject.setArtifact(artifact);
                         final DefaultProjectBuildingRequest request =
                                 new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
-                        if (request.getProject() == null) {
-                            request.setProject(session.getCurrentProject());
-                        }
+                        request.setProject(fakeProject);
 
                         try {
                             final DependencyNode transitives = graphBuilder.buildDependencyGraph(request, filter);
