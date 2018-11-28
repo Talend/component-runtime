@@ -76,20 +76,24 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (fields == null) {
             fields = new ArrayList<>();
         }
-        final Schema.Builder entrySchemaBuilder = new AvroSchemaBuilder().withType(entry.getType());
+        final Unwrappable unwrappable;
         switch (entry.getType()) {
-        case ARRAY:
-            entrySchemaBuilder.withElementSchema(entry.getElementSchema());
-            break;
         case RECORD:
-            if (entry.getElementSchema() != null && entry.getElementSchema().getEntries() != null) {
-                entry.getElementSchema().getEntries().forEach(entrySchemaBuilder::withEntry);
-            }
+        case ARRAY:
+            unwrappable = Unwrappable.class.cast(entry.getElementSchema());
             break;
-        default:
+        case BOOLEAN:
+        case DOUBLE:
+        case INT:
+        case FLOAT:
+        case BYTES:
+        case LONG:
+        case STRING:
+        case DATETIME:
+            default: // todo: avoid to create this builder, we have constants for the schemas anyway
+            unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
-        final org.apache.avro.Schema schema =
-                Unwrappable.class.cast(entrySchemaBuilder.build()).unwrap(org.apache.avro.Schema.class);
+        final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
         fields
                 .add(new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
                         entry.isNullable() && schema.getType() != org.apache.avro.Schema.Type.UNION

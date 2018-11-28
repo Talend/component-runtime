@@ -25,11 +25,31 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.beam.spi.record.AvroRecord;
+import org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator;
+import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class SchemaRegistryCoderTest {
+
+    @Test
+    void avoidNPE() {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
+        final Schema.Entry entry = factory
+                .newEntryBuilder()
+                .withName("createdBy")
+                .withType(Schema.Type.RECORD)
+                .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build())
+                .build();
+        final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(entry).build();
+
+        final org.apache.avro.Schema unwrapped = Unwrappable.class.cast(schema).unwrap(org.apache.avro.Schema.class);
+        final String name = SchemaIdGenerator.generateRecordName(unwrapped.getFields());
+        assertEquals("org.talend.sdk.component.schema.generated.Record_1_n_5166783486129187498", name);
+    }
 
     @Test
     void codecString() throws IOException {

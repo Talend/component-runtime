@@ -11,6 +11,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1191[TCOMP-1191^]: [beam] BeamIOTransformer does not support serialization of complex objects correctly
 - link:https://jira.talendforge.org/browse/TCOMP-1192[TCOMP-1192^]: Ensure Avro schema union is interpreted as nullable in Record Schema model
 - link:https://jira.talendforge.org/browse/TCOMP-1194[TCOMP-1194^]: [testing] Ensure BeamEnvironment adds component-runtime-beam
+- link:https://jira.talendforge.org/browse/TCOMP-1196[TCOMP-1196^]: Nested maven repository not used for component module
 
 
 === New Feature

@@ -26,16 +26,18 @@ import java.util.Iterator;
 
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 
 class AvroSchemaTest {
 
     @Test
     void checkDateConversion() {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
         final org.apache.avro.Schema avro = AvroSchema.class
                 .cast(new AvroSchemaBuilder()
                         .withType(RECORD)
-                        .withEntry(new SchemaImpl.EntryImpl.BuilderImpl().withType(DATETIME).withName("date").build())
+                        .withEntry(factory.newEntryBuilder().withType(DATETIME).withName("date").build())
                         .build())
                 .getDelegate();
         assertEquals(DATETIME, new AvroSchema(avro).getEntries().iterator().next().getType());
@@ -43,14 +45,11 @@ class AvroSchemaTest {
 
     @Test
     void ensureNullableArePropagated() {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
         { // nullable = true
             final org.talend.sdk.component.api.record.Schema sdkSchema = new AvroSchemaBuilder()
                     .withType(RECORD)
-                    .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                            .withType(STRING)
-                            .withName("name")
-                            .withNullable(true)
-                            .build())
+                    .withEntry(factory.newEntryBuilder().withType(STRING).withName("name").withNullable(true).build())
                     .build();
             final org.apache.avro.Schema avro = AvroSchema.class.cast(sdkSchema).getDelegate();
             final Schema schema = avro.getFields().iterator().next().schema();
@@ -63,11 +62,7 @@ class AvroSchemaTest {
         { // nullable = false
             final org.talend.sdk.component.api.record.Schema sdkSchema = new AvroSchemaBuilder()
                     .withType(RECORD)
-                    .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                            .withType(STRING)
-                            .withName("name")
-                            .withNullable(false)
-                            .build())
+                    .withEntry(factory.newEntryBuilder().withType(STRING).withName("name").withNullable(false).build())
                     .build();
             assertFalse(sdkSchema.getEntries().iterator().next().isNullable());
         }
