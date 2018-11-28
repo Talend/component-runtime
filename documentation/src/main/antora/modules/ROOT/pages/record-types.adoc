@@ -8,7 +8,7 @@ Components are designed to manipulate data (access, read, create). Talend Compon
 By design, the framework must run in DI (plain standalone Java program) and in Beam pipelines. +
 It is out of scope of the framework to handle the way the runtime serializes - if needed - the data.
 
-For that reason, it is critical not to import serialization constraints to the stack. As an example, this one of the reasons why `Record` or `JsonObject` were preferred to Avro `IndexedRecord`.
+For that reason, it is critical not to import serialization constraints to the stack. As an example, this is one of the reasons why `Record` or `JsonObject` were preferred to Avro `IndexedRecord`.
 
 Any serialization concern should either be hidden in the framework runtime (outside of the component developer scope) or in the runtime integration with the framework (for example, Beam integration).
 

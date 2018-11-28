@@ -23,7 +23,7 @@ In the Intellij IDEA:
 image::intellij/plugin/1-plugins.png[Plugins,70%,window="_blank",link="_images/intellij/plugin/1-plugins.png"]
 
 [start=4]
-. Enter `Talend` in the search field and choose `Talend Component Kit - Intellij Plugin`.
+. Enter `Talend` in the search field and choose *Talend Component Kit - Intellij Plugin*.
 . Select *Install* on the right.
 
 image::intellij/plugin/2-browse-talend.png[Browse talend plugin,70%,window="_blank",link="_images/intellij/plugin/2-browse-talend.png"]
@@ -74,7 +74,7 @@ This configuration class contains three properties which you can attach a user-f
 
 For example, you can define a label like `My server URL` for the `url` option:
 
-. Create a `Messages.properties` file in the project resources and add the label to that file.
+. Locate or create a `Messages.properties` file in the project resources and add the label to that file.
 The plugin automatically detects your configuration and provides you with key completion in the property file.
 . Press *Ctrl*+*Space* to see the key suggestions.
 

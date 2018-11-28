@@ -5,7 +5,7 @@
 
 == Job Builder
 
-The `Job` builder lets you create a job pipeline programmatically using Talend components
+The *Job builder* lets you create a job pipeline programmatically using Talend components
 (xref:component-define-processor-output.adoc[Producers and Processors]).
 The job pipeline is an acyclic graph, allowing you to build complex pipelines.
 
@@ -66,8 +66,8 @@ Depending on the configuration, you can select the environment which you execute
 To select the environment, the logic is the following one:
 
 1. If an `org.talend.sdk.component.runtime.manager.chain.Job.ExecutorBuilder` class is passed through the job properties, then use it. The supported types are a `ExecutionBuilder` instance, a `Class` or a `String`.
-2. if an `ExecutionBuilder` SPI is present, use it. It is the case if `component-runtime-beam` is present in your classpath.
-3. else, use a local/standalone execution.
+2. If an `ExecutionBuilder` SPI is present, use it. It is the case if `component-runtime-beam` is present in your classpath.
+3. Else, use a local/standalone execution.
 
 In the case of a Beam execution, you can customize the pipeline options using system properties. They have to be prefixed with `talend.beam.job.`. For example, to set the `appName` option, you need to use `-Dtalend.beam.job.appName=mytest`.
 

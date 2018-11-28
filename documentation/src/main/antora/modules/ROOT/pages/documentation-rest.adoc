@@ -9,7 +9,7 @@ The HTTP API intends to expose most Talend Component Kit features over HTTP. It 
 
 TIP: The WebSocket protocol is activated for the endpoints. Endpoints then use `/websocket/v1` as base instead of `/api/v1`. See <<websocket-transport,WebSocket>> for more details.
 
-The API description is browsable using xref:rest-swagger.adoc[OpenAPI] browser.
+Browse the API description using xref:rest-swagger.adoc[OpenAPI].
 
 IMPORTANT: To make sure that the migration can be enabled, you need to set the version the component was created with in the execution configuration that you send to the server (component version is in component the detail endpoint). To do that, use `tcomp::component::version` key.
 
@@ -235,7 +235,7 @@ final Ui form1 = ui()
 
 final String json = jsonb.toJson(form1); <4>
 ----
-<1> The `JsonSchema` is extracted from reflection on the `Form1` class. Note that `@JsonSchemaIgnore` allows to ignore a field and `@JsonSchemaProperty` allows to rename a property.
+<1> The `JsonSchema` is extracted from reflection on the `Form1` class. `@JsonSchemaIgnore` allows to ignore a field and `@JsonSchemaProperty` allows to rename a property.
 <2> A `UiSchema` is programmatically built using the builder API.
 <3> An instance of the form is passed to let the serializer extract its JSON model.
 <4> The `Ui` model, which can be used by UiSpec compatible front widgets, is serialized.
@@ -263,7 +263,7 @@ The model uses the JSON-B API to define the binding. Make sure to have an implem
 
 === JavaScript integration
 
-IMPORTANT: `component-kit.js` is no more available (previous versions stay on NPM) since it got replaced by `@talend/react-containers`.
+IMPORTANT: `component-kit.js` is no more available (previous versions stay on NPM) and is replaced by `@talend/react-containers`.
 The previous import can be replaced by `import kit from '@talend/react-containers/lib/ComponentForm/kit';`.
 
 Default JavaScript integration goes through the link:https://github.com/Talend/ui/tree/master/packages/forms[Talend UI Forms] library
@@ -362,8 +362,7 @@ TIP: You can compose previous layout (message format) and appenders (where logs 
 
 == Docker
 
-The server image is deployed on Docker. Its version is suffixed with a timestamp to ensure
-images are not overriden and can break your usage. You can check the available version on Docker hub.
+The server image is deployed on Docker. Its version is suffixed with a timestamp to ensure images are not overridden and can break your usage. You can check the available version on Docker hub.
 
 
 === Run
@@ -381,13 +380,11 @@ You can set the env variable `MEECROWAVE_OPTS` to customize the server, by defau
 
 === Maven repository
 
-The maven repository is the default one of the machine, you can change it setting the system property
-`talend_component_server_maven_repository=/path/to/your/m2`.
+The maven repository is the default one of the machine, you can change it setting the system property `talend_component_server_maven_repository=/path/to/your/m2`.
 
 ==== Deploy components to the server
 
-If you want to deploy some components you can configure which ones in MEECROWAVE_OPTS (see server doc online)
-and redirect your local m2:
+If you want to deploy some components you can configure which ones in MEECROWAVE_OPTS (see server doc online) and redirect your local m2:
 
 [source,sh]
 ----
@@ -400,16 +397,14 @@ $ docker run \
 
 === Logging
 
-The component server docker image comes with two log4j2 profile `default` and `kafka`.
-The logging profile can be changed by setting the environment variable `TALEND_COMPONENT_LOG4J2_PROFILE` to `kafka`
-the `default` profile is active by default.
+The component server docker image comes with two log4j2 profiles: `default` and `kafka`.
+The logging profile can be changed by setting the environment variable `TALEND_COMPONENT_LOG4J2_PROFILE` to `kafka`.
+The `default` profile is active by default.
 
 ==== default profile
 
 The *default* profile has file and console logging capabilities.
-The console logging is off by default and you can activate it by setting `CONSOLE_LOG_LEVEL` environment variable
-to `DEBUG`, `INFO`, `WARN` or any other log level supported by log4j2. In practise and during development you will want
-to see the logs without connecting to the server by activating console logging.
+The console logging is off by default and you can activate it by setting `CONSOLE_LOG_LEVEL` environment variable to `DEBUG`, `INFO`, `WARN` or any other log level supported by log4j2. In practice and during development you will want to see the logs without connecting to the server by activating console logging.
 
 Run docker image with console logging
 
@@ -422,16 +417,15 @@ sudo docker run -p 8080:8080 \
 
 ==== Kafka profile
 
-*Kafka* profile let you send log to Kafka servers. The log are formatted in json and follow the layout defined by Talend
-and described here https://github.com/Talend/daikon/tree/master/daikon-logging/logging-event-layout
+The *Kafka* profile lets you send logs to Kafka servers. The logs are formatted in JSON and follow the layout defined by Talend described here:  https://github.com/Talend/daikon/tree/master/daikon-logging/logging-event-layout
 
-This profile require two environment variables
+This profile requires two environment variables:
 
 * `LOG_KAFKA_TOPIC` : Kafka topic.
 * `LOG_KAFKA_URL`   : A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
 This list should be in the form `url:port` separated by `,`
 
-Run docker image with kafka profile
+Run docker image with the `kafka` profile.
 
 [source,sh]
 ----
@@ -444,18 +438,15 @@ sudo docker run -p 8080:8080 \
 	tacokit/component-server
 ----
 
-*Note* : `LOG_KAFKA_TOPIC` will receive the application and the access logs
-and `TRACING_KAFKA_TOPIC` will receive brave tracing logs.
+*Note* : `LOG_KAFKA_TOPIC` will receive the application and the access logs and `TRACING_KAFKA_TOPIC` will receive brave tracing logs.
 
 ==== OpenTracing
 
-The component server use Geronimo OpenTracing to monitor request.
+The component server uses Geronimo OpenTracing to monitor request.
 
 The tracing can be activated by setting the `TRACING_ON` environment variable to `true`.
 
-You can choose the reporter type by setting `talend_component_server_monitoring_brave_reporter_type` environment variable
-to `log` (this is the default value in this docker image) or to `noop`
-which will deactivate the tracing. __Other type of reporter may be added in the future.__
+You can choose the reporter type by setting `talend_component_server_monitoring_brave_reporter_type` environment variable to `log` (this is the default value in this docker image) or to `noop`, which will deactivate the tracing. __Other types of reporter may be added in the future.__
 
 The tracing rate is configurable by setting the `TRACING_SAMPLING_RATE` environment variable.
 It accepts `0` (none) and `1` (all, default) as values to ensure the consistency of the reporting.
@@ -483,4 +474,4 @@ docker build --build-arg ARTIFACT_ID=component-starter-server \
              --tag tacokit/component-server .
 ----
 
-IMPORTANT: this assumes the project is built before you run that command.
+IMPORTANT: This assumes the project is built before you run that command.

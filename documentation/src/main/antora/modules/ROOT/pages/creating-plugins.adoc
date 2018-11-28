@@ -40,7 +40,7 @@ To continue the comparison with a Servlet server, you can implement an unpacked 
 
 <3> `ClassLoaderConfiguration` configures the behavior of the whole container/plugin pair, including: +
 * What the shared classloader is
-* Which classes are loaded from the shared loader first (intended to be used for API which shouldn't be loaded from the plugin loader)
+* Which classes are loaded from the shared loader first (intended to be used for API which should not be loaded from the plugin loader)
 * Which classes are loaded from the parent classloader. This can be useful to prevent loading a "common" library from the parent classloader. For instance, it can be neat for guava, commons-lang3, an so on).
 
 == Creating plugins

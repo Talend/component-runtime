@@ -6,7 +6,7 @@
 To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter. With this build tool, you will also be able to implement the logic of your component and to install and deploy it to Talend applications.
 A Talend Component Kit plugin is available for each of the supported build tools.
 
-`gradle-talend-component` helps you write components that match the best practices. It is inspired from the Maven plugin and adds the ability to generate automatically the `dependencies.txt` file used by the SDK to build the component classpath. For more information on the configuration, refer to the xref:build-tools-maven.adoc[Maven] properties matching the attributes.
+*gradle-talend-component* helps you write components that match the best practices. It is inspired from the Maven plugin and adds the ability to generate automatically the `dependencies.txt` file used by the SDK to build the component classpath. For more information on the configuration, refer to the xref:build-tools-maven.adoc[Maven] properties matching the attributes.
 
 You can use it as follows:
 
