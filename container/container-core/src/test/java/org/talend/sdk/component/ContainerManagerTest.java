@@ -135,7 +135,8 @@ class ContainerManagerTest {
     private ContainerManager createDefaultManager() {
         return new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
-                .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
+                .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH,
+                        d -> null))
                 .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
                 .create(), ContainerManager.ClassLoaderConfiguration.builder().create(), null, Level.INFO);
     }

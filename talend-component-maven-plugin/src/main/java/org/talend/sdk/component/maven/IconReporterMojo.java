@@ -56,7 +56,7 @@ import org.talend.sdk.component.server.service.IconResolver;
 
 import lombok.Data;
 
-// not yet a "documented" plugin since it does make sense only for huge component reposities/projects
+// not yet a "documented" plugin since it does make sense only for huge component repositories/projects
 @Audience(TALEND_INTERNAL)
 @Mojo(name = "icon-report", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
         threadSafe = true)

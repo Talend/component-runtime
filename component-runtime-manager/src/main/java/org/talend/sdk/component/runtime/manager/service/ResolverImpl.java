@@ -42,7 +42,7 @@ public class ResolverImpl implements Resolver, Serializable {
     @Override
     public Collection<File> resolveFromDescriptor(final InputStream descriptor) {
         try {
-            return new MvnDependencyListLocalRepositoryResolver(null)
+            return new MvnDependencyListLocalRepositoryResolver(null, fileResolver)
                     .resolveFromDescriptor(descriptor)
                     .map(Artifact::toPath)
                     .map(fileResolver)

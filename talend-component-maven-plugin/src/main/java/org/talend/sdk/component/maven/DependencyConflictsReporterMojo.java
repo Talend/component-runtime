@@ -74,7 +74,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
     @Override
     public void doExecute() throws MojoExecutionException {
         final MvnDependencyListLocalRepositoryResolver resolver =
-                new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt");
+                new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", it -> null);
         final Collection<Item> modules = getArtifacts(artifact -> {
             try (final JarFile file = new JarFile(artifact.getFile())) {
                 return ofNullable(file.getEntry("TALEND-INF/dependencies.txt")).map(entry -> {

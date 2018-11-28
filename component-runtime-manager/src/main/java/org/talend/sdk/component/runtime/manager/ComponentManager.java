@@ -352,7 +352,7 @@ public class ComponentManager implements AutoCloseable {
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
-                .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource))
+                .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve))
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
                 }, logInfoLevelMapping);
@@ -383,6 +383,10 @@ public class ComponentManager implements AutoCloseable {
         } else {
             recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
         }
+    }
+
+    private File resolve(final String artifact) {
+        return container.resolve(artifact);
     }
 
     private PropertyEditorRegistry createPropertyEditorRegistry() {
@@ -1420,7 +1424,7 @@ public class ComponentManager implements AutoCloseable {
 
         private Archive toArchive(final String module, final OriginalId originalId,
                 final ConfigurableClassLoader loader) {
-            final File file = new File(module);
+            final File file = of(new File(module)).filter(File::exists).orElseGet(() -> container.resolve(module));
             if (file.exists()) {
                 try {
                     return ClasspathArchive.archive(loader, file.toURI().toURL());
