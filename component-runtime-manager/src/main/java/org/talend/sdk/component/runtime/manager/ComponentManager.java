@@ -584,7 +584,16 @@ public class ComponentManager implements AutoCloseable {
                                             "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
                                             "com.fasterxml.jackson.databind.", "com.thoughtworks.paranamer.",
                                             "org.apache.commons.compress.", "org.tukaani.xz.", "org.objenesis.",
-                                            "org.joda.time.", "org.xerial.snappy.", "avro.shaded.", "org.apache.avro.",
+                                            "org.joda.time.", "org.xerial.snappy.", "avro.shaded.com.google.",
+                                            // avro package is used for hadoop, mapred etc, so doing a precise list
+                                            "org.apache.avro.data.", "org.apache.avro.file.",
+                                            "org.apache.avro.generic.", "org.apache.avro.io.",
+                                            "org.apache.avro.message.", "org.apache.avro.reflect.",
+                                            "org.apache.avro.specific.", "org.apache.avro.util.",
+                                            "org.apache.avro.Avro", "org.apache.avro.Conversion",
+                                            "org.apache.avro.Guava", "org.apache.avro.Json", "org.apache.avro.Logical",
+                                            "org.apache.avro.Protocol", "org.apache.avro.Schema",
+                                            "org.apache.avro.Unresolved", "org.apache.avro.Validate",
                                             // scala - most engines
                                             "scala.",
                                             // engines
