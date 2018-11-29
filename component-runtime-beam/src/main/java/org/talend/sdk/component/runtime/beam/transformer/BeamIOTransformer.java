@@ -29,14 +29,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.io.ObjectStreamException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import org.apache.xbean.asm7.ClassReader;
 import org.apache.xbean.asm7.ClassVisitor;
@@ -54,6 +59,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BeamIOTransformer implements ClassFileTransformer {
+
+    private static final BiConsumer<OutputStream, Object> BYPASS_REPLACE_SERIALIZER = createSerializer();
 
     @Override
     public byte[] transform(final ClassLoader loader, final String className, final Class<?> classBeingRedefined,
@@ -127,14 +134,43 @@ public class BeamIOTransformer implements ClassFileTransformer {
         Thread.currentThread().setContextClassLoader(loader);
     }
 
-    public static class SerializationWrapper implements Serializable {
-
-        private static class SkipState {
-
-            private final LinkedList<Object> stack = new LinkedList<>();
+    // we want to ensure java.io.ObjectStreamClass.writeReplaceMethod is disabled
+    private static BiConsumer<OutputStream, Object> createSerializer() {
+        final Method writeOrdinaryObject;
+        final Method setBlockDataMode;
+        final Field bout;
+        final Field depth;
+        try {
+            writeOrdinaryObject = ObjectOutputStream.class
+                    .getDeclaredMethod("writeOrdinaryObject", Object.class, ObjectStreamClass.class, boolean.class);
+            bout = ObjectOutputStream.class.getDeclaredField("bout");
+            depth = ObjectOutputStream.class.getDeclaredField("depth");
+            setBlockDataMode = bout.getType().getDeclaredMethod("setBlockDataMode", boolean.class);
+            Stream.of(writeOrdinaryObject, bout, depth, setBlockDataMode).forEach(accessible -> {
+                if (!accessible.isAccessible()) {
+                    accessible.setAccessible(true);
+                }
+            });
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
         }
+        return (out, obj) -> {
+            try (final ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                final boolean oldMode = Boolean.class.cast(setBlockDataMode.invoke(bout.get(oos), false));
+                depth.set(oos, Integer.class.cast(depth.get(oos)) + 1);
+                try {
+                    writeOrdinaryObject.invoke(oos, obj, ObjectStreamClass.lookup(obj.getClass()), false);
+                } finally {
+                    depth.set(oos, Integer.class.cast(depth.get(oos)) - 1);
+                    Boolean.class.cast(setBlockDataMode.invoke(bout.get(oos), oldMode));
+                }
+            } catch (final Exception e) {
+                throw new IllegalStateException(e);
+            }
+        };
+    }
 
-        private static final ThreadLocal<SkipState> SKIP = new ThreadLocal<>();
+    public static class SerializationWrapper implements Serializable {
 
         private final String plugin;
 
@@ -146,30 +182,8 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         private byte[] serialize(final Object delegate) {
-            final SkipState enteringSkipState = SKIP.get();
-            if (enteringSkipState == null) {
-                SKIP.set(new SkipState());
-            }
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (final ObjectOutputStream oos = new ObjectOutputStream(baos) {
-
-                {
-                    enableReplaceObject(true);
-                }
-
-                @Override // switch it back to the original to avoid to recreate a serialization wrapper
-                protected Object replaceObject(final Object obj) throws IOException {
-                    return obj == null ? delegate : obj;
-                }
-            }) {
-                oos.writeObject(delegate);
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            } finally {
-                if (enteringSkipState == null) {
-                    SKIP.remove();
-                }
-            }
+            BYPASS_REPLACE_SERIALIZER.accept(baos, delegate);
             return baos.toByteArray();
         }
 
@@ -191,16 +205,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         public static Object replace(final Object delegate, final String plugin) {
-            final SkipState skip = SKIP.get();
-            if (skip == null) {
-                SKIP.remove();
-                return new SerializationWrapper(delegate, plugin);
-            }
-            if (!skip.stack.contains(delegate)) {
-                skip.stack.add(delegate);
-                return new SerializationWrapper(delegate, plugin);
-            }
-            return null;
+            return delegate == null ? null : new SerializationWrapper(delegate, plugin);
         }
     }
 
