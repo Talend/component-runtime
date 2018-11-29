@@ -12,6 +12,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1192[TCOMP-1192^]: Ensure Avro schema union is interpreted as nullable in Record Schema model
 - link:https://jira.talendforge.org/browse/TCOMP-1194[TCOMP-1194^]: [testing] Ensure BeamEnvironment adds component-runtime-beam
 - link:https://jira.talendforge.org/browse/TCOMP-1196[TCOMP-1196^]: Nested maven repository not used for component module
+- link:https://jira.talendforge.org/browse/TCOMP-1197[TCOMP-1197^]: Tacokit beam tests. NPE when creating the schema with RECORD type.
+- link:https://jira.talendforge.org/browse/TCOMP-1200[TCOMP-1200^]: Packages not defined from nested repository classes
+- link:https://jira.talendforge.org/browse/TCOMP-1201[TCOMP-1201^]: includeTransitiveDependencies option of nested-maven-repository does not work
+- link:https://jira.talendforge.org/browse/TCOMP-1202[TCOMP-1202^]: Refine avro classloading exclusion to accept hadoop and mapred packages
 
 
 === New Feature
@@ -29,6 +33,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1190[TCOMP-1190^]: Enable secure processing for DocumentBuilderFactory instances
 - link:https://jira.talendforge.org/browse/TCOMP-1193[TCOMP-1193^]: Add injectable ContainerInfo with the containerId (plugin) in services
 - link:https://jira.talendforge.org/browse/TCOMP-1195[TCOMP-1195^]: Enable user to extend BeamEnvironment test tempalte more easily
+- link:https://jira.talendforge.org/browse/TCOMP-1199[TCOMP-1199^]: Nested repository not used when the classpath is not composed of a single jar
+- link:https://jira.talendforge.org/browse/TCOMP-1204[TCOMP-1204^]: [dependency upgrade] XBean 4.12
 
 
 == Version 1.1.2
