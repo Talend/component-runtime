@@ -591,13 +591,11 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     final String pckName = name.substring(0, i);
                     final Package pck = super.getPackage(pckName);
                     if (pck == null) {
-                        final Manifest manifest = JarURLConnection.class.isInstance(connection)
-                                ? JarURLConnection.class.cast(connection).getManifest()
-                                : null;
-                        if (manifest == null) {
-                            definePackage(pckName, null, null, null, null, null, null, null);
+                        if (!JarURLConnection.class.isInstance(connection)) {
+                            doDefinePackage(null, null, pckName);
                         } else {
-                            definePackage(pckName, manifest, JarURLConnection.class.cast(connection).getJarFileURL());
+                            final JarURLConnection urlConnection = JarURLConnection.class.cast(connection);
+                            doDefinePackage(urlConnection.getManifest(), urlConnection.getJarFileURL(), pckName);
                         }
                     }
                 }
@@ -639,26 +637,41 @@ public class ConfigurableClassLoader extends URLClassLoader {
             final Collection<Resource> resources = this.resources.get(name.replace(".", "/") + ".class");
             if (resources != null && !resources.isEmpty()) {
                 final Resource resource = resources.iterator().next();
-                clazz = defineClass(name, resource.resource, 0, resource.resource.length);
 
                 final int i = name.lastIndexOf('.');
                 if (i != -1) {
-                    final String pckName = name.substring(0, i);
-                    final Package pck = super.getPackage(pckName);
-                    if (pck == null) {
-                        if (resource.manifest == null) {
-                            definePackage(pckName, null, null, null, null, null, null, null);
-                        } else {
-                            definePackage(pckName, resource.manifest, null);
-                        }
-                    }
+                    doDefinePackage(resource.manifest, null, name.substring(0, i));
                 }
+
+                clazz = defineClass(name, resource.resource, 0, resource.resource.length);
             }
         }
         if (postLoad(resolve, clazz)) {
             return clazz;
         }
         return null;
+    }
+
+    private void doDefinePackage(final Manifest manifest, final URL url, final String pckName) {
+        IllegalArgumentException iae = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                final Package pck = super.getPackage(pckName);
+                if (pck == null) {
+                    if (manifest == null) {
+                        definePackage(pckName, null, null, null, null, null, null, null);
+                    } else {
+                        definePackage(pckName, manifest, url);
+                    }
+                }
+                break;
+            } catch (final IllegalArgumentException e) { // concurrent access on some JVM, quite unexpected
+                iae = e;
+            }
+        }
+        if (iae != null) {
+            throw iae;
+        }
     }
 
     @RequiredArgsConstructor

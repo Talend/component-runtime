@@ -13,6 +13,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1194[TCOMP-1194^]: [testing] Ensure BeamEnvironment adds component-runtime-beam
 - link:https://jira.talendforge.org/browse/TCOMP-1196[TCOMP-1196^]: Nested maven repository not used for component module
 - link:https://jira.talendforge.org/browse/TCOMP-1197[TCOMP-1197^]: Tacokit beam tests. NPE when creating the schema with RECORD type.
+- link:https://jira.talendforge.org/browse/TCOMP-1198[TCOMP-1198^]: Tacokit beam tests. SchemaParseException => drop unsupported characters
 - link:https://jira.talendforge.org/browse/TCOMP-1200[TCOMP-1200^]: Packages not defined from nested repository classes
 - link:https://jira.talendforge.org/browse/TCOMP-1201[TCOMP-1201^]: includeTransitiveDependencies option of nested-maven-repository does not work
 - link:https://jira.talendforge.org/browse/TCOMP-1202[TCOMP-1202^]: Refine avro classloading exclusion to accept hadoop and mapred packages

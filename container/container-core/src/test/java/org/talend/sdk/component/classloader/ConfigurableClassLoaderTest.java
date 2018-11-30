@@ -50,6 +50,23 @@ import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 class ConfigurableClassLoaderTest {
 
     @Test
+    void packageDefinition() {
+        final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
+        try (final ConfigurableClassLoader loader =
+                new ConfigurableClassLoader("",
+                        new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
+                                "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar").toURI().toURL() },
+                        parent, name -> true, name -> false, null)) {
+            final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
+            assertNotNull(pck);
+            assertEquals("org.apache.ziplock", pck.getName());
+            assertEquals(pck, loader.loadClass("org.apache.ziplock.Archive").getPackage());
+        } catch (final IOException | ClassNotFoundException e) {
+            fail(e.getMessage(), e);
+        }
+    }
+
+    @Test
     void childLoading() {
         Stream.of(true, false).forEach(parentFirst -> {
             final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
@@ -92,6 +109,24 @@ class ConfigurableClassLoaderTest {
             }
         } catch (final IOException e) {
             fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void nestedPackageDefinition(final TemporaryFolder temporaryFolder) throws Exception {
+        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
+        try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
+                Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent, name -> true,
+                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" })) {
+            final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
+            assertNotNull(pck);
+            assertEquals("org.apache.ziplock", pck.getName());
+            assertEquals(pck, loader.loadClass("org.apache.ziplock.Archive").getPackage());
+        } finally {
+            if (!nestedJar.delete()) {
+                nestedJar.deleteOnExit();
+            }
         }
     }
 
