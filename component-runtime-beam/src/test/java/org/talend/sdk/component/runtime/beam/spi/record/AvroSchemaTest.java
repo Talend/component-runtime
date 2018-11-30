@@ -32,6 +32,13 @@ import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvide
 class AvroSchemaTest {
 
     @Test
+    void emptySchema() {
+        final org.apache.avro.Schema avro =
+                AvroSchema.class.cast(new AvroSchemaBuilder().withType(RECORD).build()).getDelegate();
+        assertTrue(avro.getFields().isEmpty());
+    }
+
+    @Test
     void checkDateConversion() {
         final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
         final org.apache.avro.Schema avro = AvroSchema.class

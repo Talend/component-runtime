@@ -132,6 +132,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
         case DATETIME:
             return DATETIME_SCHEMA;
         case RECORD:
+            if (fields == null) {
+                return new AvroSchema(AvroSchemas.getEmptySchema());
+            }
             final org.apache.avro.Schema record = org.apache.avro.Schema
                     .createRecord(SchemaIdGenerator.generateRecordName(fields), null, "talend.component.schema", false);
             record.setFields(fields);
