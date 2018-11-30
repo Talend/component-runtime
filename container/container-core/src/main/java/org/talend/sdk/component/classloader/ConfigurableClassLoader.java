@@ -664,7 +664,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                         definePackage(pckName, manifest, url);
                     }
                 }
-                break;
+                return;
             } catch (final IllegalArgumentException e) { // concurrent access on some JVM, quite unexpected
                 iae = e;
             }
