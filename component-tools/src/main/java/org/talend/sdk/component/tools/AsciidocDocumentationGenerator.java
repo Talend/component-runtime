@@ -134,27 +134,24 @@ public class AsciidocDocumentationGenerator extends BaseTask {
             throw new IllegalStateException(e);
         }
         log.info("Generated " + output.getAbsolutePath());
-
-        ofNullable(formats).ifPresent(f -> {
-            try (final AsciidoctorExecutor asciidoctorExecutor = new AsciidoctorExecutor()) {
-                f.forEach((format, output) -> {
-                    switch (format.toLowerCase(ENGLISH)) {
-                    case "html":
-                        asciidoctorExecutor
-                                .render(workDir, version, log, "html5", this.output, new File(output), title,
-                                        attributes, templateDir, templateEngine);
-                        break;
-                    case "pdf":
-                        asciidoctorExecutor
-                                .render(workDir, version, log, "pdf", this.output, new File(output), title, attributes,
-                                        templateDir, templateEngine);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("unknown format: '" + format + "', supported: [html, pdf]");
-                    }
-                });
-            }
-        });
+        try (final AsciidoctorExecutor asciidoctorExecutor = new AsciidoctorExecutor()) {
+            ofNullable(formats).ifPresent(f -> f.forEach((format, output) -> {
+                switch (format.toLowerCase(ENGLISH)) {
+                case "html":
+                    asciidoctorExecutor
+                            .render(workDir, version, log, "html5", this.output, new File(output), title, attributes,
+                                    templateDir, templateEngine);
+                    break;
+                case "pdf":
+                    asciidoctorExecutor
+                            .render(workDir, version, log, "pdf", this.output, new File(output), title, attributes,
+                                    templateDir, templateEngine);
+                    break;
+                default:
+                    throw new IllegalArgumentException("unknown format: '" + format + "', supported: [html, pdf]");
+                }
+            }));
+        }
     }
 
     private String toAsciidoc(final Class<?> aClass) {
