@@ -2,7 +2,7 @@ $(document).ready(function () {
   // drop titles from <i> to not pollute the ui with pointless text
   function setAdmonitionStyle(item, color) {
     var i = $(item);
-    i.css('border-left', '2px solid ' + color);
+    i.css('border-left', '1.5px solid ' + color);
     i.css('padding-left', '2rem');
     i.css('background-color', color + '10');
     i.css('color', color);

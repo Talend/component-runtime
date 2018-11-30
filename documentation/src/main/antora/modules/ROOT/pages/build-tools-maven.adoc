@@ -180,7 +180,7 @@ If you prefer a HTML rendering, you can configure the following execution in the
 
 [source,xml]
 ----
-<plugin> (1)
+<plugin> <!--1-->
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${talend-component-kit.version}</version>
@@ -194,7 +194,7 @@ If you prefer a HTML rendering, you can configure the following execution in the
     </execution>
   </executions>
 </plugin>
-<plugin> (2)
+<plugin> <!--2-->
   <groupId>org.asciidoctor</groupId>
   <artifactId>asciidoctor-maven-plugin</artifactId>
   <version>1.5.7</version>
@@ -352,7 +352,7 @@ The Mojo `generate` (Maven plugin goal) of the same plugin also embeds a generat
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${talend-component.version}</version>
   <executions>
-    <execution> <1>
+    <execution> <!--1-->
       <id>generate-input</id>
       <phase>generate-sources</phase>
       <goals>
@@ -362,7 +362,7 @@ The Mojo `generate` (Maven plugin goal) of the same plugin also embeds a generat
         <type>input</type>
       </configuration>
     </execution>
-    <execution> <2>
+    <execution> <!--2-->
       <id>generate-output</id>
       <phase>generate-sources</phase>
       <goals>
@@ -375,21 +375,20 @@ The Mojo `generate` (Maven plugin goal) of the same plugin also embeds a generat
   </executions>
 </plugin>
 ----
-
 <1> The first execution generates an input (partition mapper and producer).
 <2> the second execution generates an output (processor).
 
 It is intended to be used from the command line (or IDE Maven integration) as follows:
 
-[source,bash]
+[source, bash]
 ----
 $ mvn talend-component:generate \
     -Dtalend.generator.type=[input|output] \ <1>
     [-Dtalend.generator.classbase=com.test.MyComponent] \ <2>
     [-Dtalend.generator.family=my-family] \ <3>
-    [-Dtalend.generator.pom.read-only=false] <4>
-    [-Dtalend.generator.pom.encoding=UTF-16] <5>
-    [-Dtalend.generator.pom.spacing=4] <6>
+    [-Dtalend.generator.pom.read-only=false] \ <4>
+    [-Dtalend.generator.pom.encoding=UTF-16] \ <5>
+    [-Dtalend.generator.pom.spacing=4] \ <6>
 ----
 
 <1> Select the type of component you want: `input` to generate a mapper and an emitter, or `output` to generate an output processor. The type is mandatory.
