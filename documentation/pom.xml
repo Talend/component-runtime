@@ -558,6 +558,17 @@
               <yarnVersion>${yarn.version}</yarnVersion>
             </configuration>
           </execution>
+          <execution> <!-- nodegit hardcodes npm dependencies in its preinstall script -->
+            <id>install-node-and-npm</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>${node.version}</nodeVersion>
+              <npmVersion>5.5.1</npmVersion>
+            </configuration>
+          </execution>
           <execution>
             <id>yarn-install</id>
             <phase>generate-sources</phase>
