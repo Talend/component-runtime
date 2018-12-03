@@ -1,0 +1,1562 @@
+{
+  "actions": [
+    {
+      "displayName": "Lead Key Name List",
+      "family": "Marketo",
+      "name": "LEAD_KEY_NAME_LIST",
+      "properties": [
+        {
+          "displayName": "DataSet",
+          "metadata": {
+            "ui::gridlayout::Main::value": "dataSet|leadAction|otherAction|listAction|leadKeyName|leadKeyValues|leadId|leadIds|assetIds|listId|customObjectName|activityTypeIds|filterType|filterValues|useCompoundKey|compoundKey|sinceDateTime|listIds|listName|programName|workspaceName|fields",
+            "documentation::value": "Marketo Source Configuration",
+            "definition::parameter::index": "0"
+          },
+          "name": "dataSet",
+          "path": "dataSet",
+          "placeholder": "dataSet",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Activities",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "Lead",
+            "condition::if::value::1": "getLeadActivity",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "leadAction",
+            "action::suggestions": "ACTIVITIES_LIST",
+            "documentation::value": "Activity Type Ids (10 max supported",
+            "condition::if::negate::1": "false",
+            "action::suggestions::parameters": "../dataSet/dataStore",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "activityTypeIds",
+          "path": "dataSet.activityTypeIds",
+          "placeholder": "activityTypeIds",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "activityTypeIds[${index}]",
+          "metadata": {},
+          "name": "activityTypeIds[]",
+          "path": "dataSet.activityTypeIds[]",
+          "placeholder": "activityTypeIds[${index}]",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Asset Ids",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "Lead",
+            "condition::if::value::1": "getLeadChanges,getLeadActivity",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "leadAction",
+            "documentation::value": "Asset Ids (Comma-separated Asset Ids)",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "assetIds",
+          "path": "dataSet.assetIds",
+          "placeholder": "assetIds",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Compound Key",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::2": "true",
+            "condition::if::target::2": "useCompoundKey",
+            "condition::if::value::0": "CustomObject,OpportunityRole",
+            "condition::if::value::1": "get",
+            "condition::if::target::0": "entity",
+            "ui::optionsorder::value": "key,value",
+            "condition::if::target::1": "otherAction",
+            "documentation::value": "Compound Key",
+            "condition::if::evaluationStrategy::2": "DEFAULT",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT",
+            "condition::if::negate::2": "false",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false"
+          },
+          "name": "compoundKey",
+          "path": "dataSet.compoundKey",
+          "placeholder": "compoundKey",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "Key",
+          "metadata": {
+            "action::suggestions": "FIELD_NAMES",
+            "documentation::value": "Key field",
+            "action::suggestions::parameters": "../../dataSet/dataStore,../../dataSet/entity,../../customObjectName"
+          },
+          "name": "key",
+          "path": "dataSet.compoundKey[].key",
+          "placeholder": "key",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Value",
+          "metadata": {
+            "documentation::value": "Value field"
+          },
+          "name": "value",
+          "path": "dataSet.compoundKey[].value",
+          "placeholder": "value",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "CustomObject Name",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "CustomObject",
+            "condition::if::value::1": "get,describe",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "otherAction",
+            "action::suggestions": "CUSTOM_OBJECT_NAMES",
+            "documentation::value": "Custom Object Name",
+            "condition::if::negate::1": "false",
+            "action::suggestions::parameters": "../dataSet/dataStore",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "customObjectName",
+          "path": "dataSet.customObjectName",
+          "placeholder": "customObjectName",
+          "type": "STRING"
+        },
+        {
+          "displayName": "DataSet",
+          "metadata": {
+            "ui::gridlayout::Main::value": "dataStore|entity",
+            "documentation::value": "Marketo DataSet",
+            "configurationtype::name": "default",
+            "configurationtype::type": "dataset"
+          },
+          "name": "dataSet",
+          "path": "dataSet.dataSet",
+          "placeholder": "dataSet",
+          "type": "OBJECT",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Data Store",
+          "metadata": {
+            "ui::gridlayout::Main::value": "endpoint|clientId,clientSecret",
+            "documentation::value": "DataStore",
+            "action::healthcheck": "MARKETO_HEALTH_CHECK",
+            "configurationtype::name": "MarketoDataStore",
+            "configurationtype::type": "datastore"
+          },
+          "name": "dataStore",
+          "path": "dataSet.dataSet.dataStore",
+          "placeholder": "dataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Client Id",
+          "metadata": {
+            "documentation::value": "Marketo Client Id"
+          },
+          "name": "clientId",
+          "path": "dataSet.dataSet.dataStore.clientId",
+          "placeholder": "clientId",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Client Secret",
+          "metadata": {
+            "documentation::value": "Marketo Client Secret",
+            "ui::credential": "true"
+          },
+          "name": "clientSecret",
+          "path": "dataSet.dataSet.dataStore.clientSecret",
+          "placeholder": "clientSecret",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Endpoint",
+          "metadata": {
+            "action::validation::parameters": ".",
+            "documentation::value": "Marketo Endpoint (host only, ie: https://123-ABC-456.mktorest.com)",
+            "action::validation": "MARKETO_URL_CHECK"
+          },
+          "name": "endpoint",
+          "path": "dataSet.dataSet.dataStore.endpoint",
+          "placeholder": "https://123-ABC-456.mktorest.com",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Entity",
+          "metadata": {
+            "ui::defaultvalue::value": "Lead",
+            "documentation::value": "Marketo Entity to manage"
+          },
+          "name": "entity",
+          "path": "dataSet.dataSet.entity",
+          "placeholder": "entity",
+          "proposalDisplayNames": {
+            "Lead": "Lead",
+            "List": "List",
+            "CustomObject": "Custom Object",
+            "Company": "Company",
+            "Opportunity": "Opportunity",
+            "OpportunityRole": "Opportunity Role"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "Lead",
+              "List",
+              "CustomObject",
+              "Company",
+              "Opportunity",
+              "OpportunityRole"
+            ]
+          }
+        },
+        {
+          "displayName": "Fields",
+          "metadata": {
+            "condition::if::target": "entity",
+            "action::suggestions": "FIELD_NAMES",
+            "documentation::value": "Fields",
+            "action::suggestions::parameters": "../dataSet/dataStore,../dataSet/entity,customObjectName",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "Lead,CustomObject,Company,Opportunity,OpportunityRole"
+          },
+          "name": "fields",
+          "path": "dataSet.fields",
+          "placeholder": "fields",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "fields[${index}]",
+          "metadata": {},
+          "name": "fields[]",
+          "path": "dataSet.fields[]",
+          "placeholder": "fields[${index}]",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Filter Type",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "CustomObject,Company,Opportunity,OpportunityRole",
+            "condition::if::value::1": "get",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "otherAction",
+            "action::suggestions": "FIELD_NAMES",
+            "documentation::value": "Filter Type",
+            "condition::if::negate::1": "false",
+            "action::suggestions::parameters": "../dataSet/dataStore,../dataSet/entity,customObjectName",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "filterType",
+          "path": "dataSet.filterType",
+          "placeholder": "filterType",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Values",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "CustomObject,Company,Opportunity,OpportunityRole",
+            "condition::if::value::1": "get",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "otherAction",
+            "documentation::value": "Filter Values",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "filterValues",
+          "path": "dataSet.filterValues",
+          "placeholder": "filterValues",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Action",
+          "metadata": {
+            "ui::defaultvalue::value": "getLead",
+            "condition::if::target": "entity",
+            "documentation::value": "Lead Action",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "Lead"
+          },
+          "name": "leadAction",
+          "path": "dataSet.leadAction",
+          "placeholder": "leadAction",
+          "proposalDisplayNames": {
+            "getLead": "Get Lead",
+            "getMultipleLeads": "Get Multiple Leads",
+            "getLeadActivity": "Lead Activities",
+            "getLeadChanges": "Lead Changes",
+            "describeLead": "Describe Lead"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "getLead",
+              "getMultipleLeads",
+              "getLeadActivity",
+              "getLeadChanges",
+              "describeLead"
+            ]
+          }
+        },
+        {
+          "displayName": "Lead Id",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "Lead",
+            "condition::if::value::1": "getLead",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "leadAction",
+            "documentation::value": "Lead Id",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "leadId",
+          "path": "dataSet.leadId",
+          "placeholder": "leadId",
+          "type": "NUMBER"
+        },
+        {
+          "displayName": "Lead Ids",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "Lead,List",
+            "condition::if::value::1": "getLeadChanges,getLeadActivity",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "leadAction",
+            "documentation::value": "Lead Ids (Comma-separated Lead Ids)",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "leadIds",
+          "path": "dataSet.leadIds",
+          "placeholder": "leadIds",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Key Name",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "Lead",
+            "condition::if::value::1": "getMultipleLeads",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "leadAction",
+            "action::suggestions": "LEAD_KEY_NAME_LIST",
+            "documentation::value": "Key Name",
+            "condition::if::negate::1": "false",
+            "action::suggestions::parameters": ".",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "leadKeyName",
+          "path": "dataSet.leadKeyName",
+          "placeholder": "leadKeyName",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Key Values",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "Lead",
+            "condition::if::value::1": "getMultipleLeads",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "leadAction",
+            "documentation::value": "Values (Comma-separated)",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "leadKeyValues",
+          "path": "dataSet.leadKeyValues",
+          "placeholder": "leadKeyValues",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Action",
+          "metadata": {
+            "ui::defaultvalue::value": "list",
+            "condition::if::target": "entity",
+            "documentation::value": "List Action",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "List"
+          },
+          "name": "listAction",
+          "path": "dataSet.listAction",
+          "placeholder": "listAction",
+          "proposalDisplayNames": {
+            "list": "List lists",
+            "get": "Get list",
+            "isMemberOf": "Is member of",
+            "getLeads": "Get Leads"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "list",
+              "get",
+              "isMemberOf",
+              "getLeads"
+            ]
+          }
+        },
+        {
+          "displayName": "List Id",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "Lead",
+            "condition::if::value::1": "getLeadChanges,getLeadActivity",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "leadAction",
+            "documentation::value": "Static List Id",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "listId",
+          "path": "dataSet.listId",
+          "placeholder": "listId",
+          "type": "NUMBER"
+        },
+        {
+          "displayName": "List Ids",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "List",
+            "condition::if::value::1": "list",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "listAction",
+            "documentation::value": "List ids : Comma-separated list of static list ids to return.",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "listIds",
+          "path": "dataSet.listIds",
+          "placeholder": "listIds",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Name",
+          "metadata": {
+            "condition::if::target": "entity",
+            "action::suggestions": "LIST_NAMES",
+            "documentation::value": "List Name : Comma-separated list of static list names to return.",
+            "action::suggestions::parameters": "../dataSet/dataStore",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "List"
+          },
+          "name": "listName",
+          "path": "dataSet.listName",
+          "placeholder": "listName",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Action",
+          "metadata": {
+            "ui::defaultvalue::value": "describe",
+            "condition::if::target": "entity",
+            "documentation::value": "Action",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "CustomObject,Company,Opportunity,OpportunityRole"
+          },
+          "name": "otherAction",
+          "path": "dataSet.otherAction",
+          "placeholder": "otherAction",
+          "proposalDisplayNames": {
+            "describe": "Describe",
+            "list": "List",
+            "get": "Get"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "describe",
+              "list",
+              "get"
+            ]
+          }
+        },
+        {
+          "displayName": "Program Name",
+          "metadata": {
+            "condition::if::target": "entity",
+            "documentation::value": "Program Name : Comma-separated list of program names.",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "List"
+          },
+          "name": "programName",
+          "path": "dataSet.programName",
+          "placeholder": "programName",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Since DateTime",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "Lead",
+            "condition::if::value::1": "getLeadChanges,getLeadActivity",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "leadAction",
+            "documentation::value": "Since Date Time",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "sinceDateTime",
+          "path": "dataSet.sinceDateTime",
+          "placeholder": "2018-07-01 11:11:00",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "false",
+          "displayName": "Use Compound Key",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "CustomObject,OpportunityRole",
+            "condition::if::value::1": "get",
+            "condition::if::target::0": "entity",
+            "condition::if::target::1": "otherAction",
+            "documentation::value": "Use Compound Key",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "useCompoundKey",
+          "path": "dataSet.useCompoundKey",
+          "placeholder": "useCompoundKey",
+          "type": "BOOLEAN"
+        },
+        {
+          "displayName": "Workspace Name",
+          "metadata": {
+            "condition::if::target": "entity",
+            "documentation::value": "Workspace Name : Comma-separated list of workspace names.",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "List"
+          },
+          "name": "workspaceName",
+          "path": "dataSet.workspaceName",
+          "placeholder": "workspaceName",
+          "type": "STRING"
+        }
+      ],
+      "type": "suggestions"
+    },
+    {
+      "displayName": "Healthcheck",
+      "family": "Marketo",
+      "name": "MARKETO_HEALTH_CHECK",
+      "properties": [
+        {
+          "displayName": "MarketoDataStore",
+          "metadata": {
+            "ui::gridlayout::Main::value": "endpoint|clientId,clientSecret",
+            "documentation::value": "MarketoDataStore",
+            "action::healthcheck": "MARKETO_HEALTH_CHECK",
+            "configurationtype::name": "MarketoDataStore",
+            "configurationtype::type": "datastore",
+            "definition::parameter::index": "0"
+          },
+          "name": "MarketoDataStore",
+          "path": "MarketoDataStore",
+          "placeholder": "MarketoDataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Client Id",
+          "metadata": {
+            "documentation::value": "Marketo Client Id"
+          },
+          "name": "clientId",
+          "path": "MarketoDataStore.clientId",
+          "placeholder": "clientId",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Client Secret",
+          "metadata": {
+            "documentation::value": "Marketo Client Secret",
+            "ui::credential": "true"
+          },
+          "name": "clientSecret",
+          "path": "MarketoDataStore.clientSecret",
+          "placeholder": "clientSecret",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Endpoint",
+          "metadata": {
+            "action::validation::parameters": ".",
+            "documentation::value": "Marketo Endpoint (host only, ie: https://123-ABC-456.mktorest.com)",
+            "action::validation": "MARKETO_URL_CHECK"
+          },
+          "name": "endpoint",
+          "path": "MarketoDataStore.endpoint",
+          "placeholder": "https://123-ABC-456.mktorest.com",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        }
+      ],
+      "type": "healthcheck"
+    },
+    {
+      "displayName": "URL Check",
+      "family": "Marketo",
+      "name": "MARKETO_URL_CHECK",
+      "properties": [
+        {
+          "displayName": "url",
+          "metadata": {
+            "definition::parameter::index": "0"
+          },
+          "name": "url",
+          "path": "url",
+          "placeholder": "url",
+          "type": "STRING"
+        }
+      ],
+      "type": "validation"
+    },
+    {
+      "displayName": "List Names",
+      "family": "Marketo",
+      "name": "LIST_NAMES",
+      "properties": [
+        {
+          "displayName": "dataStore",
+          "metadata": {
+            "ui::gridlayout::Main::value": "endpoint|clientId,clientSecret",
+            "documentation::value": "MarketoDataStore",
+            "action::healthcheck": "MARKETO_HEALTH_CHECK",
+            "configurationtype::name": "MarketoDataStore",
+            "configurationtype::type": "datastore",
+            "definition::parameter::index": "0"
+          },
+          "name": "dataStore",
+          "path": "dataStore",
+          "placeholder": "dataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Client Id",
+          "metadata": {
+            "documentation::value": "Marketo Client Id"
+          },
+          "name": "clientId",
+          "path": "dataStore.clientId",
+          "placeholder": "clientId",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Client Secret",
+          "metadata": {
+            "documentation::value": "Marketo Client Secret",
+            "ui::credential": "true"
+          },
+          "name": "clientSecret",
+          "path": "dataStore.clientSecret",
+          "placeholder": "clientSecret",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Endpoint",
+          "metadata": {
+            "action::validation::parameters": ".",
+            "documentation::value": "Marketo Endpoint (host only, ie: https://123-ABC-456.mktorest.com)",
+            "action::validation": "MARKETO_URL_CHECK"
+          },
+          "name": "endpoint",
+          "path": "dataStore.endpoint",
+          "placeholder": "https://123-ABC-456.mktorest.com",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        }
+      ],
+      "type": "suggestions"
+    },
+    {
+      "displayName": "Custom Object Names",
+      "family": "Marketo",
+      "name": "CUSTOM_OBJECT_NAMES",
+      "properties": [
+        {
+          "displayName": "dataStore",
+          "metadata": {
+            "ui::gridlayout::Main::value": "endpoint|clientId,clientSecret",
+            "documentation::value": "MarketoDataStore",
+            "action::healthcheck": "MARKETO_HEALTH_CHECK",
+            "configurationtype::name": "MarketoDataStore",
+            "configurationtype::type": "datastore",
+            "definition::parameter::index": "0"
+          },
+          "name": "dataStore",
+          "path": "dataStore",
+          "placeholder": "dataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Client Id",
+          "metadata": {
+            "documentation::value": "Marketo Client Id"
+          },
+          "name": "clientId",
+          "path": "dataStore.clientId",
+          "placeholder": "clientId",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Client Secret",
+          "metadata": {
+            "documentation::value": "Marketo Client Secret",
+            "ui::credential": "true"
+          },
+          "name": "clientSecret",
+          "path": "dataStore.clientSecret",
+          "placeholder": "clientSecret",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Endpoint",
+          "metadata": {
+            "action::validation::parameters": ".",
+            "documentation::value": "Marketo Endpoint (host only, ie: https://123-ABC-456.mktorest.com)",
+            "action::validation": "MARKETO_URL_CHECK"
+          },
+          "name": "endpoint",
+          "path": "dataStore.endpoint",
+          "placeholder": "https://123-ABC-456.mktorest.com",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        }
+      ],
+      "type": "suggestions"
+    },
+    {
+      "displayName": "Field Names",
+      "family": "Marketo",
+      "name": "FIELD_NAMES",
+      "properties": [
+        {
+          "displayName": "customObjectName",
+          "metadata": {
+            "definition::parameter::index": "2"
+          },
+          "name": "customObjectName",
+          "path": "customObjectName",
+          "placeholder": "customObjectName",
+          "type": "STRING"
+        },
+        {
+          "displayName": "dataStore",
+          "metadata": {
+            "ui::gridlayout::Main::value": "endpoint|clientId,clientSecret",
+            "documentation::value": "MarketoDataStore",
+            "action::healthcheck": "MARKETO_HEALTH_CHECK",
+            "configurationtype::name": "MarketoDataStore",
+            "configurationtype::type": "datastore",
+            "definition::parameter::index": "0"
+          },
+          "name": "dataStore",
+          "path": "dataStore",
+          "placeholder": "dataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Client Id",
+          "metadata": {
+            "documentation::value": "Marketo Client Id"
+          },
+          "name": "clientId",
+          "path": "dataStore.clientId",
+          "placeholder": "clientId",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Client Secret",
+          "metadata": {
+            "documentation::value": "Marketo Client Secret",
+            "ui::credential": "true"
+          },
+          "name": "clientSecret",
+          "path": "dataStore.clientSecret",
+          "placeholder": "clientSecret",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Endpoint",
+          "metadata": {
+            "action::validation::parameters": ".",
+            "documentation::value": "Marketo Endpoint (host only, ie: https://123-ABC-456.mktorest.com)",
+            "action::validation": "MARKETO_URL_CHECK"
+          },
+          "name": "endpoint",
+          "path": "dataStore.endpoint",
+          "placeholder": "https://123-ABC-456.mktorest.com",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "entity",
+          "metadata": {
+            "definition::parameter::index": "1"
+          },
+          "name": "entity",
+          "path": "entity",
+          "placeholder": "entity",
+          "type": "STRING"
+        }
+      ],
+      "type": "suggestions"
+    },
+    {
+      "displayName": "Activities List",
+      "family": "Marketo",
+      "name": "ACTIVITIES_LIST",
+      "properties": [
+        {
+          "displayName": "dataStore",
+          "metadata": {
+            "ui::gridlayout::Main::value": "endpoint|clientId,clientSecret",
+            "documentation::value": "MarketoDataStore",
+            "action::healthcheck": "MARKETO_HEALTH_CHECK",
+            "configurationtype::name": "MarketoDataStore",
+            "configurationtype::type": "datastore",
+            "definition::parameter::index": "0"
+          },
+          "name": "dataStore",
+          "path": "dataStore",
+          "placeholder": "dataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Client Id",
+          "metadata": {
+            "documentation::value": "Marketo Client Id"
+          },
+          "name": "clientId",
+          "path": "dataStore.clientId",
+          "placeholder": "clientId",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Client Secret",
+          "metadata": {
+            "documentation::value": "Marketo Client Secret",
+            "ui::credential": "true"
+          },
+          "name": "clientSecret",
+          "path": "dataStore.clientSecret",
+          "placeholder": "clientSecret",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Endpoint",
+          "metadata": {
+            "action::validation::parameters": ".",
+            "documentation::value": "Marketo Endpoint (host only, ie: https://123-ABC-456.mktorest.com)",
+            "action::validation": "MARKETO_URL_CHECK"
+          },
+          "name": "endpoint",
+          "path": "dataStore.endpoint",
+          "placeholder": "https://123-ABC-456.mktorest.com",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        }
+      ],
+      "type": "suggestions"
+    }
+  ],
+  "displayName": "Marketo Input",
+  "icon": "MarketoInput",
+  "id": {
+    "family": "Marketo",
+    "familyId": "bWFya2V0byNNYXJrZXRv",
+    "id": "bWFya2V0byNNYXJrZXRvI0lucHV0",
+    "name": "Input",
+    "plugin": "marketo",
+    "pluginLocation": "org.talend.components:marketo:1.0.0-SNAPSHOT"
+  },
+  "inputFlows": [],
+  "links": [],
+  "outputFlows": [
+    "__default__"
+  ],
+  "properties": [
+    {
+      "displayName": "configuration",
+      "metadata": {
+        "ui::gridlayout::Main::value": "dataSet|leadAction|otherAction|listAction|leadKeyName|leadKeyValues|leadId|leadIds|assetIds|listId|customObjectName|activityTypeIds|filterType|filterValues|useCompoundKey|compoundKey|sinceDateTime|listIds|listName|programName|workspaceName|fields",
+        "documentation::value": "Marketo Source Configuration",
+        "definition::parameter::index": "0"
+      },
+      "name": "configuration",
+      "path": "configuration",
+      "placeholder": "configuration",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "Activities",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "Lead",
+        "condition::if::value::1": "getLeadActivity",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "leadAction",
+        "action::suggestions": "ACTIVITIES_LIST",
+        "documentation::value": "Activity Type Ids (10 max supported",
+        "condition::if::negate::1": "false",
+        "action::suggestions::parameters": "../dataSet/dataStore",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "activityTypeIds",
+      "path": "configuration.activityTypeIds",
+      "placeholder": "activityTypeIds",
+      "type": "ARRAY"
+    },
+    {
+      "displayName": "activityTypeIds[${index}]",
+      "metadata": {},
+      "name": "activityTypeIds[]",
+      "path": "configuration.activityTypeIds[]",
+      "placeholder": "activityTypeIds[${index}]",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Asset Ids",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "Lead",
+        "condition::if::value::1": "getLeadChanges,getLeadActivity",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "leadAction",
+        "documentation::value": "Asset Ids (Comma-separated Asset Ids)",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "assetIds",
+      "path": "configuration.assetIds",
+      "placeholder": "assetIds",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Compound Key",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::2": "true",
+        "condition::if::target::2": "useCompoundKey",
+        "condition::if::value::0": "CustomObject,OpportunityRole",
+        "condition::if::value::1": "get",
+        "condition::if::target::0": "entity",
+        "ui::optionsorder::value": "key,value",
+        "condition::if::target::1": "otherAction",
+        "documentation::value": "Compound Key",
+        "condition::if::evaluationStrategy::2": "DEFAULT",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT",
+        "condition::if::negate::2": "false",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false"
+      },
+      "name": "compoundKey",
+      "path": "configuration.compoundKey",
+      "placeholder": "compoundKey",
+      "type": "ARRAY"
+    },
+    {
+      "displayName": "Key",
+      "metadata": {
+        "action::suggestions": "FIELD_NAMES",
+        "documentation::value": "Key field",
+        "action::suggestions::parameters": "../../dataSet/dataStore,../../dataSet/entity,../../customObjectName"
+      },
+      "name": "key",
+      "path": "configuration.compoundKey[].key",
+      "placeholder": "key",
+      "type": "STRING",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "displayName": "Value",
+      "metadata": {
+        "documentation::value": "Value field"
+      },
+      "name": "value",
+      "path": "configuration.compoundKey[].value",
+      "placeholder": "value",
+      "type": "STRING",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "displayName": "CustomObject Name",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "CustomObject",
+        "condition::if::value::1": "get,describe",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "otherAction",
+        "action::suggestions": "CUSTOM_OBJECT_NAMES",
+        "documentation::value": "Custom Object Name",
+        "condition::if::negate::1": "false",
+        "action::suggestions::parameters": "../dataSet/dataStore",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "customObjectName",
+      "path": "configuration.customObjectName",
+      "placeholder": "customObjectName",
+      "type": "STRING"
+    },
+    {
+      "displayName": "DataSet",
+      "metadata": {
+        "ui::gridlayout::Main::value": "dataStore|entity",
+        "documentation::value": "Marketo DataSet",
+        "configurationtype::name": "default",
+        "configurationtype::type": "dataset"
+      },
+      "name": "dataSet",
+      "path": "configuration.dataSet",
+      "placeholder": "dataSet",
+      "type": "OBJECT",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "displayName": "Data Store",
+      "metadata": {
+        "ui::gridlayout::Main::value": "endpoint|clientId,clientSecret",
+        "documentation::value": "DataStore",
+        "action::healthcheck": "MARKETO_HEALTH_CHECK",
+        "configurationtype::name": "MarketoDataStore",
+        "configurationtype::type": "datastore"
+      },
+      "name": "dataStore",
+      "path": "configuration.dataSet.dataStore",
+      "placeholder": "dataStore",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "Client Id",
+      "metadata": {
+        "documentation::value": "Marketo Client Id"
+      },
+      "name": "clientId",
+      "path": "configuration.dataSet.dataStore.clientId",
+      "placeholder": "clientId",
+      "type": "STRING",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "displayName": "Client Secret",
+      "metadata": {
+        "documentation::value": "Marketo Client Secret",
+        "ui::credential": "true"
+      },
+      "name": "clientSecret",
+      "path": "configuration.dataSet.dataStore.clientSecret",
+      "placeholder": "clientSecret",
+      "type": "STRING",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "displayName": "Endpoint",
+      "metadata": {
+        "action::validation::parameters": ".",
+        "documentation::value": "Marketo Endpoint (host only, ie: https://123-ABC-456.mktorest.com)",
+        "action::validation": "MARKETO_URL_CHECK"
+      },
+      "name": "endpoint",
+      "path": "configuration.dataSet.dataStore.endpoint",
+      "placeholder": "https://123-ABC-456.mktorest.com",
+      "type": "STRING",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "displayName": "Entity",
+      "metadata": {
+        "ui::defaultvalue::value": "Lead",
+        "documentation::value": "Marketo Entity to manage"
+      },
+      "name": "entity",
+      "path": "configuration.dataSet.entity",
+      "placeholder": "entity",
+      "proposalDisplayNames": {
+        "Lead": "Lead",
+        "List": "List",
+        "CustomObject": "Custom Object",
+        "Company": "Company",
+        "Opportunity": "Opportunity",
+        "OpportunityRole": "Opportunity Role"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "Lead",
+          "List",
+          "CustomObject",
+          "Company",
+          "Opportunity",
+          "OpportunityRole"
+        ]
+      }
+    },
+    {
+      "displayName": "Fields",
+      "metadata": {
+        "condition::if::target": "entity",
+        "action::suggestions": "FIELD_NAMES",
+        "documentation::value": "Fields",
+        "action::suggestions::parameters": "../dataSet/dataStore,../dataSet/entity,customObjectName",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "Lead,CustomObject,Company,Opportunity,OpportunityRole"
+      },
+      "name": "fields",
+      "path": "configuration.fields",
+      "placeholder": "fields",
+      "type": "ARRAY"
+    },
+    {
+      "displayName": "fields[${index}]",
+      "metadata": {},
+      "name": "fields[]",
+      "path": "configuration.fields[]",
+      "placeholder": "fields[${index}]",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Filter Type",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "CustomObject,Company,Opportunity,OpportunityRole",
+        "condition::if::value::1": "get",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "otherAction",
+        "action::suggestions": "FIELD_NAMES",
+        "documentation::value": "Filter Type",
+        "condition::if::negate::1": "false",
+        "action::suggestions::parameters": "../dataSet/dataStore,../dataSet/entity,customObjectName",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "filterType",
+      "path": "configuration.filterType",
+      "placeholder": "filterType",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Values",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "CustomObject,Company,Opportunity,OpportunityRole",
+        "condition::if::value::1": "get",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "otherAction",
+        "documentation::value": "Filter Values",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "filterValues",
+      "path": "configuration.filterValues",
+      "placeholder": "filterValues",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Action",
+      "metadata": {
+        "ui::defaultvalue::value": "getLead",
+        "condition::if::target": "entity",
+        "documentation::value": "Lead Action",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "Lead"
+      },
+      "name": "leadAction",
+      "path": "configuration.leadAction",
+      "placeholder": "leadAction",
+      "proposalDisplayNames": {
+        "getLead": "Get Lead",
+        "getMultipleLeads": "Get Multiple Leads",
+        "getLeadActivity": "Lead Activities",
+        "getLeadChanges": "Lead Changes",
+        "describeLead": "Describe Lead"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "getLead",
+          "getMultipleLeads",
+          "getLeadActivity",
+          "getLeadChanges",
+          "describeLead"
+        ]
+      }
+    },
+    {
+      "displayName": "Lead Id",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "Lead",
+        "condition::if::value::1": "getLead",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "leadAction",
+        "documentation::value": "Lead Id",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "leadId",
+      "path": "configuration.leadId",
+      "placeholder": "leadId",
+      "type": "NUMBER"
+    },
+    {
+      "displayName": "Lead Ids",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "Lead,List",
+        "condition::if::value::1": "getLeadChanges,getLeadActivity",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "leadAction",
+        "documentation::value": "Lead Ids (Comma-separated Lead Ids)",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "leadIds",
+      "path": "configuration.leadIds",
+      "placeholder": "leadIds",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Key Name",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "Lead",
+        "condition::if::value::1": "getMultipleLeads",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "leadAction",
+        "action::suggestions": "LEAD_KEY_NAME_LIST",
+        "documentation::value": "Key Name",
+        "condition::if::negate::1": "false",
+        "action::suggestions::parameters": ".",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "leadKeyName",
+      "path": "configuration.leadKeyName",
+      "placeholder": "leadKeyName",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Key Values",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "Lead",
+        "condition::if::value::1": "getMultipleLeads",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "leadAction",
+        "documentation::value": "Values (Comma-separated)",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "leadKeyValues",
+      "path": "configuration.leadKeyValues",
+      "placeholder": "leadKeyValues",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Action",
+      "metadata": {
+        "ui::defaultvalue::value": "list",
+        "condition::if::target": "entity",
+        "documentation::value": "List Action",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "List"
+      },
+      "name": "listAction",
+      "path": "configuration.listAction",
+      "placeholder": "listAction",
+      "proposalDisplayNames": {
+        "list": "List lists",
+        "get": "Get list",
+        "isMemberOf": "Is member of",
+        "getLeads": "Get Leads"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "list",
+          "get",
+          "isMemberOf",
+          "getLeads"
+        ]
+      }
+    },
+    {
+      "displayName": "List Id",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "Lead",
+        "condition::if::value::1": "getLeadChanges,getLeadActivity",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "leadAction",
+        "documentation::value": "Static List Id",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "listId",
+      "path": "configuration.listId",
+      "placeholder": "listId",
+      "type": "NUMBER"
+    },
+    {
+      "displayName": "List Ids",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "List",
+        "condition::if::value::1": "list",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "listAction",
+        "documentation::value": "List ids : Comma-separated list of static list ids to return.",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "listIds",
+      "path": "configuration.listIds",
+      "placeholder": "listIds",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Name",
+      "metadata": {
+        "condition::if::target": "entity",
+        "action::suggestions": "LIST_NAMES",
+        "documentation::value": "List Name : Comma-separated list of static list names to return.",
+        "action::suggestions::parameters": "../dataSet/dataStore",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "List"
+      },
+      "name": "listName",
+      "path": "configuration.listName",
+      "placeholder": "listName",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Action",
+      "metadata": {
+        "ui::defaultvalue::value": "describe",
+        "condition::if::target": "entity",
+        "documentation::value": "Action",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "CustomObject,Company,Opportunity,OpportunityRole"
+      },
+      "name": "otherAction",
+      "path": "configuration.otherAction",
+      "placeholder": "otherAction",
+      "proposalDisplayNames": {
+        "describe": "Describe",
+        "list": "List",
+        "get": "Get"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "describe",
+          "list",
+          "get"
+        ]
+      }
+    },
+    {
+      "displayName": "Program Name",
+      "metadata": {
+        "condition::if::target": "entity",
+        "documentation::value": "Program Name : Comma-separated list of program names.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "List"
+      },
+      "name": "programName",
+      "path": "configuration.programName",
+      "placeholder": "programName",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Since DateTime",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "Lead",
+        "condition::if::value::1": "getLeadChanges,getLeadActivity",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "leadAction",
+        "documentation::value": "Since Date Time",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "sinceDateTime",
+      "path": "configuration.sinceDateTime",
+      "placeholder": "2018-07-01 11:11:00",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "Use Compound Key",
+      "metadata": {
+        "condition::ifs::operator": "AND",
+        "condition::if::value::0": "CustomObject,OpportunityRole",
+        "condition::if::value::1": "get",
+        "condition::if::target::0": "entity",
+        "condition::if::target::1": "otherAction",
+        "documentation::value": "Use Compound Key",
+        "condition::if::negate::1": "false",
+        "condition::if::negate::0": "false",
+        "condition::if::evaluationStrategy::0": "DEFAULT",
+        "condition::if::evaluationStrategy::1": "DEFAULT"
+      },
+      "name": "useCompoundKey",
+      "path": "configuration.useCompoundKey",
+      "placeholder": "useCompoundKey",
+      "type": "BOOLEAN"
+    },
+    {
+      "displayName": "Workspace Name",
+      "metadata": {
+        "condition::if::target": "entity",
+        "documentation::value": "Workspace Name : Comma-separated list of workspace names.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "List"
+      },
+      "name": "workspaceName",
+      "path": "configuration.workspaceName",
+      "placeholder": "workspaceName",
+      "type": "STRING"
+    }
+  ],
+  "type": "input",
+  "version": 1
+}
