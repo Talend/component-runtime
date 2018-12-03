@@ -40,6 +40,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1199[TCOMP-1199^]: Nested repository not used when the classpath is not composed of a single jar
 - link:https://jira.talendforge.org/browse/TCOMP-1204[TCOMP-1204^]: [dependency upgrade] XBean 4.12
 - link:https://jira.talendforge.org/browse/TCOMP-1207[TCOMP-1207^]: [beam] add ContextualSerializableCoder
+- link:https://jira.talendforge.org/browse/TCOMP-1213[TCOMP-1213^]: Upgrade guava to v27 for testing modules
 
 
 == Version 1.1.2
