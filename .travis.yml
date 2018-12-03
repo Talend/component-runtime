@@ -43,23 +43,13 @@ install: echo true
 
 jobs:
   include:
-    # POC branches
-    - stage: poc_build
-      script: mvn $BUILD_ARGS
-      jdk: oraclejdk8
-
     # PR profile
     - stage: pullrequest_build
+      before_install: sudo add-apt-repository -y ppa:tj/java-for-14.04 && sudo apt-get update && sudo apt-get install -y openjfx
       script: mvn $BUILD_ARGS
-      jdk: oraclejdk8
+      jdk: openjdk8
 
     # master profile
-    - stage: master_build
-      env:
-      - STEP=Build Oracle 8 JVM
-      script: mvn $BUILD_ARGS
-      jdk: oraclejdk8
-
     - stage: master_build
       env:
       - STEP=Build OpenJDK 8 JVM
@@ -105,7 +95,5 @@ jobs:
 stages:
   - name: master_build
     if: branch = master AND type != pull_request
-  - name: poc_build
-    if: branch =~ ^poc AND type != pull_request
   - name: pullrequest_build
     if: type = pull_request
