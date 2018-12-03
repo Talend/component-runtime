@@ -183,7 +183,14 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
             return new FlowDefinition(Read.Unbounded.class.cast(transform).getSource(), processor);
         }
 
-        throw new IllegalArgumentException("This implementation only supports Bounded sources");
+        throw new InvalidMapperPipelineException("This implementation only supports Bounded sources");
+    }
+
+    public static class InvalidMapperPipelineException extends RuntimeException {
+
+        public InvalidMapperPipelineException(final String message) {
+            super(message);
+        }
     }
 
     @Data

@@ -70,7 +70,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         final ConfigurableClassLoader classLoader = ConfigurableClassLoader.class.cast(loader);
-        final URLClassLoader tmpLoader = classLoader.createTemporaryCopy();
+        final URLClassLoader tmpLoader = classLoader.createTemporaryCopy(); // cache it: mem is the issue?
         final Thread thread = Thread.currentThread();
         final ClassLoader old = thread.getContextClassLoader();
         thread.setContextClassLoader(tmpLoader);
@@ -92,7 +92,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
         final ComponentClassWriter writer =
                 new ComponentClassWriter(className.replace('/', '.'), tmpLoader, reader, ClassWriter.COMPUTE_FRAMES);
         final ComponentClassVisitor visitor = new ComponentClassVisitor(writer, plugin);
-        reader.accept(visitor, ClassReader.SKIP_FRAMES);
+        reader.accept(new SerializableCoderReplacement(visitor, plugin), ClassReader.SKIP_FRAMES);
         return writer.toByteArray();
     }
 
@@ -169,6 +169,44 @@ public class BeamIOTransformer implements ClassFileTransformer {
                 throw new IllegalStateException(e);
             }
         };
+    }
+
+    private static class SerializableCoderReplacement extends ClassVisitor {
+
+        private final String plugin;
+
+        private SerializableCoderReplacement(final ClassVisitor delegate, final String plugin) {
+            super(ASM7, delegate);
+            this.plugin = plugin;
+        }
+
+        @Override
+        public MethodVisitor visitMethod(final int access, final String name, final String descriptor,
+                final String signature, final String[] exceptions) {
+            final MethodVisitor delegate = super.visitMethod(access, name, descriptor, signature, exceptions);
+            return new MethodVisitor(ASM7, delegate) {
+
+                @Override
+                public void visitMethodInsn(final int opcode, final String owner, final String name,
+                        final String descriptor, final boolean isInterface) {
+                    if ("org/apache/beam/sdk/coders/SerializableCoder".equals(owner) && "of".equals(name)
+                            && "(Ljava/lang/Class;)Lorg/apache/beam/sdk/coders/SerializableCoder;".equals(descriptor)) {
+                        super.visitLdcInsn(plugin);
+                        super.visitMethodInsn(opcode,
+                                "org/talend/sdk/component/runtime/beam/coder/ContextualSerializableCoder", "of",
+                                "(Ljava/lang/Class;Ljava/lang/String;)Lorg/apache/beam/sdk/coders/SerializableCoder;",
+                                false);
+                    } else {
+                        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+                    }
+                }
+
+                @Override
+                public void visitMaxs(final int maxStack, final int maxLocals) {
+                    super.visitMaxs(-1, -1);
+                }
+            };
+        }
     }
 
     public static class SerializationWrapper implements Serializable {

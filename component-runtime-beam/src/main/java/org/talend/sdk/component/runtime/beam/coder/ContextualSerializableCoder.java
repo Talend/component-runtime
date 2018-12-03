@@ -15,9 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
-import static lombok.AccessLevel.PRIVATE;
-import static lombok.AccessLevel.PROTECTED;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -26,25 +23,28 @@ import java.io.OutputStream;
 import java.io.Serializable;
 
 import org.apache.beam.sdk.coders.CoderException;
-import org.apache.beam.sdk.coders.CustomCoder;
+import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.values.TypeDescriptor;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
-@AllArgsConstructor(access = PRIVATE)
-@NoArgsConstructor(access = PROTECTED)
-public class ContextualSerializableCoder<T extends Serializable> extends CustomCoder<T> {
+public class ContextualSerializableCoder<T extends Serializable> extends SerializableCoder<T> {
 
     private String plugin;
 
-    private TypeDescriptor<T> typeDescriptor;
+    protected ContextualSerializableCoder() {
+        super(null, null);
+    }
 
-    public static <T extends Serializable> ContextualSerializableCoder<T> of(final Class<T> type, final String plugin) {
-        return new ContextualSerializableCoder<>(plugin, TypeDescriptor.of(type));
+    private ContextualSerializableCoder(final Class<T> type, final TypeDescriptor<T> typeDescriptor,
+            final String plugin) {
+        super(type, typeDescriptor);
+        this.plugin = plugin;
+    }
+
+    public static <T extends Serializable> SerializableCoder<T> of(final Class<T> type, final String plugin) {
+        return new ContextualSerializableCoder<>(type, TypeDescriptor.of(type), plugin);
     }
 
     @Override
@@ -82,22 +82,17 @@ public class ContextualSerializableCoder<T extends Serializable> extends CustomC
     @Override
     public boolean equals(final Object other) {
         return !(other == null || getClass() != other.getClass())
-                && typeDescriptor == ContextualSerializableCoder.class.cast(other).typeDescriptor;
+                && getRecordType() == ContextualSerializableCoder.class.cast(other).getRecordType();
     }
 
     @Override
     public int hashCode() {
-        return typeDescriptor.hashCode();
+        return getRecordType().hashCode();
     }
 
     @Override
-    public TypeDescriptor<T> getEncodedTypeDescriptor() {
-        return typeDescriptor;
-    }
-
-    @Override
-    public void verifyDeterministic() throws NonDeterministicException {
-        throw new NonDeterministicException(this, "Java Serialization, no more comment");
+    public String toString() {
+        return "ContextualSerializableCoder{plugin='" + plugin + "', clazz=" + getRecordType().getName() + "}";
     }
 
     private LightContainer getContainer() {
