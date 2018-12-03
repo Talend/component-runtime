@@ -16,16 +16,23 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 
 import javax.json.Json;
+import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
@@ -49,6 +56,31 @@ class AvroRecordConvertersTest {
                                     () -> jsonb, () -> new AvroRecordBuilderFactoryProvider().apply("test"));
             final Collection<String> list = record.getArray(String.class, "list");
             assertEquals(asList("a", "b"), list);
+        }
+    }
+
+    @Test // created to help with TCOMP-1208
+    void avroRecordArrays() throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
+            final RecordConverters converters = new RecordConverters();
+            final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
+            final Record record = converters
+                    .toRecord(builderFactory
+                            .createObjectBuilder()
+                            .add("value",
+                                    builderFactory
+                                            .createObjectBuilder()
+                                            .add("somekey", builderFactory.createArrayBuilder().build()))
+                            .build(), () -> jsonb, () -> factory);
+            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            SchemaRegistryCoder.of().encode(record, buffer);
+            assertTrue(SchemaRegistryCoder
+                    .of()
+                    .decode(new ByteArrayInputStream(buffer.toByteArray()))
+                    .getRecord("value")
+                    .getArray(Object.class, "somekey")
+                    .isEmpty());
         }
     }
 }

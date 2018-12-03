@@ -79,8 +79,20 @@ public class AvroSchemaBuilder implements Schema.Builder {
         final Unwrappable unwrappable;
         switch (entry.getType()) {
         case RECORD:
-        case ARRAY:
             unwrappable = Unwrappable.class.cast(entry.getElementSchema());
+            break;
+        case ARRAY:
+            unwrappable = new Unwrappable() {
+
+                @Override
+                public <T> T unwrap(final Class<T> type) {
+                    return type
+                            .cast(org.apache.avro.Schema
+                                    .createArray(Unwrappable.class
+                                            .cast(entry.getElementSchema())
+                                            .unwrap(org.apache.avro.Schema.class)));
+                }
+            };
             break;
         case BOOLEAN:
         case DOUBLE:
