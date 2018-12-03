@@ -44,6 +44,16 @@
       <artifactId>junit-jupiter-api</artifactId>
       <version>${junit5.version}</version>
       <scope>provided</scope>
+      <exclusions> <!-- for ossindex:audit -->
+        <exclusion>
+          <groupId>org.opentest4j</groupId>
+          <artifactId>opentest4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apiguardian</groupId>
+          <artifactId>apiguardian-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -59,6 +69,16 @@
     <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+      <exclusions> <!-- for ossindex:audit -->
+        <exclusion>
+          <groupId>org.opentest4j</groupId>
+          <artifactId>opentest4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.tomee</groupId>
