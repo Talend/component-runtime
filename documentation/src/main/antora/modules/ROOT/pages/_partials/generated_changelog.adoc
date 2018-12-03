@@ -17,6 +17,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1200[TCOMP-1200^]: Packages not defined from nested repository classes
 - link:https://jira.talendforge.org/browse/TCOMP-1201[TCOMP-1201^]: includeTransitiveDependencies option of nested-maven-repository does not work
 - link:https://jira.talendforge.org/browse/TCOMP-1202[TCOMP-1202^]: Refine avro classloading exclusion to accept hadoop and mapred packages
+- link:https://jira.talendforge.org/browse/TCOMP-1205[TCOMP-1205^]: Empty JSon object lead to NPE
+- link:https://jira.talendforge.org/browse/TCOMP-1209[TCOMP-1209^]: Ensure SerializableCoder is replaced with a contextual version to support Talend Component Kit classloading model
+- link:https://jira.talendforge.org/browse/TCOMP-1210[TCOMP-1210^]: BeamComponentExtension should let the exception go back to the caller when the transform fails
 
 
 === New Feature
@@ -36,6 +39,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1195[TCOMP-1195^]: Enable user to extend BeamEnvironment test tempalte more easily
 - link:https://jira.talendforge.org/browse/TCOMP-1199[TCOMP-1199^]: Nested repository not used when the classpath is not composed of a single jar
 - link:https://jira.talendforge.org/browse/TCOMP-1204[TCOMP-1204^]: [dependency upgrade] XBean 4.12
+- link:https://jira.talendforge.org/browse/TCOMP-1207[TCOMP-1207^]: [beam] add ContextualSerializableCoder
 
 
 == Version 1.1.2
