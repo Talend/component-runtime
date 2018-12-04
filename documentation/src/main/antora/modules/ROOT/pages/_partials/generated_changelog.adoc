@@ -20,6 +20,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1205[TCOMP-1205^]: Empty JSon object lead to NPE
 - link:https://jira.talendforge.org/browse/TCOMP-1209[TCOMP-1209^]: Ensure SerializableCoder is replaced with a contextual version to support Talend Component Kit classloading model
 - link:https://jira.talendforge.org/browse/TCOMP-1210[TCOMP-1210^]: BeamComponentExtension should let the exception go back to the caller when the transform fails
+- link:https://jira.talendforge.org/browse/TCOMP-1215[TCOMP-1215^]: Nested maven repository in jars don't go through transformers
 
 
 === New Feature
@@ -41,6 +42,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1204[TCOMP-1204^]: [dependency upgrade] XBean 4.12
 - link:https://jira.talendforge.org/browse/TCOMP-1207[TCOMP-1207^]: [beam] add ContextualSerializableCoder
 - link:https://jira.talendforge.org/browse/TCOMP-1213[TCOMP-1213^]: Upgrade guava to v27 for testing modules
+- link:https://jira.talendforge.org/browse/TCOMP-1216[TCOMP-1216^]: Take into account the visibility for the parameter validation
 
 
 == Version 1.1.2
