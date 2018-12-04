@@ -48,6 +48,7 @@ import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.constraint.Pattern;
@@ -144,6 +145,75 @@ class ReflectionServiceTest {
                 put("root.integer", "5.0");
             }
         })[0]).isSet("set", 5);
+    }
+
+    @Test
+    void validationRequiredNotVisiblePrimitive() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityPrimitive.class);
+        assertNull(RequiredVisibilityPrimitive.class.cast(factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.toggle", "false");
+            }
+        })[0]).string);
+    }
+
+    @Test
+    void validationRequiredVisiblePrimitiveInvalid() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityPrimitive.class);
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.toggle", "true");
+            }
+        }));
+    }
+
+    @Test
+    void validationRequiredVisiblePrimitiveValid() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityPrimitive.class);
+        assertEquals("sthg", RequiredVisibilityPrimitive.class.cast(factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.toggle", "true");
+                put("root.string", "sthg");
+            }
+        })[0]).string);
+    }
+
+    @Test
+    void validationRequiredNotVisibleArray() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityArray.class);
+        assertNull(RequiredVisibilityArray.class.cast(factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.toggle", "false");
+            }
+        })[0]).strings);
+    }
+
+    @Test
+    void validationRequiredVisibleArrayInvalid() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityArray.class);
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.toggle", "true");
+            }
+        }));
+    }
+
+    @Test
+    void validationRequiredVisibleArrayValid() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityArray.class);
+        assertEquals(singletonList("sthg"),
+                RequiredVisibilityArray.class.cast(factory.apply(new HashMap<String, String>() {
+
+                    {
+                        put("root.toggle", "true");
+                        put("root.strings[0]", "sthg");
+                    }
+                })[0]).strings);
     }
 
     @Test
@@ -590,6 +660,28 @@ class ReflectionServiceTest {
         private String regex;
     }
 
+    public static class RequiredVisibilityPrimitive {
+
+        @Option
+        @Required
+        @ActiveIf(target = "toggle", value = "true")
+        private String string;
+
+        @Option
+        private boolean toggle;
+    }
+
+    public static class RequiredVisibilityArray {
+
+        @Option
+        @Required
+        @ActiveIf(target = "toggle", value = "true")
+        private List<String> strings;
+
+        @Option
+        private boolean toggle;
+    }
+
     public static class RequiredList {
 
         @Option
@@ -607,6 +699,14 @@ class ReflectionServiceTest {
     public static class FakeComponent {
 
         public FakeComponent(@Configuration("myconfig") final MyConfig config) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final RequiredVisibilityPrimitive config) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final RequiredVisibilityArray config) {
             // no-op
         }
 

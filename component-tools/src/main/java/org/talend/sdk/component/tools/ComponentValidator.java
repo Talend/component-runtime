@@ -889,7 +889,7 @@ public class ComponentValidator extends BaseTask {
                         .stream()
                         .filter(m -> countParameters(m) != 1
                                 || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
-                        .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
+                        .map(m -> m + " should have its first parameter being a dataset (marked with @DataSet)")
                         .sorted()
                         .collect(toSet()));
 

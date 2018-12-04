@@ -35,10 +35,12 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 
 import lombok.Data;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
+@ToString(of = { "path", "name", "type", "metadata" })
 public class ParameterMeta {
 
     private static final ParameterBundle NO_PARAMETER_BUNDLE = new ParameterBundle(null, null) {

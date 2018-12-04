@@ -22,13 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonReaderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -38,7 +43,7 @@ import org.talend.sdk.component.runtime.record.RecordConverters;
 
 class AvroRecordConvertersTest {
 
-    @Test // created to help with TCOMP-1208
+    @Test
     void convertListString() throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final Record record =
@@ -59,7 +64,7 @@ class AvroRecordConvertersTest {
         }
     }
 
-    @Test // created to help with TCOMP-1208
+    @Test
     void avroRecordArrays() throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
@@ -81,6 +86,27 @@ class AvroRecordConvertersTest {
                     .getRecord("value")
                     .getArray(Object.class, "somekey")
                     .isEmpty());
+        }
+    }
+
+    @Test
+    @Disabled("we only support one schema per array for now")
+    void notHomogeneousArray() throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
+            final RecordConverters converters = new RecordConverters();
+            final JsonReaderFactory readerFactory = Json.createReaderFactory(emptyMap());
+            final Record record = converters
+                    .toRecord(readerFactory
+                            .createReader(new StringReader(
+                                    "{\"custom_attributes\":[" + "{\"attribute_code\":\"color\",\"value\":\"49\"},"
+                                            + "{\"attribute_code\":\"category_ids\",\"value\":[]}]}"))
+                            .readObject(), () -> jsonb, () -> factory);
+            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            SchemaRegistryCoder.of().encode(record, buffer);
+            final Record decoded = SchemaRegistryCoder.of().decode(new ByteArrayInputStream(buffer.toByteArray()));
+            final List<Record> array = new ArrayList<>(decoded.getArray(Record.class, "custom_attributes"));
+            assertTrue(array.get(1).getArray(Object.class, "value2").isEmpty());
         }
     }
 }
