@@ -19,6 +19,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 
 import java.io.Serializable;
 import java.lang.instrument.ClassFileTransformer;
@@ -30,6 +31,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.design.extension.flows.FlowsFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -87,7 +89,10 @@ public class BeamComponentExtension implements ComponentExtension {
         if (Boolean.getBoolean("talend.component.beam.transformers.skip")) {
             return emptySet();
         }
-        return singleton(new BeamIOTransformer());
+        final String classes = System.getProperty("talend.component.beam.transformers.io.enhanced");
+        return singleton(classes == null ? new BeamIOTransformer()
+                : new BeamIOTransformer(
+                        Stream.of(classes.split(",")).map(String::trim).filter(it -> !it.isEmpty()).collect(toSet())));
     }
 
     @Override
