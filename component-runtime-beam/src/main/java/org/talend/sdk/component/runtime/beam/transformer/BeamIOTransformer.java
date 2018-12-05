@@ -78,7 +78,8 @@ public class BeamIOTransformer implements ClassFileTransformer {
                         "org.apache.beam.sdk.io.Source$Reader", "org.apache.beam.sdk.io.UnboundedSource$CheckpointMark",
                         "org.apache.beam.sdk.transforms.DoFn", "org.apache.beam.sdk.transforms.PTransform",
                         "org.apache.beam.sdk.transforms.Combine$CombineFn",
-                        "org.apache.beam.sdk.transforms.SerializableFunction")
+                        "org.apache.beam.sdk.transforms.SerializableFunction",
+                        "org.apache.beam.sdk.values.TupleTag")
                 .collect(toSet()));
     }
 
