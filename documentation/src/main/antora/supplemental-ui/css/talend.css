@@ -182,6 +182,19 @@ td, th {
   padding: 0.3em !important;
 }
 
+thead {
+  background-color: #82bd4161 !important;
+  line-height: 2.8rem;
+}
+
+table.tableblock {
+  margin-top:30px;
+  margin-bottom:30px;
+  border: 1px solid lightgrey;
+  max-width:75% !important;
+  word-wrap: break-word;
+}
+
 .gallery td.tableblock > div.imageblock {
   max-width: 400px;
   max-height: 400px;
@@ -252,13 +265,21 @@ h1.article-side-toc {
   margin-top: 36px;
   margin-bottom: 14px;
 }
+
+div.sect1 {
+  border-top: 0.3px solid #29567959;
+  margin-bottom: 50px;
+}
+
+div.sectionbody {
+  margin-bottom: 50px;
+}
+
 h2 {
   color: #295679;
   font-size: 32px;
   font-weight: 400;
-  margin-top: 50px;
-  line-height: 2em;
-  border-top: 0.3px solid #29567959;
+  line-height: 1.1em;
 }
 h2 > a{
   color: #295679;
@@ -610,13 +631,17 @@ pre {
   margin-bottom: 15px;
 }
 
+div.listingblock {
+  border-left: solid 1.5px #82bd41;
+  margin-left: 1.9em;
+}
+
 pre {
   border: none !important;
 }
 
 pre > code {
-      border-left: solid 1.5px yellowgreen;
-      margin-left: 2.35em;
+  margin-left:15px;
 }
 
 td .conum[data-value] {
@@ -626,8 +651,8 @@ td .conum[data-value] {
 
 .conum[data-value] {
     display: inline-block;
-    color: #fff!important;
-    background-color: #0b7f1a8c;
+    color: #fff !important;
+    background-color: #82bd41;
     -webkit-border-radius: 100px;
     border-radius: 100px;
     text-align: center;

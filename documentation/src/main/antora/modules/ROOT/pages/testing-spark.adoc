@@ -45,7 +45,7 @@ TIP: This testing methodology works with `@Parameterized`. You can submit severa
 
 The integration of that Spark cluster logic with JUnit 5 is done using the `@WithSpark` marker for the extension. Optionally, it allows you to inject—through `@SparkInject`—the `BaseSpark<?>` handler to access the Spark cluster meta information. For example, its host/port.
 
-.Example
+Example:
 
 [source,java]
 ----

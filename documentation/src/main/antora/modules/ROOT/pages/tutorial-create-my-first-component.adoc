@@ -117,6 +117,7 @@ The `@ElementListener` method now looks as follows: +
         System.out.println("["+configuration.getLevel().toUpperCase()+"] "+defaultInput);
     }
 ----
+
 [start="5"]
 . Open the Terminal again to compile the project and deploy the component again. To do that, run successively the two following commands:
 ** `mvnw clean install`

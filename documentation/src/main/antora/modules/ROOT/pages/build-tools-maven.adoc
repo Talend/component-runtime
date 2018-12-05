@@ -101,7 +101,7 @@ This goal helps you validate the common programming model of the component. To a
 
 It is bound to the `process-classes` phase by default. When executed, it performs several validations that can be disabled by setting the corresponding flags to `false` in the `<configuration>` block of the execution:
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name |Description |User property |Default
 |validateInternationalization|Validates that resource bundles are presents and contain commonly used keys (for example, `_displayName`)|`talend.validation.internationalization`| true
@@ -116,8 +116,8 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 |validateDocumentation| Ensures that all components and `@Option` properties have a documentation using the `@Documentation` property. |`talend.validation.documentation`|true
 |validateLayout| Ensures that the layout is referencing existing options and properties. |`talend.validation.layout`|true
 |validateOptionNames| Ensures that the option names are compliant with the framework. It is highly recommended and safer to keep it set to `true`. |`talend.validation.options`|true
-|validateLocalConfiguration| Ensures that if any `TALEND-INF/local-configuration.properties` exists then keys start with the family name.|true
-|validateOutputConnection| Ensures that an output has only one input branch.|true
+|validateLocalConfiguration| Ensures that if any `TALEND-INF/local-configuration.properties` exists then keys start with the family name.|`talend.validation.localConfiguration`|true
+|validateOutputConnection| Ensures that an output has only one input branch.|`talend.validation.validateOutputConnection`|true
 |===
 
 === Generating the component documentation
@@ -141,7 +141,7 @@ The `asciidoc` goal generates an Asciidoc file documenting your component from t
 </plugin>
 ----
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name|Description|User property|Default
 |level|Level of the root title.|`talend.documentation.level`
@@ -422,11 +422,11 @@ This command creates a *.car* file in your build directory. This file can be sha
 
 This command has some optional parameters:
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name |Description |User property |Default
 |attach |Specifies whether the component archive should be attached. |`talend.car.attach`| true
-|classifier |The classifier to use if attach is set to true. |`talend.car.attach`| component
+|classifier |The classifier to use if attach is set to true. |`talend.car.classifier`| component
 |metadata |Additional custom metadata to bundle in the component archive. |-| -
 |output |Specifies the output path and name of the archive |`talend.car.output`| ${project.build.directory}/${project.build.finalName}.car
 |packaging |Specifies the packaging |-| ${project.packaging}
@@ -468,7 +468,7 @@ The `deploy-in-studio` goal deploys the current component module into a local Ta
 
 .Parameters
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%"]
 |===
 |Name |Description |User property |Default
 |studioHome|Path to the Studio home directory|`talend.component.studioHome`|-
@@ -489,7 +489,7 @@ Call `mvn talend-component:help -Ddetail=true -Dgoal=<goal-name>` to display the
 
 .Parameters
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name |Description |User property |Default
 |detail|Displays all settable properties for each goal.|`detail`|false

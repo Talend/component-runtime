@@ -51,7 +51,8 @@ Learn how to set a custom icon for your component in xref:component-defining-cus
 - *@Version*: Sets the component version. 1 by default. +
 Learn how to manage different versions and migrations between your component versions in xref:component-versions-and-migration.adoc[this section].
 
-.Example
+For example:
+
 [source,java]
 ----
 @Version(1)
@@ -85,7 +86,8 @@ Once the component type is defined, you can start implementing its specific logi
 - xref:component-define-input.adoc[Defining an input component]
 - xref:component-define-processor-output.adoc[Defining a processor or output component]
 
-.Partition mapper example
+Partition mapper example:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @PartitionMapper(name = "my_mapper")
@@ -93,7 +95,8 @@ public class MyMapper {
 }
 ----
 
-.Emitter example
+Emitter example:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Emitter(name = "my_input")
@@ -101,7 +104,8 @@ public class MyInput {
 }
 ----
 
-.Processor example
+Processor example:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Processor(name = "my_processor")

@@ -43,10 +43,10 @@ IMPORTANT: In distributed environments, class constructor are called on cluster 
 ////
 image:deployment-diagram.png[]
 
-1. The created task is a JAR file containing class information, which describes the pipeline (flow) that should be processed in cluster.
-2. During the partition plan computation step, the pipeline is analyzed and split into stages. The cluster manager node instantiates mappers/processors, gets estimated data size using mappers, and splits created mappers according to the estimated data size. +
+<1> The created task is a JAR file containing class information, which describes the pipeline (flow) that should be processed in cluster.
+<2> During the partition plan computation step, the pipeline is analyzed and split into stages. The cluster manager node instantiates mappers/processors, gets estimated data size using mappers, and splits created mappers according to the estimated data size. +
 All instances are then serialized and sent to the worker node.
-3. Serialized instances are received and deserialized. Methods annotated with `@PostConstruct` are called. After that, pipeline execution starts. The `@BeforeGroup` annotated method of the processor is called before processing the first element in chunk. +
+<3> Serialized instances are received and deserialized. Methods annotated with `@PostConstruct` are called. After that, pipeline execution starts. The `@BeforeGroup` annotated method of the processor is called before processing the first element in chunk. +
 After processing the number of records estimated as chunk size, the `@AfterGroup` annotated method of the processor is called. Chunk size is calculated depending on the environment the pipeline is processed by. Once the pipeline is processed, methods annotated with `@PreDestroy` are called.
 
 IMPORTANT: All the methods managed by the framework must be public. Private methods are ignored.

@@ -22,7 +22,8 @@ The URI follows the form `[family]://[component][?version][&configuration]`, whe
 * *version* is the version of the component. It is represented in a _key=value_ format. The key is `__version` and the value is a number.
 * *configuration* is component configuration. It is represented in a _key=value_ format. The key is the path of the configuration and the value is a `string' corresponding to the configuration value.
 
-.URI example
+URI example:
+
 [source]
 ----
 job://csvFileGen?__version=1&path=/temp/result.csv&encoding=utf-8"
@@ -30,7 +31,7 @@ job://csvFileGen?__version=1&path=/temp/result.csv&encoding=utf-8"
 
 IMPORTANT: configuration parameters must be URI/URL encoded.
 
-.Job example
+Job example:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -65,7 +66,7 @@ Depending on the configuration, you can select the environment which you execute
 
 To select the environment, the logic is the following one:
 
-1. If an `org.talend.sdk.component.runtime.manager.chain.Job.ExecutorBuilder` class is passed through the job properties, then use it. The supported types are a `ExecutionBuilder` instance, a `Class` or a `String`.
+1. If an `org.talend.sdk.component.runtime.manager.chain.Job.ExecutorBuilder` class is passed through the job properties, then use it. The supported types are an `ExecutionBuilder` instance, a `Class` or a `String`.
 2. If an `ExecutionBuilder` SPI is present, use it. It is the case if `component-runtime-beam` is present in your classpath.
 3. Else, use a local/standalone execution.
 

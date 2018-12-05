@@ -129,7 +129,8 @@ NOTE: Use values in % for image size. For example; `\image:landscape.png[Landsca
 
 In a general manner, avoid using tables if there are other solutions available. This is especially the case for complex tables that include assets or big code samples, as these can lead to display issues.
 
-.Table example
+Table example: value
+
 [role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |API|Type|Description

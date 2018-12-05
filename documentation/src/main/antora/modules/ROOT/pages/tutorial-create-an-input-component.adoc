@@ -154,6 +154,7 @@ protected HazelcastMapper(final HazelcastConfiguration configuration,
     this.members = members;
 }
 ----
+
 <1> Add a collection attribute to the mapper. The list of Hazelcast members is needed later in the process.
 <2> Define the component public constructor, which is responsible for injecting configuration and services.
 <3> Add an internal constructor to get the collection of the Hazelcast cluster members.
@@ -221,6 +222,7 @@ public long estimateSize() {
                     .sum(); <3>
 }
 ----
+
 <1> The `getSizeByMembers()` method submits a task to each Hazelcast member to calculate the member size locally and asynchronously..
 <2> The `mapToLong()` method gets the size calculated by that task.
 <3> The `sum()` method calculates the total size of all the members.
@@ -303,6 +305,7 @@ public HazelcastSource createSource() {
     return new HazelcastSource(configuration, jsonFactory, jsonb, service, members); <1>
 }
 ----
+
 <1> After splitting the mapper, every mapper creates a producer that reads the records according to the provided configuration.
 
 === Full implementation of the Partition Mapper
@@ -524,6 +527,7 @@ public class HazelcastSource implements Serializable {
     }
 }
 ----
+
 <1> BufferizedProducerSupport is a utility class that encapsulates the buffering logic. It allows to only provide instructions on how to load the data rather than the logic to iterate on it. In this case, the buffer is created in the `@PostConstruct` method and loaded once, and is then used to produce records one by one.
 <2> The method annotated with `@PostConstruct` is invoked once on the node. It allows to create some connections and to initialize the buffering.
 In this case, the BufferizedProducerSupport class is used to create a buffer of records in this method.

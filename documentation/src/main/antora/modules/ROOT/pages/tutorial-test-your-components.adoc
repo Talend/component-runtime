@@ -13,7 +13,8 @@ This tutorial covers:
 3. How to run the test in standalone mode.
 
 The test class is as follows:
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 public class HazelcastMapperTest {
 
@@ -50,6 +51,7 @@ public class HazelcastMapperTest {
     }
 }
 ----
+
 <1> `SimpleComponentRule` is a JUnit rule that lets you load your component from a package. This rule also provides some test components like `emitter` and `collector`. Learn more about JUnit in xref:testing-junit.adoc#_component_runtime_junit[this section].
 <2> Using an embedded Hazelcast instance to test the input component.
 <3> Creating an embedded Hazelcast instance and filling it with some test data. A map with the name of the test class is created and data is added to it.

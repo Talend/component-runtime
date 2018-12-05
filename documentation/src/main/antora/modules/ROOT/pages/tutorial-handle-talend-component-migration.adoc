@@ -25,7 +25,7 @@ First, create a simple processor component configured as follows:
 
 1. Create a simple configuration class that represents a basic authentication and that can be used in any component requiring this kind of authentication.
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @GridLayout({
         @GridLayout.Row({ "username", "password" })
@@ -46,7 +46,7 @@ public class BasicAuth {
 [start="2"]
 . Create a simple output component that uses the configuration defined earlier. The component configuration is injected into the component constructor.
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Version(1)
 @Icon(Icon.IconType.DEFAULT)
@@ -80,7 +80,7 @@ The second version of the component needs to support a new authentication method
 
 . Add an Oauth2 authentication mode to the component in addition to the basic mode. For example:
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @GridLayout({
         @GridLayout.Row({ "clientId", "clientSecret" })
@@ -103,7 +103,7 @@ The options of the new authentication mode are now defined.
 [start="2"]
 . Wrap the configuration created above in a global configuration with the basic authentication mode and add an enumeration to let the user choose the mode to use. For example, create an `AuthenticationConfiguration` class as follows:
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @GridLayout({
         @GridLayout.Row({ "authenticationMode" }),
@@ -143,7 +143,7 @@ TIP: Using the `@ActiveIf` annotation allows to activate the authentication type
 . Edit the component to use the new configuration that supports an additional authentication mode.
 Also upgrade the component version from 1 to 2 as its configuration has changed.
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Version(2) // upgrade the component version
 @Icon(Icon.IconType.DEFAULT)
@@ -180,7 +180,7 @@ NOTE: An old configuration may already be persisted by an application that integ
 
 . Add a migration handler class to the component version.
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Version(value = 1, migrationHandler = MyOutputMigrationHandler.class)
 ----
@@ -188,7 +188,7 @@ NOTE: An old configuration may already be persisted by an application that integ
 [start="2"]
 . Create the migration handler class `MyOutputMigrationHandler`
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
  public class MyOutputMigrationHandler implements MigrationHandler{ <1>
 
@@ -199,6 +199,7 @@ NOTE: An old configuration may already be persisted by an application that integ
         }
  }
 ----
+
 <1> The migration handler class needs to implement the `MigrationHandler` interface.
 <2> The `MigrationHandler` interface specifies the `migrate` method. This method references: +
 +
@@ -225,7 +226,7 @@ To migrate the old component version to the new version and to keep backward com
 
 In the case of this scenario, it means making all configurations based on the version 1 of the component have the `authenticationMode` set to basic by default and remapping the old basic authentication configuration to the new one.
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
  public class MyOutputMigrationHandler implements MigrationHandler{
 
@@ -246,6 +247,7 @@ In the case of this scenario, it means making all configurations based on the ve
         }
  }
 ----
+
 <1> Safety check of the incoming data version to make sure to only apply the migration logic to the version 1.
 <2> Mapping the old configuration to the new version structure. As the `BasicAuth` is now under the root configuration class, its path changes and becomes `configuration.basic.*`.
 <3> Setting a new default value to the `authenticationMode` as it needs to be set to `Basic` for configuration coming from version 1.

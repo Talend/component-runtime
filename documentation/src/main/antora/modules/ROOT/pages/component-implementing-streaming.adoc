@@ -40,7 +40,7 @@ NOTE: See the tables below for more details about each strategy.
 
 === Constant strategy
 
-[options="header, autowidth",role="table-striped table-hover table-ordered"]
+[options="header, autowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1"]
 |===
 |Parameter|Description|Default value
 |`talend.input.streaming.retry.constant.timeout`|Pause duration for the `constant` strategy, in ms.|`500`
@@ -48,7 +48,7 @@ NOTE: See the tables below for more details about each strategy.
 
 === Exponential strategy
 
-[options="header, autowidth",role="table-striped table-hover table-ordered"]
+[options="header, autowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1"]
 |====
 |Parameter|Description|Default value
 |`talend.input.streaming.retry.exponential.exponent`|Exponent of the exponential calculation.|`1.5`

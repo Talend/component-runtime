@@ -29,7 +29,7 @@ You can change the default configuration of component server by modifying the `$
 
 The following parameters are available:
 
-[options="header",role="table-striped table-hover table-ordered"]
+[options="header",role="table-striped table-hover table-ordered",cols="1,2,1",width="100%"]
 |===
 | Name | Description | Default
 | component.environment | Enables the developer mode when set to `dev` | -
@@ -54,7 +54,6 @@ is `%1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS %1$Tp %2$s%n%4$s: %5$s%6$s%n`, but for 
 
 Here is an example of a common developer `configuration/config.ini` file:
 
-.configuration/config.ini example
 [source,properties]
 ----
 # use local .m2 instead of embedded studio one

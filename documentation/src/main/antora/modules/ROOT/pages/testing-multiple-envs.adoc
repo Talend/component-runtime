@@ -95,7 +95,7 @@ This usage assumes that Beam 2.4.0 is used.
 
 The following dependencies bring the JUnit testing toolkit, the Beam integration and the multi-environment testing toolkit for JUnit into the test scope.
 
-.Dependencies
+Dependencies:
 
 [source,java]
 ----
