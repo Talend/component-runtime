@@ -173,8 +173,8 @@
     <component-api.version>1.1.1</component-api.version>
 
     <!-- for the starter -->
-    <gradle.version>4.10.2</gradle.version>
-    <mvn.version>3.5.4</mvn.version>
+    <gradle.version>5.0</gradle.version>
+    <mvn.version>3.6.0</mvn.version>
 
     <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
     <jaxrs-analyzer-extension.version>0.0.6</jaxrs-analyzer-extension.version>

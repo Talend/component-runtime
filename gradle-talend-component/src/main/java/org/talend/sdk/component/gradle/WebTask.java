@@ -41,27 +41,17 @@ public class WebTask extends TaCoKitTask {
         final TaCoKitExtension extension =
                 TaCoKitExtension.class.cast(getProject().getExtensions().findByName("talendComponentKit"));
 
+        final String gav = mainGav();
+        getLogger()
+                .info("This task will rely on a provisionned maven repository with your dependencies and " + gav + ","
+                        + "you can publish your artifact with `./gradlew publishToMavenLocal`");
         Runnable.class
                 .cast(Thread
                         .currentThread()
                         .getContextClassLoader()
                         .loadClass("org.talend.sdk.component.tools.WebServer")
                         .getConstructor(Collection.class, Integer.class, Object.class, String.class)
-                        .newInstance(extension.getServerArguments(), extension.getServerPort(), getLogger(), findGav()))
+                        .newInstance(extension.getServerArguments(), extension.getServerPort(), getLogger(), gav))
                 .run();
-    }
-
-    private String findGav() {
-        return getProject()
-                .getConfigurations()
-                .getByName("runtime")
-                .getResolvedConfiguration()
-                .getResolvedArtifacts()
-                .stream()
-                .filter(a -> "jar".equals(a.getType()) && a.getClassifier() == null)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Didn't find main artifact in runtime configuration"))
-                .getFile()
-                .getAbsolutePath();
     }
 }

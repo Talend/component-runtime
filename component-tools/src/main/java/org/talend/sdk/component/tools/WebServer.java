@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.apache.catalina.core.StandardServer;
-import org.apache.commons.cli.CommandLine;
+import org.apache.catalina.webresources.StandardRoot;
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.runner.Cli;
 
@@ -60,18 +60,21 @@ public class WebServer implements Runnable {
         final AtomicReference<Meecrowave> ref = new AtomicReference<>();
         try {
             final CountDownLatch latch = new CountDownLatch(1);
-            final Cli cli = new Cli(buildArgs()) {
+            new Thread(() -> {
+                try (final Meecrowave meecrowave = new Meecrowave(Cli.create(buildArgs()))) {
+                    meecrowave.start().deployClasspath(new Meecrowave.DeploymentMeta("", null, stdCtx -> {
+                        stdCtx.setResources(new StandardRoot() {
 
-                @Override
-                protected void doWait(final Meecrowave meecrowave, final CommandLine line) {
+                            @Override
+                            protected void registerURLStreamHandlerFactory() {
+                                // no-op - gradle supports to reuse the same JVM so it would be broken
+                            }
+                        });
+                    }));
+
                     ref.set(meecrowave);
                     latch.countDown();
-                    super.doWait(meecrowave, line);
-                }
-            };
-            new Thread(() -> {
-                try {
-                    cli.run();
+                    meecrowave.getTomcat().getServer().await();
                 } catch (final RuntimeException re) {
                     latch.countDown();
                     log.error(re.getMessage());
@@ -132,7 +135,7 @@ public class WebServer implements Runnable {
             args.add("--use-shutdown-hook");
             args.add("false");
         }
-        return args.toArray(new String[args.size()]);
+        return args.toArray(new String[0]);
     }
 
     private String findPort() {

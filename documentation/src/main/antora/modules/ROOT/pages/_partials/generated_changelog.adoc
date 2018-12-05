@@ -21,6 +21,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1209[TCOMP-1209^]: Ensure SerializableCoder is replaced with a contextual version to support Talend Component Kit classloading model
 - link:https://jira.talendforge.org/browse/TCOMP-1210[TCOMP-1210^]: BeamComponentExtension should let the exception go back to the caller when the transform fails
 - link:https://jira.talendforge.org/browse/TCOMP-1215[TCOMP-1215^]: Nested maven repository in jars don't go through transformers
+- link:https://jira.talendforge.org/browse/TCOMP-1218[TCOMP-1218^]: Record entries order shouldn't be sorted by the runtime
 
 
 === New Feature
@@ -44,6 +45,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1213[TCOMP-1213^]: Upgrade guava to v27 for testing modules
 - link:https://jira.talendforge.org/browse/TCOMP-1216[TCOMP-1216^]: Take into account the visibility for the parameter validation
 - link:https://jira.talendforge.org/browse/TCOMP-1217[TCOMP-1217^]: Add JVM system property talend.component.runtime.serialization.java.inputstream.whitelist for our custom object input stream
+- link:https://jira.talendforge.org/browse/TCOMP-1219[TCOMP-1219^]: Upgrade starter to gradle 5
+- link:https://jira.talendforge.org/browse/TCOMP-1220[TCOMP-1220^]: Upgrade Maven to 3.6.0 in starter
 
 
 == Version 1.1.2

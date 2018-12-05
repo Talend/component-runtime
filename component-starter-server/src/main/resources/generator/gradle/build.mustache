@@ -1,6 +1,7 @@
 apply plugin: 'nebula.provided-base'
 apply plugin: 'org.talend.sdk.component'
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 {{#plugins}}
 apply plugin: '{{value}}'
 {{/plugins}}
@@ -40,6 +41,8 @@ repositories {
 
 group = '{{build.group}}'
 description = '{{build.description}}'
+version = '{{build.version}}'
+
 {{#configurations}}{{#first}}
 configurations { {{/first}}
     {{value}}{{#last}}
@@ -78,3 +81,15 @@ dependencies {
   {{value.scope}} group: '{{value.group}}', name: '{{value.artifact}}', version: '{{value.version}}'{{#value.type}}, ext: '{{value.type}}'{{/value.type}}{{#value.classifier}}, classifier: '{{value.classifier}}'{{/value.classifier}}
 {{/dependencies}}
 }
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+    }
+  }
+  repositories {
+    mavenLocal()
+  }
+}
+

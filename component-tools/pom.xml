@@ -78,7 +78,7 @@
           <artifactId>shrinkwrap-api</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>${project.groupId}</groupId>
+          <groupId>org.apache.tomee</groupId>
           <artifactId>openejb-jee</artifactId>
         </exclusion>
       </exclusions>
