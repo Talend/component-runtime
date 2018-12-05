@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
 import java.io.OutputStream;
 import java.io.Serializable;
 
@@ -28,6 +29,8 @@ import org.apache.beam.sdk.values.TypeDescriptor;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
+
+import lombok.RequiredArgsConstructor;
 
 public class ContextualSerializableCoder<T extends Serializable> extends SerializableCoder<T> {
 
@@ -97,5 +100,34 @@ public class ContextualSerializableCoder<T extends Serializable> extends Seriali
 
     private LightContainer getContainer() {
         return ContainerFinder.Instance.get().find(plugin);
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new Replacer(plugin, getRecordType().getName());
+    }
+
+    @RequiredArgsConstructor
+    private static class Replacer implements Serializable {
+
+        private final String plugin;
+
+        private final String className;
+
+        Object readResolve() throws ObjectStreamException {
+            final ContainerFinder containerFinder = ContainerFinder.Instance.get();
+            final LightContainer container = containerFinder.find(plugin);
+            final Thread thread = Thread.currentThread();
+            final ClassLoader oldLoader = thread.getContextClassLoader();
+            final ClassLoader classLoader = container.classloader();
+            thread.setContextClassLoader(classLoader);
+            try {
+                final Class clazz = classLoader.loadClass(className);
+                return of(clazz, plugin);
+            } catch (final ClassNotFoundException e) {
+                throw new IllegalArgumentException(className + " not found", e);
+            } finally {
+                thread.setContextClassLoader(oldLoader);
+            }
+        }
     }
 }
