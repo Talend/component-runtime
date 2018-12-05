@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.junit5;
 
+import static java.util.Optional.ofNullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Optional;
@@ -35,10 +37,12 @@ import org.talend.sdk.component.junit.environment.Environment;
 public class ComponentExtension extends BaseComponentsHandler
         implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, BeforeEachCallback, AfterEachCallback {
 
-    private static final ExtensionContext.Namespace NAMESPACE =
+    public static final ExtensionContext.Namespace NAMESPACE =
             ExtensionContext.Namespace.create(ComponentExtension.class.getName());
 
     private static final String USE_EACH_KEY = ComponentExtension.class.getName() + ".useEach";
+
+    private static final String SHARED_INSTANCE = ComponentExtension.class.getName() + ".instance";
 
     @Override
     public void beforeAll(final ExtensionContext extensionContext) {
@@ -48,14 +52,13 @@ public class ComponentExtension extends BaseComponentsHandler
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No annotation @WithComponents on " + extensionContext.getRequiredTestClass()));
         this.packageName = element.value();
-        final ExtensionContext.Store store = extensionContext.getStore(NAMESPACE);
         if (element.isolatedPackages().length > 0) {
             withIsolatedPackage(null, element.isolatedPackages());
         }
 
         final boolean shouldUseEach = shouldIgnore(extensionContext.getElement());
         if (!shouldUseEach) {
-            store.put(EmbeddedComponentManager.class.getName(), start());
+            doStart(extensionContext);
         } else if (!extensionContext.getElement().map(AnnotatedElement::getAnnotations).map(annotations -> {
             int componentIndex = -1;
             for (int i = 0; i < annotations.length; i++) {
@@ -74,13 +77,14 @@ public class ComponentExtension extends BaseComponentsHandler
                     + "environment annotations are becoming before the component one otherwise you will run in an "
                     + "unexpected context and will not reproduce real execution.");
         }
-        store.put(USE_EACH_KEY, shouldUseEach);
+        extensionContext.getStore(NAMESPACE).put(USE_EACH_KEY, shouldUseEach);
+        extensionContext.getStore(NAMESPACE).put(SHARED_INSTANCE, this);
     }
 
     @Override
     public void afterAll(final ExtensionContext extensionContext) {
         if (!shouldUseEach(extensionContext)) {
-            doClose(extensionContext);
+            doStop(extensionContext);
         }
     }
 
@@ -91,28 +95,34 @@ public class ComponentExtension extends BaseComponentsHandler
 
     @Override
     public void beforeEach(final ExtensionContext extensionContext) {
-        if (shouldUseEach(extensionContext)) {
-            extensionContext.getStore(NAMESPACE).put(EmbeddedComponentManager.class.getName(), start());
+        if (!shouldUseEach(extensionContext)) {
+            doInject(extensionContext);
         }
-        extensionContext.getTestInstance().ifPresent(this::injectServices);
     }
 
     @Override
     public void afterEach(final ExtensionContext extensionContext) {
-        resetState();
-        if (shouldUseEach(extensionContext)) {
-            doClose(extensionContext);
+        if (!shouldUseEach(extensionContext)) {
+            resetState();
         }
+    }
+
+    public void doStart(final ExtensionContext extensionContext) {
+        extensionContext.getStore(NAMESPACE).put(EmbeddedComponentManager.class.getName(), start());
+    }
+
+    public void doStop(final ExtensionContext extensionContext) {
+        ofNullable(EmbeddedComponentManager.class
+                .cast(extensionContext.getStore(NAMESPACE).get(EmbeddedComponentManager.class.getName())))
+                        .ifPresent(EmbeddedComponentManager::close);
+    }
+
+    public void doInject(final ExtensionContext extensionContext) {
+        extensionContext.getTestInstance().ifPresent(this::injectServices);
     }
 
     private Boolean shouldUseEach(final ExtensionContext extensionContext) {
         return extensionContext.getStore(NAMESPACE).get(USE_EACH_KEY, boolean.class);
-    }
-
-    private void doClose(final ExtensionContext extensionContext) {
-        EmbeddedComponentManager.class
-                .cast(extensionContext.getStore(NAMESPACE).get(EmbeddedComponentManager.class.getName()))
-                .close();
     }
 
     private boolean shouldIgnore(final Optional<AnnotatedElement> element) {

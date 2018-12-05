@@ -55,10 +55,10 @@ public class BeamComponentExtension implements ComponentExtension {
     @Override
     public boolean isActive() {
         try {
-            ofNullable(Thread.currentThread().getContextClassLoader())
+            return ofNullable(Thread.currentThread().getContextClassLoader())
                     .orElseGet(ClassLoader::getSystemClassLoader)
-                    .loadClass("org.apache.beam.sdk.transforms.PTransform");
-            return true;
+                    .loadClass("org.apache.beam.sdk.transforms.PTransform")
+                    .getClassLoader() == getClass().getClassLoader();
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             return false;
         }

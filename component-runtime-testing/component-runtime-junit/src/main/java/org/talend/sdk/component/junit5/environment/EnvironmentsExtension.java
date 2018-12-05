@@ -25,6 +25,8 @@ import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import org.talend.sdk.component.junit.environment.DecoratingEnvironmentProvider;
 import org.talend.sdk.component.junit.environment.EnvironmentsConfigurationParser;
+import org.talend.sdk.component.junit5.ComponentExtension;
+import org.talend.sdk.component.junit5.WithComponents;
 
 public class EnvironmentsExtension implements TestTemplateInvocationContextProvider {
 
@@ -41,6 +43,22 @@ public class EnvironmentsExtension implements TestTemplateInvocationContextProvi
                 .map(e -> new EnvironmentalContext(e,
                         format
                                 .replace("${displayName}", context.getDisplayName())
-                                .replace("${environment}", DecoratingEnvironmentProvider.class.cast(e).getName())));
+                                .replace("${environment}", DecoratingEnvironmentProvider.class.cast(e).getName()),
+                        createComponentExtension(context)));
+    }
+
+    private ComponentExtension createComponentExtension(final ExtensionContext context) {
+        return context
+                .getElement()
+                .map(it -> it.isAnnotationPresent(WithComponents.class))
+                .filter(it -> it)
+                .orElseGet(() -> context
+                        .getParent()
+                        .flatMap(it -> it.getElement().map(e -> e.isAnnotationPresent(WithComponents.class)))
+                        .orElse(false))
+                                ? context
+                                        .getStore(ExtensionContext.Namespace.create(ComponentExtension.class.getName()))
+                                        .get(ComponentExtension.class.getName() + ".instance", ComponentExtension.class)
+                                : null;
     }
 }
