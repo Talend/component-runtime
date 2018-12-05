@@ -178,7 +178,7 @@
 
     <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
     <jaxrs-analyzer-extension.version>0.0.6</jaxrs-analyzer-extension.version>
-    <groovy.version>3.0.0-alpha-3</groovy.version>
+    <groovy.version>2.5.4</groovy.version>
     <gmavenplus.version>1.6.2</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
@@ -1039,9 +1039,6 @@
       <activation>
         <jdk>11</jdk>
       </activation>
-      <properties>
-        <groovy.version>3.0.0-SNAPSHOT</groovy.version>
-      </properties>
       <dependencyManagement>
         <dependencies>
           <dependency>
@@ -1088,12 +1085,6 @@
           </dependency>
         </dependencies>
       </dependencyManagement>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>groovy-snaspshot</id>
-          <url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
-        </pluginRepository>
-      </pluginRepositories>
     </profile>
   </profiles>
 </project>
