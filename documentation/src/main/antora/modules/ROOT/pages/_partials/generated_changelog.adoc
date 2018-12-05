@@ -43,6 +43,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1207[TCOMP-1207^]: [beam] add ContextualSerializableCoder
 - link:https://jira.talendforge.org/browse/TCOMP-1213[TCOMP-1213^]: Upgrade guava to v27 for testing modules
 - link:https://jira.talendforge.org/browse/TCOMP-1216[TCOMP-1216^]: Take into account the visibility for the parameter validation
+- link:https://jira.talendforge.org/browse/TCOMP-1217[TCOMP-1217^]: Add JVM system property talend.component.runtime.serialization.java.inputstream.whitelist for our custom object input stream
 
 
 == Version 1.1.2
