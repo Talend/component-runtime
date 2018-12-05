@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
-import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.UNION;
@@ -57,8 +56,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     public AvroRecord(final Record record) {
-        final List<Schema.Entry> sortedEntries =
-                record.getSchema().getEntries().stream().sorted(comparing(Schema.Entry::getName)).collect(toList());
+        final List<Schema.Entry> sortedEntries = record.getSchema().getEntries();
         final List<org.apache.avro.Schema.Field> fields = sortedEntries
                 .stream()
                 .map(entry -> new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry), entry.getComment(),
