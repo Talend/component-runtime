@@ -15,54 +15,70 @@
  */
 package org.talend.sdk.component.runtime.serialization;
 
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static lombok.AccessLevel.PRIVATE;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Proxy;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-// note that it ignores the 0-day vulnerability since it is already in a cluster considered secured
+import lombok.NoArgsConstructor;
+
 public class EnhancedObjectInputStream extends ObjectInputStream {
 
     private final ClassLoader loader;
 
-    public EnhancedObjectInputStream(final InputStream in, final ClassLoader loader) throws IOException {
+    private final Predicate<String> classesWhitelist;
+
+    protected EnhancedObjectInputStream(final InputStream in, final ClassLoader loader, final Predicate<String> filter)
+            throws IOException {
         super(in);
         this.loader = loader;
+        this.classesWhitelist = filter;
+    }
+
+    public EnhancedObjectInputStream(final InputStream in, final ClassLoader loader) throws IOException {
+        this(in, loader, Defaults.SECURITY_FILTER_WHITELIST);
     }
 
     @Override
     protected Class<?> resolveClass(final ObjectStreamClass desc) throws ClassNotFoundException {
         final String name = desc.getName();
+        if (name.equals("boolean")) {
+            return boolean.class;
+        }
+        if (name.equals("byte")) {
+            return byte.class;
+        }
+        if (name.equals("char")) {
+            return char.class;
+        }
+        if (name.equals("short")) {
+            return short.class;
+        }
+        if (name.equals("int")) {
+            return int.class;
+        }
+        if (name.equals("long")) {
+            return long.class;
+        }
+        if (name.equals("float")) {
+            return float.class;
+        }
+        if (name.equals("double")) {
+            return double.class;
+        }
+
+        doSecurityCheck(name);
+
         try {
             return Class.forName(name, false, loader);
         } catch (final ClassNotFoundException e) {
-            // handle primitives, rare so done in fallback mode
-            if (name.equals("boolean")) {
-                return boolean.class;
-            }
-            if (name.equals("byte")) {
-                return byte.class;
-            }
-            if (name.equals("char")) {
-                return char.class;
-            }
-            if (name.equals("short")) {
-                return short.class;
-            }
-            if (name.equals("int")) {
-                return int.class;
-            }
-            if (name.equals("long")) {
-                return long.class;
-            }
-            if (name.equals("float")) {
-                return float.class;
-            }
-            if (name.equals("double")) {
-                return double.class;
-            }
-
             // try again from beam classloader for complex classloader graphs,
             // really a fallback mode
             return Class.forName(name, false, getClass().getClassLoader());
@@ -73,6 +89,7 @@ public class EnhancedObjectInputStream extends ObjectInputStream {
     protected Class<?> resolveProxyClass(final String[] interfaces) throws ClassNotFoundException {
         final Class[] interfaceTypes = new Class[interfaces.length];
         for (int i = 0; i < interfaces.length; i++) {
+            doSecurityCheck(interfaces[i]);
             interfaceTypes[i] = Class.forName(interfaces[i], false, loader);
         }
 
@@ -81,5 +98,33 @@ public class EnhancedObjectInputStream extends ObjectInputStream {
         } catch (final IllegalArgumentException e) {
             throw new ClassNotFoundException(null, e);
         }
+    }
+
+    private void doSecurityCheck(final String name) {
+        if (!classesWhitelist.test(processForWhiteListing(name))) {
+            throw new SecurityException("'" + name + "' not supported, add it in "
+                    + "-Dtalend.component.runtme.serialization.java" + ".inputstream.whitelist if needed");
+        }
+    }
+
+    private String processForWhiteListing(final String name) {
+        if (name.startsWith("[L") && name.endsWith(";")) {
+            return name.substring(2, name.length() - 1);
+        }
+        return name;
+    }
+
+    @NoArgsConstructor(access = PRIVATE)
+    static class Defaults {
+
+        static final Predicate<String> SECURITY_FILTER_WHITELIST =
+                ofNullable(System.getProperty("talend.component.runtime.serialization.java.inputstream.whitelist"))
+                        .map(s -> Stream
+                                .of(s.split(","))
+                                .map(String::trim)
+                                .filter(it -> !it.isEmpty())
+                                .collect(toList()))
+                        .map(l -> (Predicate<String>) name -> l.stream().anyMatch(name::startsWith))
+                        .orElseGet(() -> name -> true);
     }
 }
