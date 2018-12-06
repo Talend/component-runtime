@@ -15,7 +15,7 @@ Once you have generated a project, you can start implementing the logic and layo
 * xref:component-define-processor-output.adoc[Defining a processor/output logic]
 * xref:component-configuration.adoc[Defining component layout and configuration]
 
-image:implementing-components.png[Implementing component,50%]
+image:implementing-components.png[Implementing component,50%,window="_blank",link="_images/implementing-components.png"]
 
 In some cases, you will require specific implementations to handle more advanced cases, such as:
 
