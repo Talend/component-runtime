@@ -67,7 +67,7 @@ Before starting to run any command, make sure Talend Open Studio is not running.
 . From your component project in IntelliJ, open a terminal. +
 +
 image::tutorial_intellij_terminal_blank.png[Compile terminal,70%,window="_blank",link="_images/tutorial_intellij_terminal_blank.png"]
-There, you can see that the terminal opens directly at the root of the project. All commands shown in this tutorial are performed from this folder.
+There, you can see that the terminal opens directly at the root of the project. All commands shown in this tutorial are performed from this location.
 . Compile the project by running the following command: `mvnw clean install`. +
 The `mvnw` command refers to the Maven wrapper that is shipped with Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.
 . Once the command is executed and you see *BUILD SUCCESS* in the terminal, deploy the component to your local instance of Talend Open Studio using the following command: +

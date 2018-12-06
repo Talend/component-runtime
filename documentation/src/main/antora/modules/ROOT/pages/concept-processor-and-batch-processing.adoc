@@ -25,7 +25,7 @@ image:batch-processing-maxbatchsize.png[Batch processing,80%,window="_blank",lin
 Each group is processed as follows until there is no record left:
 
 . The `@BeforeGroup` method resets a record buffer at the beginning of each group.
-. The records of the group are assessed one by one and placed in the buffer as follows: The @ElementListener method tests if the buffer size is greater or equal to the defined `maxBatchSize`. If it is, the records are processed. If not, then the current record is buffered.
+. The records of the group are assessed one by one and placed in the buffer as follows: The `@ElementListener` method tests if the buffer size is greater or equal to the defined `maxBatchSize`. If it is, the records are processed. If not, then the current record is buffered.
 . The previous step happens for all records of the group. Then the `@AfterGroup` method tests if the buffer is empty.
 
 .*Group execution detail (values are examples):*
