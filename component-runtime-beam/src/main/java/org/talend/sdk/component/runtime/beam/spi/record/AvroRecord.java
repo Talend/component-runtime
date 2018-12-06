@@ -24,6 +24,7 @@ import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion
 import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
+import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -56,8 +57,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     public AvroRecord(final Record record) {
-        final List<Schema.Entry> sortedEntries = record.getSchema().getEntries();
-        final List<org.apache.avro.Schema.Field> fields = sortedEntries
+        final List<Schema.Entry> entries = record.getSchema().getEntries();
+        final List<org.apache.avro.Schema.Field> fields = entries
                 .stream()
                 .map(entry -> new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry), entry.getComment(),
                         toJsonNode(entry.getDefaultValue())))
@@ -67,7 +68,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         avroSchema.setFields(fields);
         this.schema = new AvroSchema(avroSchema);
         this.delegate = new GenericData.Record(avroSchema);
-        sortedEntries
+        entries
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {
                             Object avroValue = directMapping(v);
@@ -95,6 +96,9 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
         if (Date.class.isInstance(value)) {
             return Date.class.cast(value).getTime();
+        }
+        if (byte[].class.isInstance(value)) {
+            return ByteBuffer.wrap(byte[].class.cast(value));
         }
         return value;
     }
@@ -180,6 +184,9 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             final Class<?> itemType = expectedType == Collection.class ? Object.class : expectedType;
             return expectedType
                     .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));
+        }
+        if (ByteBuffer.class.isInstance(value) && byte[].class == expectedType) {
+            return expectedType.cast(ByteBuffer.class.cast(value).array());
         }
         if (!expectedType.isInstance(value)) {
             if (Utf8.class.isInstance(value) && String.class == expectedType) {

@@ -2,6 +2,11 @@
 
 == Version 1.1.4
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1223[TCOMP-1223^]: byte[] not supported in AvroRecord (beam)
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1222[TCOMP-1222^]: Ensure @WithComponents and @Environment are compatible
