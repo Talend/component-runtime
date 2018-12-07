@@ -118,12 +118,22 @@ public class Container implements Lifecycle {
                     .map(File::new)
                     .filter(File::exists)
                     .orElseGet(() -> localDependencyRelativeResolver.apply(rootModule));
-            final Predicate<String> resourceExists =
-                    rootFile.exists() && rootFile.getName().endsWith(".jar") ? jarIndex(rootFile)
-                            : s -> new File(rootFile, ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + s).exists();
-            final String[] rawNestedDependencies = overrideClassLoaderConfig.isSupportsResourceDependencies()
-                    ? Stream.of(dependencies).map(Artifact::toPath).filter(resourceExists).toArray(String[]::new)
-                    : null;
+            final Predicate<String> resourceExists = of(rootFile)
+                    .filter(File::exists)
+                    .filter(it -> it.getName().endsWith(".jar"))
+                    .map(this::jarIndex)
+                    .orElseGet(() -> s -> of(new File(rootFile, ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + s))
+                            .map(File::exists)
+                            .filter(it -> it)
+                            .orElseGet(() -> findNestedDependency(overrideClassLoaderConfig, s)));
+            final String[] rawNestedDependencies =
+                    overrideClassLoaderConfig.isSupportsResourceDependencies()
+                            ? Stream
+                                    .concat(Stream.of(rootModule), Stream.of(dependencies).map(Artifact::toPath))
+                                    .filter(resourceExists)
+                                    .distinct()
+                                    .toArray(String[]::new)
+                            : null;
             final ConfigurableClassLoader loader = new ConfigurableClassLoader(id, urls,
                     overrideClassLoaderConfig.getParent(), overrideClassLoaderConfig.getParentClassesFilter(),
                     overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies);
@@ -131,6 +141,14 @@ public class Container implements Lifecycle {
             return loader;
         };
         reload();
+    }
+
+    private boolean findNestedDependency(final ContainerManager.ClassLoaderConfiguration overrideClassLoaderConfig,
+            final String depPath) {
+        final URL url = overrideClassLoaderConfig
+                .getParent()
+                .getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + depPath);
+        return url != null;
     }
 
     private void visitLastModified(final File f) {

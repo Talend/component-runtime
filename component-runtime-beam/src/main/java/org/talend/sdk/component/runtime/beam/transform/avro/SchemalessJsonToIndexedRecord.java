@@ -48,22 +48,18 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
     @RequiredArgsConstructor
     public static class Fn extends DoFn<JsonObject, IndexedRecord> {
 
-        private static final Schema BOOLEAN =
-                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.BOOLEAN)));
+        private static final Schema NULL = Schema.create(Schema.Type.NULL);
 
-        private static final Schema DOUBLE =
-                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.DOUBLE)));
+        private static final Schema BOOLEAN = Schema.create(Schema.Type.BOOLEAN);
 
-        private static final Schema LONG =
-                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.LONG)));
+        private static final Schema DOUBLE = Schema.create(Schema.Type.DOUBLE);
 
-        private static final Schema INT =
-                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.INT)));
+        private static final Schema LONG = Schema.create(Schema.Type.LONG);
+
+        private static final Schema INT = Schema.create(Schema.Type.INT);
 
         private static final Schema STRING =
                 Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)));
-
-        private static final Schema NULL = Schema.create(Schema.Type.NULL);
 
         private final String rootRecordName;
 

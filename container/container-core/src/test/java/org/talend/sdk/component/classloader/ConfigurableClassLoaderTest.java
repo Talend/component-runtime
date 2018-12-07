@@ -16,6 +16,7 @@
 package org.talend.sdk.component.classloader;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,11 +35,17 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.ServiceLoader;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
+
+import javax.xml.stream.XMLOutputFactory;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
@@ -48,6 +55,23 @@ import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 
 @WithTemporaryFolder
 class ConfigurableClassLoaderTest {
+
+    @Test
+    void packageDefinition() {
+        final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
+        try (final ConfigurableClassLoader loader =
+                new ConfigurableClassLoader("",
+                        new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
+                                "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar").toURI().toURL() },
+                        parent, name -> true, name -> false, null)) {
+            final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
+            assertNotNull(pck);
+            assertEquals("org.apache.ziplock", pck.getName());
+            assertEquals(pck, loader.loadClass("org.apache.ziplock.Archive").getPackage());
+        } catch (final IOException | ClassNotFoundException e) {
+            fail(e.getMessage(), e);
+        }
+    }
 
     @Test
     void childLoading() {
@@ -92,6 +116,24 @@ class ConfigurableClassLoaderTest {
             }
         } catch (final IOException e) {
             fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void nestedPackageDefinition(final TemporaryFolder temporaryFolder) throws Exception {
+        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
+        try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
+                Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent, name -> true,
+                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" })) {
+            final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
+            assertNotNull(pck);
+            assertEquals("org.apache.ziplock", pck.getName());
+            assertEquals(pck, loader.loadClass("org.apache.ziplock.Archive").getPackage());
+        } finally {
+            if (!nestedJar.delete()) {
+                nestedJar.deleteOnExit();
+            }
         }
     }
 
@@ -175,6 +217,33 @@ class ConfigurableClassLoaderTest {
                     new InputStreamReader(loader.getResourceAsStream("found.in.child.and.parent")))) {
                 assertEquals("child", reader.lines().collect(joining()).trim());
             }
+        }
+    }
+
+    @Test
+    void spi() throws IOException {
+        final Predicate<String> parentClasses = name -> true;
+        final File staxApi =
+                new File(Constants.DEPENDENCIES_LOCATION, "org/codehaus/woodstox/stax2-api/4.1/stax2-api-4.1.jar");
+        assertTrue(staxApi.isFile());
+        final File woodstox = new File(Constants.DEPENDENCIES_LOCATION,
+                "com/fasterxml/woodstox/woodstox-core/5.1.0/woodstox-core-5.1.0.jar");
+        assertTrue(woodstox.isFile());
+        try (final URLClassLoader parent =
+                new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader("test",
+                        new URL[] { woodstox.toURI().toURL(), staxApi.toURI().toURL() }, parent, parentClasses,
+                        parentClasses.negate(), new String[] {})) {
+
+            final List<XMLOutputFactory> factories = StreamSupport
+                    .stream(ServiceLoader.load(XMLOutputFactory.class, loader).spliterator(), false)
+                    .collect(toList());
+            assertEquals(1, factories.size());
+            final Class<? extends XMLOutputFactory> firstClass = factories.iterator().next().getClass();
+            assertEquals("com.ctc.wstx.stax.WstxOutputFactory", firstClass.getName());
+            assertEquals(loader, firstClass.getClassLoader());
+            assertNull(XMLOutputFactory.class.getClassLoader());
+            assertTrue(XMLOutputFactory.class.isAssignableFrom(firstClass));
         }
     }
 

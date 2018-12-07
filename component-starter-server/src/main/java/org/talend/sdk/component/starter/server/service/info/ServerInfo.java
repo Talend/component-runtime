@@ -40,11 +40,14 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.talend.sdk.component.starter.server.configuration.StarterConfiguration;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import lombok.Data;
@@ -74,6 +77,13 @@ public class ServerInfo {
     @PostConstruct
     private void init() {
         saxFactory = SAXParserFactory.newInstance();
+        try {
+            saxFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+            saxFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        } catch (final ParserConfigurationException | SAXNotRecognizedException | SAXNotSupportedException ex) {
+            // ignore
+        }
+
         doUpdate(() -> Thread
                 .currentThread()
                 .getContextClassLoader()

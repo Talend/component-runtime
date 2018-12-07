@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -55,11 +56,15 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
     private final String dependenciesListFile;
 
+    private final Function<String, File> artifactMapper;
+
     @Override
     public Stream<Artifact> resolve(final ClassLoader rootLoader, final String artifact) {
         return Stream
-                .of(readDependencies(
-                        of(new File(artifact)).filter(File::exists).map(this::findDependenciesFile).orElseGet(() -> {
+                .of(readDependencies(ofNullable(getJar(artifact))
+                        .filter(File::exists)
+                        .map(this::findDependenciesFile)
+                        .orElseGet(() -> {
                             final boolean isNested;
                             try (final InputStream stream = rootLoader
                                     .getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
@@ -93,6 +98,10 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
                             return "";
                         })));
+    }
+
+    private File getJar(final String artifact) {
+        return of(new File(artifact)).filter(File::exists).orElseGet(() -> artifactMapper.apply(artifact));
     }
 
     public Stream<Artifact> resolveFromDescriptor(final InputStream descriptor) throws IOException {

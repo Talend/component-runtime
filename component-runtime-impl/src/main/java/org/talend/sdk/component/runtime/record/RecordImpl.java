@@ -151,9 +151,11 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withTimestamp(final String name, final long value) {
-            return withTimestamp(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).withNullable(true).build(),
-                    value);
+            return withTimestamp(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withType(DATETIME)
+                    .withNullable(false)
+                    .build(), value);
         }
 
         public Builder withTimestamp(final Schema.Entry entry, final long value) {
@@ -163,7 +165,7 @@ public final class RecordImpl implements Record {
 
         public Builder withInt(final String name, final int value) {
             return withInt(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(INT).withNullable(true).build(),
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(INT).withNullable(false).build(),
                     value);
         }
 
@@ -174,7 +176,7 @@ public final class RecordImpl implements Record {
 
         public Builder withLong(final String name, final long value) {
             return withLong(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(LONG).withNullable(true).build(),
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(LONG).withNullable(false).build(),
                     value);
         }
 
@@ -185,7 +187,7 @@ public final class RecordImpl implements Record {
 
         public Builder withFloat(final String name, final float value) {
             return withFloat(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(FLOAT).withNullable(true).build(),
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(FLOAT).withNullable(false).build(),
                     value);
         }
 
@@ -196,7 +198,7 @@ public final class RecordImpl implements Record {
 
         public Builder withDouble(final String name, final double value) {
             return withDouble(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DOUBLE).withNullable(true).build(),
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DOUBLE).withNullable(false).build(),
                     value);
         }
 
@@ -207,7 +209,7 @@ public final class RecordImpl implements Record {
 
         public Builder withBoolean(final String name, final boolean value) {
             return withBoolean(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BOOLEAN).withNullable(true).build(),
+                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BOOLEAN).withNullable(false).build(),
                     value);
         }
 

@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -26,6 +27,7 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -90,9 +92,7 @@ public class RecordConverters implements Serializable {
                                 .newEntryBuilder()
                                 .withName(key)
                                 .withType(Schema.Type.ARRAY)
-                                .withElementSchema(
-                                        items.isEmpty() ? factory.newSchemaBuilder(Schema.Type.STRING).build()
-                                                : toSchema(factory, items.iterator().next()))
+                                .withElementSchema(getArrayElementSchema(factory, items))
                                 .build(), items);
                 break;
             }
@@ -125,6 +125,40 @@ public class RecordConverters implements Serializable {
             }
         });
         return builder.build();
+    }
+
+    private Schema getArrayElementSchema(final RecordBuilderFactory factory, final List<Object> items) {
+        if (items.isEmpty()) {
+            return factory.newSchemaBuilder(Schema.Type.STRING).build();
+        }
+        final Schema firstSchema = toSchema(factory, items.iterator().next());
+        switch (firstSchema.getType()) {
+        case RECORD:
+            return items.stream().map(it -> toSchema(factory, it)).reduce(null, (s1, s2) -> {
+                if (s1 == null) {
+                    return s2;
+                }
+                if (s2 == null) { // unlikely
+                    return s1;
+                }
+                final List<Schema.Entry> entries1 = s1.getEntries();
+                final List<Schema.Entry> entries2 = s2.getEntries();
+                final Set<String> names1 = entries1.stream().map(Schema.Entry::getName).collect(toSet());
+                final Set<String> names2 = entries2.stream().map(Schema.Entry::getName).collect(toSet());
+                if (!names1.equals(names2)) {
+                    // here we are not good since values will not be right anymore,
+                    // forbidden for current version anyway but potentially supported later
+                    final Schema.Builder builder = factory.newSchemaBuilder(Schema.Type.RECORD);
+                    entries1.forEach(builder::withEntry);
+                    names2.removeAll(names1);
+                    entries2.stream().filter(it -> names2.contains(it.getName())).forEach(builder::withEntry);
+                    return builder.build();
+                }
+                return s1;
+            });
+        default:
+            return firstSchema;
+        }
     }
 
     private Object mapJson(final RecordBuilderFactory factory, final JsonValue it) {
@@ -383,8 +417,11 @@ public class RecordConverters implements Serializable {
         // datetime cases
         if (Long.class.isInstance(value) && expectedType != Long.class) {
             if (expectedType == ZonedDateTime.class) {
-                return expectedType
-                        .cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Number.class.cast(value).longValue()), UTC));
+                final long epochMilli = Number.class.cast(value).longValue();
+                if (epochMilli == -1L) { // not <0 which can be a bug
+                    return null;
+                }
+                return expectedType.cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC));
             }
             if (expectedType == Date.class) {
                 return expectedType.cast(new Date(Number.class.cast(value).longValue()));

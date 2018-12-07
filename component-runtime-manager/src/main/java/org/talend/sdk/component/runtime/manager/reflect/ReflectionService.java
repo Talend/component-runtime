@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.manager.reflect;
 
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -41,7 +40,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -52,6 +50,11 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -62,8 +65,11 @@ import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
+import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.reflect.visibility.PayloadMapper;
+import org.talend.sdk.component.runtime.manager.reflect.visibility.VisibilityService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -179,6 +185,13 @@ public class ReflectionService {
 
         return config -> {
             final Map<String, String> notNullConfig = ofNullable(config).orElseGet(Collections::emptyMap);
+            final PayloadValidator visitor = new PayloadValidator();
+            if (!visitor.skip) {
+                visitor.globalPayload = new PayloadMapper((a, b) -> {
+                }).visitAndMap(metas, notNullConfig);
+                new PayloadMapper(visitor).visitAndMap(metas, notNullConfig);
+                visitor.throwIfFailed();
+            }
             return factories.stream().map(f -> f.apply(notNullConfig)).toArray(Object[]::new);
         };
     }
@@ -584,8 +597,6 @@ public class ReflectionService {
                     return specificConfig;
                 }, Map.Entry::getValue));
 
-        doValidate(metas, preparedObjects, preparedLists, normalizedConfig);
-
         // now bind it all to the recipe and builder the instance
         preparedMaps.forEach(recipe::setProperty);
         preparedLists.forEach(recipe::setProperty);
@@ -612,41 +623,6 @@ public class ReflectionService {
 
     private String findName(final ParameterMeta m) {
         return ofNullable(m.getSource()).map(ParameterMeta.Source::name).orElse(m.getName());
-    }
-
-    private void doValidate(final List<ParameterMeta> metas, final Map<String, Object> preparedObjects,
-            final Map<String, Object> preparedLists, final Map<String, Object> normalizedConfig) {
-        if (metas != null && !Boolean.getBoolean("talend.component.configuration.validation.skip")
-                && !metas.isEmpty()) {
-            final String error = Stream
-                    .concat(metas
-                            .stream()
-                            .filter(it -> "true".equalsIgnoreCase(it.getMetadata().get("tcomp::validation::required")))
-                            .filter(it -> !normalizedConfig.containsKey(it.getName())
-                                    && !preparedLists.containsKey(it.getName())
-                                    && !preparedObjects.containsKey(it.getName()))
-                            .map(it -> "Missing configuration " + it.getPath()),
-                            Stream
-                                    .concat(metas
-                                            .stream()
-                                            .map(it -> ofNullable(normalizedConfig.get(it.getName()))
-                                                    .map(v -> errorFactory(it).apply(v).stream().collect(joining("\n")))
-                                                    .orElse(null)),
-                                            metas
-                                                    .stream()
-                                                    .map(it -> ofNullable(preparedLists.get(it.getName()))
-                                                            .map(v -> errorFactory(it)
-                                                                    .apply(v)
-                                                                    .stream()
-                                                                    .collect(joining("\n")))
-                                                            .orElse(null))))
-                    .filter(Objects::nonNull)
-                    .collect(joining("\n"))
-                    .trim();
-            if (!error.isEmpty()) {
-                throw new IllegalArgumentException(error);
-            }
-        }
     }
 
     private void addListElement(final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier,
@@ -707,110 +683,6 @@ public class ReflectionService {
             return propertyEditorRegistry.getValue(type, String.valueOf(value));
         }
         throw new IllegalArgumentException("Can't convert '" + value + "' to " + type);
-    }
-
-    private Function<Object, Collection<String>> errorFactory(final ParameterMeta parameterMeta) {
-        final Map<String, String> metadata = parameterMeta.getMetadata();
-        final Collection<Function<Object, String>> errors = new ArrayList<>();
-        {
-            final String min = metadata.get("tcomp::validation::min");
-            if (min != null) {
-                final double bound = Double.parseDouble(min);
-                errors.add(it -> {
-                    final Object value = tryToGetNumber(it);
-                    if (Number.class.isInstance(value) && Number.class.cast(value).doubleValue() < bound) {
-                        return parameterMeta.getPath() + " should be >= " + bound;
-                    }
-                    return null;
-                });
-            }
-        }
-        {
-            final String max = metadata.get("tcomp::validation::max");
-            if (max != null) {
-                final double bound = Double.parseDouble(max);
-                errors.add(it -> {
-                    final Object value = tryToGetNumber(it);
-                    if (Number.class.isInstance(it) && Number.class.cast(value).doubleValue() > bound) {
-                        return parameterMeta.getPath() + " should be <= " + bound;
-                    }
-                    return null;
-                });
-            }
-        }
-        {
-            final String min = metadata.get("tcomp::validation::minLength");
-            if (min != null) {
-                final double bound = Double.parseDouble(min);
-                errors.add(it -> {
-                    if (CharSequence.class.isInstance(it) && CharSequence.class.cast(it).length() < bound) {
-                        return parameterMeta.getPath() + " size should be >= " + bound;
-                    }
-                    return null;
-                });
-            }
-        }
-        {
-            final String max = metadata.get("tcomp::validation::maxLength");
-            if (max != null) {
-                final double bound = Double.parseDouble(max);
-                errors.add(it -> {
-                    if (CharSequence.class.isInstance(it) && CharSequence.class.cast(it).length() > bound) {
-                        return parameterMeta.getPath() + " size should be <= " + bound;
-                    }
-                    return null;
-                });
-            }
-        }
-        {
-            final String min = metadata.get("tcomp::validation::minItems");
-            if (min != null) {
-                final double bound = Double.parseDouble(min);
-                errors.add(it -> {
-                    if (Collection.class.isInstance(it) && Collection.class.cast(it).size() < bound) {
-                        return parameterMeta.getPath() + " size should be >= " + bound;
-                    }
-                    return null;
-                });
-            }
-        }
-        {
-            final String max = metadata.get("tcomp::validation::maxItems");
-            if (max != null) {
-                final double bound = Double.parseDouble(max);
-                errors.add(it -> {
-                    if (Collection.class.isInstance(it) && Collection.class.cast(it).size() > bound) {
-                        return parameterMeta.getPath() + " size should be <= " + bound;
-                    }
-                    return null;
-                });
-            }
-        }
-        {
-            final String unique = metadata.get("tcomp::validation::uniqueItems");
-            if (unique != null) {
-                errors.add(it -> {
-                    if (Collection.class.isInstance(it)
-                            && new HashSet<>(Collection.class.cast(it)).size() != Collection.class.cast(it).size()) {
-                        return parameterMeta.getPath() + " items must be unique";
-                    }
-                    return null;
-                });
-            }
-        }
-        {
-            final String pattern = metadata.get("tcomp::validation::pattern");
-            if (pattern != null) {
-                errors.add(it -> {
-                    if (CharSequence.class.isInstance(it)
-                            && !new JavascriptRegex(pattern).test(CharSequence.class.cast(it))) {
-                        return parameterMeta.getPath() + " doesn't match '" + pattern + "'";
-                    }
-                    return null;
-                });
-            }
-        }
-        return it -> errors.stream().map(fn -> fn.apply(it)).filter(Objects::nonNull).sorted().collect(toList());
     }
 
     private Object tryToGetNumber(final Object it) {
@@ -887,6 +759,143 @@ public class ReflectionService {
                 return Boolean.class.cast(ENGINE.eval("new RegExp(regex, indicators).test(text)", bindings));
             } catch (final ScriptException e) {
                 return false;
+            }
+        }
+    }
+
+    public interface Messages {
+
+        String required(String property);
+
+        String min(String property, double bound, double value);
+
+        String max(String property, double bound, double value);
+
+        String minLength(String property, double bound, int value);
+
+        String maxLength(String property, double bound, int value);
+
+        String minItems(String property, double bound, int value);
+
+        String maxItems(String property, double bound, int value);
+
+        String uniqueItems(String property);
+
+        String pattern(String property, String pattern);
+    }
+
+    @RequiredArgsConstructor
+    private static class PayloadValidator implements PayloadMapper.OnParameter {
+
+        private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService();
+
+        private static final Messages MESSAGES = new InternationalizationServiceFactory()
+                .create(Messages.class, PayloadValidator.class.getClassLoader());
+
+        private final boolean skip = Boolean.getBoolean("talend.component.configuration.validation.skip");
+
+        private final Collection<String> errors = new ArrayList<>();
+
+        private JsonObject globalPayload;
+
+        @Override
+        public void onParameter(final ParameterMeta meta, final JsonValue value) {
+            if (!VISIBILITY_SERVICE.build(meta).isVisible(globalPayload)) {
+                return;
+            }
+
+            if (Boolean.parseBoolean(meta.getMetadata().get("tcomp::validation::required"))
+                    && value == JsonValue.NULL) {
+                errors.add(MESSAGES.required(meta.getPath()));
+            }
+            final Map<String, String> metadata = meta.getMetadata();
+            {
+                final String min = metadata.get("tcomp::validation::min");
+                if (min != null) {
+                    final double bound = Double.parseDouble(min);
+                    if (value.getValueType() == JsonValue.ValueType.NUMBER
+                            && JsonNumber.class.cast(value).doubleValue() < bound) {
+                        errors.add(MESSAGES.min(meta.getPath(), bound, JsonNumber.class.cast(value).doubleValue()));
+                    }
+                }
+            }
+            {
+                final String max = metadata.get("tcomp::validation::max");
+                if (max != null) {
+                    final double bound = Double.parseDouble(max);
+                    if (value.getValueType() == JsonValue.ValueType.NUMBER
+                            && JsonNumber.class.cast(value).doubleValue() > bound) {
+                        errors.add(MESSAGES.max(meta.getPath(), bound, JsonNumber.class.cast(value).doubleValue()));
+                    }
+                }
+            }
+            {
+                final String min = metadata.get("tcomp::validation::minLength");
+                if (min != null) {
+                    final double bound = Double.parseDouble(min);
+                    if (value.getValueType() == JsonValue.ValueType.STRING) {
+                        final String val = JsonString.class.cast(value).getString();
+                        if (val.length() < bound) {
+                            errors.add(MESSAGES.minLength(meta.getPath(), bound, val.length()));
+                        }
+                    }
+                }
+            }
+            {
+                final String max = metadata.get("tcomp::validation::maxLength");
+                if (max != null) {
+                    final double bound = Double.parseDouble(max);
+                    if (value.getValueType() == JsonValue.ValueType.STRING) {
+                        final String val = JsonString.class.cast(value).getString();
+                        if (val.length() > bound) {
+                            errors.add(MESSAGES.maxLength(meta.getPath(), bound, val.length()));
+                        }
+                    }
+                }
+            }
+            {
+                final String min = metadata.get("tcomp::validation::minItems");
+                if (min != null) {
+                    final double bound = Double.parseDouble(min);
+                    if (value.getValueType() == JsonValue.ValueType.ARRAY && value.asJsonArray().size() < bound) {
+                        errors.add(MESSAGES.minItems(meta.getPath(), bound, value.asJsonArray().size()));
+                    }
+                }
+            }
+            {
+                final String max = metadata.get("tcomp::validation::maxItems");
+                if (max != null) {
+                    final double bound = Double.parseDouble(max);
+                    if (value.getValueType() == JsonValue.ValueType.ARRAY && value.asJsonArray().size() > bound) {
+                        errors.add(MESSAGES.maxItems(meta.getPath(), bound, value.asJsonArray().size()));
+                    }
+                }
+            }
+            {
+                final String unique = metadata.get("tcomp::validation::uniqueItems");
+                if (unique != null) {
+                    if (value.getValueType() == JsonValue.ValueType.ARRAY) {
+                        final JsonArray array = value.asJsonArray();
+                        if (new HashSet<>(array).size() != array.size()) {
+                            errors.add(MESSAGES.uniqueItems(meta.getPath()));
+                        }
+                    }
+                }
+            }
+            {
+                final String pattern = metadata.get("tcomp::validation::pattern");
+                if (pattern != null && value.getValueType() == JsonValue.ValueType.STRING) {
+                    final String val = JsonString.class.cast(value).getString();
+                    if (!new JavascriptRegex(pattern).test(CharSequence.class.cast(val))) {
+                        errors.add(MESSAGES.pattern(meta.getPath(), pattern));
+                    }
+                }
+            }
+        }
+
+        private void throwIfFailed() {
+            if (!errors.isEmpty()) {
+                throw new IllegalArgumentException("- " + String.join("\n- ", errors));
             }
         }
     }

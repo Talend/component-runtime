@@ -89,8 +89,8 @@ public class ContainerProviderRule extends TempJars implements BeforeAllCallback
         return new ContainerManager(
                 ContainerManager.DependenciesResolutionConfiguration
                         .builder()
-                        .resolver(
-                                new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
+                        .resolver(new MvnDependencyListLocalRepositoryResolver(
+                                Constants.DEPENDENCIES_LIST_RESOURCE_PATH, this::resolve))
                         .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
                         .create(),
                 ContainerManager.ClassLoaderConfiguration
@@ -98,6 +98,10 @@ public class ContainerProviderRule extends TempJars implements BeforeAllCallback
                         .parent(ContainerProviderRule.class.getClassLoader())
                         .create(),
                 null, Level.INFO);
+    }
+
+    private File resolve(final String artifact) {
+        return current().resolve(artifact);
     }
 
     @Target(PARAMETER)

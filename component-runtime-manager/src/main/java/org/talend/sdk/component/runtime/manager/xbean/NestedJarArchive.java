@@ -76,7 +76,7 @@ public class NestedJarArchive implements Archive, AutoCloseable {
                     }
 
                     @Override
-                    public InputStream getBytecode() throws IOException {
+                    public InputStream getBytecode() {
                         return new KeepingOpenInputStream(jarStream);
                     }
                 };

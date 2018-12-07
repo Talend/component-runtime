@@ -19,12 +19,19 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 
+import java.io.Serializable;
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.design.extension.flows.FlowsFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -38,17 +45,20 @@ import org.talend.sdk.component.runtime.beam.transformer.BeamIOTransformer;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.spi.component.ComponentExtension;
+
+import lombok.RequiredArgsConstructor;
 
 public class BeamComponentExtension implements ComponentExtension {
 
     @Override
     public boolean isActive() {
         try {
-            ofNullable(Thread.currentThread().getContextClassLoader())
+            return ofNullable(Thread.currentThread().getContextClassLoader())
                     .orElseGet(ClassLoader::getSystemClassLoader)
-                    .loadClass("org.apache.beam.sdk.transforms.PTransform");
-            return true;
+                    .loadClass("org.apache.beam.sdk.transforms.PTransform")
+                    .getClassLoader() == getClass().getClassLoader();
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             return false;
         }
@@ -79,7 +89,10 @@ public class BeamComponentExtension implements ComponentExtension {
         if (Boolean.getBoolean("talend.component.beam.transformers.skip")) {
             return emptySet();
         }
-        return singleton(new BeamIOTransformer());
+        final String classes = System.getProperty("talend.component.beam.transformers.io.enhanced");
+        return singleton(classes == null ? new BeamIOTransformer()
+                : new BeamIOTransformer(
+                        Stream.of(classes.split(",")).map(String::trim).filter(it -> !it.isEmpty()).collect(toSet())));
     }
 
     @Override
@@ -107,51 +120,86 @@ public class BeamComponentExtension implements ComponentExtension {
 
     @Override
     public <T> T convert(final ComponentInstance instance, final Class<T> component) {
-        try {
-            if (Mapper.class == component) {
-                return (T) new BeamMapperImpl(
-                        (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, ?>) instance
-                                .instance(),
-                        instance.plugin(), instance.family(), instance.name());
-            }
-            if (Processor.class == component) {
-                return (T) new BeamProcessorChainImpl(
-                        (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PCollection<?>, org.apache.beam.sdk.values.PDone>) instance
-                                .instance(),
-                        null, instance.plugin(), instance.family(), instance.name());
-            }
-        } catch (final RuntimeException re) { // create a passthrough impl to ensure it can be unwrapped
-            if (component.isInterface()) {
-                final Object actualInstance = instance.instance();
-                return (T) Proxy
-                        .newProxyInstance(component.getClassLoader(), new Class<?>[] { component, Delegated.class },
-                                (proxy, method, args) -> {
-                                    if (Object.class == method.getDeclaringClass()) {
-                                        return method.invoke(actualInstance, args);
-                                    }
-                                    if (Delegated.class == method.getDeclaringClass()) {
-                                        return actualInstance;
-                                    }
-                                    if ("plugin".equals(method.getName()) && method.getParameterCount() == 0) {
-                                        return instance.plugin();
-                                    }
-                                    if ("name".equals(method.getName()) && method.getParameterCount() == 0) {
-                                        return instance.name();
-                                    }
-                                    if ("rootName".equals(method.getName()) && method.getParameterCount() == 0) {
-                                        return instance.family();
-                                    }
-                                    throw new UnsupportedOperationException(
-                                            "this method is not supported (" + method + ")", re);
-                                });
-            }
-            throw re;
+        if (!supports(component)) {
+            throw new IllegalArgumentException("Unsupported component API: " + component);
         }
-        throw new IllegalArgumentException("unsupported " + component + " by " + getClass());
+        // lazy to not fail if unwrapped
+        return (T) Proxy
+                .newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                        new Class<?>[] { component, Serializable.class, Delegated.class },
+                        new LazyComponentHandler(component, instance.plugin(), instance.family(), instance.name(),
+                                Serializable.class.cast(instance.instance())));
     }
 
     @Override
     public Collection<String> getAdditionalDependencies() {
         return singletonList(Versions.GROUP + ":" + Versions.ARTIFACT + ":jar:" + Versions.VERSION);
+    }
+
+    @RequiredArgsConstructor
+    private static class LazyComponentHandler implements InvocationHandler, Serializable {
+
+        private final Class<?> expectedType;
+
+        private final String plugin;
+
+        private final String family;
+
+        private final String name;
+
+        private final Serializable instance;
+
+        private final AtomicReference<Serializable> actualDelegate = new AtomicReference<>();
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            final ClassLoader loader = ContainerFinder.Instance.get().find(plugin).classloader();
+            final Thread thread = Thread.currentThread();
+            final ClassLoader oldLoader = thread.getContextClassLoader();
+            thread.setContextClassLoader(loader);
+            try {
+                if (Object.class == method.getDeclaringClass()) {
+                    return method.invoke(instance, args);
+                }
+                if (Delegated.class == method.getDeclaringClass()) {
+                    return instance;
+                }
+                if ("plugin".equals(method.getName()) && method.getParameterCount() == 0) {
+                    return plugin;
+                }
+                if ("name".equals(method.getName()) && method.getParameterCount() == 0) {
+                    return name;
+                }
+                if ("rootName".equals(method.getName()) && method.getParameterCount() == 0) {
+                    return family;
+                }
+                Serializable delegateInstance = actualDelegate.get();
+                if (delegateInstance == null) {
+                    synchronized (this) {
+                        delegateInstance = actualDelegate.get();
+                        if (delegateInstance == null) {
+                            if (Mapper.class == expectedType) {
+                                actualDelegate
+                                        .set(new BeamMapperImpl(
+                                                (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, ?>) instance,
+                                                plugin, family, name));
+                            }
+                            if (Processor.class == expectedType) {
+                                actualDelegate
+                                        .set(new BeamProcessorChainImpl(
+                                                (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PCollection<?>, org.apache.beam.sdk.values.PDone>) instance,
+                                                null, plugin, family, name));
+                            }
+                        }
+                        delegateInstance = actualDelegate.get();
+                    }
+                }
+                return method.invoke(delegateInstance, args);
+            } catch (final InvocationTargetException ite) {
+                throw ite.getTargetException();
+            } finally {
+                thread.setContextClassLoader(oldLoader);
+            }
+        }
     }
 }

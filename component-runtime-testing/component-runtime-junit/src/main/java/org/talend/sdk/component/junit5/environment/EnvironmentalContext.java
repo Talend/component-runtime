@@ -26,18 +26,25 @@ import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.talend.sdk.component.junit.environment.DecoratingEnvironmentProvider;
 import org.talend.sdk.component.junit.environment.EnvironmentProvider;
+import org.talend.sdk.component.junit5.ComponentExtension;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-class EnvironmentalContext implements TestTemplateInvocationContext {
+public class EnvironmentalContext implements TestTemplateInvocationContext {
 
     private final EnvironmentProvider provider;
 
     private final String displayName;
+
+    private final ComponentExtension componentExtension;
 
     @Override
     public String getDisplayName(final int invocationIndex) {
@@ -46,23 +53,34 @@ class EnvironmentalContext implements TestTemplateInvocationContext {
 
     @Override
     public List<Extension> getAdditionalExtensions() {
-        return singletonList(new EnvironmentalLifecycle(provider, null));
+        return singletonList(new EnvironmentalLifecycle(provider, componentExtension, null));
     }
 
     @AllArgsConstructor
-    private static class EnvironmentalLifecycle implements BeforeEachCallback, AfterEachCallback, ExecutionCondition {
+    public static class EnvironmentalLifecycle implements BeforeEachCallback, AfterEachCallback, ExecutionCondition,
+            ParameterResolver, TestInstancePostProcessor {
 
         private final EnvironmentProvider provider;
+
+        private final ComponentExtension componentExtension;
 
         private AutoCloseable closeable;
 
         @Override
         public void beforeEach(final ExtensionContext context) {
             closeable = provider.start(context.getRequiredTestClass(), context.getRequiredTestClass().getAnnotations());
+            ofNullable(componentExtension).ifPresent(c -> {
+                c.doStart(context);
+                c.doInject(context);
+            });
         }
 
         @Override
         public void afterEach(final ExtensionContext context) {
+            ofNullable(componentExtension).ifPresent(c -> {
+                c.resetState();
+                c.doStop(context);
+            });
             ofNullable(closeable).ifPresent(c -> {
                 try {
                     c.close();
@@ -81,6 +99,27 @@ class EnvironmentalContext implements TestTemplateInvocationContext {
         private boolean isActive() {
             return DecoratingEnvironmentProvider.class.isInstance(provider)
                     && DecoratingEnvironmentProvider.class.cast(provider).isActive();
+        }
+
+        @Override
+        public boolean supportsParameter(final ParameterContext parameterContext,
+                final ExtensionContext extensionContext) throws ParameterResolutionException {
+            return componentExtension != null
+                    && componentExtension.supportsParameter(parameterContext, extensionContext);
+        }
+
+        @Override
+        public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext)
+                throws ParameterResolutionException {
+            return componentExtension == null ? null
+                    : componentExtension.resolveParameter(parameterContext, extensionContext);
+        }
+
+        @Override
+        public void postProcessTestInstance(final Object o, final ExtensionContext extensionContext) {
+            if (componentExtension != null) {
+                componentExtension.postProcessTestInstance(o, extensionContext);
+            }
         }
     }
 }

@@ -169,6 +169,7 @@ import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.ContainerInfo;
 import org.talend.sdk.component.runtime.manager.service.InjectorImpl;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
@@ -351,7 +352,7 @@ public class ComponentManager implements AutoCloseable {
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
-                .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource))
+                .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve))
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
                 }, logInfoLevelMapping);
@@ -382,6 +383,10 @@ public class ComponentManager implements AutoCloseable {
         } else {
             recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
         }
+    }
+
+    private File resolve(final String artifact) {
+        return container.resolve(artifact);
     }
 
     private PropertyEditorRegistry createPropertyEditorRegistry() {
@@ -579,7 +584,16 @@ public class ComponentManager implements AutoCloseable {
                                             "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
                                             "com.fasterxml.jackson.databind.", "com.thoughtworks.paranamer.",
                                             "org.apache.commons.compress.", "org.tukaani.xz.", "org.objenesis.",
-                                            "org.joda.time.", "org.xerial.snappy.", "avro.shaded.", "org.apache.avro.",
+                                            "org.joda.time.", "org.xerial.snappy.", "avro.shaded.com.google.",
+                                            // avro package is used for hadoop, mapred etc, so doing a precise list
+                                            "org.apache.avro.data.", "org.apache.avro.file.",
+                                            "org.apache.avro.generic.", "org.apache.avro.io.",
+                                            "org.apache.avro.message.", "org.apache.avro.reflect.",
+                                            "org.apache.avro.specific.", "org.apache.avro.util.",
+                                            "org.apache.avro.Avro", "org.apache.avro.Conversion",
+                                            "org.apache.avro.Guava", "org.apache.avro.Json", "org.apache.avro.Logical",
+                                            "org.apache.avro.Protocol", "org.apache.avro.Schema",
+                                            "org.apache.avro.Unresolved", "org.apache.avro.Validate",
                                             // scala - most engines
                                             "scala.",
                                             // engines
@@ -612,6 +626,8 @@ public class ComponentManager implements AutoCloseable {
         if (settings.exists()) {
             try {
                 final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
                 final DocumentBuilder builder = factory.newDocumentBuilder();
 
                 final Document document = builder.parse(settings);
@@ -979,6 +995,7 @@ public class ComponentManager implements AutoCloseable {
         services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId, propertyEditorRegistry));
         services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
+        services.put(ContainerInfo.class, new ContainerInfo(containerId));
     }
 
     protected static Collection<LocalConfiguration> createRawLocalConfigurations() {
@@ -1416,7 +1433,7 @@ public class ComponentManager implements AutoCloseable {
 
         private Archive toArchive(final String module, final OriginalId originalId,
                 final ConfigurableClassLoader loader) {
-            final File file = new File(module);
+            final File file = of(new File(module)).filter(File::exists).orElseGet(() -> container.resolve(module));
             if (file.exists()) {
                 try {
                     return ClasspathArchive.archive(loader, file.toURI().toURL());

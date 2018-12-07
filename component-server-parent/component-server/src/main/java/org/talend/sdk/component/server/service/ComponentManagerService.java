@@ -128,7 +128,7 @@ public class ComponentManagerService {
     }
 
     public String deploy(final String pluginGAV) {
-        String pluginPath = ofNullable(pluginGAV)
+        final String pluginPath = ofNullable(pluginGAV)
                 .map(gav -> mvnCoordinateToFileConverter.toArtifact(gav))
                 .map(Artifact::toPath)
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));

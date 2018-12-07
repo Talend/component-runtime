@@ -21,6 +21,7 @@ import static java.util.Collections.enumeration;
 import static java.util.Collections.list;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -57,6 +58,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConfigurableClassLoader extends URLClassLoader {
+
+    private static final Certificate[] NO_CERTIFICATES = new Certificate[0];
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -98,7 +101,26 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 if (url == null) {
                     throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
                 }
-                try (final JarInputStream jarInputStream = new JarInputStream(url.openStream())) {
+                final Map<String, Resource> resources = new HashMap<>();
+                final URLConnection urlConnection;
+                final Manifest manifest;
+                final CodeSource codeSource;
+                try {
+                    urlConnection = url.openConnection();
+                    if (JarURLConnection.class.isInstance(urlConnection)) {
+                        final JarURLConnection juc = JarURLConnection.class.cast(urlConnection);
+                        manifest = juc.getManifest();
+
+                        final Certificate[] certificates = juc.getCertificates();
+                        codeSource = new CodeSource(url, certificates);
+                    } else { // unlikely
+                        manifest = null;
+                        codeSource = null;
+                    }
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+                try (final JarInputStream jarInputStream = new JarInputStream(urlConnection.getInputStream())) {
                     ZipEntry entry;
                     while ((entry = jarInputStream.getNextEntry()) != null) {
                         if (!entry.isDirectory()) {
@@ -110,13 +132,14 @@ public class ConfigurableClassLoader extends URLClassLoader {
                             }
 
                             resources
-                                    .computeIfAbsent(entry.getName(), k -> new ArrayList<>())
-                                    .add(new Resource(resource, out.toByteArray()));
+                                    .put(entry.getName(),
+                                            new Resource(resource, out.toByteArray(), manifest, codeSource));
                         }
                     }
                 } catch (final IOException e) {
                     throw new IllegalStateException(e);
                 }
+                resources.forEach((k, v) -> this.resources.computeIfAbsent(k, i -> new ArrayList<>()).add(v));
             });
         }
     }
@@ -582,13 +605,11 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     final String pckName = name.substring(0, i);
                     final Package pck = super.getPackage(pckName);
                     if (pck == null) {
-                        final Manifest manifest = JarURLConnection.class.isInstance(connection)
-                                ? JarURLConnection.class.cast(connection).getManifest()
-                                : null;
-                        if (manifest == null) {
-                            definePackage(pckName, null, null, null, null, null, null, null);
+                        if (!JarURLConnection.class.isInstance(connection)) {
+                            doDefinePackage(null, null, pckName);
                         } else {
-                            definePackage(pckName, manifest, JarURLConnection.class.cast(connection).getJarFileURL());
+                            final JarURLConnection urlConnection = JarURLConnection.class.cast(connection);
+                            doDefinePackage(urlConnection.getManifest(), urlConnection.getJarFileURL(), pckName);
                         }
                     }
                 }
@@ -610,17 +631,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 }
                 final Certificate[] certificates = JarURLConnection.class.isInstance(connection)
                         ? JarURLConnection.class.cast(connection).getCertificates()
-                        : new Certificate[0];
-                if (!transformers.isEmpty()) {
-                    for (final ClassFileTransformer transformer : transformers) {
-                        try {
-                            bytes = transformer.transform(this, resourceName, null, null, bytes);
-                        } catch (final IllegalClassFormatException e) {
-                            log.error(e.getMessage() + ", will ignore the transformers", e);
-                            break;
-                        }
-                    }
-                }
+                        : NO_CERTIFICATES;
+                bytes = doTransform(resourceName, bytes);
                 clazz = super.defineClass(name, bytes, 0, bytes.length, new CodeSource(url, certificates));
             } catch (final IOException e) {
                 log.warn(e.getMessage(), e);
@@ -630,7 +642,14 @@ public class ConfigurableClassLoader extends URLClassLoader {
             final Collection<Resource> resources = this.resources.get(name.replace(".", "/") + ".class");
             if (resources != null && !resources.isEmpty()) {
                 final Resource resource = resources.iterator().next();
-                clazz = defineClass(name, resource.resource, 0, resource.resource.length);
+
+                final int i = name.lastIndexOf('.');
+                if (i != -1) {
+                    doDefinePackage(resource.manifest, null, name.substring(0, i));
+                }
+
+                final byte[] bytes = doTransform(resourceName, resource.resource);
+                clazz = defineClass(name, bytes, 0, bytes.length, resource.codeSource);
             }
         }
         if (postLoad(resolve, clazz)) {
@@ -639,21 +658,63 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return null;
     }
 
-    @RequiredArgsConstructor
+    private byte[] doTransform(final String resourceName, final byte[] inBytes) {
+        if (transformers.isEmpty()) {
+            return inBytes;
+        }
+        byte[] bytes = inBytes;
+        for (final ClassFileTransformer transformer : transformers) {
+            try {
+                bytes = transformer.transform(this, resourceName, null, null, bytes);
+            } catch (final IllegalClassFormatException e) {
+                log.error(e.getMessage() + ", will ignore the transformers", e);
+                break;
+            }
+        }
+        return bytes;
+    }
+
+    private void doDefinePackage(final Manifest manifest, final URL url, final String pckName) {
+        IllegalArgumentException iae = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                final Package pck = super.getPackage(pckName);
+                if (pck == null) {
+                    if (manifest == null) {
+                        definePackage(pckName, null, null, null, null, null, null, null);
+                    } else {
+                        definePackage(pckName, manifest, url);
+                    }
+                }
+                return;
+            } catch (final IllegalArgumentException e) { // concurrent access on some JVM, quite unexpected
+                iae = e;
+            }
+        }
+        if (iae != null) {
+            throw iae;
+        }
+    }
+
+    @RequiredArgsConstructor(access = PRIVATE)
     private static class Resource {
 
         private final String entry;
 
         private final byte[] resource;
+
+        private final Manifest manifest;
+
+        private final CodeSource codeSource;
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = PRIVATE)
     private static class Handler extends URLStreamHandler {
 
         private final Resource resource;
 
         @Override
-        protected URLConnection openConnection(final URL url) throws IOException {
+        protected URLConnection openConnection(final URL url) {
             return new Connection(url, resource);
         }
     }

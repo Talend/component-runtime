@@ -1,14 +1,14 @@
 ++++
 <jsonArray>[
   {
-    "commits":1900,
+    "commits":1956,
     "description":"Joined the Apache EE family (TomEE, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":284,
+    "commits":288,
     "description":"I am a software developer at @Talend\r\nFor my personal projects you can check them @khabali \n\nBlog: https://khabali.github.io",
     "gravatar":"https://avatars3.githubusercontent.com/u/25590305?v=4",
     "id":"akhabali",
@@ -69,6 +69,13 @@
     "gravatar":"https://avatars0.githubusercontent.com/u/7931535?v=4",
     "id":"amaumont",
     "name":"Axel MAUMONT"
+  },
+  {
+    "commits":2,
+    "description":"Security architect at @Talend, security expert at @Apache.",
+    "gravatar":"https://avatars0.githubusercontent.com/u/472162?v=4",
+    "id":"coheigea",
+    "name":"Colm O hEigeartaigh"
   },
   {
     "commits":2,

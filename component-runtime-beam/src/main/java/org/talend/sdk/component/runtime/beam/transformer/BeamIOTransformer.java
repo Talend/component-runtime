@@ -16,7 +16,7 @@
 package org.talend.sdk.component.runtime.beam.transformer;
 
 import static java.lang.Integer.MIN_VALUE;
-import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.asm7.Opcodes.ALOAD;
 import static org.apache.xbean.asm7.Opcodes.ARETURN;
 import static org.apache.xbean.asm7.Opcodes.ASM7;
@@ -27,16 +27,26 @@ import static org.apache.xbean.asm7.Opcodes.NEW;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.io.ObjectStreamException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.Collection;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
+import org.apache.beam.sdk.coders.Coder;
+import org.apache.beam.sdk.coders.CoderRegistry;
+import org.apache.beam.sdk.transforms.Combine;
 import org.apache.xbean.asm7.ClassReader;
 import org.apache.xbean.asm7.ClassVisitor;
 import org.apache.xbean.asm7.ClassWriter;
@@ -49,10 +59,28 @@ import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 public class BeamIOTransformer implements ClassFileTransformer {
+
+    private static final boolean DEBUG = Boolean.getBoolean("talend.component.beam.transformers.debug");
+
+    private static final BiConsumer<OutputStream, Object> BYPASS_REPLACE_SERIALIZER = createSerializer();
+
+    private final Collection<String> typesToEnhance;
+
+    public BeamIOTransformer() {
+        this(Stream
+                .of("org.apache.beam.sdk.coders.Coder", "org.apache.beam.sdk.io.Source",
+                        "org.apache.beam.sdk.io.Source$Reader", "org.apache.beam.sdk.io.UnboundedSource$CheckpointMark",
+                        "org.apache.beam.sdk.transforms.DoFn", "org.apache.beam.sdk.transforms.PTransform",
+                        "org.apache.beam.sdk.transforms.Combine$CombineFn",
+                        "org.apache.beam.sdk.transforms.SerializableFunction", "org.apache.beam.sdk.values.TupleTag")
+                .collect(toSet()));
+    }
 
     @Override
     public byte[] transform(final ClassLoader loader, final String className, final Class<?> classBeingRedefined,
@@ -62,13 +90,18 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         final ConfigurableClassLoader classLoader = ConfigurableClassLoader.class.cast(loader);
-        final URLClassLoader tmpLoader = classLoader.createTemporaryCopy();
+        final URLClassLoader tmpLoader = classLoader.createTemporaryCopy(); // cache it: mem is the issue?
         final Thread thread = Thread.currentThread();
         final ClassLoader old = thread.getContextClassLoader();
         thread.setContextClassLoader(tmpLoader);
         try {
-            if (shouldForceContextualSerialization(tmpLoader, className)) {
-                return rewrite(classLoader, className, classfileBuffer, tmpLoader);
+            final Class<?> tmpClass = loadTempClass(tmpLoader, className);
+            if (tmpClass.getClassLoader() != tmpLoader.getParent() && doesHierarchyContain(tmpClass, typesToEnhance)) {
+                return rewrite(classLoader, className, classfileBuffer, tmpLoader, tmpClass);
+            }
+        } catch (final NoClassDefFoundError | ClassNotFoundException e) {
+            if (DEBUG) {
+                log.error("Can't load: " + className, e);
             }
         } finally {
             thread.setContextClassLoader(old);
@@ -77,34 +110,36 @@ public class BeamIOTransformer implements ClassFileTransformer {
     }
 
     private byte[] rewrite(final ConfigurableClassLoader loader, final String className, final byte[] classfileBuffer,
-            final ClassLoader tmpLoader) {
+            final ClassLoader tmpLoader, final Class<?> tmpClass) {
         final String plugin = loader.getId();
 
         final ClassReader reader = new ClassReader(classfileBuffer);
         final ComponentClassWriter writer =
                 new ComponentClassWriter(className.replace('/', '.'), tmpLoader, reader, ClassWriter.COMPUTE_FRAMES);
-        final ComponentClassVisitor visitor = new ComponentClassVisitor(writer, plugin);
+        final SerializableCoderReplacement serializableCoderReplacement =
+                new SerializableCoderReplacement(writer, plugin, tmpClass);
+        final ComponentClassVisitor visitor = new ComponentClassVisitor(serializableCoderReplacement, plugin);
         reader.accept(visitor, ClassReader.SKIP_FRAMES);
         return writer.toByteArray();
     }
 
-    private boolean shouldForceContextualSerialization(final ClassLoader tmpLoader, final String className) {
+    private boolean shouldForceContextualSerialization(final Class<?> tmpClass) {
         try {
-            final Class<?> clazz = tmpLoader.loadClass(className.replace('/', '.'));
-            if (clazz.getClassLoader() == tmpLoader.getParent()) {
-                return false;
-            }
-
-            return doesHierarchyContain(clazz,
-                    asList("org.apache.beam.sdk.transforms.DoFn", "org.apache.beam.sdk.io.Source",
-                            "org.apache.beam.sdk.io.Source$Reader", "org.apache.beam.sdk.coders.Coder"));
-        } catch (final NoClassDefFoundError | ClassNotFoundException e) {
+            return doesHierarchyContain(tmpClass, typesToEnhance);
+        } catch (final NoClassDefFoundError e) {
             return false;
         }
     }
 
+    private Class<?> loadTempClass(final ClassLoader tmpLoader, final String className) throws ClassNotFoundException {
+        return tmpLoader.loadClass(className.replace('/', '.'));
+    }
+
     private boolean doesHierarchyContain(final Class<?> clazz, final Collection<String> types) {
         final Class<?> superclass = clazz.getSuperclass();
+        if (Stream.of(clazz.getInterfaces()).anyMatch(itf -> types.contains(itf.getName()))) {
+            return true;
+        }
         if (superclass == null || Object.class == superclass) {
             return false;
         }
@@ -126,9 +161,167 @@ public class BeamIOTransformer implements ClassFileTransformer {
         Thread.currentThread().setContextClassLoader(loader);
     }
 
-    public static class SerializationWrapper implements Serializable {
+    // we want to ensure java.io.ObjectStreamClass.writeReplaceMethod is disabled
+    private static BiConsumer<OutputStream, Object> createSerializer() {
+        final Method writeOrdinaryObject;
+        final Method setBlockDataMode;
+        final Field bout;
+        final Field depth;
+        final Field subs;
+        final Field handles;
+        final Method subsLookup;
+        final Method handlesLookup;
+        final Method writeNull;
+        final Method writeClass;
+        final Method writeClassDesc;
+        final Method writeHandle;
+        final Method writeString;
+        final Method writeArray;
+        final Method writeEnum;
+        try {
+            writeOrdinaryObject = ObjectOutputStream.class
+                    .getDeclaredMethod("writeOrdinaryObject", Object.class, ObjectStreamClass.class, boolean.class);
+            bout = ObjectOutputStream.class.getDeclaredField("bout");
+            depth = ObjectOutputStream.class.getDeclaredField("depth");
+            subs = ObjectOutputStream.class.getDeclaredField("subs");
+            handles = ObjectOutputStream.class.getDeclaredField("handles");
+            subsLookup = subs.getType().getDeclaredMethod("lookup", Object.class);
+            handlesLookup = handles.getType().getDeclaredMethod("lookup", Object.class);
+            setBlockDataMode = bout.getType().getDeclaredMethod("setBlockDataMode", boolean.class);
+            writeNull = ObjectOutputStream.class.getDeclaredMethod("writeNull");
+            writeClass = ObjectOutputStream.class.getDeclaredMethod("writeClass", Class.class, boolean.class);
+            writeClassDesc = ObjectOutputStream.class
+                    .getDeclaredMethod("writeClassDesc", ObjectStreamClass.class, boolean.class);
+            writeHandle = ObjectOutputStream.class.getDeclaredMethod("writeHandle", int.class);
+            writeString = ObjectOutputStream.class.getDeclaredMethod("writeString", String.class, boolean.class);
+            writeArray = ObjectOutputStream.class
+                    .getDeclaredMethod("writeArray", Object.class, ObjectStreamClass.class, boolean.class);
+            writeEnum = ObjectOutputStream.class
+                    .getDeclaredMethod("writeEnum", Enum.class, ObjectStreamClass.class, boolean.class);
+            Stream
+                    .of(writeOrdinaryObject, bout, depth, setBlockDataMode, subs, subsLookup, handles, handlesLookup,
+                            writeNull, writeClass, writeClassDesc, writeHandle, writeString, writeArray, writeEnum)
+                    .forEach(accessible -> {
+                        if (!accessible.isAccessible()) {
+                            accessible.setAccessible(true);
+                        }
+                    });
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
+        }
+        return (out, obj) -> {
+            try (final ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                final boolean oldMode = Boolean.class.cast(setBlockDataMode.invoke(bout.get(oos), false));
+                depth.set(oos, Integer.class.cast(depth.get(oos)) + 1);
+                try {
+                    int h;
+                    if ((obj = subsLookup.invoke(subs.get(oos), obj)) == null) {
+                        writeNull.invoke(oos);
+                    } else if ((h = Integer.class.cast(handlesLookup.invoke(handles.get(oos), obj))) != -1) {
+                        writeHandle.invoke(oos, h);
+                    } else if (Class.class.isInstance(obj)) {
+                        writeClass.invoke(oos, obj, false);
+                    } else if (ObjectStreamClass.class.isInstance(obj)) {
+                        writeClassDesc.invoke(oos, obj, false);
+                    } else if (String.class.isInstance(obj)) {
+                        writeClassDesc.invoke(oos, obj, false);
+                    } else if (obj instanceof String) {
+                        writeString.invoke(oos, obj, false);
+                    } else if (obj.getClass().isArray()) {
+                        writeArray.invoke(oos, obj, ObjectStreamClass.lookup(obj.getClass()), false);
+                    } else if (obj instanceof Enum) {
+                        writeEnum.invoke(oos, obj, ObjectStreamClass.lookup(obj.getClass()), false);
+                    } else if (obj instanceof Serializable) {
+                        writeOrdinaryObject.invoke(oos, obj, ObjectStreamClass.lookup(obj.getClass()), false);
+                    } else {
+                        throw new NotSerializableException(String.valueOf(obj));
+                    }
+                } finally {
+                    depth.set(oos, Integer.class.cast(depth.get(oos)) - 1);
+                    setBlockDataMode.invoke(bout.get(oos), oldMode);
+                }
+            } catch (final Exception e) {
+                throw new IllegalStateException(e);
+            }
+        };
+    }
 
-        private static final ThreadLocal<Boolean> SKIP = new ThreadLocal<>();
+    private static class SerializableCoderReplacement extends ClassVisitor {
+
+        private final String plugin;
+
+        private final Type accumulatorType;
+
+        private SerializableCoderReplacement(final ClassVisitor delegate, final String plugin, final Class<?> clazz) {
+            super(ASM7, delegate);
+            this.plugin = plugin;
+
+            Type accumulatorType = null;
+            if (Combine.CombineFn.class.isAssignableFrom(clazz)) { // not the best impl but user code should handle it
+                try {
+                    if (clazz
+                            .getMethod("getAccumulatorCoder", CoderRegistry.class, Coder.class)
+                            .getDeclaringClass() != clazz) {
+                        accumulatorType = Type.getType(clazz.getMethod("createAccumulator").getReturnType());
+                    }
+                } catch (final NoSuchMethodException e) {
+                    // no-op
+                }
+            }
+            this.accumulatorType = accumulatorType;
+        }
+
+        @Override
+        public void visitEnd() {
+            if (accumulatorType != null) {
+                final MethodVisitor getAccumulatorCoder = super.visitMethod(Modifier.PUBLIC, "getAccumulatorCoder",
+                        "(Lorg/apache/beam/sdk/coders/CoderRegistry;Lorg/apache/beam/sdk/coders/Coder;)"
+                                + "Lorg/apache/beam/sdk/coders/Coder;",
+                        null, null);
+                getAccumulatorCoder.visitLdcInsn(accumulatorType);
+                getAccumulatorCoder.visitLdcInsn(plugin);
+                getAccumulatorCoder
+                        .visitMethodInsn(INVOKESTATIC,
+                                "org/talend/sdk/component/runtime/beam/coder/ContextualSerializableCoder", "of",
+                                "(Ljava/lang/Class;Ljava/lang/String;)Lorg/apache/beam/sdk/coders/SerializableCoder;",
+                                false);
+                getAccumulatorCoder.visitInsn(ARETURN);
+                getAccumulatorCoder.visitMaxs(-1, -1);
+                getAccumulatorCoder.visitEnd();
+            }
+            super.visitEnd();
+        }
+
+        @Override
+        public MethodVisitor visitMethod(final int access, final String name, final String descriptor,
+                final String signature, final String[] exceptions) {
+            final MethodVisitor delegate = super.visitMethod(access, name, descriptor, signature, exceptions);
+            return new MethodVisitor(ASM7, delegate) {
+
+                @Override
+                public void visitMethodInsn(final int opcode, final String owner, final String name,
+                        final String descriptor, final boolean isInterface) {
+                    if ("org/apache/beam/sdk/coders/SerializableCoder".equals(owner) && "of".equals(name)
+                            && "(Ljava/lang/Class;)Lorg/apache/beam/sdk/coders/SerializableCoder;".equals(descriptor)) {
+                        super.visitLdcInsn(plugin);
+                        super.visitMethodInsn(opcode,
+                                "org/talend/sdk/component/runtime/beam/coder/ContextualSerializableCoder", "of",
+                                "(Ljava/lang/Class;Ljava/lang/String;)Lorg/apache/beam/sdk/coders/SerializableCoder;",
+                                false);
+                    } else {
+                        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+                    }
+                }
+
+                @Override
+                public void visitMaxs(final int maxStack, final int maxLocals) {
+                    super.visitMaxs(-1, -1);
+                }
+            };
+        }
+    }
+
+    public static class SerializationWrapper implements Serializable {
 
         private final String plugin;
 
@@ -137,28 +330,21 @@ public class BeamIOTransformer implements ClassFileTransformer {
         public SerializationWrapper(final Object delegate, final String plugin) {
             this.plugin = plugin;
             this.delegateBytes = serialize(delegate);
+            if (DEBUG) {
+                try {
+                    readResolve();
+                } catch (final ObjectStreamException e) {
+                    log.debug("Serialization BUG: " + e.getMessage(), e);
+                }
+            }
         }
 
         private byte[] serialize(final Object delegate) {
-            SKIP.set(true);
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (final ObjectOutputStream oos = new ObjectOutputStream(baos) {
-
-                {
-                    enableReplaceObject(true);
-                }
-
-                @Override // switch it back to the original to avoid to recreate a serialization wrapper
-                protected Object replaceObject(final Object obj) throws IOException {
-                    return obj == null ? delegate : obj;
-                }
-            }) {
-                oos.writeObject(delegate);
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            } finally {
-                SKIP.remove();
+            if (DEBUG) {
+                log.debug("serializing {}", delegate);
             }
+            BYPASS_REPLACE_SERIALIZER.accept(baos, delegate);
             return baos.toByteArray();
         }
 
@@ -180,12 +366,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         public static Object replace(final Object delegate, final String plugin) {
-            final Boolean skip = SKIP.get();
-            if (skip == null || !skip) {
-                SKIP.remove();
-                return new SerializationWrapper(delegate, plugin);
-            }
-            return null;
+            return delegate == null ? null : new SerializationWrapper(delegate, plugin);
         }
     }
 
@@ -278,13 +459,13 @@ public class BeamIOTransformer implements ClassFileTransformer {
         private static final String[] OBJECT_STREAM_EXCEPTION =
                 { Type.getType(ObjectStreamException.class).getInternalName() };
 
-        private final ComponentClassWriter writer;
+        private final ClassVisitor writer;
 
         private final String plugin;
 
         private boolean hasWriteReplace;
 
-        private ComponentClassVisitor(final ComponentClassWriter cv, final String plugin) {
+        private ComponentClassVisitor(final ClassVisitor cv, final String plugin) {
             super(ASM7, cv);
             this.plugin = plugin;
             this.writer = cv;
@@ -309,7 +490,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
             super.visitEnd();
         }
 
-        private void createSerialisation(final ClassWriter cw, final String pluginId) {
+        private void createSerialisation(final ClassVisitor cw, final String pluginId) {
             if (hasWriteReplace) {
                 return;
             }

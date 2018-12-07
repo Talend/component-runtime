@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.service.api;
 
 // marks a class as being unwrappable which means some internals are accessible in an unsafe and advanced manner.
+@FunctionalInterface
 public interface Unwrappable {
 
     <T> T unwrap(Class<T> type);

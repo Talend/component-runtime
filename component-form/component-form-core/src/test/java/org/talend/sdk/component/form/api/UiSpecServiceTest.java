@@ -83,6 +83,30 @@ class UiSpecServiceTest {
         }
     });
 
+    @Test // ensure the resolution works, even when an nested array item request a parent sibling parameter
+    void paramResolutionToParent() throws Exception {
+        final ConfigTypeNode node = load("param-resolution-to-parent.json", ConfigTypeNode.class);
+        final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();
+        final List<UiSchema> rootItems = List.class.cast(payload.getUiSchema().iterator().next().getItems());
+        final UiSchema.Trigger trigger = rootItems
+                .stream()
+                .filter(it -> "configuration.customObjectName".equals(it.getKey()))
+                .findFirst()
+                .orElseThrow(IllegalStateException::new)
+                .getTriggers()
+                .stream()
+                .findFirst()
+                .orElseThrow(IllegalStateException::new);
+        assertEquals("CUSTOM_OBJECT_NAMES", trigger.getAction());
+        assertEquals("Marketo", trigger.getFamily());
+        assertEquals("suggestions", trigger.getType());
+        assertEquals("focus", trigger.getOnEvent());
+        assertEquals(1, trigger.getParameters().size());
+        final UiSchema.Parameter parameter = trigger.getParameters().iterator().next();
+        assertEquals("dataStore", parameter.getKey());
+        assertEquals("configuration.dataSet.dataStore", parameter.getPath());
+    }
+
     @Test
     void updatable() throws Exception {
         final ConfigTypeNode node = load("update.json", ConfigTypeNode.class);

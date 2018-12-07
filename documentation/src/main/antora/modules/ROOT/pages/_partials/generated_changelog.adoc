@@ -1,11 +1,44 @@
 
 
+== Version 1.1.4
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1223[TCOMP-1223^]: byte[] not supported in AvroRecord (beam)
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1222[TCOMP-1222^]: Ensure @WithComponents and @Environment are compatible
+
+
 == Version 1.1.3
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1170[TCOMP-1170^]: [regression] http testing module pom imports netty and jsonb stack
 - link:https://jira.talendforge.org/browse/TCOMP-1181[TCOMP-1181^]: tacokit can't pass the long type field from ui rightly
+- link:https://jira.talendforge.org/browse/TCOMP-1187[TCOMP-1187^]: Job DSL does not support correctly parameters when they are URI/URL
+- link:https://jira.talendforge.org/browse/TCOMP-1189[TCOMP-1189^]: Ensure primitive are not nullable in Record model (builder)
+- link:https://jira.talendforge.org/browse/TCOMP-1191[TCOMP-1191^]: [beam] BeamIOTransformer does not support serialization of complex objects correctly
+- link:https://jira.talendforge.org/browse/TCOMP-1192[TCOMP-1192^]: Ensure Avro schema union is interpreted as nullable in Record Schema model
+- link:https://jira.talendforge.org/browse/TCOMP-1194[TCOMP-1194^]: [testing] Ensure BeamEnvironment adds component-runtime-beam
+- link:https://jira.talendforge.org/browse/TCOMP-1196[TCOMP-1196^]: Nested maven repository not used for component module
+- link:https://jira.talendforge.org/browse/TCOMP-1197[TCOMP-1197^]: Tacokit beam tests. NPE when creating the schema with RECORD type.
+- link:https://jira.talendforge.org/browse/TCOMP-1198[TCOMP-1198^]: Tacokit beam tests. SchemaParseException => drop unsupported characters
+- link:https://jira.talendforge.org/browse/TCOMP-1200[TCOMP-1200^]: Packages not defined from nested repository classes
+- link:https://jira.talendforge.org/browse/TCOMP-1201[TCOMP-1201^]: includeTransitiveDependencies option of nested-maven-repository does not work
+- link:https://jira.talendforge.org/browse/TCOMP-1202[TCOMP-1202^]: Refine avro classloading exclusion to accept hadoop and mapred packages
+- link:https://jira.talendforge.org/browse/TCOMP-1205[TCOMP-1205^]: Empty JSon object lead to NPE
+- link:https://jira.talendforge.org/browse/TCOMP-1209[TCOMP-1209^]: Ensure SerializableCoder is replaced with a contextual version to support Talend Component Kit classloading model
+- link:https://jira.talendforge.org/browse/TCOMP-1210[TCOMP-1210^]: BeamComponentExtension should let the exception go back to the caller when the transform fails
+- link:https://jira.talendforge.org/browse/TCOMP-1215[TCOMP-1215^]: Nested maven repository in jars don't go through transformers
+- link:https://jira.talendforge.org/browse/TCOMP-1218[TCOMP-1218^]: Record entries order shouldn't be sorted by the runtime
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1185[TCOMP-1185^]: Support maxBatchSize in Job test runner for standalone mode
 
 
 === Work Item
@@ -14,6 +47,18 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1182[TCOMP-1182^]: Ensure the property editor for the configuration registers the default converters
 - link:https://jira.talendforge.org/browse/TCOMP-1183[TCOMP-1183^]: Upgrade JRuby to 9.2.4.0
 - link:https://jira.talendforge.org/browse/TCOMP-1184[TCOMP-1184^]: Avoid to do a group by key in BeamExecutor (job DSL) when not needed
+- link:https://jira.talendforge.org/browse/TCOMP-1188[TCOMP-1188^]: Tolerate null for dates in Records
+- link:https://jira.talendforge.org/browse/TCOMP-1190[TCOMP-1190^]: Enable secure processing for DocumentBuilderFactory instances
+- link:https://jira.talendforge.org/browse/TCOMP-1193[TCOMP-1193^]: Add injectable ContainerInfo with the containerId (plugin) in services
+- link:https://jira.talendforge.org/browse/TCOMP-1195[TCOMP-1195^]: Enable user to extend BeamEnvironment test tempalte more easily
+- link:https://jira.talendforge.org/browse/TCOMP-1199[TCOMP-1199^]: Nested repository not used when the classpath is not composed of a single jar
+- link:https://jira.talendforge.org/browse/TCOMP-1204[TCOMP-1204^]: [dependency upgrade] XBean 4.12
+- link:https://jira.talendforge.org/browse/TCOMP-1207[TCOMP-1207^]: [beam] add ContextualSerializableCoder
+- link:https://jira.talendforge.org/browse/TCOMP-1213[TCOMP-1213^]: Upgrade guava to v27 for testing modules
+- link:https://jira.talendforge.org/browse/TCOMP-1216[TCOMP-1216^]: Take into account the visibility for the parameter validation
+- link:https://jira.talendforge.org/browse/TCOMP-1217[TCOMP-1217^]: Add JVM system property talend.component.runtime.serialization.java.inputstream.whitelist for our custom object input stream
+- link:https://jira.talendforge.org/browse/TCOMP-1219[TCOMP-1219^]: Upgrade starter to gradle 5
+- link:https://jira.talendforge.org/browse/TCOMP-1220[TCOMP-1220^]: Upgrade Maven to 3.6.0 in starter
 
 
 == Version 1.1.2

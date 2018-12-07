@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.beam.transformer;
 
 import static java.util.Collections.emptyMap;
+import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -26,12 +27,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -41,6 +44,7 @@ import javax.json.JsonWriterFactory;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CustomCoder;
+import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.BoundedSource;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -59,7 +63,24 @@ import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 import org.talend.test.wrapped.JdbcSource;
 
+import lombok.RequiredArgsConstructor;
+
 class BeamIOTransformerTest {
+
+    @Test
+    void serializableCoderReplacement() {
+        scenario((transformer, loader) -> {
+            final Class<?> aClass = loader.loadClass(MyDoFnUsingSerializableCoder.class.getName());
+            assertEquals(loader, aClass.getClassLoader());
+            final Supplier<String> instance = (Supplier<String>) newInstance(aClass, loader);
+            assertEquals(
+                    "ContextualSerializableCoder{plugin='test', clazz=org.talend.sdk.component.runtime.beam.transformer.BeamIOTransformerTest$Pojo}",
+                    instance.get());
+            final Coder<Pojo> coder = (Coder<Pojo>) instance.getClass().getMethod("getCoder").invoke(instance);
+            final Pojo pojo = ensureSerializableByCoder(coder, new Pojo("run"), "test");
+            assertEquals("run", pojo.value);
+        });
+    }
 
     @Test
     void doFn() {
@@ -153,7 +174,8 @@ class BeamIOTransformerTest {
                 final ClassLoader originalLoader = thread.getContextClassLoader();
                 final String prefix = BeamIOTransformerTest.class.getName() + "$";
                 final Predicate<String> parentPredicate = it -> SetValidator.class.getName().equals(it)
-                        || !(it.startsWith(prefix) || it.startsWith(JdbcSource.class.getName()));
+                        || !(it.startsWith(prefix) || it.startsWith(JdbcSource.class.getName()))
+                        || Pojo.class.getName().equals(it);
                 try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("test",
                         new URL[] { jarLocation(BeamIOTransformerTest.class).toURI().toURL() }, originalLoader,
                         parentPredicate, parentPredicate.negate(), new String[0])) {
@@ -300,5 +322,24 @@ class BeamIOTransformerTest {
     private interface Scenario {
 
         void execute(BeamIOTransformer transformer, ClassLoader componentLoader) throws Exception;
+    }
+
+    @RequiredArgsConstructor
+    public static class Pojo implements Serializable {
+
+        private final String value;
+    }
+
+    // just to check transformer, not a real fn
+    public static class MyDoFnUsingSerializableCoder extends DoFn<String, String> implements Supplier<String> {
+
+        @Override
+        public String get() {
+            return SerializableCoder.of(Pojo.class).toString();
+        }
+
+        public Coder<Pojo> getCoder() {
+            return SerializableCoder.of(Pojo.class);
+        }
     }
 }

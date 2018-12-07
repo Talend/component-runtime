@@ -352,11 +352,12 @@ public class ContainerManager implements Lifecycle {
             final String moduleLocation = classLoaderConfiguration.isSupportsResourceDependencies()
                     ? nestedContainerMapping.getOrDefault(module, module)
                     : module;
-            final String location = resolve(moduleLocation).getAbsolutePath();
-            info("Creating module " + moduleLocation + " (from " + module + ", location=" + location + ")");
-            final Stream<Artifact> classpath = resolver.resolve(classLoaderConfiguration.getParent(), location);
+            final File resolved = resolve(moduleLocation);
+            info("Creating module " + moduleLocation + " (from " + module
+                    + (resolved.exists() ? ", location=" + resolved.getAbsolutePath() : "") + ")");
+            final Stream<Artifact> classpath = resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation);
 
-            final Container container = new Container(id, location, classpath.toArray(Artifact[]::new),
+            final Container container = new Container(id, moduleLocation, classpath.toArray(Artifact[]::new),
                     classLoaderConfiguration, ContainerManager.this::resolve,
                     ofNullable(containerInitializer)
                             .orElse(NOOP_CUSTOMIZER)

@@ -111,7 +111,7 @@ class RecordConvertersTest {
             final String jsonFromStruct = jsonb.toJson(struct);
             assertEquals("{\"value\":\"AQID\"}", jsonFromStruct);
             final Record structToRecordFromJson = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
-            assertArrayEquals(bytes, toRecord.getBytes("value"));
+            assertArrayEquals(bytes, structToRecordFromJson.getBytes("value"));
         }
     }
 

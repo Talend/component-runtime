@@ -57,10 +57,11 @@ class MvnDependencyListLocalRepositoryResolverTest {
 
         try (final URLClassLoader tempLoader =
                 new URLClassLoader(new URL[] { file.toURI().toURL() }, getSystemClassLoader())) {
-            final List<String> toResolve = new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt")
-                    .resolve(tempLoader, "foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
-                    .map(Artifact::toPath)
-                    .collect(toList());
+            final List<String> toResolve =
+                    new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
+                            .resolve(tempLoader, "foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
+                            .map(Artifact::toPath)
+                            .collect(toList());
             assertEquals(asList("org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar",
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }

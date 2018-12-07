@@ -26,22 +26,25 @@ import java.util.Locale;
 import javax.annotation.PreDestroy;
 import javax.json.JsonObject;
 
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @AllArgsConstructor
 @Processor(family = "file", name = "out")
 public class FileOutput implements Serializable {
 
-    private final File file;
+    private final Configuration configuration;
 
     private final FileService service;
 
     @ElementListener
     public void length(final JsonObject data) throws IOException {
-        final Writer writer = service.writerFor(file.getAbsolutePath());
+        final Writer writer = service.writerFor(new File(configuration.file).getAbsolutePath());
         synchronized (writer) {
             writer
                     .write(data
@@ -55,9 +58,17 @@ public class FileOutput implements Serializable {
 
     @PreDestroy
     public void close() throws IOException {
-        final Writer writer = service.writerFor(file.getAbsolutePath());
+        final Writer writer = service.writerFor(new File(configuration.file).getAbsolutePath());
         synchronized (writer) {
             writer.close();
         }
+    }
+
+    @Data
+    @AutoLayout
+    public static class Configuration {
+
+        @Option
+        private String file;
     }
 }
