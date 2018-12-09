@@ -55,7 +55,7 @@ public class SearchTest {
 [start=2]
 . Inject the Zendesk server to the test. To do that, add a new field to the class with the `@DecryptedServer` annotation, that holds the server ID to be injected.
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 public class SearchTest {
 
@@ -66,12 +66,13 @@ public class SearchTest {
     private Server server;
 }
 ----
+
 The `MavenDecrypterRule` is able to inject the server instance into this class at runtime. The server instance contains the username and the decrypted password.
 
 [start=3]
 . Use the `server` instance in the test to get the real credentials in a secured manner.
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
     BasicAuth basicAuth = new BasicAuth("https://instance.zendesk.com",
                                 server.getUsername(),
@@ -79,6 +80,7 @@ The `MavenDecrypterRule` is able to inject the server instance into this class a
 ----
 
 Once modified, the complete test class looks as follows:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 public class SearchTest {
@@ -135,20 +137,20 @@ This tutorial shows how to set up a CI server in passthrough mode using https://
 . Log in to Jenkins.
 . Click *New Item* to create a new build job.
 +
-image::jenkins/1_jenkins_new_item.png[Create a new job]
+image::jenkins/1_jenkins_new_item.png[Create a new job,70%,window="_blank",link="_images/jenkins/1_jenkins_new_item.png"]
 . Enter an Item name (Job name) and choose the freestyle job. Then click OK.
 +
-image::jenkins/2_jenkins_new_item.png[Create a new job]
+image::jenkins/2_jenkins_new_item.png[Create a new job,70%,window="_blank",link="_images/jenkins/2_jenkins_new_item.png"]
 . In the *Source Code Management* section, enter your project repository URL. A GitHub repository is used in this tutorial.
 . Specify the `master` branch as *Branches to build*.
 +
-image::jenkins/4_jenkins_source_code.png[Source Code Management]
+image::jenkins/4_jenkins_source_code.png[Source Code Management,70%,window="_blank",link="_images/jenkins/4_jenkins_source_code.png"]
 . In the *Build* section, click *Add build step* and choose *Invoke top-level Maven targets*.
 +
-image::jenkins/6_jenkins_build_cmd.png[Build Section]
+image::jenkins/6_jenkins_build_cmd.png[Build Section,70%,window="_blank",link="_images/jenkins/6_jenkins_build_cmd.png"]
 . Choose your Maven version and enter the Maven build command. In this case: `clean install`. Then, click *Save*.
 +
-image::jenkins/6_jenkins_build_cmd_2.png[Build Section]
+image::jenkins/6_jenkins_build_cmd_2.png[Build Section,70%,window="_blank",link="_images/jenkins/6_jenkins_build_cmd_2.png"]
 +
 The `-Dtalend.junit.http.passthrough=true` option is part of the build command.
 This option tells the API simulation proxy to run in `passthrough` mode. This way, all the HTTP requests made in the test are forwarded to the real API server.
@@ -158,7 +160,7 @@ The `MavenDecrypterRule` rule allows to get the real credentials.
 TIP: You can configure the *passthrough* mode globally on your CI server by setting the `talend.junit.http.passthrough` environment variable to `true`.
 . Test the job by selecting *Build now*, and check that the job has built correctly.
 +
-image::jenkins/7_jenkins_build_result.png[Test the job]
+image::jenkins/7_jenkins_build_result.png[Test the job,70%,window="_blank",link="_images/jenkins/7_jenkins_build_result.png"]
 
 
 Now your tests run in a simulation mode on your development environment and in a passthrough mode on your CI server.

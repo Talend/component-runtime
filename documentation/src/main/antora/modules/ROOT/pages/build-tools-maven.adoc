@@ -8,7 +8,7 @@ To develop new components, Talend Component Kit requires a build tool in which y
 You will then be able to install and deploy it to Talend applications.
 A Talend Component Kit plugin is available for each of the supported build tools.
 
-`talend-component-maven-plugin` helps you write components that match best practices and generate transparently metadata used by Talend Studio.
+*talend-component-maven-plugin* helps you write components that match best practices and generate transparently metadata used by Talend Studio.
 
 You can use it as follows:
 
@@ -39,7 +39,7 @@ Used as an extension, the goals detailed in this document will be set up.
 The Talend Component Kit plugin integrates some specific goals within Maven build lifecycle.
 For example, to compile the project and prepare for deploying your component, run `mvn clean install`. Using this command, the following goals are executed:
 
-image:mvn_clean_install.png[Maven clean install,70%]
+image:mvn_clean_install.png[Maven clean install,70%,window="_blank",link="_images/mvn_clean_install.png"]
 
 The build is split into several phases. The different goals are executed in the order shown above. Talend Component Kit uses default goals from the Maven build lifecycle and adds additional goals to the building and packaging phases.
 
@@ -59,7 +59,7 @@ $ mvn talend-component:<name_of_the_goal>[:<execution id>] -D<param_user_propert
 
 === Dependencies
 
-The first goal is a shortcut for the `maven-dependency-plugin`. It creates the `TALEND-INF/dependencies.txt` file with the `compile` and `runtime` dependencies, allowing the component to use it at runtime:
+The first goal is a shortcut for the *maven-dependency-plugin*. It creates the `TALEND-INF/dependencies.txt` file with the `compile` and `runtime` dependencies, allowing the component to use it at runtime:
 
 [source,xml]
 ----
@@ -101,7 +101,7 @@ This goal helps you validate the common programming model of the component. To a
 
 It is bound to the `process-classes` phase by default. When executed, it performs several validations that can be disabled by setting the corresponding flags to `false` in the `<configuration>` block of the execution:
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name |Description |User property |Default
 |validateInternationalization|Validates that resource bundles are presents and contain commonly used keys (for example, `_displayName`)|`talend.validation.internationalization`| true
@@ -116,8 +116,8 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 |validateDocumentation| Ensures that all components and `@Option` properties have a documentation using the `@Documentation` property. |`talend.validation.documentation`|true
 |validateLayout| Ensures that the layout is referencing existing options and properties. |`talend.validation.layout`|true
 |validateOptionNames| Ensures that the option names are compliant with the framework. It is highly recommended and safer to keep it set to `true`. |`talend.validation.options`|true
-|validateLocalConfiguration| Ensures that if any `TALEND-INF/local-configuration.properties` exists then keys start with the family name.|true
-|validateOutputConnection| Ensures that an output has only one input branch.|true
+|validateLocalConfiguration| Ensures that if any `TALEND-INF/local-configuration.properties` exists then keys start with the family name.|`talend.validation.localConfiguration`|true
+|validateOutputConnection| Ensures that an output has only one input branch.|`talend.validation.validateOutputConnection`|true
 |===
 
 === Generating the component documentation
@@ -141,7 +141,7 @@ The `asciidoc` goal generates an Asciidoc file documenting your component from t
 </plugin>
 ----
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name|Description|User property|Default
 |level|Level of the root title.|`talend.documentation.level`
@@ -180,7 +180,7 @@ If you prefer a HTML rendering, you can configure the following execution in the
 
 [source,xml]
 ----
-<plugin> (1)
+<plugin> <!--1-->
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${talend-component-kit.version}</version>
@@ -194,7 +194,7 @@ If you prefer a HTML rendering, you can configure the following execution in the
     </execution>
   </executions>
 </plugin>
-<plugin> (2)
+<plugin> <!--2-->
   <groupId>org.asciidoctor</groupId>
   <artifactId>asciidoctor-maven-plugin</artifactId>
   <version>1.5.7</version>
@@ -352,7 +352,7 @@ The Mojo `generate` (Maven plugin goal) of the same plugin also embeds a generat
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${talend-component.version}</version>
   <executions>
-    <execution> <1>
+    <execution> <!--1-->
       <id>generate-input</id>
       <phase>generate-sources</phase>
       <goals>
@@ -362,7 +362,7 @@ The Mojo `generate` (Maven plugin goal) of the same plugin also embeds a generat
         <type>input</type>
       </configuration>
     </execution>
-    <execution> <2>
+    <execution> <!--2-->
       <id>generate-output</id>
       <phase>generate-sources</phase>
       <goals>
@@ -375,21 +375,20 @@ The Mojo `generate` (Maven plugin goal) of the same plugin also embeds a generat
   </executions>
 </plugin>
 ----
-
 <1> The first execution generates an input (partition mapper and producer).
 <2> the second execution generates an output (processor).
 
 It is intended to be used from the command line (or IDE Maven integration) as follows:
 
-[source,bash]
+[source, bash]
 ----
 $ mvn talend-component:generate \
     -Dtalend.generator.type=[input|output] \ <1>
     [-Dtalend.generator.classbase=com.test.MyComponent] \ <2>
     [-Dtalend.generator.family=my-family] \ <3>
-    [-Dtalend.generator.pom.read-only=false] <4>
-    [-Dtalend.generator.pom.encoding=UTF-16] <5>
-    [-Dtalend.generator.pom.spacing=4] <6>
+    [-Dtalend.generator.pom.read-only=false] \ <4>
+    [-Dtalend.generator.pom.encoding=UTF-16] \ <5>
+    [-Dtalend.generator.pom.spacing=4] \ <6>
 ----
 
 <1> Select the type of component you want: `input` to generate a mapper and an emitter, or `output` to generate an output processor. The type is mandatory.
@@ -412,22 +411,22 @@ For this command to work, you need to register the plugin as follows:
 
 === Generating the component archive
 
-Component ARchive (`.car`) is the way to bundle a component to share it in the Talend ecosystem. It is a plain Java ARchive (`.jar`) containing a metadata file and a nested Maven repository containing the component and its depenencies.
+Component ARchive (*.car*) is the way to bundle a component to share it in the Talend ecosystem. It is a plain Java ARchive (*.jar*) containing a metadata file and a nested Maven repository containing the component and its depenencies.
 
 [source]
 ----
 mvn talend-component:car
 ----
 
-This command creates a `.car` file in your build directory. This file can be shared on Talend platforms.
+This command creates a *.car* file in your build directory. This file can be shared on Talend platforms.
 
 This command has some optional parameters:
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name |Description |User property |Default
 |attach |Specifies whether the component archive should be attached. |`talend.car.attach`| true
-|classifier |The classifier to use if attach is set to true. |`talend.car.attach`| component
+|classifier |The classifier to use if attach is set to true. |`talend.car.classifier`| component
 |metadata |Additional custom metadata to bundle in the component archive. |-| -
 |output |Specifies the output path and name of the archive |`talend.car.output`| ${project.build.directory}/${project.build.finalName}.car
 |packaging |Specifies the packaging |-| ${project.packaging}
@@ -469,7 +468,7 @@ The `deploy-in-studio` goal deploys the current component module into a local Ta
 
 .Parameters
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%"]
 |===
 |Name |Description |User property |Default
 |studioHome|Path to the Studio home directory|`talend.component.studioHome`|-
@@ -490,7 +489,7 @@ Call `mvn talend-component:help -Ddetail=true -Dgoal=<goal-name>` to display the
 
 .Parameters
 
-[options="header,autowidth"]
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name |Description |User property |Default
 |detail|Displays all settable properties for each goal.|`detail`|false

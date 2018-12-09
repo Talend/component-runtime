@@ -7,7 +7,7 @@ The framework provides built-in services that you can inject by type in componen
 
 == Lisf of built-in services
 
-[role="table-striped table-hover table-ordered",options="header,autowidth"]
+[role="table-striped table-hover table-ordered",options="header",cols="1,2",width="100%"]
 |===
 | Type | Description
 a| `org.talend.sdk.component.api.service.cache.LocalCache` | Provides a small abstraction to cache data that does not need to be recomputed very often. Commonly used by actions for UI interactions.

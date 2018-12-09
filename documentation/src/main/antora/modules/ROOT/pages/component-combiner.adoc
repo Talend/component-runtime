@@ -5,5 +5,5 @@
 
 == What is a combiner
 
-Currently, Talend Component Kit does not allow you to define a `Combiner`.
-A combiner is the symmetric part of a partition mapper and allows to aggregate results in a single partition.
+Currently, Talend Component Kit does not allow you to define a *Combiner*.
+A combiner is the symmetric part of a partition mapper. It allows to aggregate results in a single partition.

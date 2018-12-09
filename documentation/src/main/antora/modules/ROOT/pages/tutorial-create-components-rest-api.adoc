@@ -23,7 +23,8 @@ The Zendesk Search API takes the following parameters on the `/api/v2/search.jso
 * *sort_order*: The sorting order of the query result. Possible values are `asc` (for ascending) or `desc` (for descending). It defaults to `desc`.
 
 Talend Component Kit provides a built-in service to create an easy-to-use HTTP client in a declarative manner, using Java annotations.
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 public interface SearchClient extends HttpClient { <1>
 
@@ -37,6 +38,7 @@ public interface SearchClient extends HttpClient { <1>
     );
 }
 ----
+
 <1> The interface needs to extend `org.talend.sdk.component.api.service.http.HttpClient` to be recognized as an HTTP client by the component framework.
 This interface also provides the `void base(String base)` method, that allows to set the base URI for the HTTP request. In this tutorial, it is the Zendesk instance URL.
 <2> The `@Request` annotation allows to define the HTTP request path and method (`GET`, `POST`, `PUT`, and so on).
@@ -93,6 +95,7 @@ public class BasicAuth {
     }
 }
 ----
+
 <1> This configuration class provides the authentication information. Type it as `Datastore` so that it can be validated using services (similar to connection test) and used by Talend Studio or web application metadata.
 <2> `@GridLayout` defines the UI layout of this configuration.
 <3> The password is marked as `Credential` so that it is handled as sensitive data in Talend Studio and web applications. xref:tutorial-configuration-sensitive-data.adoc[Read more about sensitive data handling].
@@ -102,7 +105,8 @@ The data store is now configured. It provides a basic authentication token.
 
 === Configuring the dataset
 Once the data store is configured, you can define the dataset by configuring the search query. It is that query that defines the records processed by the input component.
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Data
 @DataSet <1>
@@ -134,6 +138,7 @@ public class SearchQuery {
     private final String sortOrder;
 }
 ----
+
 <1> The configuration class is marked as a `DataSet`. xref:component-configuration.adoc#dataset-and-datastore[Read more about configuration types].
 <2> `@GridLayout` defines the UI layout of this configuration.
 <3> A text area widget is bound to the *Search query* field. xref:gallery.adoc[See all the available widgets].
@@ -144,8 +149,10 @@ A Talend Component Kit Maven plugin can be used to generate the component docume
 Your component is configured. You can now create the component logic.
 
 == Defining the component mapper
+
 NOTE: Mappers defined with this tutorial don't implement the split part because HTTP calls are not split on many workers in this case.
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "zendesk")
@@ -182,6 +189,7 @@ public class SearchMapper implements Serializable {
     }
 }
 ----
+
 <1> The component configuration that is injected by the component framework
 <2> The HTTP client created earlier in this tutorial. It is also injected by the framework via the mapper constructor.
 <3> The base URL of the HTTP client is defined using the configuration URL.
@@ -190,7 +198,8 @@ public class SearchMapper implements Serializable {
 
 == Defining the component source
 Once the component logic implemented, you can create the source in charge of performing the HTTP request to the search API and converting the result to `JsonObject` records.
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 public class SearchSource implements Serializable {
 
@@ -268,6 +277,7 @@ public class SearchSource implements Serializable {
     }
 }
 ----
+
 <1> The component configuration injected from the component mapper.
 <2> The HTTP client injected from the component mapper.
 <3> A utility used to buffer search results and iterate on them one after another.

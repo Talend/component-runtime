@@ -24,7 +24,7 @@ You can enable streaming right from the design phase of the project by enabling 
 Doing so adds a default streaming-ready configuration to your component when generating the project. +
 This default configuration implements a constant pause duration of 500 ms between retries, with no limit of retries.
 
-image::starter/starter_enabling_streaming.png[Stream Toggle,80%]
+image::starter/starter_enabling_streaming.png[Stream Toggle,80%,window="_blank",link="_images/starter/starter_enabling_streaming.png"]
 
 == Configuring streaming from the project
 
@@ -40,7 +40,7 @@ NOTE: See the tables below for more details about each strategy.
 
 === Constant strategy
 
-[options="header, autowidth",role="table-striped table-hover table-ordered"]
+[options="header, autowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1"]
 |===
 |Parameter|Description|Default value
 |`talend.input.streaming.retry.constant.timeout`|Pause duration for the `constant` strategy, in ms.|`500`
@@ -48,7 +48,7 @@ NOTE: See the tables below for more details about each strategy.
 
 === Exponential strategy
 
-[options="header, autowidth",role="table-striped table-hover table-ordered"]
+[options="header, autowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1"]
 |====
 |Parameter|Description|Default value
 |`talend.input.streaming.retry.exponential.exponent`|Exponent of the exponential calculation.|`1.5`

@@ -9,13 +9,13 @@ Some of these parameters are handled at the project generation using the starter
 
 == Component family and categories
 
-The family and category of a component is automatically written in the `package-info.java` of the component package, using the `@Components` annotation. By default, these parameters are already configured in this file when you import your project in your IDE. Their value correspond to what was defined during the project definition with the starter.
+The family and category of a component is automatically written in the `package-info.java` file of the component package, using the `@Components` annotation. By default, these parameters are already configured in this file when you import your project in your IDE. Their value correspond to what was defined during the project definition with the starter.
 
-Multiple components can share the same `family` and `category` value, but the `family` + `name` pair must be unique for the system.
+Multiple components can share the same *family* and *category* value, but the *family* + *name* pair must be unique for the system.
 
 A component can belong to one family only and to one or several categories. If not specified, the category defaults to `Misc`.
 
-The `package-info.java` also defines the component family icon, which is different from the component icon. You can learn how to customize this icon in xref:component-defining-custom-icon.adoc[this section].
+The `package-info.java` file also defines the component family icon, which is different from the component icon. You can learn how to customize this icon in xref:component-defining-custom-icon.adoc[this section].
 
 Here is a sample `package-info.java`:
 
@@ -51,7 +51,8 @@ Learn how to set a custom icon for your component in xref:component-defining-cus
 - *@Version*: Sets the component version. 1 by default. +
 Learn how to manage different versions and migrations between your component versions in xref:component-versions-and-migration.adoc[this section].
 
-.Example
+For example:
+
 [source,java]
 ----
 @Version(1)
@@ -78,14 +79,15 @@ The component type is declared in the component class. When you import your proj
 - A processor. `@Processor` is the default for output components. A method decorated with `@Processor` is considered as a producer factory.
 - Combiners are not supported by the framework. Combiners allow to aggregate results in a single partition.
 
-The name of the component is defined there as well as a parameter of the component type
+The name of the component is defined there as well as a parameter of the component type.
 
 Once the component type is defined, you can start implementing its specific logic:
 
 - xref:component-define-input.adoc[Defining an input component]
 - xref:component-define-processor-output.adoc[Defining a processor or output component]
 
-.Partition mapper example
+Partition mapper example:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @PartitionMapper(name = "my_mapper")
@@ -93,7 +95,8 @@ public class MyMapper {
 }
 ----
 
-.Emitter example
+Emitter example:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Emitter(name = "my_input")
@@ -101,7 +104,8 @@ public class MyInput {
 }
 ----
 
-.Processor example
+Processor example:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Processor(name = "my_processor")

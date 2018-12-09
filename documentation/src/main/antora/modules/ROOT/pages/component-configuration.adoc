@@ -16,10 +16,11 @@ For the name to be correct, you must follow these guidelines:
 * Use a valid Java name.
 * Do not include any `.` character in it.
 * Do not start the name with a `$`.
-* Defining a name is optional. If you don't set a specific name, it defaults to the bytecode name. This can require you to compile with a `-parameter` flag to avoid ending up with names such as `arg0`, `arg1`, and so on.
+* Defining a name is optional. If you don't set a specific name, it defaults to the bytecode name. This can require you to compile with a `-parameter` flag to avoid ending up with names such as *arg0*, *arg1*, and so on.
 
-.Examples of option name:
-[cols="<,^",options="header"]
+Examples of option name:
+
+[cols="<,^",options="header",role="table-striped table-hover table-ordered",width="100%"]
 |===
 | Option name|Valid
 | myName | icon:check[role="green"]

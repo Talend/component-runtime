@@ -20,23 +20,23 @@ In the Intellij IDEA:
 . On the left panel, select *Plugins*.
 . Select *Browse repositories...*
 
-image::intellij/plugin/1-plugins.png[Plugins]
+image::intellij/plugin/1-plugins.png[Plugins,70%,window="_blank",link="_images/intellij/plugin/1-plugins.png"]
 
 [start=4]
-. Enter `Talend` in the search field and choose `Talend Component Kit - Intellij Plugin`.
+. Enter `Talend` in the search field and choose *Talend Component Kit - Intellij Plugin*.
 . Select *Install* on the right.
 
-image::intellij/plugin/2-browse-talend.png[Browse talend plugin]
+image::intellij/plugin/2-browse-talend.png[Browse talend plugin,70%,window="_blank",link="_images/intellij/plugin/2-browse-talend.png"]
 
 [start=6]
 . Click the *Restart IntelliJ IDEA* button.
 
-image::intellij/plugin/3-restart.png[IDEA restart]
+image::intellij/plugin/3-restart.png[IDEA restart,70%,window="_blank",link="_images/intellij/plugin/3-restart.png"]
 
 [start=7]
 . Confirm the IDEA restart to complete the installation.
 
-image::intellij/plugin/4-restart.png[IDEA restart]
+image::intellij/plugin/4-restart.png[IDEA restart,70%,window="_blank",link="_images/intellij/plugin/4-restart.png"]
 
 The plugin is now installed on your IntelliJ IDEA. You can xref:generate-project-using-intellij-plugin.adoc[start using it].
 
@@ -74,11 +74,11 @@ This configuration class contains three properties which you can attach a user-f
 
 For example, you can define a label like `My server URL` for the `url` option:
 
-. Create a `Messages.properties` file in the project resources and add the label to that file.
+. Locate or create a `Messages.properties` file in the project resources and add the label to that file.
 The plugin automatically detects your configuration and provides you with key completion in the property file.
 . Press *Ctrl*+*Space* to see the key suggestions.
 
-image::intellij/plugin/suggestion_1.png[Keys suggestion]
+image::intellij/plugin/suggestion_1.png[Keys suggestion,70%,window="_blank",link="_images/intellij/plugin/suggestion_1.png"]
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

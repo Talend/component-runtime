@@ -39,7 +39,7 @@ The two main concepts are:
 
 For example:
 
-[options="header,autowidth"]
+[options="header",role="table-striped table-hover table-ordered"]
 |====
 | Example description | DataStore | DataSet
 | Accessing a relational database like MySQL | JDBC driver, URL, username, password | Query to execute, row mapper, and so on.
@@ -75,7 +75,7 @@ Input and output components are particular because they can be linked to a set o
 
 The most common actions are the following ones:
 
-[cols="1,1,2,6,6"]
+[options="header",role="table-striped table-hover table-ordered"]
 |====
 | Type | Action | Description | Configuration example | Action example
 

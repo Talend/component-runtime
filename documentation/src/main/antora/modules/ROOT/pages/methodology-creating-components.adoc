@@ -34,7 +34,7 @@ Some additional configuration steps can be necessary according to your requireme
 - xref:index-defining-services.adoc[Defining services] that can be reused in several components
 - xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
 
-image:methodo.png[Methodology,65%]
+image:methodo.png[Methodology,window="_blank",link="_images/methodo.png",65%]
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

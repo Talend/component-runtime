@@ -7,7 +7,7 @@
 
 == What is a partition mapper
 
-A `PartitionMapper` is a component able to split itself to make the execution more efficient.
+A *Partition Mapper* (`PartitionMapper`) is a component able to split itself to make the execution more efficient.
 
 This concept is borrowed from big data and useful in this context only (`BEAM` executions).
 The idea is to divide the work before executing it in order to reduce the overall execution time.

@@ -5,7 +5,7 @@
 
 Integrate components developed using Talend Component Kit to link:https://sourceforge.net/projects/talend-studio/[Talend Studio] in a few steps. Also learn how to enable the developer and debugging modes to iterate on your component development.
 
-image::tutorial_build_job_run.png[Job run,70%]
+image::tutorial_build_job_run.png[Job run,70%,window="_blank",link="_images/tutorial_build_job_run.png"]
 
 == Version compatibility
 
@@ -29,7 +29,7 @@ You can change the default configuration of component server by modifying the `$
 
 The following parameters are available:
 
-[options="header",role="table-striped table-hover table-ordered"]
+[options="header",role="table-striped table-hover table-ordered",cols="1,2,1",width="100%"]
 |===
 | Name | Description | Default
 | component.environment | Enables the developer mode when set to `dev` | -
@@ -54,7 +54,6 @@ is `%1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS %1$Tp %2$s%n%4$s: %5$s%6$s%n`, but for 
 
 Here is an example of a common developer `configuration/config.ini` file:
 
-.configuration/config.ini example
 [source,properties]
 ----
 # use local .m2 instead of embedded studio one
@@ -73,7 +72,7 @@ java.util.logging.SimpleFormatter.format = [%4$s] %5$s%6$s%n
 
 The developer mode is especially useful to iterate on your component development and to avoid closing and restarting Talend Studio every time you make a change to a component. It adds a Talend Component Kit button in the main toolbar:
 
-image::studio-reload-button.png[Studio Reload Button,70%]
+image::studio-reload-button.png[Studio Reload Button,70%,window="_blank",link="_images/studio-reload-button.png"]
 
 When clicking this button, all components developed with the Talend Component Kit framework are reloaded. The cache is invalidated and the components refreshed.
 
@@ -91,14 +90,14 @@ Several methods allow you to debug custom components created with Talend Compone
 ** the *suspend* parameter of the -agentlib argument specifies whether you want to suspend the debugged JVM until the debugger attaches to it. Possible values are `n` (no, default value) or `y` (yes).
 ** the *address* parameter of the -agentlib argument is the port used for the remote configuration. Make sure this port is available. +
 +
-image::talend_studio_debug_remote_config_1.png[IntelliJ remote configuration, 70%]
+image::talend_studio_debug_remote_config_1.png[IntelliJ remote configuration, 70%,window="_blank",link="_images/talend_studio_debug_remote_config_1.png"]
 . Open Talend Studio.
 . Create a new Job that uses the component you want to debug or open an existing one that already uses it.
 . Go to the *Run* tab of the Job and select *Use specific JVM arguments*.
 . Click *New* to add an argument.
 . In the popup window, paste the arguments copied from the IDE. +
 +
-image::talend_studio_debug_remote_config_2.png[IntelliJ remote configuration, 70%]
+image::talend_studio_debug_remote_config_2.png[IntelliJ remote configuration, 70%,window="_blank",link="_images/talend_studio_debug_remote_config_2.png"]
 . Enter the corresponding debug mode:
 ** To debug the runtime, run the Job and access the remote host configured in the IDE.
 ** To debug the *Guess schema* option, click the *Guess schema* action button of the component and access the remote host configured in the IDE.
@@ -109,12 +108,12 @@ image::talend_studio_debug_remote_config_2.png[IntelliJ remote configuration, 70
 ** *suspend* defines whether you need to access the defined configuration to run the remote JVM. Possible values are `n` (no, default value) or `y` (yes).
 ** *address* is the port used for the remote configuration. Make sure this port is available. +
 +
-image::talend_studio_debug_remote_config_1.png[IntelliJ remote configuration, 70%]
+image::talend_studio_debug_remote_config_1.png[IntelliJ remote configuration, 70%,window="_blank",link="_images/talend_studio_debug_remote_config_1.png"]
 . Access the installation directory of your Talend Sutdio.
 . Open the `.ini` file corresponding to your Operating System. For example, `TOS_DI-win-x86_64.ini`.
 . Paste the arguments copied from the IDE in a new line of the file. +
 +
-image::talend_studio_debug_remote_config_3.png[IntelliJ remote configuration, 60%]
+image::talend_studio_debug_remote_config_3.png[IntelliJ remote configuration, 60%,window="_blank",link="_images/talend_studio_debug_remote_config_3.png"]
 . Go to Talend Studio to use the component, and access the host host configured in the IDE.
 
 == Random port when running concurrent studio instances

@@ -127,6 +127,11 @@ div.documentationindex-before {
   color:  #555555;
 }
 
+code {
+  color: #295679;
+  background-color: #f5f5f5;
+}
+
 #pagination {
   margin-top: 2rem;
   display: flex;
@@ -173,6 +178,23 @@ input.rounded {
   -webkit-appearance: none;
 }
 
+td, th {
+  padding: 0.3em !important;
+}
+
+thead {
+  background-color: #82bd4161 !important;
+  line-height: 2.8rem;
+}
+
+table.tableblock {
+  margin-top:30px;
+  margin-bottom:30px;
+  border: 1px solid lightgrey;
+  max-width:100% !important;
+  word-wrap: break-word;
+}
+
 .gallery td.tableblock > div.imageblock {
   max-width: 400px;
   max-height: 400px;
@@ -209,7 +231,7 @@ body {
   font-family: 'Source Sans Pro', sans-serif;
   display: flex;
   flex-direction: column;
-  font-size: 16px;
+  font-size: 1.6rem;
   line-height: 20px !important;
   min-height: 100vh;
   height: 100vh;
@@ -243,13 +265,22 @@ h1.article-side-toc {
   margin-top: 36px;
   margin-bottom: 14px;
 }
+
+div.sect1 {
+  border-top: 0.3px solid #29567959;
+  margin-bottom: 50px;
+}
+
+div.sectionbody {
+  margin-bottom: 50px;
+}
+
 h2 {
   color: #295679;
   font-size: 32px;
   font-weight: 400;
-  margin-top: 50px;
-  line-height: 2em;
-  border-top: 1px solid #29567959;
+  line-height: 1.1em;
+  margin-bottom:1em;
 }
 h2 > a{
   color: #295679;
@@ -329,6 +360,7 @@ main {
 div.navigation-container {
   display: inline-flex;
   overflow: auto;
+  width: 19%;
 }
 .maincontent {
   padding-right: 0;
@@ -464,6 +496,7 @@ pre {
 }
 .admonitionblock td.content > code {
   background-color: unset !important;
+  color: unset !important;
 }
 .admonitionblock td.content {
   display: block;
@@ -484,7 +517,7 @@ pre {
   hyphens: none;
 }
 .icon-important:before, .icon-note:before, .icon-tip:before {
-    font-size: 1.3em;
+    font-size: 1em;
 }
 .icon-important:before {
     content: "\f06a";
@@ -595,6 +628,59 @@ pre {
   color: #295679;
 }
 
+.colist {
+  margin-bottom: 15px;
+}
+
+div.listingblock {
+  border-left: solid 1.5px #82bd41;
+  margin-left: 1.9em;
+}
+
+div.tab-pane > div.dependency-sample-code {
+  border-left: unset !important;
+  margin-left:unset !important;
+}
+
+pre {
+  border: none !important;
+}
+
+pre > code {
+  margin-left:15px;
+}
+
+td .conum[data-value] {
+    position: relative;
+    top: -.125em;
+    left: -.125em;
+}
+
+.conum[data-value] {
+    display: inline-block;
+    color: #82bd41 !important;
+    background-color: #fff;
+    -webkit-border-radius: 100px;
+    border-radius: 100px;
+    box-shadow: 0 0 0 1pt #82bd41;
+    text-align: center;
+    font-size: .75em;
+    width: 1.67em;
+    height: 1.67em;
+    line-height: 1.67em;
+    font-family: "Open Sans","DejaVu Sans",sans-serif;
+    font-style: normal;
+    font-weight: bold;
+}
+
+.conum[data-value]::after {
+    content: attr(data-value);
+}
+
+.conum[data-value]+b {
+    display: none;
+}
+
 header > nav.navbar-default {
   margin: 0;
   background: linear-gradient(90deg, #17486E, #107BB7, #82BD41);
@@ -613,11 +699,27 @@ aside.navigation > div.panels {
 }
 
 .tree-toggler > span {
-  padding-left: 3px;
+  padding-left: 10px;
+  font-weight: 600;
+  font-size: 1.7rem;
+  padding-top:
 }
+
+label.tree-toggler.nav-header {
+  margin-bottom:7px;
+  margin-top:7px
+}
+
 ul.tree > li > a {
   color: #535353;
-  padding: 0px 0 3px 14px !important;
+  padding: 5px 0 5px 30px !important;
+  font-size: 1.4rem;
+  line-height: 1.5rem;
+}
+
+.nav>li>a:focus, .nav>li>a:hover {
+    text-decoration: none;
+    background-color: #ffffff;
 }
 
 .nav-filter-group {
@@ -722,8 +824,9 @@ ul.tree > li > a {
 }
 
 @media (min-width: 1024px) {
-  .article-content p {
+  .article-content {
     padding-right: 20%;
+    margin-left: 2%;
   }
 }
 

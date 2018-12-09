@@ -22,7 +22,8 @@ To learn more about the testing methodology used in this tutorial, refer to xref
 
 Create a unit test that performs a real HTTP request to the Zendesk Search API instance.
 You can learn how to create a simple unit test in xref:tutorial-test-your-components.adoc[this tutorial].
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 public class SearchTest {
 
@@ -54,6 +55,7 @@ public class SearchTest {
     }
 }
 ----
+
 <1> Initiating:
 - the authentication configuration using Zendesk instance URL and credentials.
 - the search query configuration to get all the open ticket, ordered by creation date and sorted in descending order.
@@ -78,9 +80,9 @@ This simulation server has two modes :
 * *simulation* : this mode returns a mocked response from the responses already captured. This rule needs to be added as a class rule.
 - `JUnit4HttpApi`: This rule has a reference to the first rule. Its role is to configure the simulation server for every unit test. It passes the context of the running test to the simulation server. This rule needs to be added as a simple (method) rule.
 
-.Example to run in a simulation mode
+Example to run in a simulation mode:
 
-[source,java,indent=0,subs="verbatim,quotes,attributes",]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 public class SearchTest {
 
@@ -101,6 +103,7 @@ public class SearchTest {
         // the exact same code as above
     }
 ----
+
 <1> Creating and starting a simulation server for this test class.
 <2> Activating SSL on the simulation server by calling the `activeSsl()` method. This step is required because the consumed API uses SSL.
 <3> Adding the simulation server configuration provider that provides the test context to the simulation server.

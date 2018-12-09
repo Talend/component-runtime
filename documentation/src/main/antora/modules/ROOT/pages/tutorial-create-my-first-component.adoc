@@ -9,7 +9,7 @@ The component created in this tutorial is a simple output component that receive
 
 Once the prerequisites completed, this tutorial should take you about 20 minutes.
 
-image::tutorial_build_job_run.png[Job run]
+image::tutorial_build_job_run.png[Job run,70%,window="_blank",link="_images/tutorial_build_job_run.png"]
 
 == Prerequisites
 This tutorial aims at helping you to create your very first component. But before, get your development environment ready:
@@ -24,28 +24,28 @@ The first step in this tutorial is to generate a project containing a simple out
 
 . Start IntelliJ and create a new project. In the available options, you should see *Talend Component*. +
 +
-image::intellij_new_component_project.png[New project]
+image::intellij_new_component_project.png[New project,70%,window="_blank",link="_images/intellij_new_component_project.png"]
 . Make sure that a *Project SDK* is selected. Then, select *Talend Component* and click *Next*. +
 The *Talend Component Kit Starter* opens.
 . Enter the project details. The goal here is to define the component and project metadata. Change the default values as follows: +
 +
-image::intellij_tutorial_project_metadata.png[Project metadata]
+image::intellij_tutorial_project_metadata.png[Project metadata,70%,window="_blank",link="_images/intellij_tutorial_project_metadata.png"]
 - The *Component Family* and the *Category* will be used later in Talend Open Studio to find the new component.
 - The project metadata are mostly used to identify the project structure. A common practice is to replace 'company' in the default value by a value of your own, like your domain name. +
 . Once the metadata is filled, select *ADD A COMPONENT*. A new screen is displayed in the *Talend Component Kit Starter* that lets you define the generic configuration of the component.
 . Select *PROCESSOR/OUTPUT* and enter a valid Java name for the component. For example, *Logger*.
 . Select *CONFIGURATION MODEL* and add a string field named `level`. This input field will be used in the component configuration to enter additional information to display in the logs. +
 +
-image::tutorial_component_configuration_model.png[Configuration Model]
+image::tutorial_component_configuration_model.png[Configuration Model,70%,window="_blank",link="_images/tutorial_component_configuration_model.png"]
 . In the *Input(s) / Output(s)* section, click the default *MAIN* input branch to access its detail, and toggle the *Generic* option to specify that the component can receive any type of data. Leave the *Name* of the branch with its default `MAIN` value. +
 +
-image::tutorial_component_generic_input.png[Generic Input]
+image::tutorial_component_generic_input.png[Generic Input,70%,window="_blank",link="_images/tutorial_component_generic_input.png"]
 NOTE: By default, when selecting *PROCESSOR/OUTPUT*, there is one input branch and no output branch for the component, which is fine in the case of this tutorial. A processor without any output branch is considered an output component.
 . Click *Next* and check the name and location of your project, then click *Finish* to generate the project in the IDE. +
 
 At this point, your component is technically already ready to be compiled and deployed to Talend Open Studio. But first, have a look at the generated project:
 
-image::tutorial_generated_project_view.png[Project view]
+image::tutorial_generated_project_view.png[Project view,70%,window="_blank",link="_images/tutorial_generated_project_view.png"]
 
 - Two classes based on the name and type of component defined in the *Talend Component Kit Starter* have been generated:
 ** *LoggerOutput* is where the component logic is defined
@@ -66,8 +66,8 @@ Before starting to run any command, make sure Talend Open Studio is not running.
 
 . From your component project in IntelliJ, open a terminal. +
 +
-image::tutorial_intellij_terminal_blank.png[Compile terminal]
-There, you can see that the terminal opens directly at the root of the project. All commands shown in this tutorial are performed from this folder.
+image::tutorial_intellij_terminal_blank.png[Compile terminal,70%,window="_blank",link="_images/tutorial_intellij_terminal_blank.png"]
+There, you can see that the terminal opens directly at the root of the project. All commands shown in this tutorial are performed from this location.
 . Compile the project by running the following command: `mvnw clean install`. +
 The `mvnw` command refers to the Maven wrapper that is shipped with Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.
 . Once the command is executed and you see *BUILD SUCCESS* in the terminal, deploy the component to your local instance of Talend Open Studio using the following command: +
@@ -76,12 +76,12 @@ The `mvnw` command refers to the Maven wrapper that is shipped with Talend Compo
 NOTE: Replace the path by your own value. If the path contains spaces (for example, `Program Files`), enclose it with double quotes.
 . Make sure the build is successful. +
 +
-image::tutorial_deploy_in_studio_success.png[Build success]
+image::tutorial_deploy_in_studio_success.png[Build success,70%,window="_blank",link="_images/tutorial_deploy_in_studio_success.png"]
 . Open Talend Open Studio and create a new Job:
 ** The new component is present inside the new family and category that were specified in the *Talend Component Kit Starter*. You can add it to your job and open its settings.
 ** Notice that the *level* field that was specified in the configuration model of the component in the *Talend Component Kit Starter* is present. +
 +
-image::tutorial_first_component_in_studio.png[Component in Studio]
+image::tutorial_first_component_in_studio.png[Component in Studio,70%,window="_blank",link="_images/tutorial_first_component_in_studio.png"]
 
 At this point, your new component is available in Talend Open Studio, and its configurable part is already set. But the component logic is still to be defined. +
 As a reminder, the initial goal of this component is to output the information it received in input in the logs of the job.
@@ -117,6 +117,7 @@ The `@ElementListener` method now looks as follows: +
         System.out.println("["+configuration.getLevel().toUpperCase()+"] "+defaultInput);
     }
 ----
+
 [start="5"]
 . Open the Terminal again to compile the project and deploy the component again. To do that, run successively the two following commands:
 ** `mvnw clean install`
@@ -138,15 +139,15 @@ As the component is now ready to be used, it is time to create a job and check t
 ** Add a second column named 'lastName' and select the *TalendDataGenerator.getLastName() function.
 ** Set the *Number of Rows for RowGenerator* to `10`. +
 +
-image::tutorial_build_job_trowgenerator.png[tRowGenerator]
+image::tutorial_build_job_trowgenerator.png[tRowGenerator,70%,window="_blank",link="_images/tutorial_build_job_trowgenerator.png"]
 4. Validate the *tRowGenerator* configuration.
 5. Open the *TutorialFamilyLogger* component and set the *level* field to `info`. +
 +
-image::tutorial_build_job_logger.png[Logger]
+image::tutorial_build_job_logger.png[Logger,70%,window="_blank",link="_images/tutorial_build_job_logger.png"]
 6. Go to the *Run* tab of the job and run the job. +
 The job is executed. You can observe in the console that each of the 10 generated rows is logged, and that the `info` value entered in the logger is also displayed with each record, in uppercase.
 
-image::tutorial_build_job_run.png[Job run]
+image::tutorial_build_job_run.png[Job run,70%,window="_blank",link="_images/tutorial_build_job_run.png"]
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

@@ -17,7 +17,7 @@ Before being able to create components, you need to define the general settings 
 . Select your build tool. This tutorial uses Maven, but you can select Gradle instead.
 . Add the *Talend Component Kit Testing* facet to your project to automatically generate unit tests for the components created later in this tutorial. Add any facet you need. +
 +
-image::starter/starter_test_facet.png[Test facet,80%]
+image::starter/starter_test_facet.png[Test facet,80%,window="_blank",link="_images/starter/starter_test_facet.png"]
 . Enter the *Component Family* of the components you want to develop in the project. This name must be a valid java name and is recommended to be capitalized, for example 'MySQL'. +
 Once you have implemented your components in the Studio, this name is displayed in the Palette to group all of the MySQL-related components you develop, and is also part of your component name.
 . Select the *Category* of the components you want to create in the current project. As MySQL is a kind of database, select *Databases* in this tutorial. +
@@ -25,13 +25,13 @@ This *Databases* category is used and displayed as the parent family of the MySQ
 . Complete the project metadata by entering the *Group*, *Artifact* and *Package*.
 . Click the *ADD A COMPONENT* button to start designing your components.
 
-image::starter/starter_project-config.png[Project configuration,80%]
+image::starter/starter_project-config.png[Project configuration,80%,window="_blank",link="_images/starter/starter_project-config.png"]
 
 == Creating an Input component
 When clicking *ADD A COMPONENT* in the starter, a new step that allows you to define a new component is created in your project. +
 The intent in this tutorial is to create an input component that connects to a MySQL database, executes a SQL query and gets the result.
 
-image::starter/starter_input-config.png[Input configuration,80%]
+image::starter/starter_input-config.png[Input configuration,80%,window="_blank",link="_images/starter/starter_input-config.png"]
 . Choose the component type. *INPUT* in this case.
 . Enter the component name. For example, _MySQLInput_.
 . Click *CONFIGURATION MODEL*. This button lets you specify the required configuration for the component.
@@ -53,7 +53,7 @@ Your input component is now defined. You can add another component or generate a
 When clicking *ADD A COMPONENT* in the starter, a new step that allows you to define a new component is created in your project. +
 The intent in this tutorial is to create a simple processor component that receives a record, logs it and returns it at it is.
 
-image::starter/starter_processor-config.png[Processor configuration,80%]
+image::starter/starter_processor-config.png[Processor configuration,80%,window="_blank",link="_images/starter/starter_processor-config.png"]
 . Choose the component type. *PROCESSOR/OUTPUT* in this case.
 . Enter the component name. For example, _RecordLogger_, as the processor created in this tutorial logs the records.
 . Specify the *CONFIGURATION MODEL* of the component. In this tutorial, the component doesn't need any specific configuration. Skip this step.
@@ -72,7 +72,7 @@ The intent in this tutorial is to create an output component that receives a rec
 
 NOTE: *Output* components are *Processors* without any output. In other words, the output is a processor that does not produce any records.
 
-image::starter/starter_output-config.png[Output configuration,80%]
+image::starter/starter_output-config.png[Output configuration,80%,window="_blank",link="_images/starter/starter_output-config.png"]
 . Choose the component type. *PROCESSOR/OUTPUT* in this case.
 . Enter the component name. For example, _MySQLOutput_.
 . Click *CONFIGURATION MODEL*. This button lets you specify the required configuration for the component.
@@ -97,7 +97,7 @@ In this tutorial, the project was configured and three components of different t
 
 . Click *GO TO FINISH* at the bottom of the page. You are redirected to a page that summarizes the project. On the left panel, you can also see all the components that you added to the project.
 +
-image::starter/starter_project-download.png[Output configuration,80%]
+image::starter/starter_project-download.png[Output configuration,80%,window="_blank",link="_images/starter/starter_project-download.png"]
 . Generate the project using one of the two options available:
 ** Download it locally as a ZIP file using the *DOWNLOAD AS ZIP* button.
 ** Create a GitHub repository and push the project to it using the *CREATE ON GITHUB* button.

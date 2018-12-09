@@ -13,7 +13,7 @@ This file already exists when you import a project generated from the starter.
 
 Out of the box components are internationalized using the same location logic for the resource bundle. The supported keys are:
 
-[options="header,autowidth",cols="a,a"]
+[options="header,autowidth",cols="1,2",role="table-striped table-hover table-ordered",width="100%"]
 |====
 |Name Pattern|Description
 |`${family}._displayName`| Display name of the family

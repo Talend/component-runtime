@@ -149,7 +149,7 @@ distributed implementation.
 
 === Sample
 
-.Sample input based on Beam Kafka
+Sample input based on Beam Kafka:
 
 [source,java]
 ----

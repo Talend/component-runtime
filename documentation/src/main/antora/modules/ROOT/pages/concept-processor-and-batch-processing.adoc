@@ -20,16 +20,16 @@ The component batch processes the data as follows:
 - Case 2 - The runtime estimates a group size of 4 but a `maxBatchSize` of 3 is specified in the component configuration. The system adapts the group size to 3. Records are processed by groups of 3.
 
 .*Processing schema (values are examples):*
-image:batch-processing-maxbatchsize.png[Batch processing,80%]
+image:batch-processing-maxbatchsize.png[Batch processing,80%,window="_blank",link="_images/batch-processing-maxbatchsize.png"]
 
 Each group is processed as follows until there is no record left:
 
 . The `@BeforeGroup` method resets a record buffer at the beginning of each group.
-. The records of the group are assessed one by one and placed in the buffer as follows: The @ElementListener method tests if the buffer size is greater or equal to the defined `maxBatchSize`. If it is, the records are processed. If not, then the current record is buffered.
+. The records of the group are assessed one by one and placed in the buffer as follows: The `@ElementListener` method tests if the buffer size is greater or equal to the defined `maxBatchSize`. If it is, the records are processed. If not, then the current record is buffered.
 . The previous step happens for all records of the group. Then the `@AfterGroup` method tests if the buffer is empty.
 
 .*Group execution detail (values are examples):*
-image:batch-processing-group.png[Group batch processing,80%]
+image:batch-processing-group.png[Group batch processing,80%,window="_blank",link="_images/batch-processing-group.png"]
 
 You can define the following logic in the processor configuration:
 

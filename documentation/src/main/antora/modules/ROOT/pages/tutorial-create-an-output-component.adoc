@@ -15,6 +15,7 @@ The methodology to define the component configuration is described in the xref:t
 In this case, the input component configuration defined in the tutorial mentioned above can be used as a starting point.
 
 Two additional fields are required for the output component:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Option
@@ -28,7 +29,8 @@ These fields are used to determine the key and value attributes for the Hazelcas
 == Configuring the Output
 The output component needs to work in distributed environments and should implement a serializable interface.
 
-The skeleton of the output component looks as follows.
+The skeleton of the output component looks as follows:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Version <1>
@@ -58,6 +60,7 @@ public class HazelcastOutput implements Serializable {
 }
 
 ----
+
 <1> The `@Version` annotation indicates the version of the component. It is used to migrate the component configuration if needed.
 <2> The `@Icon` annotation indicates the icon of the component. Here, the icon is a custom icon that needs to be bundled in the component JAR under `resources/icons`.
 <3> The `@Processor` annotation indicates that this class is the processor (output) and defines the name of the component.
@@ -88,6 +91,7 @@ public HazelcastOutput(@Option("configuration") final HazelcastConfiguration con
 ----
 
 === Defining the PostConstruct method
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 private transient HazelcastInstance instance;
@@ -99,6 +103,7 @@ public void init() {
     map = instance.getMap(configuration.getMapName()); <2>
 }
 ----
+
 To make it work, a Hazelcast instance and a Hazelcast map are required. The corresponding attributes need to be added to the output.
 
 <1> Create an instance of Hazelcast according to the provided configuration.
@@ -108,6 +113,7 @@ In this case, the injected HazelcastService instance is used. This service is im
 NOTE: In production, avoid creating one instance per thread/worker.
 
 === Defining the PreDestroy method
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @PreDestroy
@@ -116,9 +122,11 @@ public void close() {
     map = null;
 }
 ----
+
 Shut down the Hazelcast client instance created by the method annotated with `@PostConstruct` and thus free the Hazelcast map reference.
 
 === Defining the ElementListener method
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @ElementListener
@@ -147,6 +155,7 @@ In this tutorial, the data is passed to the Hazelcast map.
 
 === Full implementation of the Output
 Once implemented, the Output configuration is as follows. For more information about outputs, refer to xref:component-define-processor-output.adoc[this document].
+
 [source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 @Version <1>

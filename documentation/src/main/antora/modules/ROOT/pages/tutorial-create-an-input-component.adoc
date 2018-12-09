@@ -17,15 +17,17 @@ The following procedures assume that you have already generated the component pa
 
 == Registering the component family
 Register the component family via a the `package-info.java` file in the package of the component.
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Icon(value = Icon.IconType.CUSTOM, custom = "hazelcast") <1>
 @Components(family = "Hazelcast", categories = "IMDG") <2>
 package org.talend.hazelcast;
 ----
-<1> This define the family icon.
+
+<1> This defines the family icon.
 <2> In this line we define the component family and the component categories.
-Those information are used in the web and studio applications to group the components.
+Those information are used in the Web and Studio applications to group the components.
 
 [[defining-component-configuration]]
 == Defining the configurable part and the layout of the component
@@ -33,6 +35,7 @@ The component configuration includes defining the part of the components that ca
 
 The configuration is a POJO class decorated with annotations from the component framework.
 In this case, the component is configured as follows:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @GridLayout({ <1>
@@ -60,6 +63,7 @@ public class HazelcastConfiguration implements Serializable {
     }
 }
 ----
+
 <1> UI layout of the configurable part of the component.
 This layout is used to show and organize the configuration Talend applications. +
 In the example above, *hazelcastXml* and *mapName* are displayed on the same row and all rows are displayed in the default basic configuration tab of the component.
@@ -81,6 +85,7 @@ At runtime, this class heuristically estimates the size of the data to be handle
 For more information about the partition mapper class, see xref:component-partition-mapper.adoc[Partition mapper].
 
 The skeleton of the partition mapper looks as follows:
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Version(1) <1>
@@ -112,6 +117,7 @@ public class HazelcastMapper implements Serializable {
     @Emitter
     public HazelcastSource createSource() {}  <9>
 ----
+
 <1> The `@Version` annotation specifies the version of the component. it is used to migrate the component configuration if needed.
 <2> The `@Icon` annotation specifies the icon of the component. In this case, a custom icon is used and needs to be bundled in the component JAR under `resources/icons`.
 <3> The `@PartitionMapper` annotation indicates that this class is the partition mapper and defines its name.
@@ -129,6 +135,7 @@ In the context of this tutorial, the Hazelcast instance loaded in the post Const
 Each of the methods mentioned above now needs to be created.
 
 === Defining the constructor method
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 private final Collection<String> members; <1>
@@ -154,6 +161,7 @@ protected HazelcastMapper(final HazelcastConfiguration configuration,
     this.members = members;
 }
 ----
+
 <1> Add a collection attribute to the mapper. The list of Hazelcast members is needed later in the process.
 <2> Define the component public constructor, which is responsible for injecting configuration and services.
 <3> Add an internal constructor to get the collection of the Hazelcast cluster members.
@@ -221,6 +229,7 @@ public long estimateSize() {
                     .sum(); <3>
 }
 ----
+
 <1> The `getSizeByMembers()` method submits a task to each Hazelcast member to calculate the member size locally and asynchronously..
 <2> The `mapToLong()` method gets the size calculated by that task.
 <3> The `sum()` method calculates the total size of all the members.
@@ -303,6 +312,7 @@ public HazelcastSource createSource() {
     return new HazelcastSource(configuration, jsonFactory, jsonb, service, members); <1>
 }
 ----
+
 <1> After splitting the mapper, every mapper creates a producer that reads the records according to the provided configuration.
 
 === Full implementation of the Partition Mapper
@@ -524,6 +534,7 @@ public class HazelcastSource implements Serializable {
     }
 }
 ----
+
 <1> BufferizedProducerSupport is a utility class that encapsulates the buffering logic. It allows to only provide instructions on how to load the data rather than the logic to iterate on it. In this case, the buffer is created in the `@PostConstruct` method and loaded once, and is then used to produce records one by one.
 <2> The method annotated with `@PostConstruct` is invoked once on the node. It allows to create some connections and to initialize the buffering.
 In this case, the BufferizedProducerSupport class is used to create a buffer of records in this method.

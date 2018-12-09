@@ -123,13 +123,14 @@ If there is no subfolder, type the image name right away.
 Adding an image title is mandatory to avoid empty broken spaces in the content.
 If necessary, you can add more parameters separated by a comma between the same brackets as the image title, such as the desired width, height, etc.
 
-NOTE: Use values in % for image size. For example; `\image:landscape.png[Landscape,70%]`
+NOTE: Use values in % for image size. For example; `\image:landscape.png[Landscape,70%,window="_blank",link="_images/landscape.png"]`
 
 === Tables
 
 In a general manner, avoid using tables if there are other solutions available. This is especially the case for complex tables that include assets or big code samples, as these can lead to display issues.
 
-.Table example
+Table example: value
+
 [role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |API|Type|Description
@@ -195,15 +196,15 @@ code codeblock
 
 === Section 2 title
 
-image:my_image.png[The image,300]
+image:my_image.png[The image,window="_blank",link="_images/my_image.png",300]
 
 .Table title for a table with 2 columns that contain images
 [cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="_images/gallery/widgets/studio/list.png"]
-|image::gallery/widgets/web/list.png[Web List,window="_blank",link="_images/gallery/widgets/web/list.png"]
+|image::gallery/widgets/studio/list.png[Studio List,100%,window="_blank",link="_images/gallery/widgets/studio/list.png"]
+|image::gallery/widgets/web/list.png[Web List,100%,window="_blank",link="_images/gallery/widgets/web/list.png"]
 |===
 
 == Section 1 title

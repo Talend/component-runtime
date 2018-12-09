@@ -187,7 +187,7 @@ public class MyComponentTest {
 
 The component configuration is a POJO (using `@Option` on fields) and the runtime configuration (`ExecutionChainBuilder`) uses a `Map<String, String>`. To make the conversion easier, the JUnit integration provides a `SimpleFactory.configurationByExample` utility to get this map instance from a configuration instance.
 
-.Example:
+Example:
 
 [source,java]
 ----
@@ -214,7 +214,7 @@ It handles the encoding of the URI to ensure it is correctly done.
 
 The `SimpleComponentRule` also allows to test a mapper unitarily. You can get an instance from a configuration and execute this instance to collect the output.
 
-.Example
+Example:
 
 [source,java]
 ----
@@ -238,7 +238,7 @@ public class MapperTest {
 
 As for a mapper, a processor is testable unitary. However, this case can be more complex in case of multiple inputs or outputs.
 
-.Example
+Example:
 
 [source,java]
 ----

@@ -17,12 +17,12 @@ Widgets allow to easily implement different types of input fields to your compon
 String config;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="2,1",role="table gallery table-striped",options="header",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/input.png[Studio Input,100%,window="_blank",link="_images/gallery/widgets/studio/input.png"]
-|image::gallery/widgets/web/input.png[Web Input,100%,window="_blank",link="_images/gallery/widgets/web/input.png"]
+a|image::gallery/widgets/studio/input.png[Studio Input,100%,window="_blank",link="_images/gallery/widgets/studio/input.png"]
+a|image::gallery/widgets/web/input.png[Web Input,40%,window="_blank",link="_images/gallery/widgets/web/input.png"]
 |===
 
 === Password
@@ -34,12 +34,12 @@ String config;
 String config;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
 |image::gallery/widgets/studio/password.png[Studio Password,100%,window="_blank",link="_images/gallery/widgets/studio/password.png"]
-|image::gallery/widgets/web/password.png[Web Password,100%,window="_blank",link="_images/gallery/widgets/web/password.png"]
+|image::gallery/widgets/web/password.png[Web Password,50%,window="_blank",link="_images/gallery/widgets/web/password.png"]
 |===
 
 === Textarea
@@ -51,7 +51,7 @@ String config;
 String config;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -69,7 +69,7 @@ String config;
 public Integer number;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -85,7 +85,7 @@ public Integer number;
 Boolean config;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -125,7 +125,7 @@ enum ActionEnum {
 }
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -148,7 +148,7 @@ public String moduleName;
 public SuggestionValues loadModules(@Option final MyConfig myconfig) { }
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -166,7 +166,7 @@ public SuggestionValues loadModules(@Option final MyConfig myconfig) { }
 List<MyObject> config;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -184,7 +184,7 @@ List<MyObject> config;
 String config;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -202,7 +202,7 @@ String config;
 List<String> config;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -231,7 +231,7 @@ ValidationResult doValidate(String url) {
 }
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -250,7 +250,7 @@ ValidationResult doValidate(String url) {
 String username;
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 
@@ -276,7 +276,7 @@ public HealthCheckStatus testConnection(){
 }
 ----
 
-[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
 |===
 |Studio Rendering | Web Rendering
 

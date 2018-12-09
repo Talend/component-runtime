@@ -6,7 +6,7 @@
 [[component-type-processor]]
 == What is a processor
 
-A `Processor` is a component that converts incoming data to a different model.
+A *Processor* is a component that converts incoming data to a different model.
 
 A processor must have a method decorated with `@ElementListener` taking an incoming data and returning the processed data:
 
