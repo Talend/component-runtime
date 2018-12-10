@@ -62,18 +62,38 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
             if (jsonSchema.getType() == null) {
                 jsonSchema.setType("string");
             }
-
-            final String actionName = context.getProperty().getMetadata().get("action::dynamic_values");
-            if (client != null && actionName != null) {
-                final CompletionStage<List<UiSchema.NameValue>> pairs =
-                        loadDynamicValues(client, family, actionName, context.getRootContext());
-                return pairs.thenApply(namedValues -> {
-                    schema.setTitleMap(namedValues);
-                    jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));
-                    return context;
-                });
+            if (context.getProperty().getValidation() != null
+                    && context.getProperty().getValidation().getEnumValues() != null) {
+                schema
+                        .setTitleMap(context.getProperty().getProposalDisplayNames() != null
+                                ? context.getProperty().getProposalDisplayNames().entrySet().stream().map(v -> {
+                                    final UiSchema.NameValue nameValue = new UiSchema.NameValue();
+                                    nameValue.setName(v.getValue());
+                                    nameValue.setValue(v.getKey());
+                                    return nameValue;
+                                }).collect(toList())
+                                : context.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
+                                    final UiSchema.NameValue nameValue = new UiSchema.NameValue();
+                                    nameValue.setName(v);
+                                    nameValue.setValue(v);
+                                    return nameValue;
+                                }).collect(toList()));
+                jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
             } else {
-                schema.setTitleMap(emptyList());
+                final String actionName = context.getProperty().getMetadata().get("action::dynamic_values");
+                if (client != null && actionName != null) {
+                    final CompletionStage<List<UiSchema.NameValue>> pairs =
+                            loadDynamicValues(client, family, actionName, context.getRootContext());
+                    return pairs.thenApply(namedValues -> {
+                        schema.setTitleMap(namedValues);
+                        jsonSchema
+                                .setEnumValues(
+                                        namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));
+                        return context;
+                    });
+                } else {
+                    schema.setTitleMap(emptyList());
+                }
             }
             return CompletableFuture.completedFuture(context);
         });
