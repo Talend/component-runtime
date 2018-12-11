@@ -1,6 +1,6 @@
 = Creating your first component
 :page-partial:
-:description: Create your first component using Talend Component Kit and integrate it to Talend Opend Studio to build a job
+:description: Create your first component using Talend Component Kit and integrate it to Talend Open Studio to build a job
 :keywords: first, start, Studio, integration, palette
 
 This tutorial walks you through all the required steps to get started with *Talend Component Kit*, from the creation of a simple component to its integration into *Talend Open Studio*.
@@ -18,6 +18,8 @@ This tutorial aims at helping you to create your very first component. But befor
 - Download and install Talend Open Studio. For example, from link:https://sourceforge.net/projects/talend-studio[Sourceforge].
 - Download and install https://www.jetbrains.com/idea/download[IntelliJ].
 - Download the Talend Component Kit plugin for IntelliJ. The detailed installation steps for the plugin are available in xref:installing-talend-intellij-plugin.adoc[this document].
+
+IMPORTANT: For this tutorial to work correctly, you must use the version 1.1.1 or below of the plugin (for both `component-api` and `talend-component-maven-plugin` artifacts.). Check how to change the framework version in xref:compatibility.adoc[this document]. 
 
 == Generating a simple component project
 The first step in this tutorial is to generate a project containing a simple output component using the *Starter* included in the Talend Component Kit plugin for IntelliJ.

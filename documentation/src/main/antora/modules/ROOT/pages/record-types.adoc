@@ -120,7 +120,7 @@ Manually constructing the schema without any data:
 [source,java]
 ----
 @DiscoverSchema
-public Schema guessSchema() {
+getSchema(@Option MyDataset dataset) {
     return factory.newSchemaBuilder(Schema.Type.RECORD)
             .withEntry(factory.newEntryBuilder().withName("id").withType(Schema.Type.LONG).build())
             .withEntry(factory.newEntryBuilder().withName("name").withType(Schema.Type.STRING).build())
@@ -133,11 +133,12 @@ Returning the schema from an already built record:
 [source,java]
 ----
 @DiscoverSchema
-public Schema guessSchema(final MyDataLoaderService myCustomService) {
+public Schema guessSchema(@Option MyDataset dataset, final MyDataLoaderService myCustomService) {
    return myCustomService.loadFirstData().getRecord().getSchema();
 }
 ----
 
+NOTE: `MyDataset` is the class that defines the dataset. Learn more about datasets and datastores in xref:component-configuration.adoc#dataset-and-datastore[this document].
 
 == JsonObject
 
