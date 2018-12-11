@@ -126,12 +126,12 @@ public class PropertiesService {
         // see it
     }
 
-    private boolean isEnumOrEnumArray(ParameterMeta p) {
+    private boolean isEnumOrEnumArray(final ParameterMeta p) {
         return p.getType() == ParameterMeta.Type.ENUM || (p.getNestedParameters().size() == 1
                 && p.getNestedParameters().get(0).getType() == ParameterMeta.Type.ENUM);
     }
 
-    private Collection<String> getEnumProposals(ParameterMeta p) {
+    private Collection<String> getEnumProposals(final ParameterMeta p) {
         return p.getType() == ParameterMeta.Type.ENUM ? p.getProposals()
                 : p.getNestedParameters().get(0).getProposals();
     }
