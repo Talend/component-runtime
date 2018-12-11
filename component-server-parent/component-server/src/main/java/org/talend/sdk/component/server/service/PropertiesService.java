@@ -82,13 +82,12 @@ public class PropertiesService {
             final String path = sanitizePropertyName(p.getPath());
             final String name = sanitizePropertyName(p.getName());
             final String type = p.getType().name();
-            final boolean isEnum = p.getType() == ParameterMeta.Type.ENUM;
             PropertyValidation validation = propertyValidationService.map(p.getMetadata());
-            if (isEnum) {
+            if (isEnumOrEnumArray(p)) {
                 if (validation == null) {
                     validation = new PropertyValidation();
                 }
-                validation.setEnumValues(p.getProposals());
+                validation.setEnumValues(getEnumProposals(p));
             }
             final Map<String, String> sanitizedMetadata = ofNullable(p.getMetadata())
                     .map(m -> m
@@ -115,9 +114,8 @@ public class PropertiesService {
                                     bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
                                     validation, rewriteMetadataForLocale(metadata, parentBundle, bundle),
                                     bundle.placeholder(parentBundle).orElse(p.getName()),
-                                    !isEnum ? null
-                                            : p
-                                                    .getProposals()
+                                    !isEnumOrEnumArray(p) ? null
+                                            : getEnumProposals(p)
                                                     .stream()
                                                     .collect(toLinkedMap(identity(),
                                                             key -> bundle
@@ -126,6 +124,16 @@ public class PropertiesService {
                             buildProperties(p.getNestedParameters(), loader, locale, instance, p));
         }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
         // see it
+    }
+
+    private boolean isEnumOrEnumArray(ParameterMeta p) {
+        return p.getType() == ParameterMeta.Type.ENUM || (p.getNestedParameters().size() == 1
+                && p.getNestedParameters().get(0).getType() == ParameterMeta.Type.ENUM);
+    }
+
+    private Collection<String> getEnumProposals(ParameterMeta p) {
+        return p.getType() == ParameterMeta.Type.ENUM ? p.getProposals()
+                : p.getNestedParameters().get(0).getProposals();
     }
 
     private Map<String, String> rewriteMetadataForLocale(final Map<String, String> metadata,
