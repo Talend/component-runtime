@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -30,6 +31,16 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 
 class AvroSchemaTest {
+
+    @Test
+    void nullField() {
+        final AvroSchema schema = new AvroSchema(Schema
+                .createRecord(singletonList(new Schema.Field("nf", Schema.create(Schema.Type.NULL), null, null))));
+        assertTrue(schema.getEntries().isEmpty());
+        assertEquals(
+                "AvroSchema(delegate={\"type\":\"record\",\"fields\":[{\"name\":\"nf\",\"type\":\"null\"}]}, elementSchema=null, entries=[])",
+                schema.toString());
+    }
 
     @Test
     void emptySchema() {
