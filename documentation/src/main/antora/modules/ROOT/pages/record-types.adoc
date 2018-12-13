@@ -140,6 +140,20 @@ public Schema guessSchema(@Option MyDataset dataset, final MyDataLoaderService m
 
 NOTE: `MyDataset` is the class that defines the dataset. Learn more about datasets and datastores in xref:component-configuration.adoc#dataset-and-datastore[this document].
 
+=== Authorized characters in field names
+
+Field names for `Record` and `JsonObject` types must comply with the following rules:
+
+* The name must start with a letter or with `_`. If not, the invalid characters are ignored until the first valid character.
+* Following characters of the name must be a letter, a number, or `_`. If not, the invalid character is replaced with `_`.
+
+For example:
+
+* `1foo` becomes `foo`.
+* `f@o` becomes `f_o`.
+* `1234f5@o` becomes `f5_o`.
+
+
 == JsonObject
 
 The runtime also supports `JsonObject` as input and output component type. You can rely on the JSON services (`Jsonb`, `JsonBuilderFactory`) to create new instances.
