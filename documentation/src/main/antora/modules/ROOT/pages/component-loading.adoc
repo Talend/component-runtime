@@ -223,6 +223,7 @@ Here is a final job/application bundle based on maven-shade-plugin:
       <configuration>
         <shadedClassifierName>shaded</shadedClassifierName>
         <transformers>
+          <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
           <transformer
               implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer">
             <session>${session}</session>

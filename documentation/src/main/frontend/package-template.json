@@ -2,13 +2,10 @@
   "name": "documentation",
   "version": "${project.version}",
   "private": true,
-  "engines" : { "node" : ">=8 < 9" },
   "dependencies": {
     "js-search": "1.4.2",
     "@antora/cli": "${antora.version}",
-    "@antora/site-generator-default": "${antora.version}",
-    "asciidoctor.js": "1.5.7-beta.1",
-    "instantsearch.js": "2.7.4"
+    "@antora/site-generator-default": "${antora.version}"
   },
   "scripts": {
     "antora:build": "antora --stacktrace ../antora/site.yml",

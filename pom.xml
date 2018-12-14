@@ -150,7 +150,7 @@
     <geronimo-json.version>1.1</geronimo-json.version>
     <jcache-api.version>1.0-alpha-1</jcache-api.version>
     <batik.version>1.9.1</batik.version>
-    <beam.version>2.8.0</beam.version>
+    <beam.version>2.9.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
     <commons-compress.version>1.18</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
@@ -195,8 +195,8 @@
     <surefire-plugin.version>3.0.0-M2</surefire-plugin.version>
 
     <jruby.version>9.2.4.0</jruby.version>
-    <node.version>v8.9.0</node.version>
-    <yarn.version>v1.3.2</yarn.version>
+    <node.version>v10.14.2</node.version>
+    <yarn.version>v1.12.3</yarn.version>
     <frontend.version>1.6</frontend.version>
 
     <!-- for manual testing only, not required -->

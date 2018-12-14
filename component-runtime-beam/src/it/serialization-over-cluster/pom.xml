@@ -132,6 +132,7 @@
               <shadedClassifierName>shaded</shadedClassifierName>
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer
                     implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer">
                   <session>${session}</session>
