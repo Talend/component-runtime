@@ -213,12 +213,44 @@ If you need to define a binding between properties, you can use a set of annotat
 
 include::{partialsdir}/generated_conditions.adoc[leveloffset=+2]
 
-The target element location is specified as a relative path to the current location, using Unix path characters.
+Where:
+
+* *target* is the element to evaluate.
+* *value* is the value to compare against.
+* *strategy* (optional) is the evaluation criteria. Possible values are:
+** `CONTAINS`: Checks if a string or list of strings contains the defined *value*.
+** `DEFAULT`: Compares against the raw *value*.
+** `LENGTH`: For an array or string, evaluates the size of the *value* instead of the *value* itself.
+* *negate* (optional) defines if the test must be positive (default, set to `false`) or negative (set to `true`).
+* *operator* (optional) is the comparison operator used to combine several conditions, if applicable. Possible values are `AND` and `OR`.
+
+The *target* element location is specified as a relative path to the current location, using Unix path characters.
 The configuration class delimiter is `/`. +
 The parent configuration class is specified by `..`. +
 Thus, `../targetProperty` denotes a property, which is located in the parent configuration class and is named `targetProperty`.
 
 IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
+
+For more details, refer to the related xref:apidocs.adoc[Javadocs].
+
+=== ActiveIf example
+
+A common use of the ActiveIf condition consists in testing if a target property has a value. To do that, it is possible to test if the length of the property value is different from 0:
+
+* target: `foo` - the path to the property to evaluate.
+* strategy: `LENGTH` - the strategy consists here in testing the length of the property value.
+* value: `0` - the length of the property value is compared to `0`.
+* negate: `true` - setting *negate* to `true` means that the *strategy* of the *target* must be different from the *value* defined. In this case, the `LENGTH` of the value of the `foo` property must be different from `0`.
+
+[source,java]
+----
+{
+  "condition::if::target": "foo",
+  "condition::if::value": "0",
+  "condition::if::negate": "true",
+  "condition::if::evaluationStrategy": "LENGTH",
+}
+----
 
 [[documentation-ui-hints]]
 == Adding hints about the rendering
