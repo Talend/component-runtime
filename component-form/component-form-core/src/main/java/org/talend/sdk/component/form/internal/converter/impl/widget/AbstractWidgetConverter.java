@@ -192,9 +192,10 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         .stream()
                         .filter(a -> actionMatch(v, a) && "built_in_suggestable".equals(a.getType()))
                         .findFirst())
-                .map(ref -> Stream
-                        .of(toTrigger(properties, property, ref))
-                        .peek(trigger -> trigger.setOnEvent("focus")))
+                .map(ref -> Stream.of(toTrigger(properties, property, ref)).peek(trigger -> {
+                    trigger.setOnEvent("focus");
+                    trigger.setRemote(true);
+                }))
                 .orElseGet(Stream::empty);
     }
 

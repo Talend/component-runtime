@@ -245,6 +245,8 @@ public class UiSchema {
 
         private String onEvent;
 
+        private Boolean remote;
+
         private Collection<Option> options;
 
         private Collection<Parameter> parameters;
@@ -259,9 +261,16 @@ public class UiSchema {
 
             private String onEvent;
 
+            private Boolean remote;
+
             private Collection<Option> options;
 
             private Collection<Parameter> parameters;
+
+            public Builder withRemote(final boolean remote) {
+                this.remote = remote;
+                return this;
+            }
 
             public Builder withOnEvent(final String onEvent) {
                 this.onEvent = onEvent;
@@ -323,6 +332,7 @@ public class UiSchema {
                 parameter.setParameters(parameters);
                 parameter.setOptions(options);
                 parameter.setOnEvent(onEvent);
+                parameter.setRemote(remote == null || remote);
                 return parameter;
             }
         }

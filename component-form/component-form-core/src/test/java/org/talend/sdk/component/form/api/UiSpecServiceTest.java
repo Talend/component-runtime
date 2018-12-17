@@ -443,6 +443,7 @@ class UiSpecServiceTest {
         assertEquals("focus", driverTrigger.getOnEvent());
         assertEquals("suggestions", driverTrigger.getType());
         assertEquals("SuggestionForJdbcDrivers", driverTrigger.getAction());
+        assertNull(driverTrigger.getRemote());
         assertEquals(singletonList("currentValue/configuration.driver"),
                 driverTrigger.getParameters().stream().map(it -> it.getKey() + '/' + it.getPath()).collect(toList()));
     }
@@ -468,6 +469,7 @@ class UiSpecServiceTest {
         assertEquals("focus", driverTrigger.getOnEvent());
         assertEquals("built_in_suggestable", driverTrigger.getType());
         assertEquals("BuiltInSuggestionId", driverTrigger.getAction());
+        assertTrue(driverTrigger.getRemote());
         assertNull(driverTrigger.getParameters());
     }
 
