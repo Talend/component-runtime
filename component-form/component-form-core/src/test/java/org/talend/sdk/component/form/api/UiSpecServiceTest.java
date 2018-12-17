@@ -469,7 +469,7 @@ class UiSpecServiceTest {
         assertEquals("focus", driverTrigger.getOnEvent());
         assertEquals("built_in_suggestable", driverTrigger.getType());
         assertEquals("BuiltInSuggestionId", driverTrigger.getAction());
-        assertTrue(driverTrigger.getRemote());
+        assertFalse(driverTrigger.getRemote());
         assertNull(driverTrigger.getParameters());
     }
 

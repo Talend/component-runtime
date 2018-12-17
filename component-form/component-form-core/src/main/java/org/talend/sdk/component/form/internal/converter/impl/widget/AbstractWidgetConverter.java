@@ -194,7 +194,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         .findFirst())
                 .map(ref -> Stream.of(toTrigger(properties, property, ref)).peek(trigger -> {
                     trigger.setOnEvent("focus");
-                    trigger.setRemote(true);
+                    trigger.setRemote(false);
                 }))
                 .orElseGet(Stream::empty);
     }
