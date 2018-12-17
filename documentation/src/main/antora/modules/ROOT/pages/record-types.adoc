@@ -15,7 +15,7 @@ Any serialization concern should either be hidden in the framework runtime (outs
 [[record]]
 == Record
 
-`Record` is the default format. It offers more possibilities and can evolve depending on the Talend platform needs. Its structure is data-driven and exposes a schema that allows to browse it.
+`Record` is the default format. It offers many possibilities and can evolve depending on the Talend platform needs. Its structure is data-driven and exposes a schema that allows to browse it.
 
 Projects generated from the xref:index-generating-project.adoc[Talend Component Kit Starter] are by default designed to handle this format of data.
 
@@ -140,9 +140,9 @@ public Schema guessSchema(@Option MyDataset dataset, final MyDataLoaderService m
 
 NOTE: `MyDataset` is the class that defines the dataset. Learn more about datasets and datastores in xref:component-configuration.adoc#dataset-and-datastore[this document].
 
-=== Authorized characters in field names
+=== Authorized characters in entry names
 
-Field names for `Record` and `JsonObject` types must comply with the following rules:
+Entry names for `Record` and `JsonObject` types must comply with the following rules:
 
 * The name must start with a letter or with `_`. If not, the invalid characters are ignored until the first valid character.
 * Following characters of the name must be a letter, a number, or `_`. If not, the invalid character is replaced with `_`.
@@ -151,14 +151,31 @@ For example:
 
 * `1foo` becomes `foo`.
 * `f@o` becomes `f_o`.
-* `1234f5@o` becomes `f5_o`.
+* `1234f5@o` becomes `___f5_o`.
+* `foo123` stays `foo123`.
 
+=== Data types in arrays
+
+Each array uses only one schema for all of its elements. If an array contains several elements, they must be of the same data type.
+
+For example, the following array is not correct as it contains a *string* and an *object*:
+
+[source,json]
+----
+{"Value":[
+  {"value":"v1"},
+  {"value":[]}
+  ]
+}
+----
 
 == JsonObject
 
 The runtime also supports `JsonObject` as input and output component type. You can rely on the JSON services (`Jsonb`, `JsonBuilderFactory`) to create new instances.
 
 This format is close to the `Record` format, except that it does not natively support the Datetime type and has a unique Number type to represent Int, Long, Float and Double types. It also does not provide entry metadata like `nullable` or `comment`, for example.
+
+It also inherits the `Record` format limitations.
 
 == Pojo
 

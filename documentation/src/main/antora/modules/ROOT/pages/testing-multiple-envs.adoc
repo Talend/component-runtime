@@ -91,7 +91,7 @@ TIP: If you set the `<environment name>.skip` system property to `true`, the env
 
 === Advanced usage
 
-This usage assumes that Beam 2.4.0 is used.
+This usage assumes that Beam 2.4.0 or later is used.
 
 The following dependencies bring the JUnit testing toolkit, the Beam integration and the multi-environment testing toolkit for JUnit into the test scope.
 
