@@ -172,8 +172,11 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         if (actions != null) {
             final List<UiSchema.Trigger> triggers = Stream
                     .concat(Stream
-                            .concat(createValidationTrigger(ctx.getProperty()), createOtherActions(ctx.getProperty())),
-                            createSuggestionTriggers(ctx.getProperty()))
+                            .concat(Stream
+                                    .concat(createValidationTrigger(ctx.getProperty()),
+                                            createOtherActions(ctx.getProperty())),
+                                    createSuggestionTriggers(ctx.getProperty())),
+                            createBuiltInSuggestionTriggers(ctx.getProperty()))
                     .collect(toList());
             if (!triggers.isEmpty()) {
                 schema.setTriggers(triggers);
@@ -181,6 +184,18 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }
         schema.setCondition(createCondition(ctx));
         return schema;
+    }
+
+    private Stream<UiSchema.Trigger> createBuiltInSuggestionTriggers(final SimplePropertyDefinition property) {
+        return ofNullable(property.getMetadata().get("action::built_in_suggestable"))
+                .flatMap(v -> actions
+                        .stream()
+                        .filter(a -> actionMatch(v, a) && "built_in_suggestable".equals(a.getType()))
+                        .findFirst())
+                .map(ref -> Stream
+                        .of(toTrigger(properties, property, ref))
+                        .peek(trigger -> trigger.setOnEvent("focus")))
+                .orElseGet(Stream::empty);
     }
 
     private Stream<UiSchema.Trigger> createSuggestionTriggers(final SimplePropertyDefinition property) {
@@ -252,8 +267,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     // client
     private boolean isBuiltInAction(final String key) {
         return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
-                || key.equals("action::validation") || key.equals("action::suggestions") || key.equals("action::update")
-                || key.equals("action::schema");
+                || key.equals("action::suggestions") || key.equals("action::built_in_suggestable")
+                || key.equals("action::validation") || key.equals("action::update") || key.equals("action::schema");
     }
 
     protected Map<String, Collection<Object>> createCondition(final PropertyContext<?> ctx) {

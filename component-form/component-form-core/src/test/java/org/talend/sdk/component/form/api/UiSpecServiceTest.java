@@ -448,6 +448,30 @@ class UiSpecServiceTest {
     }
 
     @Test
+    void builtInSuggestions() throws Exception {
+        final Ui payload = service
+                .convert("somefamily", "en", load("built_in_suggestions.json", ConfigTypeNode.class), null)
+                .toCompletableFuture()
+                .get();
+        final Collection<UiSchema> schema = payload.getUiSchema();
+        final UiSchema.Trigger driverTrigger = schema
+                .iterator()
+                .next()
+                .getItems()
+                .stream()
+                .filter(c -> c.getKey().equals("configuration.driver"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No driver"))
+                .getTriggers()
+                .iterator()
+                .next();
+        assertEquals("focus", driverTrigger.getOnEvent());
+        assertEquals("built_in_suggestable", driverTrigger.getType());
+        assertEquals("BuiltInSuggestionId", driverTrigger.getAction());
+        assertNull(driverTrigger.getParameters());
+    }
+
+    @Test
     void jsonSchema() throws Exception {
         final Ui payload = service.convert(load("jdbc.json"), "en", null).toCompletableFuture().get();
         final JsonSchema jsonSchema = payload.getJsonSchema();
