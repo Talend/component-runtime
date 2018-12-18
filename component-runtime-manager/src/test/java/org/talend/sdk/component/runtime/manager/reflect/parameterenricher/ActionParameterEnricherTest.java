@@ -15,12 +15,14 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
+import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.action.BuiltInSuggestable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Suggestable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
@@ -58,6 +60,52 @@ class ActionParameterEnricherTest {
                 return Updatable.class;
             }
         }));
+    }
+
+    @Test
+    void builtInSuggestion() {
+        assertEquals(singletonMap("tcomp::action::built_in_suggestable", "INCOMING_SCHEMA_ENTRY_NAMES"),
+                new ActionParameterEnricher()
+                        .onParameterAnnotation("testParam", String.class, new BuiltInSuggestable() {
+
+                            @Override
+                            public Name value() {
+                                return Name.INCOMING_SCHEMA_ENTRY_NAMES;
+                            }
+
+                            @Override
+                            public String name() {
+                                return "";
+                            }
+
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return BuiltInSuggestable.class;
+                            }
+                        }));
+    }
+
+    @Test
+    void builtInSuggestionCustom() {
+        assertEquals(singletonMap("tcomp::action::built_in_suggestable", "alternate"),
+                new ActionParameterEnricher()
+                        .onParameterAnnotation("testParam", String.class, new BuiltInSuggestable() {
+
+                            @Override
+                            public Name value() {
+                                return Name.CUSTOM;
+                            }
+
+                            @Override
+                            public String name() {
+                                return "alternate";
+                            }
+
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return BuiltInSuggestable.class;
+                            }
+                        }));
     }
 
     @Test

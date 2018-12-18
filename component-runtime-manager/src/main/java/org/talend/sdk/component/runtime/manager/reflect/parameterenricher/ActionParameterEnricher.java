@@ -16,7 +16,9 @@
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -24,7 +26,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.configuration.action.meta.ActionRef;
@@ -34,26 +38,52 @@ public class ActionParameterEnricher extends BaseParameterEnricher {
 
     public static final String META_PREFIX = "tcomp::action::";
 
+    private final ConcurrentMap<String, String> clientActionsMapping = new ConcurrentHashMap<>();
+
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
             final Annotation annotation) {
-        final ActionRef ref = annotation.annotationType().getAnnotation(ActionRef.class);
+        final Class<? extends Annotation> annotationType = annotation.annotationType();
+        final ActionRef ref = annotationType.getAnnotation(ActionRef.class);
         if (ref == null) {
             return emptyMap();
         }
-        final String type = ref.value().getAnnotation(ActionType.class).value();
+        final Class<?> actionType = ref.value();
+        if (actionType == Object.class) { // client action
+            return singletonMap(
+                    META_PREFIX
+                            + clientActionsMapping.computeIfAbsent(annotationType.getSimpleName(), this::toSnakeCase),
+                    getClientActionName(annotation));
+        }
+        final String type = actionType.getAnnotation(ActionType.class).value();
         return new HashMap<String, String>() {
 
             {
                 put(META_PREFIX + type, getValueString(ref.ref(), annotation));
                 ofNullable(getParametersString(annotation)).ifPresent(v -> put(META_PREFIX + type + "::parameters", v));
                 Stream
-                        .of(annotation.annotationType().getMethods())
-                        .filter(it -> annotation.annotationType() == it.getDeclaringClass()
+                        .of(annotationType.getMethods())
+                        .filter(it -> annotationType == it.getDeclaringClass()
                                 && Stream.of("parameters", "value").noneMatch(v -> it.getName().equalsIgnoreCase(v)))
                         .forEach(m -> put(META_PREFIX + type + "::" + m.getName(), getString(m, annotation)));
             }
         };
+    }
+
+    private String toSnakeCase(final String camelCaseName) {
+        final char[] chars = camelCaseName.substring(1).toCharArray();
+        return Character.toLowerCase(camelCaseName.charAt(0))
+                + IntStream.range(0, chars.length).mapToObj(i -> chars[i]).map(c -> {
+                    if (Character.isUpperCase(c)) {
+                        return "_" + Character.toLowerCase(c);
+                    }
+                    return Character.toString(c);
+                }).collect(joining());
+    }
+
+    private String getClientActionName(final Annotation clientMeta) {
+        final String value = getValueString("value", clientMeta);
+        return "CUSTOM".equalsIgnoreCase(value) ? getValueString("name", clientMeta) : value;
     }
 
     private String getString(final Method method, final Annotation annotation) {
@@ -74,9 +104,9 @@ public class ActionParameterEnricher extends BaseParameterEnricher {
 
     private String getParametersString(final Annotation annotation) {
         try {
-            return Stream
-                    .of(String[].class.cast(annotation.annotationType().getMethod("parameters").invoke(annotation)))
-                    .collect(Collectors.joining(","));
+            return String
+                    .join(",", String[].class
+                            .cast(annotation.annotationType().getMethod("parameters").invoke(annotation)));
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }

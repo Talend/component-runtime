@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.avro;
 
 import static java.util.Collections.emptyList;
 import static lombok.AccessLevel.PRIVATE;
+import static org.apache.avro.Schema.Type.NULL;
 
 import org.apache.avro.Schema;
 
@@ -34,7 +35,7 @@ public final class AvroSchemas {
     public static Schema unwrapUnion(final Schema schema) {
         switch (schema.getType()) {
         case UNION:
-            return schema.getTypes().get(schema.getTypes().size() - 1);
+            return schema.getTypes().stream().filter(it -> it.getType() != NULL).findFirst().orElse(null);
         default:
             return schema;
         }

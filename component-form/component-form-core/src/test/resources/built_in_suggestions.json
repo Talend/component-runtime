@@ -1,0 +1,138 @@
+{
+  "actions": [
+    {
+      "family": "somefamily",
+      "type": "built_in_suggestable",
+      "name": "BuiltInSuggestionId",
+      "properties": []
+    }
+  ],
+  "configurationType": "dataset",
+  "displayName": "JDBC DataSet",
+  "edges": [
+  ],
+  "id": "amRiYyNkYXRhc2V0I2pkYmM",
+  "name": "somefamily",
+  "parentId": "amRiYyNkYXRhc3RvcmUjamRiYw",
+  "properties": [
+    {
+      "displayName": "configuration",
+      "metadata": {
+        "configurationtype::type": "dataset",
+        "configurationtype::name": "somefamily"
+      },
+      "name": "configuration",
+      "path": "configuration",
+      "placeholder": "configuration",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "connection",
+      "metadata": {
+        "configurationtype::type": "datastore",
+        "configurationtype::name": "somefamily"
+      },
+      "name": "connection",
+      "path": "configuration.connection",
+      "placeholder": "connection",
+      "type": "OBJECT"
+    },
+    {
+      "defaultValue": "[{\"description\":\"D1\",\"driver\":\"d1\"},{\"description\":\"D2\",\"driver\":\"d2\"}]",
+      "displayName": "configurations",
+      "metadata": {
+      },
+      "name": "configurations",
+      "path": "configuration.connection.configurations",
+      "placeholder": "configurations",
+      "type": "ARRAY"
+    },
+    {
+      "defaultValue": "D1",
+      "displayName": "description",
+      "metadata": {
+      },
+      "name": "description",
+      "path": "configuration.connection.configurations[].description",
+      "placeholder": "description",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "d1",
+      "displayName": "driver",
+      "metadata": {
+      },
+      "name": "driver",
+      "path": "configuration.connection.configurations[].driver",
+      "placeholder": "driver",
+      "type": "STRING"
+    },
+    {
+      "displayName": "password",
+      "metadata": {
+        "ui::credential": "true"
+      },
+      "name": "password",
+      "path": "configuration.connection.password",
+      "placeholder": "password",
+      "type": "STRING"
+    },
+    {
+      "displayName": "url",
+      "metadata": {
+      },
+      "name": "url",
+      "path": "configuration.connection.url",
+      "placeholder": "url",
+      "type": "STRING"
+    },
+    {
+      "displayName": "username",
+      "metadata": {
+      },
+      "name": "username",
+      "path": "configuration.connection.username",
+      "placeholder": "username",
+      "type": "STRING"
+    },
+    {
+      "displayName": "driver",
+      "metadata": {
+        "action::built_in_suggestable": "BuiltInSuggestionId"
+      },
+      "name": "driver",
+      "path": "configuration.driver",
+      "placeholder": "driver",
+      "type": "STRING",
+      "validation": {
+        "minLength": 1
+      }
+    },
+    {
+      "displayName": "query",
+      "metadata": {
+      },
+      "name": "query",
+      "path": "configuration.query",
+      "placeholder": "query",
+      "type": "STRING",
+      "validation": {
+        "minLength": 1
+      }
+    },
+    {
+      "defaultValue": "0",
+      "displayName": "timeout",
+      "metadata": {
+      },
+      "name": "timeout",
+      "path": "configuration.timeout",
+      "placeholder": "timeout",
+      "type": "NUMBER",
+      "validation": {
+        "min": 1
+      }
+    }
+  ],
+  "version": -1
+}

@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toObject;
@@ -71,7 +72,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             if (entries != null) {
                 return entries;
             }
-            entries = delegate.getFields().stream().map(field -> {
+            entries = delegate.getFields().stream().filter(it -> it.schema().getType() != NULL).map(field -> {
                 final Type type = mapType(field.schema());
                 final AvroSchema elementSchema = new AvroSchema(
                         type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());

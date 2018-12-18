@@ -130,7 +130,8 @@ public class UiSchemaConverter implements PropertyConverter {
                                 } else if (metadata.containsKey("ui::code::value")) {
                                     return new CodeWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                                             .convert(CompletableFuture.completedFuture(context));
-                                } else if (metadata.containsKey("action::suggestions")) {
+                                } else if (metadata.containsKey("action::suggestions")
+                                        || metadata.containsKey("action::built_in_suggestable")) {
                                     return new SuggestionWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                                             .convert(CompletableFuture.completedFuture(context));
                                 } else if (metadata.containsKey("action::dynamic_values")) {
