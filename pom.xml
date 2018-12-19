@@ -138,7 +138,7 @@
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.1.10</johnzon.version>
     <meecrowave.version>1.2.4</meecrowave.version>
-    <owb.version>2.0.8</owb.version>
+    <owb.version>2.0.9</owb.version>
     <tomcat.version>9.0.13</tomcat.version>
     <cxf.version>3.2.7</cxf.version>
     <log4j2.version>2.11.1</log4j2.version>
@@ -156,14 +156,14 @@
     <commons-cli.version>1.4</commons-cli.version>
     <commons-text.version>1.4</commons-text.version>
     <geronimo-jaxrs.version>1.0</geronimo-jaxrs.version>
-    <asciidoctorj.version>1.6.0-alpha.7</asciidoctorj.version>
+    <asciidoctorj.version>v1.6.0-RC.2</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
     <jsonb-api.version>1.1</jsonb-api.version>
     <jsonp-api.version>1.0</jsonp-api.version>
-    <microprofile-config-api.version>1.2</microprofile-config-api.version>
-    <microprofile-openapi-api.version>1.0.1</microprofile-openapi-api.version>
-    <geronimo-openapi.version>1.0.1</geronimo-openapi.version>
-    <geronimo-config.version>1.2</geronimo-config.version>
+    <microprofile-config-api.version>1.3</microprofile-config-api.version>
+    <microprofile-openapi-api.version>1.1-RC1</microprofile-openapi-api.version>
+    <geronimo-openapi.version>1.0.2</geronimo-openapi.version>
+    <geronimo-config.version>1.2.1</geronimo-config.version>
     <junit5.version>5.3.2</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
@@ -457,6 +457,22 @@
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>owb-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1048/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>geronimo-config-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1074/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>geronimo-openapi-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1080/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>johnzon-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1032/</url>
     </pluginRepository>
   </pluginRepositories>
 

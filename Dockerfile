@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-FROM alpine:3.7 as stagingImage
+FROM alpine:3.8 as stagingImage
 
 ARG SERVER_VERSION
 ARG KAFKA_CLIENT_VERSION
@@ -30,29 +30,33 @@ ENV MEECROWAVE_BASE /opt/talend/component-kit
 RUN mkdir -p $MEECROWAVE_BASE
 WORKDIR $MEECROWAVE_BASE
 
-ADD kafka-clients-$KAFKA_CLIENT_VERSION.jar kafka.jar
-ADD geronimo-opentracing-$GERONIMO_OPENTRACING_VERSION.jar geronimo-opentracing.jar
-ADD geronimo-metrics-$GERONIMO_METRICS.jar geronimo-metrics.jar
-ADD sigar-$SIGAR_VERSION.jar sigar.jar
-ADD sigar-$SIGAR_VERSION-native.jar sigar-native.jar
-ADD microprofile-metrics-api-$MICROPROFILE_METRICS_API_VERSION.jar microprofile-metrics-api.jar
-ADD opentracing-api-$OPENTRACING_API_VERSION.jar opentracing-api.jar
-ADD microprofile-opentracing-api-$MICROPROFILE_OPENTRACING_API_VERSION.jar microprofile-opentracing-api.jar
+ADD microprofile-metrics-api-$MICROPROFILE_METRICS_API_VERSION.jar microprofile-metrics-api-$MICROPROFILE_METRICS_API_VERSION.jar
+ADD geronimo-metrics-*.jar ./
+ADD sigar-*.jar ./
+
+ADD opentracing-api-$OPENTRACING_API_VERSION.jar opentracing-api-$OPENTRACING_API_VERSION.jar
+ADD microprofile-opentracing-api-$MICROPROFILE_OPENTRACING_API_VERSION.jar microprofile-opentracing-api-$GERONIMO_OPENTRACING_VERSION.jar
+ADD geronimo-opentracing-*.jar ./
+
+ADD kafka-clients-$KAFKA_CLIENT_VERSION.jar kafka-$KAFKA_CLIENT_VERSION.jar
+
 ADD beam.zip beam.zip
 ADD server.zip server.zip
 
+ADD server.zip server.zip
+
+ADD classes $MEECROWAVE_BASE/classes/
+
 RUN unzip server.zip && mv component-server-distribution/* . && rm -Rf component-server-distribution server.zip && \
     unzip beam.zip && mv component-runtime-beam-$SERVER_VERSION/* lib && rm -Rf component-runtime-beam-$SERVER_VERSION beam.zip && \
-    mv kafka.jar lib/ && \
-    mv geronimo-metrics.jar lib/ && \
-    mv microprofile-metrics-api.jar lib/ && \
-    mv sigar.jar lib/ && \
-    mv geronimo-opentracing.jar lib/ && \
-    mv opentracing-api.jar lib/ && \
-    mv microprofile-opentracing-api.jar lib/ && \
-    mkdir -p /opt/talend/sigar && mv sigar-native.jar /opt/talend/sigar && \
+    mv kafka-*.jar lib/ && \
+    mv geronimo-*.jar lib/ && \
+    mv microprofile-*.jar lib/ && \
+    mv opentracing-api-*.jar lib/ && \
+    mv sigar-$SIGAR_VERSION.jar lib/ && \
+    mkdir -p /opt/talend/sigar && mv sigar-${SIGAR_VERSION}-native.jar /opt/talend/sigar && \
     cd /opt/talend/sigar && \
-        unzip sigar-native.jar && rm sigar-native.jar && \
+        unzip sigar-${SIGAR_VERSION}-native.jar && rm sigar-${SIGAR_VERSION}-native.jar && \
         for i in libsigar*; do mv $i $(echo $i | sed "s/\-$SIGAR_VERSION//"); done && \
     cd -
 
@@ -62,6 +66,7 @@ COPY bin/* $MEECROWAVE_BASE/bin/
 
 RUN set -ex && \
   sed -i "s/artifactId/component-server/" $MEECROWAVE_BASE/bin/setenv.sh && \
+  sed -i "s/\$i:\$CLASSPATH/\$CLASSPATH:\$i/" $MEECROWAVE_BASE/bin/meecrowave.sh && \
   echo 'export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dsigar.version=$SIGAR_VERSION"' >> $MEECROWAVE_BASE/bin/setenv.sh && \
   echo 'export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dorg.hyperic.sigar.path=/opt/talend/sigar"' >> $MEECROWAVE_BASE/bin/setenv.sh && \
   chmod +x bin/*.sh && \
