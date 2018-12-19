@@ -148,7 +148,6 @@
     <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.1</geronimo-jsonb.version>
     <geronimo-json.version>1.1</geronimo-json.version>
-    <jcache-api.version>1.0-alpha-1</jcache-api.version>
     <batik.version>1.9.1</batik.version>
     <beam.version>2.9.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
@@ -170,7 +169,7 @@
     <avro-jackson.version>1.9.13</avro-jackson.version>
 
     <talend-ui.version>1.0.2</talend-ui.version>
-    <component-api.version>1.1.2-SNAPSHOT</component-api.version>
+    <component-api.version>1.1.2</component-api.version>
 
     <!-- for the starter -->
     <gradle.version>5.0</gradle.version>
@@ -855,7 +854,7 @@
                 </module>
                 <module name="UpperEll" />
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok,play" />
+                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok" />
                   <property name="ordered" value="true" />
                   <property name="separated" value="true" />
                   <property name="option" value="top" />

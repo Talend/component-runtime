@@ -335,11 +335,6 @@
             <version>${commons-net.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jcache_1.0_spec</artifactId>
-            <version>${jcache-api.version}</version>
-          </dependency>
-          <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>
             <artifactId>microprofile-openapi-api</artifactId>
             <version>${microprofile-openapi-api.version}</version>

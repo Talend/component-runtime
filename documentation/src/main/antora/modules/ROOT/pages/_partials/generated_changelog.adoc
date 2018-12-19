@@ -12,6 +12,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1222[TCOMP-1222^]: Ensure @WithComponents and @Environment are compatible
 - link:https://jira.talendforge.org/browse/TCOMP-1234[TCOMP-1234^]: Upgrade to beam 2.9.0
 - link:https://jira.talendforge.org/browse/TCOMP-1235[TCOMP-1235^]: Upgrade to antora 2
+- link:https://jira.talendforge.org/browse/TCOMP-1237[TCOMP-1237^]: Upgrade component-api to 1.1.2
 
 
 == Version 1.1.3
