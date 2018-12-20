@@ -8,4 +8,4 @@ mkdir -p $HOME/.m2/
 mvn -Ptravis dependency:copy -Dartifact=com.github.rmannibucau:maven-travis-output:1.0.0 -DoutputDirectory=/tmp
 
 # ensure default settings.xml works contextually without specifying it
-cp $HOME/build/Talend/component-runtime/.travis/settings.xml $HOME/.m2/settings.xml
+cp -v $HOME/build/Talend/component-runtime/.travis/settings.xml $HOME/.m2/settings.xml
