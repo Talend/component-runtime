@@ -56,7 +56,7 @@ for i in \
     org.apache.geronimo:geronimo-opentracing-common:$GERONIMO_OPENTRACING_VERSION \
     org.apache.geronimo:geronimo-opentracing:$GERONIMO_OPENTRACING_VERSION
 do
-    mvn dependency:copy -Dartifact=$i -DoutputDirectory=.
+    mvn $MAVEN_ARGS dependency:copy -Dartifact=$i -DoutputDirectory=.
 done
 
 echo "Building image >$IMAGE<"

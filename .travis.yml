@@ -84,13 +84,13 @@ jobs:
       - STEP=Docker Deployment
       - COMPONENT_SERVER_DOCKER_BUILD_ONLY=false
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: chmod +x ./.travis/docker.sh && travis_wait 50 mvn clean install -pl component-server-parent/component-server -am $DEPLOY_OPTS && travis_wait 50 MAVEN_OPTS="$DEPLOY_OPTS" ./.travis/docker.sh
+      script: chmod +x ./.travis/docker.sh && travis_wait 50 mvn clean install -pl component-server-parent/component-server -am $DEPLOY_OPTS && travis_wait 50 MAVEN_ARGS="--settings $HOME/build/Talend/component-runtime/.travis/settings.xml" ./.travis/docker.sh
       jdk: openjdk8
 
     - stage: master_build
       env:
       - STEP=Sonatype Audit
-      script: travis_wait 50 MAVEN_OPTS="$DEPLOY_OPTS" mvn ossindex:audit -B
+      script: travis_wait 50 mvn --settings $HOME/build/Talend/component-runtime/.travis/settings.xml ossindex:audit -B
       jdk: openjdk8
 
 stages:
