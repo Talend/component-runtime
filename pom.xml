@@ -458,22 +458,6 @@
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
-    <pluginRepository>
-      <id>owb-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1048/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>geronimo-config-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1074/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>geronimo-openapi-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1080/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>johnzon-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1032/</url>
-    </pluginRepository>
   </pluginRepositories>
 
   <build>
