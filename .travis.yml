@@ -94,7 +94,7 @@ jobs:
       env:
       - STEP=Sonatype Audit
       before_install: chmod +x ./.travis/install.sh && ./.travis/install.sh
-      script: mvn clean install $SKIP_OPTS && travis_wait 50 mvn ossindex:audit -B
+      script: mvn clean install -B -q -e $SKIP_OPTS && travis_wait 50 mvn ossindex:audit -B
       jdk: openjdk8
 
 stages:

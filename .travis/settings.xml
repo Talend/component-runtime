@@ -77,10 +77,6 @@
       </properties>
       <repositories>
         <repository>
-          <id>owb-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1048/</url>
-        </repository>
-        <repository>
           <id>johnzon-staging</id>
           <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1032/</url>
         </repository>
@@ -102,10 +98,6 @@
         </repository>
       </repositories>
       <pluginRepositories>
-        <pluginRepository>
-          <id>owb-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1048/</url>
-        </pluginRepository>
         <pluginRepository>
           <id>johnzon-staging</id>
           <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1032/</url>
