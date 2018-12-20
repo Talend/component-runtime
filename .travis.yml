@@ -90,7 +90,7 @@ jobs:
     - stage: master_build
       env:
       - STEP=Sonatype Audit
-      script: travis_wait 50 mvn ossindex:audit -B
+      script: mvn clean install $SKIP_OPTS && travis_wait 50 mvn ossindex:audit -B
       jdk: openjdk8
 
 stages:
