@@ -161,12 +161,13 @@ class ReflectionServiceTest {
     @Test
     void validationRequiredVisiblePrimitiveInvalid() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityPrimitive.class);
-        assertThrows(IllegalArgumentException.class, () -> factory.apply(new HashMap<String, String>() {
+        assertEquals("- Property 'root.string' is required.",
+                assertThrows(IllegalArgumentException.class, () -> factory.apply(new HashMap<String, String>() {
 
-            {
-                put("root.toggle", "true");
-            }
-        }));
+                    {
+                        put("root.toggle", "true");
+                    }
+                })).getMessage());
     }
 
     @Test

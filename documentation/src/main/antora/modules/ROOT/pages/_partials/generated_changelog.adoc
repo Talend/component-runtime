@@ -13,6 +13,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1234[TCOMP-1234^]: Upgrade to beam 2.9.0
 - link:https://jira.talendforge.org/browse/TCOMP-1235[TCOMP-1235^]: Upgrade to antora 2
 - link:https://jira.talendforge.org/browse/TCOMP-1237[TCOMP-1237^]: Upgrade component-api to 1.1.2
+- link:https://jira.talendforge.org/browse/TCOMP-1238[TCOMP-1238^]: Upgrade metrics and opentracing microprofile libraries in docker image to use Geronimo extensions
+- link:https://jira.talendforge.org/browse/TCOMP-1239[TCOMP-1239^]: OpenWebBeans 2.0.9 upgrade
+- link:https://jira.talendforge.org/browse/TCOMP-1240[TCOMP-1240^]: Johnzon 1.1.11 upgrade
+- link:https://jira.talendforge.org/browse/TCOMP-1242[TCOMP-1242^]: Runtime validation error message wrongly interpolated
 
 
 == Version 1.1.3
