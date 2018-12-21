@@ -87,25 +87,24 @@ class ActionParameterEnricherTest {
 
     @Test
     void builtInSuggestionCustom() {
-        assertEquals(singletonMap("tcomp::action::built_in_suggestable", "alternate"),
-                new ActionParameterEnricher()
-                        .onParameterAnnotation("testParam", String.class, new BuiltInSuggestable() {
+        assertEquals(singletonMap("tcomp::action::built_in_suggestable", "alternate"), new ActionParameterEnricher()
+                .onParameterAnnotation("testParam", String.class, new BuiltInSuggestable() {
 
-                            @Override
-                            public Name value() {
-                                return Name.CUSTOM;
-                            }
+                    @Override
+                    public Name value() {
+                        return Name.CUSTOM;
+                    }
 
-                            @Override
-                            public String name() {
-                                return "alternate";
-                            }
+                    @Override
+                    public String name() {
+                        return "alternate";
+                    }
 
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return BuiltInSuggestable.class;
-                            }
-                        }));
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return BuiltInSuggestable.class;
+                    }
+                }));
     }
 
     @Test

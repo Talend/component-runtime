@@ -19,6 +19,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.enumeration;
 import static java.util.Collections.list;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
@@ -26,6 +27,7 @@ import static lombok.AccessLevel.PRIVATE;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -36,6 +38,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.nio.file.Path;
 import java.security.CodeSource;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -43,6 +46,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
@@ -60,6 +64,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigurableClassLoader extends URLClassLoader {
 
     private static final Certificate[] NO_CERTIFICATES = new Certificate[0];
+
+    private static final String JVM = of(new File(System.getProperty("java.home")))
+            .map(it -> it.getName().equals("jre") && it.getParentFile() != null
+                    && new File(it.getParentFile(), "lib/tools.jar").exists() ? it.getParentFile() : it)
+            .map(it -> it.getAbsoluteFile().toPath().toString())
+            .orElseThrow(IllegalArgumentException::new);
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -269,6 +279,26 @@ public class ConfigurableClassLoader extends URLClassLoader {
     }
 
     @Override
+    public Enumeration<URL> getResources(final String name) throws IOException {
+        final Collection<URL> urls = new LinkedList<>(list(findResources(name)));
+        urls.addAll(list(getParent().getResources(name)).stream().filter(this::isInJvm).collect(toList()));
+        return enumeration(urls);
+    }
+
+    @Override
+    public URL getResource(final String name) {
+        URL resource = findResource(name);
+        if (resource != null) {
+            return resource;
+        }
+        resource = getParent().getResource(name);
+        if (resource != null && isInJvm(resource)) {
+            return resource;
+        }
+        return null;
+    }
+
+    @Override
     public InputStream getResourceAsStream(final String name) {
         return ofNullable(doGetResourceAsStream(name))
                 .orElseGet(() -> ofNullable(resources.get(name))
@@ -282,27 +312,32 @@ public class ConfigurableClassLoader extends URLClassLoader {
         final URL resource = super.findResource(name);
         try {
             if (resource == null) {
-                return super.getResourceAsStream(name);
+                final URL url = getParent().getResource(name);
+                return url != null ? getInputStream(url) : null;
             }
-            final URLConnection urlc = resource.openConnection();
-            final InputStream is = urlc.getInputStream();
-            if (JarURLConnection.class.isInstance(urlc)) {
-                final JarURLConnection juc = JarURLConnection.class.cast(urlc);
-                final JarFile jar = juc.getJarFile();
-                synchronized (closeables) {
-                    if (!closeables.containsKey(jar)) {
-                        closeables.put(jar, null);
-                    }
-                }
-            } else if (urlc.getClass().getName().equals("sun.net.www.protocol.file.FileURLConnection")) {
-                synchronized (closeables) {
-                    closeables.put(is, null);
-                }
-            }
-            return is;
+            return getInputStream(resource);
         } catch (final IOException e) {
             return null;
         }
+    }
+
+    private InputStream getInputStream(final URL resource) throws IOException {
+        final URLConnection urlc = resource.openConnection();
+        final InputStream is = urlc.getInputStream();
+        if (JarURLConnection.class.isInstance(urlc)) {
+            final JarURLConnection juc = JarURLConnection.class.cast(urlc);
+            final JarFile jar = juc.getJarFile();
+            synchronized (closeables) {
+                if (!closeables.containsKey(jar)) {
+                    closeables.put(jar, null);
+                }
+            }
+        } else if (urlc.getClass().getName().equals("sun.net.www.protocol.file.FileURLConnection")) {
+            synchronized (closeables) {
+                closeables.put(is, null);
+            }
+        }
+        return is;
     }
 
     @Override
@@ -319,6 +354,33 @@ public class ConfigurableClassLoader extends URLClassLoader {
         final Collection<URL> aggregated = new ArrayList<>(list(delegates));
         aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).collect(toList()));
         return enumeration(aggregated);
+    }
+
+    private boolean isInJvm(final URL resource) {
+        final Path path = toPath(resource);
+        return path != null && path.toAbsolutePath().toString().startsWith(JVM);
+    }
+
+    private Path toPath(final URL url) {
+        if ("jar".equals(url.getProtocol())) {
+            try {
+                final String spec = url.getFile();
+                final int separator = spec.indexOf('!');
+                if (separator == -1) {
+                    return null;
+                }
+                return toPath(new URL(spec.substring(0, separator + 1)));
+            } catch (final MalformedURLException e) {
+                // no-op
+            }
+        } else if ("file".equals(url.getProtocol())) {
+            String path = decode(url.getFile());
+            if (path.endsWith("!")) {
+                path = path.substring(0, path.length() - 1);
+            }
+            return new File(path).getAbsoluteFile().toPath();
+        }
+        return null;
     }
 
     public InputStream findContainedResource(final String name) {
@@ -696,6 +758,50 @@ public class ConfigurableClassLoader extends URLClassLoader {
         }
     }
 
+    private static String decode(final String fileName) {
+        if (fileName.indexOf('%') == -1) {
+            return fileName;
+        }
+
+        final StringBuilder result = new StringBuilder(fileName.length());
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        for (int i = 0; i < fileName.length();) {
+            final char c = fileName.charAt(i);
+
+            if (c == '%') {
+                out.reset();
+                do {
+                    if (i + 2 >= fileName.length()) {
+                        throw new IllegalArgumentException("Incomplete % sequence at: " + i);
+                    }
+
+                    final int d1 = Character.digit(fileName.charAt(i + 1), 16);
+                    final int d2 = Character.digit(fileName.charAt(i + 2), 16);
+
+                    if (d1 == -1 || d2 == -1) {
+                        throw new IllegalArgumentException(
+                                "Invalid % sequence (" + fileName.substring(i, i + 3) + ") at: " + String.valueOf(i));
+                    }
+
+                    out.write((byte) ((d1 << 4) + d2));
+
+                    i += 3;
+
+                } while (i < fileName.length() && fileName.charAt(i) == '%');
+
+                result.append(out.toString());
+
+                continue;
+            } else {
+                result.append(c);
+            }
+
+            i++;
+        }
+        return result.toString();
+    }
+
     @RequiredArgsConstructor(access = PRIVATE)
     private static class Resource {
 
@@ -729,12 +835,12 @@ public class ConfigurableClassLoader extends URLClassLoader {
         }
 
         @Override
-        public void connect() throws IOException {
+        public void connect() {
             // no-op
         }
 
         @Override
-        public InputStream getInputStream() throws IOException {
+        public InputStream getInputStream() {
             return new ByteArrayInputStream(resource.resource);
         }
     }

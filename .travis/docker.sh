@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 KAFKA_VERSION=1.1.0
-GERONIMO_OPENTRACING_VERSION=1.0.0
+GERONIMO_OPENTRACING_VERSION=1.0.1
 OPENTRACING_API_VERSION=0.31.0
-MICROPROFILE_OPENTRACING_API_VERSION=1.1
-GERONIMO_METRICS=1.0.0
+MICROPROFILE_OPENTRACING_API_VERSION=1.2.1
+GERONIMO_METRICS=1.0.1
 MICROPROFILE_METRICS_API_VERSION=1.1.1
 SIGAR_VERSION=1.6.4 # don't change without checking code, it is hardcoded for now (don't think it will evolve soon)
 
@@ -30,26 +30,33 @@ fi
 
 # if we don't set up a custom buildcontext dir the whole project is taken as buildcontext and it makes gigs!
 echo "Setting up buildcontext"
-mkdir -p "$DOCKER_TMP_DIR"
+mkdir -p "$DOCKER_TMP_DIR" "$DOCKER_TMP_DIR/classes"
 cp -v component-runtime-beam/target/component-runtime-beam-${SERVER_VERSION}-dependencies.zip $DOCKER_TMP_DIR/beam.zip
 cp -v component-server-parent/component-server/target/component-server-meecrowave-distribution.zip $DOCKER_TMP_DIR/server.zip
 cp -v Dockerfile $DOCKER_TMP_DIR/Dockerfile
 cp -v -r .docker/conf $DOCKER_TMP_DIR/conf
 cp -v -r .docker/bin $DOCKER_TMP_DIR/bin
+cp -v -r .docker/bin $DOCKER_TMP_DIR/bin
+cp -v -r .docker/patch/geronimo-metrics-sigar/* $DOCKER_TMP_DIR/classes
 cd $DOCKER_TMP_DIR
 
-echo "Grabbing libraries (kafka client + opentracing stack)"
+echo "Grabbing libraries (kafka client + opentracing + metrics stack)"
 for i in \
     org.apache.kafka:kafka-clients:$KAFKA_VERSION \
     org.eclipse.microprofile.metrics:microprofile-metrics-api:$MICROPROFILE_METRICS_API_VERSION \
+    org.apache.geronimo:geronimo-metrics-common:$GERONIMO_METRICS \
     org.apache.geronimo:geronimo-metrics:$GERONIMO_METRICS \
+    org.apache.geronimo:geronimo-metrics-extension-common:$GERONIMO_METRICS \
+    org.apache.geronimo:geronimo-metrics-sigar:$GERONIMO_METRICS \
+    org.apache.geronimo:geronimo-metrics-tomcat:$GERONIMO_METRICS \
     org.fusesource:sigar:$SIGAR_VERSION \
     org.fusesource:sigar:$SIGAR_VERSION:jar:native \
     org.eclipse.microprofile.opentracing:microprofile-opentracing-api:$MICROPROFILE_OPENTRACING_API_VERSION \
     io.opentracing:opentracing-api:$OPENTRACING_API_VERSION \
+    org.apache.geronimo:geronimo-opentracing-common:$GERONIMO_OPENTRACING_VERSION \
     org.apache.geronimo:geronimo-opentracing:$GERONIMO_OPENTRACING_VERSION
 do
-    mvn dependency:copy -Dartifact=$i -DoutputDirectory=.
+    mvn $MAVEN_ARGS dependency:copy -Dartifact=$i -DoutputDirectory=.
 done
 
 echo "Building image >$IMAGE<"

@@ -17,14 +17,19 @@
 
 ARTIFACT_ID=artifactId
 
+TALEND_COMPONENT_LOG4J2_PROFILE=$LOGGING_LAYOUT
 [ -z "$TALEND_COMPONENT_LOG4J2_PROFILE" ] && TALEND_COMPONENT_LOG4J2_PROFILE="default"
 if [ ! -f $MEECROWAVE_BASE"/conf/log4j2-"$ARTIFACT_ID"-"$TALEND_COMPONENT_LOG4J2_PROFILE".xml" ] ; then
   echo "No log4j2 configuration file found for profile '"$TALEND_COMPONENT_LOG4J2_PROFILE"'"
   exit 1
 fi
 
-export MEECROWAVE_PID=$MEECROWAVE_BASE/conf/server.pid
-export MEECROWAVE_OPTS="$MEECROWAVE_OPTS $JAVA_OPTS"
+# patches
+if [ -d "$MEECROWAVE_BASE/classes" ]; then
+    export CLASSPATH="$MEECROWAVE_BASE/classes"
+fi
+
+export MEECROWAVE_PID="$MEECROWAVE_BASE/conf/server.pid"
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Djava.security.egd=file:/dev/./urandom"
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dtalend.component.exit-on-destroy=true"

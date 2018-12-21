@@ -205,8 +205,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                         .getClassResourceInfo()
                         .stream()
                         .flatMap(cri -> cri.getMethodDispatcher().getOperationResourceInfos().stream())
-                        .filter(cri -> !"org.apache.geronimo.microprofile.metrics.jaxrs.MetricsEndpoints"
-                                .equals(cri.getAnnotatedMethod().getDeclaringClass().getName()))
+                        .filter(cri -> cri.getAnnotatedMethod().getDeclaringClass().getName().startsWith("org.talend."))
                         .map(ori -> {
                             final String uri = ori.getClassResourceInfo().getURITemplate().getValue()
                                     + ori.getURITemplate().getValue();
