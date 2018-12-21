@@ -75,50 +75,6 @@
         <gpg.publicKeyring>${env.HOME}/.gpg/travis.pub.bin</gpg.publicKeyring>
         <gpg.secretKeyring>${env.HOME}/.gpg/travis.priv.bin</gpg.secretKeyring>
       </properties>
-      <repositories>
-        <repository>
-          <id>johnzon-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1032/</url>
-        </repository>
-        <repository>
-          <id>geronimo-config-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1074/</url>
-        </repository>
-        <repository>
-          <id>geronimo-opentracing-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1077/</url>
-        </repository>
-        <repository>
-          <id>geronimo-metrics-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1079/</url>
-        </repository>
-        <repository>
-          <id>geronimo-openapi-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1080/</url>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>johnzon-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1032/</url>
-        </pluginRepository>
-        <pluginRepository>
-          <id>geronimo-config-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1074/</url>
-        </pluginRepository>
-        <pluginRepository>
-          <id>geronimo-opentracing-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1077/</url>
-        </pluginRepository>
-        <pluginRepository>
-          <id>geronimo-metrics-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1079/</url>
-        </pluginRepository>
-        <pluginRepository>
-          <id>geronimo-openapi-staging</id>
-          <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1080/</url>
-        </pluginRepository>
-      </pluginRepositories>
     </profile>
   </profiles>
 </settings>
