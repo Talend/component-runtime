@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1239[TCOMP-1239^]: OpenWebBeans 2.0.9 upgrade
 - link:https://jira.talendforge.org/browse/TCOMP-1240[TCOMP-1240^]: Johnzon 1.1.11 upgrade
 - link:https://jira.talendforge.org/browse/TCOMP-1242[TCOMP-1242^]: Runtime validation error message wrongly interpolated
+- link:https://jira.talendforge.org/browse/TCOMP-1243[TCOMP-1243^]: Ensure component classloader isolates the system classloader resources except for the JVM ones
 
 
 == Version 1.1.3

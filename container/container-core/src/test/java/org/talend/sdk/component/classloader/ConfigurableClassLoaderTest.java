@@ -34,6 +34,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -48,6 +49,7 @@ import java.util.zip.ZipEntry;
 import javax.xml.stream.XMLOutputFactory;
 
 import org.junit.jupiter.api.Test;
+import org.junit.platform.engine.TestEngine;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.test.Constants;
@@ -233,7 +235,7 @@ class ConfigurableClassLoaderTest {
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader = new ConfigurableClassLoader("test",
                         new URL[] { woodstox.toURI().toURL(), staxApi.toURI().toURL() }, parent, parentClasses,
-                        parentClasses.negate(), new String[] {})) {
+                        parentClasses.negate(), new String[0])) {
 
             final List<XMLOutputFactory> factories = StreamSupport
                     .stream(ServiceLoader.load(XMLOutputFactory.class, loader).spliterator(), false)
@@ -244,6 +246,25 @@ class ConfigurableClassLoaderTest {
             assertEquals(loader, firstClass.getClassLoader());
             assertNull(XMLOutputFactory.class.getClassLoader());
             assertTrue(XMLOutputFactory.class.isAssignableFrom(firstClass));
+        }
+    }
+
+    @Test
+    void jvmOnlyInParentSpi() throws IOException {
+        final Predicate<String> parentClasses = name -> true;
+        try (final URLClassLoader parent =
+                new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader("test", new URL[0], parent,
+                        parentClasses, parentClasses.negate(), new String[0])) {
+
+            // can be loaded cause in the JVM
+            assertTrue(ServiceLoader.load(FileSystemProvider.class, loader).iterator().hasNext());
+
+            // this is in the (test) classloader but not available to the classloader
+            final List<TestEngine> junitEngines = StreamSupport
+                    .stream(ServiceLoader.load(TestEngine.class, loader).spliterator(), false)
+                    .collect(toList());
+            assertTrue(junitEngines.isEmpty());
         }
     }
 
