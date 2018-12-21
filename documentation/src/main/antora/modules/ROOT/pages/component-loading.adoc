@@ -128,7 +128,7 @@ To create the nested `MAVEN-INF/repository` repository, you can use the `nested-
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
   <artifactId>maven-shade-plugin</artifactId>
-  <version>3.0.0</version>
+  <version>3.2.1</version>
   <executions>
     <execution>
       <phase>package</phase>
@@ -165,7 +165,7 @@ You can enrich `maven-shade-plugin` to do it:
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
   <artifactId>maven-shade-plugin</artifactId>
-  <version>3.0.0</version>
+  <version>3.2.1</version>
   <executions>
     <execution>
       <phase>package</phase>
@@ -200,7 +200,7 @@ Here is a final job/application bundle based on maven-shade-plugin:
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
   <artifactId>maven-shade-plugin</artifactId>
-  <version>3.0.0</version>
+  <version>3.2.1</version>
   <configuration>
     <createDependencyReducedPom>false</createDependencyReducedPom>
     <filters>
@@ -271,10 +271,9 @@ Both transformers share most of their configuration:
 - `scope`: a comma-separated list of scopes to include in the artifact filtering (note that the default will rely on `provided` but you can replace it by `compile`, `runtime`, `runtime+compile`, `runtime+system` or `test`).
 - `include`: a comma-separated list of artifacts to include in the artifact filtering.
 - `exclude`: a comma-separated list of artifacts to exclude in the artifact filtering.
-- `userArtifacts`: a list of artifacts (groupId, artifactId, version, type - optional, file - optional for plugin transformer, scope - optional) which can be forced inline. This parameter is mainly useful for `PluginTransformer`.
-- `includeTransitiveDependencies`: should transitive dependencies of the components be included. Set to `true` by default.
-- `includeProjectComponentDependencies`: should project component dependencies be included. Set to `false` by default. It is not needed when a job project uses isolation for components.
-- `userArtifacts`: set of component artifacts to include.
+- `userArtifacts`: set of artifacts to include (groupId, artifactId, version, type - optional, file - optional for plugin transformer, scope - optional) which can be forced inline. This parameter is mainly useful for `PluginTransformer`.
+- `includeTransitiveDependencies`: should transitive dependencies of the components be included. Set to `true` by default. It is active for `userArtifacts`.
+- `includeProjectComponentDependencies`: should component project dependencies be included. Set to `false` by default. It is not needed when a job project uses isolation for components.
 
 IMPORTANT: With the component tooling, it is recommended to keep default locations. +
 Also if you need to use project dependencies, you can need to refactor your project structure to ensure component isolation. +

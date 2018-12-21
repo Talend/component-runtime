@@ -19,6 +19,8 @@ include::tutorial-configuration-sensitive-data.adoc[leveloffset=+1]
 
 include::concept-processor-and-batch-processing.adoc[leveloffset=+1]
 
+include::component-implementing-streaming.adoc[leveloffset=+1]
+
 include::build-tools-maven.adoc[leveloffset=+1]
 
 include::build-tools-gradle.adoc[leveloffset=+1]

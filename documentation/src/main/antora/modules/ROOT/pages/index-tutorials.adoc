@@ -13,6 +13,7 @@ The following tutorials are designed to help you understand the main principles 
 
 With this set of tutorials, get your hands on project creation using the Component Kit Starter and implement the logic of different types of components.
 
+- xref:tutorial-create-my-first-component.adoc[Creating your first component]
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project from the starter]
 - xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
 - xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]

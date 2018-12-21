@@ -3,4 +3,6 @@
 
 include::index-deploying-components.adoc[]
 
+include::compatibility.adoc[leveloffset=+1]
+
 include::studio.adoc[leveloffset=+1]

@@ -2,6 +2,8 @@
 :page-partial:
 :page-talend_skipindexation:
 
+include::tutorial-create-my-first-component.adoc[leveloffset=+1]
+
 include::tutorial-generate-project-using-starter.adoc[leveloffset=+1]
 
 include::tutorial-create-an-input-component.adoc[leveloffset=+1]
