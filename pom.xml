@@ -177,7 +177,7 @@
 
     <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
     <jaxrs-analyzer-extension.version>0.0.6</jaxrs-analyzer-extension.version>
-    <groovy.version>2.5.4</groovy.version>
+    <groovy.version>2.5.5</groovy.version>
     <gmavenplus.version>1.6.2</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
@@ -191,7 +191,7 @@
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>4.9.2.201712150930-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
-    <surefire-plugin.version>3.0.0-M2</surefire-plugin.version>
+    <surefire-plugin.version>3.0.0-M3</surefire-plugin.version>
 
     <jruby.version>9.2.4.0</jruby.version>
     <node.version>v10.14.2</node.version>
