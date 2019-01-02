@@ -19,10 +19,10 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.enumeration;
 import static java.util.Collections.list;
-import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
+import static org.talend.sdk.component.jar.Jars.toPath;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -65,12 +65,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private static final Certificate[] NO_CERTIFICATES = new Certificate[0];
 
-    private static final String JVM = of(new File(System.getProperty("java.home")))
-            .map(it -> it.getName().equals("jre") && it.getParentFile() != null
-                    && new File(it.getParentFile(), "lib/tools.jar").exists() ? it.getParentFile() : it)
-            .map(it -> it.getAbsoluteFile().toPath().toString())
-            .orElseThrow(IllegalArgumentException::new);
-
     static {
         ClassLoader.registerAsParallelCapable();
     }
@@ -97,72 +91,86 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private final WeakHashMap<Closeable, Void> closeables = new WeakHashMap<>();
 
+    private final String[] fullPathJvmPrefixes;
+
+    private final String[] nameJvmPrefixes;
+
     private volatile URLClassLoader temporaryCopy;
 
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
-            final String[] nestedDependencies) {
-        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap());
-        if (nestedDependencies != null) { // load all in memory to avoid perf issues - should we try offheap?
-            final byte[] buffer = new byte[8192]; // should be good for most cases
-            final ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.length);
-            Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).forEach(resource -> {
-                final URL url = ofNullable(super.findResource(resource)).orElseGet(() -> parent.getResource(resource));
-                if (url == null) {
-                    throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
-                }
-                final Map<String, Resource> resources = new HashMap<>();
-                final URLConnection urlConnection;
-                final Manifest manifest;
-                final CodeSource codeSource;
-                try {
-                    urlConnection = url.openConnection();
-                    if (JarURLConnection.class.isInstance(urlConnection)) {
-                        final JarURLConnection juc = JarURLConnection.class.cast(urlConnection);
-                        manifest = juc.getManifest();
-
-                        final Certificate[] certificates = juc.getCertificates();
-                        codeSource = new CodeSource(url, certificates);
-                    } else { // unlikely
-                        manifest = null;
-                        codeSource = null;
-                    }
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
-                }
-                try (final JarInputStream jarInputStream = new JarInputStream(urlConnection.getInputStream())) {
-                    ZipEntry entry;
-                    while ((entry = jarInputStream.getNextEntry()) != null) {
-                        if (!entry.isDirectory()) {
-                            out.reset();
-
-                            int read;
-                            while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {
-                                out.write(buffer, 0, read);
-                            }
-
-                            resources
-                                    .put(entry.getName(),
-                                            new Resource(resource, out.toByteArray(), manifest, codeSource));
-                        }
-                    }
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
-                }
-                resources.forEach((k, v) -> this.resources.computeIfAbsent(k, i -> new ArrayList<>()).add(v));
-            });
+            final String[] nestedDependencies, final String[] jvmPrefixes) {
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes);
+        if (nestedDependencies != null) {
+            loadNestedDependencies(parent, nestedDependencies);
         }
     }
 
     private ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
-            final Map<String, Collection<Resource>> resources) {
+            final Map<String, Collection<Resource>> resources, final String[] jvmPrefixes) {
         super(urls, parent);
         this.id = id;
         this.creationUrls = urls;
         this.parentFilter = parentFilter;
         this.childFirstFilter = childFirstFilter;
         this.resources.putAll(resources);
+
+        this.fullPathJvmPrefixes =
+                Stream.of(jvmPrefixes).filter(it -> it.contains(File.separator)).toArray(String[]::new);
+        this.nameJvmPrefixes = Stream
+                .of(jvmPrefixes)
+                .filter(it -> Stream.of(this.fullPathJvmPrefixes).noneMatch(it::equals))
+                .toArray(String[]::new);
+    }
+
+    // load all in memory to avoid perf issues - should we try offheap?
+    private void loadNestedDependencies(final ClassLoader parent, final String[] nestedDependencies) {
+        final byte[] buffer = new byte[8192]; // should be good for most cases
+        final ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.length);
+        Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).forEach(resource -> {
+            final URL url = ofNullable(super.findResource(resource)).orElseGet(() -> parent.getResource(resource));
+            if (url == null) {
+                throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
+            }
+            final Map<String, Resource> resources = new HashMap<>();
+            final URLConnection urlConnection;
+            final Manifest manifest;
+            final CodeSource codeSource;
+            try {
+                urlConnection = url.openConnection();
+                if (JarURLConnection.class.isInstance(urlConnection)) {
+                    final JarURLConnection juc = JarURLConnection.class.cast(urlConnection);
+                    manifest = juc.getManifest();
+
+                    final Certificate[] certificates = juc.getCertificates();
+                    codeSource = new CodeSource(url, certificates);
+                } else { // unlikely
+                    manifest = null;
+                    codeSource = null;
+                }
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+            try (final JarInputStream jarInputStream = new JarInputStream(urlConnection.getInputStream())) {
+                ZipEntry entry;
+                while ((entry = jarInputStream.getNextEntry()) != null) {
+                    if (!entry.isDirectory()) {
+                        out.reset();
+
+                        int read;
+                        while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {
+                            out.write(buffer, 0, read);
+                        }
+
+                        resources.put(entry.getName(), new Resource(resource, out.toByteArray(), manifest, codeSource));
+                    }
+                }
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+            resources.forEach((k, v) -> this.resources.computeIfAbsent(k, i -> new ArrayList<>()).add(v));
+        });
     }
 
     public void registerTransformer(final ClassFileTransformer transformer) {
@@ -171,17 +179,17 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     public synchronized URLClassLoader createTemporaryCopy() {
         final ConfigurableClassLoader self = this;
-        return temporaryCopy == null ? temporaryCopy =
-                new ConfigurableClassLoader(id, creationUrls, getParent(), parentFilter, childFirstFilter, resources) {
+        return temporaryCopy == null ? temporaryCopy = new ConfigurableClassLoader(id, creationUrls, getParent(),
+                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes) {
 
-                    @Override
-                    public synchronized void close() throws IOException {
-                        super.close();
-                        synchronized (self) {
-                            self.temporaryCopy = null;
-                        }
-                    }
-                } : temporaryCopy;
+            @Override
+            public synchronized void close() throws IOException {
+                super.close();
+                synchronized (self) {
+                    self.temporaryCopy = null;
+                }
+            }
+        } : temporaryCopy;
     }
 
     @Override
@@ -358,29 +366,20 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private boolean isInJvm(final URL resource) {
         final Path path = toPath(resource);
-        return path != null && path.toAbsolutePath().toString().startsWith(JVM);
-    }
-
-    private Path toPath(final URL url) {
-        if ("jar".equals(url.getProtocol())) {
-            try {
-                final String spec = url.getFile();
-                final int separator = spec.indexOf('!');
-                if (separator == -1) {
-                    return null;
-                }
-                return toPath(new URL(spec.substring(0, separator + 1)));
-            } catch (final MalformedURLException e) {
-                // no-op
-            }
-        } else if ("file".equals(url.getProtocol())) {
-            String path = decode(url.getFile());
-            if (path.endsWith("!")) {
-                path = path.substring(0, path.length() - 1);
-            }
-            return new File(path).getAbsoluteFile().toPath();
+        if (path == null) {
+            return false;
         }
-        return null;
+        if (nameJvmPrefixes.length > 0) {
+            final String name = path.getFileName().toString();
+            if (Stream.of(nameJvmPrefixes).anyMatch(it -> it.startsWith(name))) {
+                return true;
+            }
+        }
+        if (fullPathJvmPrefixes.length > 0) {
+            final String fullPath = path.toAbsolutePath().toString();
+            return Stream.of(fullPathJvmPrefixes).anyMatch(fullPath::startsWith);
+        }
+        return false;
     }
 
     public InputStream findContainedResource(final String name) {
@@ -753,53 +752,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 iae = e;
             }
         }
-        if (iae != null) {
-            throw iae;
-        }
-    }
-
-    private static String decode(final String fileName) {
-        if (fileName.indexOf('%') == -1) {
-            return fileName;
-        }
-
-        final StringBuilder result = new StringBuilder(fileName.length());
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        for (int i = 0; i < fileName.length();) {
-            final char c = fileName.charAt(i);
-
-            if (c == '%') {
-                out.reset();
-                do {
-                    if (i + 2 >= fileName.length()) {
-                        throw new IllegalArgumentException("Incomplete % sequence at: " + i);
-                    }
-
-                    final int d1 = Character.digit(fileName.charAt(i + 1), 16);
-                    final int d2 = Character.digit(fileName.charAt(i + 2), 16);
-
-                    if (d1 == -1 || d2 == -1) {
-                        throw new IllegalArgumentException(
-                                "Invalid % sequence (" + fileName.substring(i, i + 3) + ") at: " + String.valueOf(i));
-                    }
-
-                    out.write((byte) ((d1 << 4) + d2));
-
-                    i += 3;
-
-                } while (i < fileName.length() && fileName.charAt(i) == '%');
-
-                result.append(out.toString());
-
-                continue;
-            } else {
-                result.append(c);
-            }
-
-            i++;
-        }
-        return result.toString();
+        throw iae;
     }
 
     @RequiredArgsConstructor(access = PRIVATE)

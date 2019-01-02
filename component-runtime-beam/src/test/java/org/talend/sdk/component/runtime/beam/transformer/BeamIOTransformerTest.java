@@ -178,7 +178,7 @@ class BeamIOTransformerTest {
                         || Pojo.class.getName().equals(it);
                 try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("test",
                         new URL[] { jarLocation(BeamIOTransformerTest.class).toURI().toURL() }, originalLoader,
-                        parentPredicate, parentPredicate.negate(), new String[0])) {
+                        parentPredicate, parentPredicate.negate(), new String[0], new String[0])) {
                     // thread.setContextClassLoader(loader); // don't set it, this is what we test!
                     final BeamIOTransformer transformer = new BeamIOTransformer();
                     loader.registerTransformer(transformer);

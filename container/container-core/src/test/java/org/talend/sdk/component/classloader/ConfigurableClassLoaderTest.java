@@ -65,7 +65,7 @@ class ConfigurableClassLoaderTest {
                 new ConfigurableClassLoader("",
                         new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
                                 "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar").toURI().toURL() },
-                        parent, name -> true, name -> false, null)) {
+                        parent, name -> true, name -> false, null, new String[0])) {
             final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
             assertNotNull(pck);
             assertEquals("org.apache.ziplock", pck.getName());
@@ -82,7 +82,7 @@ class ConfigurableClassLoaderTest {
             try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("",
                     new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
                             "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar").toURI().toURL() },
-                    parent, name -> true, name -> parentFirst, null)) {
+                    parent, name -> true, name -> parentFirst, null, new String[0])) {
                 try {
                     loader.loadClass("org.apache.ziplock.JarLocation");
                 } catch (final ClassNotFoundException e) {
@@ -104,7 +104,7 @@ class ConfigurableClassLoaderTest {
     void parentFiltering() {
         final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
         try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent,
-                name -> !ConfigurableClassLoaderTest.class.getName().equals(name), name -> true, null)) {
+                name -> !ConfigurableClassLoaderTest.class.getName().equals(name), name -> true, null, new String[0])) {
             try {
                 loader.loadClass("org.talend.sdk.component.classloader.ConfigurableClassLoaderTest");
                 fail("ConfigurableClassLoaderTest shouldn't pass to parent");
@@ -126,8 +126,9 @@ class ConfigurableClassLoaderTest {
         final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent, name -> true,
-                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" })) {
+                final ConfigurableClassLoader loader =
+                        new ConfigurableClassLoader("", new URL[0], parent, name -> true, name -> true,
+                                new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" }, new String[0])) {
             final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
             assertNotNull(pck);
             assertEquals("org.apache.ziplock", pck.getName());
@@ -144,8 +145,9 @@ class ConfigurableClassLoaderTest {
         final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent, name -> true,
-                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" })) {
+                final ConfigurableClassLoader loader =
+                        new ConfigurableClassLoader("", new URL[0], parent, name -> true, name -> true,
+                                new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" }, new String[0])) {
             try { // classes
                 final Class<?> aClass = loader.loadClass("org.apache.ziplock.JarLocation");
                 final Object jarLocation =
@@ -193,7 +195,7 @@ class ConfigurableClassLoaderTest {
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent, name -> true,
-                        name -> true, new String[0])) {
+                        name -> true, new String[0], new String[0])) {
 
             { // missing
                 assertNull(loader.getResource("a.missing"));
@@ -212,8 +214,9 @@ class ConfigurableClassLoaderTest {
         }
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader = new ConfigurableClassLoader("",
-                        new URL[] { jar.toURI().toURL() }, parent, name -> true, name -> true, new String[0])) {
+                final ConfigurableClassLoader loader =
+                        new ConfigurableClassLoader("", new URL[] { jar.toURI().toURL() }, parent, name -> true,
+                                name -> true, new String[0], new String[0])) {
 
             try (final BufferedReader reader = new BufferedReader(
                     new InputStreamReader(loader.getResourceAsStream("found.in.child.and.parent")))) {
@@ -235,7 +238,7 @@ class ConfigurableClassLoaderTest {
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader = new ConfigurableClassLoader("test",
                         new URL[] { woodstox.toURI().toURL(), staxApi.toURI().toURL() }, parent, parentClasses,
-                        parentClasses.negate(), new String[0])) {
+                        parentClasses.negate(), new String[0], new String[0])) {
 
             final List<XMLOutputFactory> factories = StreamSupport
                     .stream(ServiceLoader.load(XMLOutputFactory.class, loader).spliterator(), false)
@@ -255,7 +258,7 @@ class ConfigurableClassLoaderTest {
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader = new ConfigurableClassLoader("test", new URL[0], parent,
-                        parentClasses, parentClasses.negate(), new String[0])) {
+                        parentClasses, parentClasses.negate(), new String[0], new String[0])) {
 
             // can be loaded cause in the JVM
             assertTrue(ServiceLoader.load(FileSystemProvider.class, loader).iterator().hasNext());

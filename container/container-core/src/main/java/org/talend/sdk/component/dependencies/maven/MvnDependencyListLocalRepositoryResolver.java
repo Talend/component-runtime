@@ -78,7 +78,7 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
                                             // rewrite the logic but it is NOT a plugin!
                                 try (final ConfigurableClassLoader configurableClassLoader =
                                         new ConfigurableClassLoader("", new URL[0], rootLoader, name -> true,
-                                                name -> true, new String[] { artifact })) {
+                                                name -> true, new String[] { artifact }, new String[0])) {
                                     try (final InputStream deps =
                                             configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
                                         return ofNullable(deps).map(s -> {

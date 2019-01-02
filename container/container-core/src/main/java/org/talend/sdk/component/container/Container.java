@@ -87,14 +87,18 @@ public class Container implements Lifecycle {
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
 
+    private final String[] jvmMarkers;
+
     public Container(final String id, final String rootModule, final Artifact[] dependencies,
             final ContainerManager.ClassLoaderConfiguration configuration,
-            final Function<String, File> localDependencyRelativeResolver, final Consumer<Container> initializer) {
+            final Function<String, File> localDependencyRelativeResolver, final Consumer<Container> initializer,
+            final String[] jvmMarkers) {
         this.id = id;
         this.rootModule = rootModule;
         this.dependencies = dependencies;
         this.localDependencyRelativeResolver = localDependencyRelativeResolver;
         this.lastModifiedTimestamp.set(new Date(0));
+        this.jvmMarkers = jvmMarkers;
         ofNullable(initializer).ifPresent(i -> i.accept(this));
 
         this.classloaderProvider = () -> {
@@ -136,7 +140,7 @@ public class Container implements Lifecycle {
                             : null;
             final ConfigurableClassLoader loader = new ConfigurableClassLoader(id, urls,
                     overrideClassLoaderConfig.getParent(), overrideClassLoaderConfig.getParentClassesFilter(),
-                    overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies);
+                    overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers);
             transformers.forEach(loader::registerTransformer);
             return loader;
         };
