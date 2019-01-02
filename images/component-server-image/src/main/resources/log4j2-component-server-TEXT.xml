@@ -18,27 +18,17 @@
     under the License.
 -->
 <Configuration status="INFO">
-  <Properties>
-    <Property name="defaultLayout">[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n</Property>
-    <Property name="base">$${env:LOG_PATH:-$${env:MEECROWAVE_BASE:-.}/logs}</Property>
-  </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="${defaultLayout}"/>
+      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
     </Console>
-    <RollingFile name="File"
-                 fileName="${base}/application.log"
-                 filePattern="${base}/application-%d{yyyy-MM-dd}.log">
-      <PatternLayout pattern="${defaultLayout}" />
-      <Policies>
-        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-      </Policies>
-    </RollingFile>
   </Appenders>
   <Loggers>
+    <Logger name="org.apache.geronimo.opentracing.zipkin" level="${env:CONSOLE_TRACING_LOG_LEVEL:-OFF}" additivity="false">
+      <AppenderRef ref="Console" level="${env:CONSOLE_TRACING_LOG_LEVEL:-INFO}"/>
+    </Logger>
     <Root level="INFO">
-      <AppenderRef ref="File" />
-      <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-OFF}" />
+      <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-INFO}" />
     </Root>
   </Loggers>
 </Configuration>

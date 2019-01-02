@@ -50,6 +50,7 @@ import javax.xml.stream.XMLOutputFactory;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.TestEngine;
+import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.test.Constants;
@@ -258,7 +259,8 @@ class ConfigurableClassLoaderTest {
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader = new ConfigurableClassLoader("test", new URL[0], parent,
-                        parentClasses, parentClasses.negate(), new String[0], new String[0])) {
+                        parentClasses, parentClasses.negate(), new String[0], new String[] {
+                                new File(System.getProperty("java.home")).toPath().toAbsolutePath().toString() })) {
 
             // can be loaded cause in the JVM
             assertTrue(ServiceLoader.load(FileSystemProvider.class, loader).iterator().hasNext());

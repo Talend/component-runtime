@@ -39,11 +39,11 @@
   </Appenders>
   <Loggers>
     <Logger name="org.apache.kafka" level="INFO" />
-    <Logger name="org.apache.geronimo.opentracing.zipkin" level="INFO" additivity="false">
+    <Logger name="org.apache.geronimo.opentracing.zipkin" level="${env:KAFKA_LOG_LEVEL:-INFO}" additivity="false">
       <AppenderRef ref="KafkaTracing"/>
     </Logger>
     <Root level="INFO">
-      <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-OFF}" />
+      <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-INFO}" />
     </Root>
   </Loggers>
 </Configuration>

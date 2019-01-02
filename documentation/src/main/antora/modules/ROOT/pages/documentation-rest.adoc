@@ -397,48 +397,21 @@ $ docker run \
 
 === Logging
 
-The component server docker image comes with two log4j2 profiles: `default` and `kafka`.
-The logging profile can be changed by setting the environment variable `TALEND_COMPONENT_LOG4J2_PROFILE` to `kafka`.
-The `default` profile is active by default.
+The component server docker image comes with two log4j2 profiles: `TEXT` (default) and `JSON`.
+The logging profile can be changed by setting the environment variable `LOGGING_LAYOUT` to `JSON`.
 
 ==== default profile
 
-The *default* profile has file and console logging capabilities.
-The console logging is off by default and you can activate it by setting `CONSOLE_LOG_LEVEL` environment variable to `DEBUG`, `INFO`, `WARN` or any other log level supported by log4j2. In practice and during development you will want to see the logs without connecting to the server by activating console logging.
+The console logging is on at `INFO` level by default and you can customize it by setting `CONSOLE_LOG_LEVEL` environment variable to `DEBUG`, `INFO`, `WARN` or any other log level supported by log4j2.
 
 Run docker image with console logging
 
 [source,sh]
 ----
 sudo docker run -p 8080:8080 \
-	-e CONSOLE_LOG_LEVEL=INFO \
+	-e CONSOLE_LOG_LEVEL=DEBUG \
 	component-server
 ----
-
-==== Kafka profile
-
-The *Kafka* profile lets you send logs to Kafka servers. The logs are formatted in JSON and follow the layout defined by Talend described here:  https://github.com/Talend/daikon/tree/master/daikon-logging/logging-event-layout
-
-This profile requires two environment variables:
-
-* `LOG_KAFKA_TOPIC` : Kafka topic.
-* `LOG_KAFKA_URL`   : A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
-This list should be in the form `url:port` separated by `,`
-
-Run docker image with the `kafka` profile.
-
-[source,sh]
-----
-sudo docker run -p 8080:8080 \
-    -e TALEND_COMPONENT_LOG4J2_PROFILE=kafka \
-    -e LOG_KAFKA_URL=`log kafka url:port` \
-    -e LOG_KAFKA_TOPIC=`log kafka topic` \
-	-e TRACING_KAFKA_URL=`tracing kafka url:port` \
-	-e TRACING_KAFKA_TOPIC=`tracing kafka topic` \
-	tacokit/component-server
-----
-
-*Note* : `LOG_KAFKA_TOPIC` will receive the application and the access logs and `TRACING_KAFKA_TOPIC` will receive brave tracing logs.
 
 ==== OpenTracing
 
@@ -469,9 +442,6 @@ You can build component starter server in docker following those instructions :
 
 [source,sh]
 ----
-docker build --build-arg ARTIFACT_ID=component-starter-server \
-             --build-arg SERVER_VERSION=`component starter server version` \
-             --tag tacokit/component-server .
+cd images/component-server-images
+mvn clean compile jib:dockerBuild
 ----
-
-IMPORTANT: This assumes the project is built before you run that command.

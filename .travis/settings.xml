@@ -30,6 +30,11 @@
       <password>${env.WEBHOST_PASS}</password>
     </server>
     <server>
+      <id>registry.hub.docker.com</id>
+      <username>${env.DOCKER_LOGIN}</username>
+      <password>${env.DOCKER_PASSWORD}</password>
+    </server>
+    <server>
       <id>TalendOpenSourceRelease</id>
       <configuration>
         <timeout>30000</timeout>

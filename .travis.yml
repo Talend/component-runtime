@@ -85,9 +85,8 @@ jobs:
     - stage: master_build
       env:
       - STEP=Docker Deployment
-      - COMPONENT_SERVER_DOCKER_BUILD_ONLY=false
       before_install: chmod +x ./.travis/*.sh && ./.travis/install.sh && ./.travis/setup_keys.sh
-      script: chmod +x ./.travis/docker.sh && travis_wait 50 mvn clean install -pl component-server-parent/component-server -am $DEPLOY_OPTS && travis_wait 50 ./.travis/docker.sh
+      script: travis_wait 50 mvn clean install -pl images/component-server-image -am $DEPLOY_OPTS && cd images/component-server-image && mvn clean install jib:build@build -Dtalend.server.image.registry=registry.hub.docker.com/ $DEPLOY_OPTS
       jdk: openjdk8
 
     - stage: master_build

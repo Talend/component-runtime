@@ -1,5 +1,12 @@
 
 
+== Version 1.1.5
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1245[TCOMP-1245^]: Provided services (SPI) by tacokit not available
+
+
 == Version 1.1.4
 
 === Bug

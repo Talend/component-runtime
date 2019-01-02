@@ -30,6 +30,7 @@
 # $ mvn release:prepare release:perform && release=1.0.3 ./post-release.sh
 #
 
+# ensure it is on the remote repo if needed - /!\ assumes the default remote is right
 echo "Pushing tags"
 git reset --hard
 git push --follow-tags
@@ -39,28 +40,27 @@ if [ "x${release}" == "x" ]; then
     exit 1
 fi
 
-echo "Building tag $release"
+# Get the right tag
+echo "Getting tag $release"
 git checkout -b component-runtime-$release component-runtime-$release
-mvn clean install -DskipTests -Dinvoker.skip=true -T1C
 
-echo "Building and pushing Starter Component Server image"
-cd .docker
-    docker build --build-arg SERVER_VERSION=$release --build-arg ARTIFACT_ID=component-starter-server --tag tacokit/component-starter-server:$release . && \
-    docker push tacokit/component-starter-server:$release
+# push docker images
+echo "Building and pushing docker images $release"
+cd images
+    mvn -DskipTests -Dinvoker.skip=true -T1C \
+        clean install \
+        jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/
 cd -
 
-echo "Building and pushing Component Server image"
-COMPONENT_SERVER_DOCKER_BUILD_ONLY=true ./.travis/docker.sh && \
-docker push tacokit/component-server:$release
-
-echo "Rebuilding master"
+echo "Rebuilding master and updating it (doc) for next iteration"
 git reset --hard
 git checkout master
 mvn clean install -DskipTests -Dinvoker.skip=true -T1C && \
 git commit -a -m "Updating doc for next iteration" && \
 git push
 
-echo "Updating the documentation for next iteration"
-cd documentation
-    mvn clean install pre-site -Pgh-pages
-cd -
+# we don't update the doc here since travis will do it with previous push
+#echo "Updating the documentation for next iteration"
+#cd documentation
+#    mvn clean install pre-site -Pgh-pages
+#cd -

@@ -1,9 +1,0 @@
-= Component Starter Server Docker
-
-== Build
-You can build a docker image of component server following those instructions :
-```
-$ docker build --build-arg SERVER_VERSION=`component starter version` \
-            --build-arg ARTIFACT_ID=component-starter-server \
-            --tag component-starter .
-```

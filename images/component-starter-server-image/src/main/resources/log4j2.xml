@@ -19,15 +19,35 @@
 -->
 <Configuration status="INFO">
   <Properties>
-    <Property name="defaultLayout">[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n</Property>
+    <Property name="base">$${env:MEECROWAVE_BASE:-.}/logs</Property>
   </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="${defaultLayout}"/>
+      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
     </Console>
+    <RollingFile name="File"
+                 fileName="${base}/application.log"
+                 filePattern="${base}/application-%d{yyyy-MM-dd}.log">
+      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile>
+    <RollingFile name="Stats"
+                 fileName="${base}/statistics.log"
+                 filePattern="${base}/statistics-%d{yyyy-MM-dd}.log">
+      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile>
   </Appenders>
   <Loggers>
+    <Logger name="talend.component.starter.statistics" level="INFO">
+      <AppenderRef ref="Stats"/>
+    </Logger>
     <Root level="INFO">
+      <AppenderRef ref="File" />
       <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-OFF}" />
     </Root>
   </Loggers>
