@@ -7,6 +7,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1245[TCOMP-1245^]: Provided services (SPI) by tacokit not available
 
 
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1246[TCOMP-1246^]: Rework docker image setup to use jib
+
+
 == Version 1.1.4
 
 === Bug
