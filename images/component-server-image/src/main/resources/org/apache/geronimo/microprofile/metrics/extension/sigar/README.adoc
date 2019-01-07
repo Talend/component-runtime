@@ -1,3 +1,0 @@
-= Geronimo Metrics Sigar
-
-In 1.0.1 filesystem metrics can be registered twice, fixed for 1.0.2.
