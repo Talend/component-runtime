@@ -222,6 +222,11 @@
   },
   {
     "legacy":false,
+    "name":"CONTAINS",
+    "path":"_images/icons/svg/contains.svg"
+  },
+  {
+    "legacy":false,
     "name":"CREDITS_ENGINE",
     "path":"_images/icons/svg/credits-engine.svg"
   },
@@ -312,6 +317,11 @@
   },
   {
     "legacy":false,
+    "name":"EMPTY_CALENDAR",
+    "path":"_images/icons/svg/empty-calendar.svg"
+  },
+  {
+    "legacy":false,
     "name":"EMPTY_CELL",
     "path":"_images/icons/svg/empty-cell.svg"
   },
@@ -332,6 +342,11 @@
   },
   {
     "legacy":false,
+    "name":"EQUAL",
+    "path":"_images/icons/svg/equal.svg"
+  },
+  {
+    "legacy":false,
     "name":"EXPANDED",
     "path":"_images/icons/svg/expanded.svg"
   },
@@ -349,6 +364,11 @@
     "legacy":false,
     "name":"EYE_SLASH",
     "path":"_images/icons/svg/eye-slash.svg"
+  },
+  {
+    "legacy":false,
+    "name":"FIELDGLASS",
+    "path":"_images/icons/svg/fieldglass.svg"
   },
   {
     "legacy":false,
@@ -517,6 +537,16 @@
   },
   {
     "legacy":false,
+    "name":"FOLDER_SHARED_OWNER",
+    "path":"_images/icons/svg/folder-shared-owner.svg"
+  },
+  {
+    "legacy":false,
+    "name":"FOLDER_SHARED_USER",
+    "path":"_images/icons/svg/folder-shared-user.svg"
+  },
+  {
+    "legacy":false,
     "name":"FULLSCREEN",
     "path":"_images/icons/svg/fullscreen.svg"
   },
@@ -577,6 +607,16 @@
   },
   {
     "legacy":false,
+    "name":"LESS_THAN",
+    "path":"_images/icons/svg/less-than.svg"
+  },
+  {
+    "legacy":false,
+    "name":"LESS_THAN_EQUAL",
+    "path":"_images/icons/svg/less-than-equal.svg"
+  },
+  {
+    "legacy":false,
     "name":"LICENSE",
     "path":"_images/icons/svg/license.svg"
   },
@@ -617,6 +657,11 @@
   },
   {
     "legacy":false,
+    "name":"MARKETO",
+    "path":"_images/icons/svg/marketo.svg"
+  },
+  {
+    "legacy":false,
     "name":"MDM_COLORED",
     "path":"_images/icons/svg/mdm-colored.svg"
   },
@@ -637,8 +682,23 @@
   },
   {
     "legacy":false,
+    "name":"MORE_THAN",
+    "path":"_images/icons/svg/more-than.svg"
+  },
+  {
+    "legacy":false,
+    "name":"MORE_THAN_EQUAL",
+    "path":"_images/icons/svg/more-than-equal.svg"
+  },
+  {
+    "legacy":false,
     "name":"MOST_TRUSTED",
     "path":"_images/icons/svg/most-trusted.svg"
+  },
+  {
+    "legacy":false,
+    "name":"NETSUITE",
+    "path":"_images/icons/svg/netsuite.svg"
   },
   {
     "legacy":false,
@@ -654,6 +714,11 @@
     "legacy":false,
     "name":"NOTE",
     "path":"_images/icons/svg/note.svg"
+  },
+  {
+    "legacy":false,
+    "name":"NOT_EQUAL",
+    "path":"_images/icons/svg/not-equal.svg"
   },
   {
     "legacy":false,
@@ -752,6 +817,11 @@
   },
   {
     "legacy":false,
+    "name":"QUOTES",
+    "path":"_images/icons/svg/quotes.svg"
+  },
+  {
+    "legacy":false,
     "name":"RAW_DATA",
     "path":"_images/icons/svg/raw-data.svg"
   },
@@ -799,6 +869,11 @@
     "legacy":false,
     "name":"SEMANTIC",
     "path":"_images/icons/svg/semantic.svg"
+  },
+  {
+    "legacy":false,
+    "name":"SEND",
+    "path":"_images/icons/svg/send.svg"
   },
   {
     "legacy":false,
@@ -1032,6 +1107,11 @@
   },
   {
     "legacy":false,
+    "name":"UNION",
+    "path":"_images/icons/svg/union.svg"
+  },
+  {
+    "legacy":false,
     "name":"UNLOCKED",
     "path":"_images/icons/svg/unlocked.svg"
   },
@@ -1044,6 +1124,11 @@
     "legacy":false,
     "name":"USER_CIRCLE",
     "path":"_images/icons/svg/user-circle.svg"
+  },
+  {
+    "legacy":false,
+    "name":"VERSIONING",
+    "path":"_images/icons/svg/versioning.svg"
   },
   {
     "legacy":false,
