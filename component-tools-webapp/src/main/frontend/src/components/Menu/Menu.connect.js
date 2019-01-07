@@ -31,7 +31,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-	return state.app.componentsList || {};
+	return (state.app || {}).componentsList || {};
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Menu);

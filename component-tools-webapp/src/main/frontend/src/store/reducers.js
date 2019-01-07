@@ -14,14 +14,15 @@
  *  limitations under the License.
  */
 
+import { combineReducers } from 'redux';
 import componentsList from './componentsList/reducers';
 import component from './component/reducers';
 import application from './application/reducers';
 
-export default (state = {}, action) => {
-  return {
-    componentsList: componentsList(state.componentsList, action),
-    component: component(state.component, action),
-    application: application(state.application, action)
-  };
-}
+export default {
+  app: combineReducers({
+    componentsList,
+    component,
+    application,
+  }),
+};

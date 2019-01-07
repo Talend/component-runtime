@@ -45,7 +45,7 @@ export default class App extends React.Component {
       <div className={theme.App}>
         <IconsProvider/>
         <Layout mode={'TwoColumns'} header={header} one={menu}>
-          <Detail />
+          <Detail saga="Detail::start" />
         </Layout>
         <Notification notifications={this.props.notifications} leaveFn={this.notificationLeaveFn} />
       </div>

@@ -57,6 +57,9 @@ function Detail(props) {
     };
     const registry = {
         healthcheck: validationWithSuccessFeedback,
+        built_in_suggestable: function () {
+            return { titleMap: Array(10).fill().map((x,i) => ({ name: 'Proposal ' + i, value: 'value_' + i })) };
+        }
     };
 
     if (!props.definitionURL) {

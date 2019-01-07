@@ -31,7 +31,7 @@ import Detail from './Detail.component';
 function mapStateToProps(state) {
 	return {
 		definitionURL: get(state, 'app.componentsList.selectedNode.$$detail'),
-		...state.app.component,
+		...(state.app || {}).component || {},
 	}
 }
 

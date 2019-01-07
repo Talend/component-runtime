@@ -36,4 +36,5 @@ cmf.bootstrap({
   components: { ComponentForm, ...components },
   reducer,
   appId: 'component-kit-tools-webapp',
+  RootComponent: components.App,
 });
