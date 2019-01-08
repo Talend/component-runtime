@@ -57,6 +57,7 @@ import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 public class AsciidocDocumentationGenerator extends BaseTask {
 
@@ -82,6 +83,7 @@ public class AsciidocDocumentationGenerator extends BaseTask {
 
     private final Log log;
 
+    @Getter
     private final Locale locale;
 
     private final AbsolutePathResolver resolver = new AbsolutePathResolver();
@@ -167,16 +169,41 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                         .findFirst()
                         .orElseThrow(NoSuchElementException::new)
                         .name()
-                + "\n\n"
-                + ofNullable(aClass.getAnnotation(Documentation.class))
-                        .map(Documentation::value)
-                        .map(v -> v + "\n\n")
-                        .orElse("")
+                + "\n\n" + getDoc(aClass)
                 + (parameterMetas.isEmpty() ? ""
                         : (levelPrefix + "= Configuration\n\n" + toAsciidocRows(sort(parameterMetas), null, null)
                                 .collect(joining("\n",
                                         "[cols=\"d,d,m,a,e\",options=\"header\"]\n|===\n|Display Name|Description|Default Value|Enabled If|Configuration Path\n",
                                         "\n|===\n\n"))));
+    }
+
+    private String getDoc(final Class<?> component) {
+        final Collection<String> docKeys = Stream
+                .of(getComponentPrefix(component), component.getSimpleName())
+                .map(it -> it + "._documentation")
+                .collect(toList());
+        return ofNullable(findResourceBundle(component))
+                .map(bundle -> docKeys
+                        .stream()
+                        .filter(bundle::containsKey)
+                        .map(bundle::getString)
+                        .findFirst()
+                        .map(v -> v + "\n\n")
+                        .orElse(null))
+                .orElseGet(() -> ofNullable(component.getAnnotation(Documentation.class))
+                        .map(Documentation::value)
+                        .map(v -> v + "\n\n")
+                        .orElse(""));
+    }
+
+    private String getComponentPrefix(final Class<?> component) {
+        try {
+            return components(component)
+                    .map(c -> findFamily(c, component) + "." + c.name())
+                    .orElseGet(component::getSimpleName);
+        } catch (final RuntimeException e) {
+            return component.getSimpleName();
+        }
     }
 
     private Collection<ParameterMeta> sort(final Collection<ParameterMeta> parameterMetas) {

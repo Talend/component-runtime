@@ -48,11 +48,11 @@ abstract class BaseTask implements Runnable {
 
     protected final File[] classes;
 
-    protected ComponentValidator.Component asComponent(final Annotation a) {
-        return ComponentValidator.Component.class
+    protected Component asComponent(final Annotation a) {
+        return Component.class
                 .cast(Proxy
                         .newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                                new Class<?>[] { ComponentValidator.Component.class },
+                                new Class<?>[] { Component.class },
                                 (proxy, method, args) -> a.annotationType().getMethod(method.getName()).invoke(a)));
     }
 
@@ -82,7 +82,7 @@ abstract class BaseTask implements Runnable {
         };
     }
 
-    protected Optional<ComponentValidator.Component> components(final Class<?> component) {
+    protected Optional<Component> components(final Class<?> component) {
         return componentMarkers()
                 .map(component::getAnnotation)
                 .filter(Objects::nonNull)
@@ -90,7 +90,7 @@ abstract class BaseTask implements Runnable {
                 .map(this::asComponent);
     }
 
-    protected String findFamily(final ComponentValidator.Component c, final Class<?> pckMarker) {
+    protected String findFamily(final Component c, final Class<?> pckMarker) {
         return ofNullable(c)
                 .map(Component::family)
                 .filter(name -> !name.isEmpty())
@@ -129,10 +129,14 @@ abstract class BaseTask implements Runnable {
     protected ResourceBundle findResourceBundle(final Class<?> component) {
         final String baseName = ofNullable(component.getPackage()).map(p -> p.getName() + ".").orElse("") + "Messages";
         try {
-            return ResourceBundle.getBundle(baseName, Locale.ENGLISH, Thread.currentThread().getContextClassLoader());
+            return ResourceBundle.getBundle(baseName, getLocale(), Thread.currentThread().getContextClassLoader());
         } catch (final MissingResourceException mre) {
             return null;
         }
+    }
+
+    protected Locale getLocale() {
+        return Locale.ENGLISH;
     }
 
     public interface Component {

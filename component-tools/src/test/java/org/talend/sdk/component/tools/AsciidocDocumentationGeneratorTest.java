@@ -70,6 +70,33 @@ class AsciidocDocumentationGeneratorTest {
     }
 
     @Test
+    void generateAdocWithI18n(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
+        final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
+        new AsciidocDocumentationGenerator(
+                new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
+                        info.getTestMethod().get().getName()) },
+                output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", new Locale("test")).run();
+        assertTrue(output.exists());
+        try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
+            assertEquals(
+                    "== my\n" + "\n" + "Awesome Doc\n" + "\n" + "=== Configuration\n" + "\n"
+                            + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                            + "|Display Name|Description|Default Value|Enabled If|Configuration Path\n"
+                            + "|configuration|configuration configuration|-|Always enabled|configuration\n"
+                            + "|input|the input value|-|Always enabled|configuration.input\n"
+                            + "|nested|it is nested|-|Always enabled|configuration.nested\n"
+                            + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore\n"
+                            + "|user|the user to log in|unknown|Always enabled|configuration.nested.user\n" + "|===\n"
+                            + "\n" + "== my2\n" + "\n" + "super my component2\n" + "\n" + "=== Configuration\n" + "\n"
+                            + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                            + "|Display Name|Description|Default Value|Enabled If|Configuration Path\n"
+                            + "|ds|ds configuration|-|Always enabled|ds\n"
+                            + "|datastore|the datastore|-|Always enabled|ds.datastore\n" + "|===\n",
+                    reader.lines().collect(joining("\n")));
+        }
+    }
+
+    @Test
     void generateAdocAdvancedConfig(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
         final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
         new AsciidocDocumentationGenerator(
@@ -155,7 +182,7 @@ class AsciidocDocumentationGeneratorTest {
         ofNullable(root.listFiles())
                 .map(Stream::of)
                 .orElseGet(Stream::empty)
-                .filter(c -> c.getName().endsWith(".class"))
+                .filter(c -> c.getName().endsWith(".class") || c.getName().endsWith(".properties"))
                 .forEach(c -> {
                     try {
                         Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
