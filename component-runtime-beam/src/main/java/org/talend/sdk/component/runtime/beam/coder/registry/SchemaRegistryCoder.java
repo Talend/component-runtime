@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.coder.registry;
 
+import static org.talend.sdk.component.runtime.beam.coder.registry.AvroCoderCache.getCoder;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
 import java.io.ByteArrayOutputStream;
@@ -26,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.CustomCoder;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
@@ -34,9 +34,11 @@ import org.talend.sdk.component.runtime.beam.spi.record.AvroRecord;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.Schemas;
 
+import lombok.extern.slf4j.Slf4j;
+
 // advantage is that it does not need any record mutation but
 // it implies a mutation of the binary format on persistence
-// todo: make it better
+@Slf4j
 public class SchemaRegistryCoder extends CustomCoder<Record> {
 
     private static final GenericData.Record EMPTY_RECORD = new GenericData.Record(AvroSchemas.getEmptySchema());
@@ -88,11 +90,6 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
     @Override
     public boolean equals(final Object obj) {
         return SchemaRegistryCoder.class.isInstance(obj);
-    }
-
-    // todo: add caching here
-    private AvroCoder<IndexedRecord> getCoder(final Schema avro) {
-        return AvroCoder.of(IndexedRecord.class, avro);
     }
 
     private SchemaRegistry registry() { // don't serialize
