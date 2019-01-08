@@ -10,6 +10,11 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1246[TCOMP-1246^]: Rework docker image setup to use jib
+- link:https://jira.talendforge.org/browse/TCOMP-1247[TCOMP-1247^]: Upgrade geronimo metrics to 1.0.2
+- link:https://jira.talendforge.org/browse/TCOMP-1248[TCOMP-1248^]: Upgrade to geronimo opentracing 1.0.3
+- link:https://jira.talendforge.org/browse/TCOMP-1249[TCOMP-1249^]: Provide segment extractor for doc endpoint
+- link:https://jira.talendforge.org/browse/TCOMP-1250[TCOMP-1250^]: Make component documentation (@Documentation on component) i18n friendly
+- link:https://jira.talendforge.org/browse/TCOMP-1251[TCOMP-1251^]: cache avrocoders used in SchemaRegistryCoder
 
 
 == Version 1.1.4
