@@ -98,7 +98,8 @@ public class DocumentationResource {
                     + "Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get "
                     + "a partial document. "
                     + "IMPORTANT: it is recommended to use asciidoc format and handle the conversion on your side if you can, "
-                    + "the html is not activated by default and requires deployment work (adding asciidoctor).")
+                    + "the html is not available by default and requires deployment work (adding asciidoctor). "
+                    + "It will likely be removed in a coming version.")
     @APIResponse(responseCode = "200",
             description = "the list of available and storable configurations (datastore, dataset, ...).",
             content = @Content(mediaType = APPLICATION_JSON))
@@ -110,7 +111,10 @@ public class DocumentationResource {
                     schema = @Schema(type = STRING, defaultValue = "en")) final String language,
             @QueryParam("format") @DefaultValue("asciidoc") @Parameter(name = "format",
                     description = "the expected format (asciidoc or html).", in = QUERY,
-                    schema = @Schema(type = STRING, defaultValue = "asciidoc")) final String format) {
+                    schema = @Schema(type = STRING, defaultValue = "asciidoc")) final String format,
+            @QueryParam("segment") @DefaultValue("ALL") @Parameter(name = "segment",
+                    description = "the part of the documentation to extract.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "ALL")) final DocumentationSegment segment) {
         final Locale locale = localeMapper.mapLocale(language);
         final Container container = ofNullable(componentDao.findById(id))
                 .map(meta -> manager
@@ -137,7 +141,7 @@ public class DocumentationResource {
             }
         }
 
-        return cache.documentations.computeIfAbsent(new DocKey(id, language, format), key -> {
+        return cache.documentations.computeIfAbsent(new DocKey(id, language, format, segment), key -> {
             // todo: handle i18n properly, for now just fallback on not suffixed version and assume the dev put it
             // in the comp
             final String content = Stream
@@ -176,7 +180,7 @@ public class DocumentationResource {
                                                             f.getProcessors().values().stream()))
                                             .filter(c -> c.getId().equals(id))
                                             .findFirst()
-                                            .map(c -> selectById(c.getName(), value)))
+                                            .map(c -> selectById(c.getName(), value, segment)))
                                     .orElse(value);
 
                         }
@@ -197,6 +201,8 @@ public class DocumentationResource {
         private final String language;
 
         private final String format;
+
+        private final DocumentationSegment segment;
     }
 
     private static class DocumentationCache {
@@ -205,7 +211,7 @@ public class DocumentationResource {
     }
 
     // see org.talend.sdk.component.tools.AsciidocDocumentationGenerator.toAsciidoc
-    private String selectById(final String name, final String value) {
+    private String selectById(final String name, final String value, final DocumentationSegment segment) {
         final List<String> lines;
         try (final BufferedReader reader = new BufferedReader(new StringReader(value))) {
             lines = reader.lines().collect(toList());
@@ -241,10 +247,43 @@ public class DocumentationResource {
             lineIdx++;
         }
         if (!endOfLines.isEmpty()) {
-            return String.join("\n", endOfLines);
+            switch (segment) {
+            case DESCRIPTION: {
+                final String configTitle = getConfigTitle(prefixTitle);
+                final int configIndex = endOfLines.indexOf(configTitle);
+                final boolean skipFirst = endOfLines.get(0).startsWith(prefixTitle);
+                final int lastIndex = configIndex < 0 ? endOfLines.size() : configIndex;
+                final int firstIndex = skipFirst ? 1 : 0;
+                if (lastIndex - firstIndex <= 0) {
+                    return "";
+                }
+                return String.join("\n", endOfLines.subList(firstIndex, lastIndex));
+            }
+            case CONFIGURATION: {
+                final String configTitle = getConfigTitle(prefixTitle);
+                final int configIndex = endOfLines.indexOf(configTitle);
+                if (configIndex < 0 || configIndex + 1 >= endOfLines.size()) {
+                    return "";
+                }
+                return String.join("\n", endOfLines.subList(configIndex + 1, endOfLines.size()));
+            }
+            case ALL:
+            default:
+                return String.join("\n", endOfLines);
+            }
         }
 
         // if not found just return all the doc
         return value;
+    }
+
+    private String getConfigTitle(final String prefixTitle) {
+        return '=' + prefixTitle + "Configuration";
+    }
+
+    public enum DocumentationSegment {
+        ALL,
+        DESCRIPTION,
+        CONFIGURATION
     }
 }

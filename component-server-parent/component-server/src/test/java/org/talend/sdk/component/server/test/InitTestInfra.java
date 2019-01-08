@@ -202,7 +202,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
                     out.putNextEntry(new JarEntry("TALEND-INF/documentation.adoc"));
                     out
-                            .write("== input\n\n=== Configuration\n\nSomething1\n\n== output\n\n=== Configuration\n\nSomething else"
+                            .write("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n\n== output\n\n=== Configuration\n\nSomething else"
                                     .getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
                 } catch (final IOException e) {

@@ -49,7 +49,8 @@ class DocumentationResourceTest {
                         "/documentation/component/" + client.getJdbcId() + "?format=html", null);
         assertEquals("html", content.getType());
         assertEquals(
-                "<div class=\"sect1\">\n" + "<h2 id=\"_input\">input</h2>\n" + "<div class=\"sectionbody\">\n"
+                "<div class=\"sect1\">\n" + "<h2 id=\"_input\">input</h2>\n"
+                        + "<div class=\"sectionbody\">\n<div class=\"paragraph\">\n" + "<p>desc</p>\n" + "</div>\n"
                         + "<div class=\"sect2\">\n" + "<h3 id=\"_configuration\">Configuration</h3>\n"
                         + "<div class=\"paragraph\">\n" + "<p>Something1</p>\n" + "</div>\n" + "</div>\n" + "</div>\n"
                         + "</div>\n" + "<div class=\"sect1\">\n" + "<h2 id=\"_output\">output</h2>\n"
@@ -67,7 +68,31 @@ class DocumentationResourceTest {
                 .request(APPLICATION_JSON_TYPE)
                 .get(DocumentationContent.class);
         assertEquals("asciidoc", content.getType());
-        assertEquals("== input\n\n=== Configuration\n\nSomething1\n", content.getSource());
+        assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n", content.getSource());
+    }
+
+    @Test
+    void getDocDescription() {
+        final DocumentationContent content = base
+                .path("documentation/component/{id}")
+                .resolveTemplate("id", client.getJdbcId())
+                .queryParam("segment", "DESCRIPTION")
+                .request(APPLICATION_JSON_TYPE)
+                .get(DocumentationContent.class);
+        assertEquals("asciidoc", content.getType());
+        assertEquals("desc", content.getSource().trim());
+    }
+
+    @Test
+    void getDocConfig() {
+        final DocumentationContent content = base
+                .path("documentation/component/{id}")
+                .resolveTemplate("id", client.getJdbcId())
+                .queryParam("segment", "CONFIGURATION")
+                .request(APPLICATION_JSON_TYPE)
+                .get(DocumentationContent.class);
+        assertEquals("asciidoc", content.getType());
+        assertEquals("Something1", content.getSource().trim());
     }
 
     @Test
@@ -81,7 +106,8 @@ class DocumentationResourceTest {
                 .get(DocumentationContent.class);
         assertEquals("html", content.getType());
         assertEquals(
-                "<div class=\"sect1\">\n" + "<h2 id=\"_input\">input</h2>\n" + "<div class=\"sectionbody\">\n"
+                "<div class=\"sect1\">\n" + "<h2 id=\"_input\">input</h2>\n"
+                        + "<div class=\"sectionbody\">\n<div class=\"paragraph\">\n" + "<p>desc</p>\n" + "</div>\n"
                         + "<div class=\"sect2\">\n" + "<h3 id=\"_configuration\">Configuration</h3>\n"
                         + "<div class=\"paragraph\">\n" + "<p>Something1</p>\n" + "</div>\n" + "</div>\n" + "</div>\n"
                         + "</div>\n" + "<div class=\"sect1\">\n" + "<h2 id=\"_output\">output</h2>\n"
@@ -115,7 +141,7 @@ class DocumentationResourceTest {
                     .request(APPLICATION_JSON_TYPE)
                     .get(DocumentationContent.class)
                     .getSource();
-            assertEquals("== input\n\n=== Configuration\n\nSomething1\n", response);
+            assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n", response);
         }
         {
             final String id = client.getComponentId("jdbc", "output");
