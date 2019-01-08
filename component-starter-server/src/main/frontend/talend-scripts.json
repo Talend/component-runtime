@@ -1,0 +1,17 @@
+{
+	"cmf": false,
+	"sass": {
+    "data": {
+			"$brand-primary": "#4F93A7",
+			"$brand-blue": "#266092",
+      "$brand-primary-t7": "#00A1B3",
+      "$brand-secondary-t7": "#168AA6"
+    },
+    "theme": "tdp"
+  },
+	"webpack": {
+		"config": {
+			"development": "./webpack.config.dev.js"
+		}
+	}
+}

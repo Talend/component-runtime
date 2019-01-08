@@ -17,7 +17,7 @@
 $grey: #ccc;
 
 .ProjectMetadata {
-  max-width: 50%;
+  width: 600px;
 
   .title {
     font-weight: bolder;
@@ -32,6 +32,7 @@ $grey: #ccc;
   }
 
   .main {
+    padding: $padding-small;
     min-height:100%;
     overflow-y: auto;
   }

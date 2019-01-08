@@ -1,0 +1,36 @@
+{
+    "buildTypes": [
+        "Gradle",
+        "Maven"
+    ],
+    "facets": {
+        "Libraries": [
+            {
+                "description": "Generates a HTTP client from a WADL.",
+                "name": "WADL Client Generation"
+            }
+        ],
+        "Runtime": [
+            {
+                "description": "Generates some tests using beam runtime instead of Talend Component Kit Testing framework.",
+                "name": "Apache Beam"
+            }
+        ],
+        "Test": [
+            {
+                "description": "Generates test(s) for each component.",
+                "name": "Talend Component Kit Testing"
+            }
+        ],
+        "Tool": [
+            {
+                "description": "Pre-configures the project to be usable with Codenvy.",
+                "name": "Codenvy"
+            },
+            {
+                "description": "Creates a .travis.yml pre-configured for a component build.",
+                "name": "Travis CI"
+            }
+        ]
+    }
+}

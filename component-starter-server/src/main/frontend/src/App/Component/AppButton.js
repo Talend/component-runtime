@@ -19,25 +19,27 @@ import { Action } from '@talend/react-components';
 import theme from './AppButton.scss';
 
 export default class AppButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-    };
-  }
+	constructor(props) {
+		super(props);
+		this.state = {};
+	}
 
-  render() {
-    const classes = [theme.AppButton];
-    if ('right' === this.props.side) {
-      classes.push(theme.right);
-    }
-    return (
-      <div className={classes.join(' ')}>
-        <Action onClick={e => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}
-                icon={this.props.icon} iconPosition={this.props.iconPosition || 'right'}
-                className={this.props.className}
-                label={this.props.text || 'Schema'} />
-        {!!this.props.help && this.props.help}
-      </div>
-    );
-  }
+	render() {
+		const classes = [theme.AppButton];
+		if ('right' === this.props.side) {
+			classes.push(theme.right);
+		}
+		return (
+			<div className={classes.join(' ')}>
+				<Action
+					onClick={e => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}
+					icon={this.props.icon}
+					iconPosition={this.props.iconPosition || 'right'}
+					className={this.props.className}
+					label={this.props.text || 'Schema'}
+				/>
+				{!!this.props.help && this.props.help}
+			</div>
+		);
+	}
 }

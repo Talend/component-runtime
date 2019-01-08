@@ -14,8 +14,32 @@
  *  limitations under the License.
  */
 import React from 'react';
-import HttpError from '@talend/react-components/lib/HttpError';
 
-export default function Missing() {
-  return <HttpError status="404" title="Oops ..." message="The page you are looking for cannot be found" />;
+import theme from './Summary.scss';
+
+function Info(props) {
+	return (
+		<div className={theme.Info}>
+			<label>{props.name}:</label>
+			<span>{props.value}</span>
+		</div>
+	);
+}
+
+export default function Finish(props) {
+	const p = props.project; // just to make it shorter in the template
+	if (!p) {
+		return <div />;
+	}
+	return (
+		<div className={theme.Summary}>
+			<Info name="Name" value={p.name} />
+			<Info name="Build Tool" value={p.buildType} />
+			<Info name="Coordinates" value={`${p.group}:${p.artifact}:${p.version}`} />
+			<Info
+				name="Components"
+				value={`${p.sources.length} inputs and ${p.processors.length} processors`}
+			/>
+		</div>
+	);
 }

@@ -13,5 +13,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+import '@talend/bootstrap-theme/src/theme/theme.scss';
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import i18n from 'i18next';
+import { reactI18nextModule } from 'react-i18next';
 import App from './App';
-export default App;
+import helpTexts from './locales/en/Help.json';
+
+import './index.scss';
+
+i18n.use(reactI18nextModule).init({
+	lng: 'en',
+	resources: {
+		en: {
+			Help: helpTexts,
+		},
+	},
+	/*
+  to capture all keys:
+  1. activate next line
+  2. update Help.js to drop the overlay trigger and wrap the popover in I18n
+  3. launch the app and browse pages (don't forget configuration tabs)
+  3. update the json content from the captured key/value pairs
+  */
+	// , saveMissing: true, missingKeyHandler: (lang, ns, key, value) => console.log(`"${key}": "${value.replace(/"/g, '\\"')}"`)
+});
+i18n.addResourceBundle('en', 'Help', helpTexts);
+
+ReactDOM.render(<App />, document.getElementById('root'));

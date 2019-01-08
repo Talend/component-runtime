@@ -21,22 +21,28 @@ import { Icon } from '@talend/react-components';
 import theme from './Help.scss';
 
 export default function Help(props) {
-  const overlay = (
-    <Popover title={<Trans i18nKey={`${props.i18nKey}_title`}>{props.title}</Trans>}>
-      {
-        <span className={theme.HelpContent}>
-          <Trans i18nKey={props.i18nKey}>
-            {props.content}
-          </Trans>
-        </span>
-      }
-    </Popover>);
-  return (
-    <I18n ns="Help">{(t, { i18n }) => (
-      <OverlayTrigger trigger={['hover', 'focus']} placement={props.placement || 'right'} overlay={overlay}>
-        <span className={theme.Help}>
-          <Icon name="talend-question-circle" />
-        </span>
-      </OverlayTrigger>
-    )}</I18n>);
+	const overlay = (
+		<Popover title={<Trans i18nKey={`${props.i18nKey}_title`}>{props.title}</Trans>}>
+			{
+				<span className={theme.HelpContent}>
+					<Trans i18nKey={props.i18nKey}>{props.content}</Trans>
+				</span>
+			}
+		</Popover>
+	);
+	return (
+		<I18n ns="Help">
+			{(t, { i18n }) => (
+				<OverlayTrigger
+					trigger={['hover', 'focus']}
+					placement={props.placement || 'right'}
+					overlay={overlay}
+				>
+					<span className={theme.Help}>
+						<Icon name="talend-question-circle" />
+					</span>
+				</OverlayTrigger>
+			)}
+		</I18n>
+	);
 }
