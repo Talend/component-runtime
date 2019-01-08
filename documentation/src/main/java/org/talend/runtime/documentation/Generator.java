@@ -103,6 +103,7 @@ import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
 import org.jruby.Ruby;
+import org.talend.sdk.component.api.configuration.action.BuiltInSuggestable;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
@@ -722,6 +723,20 @@ public class Generator {
             }
             stream.println();
 
+            stream.println("== Built In Actions");
+            stream.println();
+            stream.println("These actions are provided - or not - by the application the UI runs within.");
+            stream.println();
+            stream.println("TIP: always ensure you don't require this action in your component.");
+            stream.println();
+            Stream.of(BuiltInSuggestable.class).forEach(it -> {
+                stream.println("= built_in_suggestable");
+                stream.println();
+                stream.println(extractDoc(BuiltInSuggestable.class));
+                stream.println();
+                stream.println("- API: `@" + BuiltInSuggestable.class.getName() + "`");
+                stream.println();
+            });
         }
     }
 

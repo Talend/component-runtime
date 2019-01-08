@@ -130,3 +130,15 @@ IMPORTANT: this is a server validation so only use it if you can't use other cli
 ----
 
 
+== Built In Actions
+
+These actions are provided - or not - by the application the UI runs within.
+
+TIP: always ensure you don't require this action in your component.
+
+= built_in_suggestable
+
+Mark the decorated field as supporting suggestions, i.e. dynamically get a list of valid values the user can use. It is however different from `@Suggestable` by looking up the implementation in the current application and not the services. Finally, it is important to note that it can do nothing in some environments too and that there is no guarantee the specified action is supported.
+
+- API: `@org.talend.sdk.component.api.configuration.action.BuiltInSuggestable`
+
