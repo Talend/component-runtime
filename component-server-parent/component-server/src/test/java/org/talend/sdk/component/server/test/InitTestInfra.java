@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -72,6 +73,20 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                 .setTempDir(new File(jarLocation(InitTestInfra.class).getParentFile(), getClass().getSimpleName())
                         .getAbsolutePath());
         System.setProperty("talend.component.server.maven.repository", createM2(builder.getTempDir()));
+        System
+                .setProperty("talend.component.server.component.documentation.translations",
+                        createI18nDocRepo(builder.getTempDir()));
+    }
+
+    private String createI18nDocRepo(final String tempDir) {
+        final File base = new File(tempDir, "i18n-doc");
+        base.mkdirs();
+        try (final FileWriter writer = new FileWriter(new File(base, "documentation_the-test-component_test.adoc"))) {
+            writer.write("== Input\n\nSome Input Overriden For Test locale\n\n=== Configuration\n\nblabla\n");
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return base.getAbsolutePath();
     }
 
     private String createM2(final String tempDir) {

@@ -154,4 +154,17 @@ class DocumentationResourceTest {
             assertEquals("== output\n\n=== Configuration\n\nSomething else", response);
         }
     }
+
+    @Test
+    void overridenDoc() {
+        final String id = client.getComponentId("chain", "list");
+        final String response = base
+                .path("documentation/component/{id}")
+                .resolveTemplate("id", id)
+                .queryParam("language", "test")
+                .request(APPLICATION_JSON_TYPE)
+                .get(DocumentationContent.class)
+                .getSource();
+        assertEquals("== Input\n\nSome Input Overriden For Test locale\n\n=== Configuration\n\nblabla", response);
+    }
 }

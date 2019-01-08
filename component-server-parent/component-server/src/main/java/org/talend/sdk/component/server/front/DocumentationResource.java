@@ -27,9 +27,12 @@ import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUE
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +43,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -62,6 +66,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
@@ -89,6 +94,18 @@ public class DocumentationResource {
 
     @Inject
     private Instance<Object> instance;
+
+    @Inject
+    private ComponentServerConfiguration configuration;
+
+    private File i18nBase;
+
+    @PostConstruct
+    private void init() {
+        i18nBase = new File(configuration
+                .getDocumentationI18nTranslations()
+                .replace("${home}", System.getProperty("meecrowave.home", "")));
+    }
 
     @GET
     @Path("component/{id}")
@@ -147,7 +164,8 @@ public class DocumentationResource {
             final String content = Stream
                     .of("documentation_" + locale.getLanguage() + ".adoc", "documentation_" + language + ".adoc",
                             "documentation.adoc")
-                    .map(name -> container.getLoader().getResource("TALEND-INF/" + name))
+                    .map(name -> ofNullable(container.getLoader().getResource("TALEND-INF/" + name))
+                            .orElseGet(() -> findLocalI18n(locale, container)))
                     .filter(Objects::nonNull)
                     .findFirst()
                     .map(url -> {
@@ -191,6 +209,22 @@ public class DocumentationResource {
                             .build()));
             return new DocumentationContent(format, content);
         });
+    }
+
+    private URL findLocalI18n(final Locale locale, final Container container) {
+        if (!i18nBase.exists()) {
+            return null;
+        }
+        final File file =
+                new File(i18nBase, "documentation_" + container.getId() + "_" + locale.getLanguage() + ".adoc");
+        if (file.exists()) {
+            try {
+                return file.toURI().toURL();
+            } catch (final MalformedURLException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return null;
     }
 
     @Data

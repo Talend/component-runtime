@@ -88,4 +88,12 @@ public class ComponentServerConfiguration {
     @Documentation("Should the component extensions add required dependencies.")
     @ConfigProperty(name = "talend.component.server.component.extend.dependencies", defaultValue = "true")
     private Boolean addExtensionDependencies;
+
+    @Inject
+    @Documentation("A component translation repository. This is where you put your documentation translations. "
+            + "Their name must follow the pattern `documentation_${container-id}_language.adoc` where `${container-id}` "
+            + "is the component jar name (without the extension and version, generally the artifactId).")
+    @ConfigProperty(name = "talend.component.server.component.documentation.translations",
+            defaultValue = "${home}/documentations")
+    private String documentationI18nTranslations;
 }
