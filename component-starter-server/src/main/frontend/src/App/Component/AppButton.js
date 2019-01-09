@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
+import classnames from 'classnames';
 import { Action } from '@talend/react-components';
 
 import theme from './AppButton.scss';
@@ -25,17 +26,15 @@ export default class AppButton extends React.Component {
 	}
 
 	render() {
-		const classes = [theme.AppButton];
-		if ('right' === this.props.side) {
-			classes.push(theme.right);
-		}
 		return (
-			<div className={classes.join(' ')}>
+			<div className={classnames(theme.AppButton, {
+				[theme.right]: this.props.side === 'right',
+			})}>
 				<Action
 					onClick={e => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}
 					icon={this.props.icon}
 					iconPosition={this.props.iconPosition || 'right'}
-					className={this.props.className}
+					className="btn-inverse"
 					label={this.props.text || 'Schema'}
 				/>
 				{!!this.props.help && this.props.help}

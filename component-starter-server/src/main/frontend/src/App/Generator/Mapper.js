@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Toggle, Drawer } from '@talend/react-components';
+import { Toggle } from '@talend/react-components';
 import Help from '../Component/Help';
 import AppButton from '../Component/AppButton';
 import Schema from '../Component/Schema';
@@ -49,7 +49,7 @@ export default class Mapper extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if (this.props !== nextProps) {
+		if (this.props.component !== nextProps.component) {
 			this.setState({
 				configurationStructure: nextProps.component.source.configurationStructure,
 				outputStructure: nextProps.component.source.outputStructure,
@@ -64,23 +64,19 @@ export default class Mapper extends React.Component {
 
 	onConfigurationButtonClick() {
 		this.props.onUpdateDrawers([
-			<Drawer
-				title={`${this.props.component.configuration.name} Configuration Model`}
-				footerActions={this.drawerActions}
-			>
+			<div>
+				<h2>Configuration Model</h2>
 				<Schema schema={this.state.configurationStructure} readOnly={true} name="configuration" />
-			</Drawer>,
+			</div>,
 		]);
 	}
 
 	onRecordButtonClick() {
 		this.props.onUpdateDrawers([
-			<Drawer
-				title={`${this.props.component.configuration.name} Record Model`}
-				footerActions={this.drawerActions}
-			>
+			<div>
+				<h2>Record Model</h2>
 				<Schema schema={this.state.outputStructure} readOnly={true} name="root" />
-			</Drawer>,
+			</div>,
 		]);
 	}
 
@@ -101,7 +97,7 @@ export default class Mapper extends React.Component {
 
 	render() {
 		return (
-			<mapper className={this.props.theme.Mapper}>
+			<div className={this.props.theme.Mapper}>
 				<AppButton
 					text="Configuration Model"
 					onClick={this.onConfigurationButtonClick}
@@ -131,13 +127,13 @@ export default class Mapper extends React.Component {
 							title="Stream"
 							i18nKey="mapper_stream"
 							content={
-								<span>
+								<div>
 									<p>Activate this toggle if your input will issue a stream.</p>
 									<p>
 										It means that there is no real "end" of the data and that the job/pipeline using
 										this component is not intended to be terminated.
 									</p>
-								</span>
+								</div>
 							}
 						/>
 					</p>
@@ -153,14 +149,14 @@ export default class Mapper extends React.Component {
 							title="Record"
 							i18nKey="mapper_record_type"
 							content={
-								<span>
+								<div>
 									<p>The input will issue some records.</p>
 									<p>
 										This configuration allows you to either define the schema of the records or to
 										use a generic record type you will implement if the data structure can vary
 										depending the component configuration.
 									</p>
-								</span>
+								</div>
 							}
 						/>
 					</p>
@@ -201,7 +197,7 @@ export default class Mapper extends React.Component {
 						/>
 					)}
 				</div>
-			</mapper>
+			</div>
 		);
 	}
 }

@@ -14,7 +14,8 @@
  *  limitations under the License.
  */
 .Component {
-  width: 500px;
+  display: flex;
+
 
   .title {
     font-weight: bolder;
@@ -28,38 +29,23 @@
     border: 0;
   }
 
-  > div {
-    > div:last-child {
-      > div {
-        top: 48px;
-        height: calc(100vh - 48px);
-
-        > div {
-          > div {
-            > div:last-child {
-              > div {
-                height: 100%;
-              }
-            }
-          }
-        }
-
-        @media (min-width: 1200px) {
-          > div {
-            width: 50vw;
-          }
-        }
-      }
-    }
-  }
-
   .main {
     min-height:100%;
     overflow-y: auto;
+    flex: 1;
+    padding-right: $padding-large;
+  }
+
+  .secondary {
+    flex: 1;
+    padding-top: $padding-smaller;
+    border-left: 1px solid $silver;
+    height: calc(100vh - 48px - 30px);
+    padding-left: $padding-large;
   }
 
   .selected {
-    background-color: $brand-blue;
+    background-color: $padding-large;
     color: white;
   }
 
