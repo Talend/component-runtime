@@ -113,7 +113,7 @@
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-maven-plugin</artifactId>
-        <version>1.0.0-rc1</version>
+        <version>${jib.version}</version>
         <!--
         mvn clean install jib:build@build [-Dtalend.server.image.registry=...] -> will be pushed
         mvn clean install jib:dockerBuild@build -> local docker image
