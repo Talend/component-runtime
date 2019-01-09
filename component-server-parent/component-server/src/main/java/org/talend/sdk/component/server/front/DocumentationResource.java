@@ -24,6 +24,7 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.io.BufferedReader;
@@ -113,6 +114,10 @@ public class DocumentationResource {
     @APIResponse(responseCode = "200",
             description = "the list of available and storable configurations (datastore, dataset, ...).",
             content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "404",
+            description = "If the component is missing, payload will be an ErrorPayload with the code PLUGIN_MISSING.",
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     public DocumentationContent getDocumentation(
             @PathParam("id") @Parameter(name = "id", description = "the component identifier",
                     in = PATH) final String id,

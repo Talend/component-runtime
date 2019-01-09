@@ -96,13 +96,16 @@ public class ActionResource {
             content = @Content(mediaType = APPLICATION_JSON))
     @APIResponse(responseCode = "400",
             description = "If the action is not set, payload will be an ErrorPayload with the code ACTION_MISSING.",
-            content = @Content(mediaType = APPLICATION_JSON))
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     @APIResponse(responseCode = "404",
             description = "If the action can't be found, payload will be an ErrorPayload with the code ACTION_MISSING.",
-            content = @Content(mediaType = APPLICATION_JSON))
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     @APIResponse(responseCode = "520",
             description = "If the action execution failed, payload will be an ErrorPayload with the code ACTION_ERROR.",
-            content = @Content(mediaType = APPLICATION_JSON))
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     public Response
             execute(@QueryParam("family") @Parameter(name = "family", required = true, in = QUERY,
                     description = "the component family") final String family,

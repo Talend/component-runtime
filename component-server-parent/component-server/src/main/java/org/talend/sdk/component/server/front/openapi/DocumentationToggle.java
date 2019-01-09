@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.swagger;
+package org.talend.sdk.component.server.front.openapi;
+
+import static java.util.Optional.ofNullable;
 
 import java.io.IOException;
 
@@ -25,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
@@ -39,11 +42,22 @@ public class DocumentationToggle implements Filter {
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
             final FilterChain filterChain) throws IOException, ServletException {
-        if (configuration.getSupportsDocumentation()) {
+        if (configuration.getSupportsDocumentation() || isLocal(servletRequest)) {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             final HttpServletResponse response = HttpServletResponse.class.cast(servletResponse);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
+    }
+
+    private boolean isLocal(final ServletRequest servletRequest) {
+        return HttpServletRequest.class.isInstance(servletRequest)
+                && ofNullable(HttpServletRequest.class.cast(servletRequest).getRemoteAddr())
+                        .map(this::isLocal)
+                        .orElse(false);
+    }
+
+    private boolean isLocal(final String addr) {
+        return addr != null && (addr.startsWith("127.0.0.") || addr.equals("::1") || addr.equals("0:0:0:0:0:0:0:1"));
     }
 }

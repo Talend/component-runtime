@@ -198,6 +198,10 @@ public class ComponentResource {
             + "It can be maven coordinates for dependencies or a component id.")
     @APIResponse(responseCode = "200", description = "The dependency binary (jar).",
             content = @Content(mediaType = APPLICATION_OCTET_STREAM))
+    @APIResponse(responseCode = "404",
+            description = "If the plugin is missing, payload will be an ErrorPayload with the code PLUGIN_MISSING.",
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     public StreamingOutput getDependency(@PathParam("id") @Parameter(name = "id",
             description = "the dependency binary (jar).", in = PATH) final String id) {
         final ComponentFamilyMeta.BaseMeta<?> component = componentDao.findById(id);
@@ -285,7 +289,8 @@ public class ComponentResource {
     @APIResponse(responseCode = "200", description = "Returns a particular family icon in raw bytes.",
             content = @Content(mediaType = APPLICATION_OCTET_STREAM))
     @APIResponse(responseCode = "404", description = "The family or icon is not found",
-            content = @Content(mediaType = APPLICATION_JSON))
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     public Response familyIcon(@PathParam("id") @Parameter(name = "id", description = "the family identifier",
             in = PATH) final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
@@ -368,7 +373,8 @@ public class ComponentResource {
             description = "the new configuration for that component (or the same if no migration was needed).",
             content = @Content(mediaType = APPLICATION_JSON))
     @APIResponse(responseCode = "404", description = "The component is not found",
-            content = @Content(mediaType = APPLICATION_JSON))
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     public Map<String, String>
             migrate(@PathParam("id") @Parameter(name = "id", description = "the component identifier",
                     in = PATH) final String id,
@@ -392,7 +398,8 @@ public class ComponentResource {
     @APIResponse(responseCode = "200", description = "the list of details for the requested components.",
             content = @Content(mediaType = APPLICATION_JSON))
     @APIResponse(responseCode = "400", description = "Some identifiers were not valid.",
-            content = @Content(mediaType = APPLICATION_JSON))
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = SampleErrorForBulk.class)))
     public ComponentDetailList getDetail(
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
                     description = "the language for display names.", in = QUERY,
@@ -516,5 +523,12 @@ public class ComponentResource {
             return category + "/${family}";
         }
         return category;
+    }
+
+    public static class SampleErrorForBulk {
+
+        private ErrorPayload error1;
+
+        private ErrorPayload error2;
     }
 }

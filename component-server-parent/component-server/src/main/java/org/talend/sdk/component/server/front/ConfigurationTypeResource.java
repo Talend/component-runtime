@@ -148,6 +148,10 @@ public class ConfigurationTypeResource {
     @APIResponse(responseCode = "200",
             description = "the new values for that configuration (or the same if no migration was needed).",
             content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "400",
+            description = "If the configuration is missing, payload will be an ErrorPayload with the code CONFIGURATION_MISSING.",
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     @APIResponse(responseCode = "404", description = "The configuration is not found",
             content = @Content(mediaType = APPLICATION_JSON))
     public Map<String, String>

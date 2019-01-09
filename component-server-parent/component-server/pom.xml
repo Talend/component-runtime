@@ -121,12 +121,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>swagger-ui</artifactId>
-      <version>3.17.4</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-junit</artifactId>
       <version>${meecrowave.version}</version>
@@ -199,6 +193,11 @@
                 <endpointClass>org.talend.sdk.component.server.front.DocumentationResource</endpointClass>
                 <endpointClass>org.talend.sdk.component.server.front.EnvironmentResource</endpointClass>
               </endpointClasses>
+              <info>
+                <version>1</version>
+                <title>Talend Component Server</title>
+                <description>UI related component server to provide metadata about component and callback for the forms.</description>
+              </info>
             </configuration>
           </execution>
         </executions>
@@ -260,7 +259,7 @@
                   import net.sf.image4j.codec.ico.ICOEncoder
                   import org.apache.maven.project.MavenProjectHelper
 
-                  // create the demo swagger.json
+                  // create the demo openapi.json
                   def openapiJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/openapi.json')
                   def content = openapiJson.text
 
@@ -334,6 +333,25 @@
             </configuration>
           </execution>
           <execution>
+            <id>import-redoc</id>
+            <phase>prepare-package</phase>
+            <goals> <!-- otherwise .map are too fat for what we do of it -->
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>redoc</artifactId>
+                  <version>2.0.0-alpha.38</version>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                  <includes>**/redoc.standalone.js</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
             <id>copy-beam-sample</id>
             <phase>generate-test-resources</phase>
             <goals>
@@ -388,7 +406,7 @@
           <cdiConversation>false</cdiConversation>
           <watcherBouncing>-1</watcherBouncing>
           <scanningExcludes>
-            apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,swagger-ui,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket
+            apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket
           </scanningExcludes>
           <webapp>${project.basedir}/src/dev/webapp</webapp>
           <properties>

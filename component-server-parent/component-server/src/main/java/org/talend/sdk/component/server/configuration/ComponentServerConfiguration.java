@@ -68,7 +68,8 @@ public class ComponentServerConfiguration {
     private String serviceName;
 
     @Inject
-    @Documentation("Should the /documentation endpoint be activated.")
+    @Documentation("Should the /documentation endpoint be activated. "
+            + "Note that when called on localhost the doc is always available.")
     @ConfigProperty(name = "talend.component.server.documentation.active", defaultValue = "true")
     private Boolean supportsDocumentation;
 

@@ -18,6 +18,16 @@ package org.talend.sdk.component.server.front;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.info.Contact;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.info.License;
+
 @ApplicationPath("api/v1")
+@OpenAPIDefinition(info = @Info(version = "1", title = "Talend Component Server",
+        description = "Provides metadata and UI callbacks for component forms.",
+        license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0"),
+        contact = @Contact(name = "Talend Support", url = "https://www.talend.com/services/technical-support/",
+                email = "support.[eu|js|us]@talend.com")))
 public class TalendComponentApplication extends Application {
 }
