@@ -23,18 +23,23 @@ import Processor from './Processor';
 
 import theme from './Component.scss';
 
-function onSelect(type, state) {
-	// props.component.type = type;
-	state.type = type;
-	state.drawers = [];
-	state.componentTypeActions.forEach(i => {
-		if (i.type !== type) {
-			delete i.className;
-		} else {
-			i.className = theme.selected;
-		}
-	});
-	return Object.assign({}, state);
+const TYPE_INPUT = 'Input';
+const TYPE_PROCESSOR = 'Processor';
+
+function onSelectSetState(type) {
+	return state => {
+		state.type = type;
+		state.drawers = [];  // remove drawer
+		// handle activated action
+		state.componentTypeActions.forEach(i => {
+			if (i.type !== type) {
+				delete i.className;
+			} else {
+				i.className = theme.selected;
+			}
+		});
+		return Object.assign({}, state);
+	}
 }
 
 export default class Component extends React.Component {
@@ -42,28 +47,22 @@ export default class Component extends React.Component {
 		super(props);
 		this.state = {
 			drawers: [],
-			type: 'Input',
+			type: TYPE_INPUT,
 			componentTypeActions: [
 				{
 					label: 'Input',
-					type: 'Input',
+					type: TYPE_INPUT,
 					className: theme.selected,
 					onClick: () => {
-						this.setState(state => onSelect('Input', state));
+						this.setState(onSelectSetState(TYPE_INPUT));
 					},
-					_view: component => (
-						<Mapper component={component} theme={theme} onUpdateDrawers={this.updateDrawers} />
-					),
 				},
 				{
 					label: 'Processor/Output',
-					type: 'Processor',
+					type: TYPE_PROCESSOR,
 					onClick: () => {
-						this.setState(state => onSelect('Processor', state));
+						this.setState(onSelectSetState(TYPE_PROCESSOR));
 					},
-					_view: component => (
-						<Processor component={component} theme={theme} onUpdateDrawers={this.updateDrawers} />
-					),
 				},
 			],
 		};
@@ -73,30 +72,16 @@ export default class Component extends React.Component {
 			return a;
 		}, {});
 
-		// ensure the selected class is used when clicking on the component type buildToolActions
-		// this.state.componentTypeActions.forEach(item => {
-		//   const ref = item;
-		// item.onClick = () => this.setState(state => onSelect(ref, state, this.props));
-		// item.init = props => this.setState(state => onSelect(ref, state, props));
-		// });
-
 		this.updateDrawers = this.updateDrawers.bind(this);
 
-		// const selectedType = this.props.component.type || this.state.componentTypeActions[0].type;
-		// onSelect(this.state.componentTypeActions.filter(i => i.type === selectedType)[0], this.state);
 	}
 
 	updateDrawers(drawers) {
 		this.setState({ drawers });
 	}
 
-	componentWillReceiveProps(nextProps) {
-		// const selectedType = this.state.
-		// this.state.componentTypeActions.filter(i => i.type === selectedType)[0].init(nextProps);
-	}
 
 	render() {
-		const specificView = this.componentPerType[this.state.type]._view;
 		return (
 			<div className={theme.Component}>
 				<WithDrawer drawers={this.state.drawers}>
@@ -111,21 +96,21 @@ export default class Component extends React.Component {
 									title="Component Type"
 									i18nKey="component_type"
 									content={
-										<span>
+										<div>
 											<p>
 												Talend Component Kit supports two types of components:
-												<ul>
-													<li>
-														Input: it is a component creating records from itself. It only supports
-														to create a main output branch of records.
-													</li>
-													<li>
-														Processor: this component type can read from 1 or multiple inputs the
-														data, process them and create 0 or multiple outputs.
-													</li>
-												</ul>
 											</p>
-										</span>
+											<ul>
+												<li>
+													Input: it is a component creating records from itself. It only supports
+													to create a main output branch of records.
+												</li>
+												<li>
+													Processor: this component type can read from 1 or multiple inputs the
+													data, process them and create 0 or multiple outputs.
+												</li>
+											</ul>
+										</div>
 									}
 								/>
 							</div>
@@ -140,13 +125,13 @@ export default class Component extends React.Component {
 										title="Component Name"
 										i18nKey="component_name"
 										content={
-											<span>
+											<div>
 												<p>Each component has a name which must be unique into a family.</p>
 												<p>
 													<Icon name="talend-info-circle" /> The name must be a valid java name (no
 													space, special characters, ...).
 												</p>
-											</span>
+											</div>
 										}
 									/>
 									<Input
@@ -163,8 +148,20 @@ export default class Component extends React.Component {
 								</div>
 							</form>
 						</div>
-
-						{specificView(this.props.component)}
+						{this.state.type === TYPE_INPUT && (
+							<Mapper
+								component={this.props.component}
+								theme={theme}
+								onUpdateDrawers={this.updateDrawers}
+							/>
+						)}
+						{this.state.type === TYPE_PROCESSOR && (
+							<Processor
+								component={this.props.component}
+								theme={theme}
+								onUpdateDrawers={this.updateDrawers}
+							/>
+						)}
 					</div>
 				</WithDrawer>
 			</div>
