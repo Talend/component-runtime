@@ -71,10 +71,8 @@ import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
-import org.talend.sdk.component.server.service.AsciidoctorService;
 import org.talend.sdk.component.server.service.LocaleMapper;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Tag(name = "Documentation", description = "Endpoint to retrieve embedded component documentation.")
@@ -111,12 +109,7 @@ public class DocumentationResource {
     @Path("component/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
-            description = "Returns an asciidoctor version of the documentation for the component represented by its identifier `id`. "
-                    + "Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get "
-                    + "a partial document. "
-                    + "IMPORTANT: it is recommended to use asciidoc format and handle the conversion on your side if you can, "
-                    + "the html is not available by default and requires deployment work (adding asciidoctor). "
-                    + "It will likely be removed in a coming version.")
+            description = "Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.")
     @APIResponse(responseCode = "200",
             description = "the list of available and storable configurations (datastore, dataset, ...).",
             content = @Content(mediaType = APPLICATION_JSON))
@@ -126,9 +119,6 @@ public class DocumentationResource {
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
                     description = "the language for display names.", in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) final String language,
-            @QueryParam("format") @DefaultValue("asciidoc") @Parameter(name = "format",
-                    description = "the expected format (asciidoc or html).", in = QUERY,
-                    schema = @Schema(type = STRING, defaultValue = "asciidoc")) final String format,
             @QueryParam("segment") @DefaultValue("ALL") @Parameter(name = "segment",
                     description = "the part of the documentation to extract.", in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "ALL")) final DocumentationSegment segment) {
@@ -158,7 +148,7 @@ public class DocumentationResource {
             }
         }
 
-        return cache.documentations.computeIfAbsent(new DocKey(id, language, format, segment), key -> {
+        return cache.documentations.computeIfAbsent(new DocKey(id, language, segment), key -> {
             // todo: handle i18n properly, for now just fallback on not suffixed version and assume the dev put it
             // in the comp
             final String content = Stream
@@ -179,35 +169,23 @@ public class DocumentationResource {
                                     .build());
                         }
                     })
-                    .map(value -> {
-                        switch (format) {
-                        case "html":
-                        case "html5":
-                            // will fail by default since we don't provide it, this is deprecated anyway
-                            return instance.select(AsciidoctorService.class).get().toHtml(value);
-                        case "asciidoc":
-                        case "adoc":
-                        default:
-                            return ofNullable(container.get(ContainerComponentRegistry.class))
-                                    .flatMap(r -> r
-                                            .getComponents()
-                                            .values()
-                                            .stream()
-                                            .flatMap(f -> Stream
-                                                    .concat(f.getPartitionMappers().values().stream(),
-                                                            f.getProcessors().values().stream()))
-                                            .filter(c -> c.getId().equals(id))
-                                            .findFirst()
-                                            .map(c -> selectById(c.getName(), value, segment)))
-                                    .orElse(value);
-
-                        }
-                    })
+                    .map(value -> ofNullable(container.get(ContainerComponentRegistry.class))
+                            .flatMap(r -> r
+                                    .getComponents()
+                                    .values()
+                                    .stream()
+                                    .flatMap(f -> Stream
+                                            .concat(f.getPartitionMappers().values().stream(),
+                                                    f.getProcessors().values().stream()))
+                                    .filter(c -> c.getId().equals(id))
+                                    .findFirst()
+                                    .map(c -> selectById(c.getName(), value, segment)))
+                            .orElse(value))
                     .orElseThrow(() -> new WebApplicationException(Response
                             .status(NOT_FOUND)
                             .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component '" + id + "'"))
                             .build()));
-            return new DocumentationContent(format, content);
+            return new DocumentationContent("asciidoc", content);
         });
     }
 
@@ -227,16 +205,39 @@ public class DocumentationResource {
         return null;
     }
 
-    @Data
     private static class DocKey {
 
         private final String id;
 
         private final String language;
 
-        private final String format;
-
         private final DocumentationSegment segment;
+
+        private final int hash;
+
+        private DocKey(final String id, final String language, final DocumentationSegment segment) {
+            this.id = id;
+            this.language = language;
+            this.segment = segment;
+            this.hash = Objects.hash(id, language, segment);
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            final DocKey docKey = DocKey.class.cast(o);
+            return id.equals(docKey.id) && language.equals(docKey.language) && segment == docKey.segment;
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
     }
 
     private static class DocumentationCache {

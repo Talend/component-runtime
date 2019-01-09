@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DocumentationContent {
 
+    @Deprecated // only asciidoctor is supported now
     private String type;
 
     private String source;

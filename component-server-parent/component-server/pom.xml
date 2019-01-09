@@ -64,39 +64,6 @@
       <version>${commons-cli.version}</version>
     </dependency>
 
-    <dependency><!-- TODO find a dep with less transitive mess -->
-      <groupId>org.asciidoctor</groupId>
-      <artifactId>asciidoctorj</artifactId>
-      <version>${asciidoctorj.version}</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>com.beust</groupId>
-          <artifactId>jcommander</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.github.jnr</groupId>
-          <artifactId>jnr-netdb</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.github.jnr</groupId>
-          <artifactId>jnr-x86asm</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.github.jnr</groupId>
-          <artifactId>jffi</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.martiansoftware</groupId>
-          <artifactId>nailgun-server</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.jcraft</groupId>
-          <artifactId>jzlib</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
     <dependency><!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
