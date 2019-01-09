@@ -76,14 +76,14 @@ include::ref-server-configuration.adoc[leveloffset=+1]
 
 == HTTPS activation
 
-Using the server ZIP (or https://github.com/Talend/component-runtime/blob/master/.docker/Dockerfile[Docker image]), you can configure HTTPS by adding properties to `MEECROWAVE_OPTS`. Assuming that you have a certificate in `/opt/certificates/component.p12` (don't forget to add/mount it in the Docker image if you use it), you can activate it as follows:
+Using the server ZIP (or https://github.com/Talend/component-runtime/blob/master/.docker/Dockerfile[Docker image]), you can configure HTTPS by adding properties to `_JAVA_OPTIONS`. Assuming that you have a certificate in `/opt/certificates/component.p12` (don't forget to add/mount it in the Docker image if you use it), you can activate it as follows:
 
 [source,bash]
 ----
 # use -e for Docker
 #
 # this skips the http port binding and only binds https on the port 8443, and setups the correct certificate
-export MEECROWAVE_OPTS="-Dskip-http=true -Dssl=true -Dhttps=8443 -Dkeystore-type=PKCS12 -Dkeystore-alias=talend -Dkeystore-password=talend -Dkeystore-file=/opt/certificates/component.p12"
+export _JAVA_OPTIONS="-Dskip-http=true -Dssl=true -Dhttps=8443 -Dkeystore-type=PKCS12 -Dkeystore-alias=talend -Dkeystore-password=talend -Dkeystore-file=/opt/certificates/component.p12"
 ----
 
 == Web forms and REST API
@@ -376,7 +376,7 @@ $ sudo docker run -p 8080:8080 tacokit/component-starter
 
 === Configure
 
-You can set the env variable `MEECROWAVE_OPTS` to customize the server, by default it is installed in `/opt/talend/component-kit`.
+You can set the env variable `_JAVA_OPTIONS` to customize the server, by default it is installed in `/opt/talend/component-kit`.
 
 === Maven repository
 
@@ -384,14 +384,14 @@ The maven repository is the default one of the machine, you can change it settin
 
 ==== Deploy components to the server
 
-If you want to deploy some components you can configure which ones in MEECROWAVE_OPTS (see server doc online) and redirect your local m2:
+If you want to deploy some components you can configure which ones in _JAVA_OPTIONS (see server doc online) and redirect your local m2:
 
 [source,sh]
 ----
 $ docker run \
        -p 8080:8080 \
        -v ~/.m2:/root/.m2 \
-       -e MEECROWAVE_OPTS="-Dtalend.component.server.component.coordinates=g:a:v,g2:a2:v2,..." \
+       -e _JAVA_OPTIONS="-Dtalend.component.server.component.coordinates=g:a:v,g2:a2:v2,..." \
        component-server
 ----
 
