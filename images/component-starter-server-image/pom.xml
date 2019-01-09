@@ -62,6 +62,7 @@
             <appRoot>${imageWorkDir}</appRoot>
             <workingDirectory>${imageWorkDir}</workingDirectory>
             <environment>
+              <MEECROWAVE_HOME>${imageWorkDir}</MEECROWAVE_HOME>
               <MEECROWAVE_BASE>${imageWorkDir}</MEECROWAVE_BASE>
               <MEECROWAVE_PID>${imageWorkDir}/conf/starter.pid</MEECROWAVE_PID>
               <LANG>en_US.UTF-8</LANG>
