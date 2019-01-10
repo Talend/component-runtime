@@ -883,11 +883,10 @@ public class ComponentManager implements AutoCloseable {
                     final int separator = file.indexOf('!');
                     if (separator > 0) {
                         try {
-                            String strippedJar =
+                            final String strippedJar =
                                     new File(decode(new URL(file.substring(0, separator)).getFile())).getName();
                             return strippedJar.startsWith("beam-sdks-java-core-")
                                     || strippedJar.startsWith("org.apache.beam.beam-sdks-java-core-");
-
                         } catch (final MalformedURLException e) {
                             // let it return false
                         }
