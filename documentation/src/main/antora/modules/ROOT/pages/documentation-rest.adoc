@@ -400,15 +400,15 @@ $ docker run \
 The component server docker image comes with two log4j2 profiles: `TEXT` (default) and `JSON`.
 The logging profile can be changed by setting the environment variable `LOGGING_LAYOUT` to `JSON`.
 
-Note that Component Server adds to these default Talend profiles the profile `KAFKA` for a mode where all logs are sent to kafka.
+Note that Component Server adds to these default Talend profiles the `KAFKA` profile. With this profile, all logs are sent to Kafka.
 
-TIP: if you want the exact configuration you can check our `component-runtime/images/component-server-image/src/main/resources` folder.
+TIP: You can check the exact configuration in the `component-runtime/images/component-server-image/src/main/resources` folder.
 
 ==== default or TEXT profile
 
-The console logging is on at `INFO` level by default and you can customize it by setting `CONSOLE_LOG_LEVEL` environment variable to `DEBUG`, `INFO`, `WARN` or any other log level supported by log4j2.
+The console logging is on at `INFO` level by default. You can customize it by setting the `CONSOLE_LOG_LEVEL` environment variable to `DEBUG`, `INFO`, `WARN` or to any other log level supported by log4j2.
 
-Run docker image with console logging
+Run docker image with console logging:
 
 [source,sh]
 ----
@@ -421,10 +421,10 @@ sudo docker run -p 8080:8080 \
 
 The JSON profile does the following:
 
-1. logs on the console using `CONSOLE_LOG_LEVEL` configuration as in default profile. It uses the formatting you will find just after this list.
-2. if `TRACING_KAFKA_URL` environment variable is set it logs the opentracing data on this Kafka using the topic `TRACING_KAFKA_TOPIC`. This level can be customized using `KAFKA_LOG_LEVEL`, default being `INFO`.
+1. Logs on the console using the `CONSOLE_LOG_LEVEL` configuration as the default profile. It uses the formatting shown below.
+2. If the `TRACING_KAFKA_URL` environment variable is set, it logs the opentracing data on the defined Kafka using the topic `TRACING_KAFKA_TOPIC`. This level can be customized by setting the `KAFKA_LOG_LEVEL` environment variable (`INFO` by default).
 
-It uses the following format for log events:
+Events are logged in the following format:
 
 [source,json]
 ----
@@ -461,8 +461,7 @@ It uses the following format for log events:
 
 ==== KAFKA profile
 
-This profile is very close to the previous one except it logs even the default logs - and not only the tracing ones,
-on Kafka. It adds the configuration `LOG_KAFKA_TOPIC` and `LOG_KAFKA_URL` - same as the tracing flavors but for the other logs.
+This profile is very close to the JSON profile and also adds the `LOG_KAFKA_TOPIC` and `LOG_KAFKA_URL` configuration. The difference is that it logs the default logs on Kafka in addition to the tracing logs.
 
 ==== OpenTracing
 
@@ -473,9 +472,9 @@ The tracing can be activated by setting the `TRACING_ON` environment variable to
 The tracing rate is configurable by setting the `TRACING_SAMPLING_RATE` environment variable.
 It accepts `0` (none) and `1` (all, default) as values to ensure the consistency of the reporting.
 
-TIP: you can find all the details on the configuration in `org.talend.sdk.component.server.configuration.OpenTracingConfigSource`.
+TIP: You can find all the details on the configuration in `org.talend.sdk.component.server.configuration.OpenTracingConfigSource`.
 
-Run docker image with tracing on.
+Run docker image with tracing on:
 
 [source,sh]
 ----
@@ -489,7 +488,7 @@ to wire it over any OpenTracing backend.
 
 === Build the image yourself
 
-You can register component server images in docker using those instructions in the corresponding image directory :
+You can register component server images in docker using these instructions in the corresponding image directory:
 
 [source,sh]
 ----
