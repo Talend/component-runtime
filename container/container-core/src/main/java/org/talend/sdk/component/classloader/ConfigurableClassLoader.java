@@ -173,6 +173,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
         });
     }
 
+    public String[] getJvmMarkers() {
+        return Stream.of(nameJvmPrefixes, fullPathJvmPrefixes).flatMap(Stream::of).toArray(String[]::new);
+    }
+
     public void registerTransformer(final ClassFileTransformer transformer) {
         transformers.add(transformer);
     }

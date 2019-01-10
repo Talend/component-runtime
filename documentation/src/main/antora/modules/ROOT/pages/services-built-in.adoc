@@ -11,7 +11,7 @@ The framework provides built-in services that you can inject by type in componen
 |===
 | Type | Description
 a| `org.talend.sdk.component.api.service.cache.LocalCache` | Provides a small abstraction to cache data that does not need to be recomputed very often. Commonly used by actions for UI interactions.
-a| `org.talend.sdk.component.api.service.dependency.Resolver` a| Allows to resolve a dependency from its Maven coordinates.
+a| `org.talend.sdk.component.api.service.dependency.Resolver` a| Allows to resolve a dependency from its Maven coordinates. It can either try to resolve a local file or (better) creates for you a preinitialized classloader.
 a| `javax.json.bind.Jsonb` a| A JSON-B instance. If your model is static and you don't want to handle the serialization manually using JSON-P, you can inject that instance.
 a| `javax.json.spi.JsonProvider` a| A JSON-P instance. Prefer other JSON-P instances if you don't exactly know why you use this one.
 a| `javax.json.JsonBuilderFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
