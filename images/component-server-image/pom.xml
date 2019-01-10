@@ -32,6 +32,7 @@
       ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}_${maven.build.timestamp}
     </image.currentVersion>
     <talend.server.image.name>${talend.server.image.registry}tacokit/component-server:${image.currentVersion}</talend.server.image.name>
+    <additionalDockerFiles>${project.build.outputDirectory}/docker/additional</additionalDockerFiles>
   </properties>
 
   <dependencies>
@@ -111,6 +112,56 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${maven-resources-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${additionalDockerFiles}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/src/main/resources</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>${dependency-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>unpack-sigar</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.fusesource</groupId>
+                  <artifactId>sigar</artifactId>
+                  <version>1.6.4</version>
+                  <classifier>native</classifier>
+                  <type>jar</type>
+                  <outputDirectory>${additionalDockerFiles}</outputDirectory>
+                  <includes>**/libsigar-amd64-linux-1.6.4.so</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-maven-plugin</artifactId>
         <version>${jib.version}</version>
@@ -123,6 +174,7 @@
             <id>build</id>
             <phase>none</phase>
             <configuration>
+              <extraDirectory>${additionalDockerFiles}</extraDirectory>
               <from>
                 <image>${baseImage}</image>
               </from>
@@ -144,12 +196,13 @@
                   <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>
                   <jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
-                  <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
-                  <jvmFlag>-Dlog4j.configurationFile=log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
-                  <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
+                  <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
+                  <jvmFlag>-Djava.library.path=/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
-                  <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
+                  <jvmFlag>-Dlog4j.configurationFile=log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
+                  <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
+                  <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
                 </jvmFlags>
                 <ports>
                   <port>${boundPort}</port>
