@@ -26,6 +26,10 @@
   <artifactId>sample-it</artifactId>
   <name>Component Runtime :: Maven Plugin :: IT :: Dependencies</name>
 
+  <properties>
+    <rootlocation>${project.basedir}</rootlocation>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -62,19 +66,18 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>net.revelc.code.formatter</groupId>
-        <artifactId>formatter-maven-plugin</artifactId>
-        <version>@formatter-plugin.version@</version>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>@spotless.version@</version>
         <executions>
           <execution>
+            <id>format-java</id>
+            <phase>none</phase>
             <goals>
-              <goal>format</goal>
+              <goal>apply</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>com.github.rmannibucau</groupId>

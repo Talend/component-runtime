@@ -15,6 +15,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1249[TCOMP-1249^]: Provide segment extractor for doc endpoint
 - link:https://jira.talendforge.org/browse/TCOMP-1250[TCOMP-1250^]: Make component documentation (@Documentation on component) i18n friendly
 - link:https://jira.talendforge.org/browse/TCOMP-1251[TCOMP-1251^]: cache avrocoders used in SchemaRegistryCoder
+- link:https://jira.talendforge.org/browse/TCOMP-1252[TCOMP-1252^]: Remove html support in documentation endpoint
+- link:https://jira.talendforge.org/browse/TCOMP-1253[TCOMP-1253^]: Refine OpenAPI documentation
 
 
 == Version 1.1.4
