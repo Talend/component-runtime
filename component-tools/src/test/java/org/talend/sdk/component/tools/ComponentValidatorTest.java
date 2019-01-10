@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.talend.sdk.component.tools;
 
 import static java.lang.annotation.ElementType.METHOD;

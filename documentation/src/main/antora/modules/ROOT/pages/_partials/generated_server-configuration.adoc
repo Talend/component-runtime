@@ -5,7 +5,7 @@ talend.component.server.component.coordinates:: A comma separated list of gav to
 talend.component.server.component.documentation.translations:: Default value: `${home}/documentations`. A component translation repository. This is where you put your documentation translations. Their name must follow the pattern `documentation_${container-id}_language.adoc` where `${container-id}` is the component jar name (without the extension and version, generally the artifactId).
 talend.component.server.component.extend.dependencies:: Default value: `true`. Should the component extensions add required dependencies.
 talend.component.server.component.registry:: A property file where the value is a gav of a component to register (complementary with `coordinates`)
-talend.component.server.documentation.active:: Default value: `true`. Should the /documentation endpoint be activated.
+talend.component.server.documentation.active:: Default value: `true`. Should the /documentation endpoint be activated. Note that when called on localhost the doc is always available.
 talend.component.server.execution.dataset.retriever.timeout:: Default value: `180`. How long the read execution endpoint can last (max)
 talend.component.server.execution.pool.wait:: Default value: `PT10S`. How long the application waits during shutdown for the execution tasks to complete
 talend.component.server.jaxrs.exceptionhandler.defaultMessage:: Default value: `false`. If set it will replace any message for exceptions. Set to `false` to use the actual exception message.
