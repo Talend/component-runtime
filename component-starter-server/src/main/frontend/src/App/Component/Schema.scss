@@ -17,12 +17,6 @@ $grey: #aaa;
 $editHeight: 20px;
 
 .Schema {
-  .vLine {
-    border-left: solid 1px #D5D5D5;
-    margin-left: 0.8rem;
-    padding-left: 2.5rem;
-  }
-
   .hiddenWrapper {
     margin-left: -4rem;
   }
@@ -32,15 +26,7 @@ $editHeight: 20px;
     font-size: 1rem;
   }
 
-  .nodeIcon {
-    transform: scaleX(-1);
-    -moz-transform: scaleX(-1);
-    -webkit-transform: scaleX(-1);
-    -ms-transform: scaleX(-1);
-    height: 1rem;
-  }
-
-  nodeLabel {
+  label {
     font-size: 1.5rem;
 
     input {
