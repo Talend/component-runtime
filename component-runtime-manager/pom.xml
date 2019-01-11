@@ -118,9 +118,9 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.version}
+                    ${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}
                   </outputDirectory>
-                  <destFileName>openejb-itests-beans-${ziplock.version}.jar</destFileName>
+                  <destFileName>openejb-itests-beans-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
@@ -129,9 +129,9 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/${ziplock.version}
+                    ${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/${ziplock.test.version}
                   </outputDirectory>
-                  <destFileName>arquillian-tomee-codi-tests-${ziplock.version}.jar</destFileName>
+                  <destFileName>arquillian-tomee-codi-tests-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>
