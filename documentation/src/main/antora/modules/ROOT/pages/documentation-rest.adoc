@@ -546,9 +546,11 @@ services:
       interval: 3s
       retries: 3
       test: curl --fail http://localhost:1234/api/v1/environment
-    image: tacokit/component-server:${COMPONENT_SERVER_IMAGE:-1.1.5_20190110093338}
+    image: tacokit/component-server:${COMPONENT_SERVER_IMAGE_VERSION}
     environment:
     - _JAVA_OPTIONS=
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+        -Djava.library.path=/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
         -Xmx1024m
         -Dhttp=1234
         -Dtalend.component.server.component.registry=/opt/talend/connectors/component-registry.properties
@@ -559,9 +561,11 @@ services:
     - connectors:/opt/talend/connectors:ro
 
   connectors:
-    image: ${TALEND_REGISTRY}/talend/connectors-se:${CONNECTORS:-1.0.0_master_20190110080009}
+    image: talend/connectors:${CONNECTORS_VERSION}
+    environment:
+    - CONNECTORS_SETUP_OPTS=setup --wait-for-end --component-jdbc-auto-download-drivers
     volumes:
-    - connectors:/opt/talend/connectors-se:ro
+    - connectors:/opt/talend/connectors:ro
 
 
 volumes:

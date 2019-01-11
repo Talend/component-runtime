@@ -632,7 +632,7 @@
         <executions>
           <execution>
             <id>tidy-pom</id>
-            <phase>validate</phase>
+            <phase>initialize</phase>
             <goals>
               <goal>pom</goal>
             </goals>
