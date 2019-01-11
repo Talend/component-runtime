@@ -56,6 +56,33 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private static final AvroSchema BOOLEAN_SCHEMA =
             new AvroSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN));
 
+    private static final AvroSchema BYTES_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
+            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BYTES))));
+
+    private static final AvroSchema INT_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
+            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT))));
+
+    private static final AvroSchema LONG_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
+            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG))));
+
+    private static final AvroSchema DATETIME_SCHEMA_NULLABLE =
+            new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
+            }
+                    .setProp(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG),
+                            Schema.Type.DATETIME.name(), "true"))));
+
+    private static final AvroSchema STRING_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
+            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING))));
+
+    private static final AvroSchema DOUBLE_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
+            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.DOUBLE))));
+
+    private static final AvroSchema FLOAT_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
+            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.FLOAT))));
+
+    private static final AvroSchema BOOLEAN_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
+            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN))));
+
     private List<org.apache.avro.Schema.Field> fields;
 
     private Schema.Type type;
@@ -95,14 +122,30 @@ public class AvroSchemaBuilder implements Schema.Builder {
             };
             break;
         case BOOLEAN:
+            unwrappable = !entry.isNullable() ? BOOLEAN_SCHEMA : BOOLEAN_SCHEMA_NULLABLE;
+            break;
         case DOUBLE:
+            unwrappable = !entry.isNullable() ? DOUBLE_SCHEMA : DOUBLE_SCHEMA_NULLABLE;
+            break;
         case INT:
+            unwrappable = !entry.isNullable() ? INT_SCHEMA : INT_SCHEMA_NULLABLE;
+            break;
         case FLOAT:
+            unwrappable = !entry.isNullable() ? FLOAT_SCHEMA : FLOAT_SCHEMA_NULLABLE;
+            break;
         case BYTES:
+            unwrappable = !entry.isNullable() ? BYTES_SCHEMA : BYTES_SCHEMA_NULLABLE;
+            break;
         case LONG:
+            unwrappable = !entry.isNullable() ? LONG_SCHEMA : LONG_SCHEMA_NULLABLE;
+            break;
         case STRING:
+            unwrappable = !entry.isNullable() ? STRING_SCHEMA : STRING_SCHEMA_NULLABLE;
+            break;
         case DATETIME:
-        default: // todo: avoid to create this builder, we have constants for the schemas anyway
+            unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
+            break;
+        default:
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);

@@ -48,6 +48,11 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
         }
 
         @Override
+        public Record.Builder newRecordBuilder(final Schema schema) {
+            return new AvroRecordBuilder(schema);
+        }
+
+        @Override
         public Record.Builder newRecordBuilder() {
             return new AvroRecordBuilder();
         }

@@ -42,6 +42,11 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
     }
 
     @Override
+    public Record.Builder newRecordBuilder(final Schema schema) {
+        return new RecordImpl.BuilderImpl(schema);
+    }
+
+    @Override
     public Record.Builder newRecordBuilder() {
         return new RecordImpl.BuilderImpl();
     }

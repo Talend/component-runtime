@@ -37,6 +37,26 @@ public Record createRecord() {
 }
 ----
 
+or
+
+[source,java]
+----
+public Record createRecord() {
+    return factory.newRecordBuilder(myAlreadyBuiltSchemaWithSchemaBuilder)
+            .withString("name", "Gary")
+            .withDateTime("date", ZonedDateTime.of(LocalDateTime.of(2011, 2, 6, 8, 0), ZoneId.of("UTC")))
+            .build();
+}
+----
+
+The main difference between both cases is the fact the last sample uses a pre-built schema - with `factory.newSchemaBuilder(Schema.Type.RECORD)` -
+whereas in the first case the schema is dynamic from the data. In the case where you provide a schema, the entries passed to the record builder
+will be validated which means that if you pass a value - generally null or an entry type not matching the provided schema the record creation will fail.
+It will also fail if you try to add an entry which does not exist or if you didn't set a not nullable entry.
+
+IMPORTANT: using a dynamic schema can be needed for some backend but it also means the users will have more issues
+to create a pipeline to process the data. If you can prefer the last option which is more reliable for end users.
+
 === Accessing and reading a record
 
 You can access and read data by relying on the `getSchema` method, which provides you with the available entries (columns) of a record. The `Entry` exposes the type of its value, which lets you access the value through the corresponding method. For example, the `Schema.Type.STRING` type implies using the `getString` method of the record.

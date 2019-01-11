@@ -18,6 +18,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1252[TCOMP-1252^]: Remove html support in documentation endpoint
 - link:https://jira.talendforge.org/browse/TCOMP-1253[TCOMP-1253^]: Refine OpenAPI documentation
 - link:https://jira.talendforge.org/browse/TCOMP-1256[TCOMP-1256^]: Add mapDescriptorToClassLoader to create a classloader from a list of gav
+- link:https://jira.talendforge.org/browse/TCOMP-1259[TCOMP-1259^]: Add getOptional to Record
 
 
 == Version 1.1.4

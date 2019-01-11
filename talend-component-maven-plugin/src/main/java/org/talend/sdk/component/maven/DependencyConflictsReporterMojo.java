@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
-import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.apache.maven.plugins.annotations.ResolutionScope.TEST;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.File;
@@ -54,8 +54,7 @@ import org.talend.sdk.component.maven.api.Audience;
 import lombok.Data;
 
 @Audience(TALEND_INTERNAL)
-@Mojo(name = "repository-report", defaultPhase = PACKAGE, threadSafe = true,
-        requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
+@Mojo(name = "repository-report", defaultPhase = PACKAGE, threadSafe = true, requiresDependencyResolution = TEST)
 public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
 
     @Parameter(property = "talend-dependencies-conflicts.output",

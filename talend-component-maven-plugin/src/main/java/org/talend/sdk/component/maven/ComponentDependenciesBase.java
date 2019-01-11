@@ -16,6 +16,7 @@
 package org.talend.sdk.component.maven;
 
 import static java.util.Optional.ofNullable;
+import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,9 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.talend.sdk.component.maven.api.Audience;
 
+@Audience(TALEND_INTERNAL)
 public abstract class ComponentDependenciesBase extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true)
@@ -77,7 +80,7 @@ public abstract class ComponentDependenciesBase extends AbstractMojo {
 
     protected <T> Stream<T> getArtifacts(final Function<Artifact, T> onArtifact) {
         return project
-                .getArtifacts()
+                .getDependencies()
                 .stream()
                 .filter(art -> scopes.contains(art.getScope()))
                 .filter(dep -> packagings.contains(dep.getType()))
