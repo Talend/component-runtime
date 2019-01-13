@@ -446,18 +446,6 @@
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
     <repository>
-      <id>staging-owb</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1050/</url>
-    </repository>
-    <repository>
-      <id>staging-mw</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1051/</url>
-    </repository>
-    <repository>
-      <id>staging-openapi</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1085/</url>
-    </repository>
-    <repository>
       <id>gradle-libs-releases-local</id>
       <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
       <snapshots>
@@ -472,18 +460,6 @@
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>staging-owb</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1050</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>staging-mw</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1051/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>staging-openapi</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1085/</url>
     </pluginRepository>
   </pluginRepositories>
 
