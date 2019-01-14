@@ -14,11 +14,13 @@
  *  limitations under the License.
  */
 import React from 'react';
+import classnames from 'classnames';
 import { Drawer, Toggle, Icon } from '@talend/react-components';
 import Help from '../Component/Help';
 import AppButton from '../Component/AppButton';
 import Input from '../Component/Input';
 import Schema from '../Component/Schema';
+import TileContext from '../tile';
 
 const drawerActions = props => {
 	return {
@@ -232,6 +234,17 @@ class Connections extends React.Component {
 	}
 }
 
+function newStructure(prefix, array) {
+	array.push({
+		name: array.length === 0 ? 'MAIN' : `${prefix}_${array.length + 1}`,
+		generic: false,
+		structure: {
+			entries: [],
+		},
+	});
+	return array;
+}
+
 export default class Processor extends React.Component {
 	constructor(props) {
 		super(props);
@@ -255,57 +268,54 @@ export default class Processor extends React.Component {
 		}
 	}
 
-	onConfigurationButtonClick() {
-		this.props.onUpdateDrawers([
-			<Drawer
-				title={`${this.props.component.configuration.name} Configuration Model`}
-				footerActions={drawerActions(this.props)}
-			>
+	onConfigurationButtonClick(tileService) {
+		const tile = (
+			<div>
+				<h2>Configuration Model</h2>
 				<Schema
 					schema={this.props.component.processor.configurationStructure}
 					readOnly={true}
 					name="configuration"
 				/>
-			</Drawer>,
-		]);
-	}
+			</div>
+		);
 
-	newStructure(prefix, array) {
-		array.push({
-			name: array.length === 0 ? 'MAIN' : `${prefix}_${array.length + 1}`,
-			generic: false,
-			structure: {
-				entries: [],
-			},
-		});
-		return array;
+		if (tileService.tiles.length > 1) {
+			tileService.resetTile([tileService.tiles[0], tile]);
+		} else {
+			tileService.addTile(tile);
+		}
 	}
 
 	render() {
 		return (
 			<processor className={this.props.theme.Processor}>
-				<AppButton
-					text="Configuration Model"
-					onClick={this.onConfigurationButtonClick}
-					help={
-						<Help
-							title="Configuration"
-							i18nKey="processor_configuration"
-							content={
-								<span>
-									<p>
-										The component configuration schema design can be configured by clicking on this
-										button.
-									</p>
-									<p>
-										It allows you to define the data you need to be able to execute the component
-										logic.
-									</p>
-								</span>
+				<TileContext.Consumer>
+					{tileService => (
+						<AppButton
+							text="Configuration Model"
+							onClick={() =>this.onConfigurationButtonClick(tileService)}
+							help={
+								<Help
+									title="Configuration"
+									i18nKey="processor_configuration"
+									content={
+										<span>
+											<p>
+												The component configuration schema design can be configured by clicking on
+												this button.
+											</p>
+											<p>
+												It allows you to define the data you need to be able to execute the
+												component logic.
+											</p>
+										</span>
+									}
+								/>
 							}
 						/>
-					}
-				/>
+					)}
+				</TileContext.Consumer>
 
 				<div className={this.props.theme['form-row']}>
 					<p className={this.props.theme.title}>
@@ -314,7 +324,7 @@ export default class Processor extends React.Component {
 							title="Connectivity"
 							i18nKey="processor_connectivity"
 							content={
-								<span>
+								<div>
 									<p>This section allows you to configure the processor connectivity.</p>
 									<p>
 										Click on <Icon name="talend-plus-circle" /> buttons to add inputs/outputs and
@@ -323,17 +333,17 @@ export default class Processor extends React.Component {
 									<p>
 										Clicking on an input/output branch you can edit its specification (name, type).
 									</p>
-								</span>
+								</div>
 							}
 						/>
 					</p>
-					<div className={[this.props.theme.ComponentButtons, 'col-sm-12'].join(' ')}>
+					<div className={classnames(this.props.theme.ComponentButtons, 'col-sm-12')}>
 						<div className="col-sm-6">
 							<AppButton
 								text="Add Input"
 								icon="talend-plus-circle"
 								onClick={() =>
-									this.setState(s => (s.inputs = this.newStructure('input', this.state.inputs)))
+									this.setState(s => (s.inputs = newStructure('input', this.state.inputs)))
 								}
 								help={
 									<Help
@@ -358,7 +368,7 @@ export default class Processor extends React.Component {
 								side="right"
 								iconPosition="left"
 								onClick={() =>
-									this.setState(s => (s.outputs = this.newStructure('output', this.state.outputs)))
+									this.setState(s => (s.outputs = newStructure('output', this.state.outputs)))
 								}
 								help={
 									<Help
@@ -375,8 +385,8 @@ export default class Processor extends React.Component {
 							/>
 						</div>
 					</div>
-					<div className={[this.props.theme.ComponentWrapper, 'col-sm-12'].join(' ')}>
-						<div className={[this.props.theme.Inputs, 'col-sm-5'].join(' ')}>
+					<div className={classnames(this.props.theme.ComponentWrapper, 'col-sm-12')}>
+						<div className={classnames(this.props.theme.Inputs, 'col-sm-5')}>
 							<Connections
 								connections={this.props.component.processor.inputStructures}
 								theme={this.props.theme}
@@ -384,10 +394,10 @@ export default class Processor extends React.Component {
 								type="Input"
 							/>
 						</div>
-						<div className={[this.props.theme.ComponentBox, 'col-sm-2'].join(' ')}>
+						<div className={classnames(this.props.theme.ComponentBox, 'col-sm-2')}>
 							<componentBox>component</componentBox>
 						</div>
-						<div className={[this.props.theme.Outputs, 'col-sm-5'].join(' ')}>
+						<div className={classnames(this.props.theme.Outputs, 'col-sm-5')}>
 							<Connections
 								connections={this.props.component.processor.outputStructures}
 								theme={this.props.theme}

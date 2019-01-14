@@ -142,7 +142,7 @@ export default class Finish extends React.Component {
 					modalMessage: (
 						<div>
 							Project{' '}
-							<a target="_blank" href={link}>
+							<a target="_blank" rel="noopener noreferrer" href={link}>
 								{this.state.github.repository}
 							</a>{' '}
 							created with success!

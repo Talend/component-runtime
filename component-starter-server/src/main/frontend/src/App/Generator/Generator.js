@@ -14,10 +14,12 @@
  *  limitations under the License.
  */
 import React from 'react';
+import classnames from 'classnames';
 import { Action, Icon } from '@talend/react-components';
 
 import theme from './Generator.scss';
 
+import DatasetContext from '../dataset';
 import ProjectMetadata from './ProjectMetadata';
 import Component from './Component';
 import Finish from './Finish';
@@ -46,66 +48,48 @@ export default class Generator extends React.Component {
 				buildTypes: [],
 			},
 			components: [],
-			steps: [],
+			datastores: [],
+			datasets: [ { id: 'jdbc', name: 'JDBC' }],
 		};
-		this.state.steps.push({
-			name: 'Start',
-			component: (
-				<ProjectMetadata
-					project={this.state.project}
-					buildTypes={this.state.configuration.buildTypes}
-				/>
-			),
-		});
-		this.state.steps.push({
-			name: 'Finish',
-			component: <Finish project={this.state.project} components={() => this.state.components} />,
-		});
-
-		['onAddComponent', 'onGoToFinishPage'].forEach(
+		['isComponentStep', 'onClickSetStep', 'onAddComponent', 'onGoToFinishPage'].forEach(
 			action => (this[action] = this[action].bind(this)),
 		);
 	}
 
 	onAddComponent() {
-		this.setState(state => {
-			let component = {
-				configuration: {
-					name: `CompanyComponent${state.steps.length}`,
+		let component = {
+			configuration: {
+				name: `CompanyComponent${this.state.components.length + 1}`,
+			},
+			source: {
+				genericOutput: true,
+				stream: false,
+				configurationStructure: {
+					entries: [],
 				},
-				source: {
-					genericOutput: true,
-					stream: false,
-					configurationStructure: {
-						entries: [],
-					},
-					outputStructure: {
-						entries: [],
-					},
+				outputStructure: {
+					entries: [],
 				},
-				processor: {
-					configurationStructure: {
-						entries: [],
-					},
-					inputStructures: [
-						{
-							name: 'MAIN',
-							generic: false,
-							structure: {
-								entries: [],
-							},
+			},
+			processor: {
+				configurationStructure: {
+					entries: [],
+				},
+				inputStructures: [
+					{
+						name: 'MAIN',
+						generic: false,
+						structure: {
+							entries: [],
 						},
-					],
-					outputStructures: [],
-				},
-			};
+					},
+				],
+				outputStructures: [],
+			},
+		};
+		this.setState(state => {
 			state.components.push(component);
-			state.steps.splice(state.steps.length - 1, 0, {
-				component: (
-					<Component component={component} onChange={() => this.updateComponent(component)} />
-				),
-			});
-			state.currentStep = state.steps.length - 2;
+			state.currentStep = state.components.length;
 			return Object.assign({}, state);
 		});
 	}
@@ -116,56 +100,101 @@ export default class Generator extends React.Component {
 
 	deleteComponent(index) {
 		this.setState(state => {
-			var comp = state.steps.splice(index, 1);
 			var idx = state.components.indexOf(comp[0].component.props.component);
 			if (idx >= 0) {
 				state.components.splice(idx, 1);
 			}
+			return Object.assign({}, state);
 		});
 	}
 
 	onGoToFinishPage() {
-		this.setState({ currentStep: this.state.steps.length - 1 });
+		this.setState({ currentStep: this.state.components.length + 1 });
 	}
 
-	// <Project project={this.state.project} />
+	onClickSetStep(event, step) {
+		event.preventDefault();
+		this.setState({ currentStep: step });
+	}
+
+	isComponentStep(index) {
+		return index > 0 && index !== this.state.components.length + 1;
+	}
+
 	render() {
-		const onClick = (evt, index) => {
-			evt.preventDefault();
-			this.setState({ currentStep: index });
-		};
+		let mainContent = null;
+		if (this.state.currentStep === 0) {
+			mainContent = (
+				<ProjectMetadata
+					project={this.state.project}
+					buildTypes={this.state.configuration.buildTypes}
+				/>
+			);
+		} else if (this.isComponentStep(this.state.currentStep)) {
+			const component = this.state.components[this.state.currentStep - 1];
+			mainContent = (
+				<Component
+					component={component}
+					onChange={() => this.updateComponent(component)}
+				/>
+			);
+
+		} else if (this.state.currentStep === this.state.components.length + 1) {
+			mainContent = (
+				<Finish project={this.state.project} components={() => this.state.components} />
+			);
+		}
 		return (
 			<div className={theme.Generator}>
 				<div className={theme.container}>
 					<div className={theme.wizard}>
 						<nav>
 							<ol>
-								{this.state.steps.map((step, i) => {
-									const classes = [];
-									if (this.state.currentStep === i) {
-										classes.push(theme.active);
-									}
-									const fixedItem = i === 0 || i + 1 === this.state.steps.length;
+								<li
+									className={classnames({
+										[theme.active]: this.state.currentStep === 0,
+									})}
+									onClick={e => this.onClickSetStep(e, 0)}
+								>
+									<section-label>Start</section-label>
+								</li>
+								{this.state.components.map((component, i) => {
 									return (
-										<li className={classes.join(' ')} onClick={e => onClick(e, i)} key={i}>
-											<sectionLabel>
-												{(fixedItem && step.name) ||
-													(!fixedItem && step.component.props.component.configuration.name)}
-											</sectionLabel>
-											{!fixedItem && (
-												<trashIcon onClick={() => this.deleteComponent(i)}>
-													<Icon name="talend-trash" />
-												</trashIcon>
-											)}
+										<li
+											className={classnames({
+												[theme.active]: this.state.currentStep === i + 1,
+											})}
+											onClick={e => this.onClickSetStep(e, i + 1)}
+											key={i}
+										>
+											<section-label>
+												{component.configuration.name}
+											</section-label>
+											<trash-icon onClick={() => this.deleteComponent(i)}>
+												<Icon name="talend-trash" />
+											</trash-icon>
 										</li>
 									);
 								})}
+								<li
+									className={classnames({
+										[theme.active]: this.state.currentStep === this.state.components.length + 1,
+									})}
+									onClick={e => this.onClickSetStep(e, this.state.components.length + 1)}
+								>
+									<section-label>Start</section-label>
+								</li>
+
 							</ol>
 						</nav>
 					</div>
 					<div className={theme.content}>
-						<main>{this.state.steps[this.state.currentStep].component}</main>
-						{this.state.currentStep + 1 !== this.state.steps.length && (
+						<main>
+							<DatasetContext.Provider value={this.state.datasets}>
+								{mainContent}
+							</DatasetContext.Provider>
+						</main>
+						{this.state.currentStep !== this.state.components.length + 1 && (
 							<footer>
 								<Action
 									id="add-component-button"

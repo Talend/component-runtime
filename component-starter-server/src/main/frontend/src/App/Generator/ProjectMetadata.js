@@ -148,9 +148,9 @@ export default class ProjectMetadata extends React.Component {
 
 					<div className={theme['form-row']}>
 						<p className={theme.title}>Component Metadata</p>
-						<form novalidate submit={e => e.preventDefault()}>
+						<form noValidate onSubmit={e => e.preventDefault()}>
 							<div className="field">
-								<label forHtml="projectFamily">Component Family</label>
+								<label htmlFor="projectFamily">Component Family</label>
 								<Help
 									title="Family"
 									i18nKey="project_family"
@@ -176,7 +176,7 @@ export default class ProjectMetadata extends React.Component {
 								/>
 							</div>
 							<div className="field">
-								<label forHtml="projectCategory">Category</label>
+								<label htmlFor="projectCategory">Category</label>
 								<Help
 									title="Category"
 									i18nKey="project_category"
@@ -204,9 +204,9 @@ export default class ProjectMetadata extends React.Component {
 					</div>
 
 					<p className={[theme.title, theme['form-row']].join(' ')}>Project Metadata</p>
-					<form novalidate submit={e => e.preventDefault()}>
+					<form noValidate onSubmit={e => e.preventDefault()}>
 						<div className="field">
-							<label forHtml="projectGroup">Group</label>
+							<label htmlFor="projectGroup">Group</label>
 							<Help
 								title="Project Group"
 								i18nKey="project_group"
@@ -239,7 +239,7 @@ export default class ProjectMetadata extends React.Component {
 							/>
 						</div>
 						<div className="field">
-							<label forHtml="projectArtifact">Artifact</label>
+							<label htmlFor="projectArtifact">Artifact</label>
 							<Help
 								title="Project Artifact"
 								i18nKey="project_artifact"
@@ -271,7 +271,7 @@ export default class ProjectMetadata extends React.Component {
 							/>
 						</div>
 						<div className="field">
-							<label forHtml="projectPackage">Package</label>
+							<label htmlFor="projectPackage">Package</label>
 							<Help
 								title="Project Root package"
 								i18nKey="project_package"
@@ -302,7 +302,7 @@ export default class ProjectMetadata extends React.Component {
 
 						{!this.state.view.light && [
 							<div className="field">
-								<label forHtml="projectVersion">Version</label>
+								<label htmlFor="projectVersion">Version</label>
 								<Help
 									title="Project Version"
 									i18nKey="project_version"
@@ -326,7 +326,7 @@ export default class ProjectMetadata extends React.Component {
 								/>
 							</div>,
 							<div className="field">
-								<label forHtml="projectName">Project Name</label>
+								<label htmlFor="projectName">Project Name</label>
 								<Help
 									title="Project Name"
 									i18nKey="project_name"
@@ -349,7 +349,7 @@ export default class ProjectMetadata extends React.Component {
 								/>
 							</div>,
 							<div className="field">
-								<label forHtml="projectDescription">Project Description</label>
+								<label htmlFor="projectDescription">Project Description</label>
 								<Help
 									title="Project Description"
 									i18nKey="project_description"

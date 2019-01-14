@@ -18,6 +18,7 @@ import { Toggle } from '@talend/react-components';
 import Help from '../Component/Help';
 import AppButton from '../Component/AppButton';
 import Schema from '../Component/Schema';
+import TileContext from '../tile';
 
 export default class Mapper extends React.Component {
 	constructor(props) {
@@ -62,22 +63,34 @@ export default class Mapper extends React.Component {
 		this.setState({});
 	}
 
-	onConfigurationButtonClick() {
-		this.props.onUpdateDrawers([
+	onConfigurationButtonClick(tileService) {
+		const tile = (
 			<div>
 				<h2>Configuration Model</h2>
 				<Schema schema={this.state.configurationStructure} readOnly={true} name="configuration" />
-			</div>,
-		]);
+			</div>
+		);
+
+		if (tileService.tiles.length > 1) {
+			tileService.resetTile([tileService.tiles[0], tile]);
+		} else {
+			tileService.addTile(tile);
+		}
 	}
 
-	onRecordButtonClick() {
-		this.props.onUpdateDrawers([
+	onRecordButtonClick(tileService) {
+		const tile = (
 			<div>
 				<h2>Record Model</h2>
 				<Schema schema={this.state.outputStructure} readOnly={true} name="root" />
-			</div>,
-		]);
+			</div>
+		);
+
+		if (tileService.tiles.length > 1) {
+			tileService.resetTile([tileService.tiles[0], tile]);
+		} else {
+			tileService.addTile(tile);
+		}
 	}
 
 	onRecordTypeChange(event) {
@@ -98,28 +111,32 @@ export default class Mapper extends React.Component {
 	render() {
 		return (
 			<div className={this.props.theme.Mapper}>
-				<AppButton
-					text="Configuration Model"
-					onClick={this.onConfigurationButtonClick}
-					help={
-						<Help
-							title="Configuration"
-							i18nKey="mapper_configuration"
-							content={
-								<span>
-									<p>
-										The component configuration schema design can be configured by clicking on this
-										button.
-									</p>
-									<p>
-										It allows you to define the data you need to be able to execute the component
-										logic.
-									</p>
-								</span>
+				<TileContext.Consumer>
+					{tileService => (
+						<AppButton
+							text="Configuration Model"
+							onClick={() => this.onConfigurationButtonClick(tileService)}
+							help={
+								<Help
+									title="Configuration"
+									i18nKey="mapper_configuration"
+									content={
+										<span>
+											<p>
+												The component configuration schema design can be configured by clicking on
+												this button.
+											</p>
+											<p>
+												It allows you to define the data you need to be able to execute the
+												component logic.
+											</p>
+										</span>
+									}
+								/>
 							}
 						/>
-					}
-				/>
+					)}
+				</TileContext.Consumer>
 				<div className={this.props.theme['form-row']}>
 					<p className={this.props.theme.title}>
 						Stream
@@ -138,6 +155,7 @@ export default class Mapper extends React.Component {
 						/>
 					</p>
 					<Toggle
+						id="mapper-toggle"
 						checked={this.props.component.source.stream}
 						onChange={() => this.onStreamChange()}
 					/>
@@ -173,28 +191,32 @@ export default class Mapper extends React.Component {
 						</option>
 					</select>
 					{!this.props.component.source.genericOutput && (
-						<AppButton
-							text="Record Model"
-							onClick={this.onRecordButtonClick}
-							help={
-								<Help
-									title="Record Model"
-									i18nKey="mapper_record_model"
-									content={
-										<span>
-											<p>
-												In custom mode you can define the schema of the record you want to design by
-												clicking on this button.
-											</p>
-											<p>
-												The schema will be used to create POJO model you will use to instantiate the
-												records sent by your input to the job.
-											</p>
-										</span>
+						<TileContext.Consumer>
+							{tileService => (
+								<AppButton
+									text="Record Model"
+									onClick={() => this.onRecordButtonClick(tileService)}
+									help={
+										<Help
+											title="Record Model"
+											i18nKey="mapper_record_model"
+											content={
+												<span>
+													<p>
+														In custom mode you can define the schema of the record you want to
+														design by clicking on this button.
+													</p>
+													<p>
+														The schema will be used to create POJO model you will use to instantiate
+														the records sent by your input to the job.
+													</p>
+												</span>
+											}
+										/>
 									}
 								/>
-							}
-						/>
+							)}
+						</TileContext.Consumer>
 					)}
 				</div>
 			</div>

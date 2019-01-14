@@ -36,6 +36,7 @@
 
 .Finish {
   height: calc(100vh - 48px);
+  padding-left: $padding-normal;
 
   .bigButton {
     display: flex;

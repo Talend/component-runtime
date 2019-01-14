@@ -22,7 +22,7 @@ import theme from './Help.scss';
 
 export default function Help(props) {
 	const overlay = (
-		<Popover title={<Trans i18nKey={`${props.i18nKey}_title`}>{props.title}</Trans>}>
+		<Popover id={props.i18nKey} title={<Trans i18nKey={`${props.i18nKey}_title`}>{props.title}</Trans>}>
 			<div className={theme.HelpContent}>
 				<Trans i18nKey={props.i18nKey}>{props.content}</Trans>
 			</div>

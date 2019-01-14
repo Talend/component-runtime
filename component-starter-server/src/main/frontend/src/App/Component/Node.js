@@ -129,6 +129,7 @@ export default class Node extends React.Component {
 
 	render() {
 		const nodeIcon = !!this.state.opened ? 'talend-caret-down' : 'talend-chevron-left';
+		const nodeIconTransform = !this.state.opened ? 'flip-horizontal' : undefined;
 		let nodeView;
 		if (!!this.state.edited) {
 			nodeView = (
@@ -188,6 +189,7 @@ export default class Node extends React.Component {
 							bsStyle="link"
 							className="btn-icon-only btn-sm"
 							icon={nodeIcon}
+							iconTransform={nodeIconTransform}
 							onClick={() => this.setState({ opened: !this.state.opened })}
 						/>
 					)}

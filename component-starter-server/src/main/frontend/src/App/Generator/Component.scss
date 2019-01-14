@@ -16,7 +16,26 @@
 .Component {
   display: flex;
 
-
+  .hidden {
+    flex: 0;
+    width: 0;
+    display: none;
+  }
+  .column {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: $padding-large;
+    padding-top: $padding-smaller;
+    border-left: 1px solid $silver;
+    height: calc(100vh - 114px);  // 48px - 66px);
+    padding-left: $padding-large;
+    &:first-child {
+      border-left: none;
+    }
+    > button:first-child {
+      float: right;
+    }
+  }
   .title {
     font-weight: bolder;
     font-size: 18px;

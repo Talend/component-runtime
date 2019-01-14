@@ -14,11 +14,12 @@
  *  limitations under the License.
  */
 import React from 'react';
+import classnames from 'classnames';
 import Node from './Node';
+import TileContext from '../tile';
 
 import theme from './Schema.scss';
-
-
+import SelectDataset from '../components/SelectDataset';
 
 export default class Schema extends React.Component {
 	constructor(props) {
@@ -37,15 +38,41 @@ export default class Schema extends React.Component {
 		}
 	}
 
+	onSelectDataset(service) {
+		return function onChange(event) {
+			if (event.target.value==='create-new') {
+				const tile = (
+					<div>
+						<h2>Select a Dataset</h2>
+						<Schema schema={{entries: []}} readOnly={true} name="dataset" />
+					</div>
+				);
+				service.addTile(tile);
+			} else {
+
+			}
+		}
+	}
+
 	render() {
 		return (
-			<div className={theme.Schema}>
-				<Node
-					node={this.state.schema}
-					readOnly={this.props.readOnly || !!this.props.parent}
-					name={this.props.name}
-				/>
-			</div>
+			<form className={classnames('form', theme.Schema)}>
+				{this.props.name === 'configuration' && (
+					<TileContext.Consumer>
+						{(service) => (
+							<SelectDataset onChange={this.onSelectDataset(service)} />
+						)}
+					</TileContext.Consumer>
+				)}
+				<div className="form-group">
+					<label htmlFor="schema-model">Model</label>
+					<Node
+						node={this.state.schema}
+						readOnly={this.props.readOnly || !!this.props.parent}
+						name={this.props.name}
+					/>
+				</div>
+			</form>
 		);
 	}
 }

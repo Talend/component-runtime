@@ -172,7 +172,7 @@ export default class FacetSelector extends React.Component {
 					<Typeahead
 						icon={{ name: 'talend-search', title: 'Toggle search input', bsStyle: 'link' }}
 						placeholder="Select a facet to add to your project"
-						multiSection="false"
+						multiSection={false}
 						autoFocus={false}
 						value={this.state.value}
 						items={this.state.suggestions}

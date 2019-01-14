@@ -43,7 +43,7 @@
         > main {
           flex: 1;
           overflow: auto;
-          padding-left: 25px;
+          // padding-left: 25px;
         }
 
         > footer {
@@ -152,7 +152,7 @@
                 }
               }
 
-              sectionLabel {
+              section-label {
                 color: $wizard-blue;
                 word-wrap: break-word;
                 max-width: 150px;
