@@ -37,7 +37,7 @@ public Record createRecord() {
 }
 ----
 
-or
+In the example above, the schema is dynamically computed from the data. You can also do it using a pre-built schema, as follows:
 
 [source,java]
 ----
@@ -49,13 +49,12 @@ public Record createRecord() {
 }
 ----
 
-The main difference between both cases is the fact the last sample uses a pre-built schema - with `factory.newSchemaBuilder(Schema.Type.RECORD)` -
-whereas in the first case the schema is dynamic from the data. In the case where you provide a schema, the entries passed to the record builder
-will be validated which means that if you pass a value - generally null or an entry type not matching the provided schema the record creation will fail.
-It will also fail if you try to add an entry which does not exist or if you didn't set a not nullable entry.
+The example above uses a schema that was pre-built using `factory.newSchemaBuilder(Schema.Type.RECORD)`.
 
-IMPORTANT: using a dynamic schema can be needed for some backend but it also means the users will have more issues
-to create a pipeline to process the data. If you can prefer the last option which is more reliable for end users.
+When using a pre-built schema, the entries passed to the record builder are validated. It means that if you pass a null value null or an entry type that does not match the provided schema, the record creation fails.
+It also fails if you try to add an entry which does not exist or if you did not set a not nullable entry.
+
+TIP: Using a dynamic schema can be useful on the backend but can lead users to more issues when creating a pipeline to process the data. Using a pre-built schema is more reliable for end-users.
 
 === Accessing and reading a record
 
