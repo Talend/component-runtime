@@ -34,6 +34,12 @@ const HELP_CONTENT = (
 	/>
 );
 
+const NODE_TYPES = ['object', 'boolean', 'double', 'integer', 'uri', 'url', 'string'];
+
+function isNativeType(type) {
+	return NODE_TYPES.indexOf(type) !== -1;
+}
+
 export default class Node extends React.Component {
 	constructor(props) {
 		super(props);
@@ -44,10 +50,9 @@ export default class Node extends React.Component {
 			entries: (this.props.node.model || this.props.node).entries,
 		};
 
-		this.nodeTypes = ['object', 'boolean', 'double', 'integer', 'uri', 'url', 'string'] // don't support file yet, this is not big data friendly
-			.map(i => {
-				return { value: i, label: i.substring(0, 1).toUpperCase() + i.substring(1) };
-			});
+		this.nodeTypes = NODE_TYPES.map(i => (
+			{ value: i, label: i.substring(0, 1).toUpperCase() + i.substring(1) }
+		));
 
 		['addChild', 'onTypeChange', 'onEdit', 'deleteNode', 'onDeleteChild', 'validEdition'].forEach(
 			i => (this[i] = this[i].bind(this)),
@@ -131,6 +136,7 @@ export default class Node extends React.Component {
 		const nodeIcon = !!this.state.opened ? 'talend-caret-down' : 'talend-chevron-left';
 		const nodeIconTransform = !this.state.opened ? 'flip-horizontal' : undefined;
 		let nodeView;
+		const readOnly = this.props.readOnly || !isNativeType(this.state.type);
 		if (!!this.state.edited) {
 			nodeView = (
 				<span>
@@ -163,13 +169,19 @@ export default class Node extends React.Component {
 		} else {
 			nodeView = (
 				<span className={classnames(theme.nodeView, {
-					[theme.readonly]: this.props.readOnly,
-					[theme.editable]: !this.props.readOnly,
+					[theme.readonly]: readOnly,
+					[theme.editable]: !readOnly,
 				})}>
-					<button onClick={this.onEdit} className={theme.nodeName}>
-						{this.props.node.name || this.props.name} ({this.props.node.type || 'object'})
-					</button>
-					{!this.props.readOnly && (
+					{readOnly ? (
+						<span className={theme.labelReadOnly}>
+							{this.props.node.name || this.props.name} ({this.props.node.type || 'object'})
+						</span>
+					) : (
+						<button onClick={this.onEdit} className={theme.nodeName}>
+							{this.props.node.name || this.props.name} ({this.props.node.type || 'object'})
+						</button>
+					)}
+					{!readOnly && (
 						<Action
 							bsStyle="link"
 							className="btn-icon-only btn-sm"

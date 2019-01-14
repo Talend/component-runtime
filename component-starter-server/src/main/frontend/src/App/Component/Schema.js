@@ -27,6 +27,7 @@ export default class Schema extends React.Component {
 		this.state = {
 			schema: props.schema,
 		};
+		this.onSelectDataset = this.onSelectDataset.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -39,17 +40,20 @@ export default class Schema extends React.Component {
 	}
 
 	onSelectDataset(service) {
-		return function onChange(event) {
+		return (event, dataset) => {
 			if (event.target.value==='create-new') {
 				const tile = (
-					<div>
-						<h2>Select a Dataset</h2>
-						<Schema schema={{entries: []}} readOnly={true} name="dataset" />
-					</div>
+					<form className="form">
+						<h2>Create a new dataset</h2>
+						<div className="form-group">
+							<label></label>
+							<Schema schema={{entries: []}} readOnly={true} name="dataset" />
+						</div>
+					</form>
 				);
 				service.addTile(tile);
 			} else {
-
+				this.state.schema.entries.push({ name: dataset, type: 'dataset' });
 			}
 		}
 	}

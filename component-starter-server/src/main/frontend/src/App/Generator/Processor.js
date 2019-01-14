@@ -64,7 +64,7 @@ class EmbeddableToggle extends React.Component {
 
 	render() {
 		return (
-			<schemaConfiguration>
+			<schema-configuration>
 				<div className={this.props.theme['form-row']}>
 					<p className={this.props.theme.title}>
 						Generic
@@ -93,7 +93,7 @@ class EmbeddableToggle extends React.Component {
 						<Schema schema={this.state.structure} readOnly={true} name="root" />
 					</div>
 				)}
-			</schemaConfiguration>
+			</schema-configuration>
 		);
 	}
 }

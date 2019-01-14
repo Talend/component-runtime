@@ -25,7 +25,6 @@ class SelectDataset extends React.Component {
 	}
 
 	render() {
-		const props = this.props;
 		return (
 			<DatasetContext.Consumer>
 				{({datasets}) => (
@@ -33,7 +32,6 @@ class SelectDataset extends React.Component {
 						datasets={datasets}
 						value={this.state.value}
 						onChange={this.onChange}
-						{...props}
 					/>
 				)}
 			</DatasetContext.Consumer>
