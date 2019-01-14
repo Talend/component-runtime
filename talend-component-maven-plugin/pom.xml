@@ -91,6 +91,11 @@
       <artifactId>freemarker</artifactId>
       <version>2.3.28</version>
     </dependency>
+    <dependency><!-- todo: use jib-core when a new release will be available -->
+      <groupId>com.google.cloud.tools</groupId>
+      <artifactId>jib-maven-plugin</artifactId>
+      <version>${jib.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.xbean</groupId>

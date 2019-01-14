@@ -35,8 +35,6 @@
   <properties>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 
-    <jib.version>1.0.0-rc1</jib.version>
-
     <talend.server.image.registry></talend.server.image.registry>
     <baseImage>openjdk:8-jre-alpine</baseImage>
     <boundPort>8080</boundPort>
