@@ -486,9 +486,9 @@ sudo docker run -p 8080:8080 \
 By default, Geronimo OpenTracing will log the spans in a Zipking format so you can use the Kafka profile as explained before
 to wire it over any OpenTracing backend.
 
-=== Build the image yourself
+=== Building the docker image
 
-You can register component server images in docker using these instructions in the corresponding image directory:
+You can register component server images in Docker using these instructions in the corresponding image directory:
 
 [source,sh]
 ----
@@ -496,12 +496,14 @@ You can register component server images in docker using these instructions in t
 mvn clean compile jib:dockerBuild
 ----
 
-=== How to integrate components into the image
+=== Integrating components into the image
 
 ==== Docker Compose
 
-Docker Compose is a nice way to deploy the server with components. The idea is to mount the component volume
-into the server image. Here is a `docker-compose.yml` doing it:
+Docker Compose allows you to deploy the server with components, by mounting the component volume
+into the server image.
+
+`docker-compose.yml` example:
 
 [source,yaml]
 ----
@@ -533,7 +535,7 @@ services:
         nocopy: true
 ----
 
-If you want to mount it from another image you can use this compose configuration:
+If you want to mount it from another image, you can use this compose configuration:
 
 [source,yaml]
 ----
@@ -572,4 +574,4 @@ volumes:
   connectors:
 ----
 
-To run one of both compose you can use `docker-compose -f docker-compose.yml up`.
+To run one of the previous compose examples, you can use `docker-compose -f docker-compose.yml up`.
