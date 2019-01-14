@@ -146,7 +146,7 @@ class RepositoryModelBuilderTest {
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
             assertEquals("configuration", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
-            assertEquals("class org.talend.test.generated.tmp.DataSet1",
+            assertEquals("class org.talend.test.generated.target.DataSet1",
                     dataStore1Config.getChildConfigs().get(0).getMeta().getJavaType().toString());
 
             final String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2");
@@ -155,7 +155,7 @@ class RepositoryModelBuilderTest {
             assertNotNull(dataStore2Config);
             assertEquals(1, dataStore2Config.getChildConfigs().size());
             assertEquals("configuration", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
-            assertEquals("class org.talend.test.generated.tmp.DataSet2",
+            assertEquals("class org.talend.test.generated.target.DataSet2",
                     dataStore2Config.getChildConfigs().get(0).getMeta().getJavaType().toString());
         }
 

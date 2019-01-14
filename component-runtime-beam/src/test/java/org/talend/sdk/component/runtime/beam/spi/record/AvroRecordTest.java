@@ -17,12 +17,81 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.record.RecordImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroRecordTest {
+
+    @Test
+    void providedSchemaGetSchema() {
+        final Schema schema = new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(true)
+                        .withType(Schema.Type.STRING)
+                        .build())
+                .build();
+        assertEquals(schema, new AvroRecordBuilder(schema).withString("name", "ok").build().getSchema());
+    }
+
+    @Test
+    void providedSchemaNullable() {
+        final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(true)
+                        .withType(Schema.Type.STRING)
+                        .build())
+                .build());
+        { // normal/valued
+            final Record record = builder.get().withString("name", "ok").build();
+            assertEquals(1, record.getSchema().getEntries().size());
+            assertEquals("ok", record.getString("name"));
+        }
+        { // null
+            final Record record = builder.get().withString("name", null).build();
+            assertEquals(1, record.getSchema().getEntries().size());
+            assertNull(record.getString("name"));
+        }
+        { // missing entry
+            assertThrows(IllegalArgumentException.class, () -> builder.get().withString("name2", null).build());
+        }
+        { // invalid type entry
+            assertThrows(IllegalArgumentException.class, () -> builder.get().withInt("name", 2).build());
+        }
+    }
+
+    @Test
+    void providedSchemaNotNullable() {
+        final Supplier<RecordImpl.BuilderImpl> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(false)
+                        .withType(Schema.Type.STRING)
+                        .build())
+                .build());
+        { // normal/valued
+            final Record record = builder.get().withString("name", "ok").build();
+            assertEquals(1, record.getSchema().getEntries().size());
+            assertEquals("ok", record.getString("name"));
+        }
+        { // null
+            assertThrows(IllegalArgumentException.class, () -> builder.get().withString("name", null).build());
+        }
+    }
 
     @Test
     void bytes() {

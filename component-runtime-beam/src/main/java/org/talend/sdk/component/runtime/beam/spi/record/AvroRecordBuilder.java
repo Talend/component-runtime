@@ -16,11 +16,20 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 
 // simple impl converting at the last moment the record to an avro one
 // can be enhanced later to do it on the fly
 public class AvroRecordBuilder extends RecordImpl.BuilderImpl {
+
+    public AvroRecordBuilder() {
+        // no-op
+    }
+
+    public AvroRecordBuilder(final Schema providedSchema) {
+        super(providedSchema);
+    }
 
     @Override
     public Record build() {

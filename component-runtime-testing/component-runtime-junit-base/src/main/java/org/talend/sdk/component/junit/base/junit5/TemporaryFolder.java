@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 // backport the junit4 rule of the same name to junit 5
+@Deprecated // part of jupiter 5.4 now
 public class TemporaryFolder {
 
     private File folder;

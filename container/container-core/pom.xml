@@ -114,9 +114,9 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.version}
+                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}
                   </outputDirectory>
-                  <destFileName>openejb-itests-beans-${ziplock.version}.jar</destFileName>
+                  <destFileName>openejb-itests-beans-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.xbean</groupId>
@@ -134,7 +134,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 </project>

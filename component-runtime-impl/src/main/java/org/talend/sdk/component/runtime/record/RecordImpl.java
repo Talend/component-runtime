@@ -18,6 +18,9 @@ package org.talend.sdk.component.runtime.record;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
@@ -88,19 +91,63 @@ public final class RecordImpl implements Record {
         }
     }
 
-    // todo: avoid to create the schema each time? this is not that costly but can be saved
-    // using a "changeOnValidateFailure" kind of logic
+    // Entry creation can be optimized a bit but recent GC should not see it as a big deal
     public static class BuilderImpl implements Builder {
 
         private final Map<String, Object> values = new HashMap<>(8);
 
         private final List<Schema.Entry> entries = new ArrayList<>(8);
 
-        // here the game is to add an entry method for each kind of type + its companion with Entry provider
+        private final Schema providedSchema;
+
+        private Map<String, Schema.Entry> entryIndex;
+
+        public BuilderImpl() {
+            this(null);
+        }
+
+        public BuilderImpl(final Schema providedSchema) {
+            this.providedSchema = providedSchema;
+        }
+
+        private void validateTypeAgainstProvidedSchema(final String name, final Schema.Type type, final Object value) {
+            if (providedSchema == null) {
+                return;
+            }
+            if (entryIndex == null) {
+                entryIndex = providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
+            }
+            final Schema.Entry entry = entryIndex.get(name);
+            if (entry == null) {
+                throw new IllegalArgumentException(
+                        "No entry '" + name + "' expected in provided schema: " + entryIndex.keySet());
+            }
+            if (entry.getType() != type) {
+                throw new IllegalArgumentException(
+                        "Entry '" + name + "' expected to be a " + entry.getType() + ", got a " + type);
+            }
+            if (value == null && !entry.isNullable()) {
+                throw new IllegalArgumentException("Entry '" + name + "' is not nullable");
+            }
+        }
 
         public Record build() {
-            return new RecordImpl(unmodifiableMap(values), new SchemaImpl(RECORD, null, unmodifiableList(entries)));
+            if (providedSchema != null) {
+                final String missing = providedSchema
+                        .getEntries()
+                        .stream()
+                        .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
+                        .map(Schema.Entry::getName)
+                        .collect(joining(", "));
+                if (!missing.isEmpty()) {
+                    throw new IllegalArgumentException("Missing entries: " + missing);
+                }
+            }
+            return new RecordImpl(unmodifiableMap(values),
+                    providedSchema == null ? new SchemaImpl(RECORD, null, unmodifiableList(entries)) : providedSchema);
         }
+
+        // here the game is to add an entry method for each kind of type + its companion with Entry provider
 
         public Builder withString(final String name, final String value) {
             return withString(
@@ -110,6 +157,7 @@ public final class RecordImpl implements Record {
 
         public Builder withString(final Schema.Entry entry, final String value) {
             assertType(entry.getType(), STRING);
+            validateTypeAgainstProvidedSchema(entry.getName(), STRING, value);
             return append(entry, value);
         }
 
@@ -121,6 +169,7 @@ public final class RecordImpl implements Record {
 
         public Builder withBytes(final Schema.Entry entry, final byte[] value) {
             assertType(entry.getType(), BYTES);
+            validateTypeAgainstProvidedSchema(entry.getName(), BYTES, value);
             return append(entry, value);
         }
 
@@ -134,6 +183,7 @@ public final class RecordImpl implements Record {
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
             }
+            validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return withTimestamp(entry, value == null ? -1 : value.getTime());
         }
 
@@ -147,6 +197,7 @@ public final class RecordImpl implements Record {
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
             }
+            validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return withTimestamp(entry, value == null ? -1 : value.toInstant().toEpochMilli());
         }
 
@@ -160,6 +211,7 @@ public final class RecordImpl implements Record {
 
         public Builder withTimestamp(final Schema.Entry entry, final long value) {
             assertType(entry.getType(), DATETIME);
+            validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value);
         }
 
@@ -171,6 +223,7 @@ public final class RecordImpl implements Record {
 
         public Builder withInt(final Schema.Entry entry, final int value) {
             assertType(entry.getType(), INT);
+            validateTypeAgainstProvidedSchema(entry.getName(), INT, value);
             return append(entry, value);
         }
 
@@ -182,6 +235,7 @@ public final class RecordImpl implements Record {
 
         public Builder withLong(final Schema.Entry entry, final long value) {
             assertType(entry.getType(), LONG);
+            validateTypeAgainstProvidedSchema(entry.getName(), LONG, value);
             return append(entry, value);
         }
 
@@ -193,6 +247,7 @@ public final class RecordImpl implements Record {
 
         public Builder withFloat(final Schema.Entry entry, final float value) {
             assertType(entry.getType(), FLOAT);
+            validateTypeAgainstProvidedSchema(entry.getName(), FLOAT, value);
             return append(entry, value);
         }
 
@@ -204,6 +259,7 @@ public final class RecordImpl implements Record {
 
         public Builder withDouble(final Schema.Entry entry, final double value) {
             assertType(entry.getType(), DOUBLE);
+            validateTypeAgainstProvidedSchema(entry.getName(), DOUBLE, value);
             return append(entry, value);
         }
 
@@ -215,6 +271,7 @@ public final class RecordImpl implements Record {
 
         public Builder withBoolean(final Schema.Entry entry, final boolean value) {
             assertType(entry.getType(), BOOLEAN);
+            validateTypeAgainstProvidedSchema(entry.getName(), BOOLEAN, value);
             return append(entry, value);
         }
 
@@ -223,6 +280,7 @@ public final class RecordImpl implements Record {
             if (entry.getElementSchema() == null) {
                 throw new IllegalArgumentException("No schema for the nested record");
             }
+            validateTypeAgainstProvidedSchema(entry.getName(), RECORD, value);
             return append(entry, value);
         }
 
@@ -231,6 +289,7 @@ public final class RecordImpl implements Record {
             if (entry.getElementSchema() == null) {
                 throw new IllegalArgumentException("No schema for the collection items");
             }
+            validateTypeAgainstProvidedSchema(entry.getName(), ARRAY, values);
             // todo: check item type?
             return append(entry, values);
         }
@@ -247,7 +306,9 @@ public final class RecordImpl implements Record {
             } else if (!entry.isNullable()) {
                 throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
             }
-            entries.add(entry);
+            if (providedSchema == null) {
+                entries.add(entry);
+            }
             return this;
         }
     }

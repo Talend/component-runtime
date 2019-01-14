@@ -24,6 +24,7 @@ import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.junit.base.junit5.TempFolder;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 
+@Deprecated // part of jupiter 5.4 now
 public class TemporaryFolderExtension implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport {
 
     private static final ExtensionContext.Namespace NAMESPACE =

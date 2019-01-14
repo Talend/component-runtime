@@ -173,6 +173,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
         });
     }
 
+    public String[] getJvmMarkers() {
+        return Stream.of(nameJvmPrefixes, fullPathJvmPrefixes).flatMap(Stream::of).toArray(String[]::new);
+    }
+
     public void registerTransformer(final ClassFileTransformer transformer) {
         transformers.add(transformer);
     }
@@ -300,7 +304,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
             return resource;
         }
         resource = getParent().getResource(name);
-        if (resource != null && isInJvm(resource)) {
+        if (resource != null && (isNestedDependencyResource(name) || isInJvm(resource))) {
             return resource;
         }
         return null;
@@ -362,6 +366,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
         final Collection<URL> aggregated = new ArrayList<>(list(delegates));
         aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).collect(toList()));
         return enumeration(aggregated);
+    }
+
+    private boolean isNestedDependencyResource(final String name) {
+        return name != null && name.startsWith(NESTED_MAVEN_REPOSITORY);
     }
 
     private boolean isInJvm(final URL resource) {

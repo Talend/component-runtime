@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
@@ -201,6 +202,10 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         final org.apache.avro.Schema schema = doToSchema(entry);
         if (entry.isNullable() && schema.getType() != UNION) {
             return org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema));
+        }
+        if (!entry.isNullable() && schema.getType() == UNION) {
+            return org.apache.avro.Schema
+                    .createUnion(schema.getTypes().stream().filter(it -> it.getType() != NULL).collect(toList()));
         }
         return schema;
     }

@@ -28,5 +28,6 @@ import org.talend.sdk.component.junit.base.junit5.internal.TemporaryFolderExtens
 @Target(TYPE)
 @Retention(RUNTIME)
 @ExtendWith(TemporaryFolderExtension.class)
+@Deprecated // part of jupiter 5.4 now
 public @interface WithTemporaryFolder {
 }

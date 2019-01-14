@@ -38,7 +38,7 @@ public class InMemCollector implements Serializable {
         try {
             return Collection.class
                     .cast(loader
-                            .loadClass("org.talend.test.generated.tmp.InMemCollector")
+                            .loadClass("org.talend.test.generated.target.InMemCollector")
                             .getField("OUTPUTS")
                             .get(null));
         } catch (final Exception e) {

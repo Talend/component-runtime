@@ -380,7 +380,7 @@ You can set the env variable `_JAVA_OPTIONS` to customize the server, by default
 
 === Maven repository
 
-The maven repository is the default one of the machine, you can change it setting the system property `talend_component_server_maven_repository=/path/to/your/m2`.
+The maven repository is the default one of the machine, you can change it setting the system property `talend.component.server.maven.repository=/path/to/your/m2`.
 
 ==== Deploy components to the server
 
@@ -495,3 +495,81 @@ You can register component server images in docker using these instructions in t
 # ex: cd images/component-server-image
 mvn clean compile jib:dockerBuild
 ----
+
+=== How to integrate components into the image
+
+==== Docker Compose
+
+Docker Compose is a nice way to deploy the server with components. The idea is to mount the component volume
+into the server image. Here is a `docker-compose.yml` doing it:
+
+[source,yaml]
+----
+version: '3.2'
+
+services:
+  component-server:
+    healthcheck:
+      timeout: 3s
+      interval: 3s
+      retries: 3
+      test: curl --fail http://localhost:1234/api/v1/environment
+    image: tacokit/component-server:${COMPONENT_SERVER_IMAGE:-1.1.2_20181108161652}
+    environment:
+    - CONSOLE_LOG_LEVEL=INFO
+    - _JAVA_OPTIONS=
+        -Xmx1024m
+        -Dhttp=1234
+        -Dtalend.component.server.component.registry=/opt/talend/connectors/component-registry.properties
+        -Dtalend.component.server.maven.repository=/opt/talend/connectors
+    ports:
+    - 1234:1234/tcp
+    volumes:
+    - type: bind
+      read_only: true
+      source: ${CONNECTORS_REPOSITORY}
+      target: /opt/talend/connectors
+      volume:
+        nocopy: true
+----
+
+If you want to mount it from another image you can use this compose configuration:
+
+[source,yaml]
+----
+version: '3.2'
+
+services:
+  component-server:
+    healthcheck:
+      timeout: 3s
+      interval: 3s
+      retries: 3
+      test: curl --fail http://localhost:1234/api/v1/environment
+    image: tacokit/component-server:${COMPONENT_SERVER_IMAGE_VERSION}
+    environment:
+    - _JAVA_OPTIONS=
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+        -Djava.library.path=/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+        -Xmx1024m
+        -Dhttp=1234
+        -Dtalend.component.server.component.registry=/opt/talend/connectors/component-registry.properties
+        -Dtalend.component.server.maven.repository=/opt/talend/connectors
+    ports:
+    - 1234:1234/tcp
+    volumes:
+    - connectors:/opt/talend/connectors:ro
+
+  connectors:
+    image: talend/connectors:${CONNECTORS_VERSION}
+    environment:
+    - CONNECTORS_SETUP_OPTS=setup --wait-for-end --component-jdbc-auto-download-drivers
+    volumes:
+    - connectors:/opt/talend/connectors:ro
+
+
+volumes:
+  connectors:
+----
+
+To run one of both compose you can use `docker-compose -f docker-compose.yml up`.

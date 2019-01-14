@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
@@ -22,10 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
 
 import org.talend.sdk.component.api.service.dependency.Resolver;
+import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
@@ -38,6 +43,43 @@ public class ResolverImpl implements Resolver, Serializable {
     private final String plugin;
 
     private final Function<String, File> fileResolver;
+
+    @Override
+    public ClassLoaderDescriptor mapDescriptorToClassLoader(final InputStream descriptor) {
+        final Collection<URL> urls = new ArrayList<>();
+        final Collection<String> nested = new ArrayList<>();
+        final Collection<String> resolved = new ArrayList<>();
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final ClassLoader loader =
+                ofNullable(classLoader).map(ClassLoader::getParent).orElseGet(ClassLoader::getSystemClassLoader);
+        try {
+            new MvnDependencyListLocalRepositoryResolver(null, fileResolver)
+                    .resolveFromDescriptor(descriptor)
+                    .forEach(artifact -> {
+                        final String path = artifact.toPath();
+                        final File file = fileResolver.apply(path);
+                        if (file.exists()) {
+                            try {
+                                urls.add(file.toURI().toURL());
+                                resolved.add(artifact.toCoordinate());
+                            } catch (final MalformedURLException e) {
+                                throw new IllegalStateException(e);
+                            }
+                        } else if (loader.getResource("MAVEN-INF/repository/" + path) != null) {
+                            nested.add(path);
+                            resolved.add(artifact.toCoordinate());
+                        } // else will be missing
+                    });
+            final ConfigurableClassLoader volatileLoader = new ConfigurableClassLoader(plugin + "#volatile-resolver",
+                    urls.toArray(new URL[0]), classLoader, it -> false, it -> true, nested.toArray(new String[0]),
+                    ConfigurableClassLoader.class.isInstance(classLoader)
+                            ? ConfigurableClassLoader.class.cast(classLoader).getJvmMarkers()
+                            : new String[] { "" });
+            return new ClassLoaderDescriptorImpl(volatileLoader, resolved);
+        } catch (final IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
     @Override
     public Collection<File> resolveFromDescriptor(final InputStream descriptor) {
@@ -54,5 +96,28 @@ public class ResolverImpl implements Resolver, Serializable {
 
     Object writeReplace() throws ObjectStreamException {
         return new SerializableService(plugin, Resolver.class.getName());
+    }
+
+    @RequiredArgsConstructor
+    private static class ClassLoaderDescriptorImpl implements ClassLoaderDescriptor {
+
+        private final ConfigurableClassLoader volatileLoader;
+
+        private final Collection<String> resolved;
+
+        @Override
+        public ClassLoader asClassLoader() {
+            return volatileLoader;
+        }
+
+        @Override
+        public Collection<String> resolvedDependencies() {
+            return resolved;
+        }
+
+        @Override
+        public void close() throws Exception {
+            volatileLoader.close();
+        }
     }
 }

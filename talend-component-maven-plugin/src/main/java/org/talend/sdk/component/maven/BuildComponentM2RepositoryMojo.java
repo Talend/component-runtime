@@ -19,7 +19,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
-import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import static org.apache.maven.plugins.annotations.ResolutionScope.TEST;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.BufferedInputStream;
@@ -45,8 +45,7 @@ import org.eclipse.aether.artifact.Artifact;
 import org.talend.sdk.component.maven.api.Audience;
 
 @Audience(TALEND_INTERNAL)
-@Mojo(name = "prepare-repository", defaultPhase = PACKAGE, threadSafe = true,
-        requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
+@Mojo(name = "prepare-repository", defaultPhase = PACKAGE, threadSafe = true, requiresDependencyResolution = TEST)
 public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
 
     @Parameter(property = "talend-m2.registryBase")
