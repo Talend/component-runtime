@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import theme from './Summary.scss';
 
@@ -26,7 +27,12 @@ function Info(props) {
 	);
 }
 
-export default function Finish(props) {
+Info.propTypes = {
+	name: PropTypes.string,
+	value: PropTypes.string,
+};
+
+export default function Summary(props) {
 	const p = props.project; // just to make it shorter in the template
 	if (!p) {
 		return <div />;
@@ -43,3 +49,15 @@ export default function Finish(props) {
 		</div>
 	);
 }
+
+Summary.propTypes = {
+	project: PropTypes.shape({
+		name: PropTypes.string,
+		buildType: PropTypes.string,
+		group: PropTypes.string,
+		artifact: PropTypes.string,
+		version: PropTypes.string,
+		sources: PropTypes.array,
+		processors: PropTypes.array,
+	}),
+};

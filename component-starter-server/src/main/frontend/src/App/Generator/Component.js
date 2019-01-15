@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router'
+import { Redirect } from 'react-router';
 
 import TileContext from '../tile';
 
@@ -56,7 +56,7 @@ export default class Component extends React.Component {
 					}
 					const component = getComponent(components, componentIndex);
 					const cols = [
-						<ComponentEditForm component={component} service={components} />
+						<ComponentEditForm component={component} service={components} />,
 					];
 					return (
 						<div className={theme.Component}>

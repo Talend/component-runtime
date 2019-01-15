@@ -18,7 +18,6 @@ import { Route, Link } from 'react-router-dom';
 
 import theme from './Generator.scss';
 
-import DatasetContext from '../DatasetContext';
 import ProjectMetadata from './ProjectMetadata';
 import Component from './Component';
 import Finish from './Finish';

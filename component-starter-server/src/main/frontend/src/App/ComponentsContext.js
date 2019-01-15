@@ -7,7 +7,7 @@ const PROCESSOR = 'Processor';
 
 class Provider extends React.Component {
 	constructor(props) {
-        super(props);
+		super(props);
 		this.state = {
 			components: props.value || [],
 		};
