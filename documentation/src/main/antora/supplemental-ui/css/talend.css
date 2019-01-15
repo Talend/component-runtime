@@ -893,3 +893,7 @@ ul.tree > li > a {
     display: none;
   }
 }
+
+.swagger-ui .info .title small pre {
+  color: #3b4151 !important;
+}
