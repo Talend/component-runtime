@@ -15,13 +15,28 @@ class Provider extends React.Component {
 			datastores: props.value || [],
 		};
 		this.state.add = datastore => {
+			if (!datastore.name) {
+				throw new Error('Datastore name is required');
+			}
 			this.setState(prevState => {
 				const exists = prevState.datastores.find(d => d.name === datastore.name);
 				if (exists) {
-					Object.assign(exists, datastore);
-				} else {
-					prevState.datastores = prevState.datastores.concat(datastore);
+					throw new Error('Datastore name is required');
 				}
+				prevState.datastores = prevState.datastores.concat(datastore);
+				return Object.assign({}, prevState);
+			});
+		};
+		this.state.edit = (datastore, newValues) => {
+			if (!newValues.name) {
+				throw new Error('Datastore name is required');
+			}
+			this.setState(prevState => {
+				const index = prevState.datastores.indexOf(datastore);
+				if (index === -1) {
+					throw new Error('Can t edit. Datastore not found');
+				}
+				Object.assign(datastore, newValues);
 				return Object.assign({}, prevState);
 			});
 		};

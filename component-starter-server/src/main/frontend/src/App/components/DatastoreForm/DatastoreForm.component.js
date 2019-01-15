@@ -32,19 +32,24 @@ class DatastoreForm extends React.Component {
 	onSubmit(service) {
 		return event => {
 			event.preventDefault();
-			try {
-				service.add(this.state);
-			} catch (error) {
-				this.setState({
-					error,
-				});
+			if (this.props.datastore) {
+				try {
+					service.edit(this.props.datastore, this.state);
+				} catch (error) {
+					this.setState({
+						error,
+					});
+				}
+			} else {
+				try {
+					service.add(this.state);
+					service.setCurrent(this.state);
+				} catch (error) {
+					this.setState({
+						error,
+					});
+				}
 			}
-			this.setState({
-				name: 'Datastore',
-				schema: {
-					entries: [],
-				},
-			});
 		};
 	}
 	onNameChange(event) {
@@ -55,12 +60,13 @@ class DatastoreForm extends React.Component {
 		return (
 			<DatastoreContext.Consumer>
 				{datastore => (
-					<form className="form" onSubmit={this.onSubmit(datastore)}>
-						<h2>Create a new datastore</h2>
-						<div className="form-group">
-							<label htmlFor="datastore-name">Name</label>
+					<form className="form" onSubmit={this.onSubmit(datastore)} noValidate>
+						<h2>{this.props.datastore ? 'Create a new datastore' : 'Edit the datastore'}</h2>
+						<div className="form-group required">
+							<label htmlFor="datastore-name" className="control-label">Name</label>
 							<input
 								className="form-control"
+								required
 								type="text"
 								value={this.state.name}
 								onChange={this.onNameChange}
@@ -70,7 +76,12 @@ class DatastoreForm extends React.Component {
 							<label htmlFor="datastore-model">Model</label>
 							<Node id="datastore-model" node={this.state.schema} readOnly name={this.props.name} />
 						</div>
-						<Action label="Add datastore" type="submit" />
+						{this.state.error && (
+							<div className="alert alert-danger">
+								{this.state.error.message}
+							</div>
+						)}
+						<Action label="Save" type="submit" />
 					</form>
 				)}
 			</DatastoreContext.Consumer>

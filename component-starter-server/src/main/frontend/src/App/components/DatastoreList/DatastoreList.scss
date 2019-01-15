@@ -5,3 +5,6 @@
         flex: 1;
     }
 }
+.li :global(.btn){
+    text-transform: initial;
+}

@@ -12,11 +12,11 @@ function DatastoreList() {
 			{datastore => (
 				<div className={theme.container}>
 					<DatastoreForm datastore={datastore.current} />
-					<div>
+					<div className={theme.list}>
 						<h2>Datastore List</h2>
 						<ul>
 							{datastore.datastores.map((d, index) => (
-								<li key={index}>
+								<li key={index} className={theme.li}>
 									<Action
 										bsStyle="link"
 										onClick={() => datastore.setCurrent(d)}
