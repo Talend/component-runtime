@@ -65,7 +65,7 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
 
     @Override
     public void doExecute() throws MojoExecutionException {
-        final Set<Artifact> componentArtifacts = getComponents();
+        final Set<Artifact> componentArtifacts = getComponentsCar(getComponentArtifacts());
 
         if (cleanBeforeGeneration && m2Root.exists()) {
             Files.remove(m2Root);
@@ -158,14 +158,18 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
         return gav;
     }
 
-    protected Set<Artifact> getComponents() {
+    protected Set<Artifact> getComponentsCar(final Set<Artifact> artifacts) {
+        return artifacts.stream().map(art -> resolve(art, classifier, "car")).collect(toSet());
+    }
+
+    protected Set<Artifact> getComponentArtifacts() {
         return getArtifacts(it -> {
             try (final JarFile file = new JarFile(it.getFile())) { // filter components with this marker
                 return ofNullable(file.getEntry("TALEND-INF/dependencies.txt")).map(ok -> it).orElse(null);
             } catch (final IOException e) {
                 return null;
             }
-        }).filter(Objects::nonNull).map(art -> resolve(art, classifier, "car")).collect(toSet());
+        }).filter(Objects::nonNull).collect(toSet());
     }
 
     protected File getRegistry() {
