@@ -47,7 +47,7 @@ import org.talend.sdk.component.maven.api.Audience;
 public abstract class ComponentDependenciesBase extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true)
-    private MavenProject project;
+    protected MavenProject project;
 
     @Parameter(property = "talend-m2.scopes", defaultValue = "compile,runtime")
     private List<String> scopes;
@@ -59,7 +59,7 @@ public abstract class ComponentDependenciesBase extends AbstractMojo {
     private boolean skip;
 
     @Parameter(defaultValue = "${repositorySystemSession}")
-    private RepositorySystemSession repositorySystemSession;
+    protected RepositorySystemSession repositorySystemSession;
 
     @Parameter(defaultValue = "${project.remoteProjectRepositories}")
     private List<RemoteRepository> remoteRepositories;
@@ -74,6 +74,9 @@ public abstract class ComponentDependenciesBase extends AbstractMojo {
         if (skip) {
             getLog().info("Execution skipped");
             return;
+        }
+        if (!project.getGroupId().startsWith("org.talend.")) {
+            getLog().warn("This is not a Talend's project, this mojo is intended to be only used by Talend");
         }
         doExecute();
     }
