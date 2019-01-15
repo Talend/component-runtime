@@ -21,6 +21,10 @@ import Generator from '../Generator';
 import Missing from '../Missing';
 
 import theme from './App.scss';
+import DatastoreContext from '../DatastoreContext';
+import DatasetContext from '../DatasetContext';
+import ComponentsContext from '../ComponentsContext';
+import ProjectContext from '../ProjectContext';
 
 export default function App() {
 	return (
@@ -37,11 +41,15 @@ export default function App() {
 				</div>
 
 				<div className={theme.content}>
-					<Switch>
-						<Route exact path="/" component={Generator} />
-						<Route exact path="/index.html" component={Generator} />
-						<Route component={Missing} />
-					</Switch>
+					<ProjectContext.Provider>
+						<DatastoreContext.Provider>
+							<DatasetContext.Provider>
+								<ComponentsContext.Provider>
+									<Generator />
+								</ComponentsContext.Provider>
+							</DatasetContext.Provider>
+						</DatastoreContext.Provider>
+					</ProjectContext.Provider>
 				</div>
 			</div>
 		</Router>

@@ -3,7 +3,7 @@ import React from 'react';
 
 import Component from './SelectDataset.component';
 
-import DatasetContext from '../../dataset';
+import DatasetContext from '../../DatasetContext';
 
 class SelectDataset extends React.Component {
 	static displayName = 'Container(SelectDataset)';

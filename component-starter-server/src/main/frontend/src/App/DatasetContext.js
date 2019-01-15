@@ -1,14 +1,14 @@
 import React from 'react';
 
 
-const datasetService = { datasets: [] };
-const DatasetContext = React.createContext(datasetService);
+const DatasetContext = React.createContext({ datasets: [] });
 
 class Provider extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             datasets: props.value || [],
+            datastore: props.datastore,
         };
         this.state.add = (dataset) => {
             this.setState({ datasets: this.state.datasets.concat(dataset) });

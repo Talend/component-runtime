@@ -37,6 +37,9 @@ const HELP_CONTENT = (
 const NODE_TYPES = ['object', 'boolean', 'double', 'integer', 'uri', 'url', 'string'];
 
 function isNativeType(type) {
+	if (type === undefined) {
+		return true;  // object
+	}
 	return NODE_TYPES.indexOf(type) !== -1;
 }
 

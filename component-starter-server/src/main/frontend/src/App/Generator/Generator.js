@@ -16,10 +16,11 @@
 import React from 'react';
 import classnames from 'classnames';
 import { Action, Icon } from '@talend/react-components';
+import { Route, Link } from 'react-router-dom';
 
 import theme from './Generator.scss';
 
-import DatasetContext from '../dataset';
+import DatasetContext from '../DatasetContext';
 import ProjectMetadata from './ProjectMetadata';
 import Component from './Component';
 import Finish from './Finish';
@@ -49,17 +50,34 @@ export default class Generator extends React.Component {
 			},
 			components: [],
 			datastores: [],
-			datasets: [ { id: 'jdbc', name: 'JDBC' }],
+			datasets: [{
+				name: 'JDBC',
+				structure: {
+					entries: [] // same as component.configurationStructure.entries
+				},
+			}],
 		};
 		['isComponentStep', 'onClickSetStep', 'onAddComponent', 'onGoToFinishPage'].forEach(
 			action => (this[action] = this[action].bind(this)),
 		);
 	}
 
+
+	/**
+	 * example of component with dataset
+	 * entries: [
+	 *  {
+	 *     name: 'mondataset',
+	 *     type: 'dataset',
+	 *     ref: 'JDBC'
+	 *  }
+	 * ]
+	 */
 	onAddComponent() {
 		let component = {
+			type: 'Input',
 			configuration: {
-				name: `CompanyComponent${this.state.components.length + 1}`,
+				name: `CompanyComponent${this.state.components.length + 3}`,
 			},
 			source: {
 				genericOutput: true,
@@ -109,7 +127,7 @@ export default class Generator extends React.Component {
 	}
 
 	onGoToFinishPage() {
-		this.setState({ currentStep: this.state.components.length + 1 });
+		this.setState({ currentStep: this.state.components.length + 3 });
 	}
 
 	onClickSetStep(event, step) {
@@ -118,7 +136,7 @@ export default class Generator extends React.Component {
 	}
 
 	isComponentStep(index) {
-		return index > 0 && index !== this.state.components.length + 1;
+		return index > 2 && index !== this.state.components.length + 3;
 	}
 
 	render() {
@@ -131,7 +149,7 @@ export default class Generator extends React.Component {
 				/>
 			);
 		} else if (this.isComponentStep(this.state.currentStep)) {
-			const component = this.state.components[this.state.currentStep - 1];
+			const component = this.state.components[this.state.currentStep - 3];
 			mainContent = (
 				<Component
 					component={component}
@@ -139,7 +157,7 @@ export default class Generator extends React.Component {
 				/>
 			);
 
-		} else if (this.state.currentStep === this.state.components.length + 1) {
+		} else if (this.state.currentStep === this.state.components.length + 3) {
 			mainContent = (
 				<Finish project={this.state.project} components={() => this.state.components} />
 			);
@@ -150,39 +168,45 @@ export default class Generator extends React.Component {
 					<div className={theme.wizard}>
 						<nav>
 							<ol>
-								<li
+							<li
 									className={classnames({
 										[theme.active]: this.state.currentStep === 0,
 									})}
-									onClick={e => this.onClickSetStep(e, 0)}
 								>
-									<section-label>Start</section-label>
+									<Link to="/project">Start</Link>
+								</li>
+								<li
+									className={classnames({
+										[theme.active]: this.state.currentStep === 1,
+									})}
+								>
+									<Link to="/datastore">Datastore</Link>
+								</li>
+								<li
+									className={classnames({
+										[theme.active]: this.state.currentStep === 2,
+									})}
+								>
+									<Link to="/dataset">Dataset</Link>
 								</li>
 								{this.state.components.map((component, i) => {
 									return (
 										<li
 											className={classnames({
-												[theme.active]: this.state.currentStep === i + 1,
+												[theme.active]: this.state.currentStep === i + 3,
 											})}
-											onClick={e => this.onClickSetStep(e, i + 1)}
 											key={i}
 										>
-											<section-label>
-												{component.configuration.name}
-											</section-label>
-											<trash-icon onClick={() => this.deleteComponent(i)}>
-												<Icon name="talend-trash" />
-											</trash-icon>
+											<Link to={`/component/${i}`}>{component.configuration.name}</Link>
 										</li>
 									);
 								})}
 								<li
 									className={classnames({
-										[theme.active]: this.state.currentStep === this.state.components.length + 1,
+										[theme.active]: this.state.currentStep === this.state.components.length + 3,
 									})}
-									onClick={e => this.onClickSetStep(e, this.state.components.length + 1)}
 								>
-									<section-label>Start</section-label>
+									<Link to="/export">Finish</Link>
 								</li>
 
 							</ol>
@@ -191,10 +215,14 @@ export default class Generator extends React.Component {
 					<div className={theme.content}>
 						<main>
 							<DatasetContext.Provider value={this.state.datasets}>
-								{mainContent}
+								<Route exact path="/project" component={ProjectMetadata} />
+								<Route exact path="/datastore" component={ProjectMetadata} />
+								<Route exact path="/dataset" component={ProjectMetadata} />
+								<Route path="/component/:componentId" component={Component} />
+								<Route path="/export" component={Finish} />
 							</DatasetContext.Provider>
 						</main>
-						{this.state.currentStep !== this.state.components.length + 1 && (
+						{this.state.currentStep !== this.state.components.length + 3 && (
 							<footer>
 								<Action
 									id="add-component-button"

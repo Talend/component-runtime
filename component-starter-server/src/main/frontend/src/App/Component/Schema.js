@@ -53,7 +53,19 @@ export default class Schema extends React.Component {
 				);
 				service.addTile(tile);
 			} else {
-				this.state.schema.entries.push({ name: dataset, type: 'dataset' });
+				this.setState(prevState => {
+					let replace = false;
+					if (prevState.schema.entries.length > 0) {
+						if (prevState.schema.entries[0].type === 'dataset') {
+							replace = true;
+							prevState.schema.entries[0].name = dataset;
+						}
+					}
+					if (!replace) {
+						prevState.schema.entries.push({ name: dataset, type: 'dataset' });
+					}
+					return Object.assign({}, prevState);
+				});
 			}
 		}
 	}
