@@ -157,9 +157,13 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
             }
 
             final String projectVersion = project.getVersion();
-            final String tag = projectVersion.endsWith("-SNAPSHOT") ? projectVersion.replace("-SNAPSHOT", "") + "_"
-                    + ofNullable(project.getProperties().getProperty("git.branch")).map(it -> it + "_").orElse("")
-                    + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) : projectVersion;
+            final String tag = projectVersion.endsWith("-SNAPSHOT")
+                    ? projectVersion.replace("-SNAPSHOT", "") + "_"
+                            + ofNullable(project.getProperties().getProperty("git.branch"))
+                                    .map(it -> it.replace('/', '_') + '_')
+                                    .orElse("")
+                            + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
+                    : projectVersion;
             final String image = toImage == null ? project.getArtifactId() : toImage;
             final String imageName =
                     ((repository == null || repository.trim().isEmpty()) ? "" : (repository + '/')) + image + ':' + tag;
