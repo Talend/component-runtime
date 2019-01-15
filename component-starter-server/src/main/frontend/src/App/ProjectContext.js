@@ -19,10 +19,10 @@ class Provider extends React.Component {
                 category: 'Misc',
                 facets: [],
             },
-            configuration: {
-                buildTypes: [],
-                facets: {},
-            },
+            // configuration: {
+            //     buildTypes: [],
+            //     facets: {},
+            // },
             buildToolActions: [],
 			facets: {},
 			view: {

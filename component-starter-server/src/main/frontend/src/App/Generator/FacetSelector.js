@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import keycode from 'keycode';
 import { Typeahead, Badge } from '@talend/react-components';
 import Help from '../Component/Help';
@@ -25,31 +26,28 @@ function escapeRegexCharacters(str) {
 }
 
 // highly inspired from MultiSelectTag but in a way it integrates with this app layout
-// note: the map/filter etc would be worth using underscore, for now we assume the suggestions are not numerous enough to require it
+// note: the map/filter etc would be worth using underscore,
+// for now we assume the suggestions are not numerous enough to require it
+
 export default class FacetSelector extends React.Component {
+	static propTypes = {
+		facets: PropTypes.object,
+	};
 	constructor(props) {
 		super(props);
 
-		const typeaheadConfig = Object.keys(this.props.facets).map(item => {
-			const facets = this.props.facets[item];
+		const typeaheadConfig = Object.keys(this.props.facets).map(category => {
+			const facets = this.props.facets[category];
 			return {
 				// icon: {name: "talend-filter", title: "icon"},
-				title: item,
-				suggestions: facets.map(f => {
-					return {
-						title: f.name,
-						description: f.description,
-						category: item,
-					};
-				}),
+				title: category,
+				suggestions: facets.map(suggestion => ({
+					title: suggestion.name,
+					description: suggestion.description,
+					// category: item,
+				})),
 			};
 		});
-
-		this.theme = {
-			container: theme.typeahead,
-			itemsContainer: theme['items-container'],
-			itemsList: theme.items,
-		};
 
 		this.state = {
 			facetTypeahead: typeaheadConfig,
@@ -122,26 +120,14 @@ export default class FacetSelector extends React.Component {
 	updateSuggestions(value) {
 		this.setState(() => {
 			// remove selected items
-			let suggestions = Object.keys(this.state.facetTypeahead)
-				.map(category => {
-					const cat = this.state.facetTypeahead[category];
-					return {
-						icon: cat.icon,
-						title: cat.title,
-						suggestions: cat.suggestions.filter(item => {
-							return this.props.selected.indexOf(item.title) < 0;
-						}),
-					};
-				})
-				.filter(category => category.suggestions.length > 0);
-
-			if (!!value) {
+			let suggestions = this.state.facetTypeahead;
+			if (value) {
 				const escapedValue = escapeRegexCharacters(value.trim());
 
 				// todo: use bloodhood engine
 				const regex = new RegExp(escapedValue, 'i');
 
-				suggestions = Object.keys(this.state.facetTypeahead)
+				suggestions = this.state.facetTypeahead
 					.map(category => {
 						const cat = this.state.facetTypeahead[category];
 						return {
@@ -152,7 +138,6 @@ export default class FacetSelector extends React.Component {
 					})
 					.filter(category => category.suggestions.length > 0);
 			}
-
 			return {
 				focusedItemIndex: suggestions.length ? 0 : undefined,
 				suggestions,
@@ -162,18 +147,14 @@ export default class FacetSelector extends React.Component {
 	}
 
 	render() {
-		if (!this.props.facets) {
-			return <div>Loading ...</div>;
-		}
-
 		return (
 			<div className={theme.wrapper}>
 				<div>
 					<Typeahead
 						icon={{ name: 'talend-search', title: 'Toggle search input', bsStyle: 'link' }}
 						placeholder="Select a facet to add to your project"
-						multiSection={false}
-						autoFocus={false}
+						// multiSection={false}
+						// autoFocus={false}
 						value={this.state.value}
 						items={this.state.suggestions}
 						onBlur={this.resetSuggestions}
@@ -181,8 +162,8 @@ export default class FacetSelector extends React.Component {
 						onFocus={this.onFocus}
 						onKeyDown={this.onKeyDown}
 						onSelect={this.onAddTag}
-						theme={this.theme}
-						tabindex="-1"
+						theme={theme}
+						// tabindex="-1"
 					/>
 					<div>
 						<Help

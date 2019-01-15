@@ -24,6 +24,7 @@ import DatasetContext from '../DatasetContext';
 import ProjectMetadata from './ProjectMetadata';
 import Component from './Component';
 import Finish from './Finish';
+import ComponentsContext from '../ComponentsContext';
 
 export default class Generator extends React.Component {
 	constructor(props) {
@@ -50,125 +51,64 @@ export default class Generator extends React.Component {
 			},
 			components: [],
 			datastores: [],
-			datasets: [{
-				name: 'JDBC',
-				structure: {
-					entries: [] // same as component.configurationStructure.entries
-				},
-			}],
-		};
-		['isComponentStep', 'onClickSetStep', 'onAddComponent', 'onGoToFinishPage'].forEach(
-			action => (this[action] = this[action].bind(this)),
-		);
-	}
-
-
-	/**
-	 * example of component with dataset
-	 * entries: [
-	 *  {
-	 *     name: 'mondataset',
-	 *     type: 'dataset',
-	 *     ref: 'JDBC'
-	 *  }
-	 * ]
-	 */
-	onAddComponent() {
-		let component = {
-			type: 'Input',
-			configuration: {
-				name: `CompanyComponent${this.state.components.length + 3}`,
-			},
-			source: {
-				genericOutput: true,
-				stream: false,
-				configurationStructure: {
-					entries: [],
-				},
-				outputStructure: {
-					entries: [],
-				},
-			},
-			processor: {
-				configurationStructure: {
-					entries: [],
-				},
-				inputStructures: [
-					{
-						name: 'MAIN',
-						generic: false,
-						structure: {
-							entries: [],
-						},
+			datasets: [
+				{
+					name: 'JDBC',
+					structure: {
+						entries: [], // same as component.configurationStructure.entries
 					},
-				],
-				outputStructures: [],
-			},
+				},
+			],
 		};
-		this.setState(state => {
-			state.components.push(component);
-			state.currentStep = state.components.length;
-			return Object.assign({}, state);
-		});
+		// ['isComponentStep', 'onClickSetStep', 'onAddComponent', 'onGoToFinishPage'].forEach(
+		// 	action => (this[action] = this[action].bind(this)),
+		// );
 	}
 
-	updateComponent(component) {
-		this.setState({ components: [].concat(this.state.components) });
-	}
+	// updateComponent(component) {
+	// 	this.setState({ components: [].concat(this.state.components) });
+	// }
 
-	deleteComponent(index) {
-		this.setState(state => {
-			var idx = state.components.indexOf(comp[0].component.props.component);
-			if (idx >= 0) {
-				state.components.splice(idx, 1);
-			}
-			return Object.assign({}, state);
-		});
-	}
+	// deleteComponent(index) {
+	// 	this.setState(state => {
+	// 		var idx = state.components.indexOf(comp[0].component.props.component);
+	// 		if (idx >= 0) {
+	// 			state.components.splice(idx, 1);
+	// 		}
+	// 		return Object.assign({}, state);
+	// 	});
+	// }
 
-	onGoToFinishPage() {
-		this.setState({ currentStep: this.state.components.length + 3 });
-	}
-
-	onClickSetStep(event, step) {
-		event.preventDefault();
-		this.setState({ currentStep: step });
-	}
-
-	isComponentStep(index) {
-		return index > 2 && index !== this.state.components.length + 3;
-	}
+	// isComponentStep(index) {
+	// 	return index > 2 && index !== this.state.components.length + 3;
+	// }
 
 	render() {
-		let mainContent = null;
-		if (this.state.currentStep === 0) {
-			mainContent = (
-				<ProjectMetadata
-					project={this.state.project}
-					buildTypes={this.state.configuration.buildTypes}
-				/>
-			);
-		} else if (this.isComponentStep(this.state.currentStep)) {
-			const component = this.state.components[this.state.currentStep - 3];
-			mainContent = (
-				<Component
-					component={component}
-					onChange={() => this.updateComponent(component)}
-				/>
-			);
-
-		} else if (this.state.currentStep === this.state.components.length + 3) {
-			mainContent = (
-				<Finish project={this.state.project} components={() => this.state.components} />
-			);
-		}
+		// let mainContent = null;
+		// if (this.state.currentStep === 0) {
+		// 	mainContent = (
+		// 		<ProjectMetadata
+		// 			project={this.state.project}
+		// 			buildTypes={this.state.configuration.buildTypes}
+		// 		/>
+		// 	);
+		// } else if (this.isComponentStep(this.state.currentStep)) {
+		// 	const component = this.state.components[this.state.currentStep - 3];
+		// 	mainContent = (
+		// 		<Component component={component} onChange={() => this.updateComponent(component)} />
+		// 	);
+		// } else if (this.state.currentStep === this.state.components.length + 3) {
+		// 	mainContent = (
+		// 		<Finish project={this.state.project} components={() => this.state.components} />
+		// 	);
+		// }
 		return (
 			<div className={theme.Generator}>
 				<div className={theme.container}>
 					<div className={theme.wizard}>
 						<nav>
 							<ol>
-							<li
+								<li
 									className={classnames({
 										[theme.active]: this.state.currentStep === 0,
 									})}
@@ -189,18 +129,20 @@ export default class Generator extends React.Component {
 								>
 									<Link to="/dataset">Dataset</Link>
 								</li>
-								{this.state.components.map((component, i) => {
-									return (
-										<li
-											className={classnames({
-												[theme.active]: this.state.currentStep === i + 3,
-											})}
-											key={i}
-										>
-											<Link to={`/component/${i}`}>{component.configuration.name}</Link>
-										</li>
-									);
-								})}
+								<ComponentsContext.Consumer>
+									{components =>
+										components.components.map((component, i) => (
+											<li
+												className={classnames({
+													[theme.active]: this.state.currentStep === i + 3,
+												})}
+												key={i}
+											>
+												<Link to={`/component/${i}`}>{component.configuration.name}</Link>
+											</li>
+										))
+									}
+								</ComponentsContext.Consumer>
 								<li
 									className={classnames({
 										[theme.active]: this.state.currentStep === this.state.components.length + 3,
@@ -208,13 +150,13 @@ export default class Generator extends React.Component {
 								>
 									<Link to="/export">Finish</Link>
 								</li>
-
 							</ol>
 						</nav>
 					</div>
 					<div className={theme.content}>
 						<main>
 							<DatasetContext.Provider value={this.state.datasets}>
+								<Route exact path="/" component={ProjectMetadata} />
 								<Route exact path="/project" component={ProjectMetadata} />
 								<Route exact path="/datastore" component={ProjectMetadata} />
 								<Route exact path="/dataset" component={ProjectMetadata} />
@@ -224,18 +166,18 @@ export default class Generator extends React.Component {
 						</main>
 						{this.state.currentStep !== this.state.components.length + 3 && (
 							<footer>
-								<Action
-									id="add-component-button"
-									label="Add A Component"
-									bsStyle="info"
-									onClick={() => this.onAddComponent()}
-								/>
-								<Action
-									id="go-to-finish-button"
-									label="Go to Finish"
-									bsStyle="primary"
-									onClick={() => this.onGoToFinishPage()}
-								/>
+								<ComponentsContext.Consumer>
+									{components => (
+										// <Action
+										// 	id="add-component-button"
+										// 	label="Add A Component"
+										// 	bsStyle="info"
+										// 	onClick={() => components.addComponent()}
+										// />
+										<Link to="/component/last" className="btn btn-info" onClick={() => components.addComponent()}>Add A Component</Link>
+									)}
+								</ComponentsContext.Consumer>
+								<Link to="/export" className="btn btn-primary">Go to Finish</Link>
 							</footer>
 						)}
 					</div>
