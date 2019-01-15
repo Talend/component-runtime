@@ -14,8 +14,6 @@
  *  limitations under the License.
  */
 import React from 'react';
-import classnames from 'classnames';
-import { Action, Icon } from '@talend/react-components';
 import { Route, Link } from 'react-router-dom';
 
 import theme from './Generator.scss';
@@ -25,6 +23,7 @@ import ProjectMetadata from './ProjectMetadata';
 import Component from './Component';
 import Finish from './Finish';
 import ComponentsContext from '../ComponentsContext';
+import SideMenu from '../components/SideMenu/SideMenu.component';
 
 export default class Generator extends React.Component {
 	constructor(props) {
@@ -106,52 +105,7 @@ export default class Generator extends React.Component {
 			<div className={theme.Generator}>
 				<div className={theme.container}>
 					<div className={theme.wizard}>
-						<nav>
-							<ol>
-								<li
-									className={classnames({
-										[theme.active]: this.state.currentStep === 0,
-									})}
-								>
-									<Link to="/project">Start</Link>
-								</li>
-								<li
-									className={classnames({
-										[theme.active]: this.state.currentStep === 1,
-									})}
-								>
-									<Link to="/datastore">Datastore</Link>
-								</li>
-								<li
-									className={classnames({
-										[theme.active]: this.state.currentStep === 2,
-									})}
-								>
-									<Link to="/dataset">Dataset</Link>
-								</li>
-								<ComponentsContext.Consumer>
-									{components =>
-										components.components.map((component, i) => (
-											<li
-												className={classnames({
-													[theme.active]: this.state.currentStep === i + 3,
-												})}
-												key={i}
-											>
-												<Link to={`/component/${i}`}>{component.configuration.name}</Link>
-											</li>
-										))
-									}
-								</ComponentsContext.Consumer>
-								<li
-									className={classnames({
-										[theme.active]: this.state.currentStep === this.state.components.length + 3,
-									})}
-								>
-									<Link to="/export">Finish</Link>
-								</li>
-							</ol>
-						</nav>
+						<SideMenu />
 					</div>
 					<div className={theme.content}>
 						<main>

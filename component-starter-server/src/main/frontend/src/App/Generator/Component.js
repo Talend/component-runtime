@@ -50,6 +50,10 @@ export default class Component extends React.Component {
 					if (componentIndex === 'last') {
 						return <Redirect to={`/component/${components.components.length - 1}`} />;
 					}
+					if (componentIndex === 0 && components.components.length === 0) {
+						components.addComponent();
+						return null;
+					}
 					const component = getComponent(components, componentIndex);
 					const cols = [
 						<ComponentEditForm component={component} service={components} />

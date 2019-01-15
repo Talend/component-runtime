@@ -1,0 +1,112 @@
+// SideMenu styles
+.menu {
+    $color-inverse__active: white;
+    $step-link-width: 0.1rem;
+    $wizard-blue: #215380;
+    $border-left-width__active: 0.5rem;
+    $base-accent-color: #477DCA !default;
+
+    $sliding-menu-text: white;
+    $sliding-menu-color: white;
+    $light-blue: #C9D7E4;
+    $error-color: red;
+    $width: 242px;
+    $grey: #ccc;
+    $color-inverse: white;
+	margin: 2rem 0;
+
+	ol {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		padding-left: 1rem;
+		margin-left: 2.5rem;
+
+		li {
+			position: relative;
+			box-sizing: border-box;
+			counter-increment: step-counter;
+			padding: 0 2rem 2rem;
+			border: none;
+			border-left: $step-link-width solid $wizard-blue;
+			border-radius: 0;
+			display: flex;
+
+			trash-icon {
+				display: inherit;
+			}
+
+			&:hover {
+				cursor: pointer;
+			}
+
+			&:before,
+			&:after {
+				display: inline-block;
+			}
+
+			&:before {
+				content: '';
+				content: counter(step-counter);
+				font-weight: bold;
+				float: left;
+				margin-left: -3.5rem;
+				height: 2.5rem;
+				width: 2.5rem;
+				line-height: 2.5rem;
+				text-align: center;
+				color: $wizard-blue;
+				background-color: white;
+				border-radius: 50%;
+				border: 1px solid $wizard-blue;
+			}
+
+			&:last-child {
+				border-left: $step-link-width solid transparent;
+				padding-bottom: 0;
+			}
+
+			&.active {
+				color: inherit;
+				background-color: transparent;
+				font-weight: bolder;
+
+				&:before {
+					color: $color-inverse__active;
+					background-color: $wizard-blue;
+				}
+
+				&:after {
+					content: '';
+					position: absolute;
+					top: -1rem;
+					left: -1 * (3.3rem + $border-left-width__active);
+					bottom: 1rem;
+					width: $border-left-width__active;
+					background: $wizard-blue;
+				}
+
+				&:last-child {
+					&:after {
+						bottom: -1rem;
+					}
+				}
+
+				a {
+					color: $wizard-blue;
+					word-wrap: break-word;
+					max-width: 150px;
+					min-width: 150px;
+				}
+			}
+
+			> * {
+				display: block;
+				padding-left: 0.4rem;
+				padding-top: 0.4rem;
+			}
+		}
+	}
+}

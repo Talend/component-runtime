@@ -13,15 +13,18 @@ const setupBackend = require('./backend');
 
 // });
 const webpackConfig = {
+	output: {
+		publicPath: '/',
+	},
 	devServer: {
 		before: setupBackend,
+		host: '0.0.0.0',
+		disableHostCheck: true,
+		historyApiFallback: true,
 	},
 	resolve: {
 		symlinks: false,
 	},
 };
-
-module.exports = webpackConfig;
-
 
 module.exports = webpackConfig;

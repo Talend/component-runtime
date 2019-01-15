@@ -22,6 +22,9 @@ function onComponentNameChange(service, component) {
 }
 
 function ComponentEditForm(props) {
+	if (!props.component) {
+		return null;
+	}
 	const typeActions = [
 		{
 			label: 'Input',

@@ -20,6 +20,8 @@ import AppButton from '../Component/AppButton';
 import Schema from '../Component/Schema';
 import TileContext from '../tile';
 
+import theme from './Mapper.scss';
+
 export default class Mapper extends React.Component {
 	constructor(props) {
 		super(props);
@@ -110,7 +112,7 @@ export default class Mapper extends React.Component {
 
 	render() {
 		return (
-			<div className={this.props.theme.Mapper}>
+			<div className={theme.Mapper}>
 				<TileContext.Consumer>
 					{tileService => (
 						<AppButton
@@ -137,8 +139,8 @@ export default class Mapper extends React.Component {
 						/>
 					)}
 				</TileContext.Consumer>
-				<div className={this.props.theme['form-row']}>
-					<p className={this.props.theme.title}>
+				<div className={theme['form-row']}>
+					<p className={theme.title}>
 						Stream
 						<Help
 							title="Stream"
@@ -160,8 +162,8 @@ export default class Mapper extends React.Component {
 						onChange={() => this.onStreamChange()}
 					/>
 				</div>
-				<div className={this.props.theme['form-row']}>
-					<p className={this.props.theme.title}>
+				<div className={theme['form-row']}>
+					<p className={theme.title}>
 						Record Type
 						<Help
 							title="Record"
@@ -179,7 +181,7 @@ export default class Mapper extends React.Component {
 						/>
 					</p>
 					<select
-						className={this.props.theme.recordSelector}
+						className={theme.recordSelector}
 						value={this.state.recordType}
 						onChange={this.onRecordTypeChange}
 					>
