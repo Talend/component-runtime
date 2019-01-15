@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import keycode from 'keycode';
 import classnames from 'classnames';
 import Action from '@talend/react-components/lib/Actions/ActionButton';
@@ -44,6 +45,16 @@ function isNativeType(type) {
 }
 
 export default class Node extends React.Component {
+	static propTypes = {
+		parent: PropTypes.object,
+		type: PropTypes.string,
+		readOnly: PropTypes.bool,
+		node: PropTypes.shape({
+			entries: PropTypes.array,
+			type: PropTypes.string,
+			model: PropTypes.object,
+		}),
+	};
 	constructor(props) {
 		super(props);
 		this.state = {

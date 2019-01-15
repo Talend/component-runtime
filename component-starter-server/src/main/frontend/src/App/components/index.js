@@ -8,10 +8,13 @@ import DatastoreList from './DatastoreList';
 
 import DatasetList from './DatasetList';
 
+import DatastoreForm from './DatastoreForm';
+
 export default {
     SelectDataset,
     ComponentEditForm,
     SideMenu,
     DatastoreList,
     DatasetList,
+    DatastoreForm,
 };

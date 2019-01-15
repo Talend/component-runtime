@@ -20,6 +20,7 @@ import TileContext from '../tile';
 
 import theme from './Schema.scss';
 import SelectDataset from '../components/SelectDataset';
+import DatastoreForm from '../components/DatastoreForm';
 
 export default class Schema extends React.Component {
 	constructor(props) {
@@ -43,13 +44,7 @@ export default class Schema extends React.Component {
 		return (event, dataset) => {
 			if (event.target.value==='create-new') {
 				const tile = (
-					<form className="form">
-						<h2>Create a new dataset</h2>
-						<div className="form-group">
-							<label></label>
-							<Schema schema={{entries: []}} readOnly={true} name="dataset" />
-						</div>
-					</form>
+					<DatastoreForm />
 				);
 				service.addTile(tile);
 			} else {
