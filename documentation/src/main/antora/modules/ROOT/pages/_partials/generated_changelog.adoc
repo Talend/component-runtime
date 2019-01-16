@@ -1,5 +1,13 @@
 
 
+== Version 1.1.6
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1263[TCOMP-1263^]: When using @Updateable(after=xxx) the visibility condition (@ActiveIf) of the after field shouldn't be inherited
+- link:https://jira.talendforge.org/browse/TCOMP-1264[TCOMP-1264^]: AvroSchema does not unwrap null(able types) to map to Schema model
+
+
 == Version 1.1.5
 
 === Bug

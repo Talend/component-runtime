@@ -29,8 +29,10 @@ import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString(of = "delegate")
 public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
 
     private final Schema delegate;
@@ -39,9 +41,26 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     private volatile List<Entry> entries;
 
+    private volatile Type type;
+
+    private volatile Schema actualDelegate;
+
+    private Schema getActualDelegate() {
+        if (actualDelegate != null) {
+            return actualDelegate;
+        }
+        synchronized (this) {
+            if (actualDelegate != null) {
+                return actualDelegate;
+            }
+            actualDelegate = unwrapUnion(delegate);
+        }
+        return actualDelegate;
+    }
+
     @Override
     public Type getType() {
-        return mapType(delegate);
+        return mapType(getActualDelegate());
     }
 
     @Override
@@ -49,12 +68,12 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         if (elementSchema != null) {
             return elementSchema;
         }
-        if (delegate.getType() == Schema.Type.ARRAY) {
+        if (getActualDelegate().getType() == Schema.Type.ARRAY) {
             synchronized (this) {
                 if (elementSchema != null) {
                     return elementSchema;
                 }
-                elementSchema = new AvroSchema(delegate.getElementType());
+                elementSchema = new AvroSchema(getActualDelegate().getElementType());
             }
         }
         return elementSchema;
@@ -62,7 +81,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     @Override
     public List<Entry> getEntries() {
-        if (delegate.getType() != Schema.Type.RECORD) {
+        if (getActualDelegate().getType() != Schema.Type.RECORD) {
             return emptyList();
         }
         if (entries != null) {
@@ -72,14 +91,15 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             if (entries != null) {
                 return entries;
             }
-            entries = delegate.getFields().stream().filter(it -> it.schema().getType() != NULL).map(field -> {
-                final Type type = mapType(field.schema());
-                final AvroSchema elementSchema = new AvroSchema(
-                        type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
-                return new SchemaImpl.EntryImpl(field.name(), type, field.schema().getType() == UNION,
-                        field.defaultValue() != null ? toObject(field.defaultValue()) : null, elementSchema,
-                        field.doc());
-            }).collect(toList());
+            entries =
+                    getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL).map(field -> {
+                        final Type type = mapType(field.schema());
+                        final AvroSchema elementSchema = new AvroSchema(
+                                type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
+                        return new SchemaImpl.EntryImpl(field.name(), type, field.schema().getType() == UNION,
+                                field.defaultValue() != null ? toObject(field.defaultValue()) : null, elementSchema,
+                                field.doc());
+                    }).collect(toList());
         }
         return entries;
     }

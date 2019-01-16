@@ -24,6 +24,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.Test;
@@ -33,12 +34,28 @@ import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvide
 class AvroSchemaTest {
 
     @Test
+    void getRecordType() {
+        final Schema delegate = Schema
+                .createUnion(Schema.create(Schema.Type.NULL), Schema
+                        .createRecord("foo", null, null, false, singletonList(new Schema.Field("nf",
+                                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)),
+                                null, null))));
+        final AvroSchema schema = new AvroSchema(delegate);
+        final List<org.talend.sdk.component.api.record.Schema.Entry> entries = schema.getEntries();
+        assertEquals(RECORD, schema.getType());
+        assertEquals(1, entries.size());
+        final org.talend.sdk.component.api.record.Schema.Entry entry = entries.iterator().next();
+        assertEquals(STRING, entry.getType());
+        assertTrue(entry.isNullable());
+        assertEquals("nf", entry.getName());
+    }
+
+    @Test
     void nullField() {
         final AvroSchema schema = new AvroSchema(Schema
                 .createRecord(singletonList(new Schema.Field("nf", Schema.create(Schema.Type.NULL), null, null))));
         assertTrue(schema.getEntries().isEmpty());
-        assertEquals(
-                "AvroSchema(delegate={\"type\":\"record\",\"fields\":[{\"name\":\"nf\",\"type\":\"null\"}]}, elementSchema=null, entries=[])",
+        assertEquals("AvroSchema(delegate={\"type\":\"record\",\"fields\":[{\"name\":\"nf\",\"type\":\"null\"}]})",
                 schema.toString());
     }
 
