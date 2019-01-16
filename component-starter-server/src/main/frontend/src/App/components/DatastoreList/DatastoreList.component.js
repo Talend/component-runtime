@@ -11,21 +11,42 @@ function DatastoreList() {
 		<DatastoreContext.Consumer>
 			{datastore => (
 				<div className={theme.container}>
-					<DatastoreForm datastore={datastore.current} />
-					<div className={theme.list}>
-						<h2>Datastore List</h2>
+					<div className={theme.column}>
+						<h2>Connection</h2>
+						<Action
+							id={`${theme['add-new-datastore']}`}
+							label="Add new Datastore"
+							bsStyle="info"
+							icon="talend-plus-circle"
+							onClick={() => {
+								datastore.setCurrent();
+							}}
+						/>
+						{datastore.datastores.length === 0 && (
+							<div className="alert alert-warning">
+								<div>
+									<p>No connection found.</p>
+									<p>
+										A connection is required in many cases. They define the way to connect to the
+										source of data.
+									</p>
+									<p>You should define at least one connection to hold metadata.</p>
+									<p>
+										In the case of JDBC, the connection has either, jdbc 'url' or 'host', 'port',
+										'username', etc...
+									</p>
+								</div>
+							</div>
+						)}
 						<ul>
 							{datastore.datastores.map((d, index) => (
 								<li key={index} className={theme.li}>
-									<Action
-										bsStyle="link"
-										onClick={() => datastore.setCurrent(d)}
-										label={d.name}
-									/>
+									<Action bsStyle="link" onClick={() => datastore.setCurrent(d)} label={d.name} />
 								</li>
 							))}
 						</ul>
 					</div>
+					<DatastoreForm datastore={datastore.current} className={theme.column} />
 				</div>
 			)}
 		</DatastoreContext.Consumer>
@@ -33,8 +54,6 @@ function DatastoreList() {
 }
 
 DatastoreList.displayName = 'DatastoreList';
-DatastoreList.propTypes = {
-
-};
+DatastoreList.propTypes = {};
 
 export default DatastoreList;

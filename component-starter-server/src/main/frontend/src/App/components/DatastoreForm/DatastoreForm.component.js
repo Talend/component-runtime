@@ -1,14 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { Action } from '@talend/react-components';
 
 import theme from './DatastoreForm.scss';
 import DatastoreContext from '../../DatastoreContext';
 import Node from '../../Component/Node';
+import getUUID from '../../uuid';
 
 class DatastoreForm extends React.Component {
 	static propTypes = {
 		datastore: PropTypes.object,
+		className: PropTypes.string,
 	};
 
 	constructor(props) {
@@ -16,7 +19,8 @@ class DatastoreForm extends React.Component {
 		this.onSubmit = this.onSubmit.bind(this);
 		this.onNameChange = this.onNameChange.bind(this);
 		this.state = this.props.datastore || {
-			name: 'Datastore',
+			$id: getUUID(),
+			name: 'Datastore1',
 			schema: {
 				entries: [],
 			},
@@ -25,11 +29,23 @@ class DatastoreForm extends React.Component {
 
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.datastore !== this.props.datastore) {
-			this.setState(nextProps.datastore);
+			if (nextProps.datastore) {
+				this.setState(nextProps.datastore);
+			} else {
+				// from edit mode to add mode
+				this.setState({
+					$id: getUUID(),
+					name: `Connection${this.service.datastores.length + 1}`,
+					schema: {
+						entries: [],
+					},
+				});
+			}
 		}
 	}
 
 	onSubmit(service) {
+		this.service = service;
 		return event => {
 			event.preventDefault();
 			if (this.props.datastore) {
@@ -60,10 +76,16 @@ class DatastoreForm extends React.Component {
 		return (
 			<DatastoreContext.Consumer>
 				{datastore => (
-					<form className="form" onSubmit={this.onSubmit(datastore)} noValidate>
-						<h2>{this.props.datastore ? 'Create a new datastore' : 'Edit the datastore'}</h2>
+					<form
+						onSubmit={this.onSubmit(datastore)}
+						noValidate
+						className={classnames('form', this.props.className)}
+					>
+						<h2>{this.props.datastore ? 'Edit the connection' : 'Create a new connection'}</h2>
 						<div className="form-group required">
-							<label htmlFor="datastore-name" className="control-label">Name</label>
+							<label htmlFor="datastore-name" className="control-label">
+								Name
+							</label>
 							<input
 								className="form-control"
 								required
@@ -77,11 +99,13 @@ class DatastoreForm extends React.Component {
 							<Node id="datastore-model" node={this.state.schema} readOnly name={this.props.name} />
 						</div>
 						{this.state.error && (
-							<div className="alert alert-danger">
-								{this.state.error.message}
-							</div>
+							<div className="alert alert-danger">{this.state.error.message}</div>
 						)}
-						<Action label="Save" type="submit" />
+						<Action
+							label={`${this.props.datastore ? 'Save' : 'Add'}`}
+							type="submit"
+							bsStyle="primary"
+						/>
 					</form>
 				)}
 			</DatastoreContext.Consumer>

@@ -12,6 +12,8 @@ import DatastoreForm from './DatastoreForm';
 
 import DatasetForm from './DatasetForm';
 
+import DatasetSchema from './DatasetSchema';
+
 export default {
     SelectDataset,
     ComponentEditForm,
@@ -20,4 +22,5 @@ export default {
     DatasetList,
     DatastoreForm,
     DatasetForm,
+    DatasetSchema,
 };

@@ -11,9 +11,34 @@ function DatasetList() {
 		<DatasetContext.Consumer>
 			{dataset => (
 				<div className={theme.container}>
-					<DatasetForm dataset={dataset.current} />
-					<div className={theme.list}>
-						<h2>Dataset List</h2>
+					<div className={theme.column}>
+						<h2>Dataset</h2>
+						<Action
+							id={`${theme['add-new-dataset']}`}
+							label="Add new Dataset"
+							bsStyle="info"
+							icon="talend-plus-circle"
+							onClick={() => {
+								dataset.setCurrent();
+							}}
+						/>
+						{dataset.datasets.length === 0 && (
+							<div className="alert alert-warning">
+								<div>
+									<p>No dataset found.</p>
+									<p>
+										Datasets are required in many cases. They define the way to take data throw a connection.
+									</p>
+									<p>
+										You should define at least one dataset to get data from a connection.
+									</p>
+									<p>
+										In the case of JDBC, the dataset is a SQL query.
+									</p>
+								</div>
+							</div>
+						)}
+
 						<ul>
 							{dataset.datasets.map((d, index) => (
 								<li key={index} className={theme.li}>
@@ -26,6 +51,7 @@ function DatasetList() {
 							))}
 						</ul>
 					</div>
+					<DatasetForm dataset={dataset.current} className={theme.column} />
 				</div>
 			)}
 		</DatasetContext.Consumer>

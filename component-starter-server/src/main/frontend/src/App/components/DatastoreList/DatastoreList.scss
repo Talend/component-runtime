@@ -5,6 +5,15 @@
         flex: 1;
     }
 }
+
+#add-new-datastore {
+    margin-bottom: $padding-normal;
+}
+
 .li :global(.btn){
     text-transform: initial;
+}
+
+.column {
+    padding: 0 $padding-normal;
 }

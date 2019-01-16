@@ -1,11 +1,19 @@
 // DatasetList styles
-
 .container {
     display: flex;
     > * {
         flex: 1;
     }
 }
+
+#add-new-dataset {
+    margin-bottom: $padding-normal;
+}
+
 .li :global(.btn){
     text-transform: initial;
+}
+
+.column {
+    padding: 0 $padding-normal;
 }

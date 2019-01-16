@@ -5,6 +5,27 @@ import { Action } from '@talend/react-components';
 import theme from './DatasetForm.scss';
 import DatasetContext from '../../DatasetContext';
 import Node from '../../Component/Node';
+import DatasetSchema from '../DatasetSchema/DatasetSchema.container';
+
+function onChangeValidate(schema) {
+	const messages = [];
+	let hasOneDatastore = false;
+	schema.entries.forEach(entry => {
+		if (entry.type === 'datastore') {
+			if (!entry.reference) {
+				messages.push({
+					type: 'error',
+					message: `The attribute ${entry.name} has no datastore reference.`,
+				});
+			}
+			hasOneDatastore = true;
+		}
+	});
+	if (!hasOneDatastore) {
+		messages.push({ type: 'error', message: 'A dataset must have a datastore' });
+	}
+	return messages;
+}
 
 class DatasetForm extends React.Component {
 	static propTypes = {
@@ -15,26 +36,44 @@ class DatasetForm extends React.Component {
 		super(props);
 		this.onSubmit = this.onSubmit.bind(this);
 		this.onNameChange = this.onNameChange.bind(this);
-		this.state = this.props.dataset || {
-			name: 'Dataset',
+		const dataset = this.props.dataset || {
+			name: 'Dataset1',
 			schema: {
 				entries: [],
 			},
 		};
+		this.state = {
+			messages: [],
+			dataset,
+		};
+		this.onChangeValidate = this.onChangeValidate.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.dataset !== this.props.dataset) {
-			this.setState(nextProps.dataset);
+			if (nextProps.dataset) {
+				this.setState({ dataset: nextProps.dataset });
+			} else {
+				// from edit mode to add mode
+				this.setState({
+					dataset: {
+						name: `Dataset${this.service.datasets.length + 1}`,
+						schema: {
+							entries: [],
+						},
+					},
+				});
+			}
 		}
 	}
 
 	onSubmit(service) {
+		this.service = service;
 		return event => {
 			event.preventDefault();
 			if (this.props.dataset) {
 				try {
-					service.edit(this.props.dataset, this.state);
+					service.edit(this.props.dataset, this.state.dataset);
 				} catch (error) {
 					this.setState({
 						error,
@@ -42,8 +81,8 @@ class DatasetForm extends React.Component {
 				}
 			} else {
 				try {
-					service.add(this.state);
-					service.setCurrent(this.state);
+					service.add(this.state.dataset);
+					service.setCurrent(this.state.dataset);
 				} catch (error) {
 					this.setState({
 						error,
@@ -54,35 +93,53 @@ class DatasetForm extends React.Component {
 	}
 
 	onNameChange(event) {
-		this.setState({ name: event.target.value });
+		this.setState(prevState => {
+			prevState.dataset.name = event.target.value;
+			return Object.assign({}, prevState);
+		});
+	}
+
+	onChangeValidate(schema) {
+		const messages = onChangeValidate(schema);
+		this.setState({
+			edited: new Date(),
+			messages,
+		});
+		return messages;
 	}
 
 	render() {
+		const hasError = this.state.error || this.state.messages.length > 0;
 		return (
 			<DatasetContext.Consumer>
 				{dataset => (
 					<form className="form" onSubmit={this.onSubmit(dataset)} noValidate>
-						<h2>{this.props.dataset ? 'Create a new dataset' : 'Edit the dataset'}</h2>
+						<h2>{this.props.dataset ? 'Edit the dataset' : 'Create a new dataset'}</h2>
 						<div className="form-group required">
-							<label htmlFor="dataset-name" className="control-label">Name</label>
+							<label htmlFor="dataset-name" className="control-label">
+								Name
+							</label>
 							<input
 								className="form-control"
 								required
 								type="text"
-								value={this.state.name}
+								value={this.state.dataset.name}
 								onChange={this.onNameChange}
 							/>
 						</div>
-						<div className="form-group">
-							<label htmlFor="dataset-model">Model</label>
-							<Node id="dataset-model" node={this.state.schema} readOnly name={this.props.name} />
-						</div>
+						<DatasetSchema
+							schema={this.state.dataset.schema}
+							onChangeValidate={this.onChangeValidate}
+						/>
 						{this.state.error && (
-							<div className="alert alert-danger">
-								{this.state.error.message}
-							</div>
+							<div className="alert alert-danger">{this.state.error.message}</div>
 						)}
-						<Action label="Save" type="submit" />
+						<Action
+							disabled={hasError}
+							label={`${this.props.dataset ? 'Save' : 'Add'}`}
+							type="submit"
+							bsStyle="primary"
+						/>
 					</form>
 				)}
 			</DatasetContext.Consumer>

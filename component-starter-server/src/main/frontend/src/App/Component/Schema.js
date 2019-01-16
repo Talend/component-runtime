@@ -14,76 +14,72 @@
  *  limitations under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import Node from './Node';
-import TileContext from '../tile';
 
 import theme from './Schema.scss';
-import SelectDataset from '../components/SelectDataset';
-import DatastoreForm from '../components/DatastoreForm';
 
 export default class Schema extends React.Component {
+	static propTypes = {
+		onChangeValidate: PropTypes.func,
+		schema: PropTypes.object,
+		parent: PropTypes.object,
+		extraTypes: PropTypes.arrayOf(PropTypes.string),
+		readOnly: PropTypes.bool,
+		name: PropTypes.string,
+		references: PropTypes.object,
+		addRefNewLocation: PropTypes.object,
+	};
 	constructor(props) {
 		super(props);
 		this.state = {
 			schema: props.schema,
+			messages: [],
 		};
-		this.onSelectDataset = this.onSelectDataset.bind(this);
+		this.onChangeValidate = this.onChangeValidate.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if (this.props !== nextProps) {
+		if (this.props.schema !== nextProps.schema) {
 			this.setState({
 				schema: nextProps.schema,
 			});
-			!!this.props.onReload && this.props.onReload();
+			this.props.onReload && this.props.onReload();
 		}
 	}
 
-	onSelectDataset(service) {
-		return (event, dataset) => {
-			if (event.target.value==='create-new') {
-				const tile = (
-					<DatastoreForm />
-				);
-				service.addTile(tile);
-			} else {
-				this.setState(prevState => {
-					let replace = false;
-					if (prevState.schema.entries.length > 0) {
-						if (prevState.schema.entries[0].type === 'dataset') {
-							replace = true;
-							prevState.schema.entries[0].name = dataset;
-						}
-					}
-					if (!replace) {
-						prevState.schema.entries.push({ name: dataset, type: 'dataset' });
-					}
-					return Object.assign({}, prevState);
-				});
-			}
+	onChangeValidate() {
+		if (this.props.onChangeValidate) {
+			this.setState({
+				messages: this.props.onChangeValidate(this.state.schema),
+			});
 		}
 	}
 
 	render() {
 		return (
-			<form className={classnames('form', theme.Schema)}>
-				{this.props.name === 'configuration' && (
-					<TileContext.Consumer>
-						{(service) => (
-							<SelectDataset onChange={this.onSelectDataset(service)} />
-						)}
-					</TileContext.Consumer>
-				)}
-				<div className="form-group">
-					<label htmlFor="schema-model">Model</label>
-					<Node
-						node={this.state.schema}
-						readOnly={this.props.readOnly || !!this.props.parent}
-						name={this.props.name}
-					/>
-				</div>
-			</form>
+			<div className="form-group">
+				<label htmlFor="schema-model">Model</label>
+				<Node
+					node={this.state.schema}
+					readOnly={this.props.readOnly || !!this.props.parent}
+					name={this.props.name}
+					onChangeValidate={this.onChangeValidate}
+					extraTypes={this.props.extraTypes}
+					references={this.props.references}
+					addRefNewLocation={this.props.addRefNewLocation}
+				/>
+				{this.state.messages.map(message => (
+					<p
+						className={classnames({
+							'text-danger': message.type === 'error',
+						})}
+					>
+						{message.message}
+					</p>
+				))}
+			</div>
 		);
 	}
 }

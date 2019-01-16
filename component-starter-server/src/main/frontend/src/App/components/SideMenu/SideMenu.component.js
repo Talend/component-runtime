@@ -23,7 +23,7 @@ function SideMenu(props) {
 						[theme.active]: props.location.pathname === '/datastore',
 					})}
 				>
-					<Link to="/datastore">Datastore</Link>
+					<Link to="/datastore">Connection</Link>
 				</li>
 				<li
 					className={classnames({
