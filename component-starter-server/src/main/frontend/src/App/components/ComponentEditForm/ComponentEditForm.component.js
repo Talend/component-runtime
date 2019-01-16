@@ -56,35 +56,37 @@ function ComponentEditForm(props) {
 				<p className={theme.title}>
 					<em>{props.component.configuration.name || ''}</em> Configuration
 				</p>
-				<div>
-					<Actions actions={typeActions} />
-					<Help
-						title="Component Type"
-						i18nKey="component_type"
-						content={
-							<div>
-								<p>Talend Component Kit supports two types of components:</p>
-								<ul>
-									<li>
-										Input: it is a component creating records from itself. It only supports to
-										create a main output branch of records.
-									</li>
-									<li>
-										Processor: this component type can read from 1 or multiple inputs the data,
-										process them and create 0 or multiple outputs.
-									</li>
-								</ul>
-							</div>
-						}
-					/>
-				</div>
+				{props.withIO && (
+					<div>
+						<Actions actions={typeActions} />
+						<Help
+							title="Component Type"
+							i18nKey="component_type"
+							content={
+								<div>
+									<p>Talend Component Kit supports two types of components:</p>
+									<ul>
+										<li>
+											Input: it is a component creating records from itself. It only supports to
+											create a main output branch of records.
+										</li>
+										<li>
+											Processor: this component type can read from 1 or multiple inputs the data,
+											process them and create 0 or multiple outputs.
+										</li>
+									</ul>
+								</div>
+							}
+						/>
+					</div>
+				)}
 			</div>
 
 			<div className={theme['form-row']}>
 				<p className={theme.title}>Configuration</p>
-				<form noValidate onSubmit={e => e.preventDefault()}>
-					<div className="field">
-						<label htmlFor="componentName">Name</label>
+				<form noValidate onSubmit={e => e.preventDefault()} className="form">
+					<div className="field form-group">
+						<label className="control-label" htmlFor="componentName">Name</label>
 						<Help
 							title="Component Name"
 							i18nKey="component_name"
@@ -136,6 +138,7 @@ ComponentEditForm.propTypes = {
 		addOutput: PropTypes.func,
 		setComponentType: PropTypes.func,
 	}),
+	withIO: PropTypes.bool,
 };
 
 export default ComponentEditForm;

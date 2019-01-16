@@ -27,7 +27,6 @@ import theme from './Mapper.scss';
 export default class Mapper extends React.Component {
 	static propTypes = {
 		component: PropTypes.object,
-		onUpdateDrawers: PropTypes.func,
 	};
 	constructor(props) {
 		super(props);
@@ -36,19 +35,6 @@ export default class Mapper extends React.Component {
 			configurationStructure: props.component.source.configurationStructure,
 			outputStructure: props.component.source.outputStructure,
 		};
-
-		this.drawerActions = {
-			actions: {
-				right: [
-					{
-						label: 'Close',
-						bsStyle: 'primary',
-						onClick: () => this.props.onUpdateDrawers([]),
-					},
-				],
-			},
-		};
-
 		[
 			'onStreamChange',
 			'onConfigurationButtonClick',

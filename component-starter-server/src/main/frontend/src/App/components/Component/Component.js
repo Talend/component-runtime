@@ -38,8 +38,7 @@ export default class Component extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {
-		};
+		this.state = {};
 	}
 
 	render() {
@@ -56,7 +55,11 @@ export default class Component extends React.Component {
 					}
 					const component = getComponent(components, componentIndex);
 					const cols = [
-						<ComponentEditForm component={component} service={components} />,
+						<ComponentEditForm
+							component={component}
+							service={components}
+							withIO={components.withIO}
+						/>,
 					];
 					return (
 						<div className={theme.Component}>

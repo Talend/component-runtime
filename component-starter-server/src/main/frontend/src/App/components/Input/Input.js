@@ -25,6 +25,7 @@ export default class Input extends React.Component {
 	static propTypes = {
 		initialValue: PropTypes.any,
 		aggregate: PropTypes.object,
+		className: PropTypes.string,
 		accessor: PropTypes.string,
 		onChange: PropTypes.func,
 		type: PropTypes.string,
@@ -65,6 +66,7 @@ export default class Input extends React.Component {
 			<span className={theme.Input}>
 				<input
 					type={this.props.type}
+					className={this.props.className}
 					placeholder={this.props.placeholder}
 					required={this.props.required}
 					minLength={this.props.minLength}
