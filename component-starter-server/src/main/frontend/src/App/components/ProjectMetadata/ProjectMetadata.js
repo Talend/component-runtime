@@ -43,57 +43,6 @@ export default class ProjectMetadata extends React.Component {
 		};
 	}
 
-	// componentWillReceiveProps(nextProps) {
-	// 	this.setState({ project: nextProps.project });
-	// }
-
-	// componentWillMount() {
-	// 	fetch(`${CONFIGURATION_URL}`)
-	// 		.then(resp => resp.json())
-	// 		.then(payload => {
-	// 			this.setState(current => {
-	// 				current.configuration = payload;
-
-	// 				payload.buildTypes.forEach(item =>
-	// 					current.buildToolActions.push({
-	// 						label: item,
-	// 						onClick: () =>
-	// 							this.setState(state => {
-	// 								state.project.buildType = item;
-	// 								state.buildToolActions.forEach(entry => {
-	// 									if (entry.label === item) {
-	// 										entry.className = theme.selected;
-	// 									} else {
-	// 										delete entry.className;
-	// 									}
-	// 								});
-	// 							}),
-	// 					}),
-	// 				);
-
-	// 				// select one build tool, preferrably maven since it is the standard
-	// 				const maven = current.buildToolActions.filter(i => i.label === 'Maven');
-	// 				if (maven.length > 0) {
-	// 					const mvnIdx = current.buildToolActions.indexOf(maven[0]);
-	// 					const saved = current.buildToolActions[0];
-	// 					current.buildToolActions[0] = maven[0];
-	// 					current.buildToolActions[mvnIdx] = saved;
-	// 				} else {
-	// 					current.project.buildType = current.buildToolActions[0].label;
-	// 				}
-
-	// 				const currentBuildTool = current.project.buildType || 'Maven';
-	// 				const selected = current.buildToolActions.filter(i => i.label === currentBuildTool);
-	// 				if (selected.length > 0) {
-	// 					selected[0].className = theme.selected;
-	// 				} else {
-	// 					current.buildToolActions[0].className = theme.selected;
-	// 				}
-	// 				return Object.assign({}, current);
-	// 			});
-	// 		});
-	// }
-
 	onCategoryUpdate(value) {
 		this.setState(current => (current.project.category = value.value));
 	}
