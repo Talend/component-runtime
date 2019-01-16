@@ -44,10 +44,6 @@
 		font-style: italic;
 	}
 
-	AppButton {
-		text-transform: uppercase;
-	}
-
 	> div {
 		padding: 0;
 	}
@@ -61,9 +57,6 @@
 		flex-direction: row;
 		justify-content: center;
 		padding-bottom: 1rem;
-
-		.Connections {
-		}
 
 		.Inputs {
 			text-align: right;

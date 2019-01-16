@@ -103,7 +103,7 @@ function ComponentEditForm(props) {
 							id="componentName"
 							type="text"
 							placeholder="Enter the component name..."
-							required="required"
+							required
 							minLength="1"
 							onChange={onComponentNameChange(props.service, props.component)}
 							aggregate={props.component.configuration}

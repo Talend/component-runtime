@@ -23,10 +23,14 @@ import theme from './Input.scss';
 
 export default class Input extends React.Component {
 	static propTypes = {
-		initialValue: PropTypes.object,
+		initialValue: PropTypes.any,
 		aggregate: PropTypes.object,
 		accessor: PropTypes.string,
 		onChange: PropTypes.func,
+		type: PropTypes.string,
+		placeholder: PropTypes.string,
+		required: PropTypes.bool,
+		minLength: PropTypes.string,
 	};
 	constructor(props) {
 		super(props);
@@ -60,7 +64,10 @@ export default class Input extends React.Component {
 		return (
 			<span className={theme.Input}>
 				<input
-					{...this.props}
+					type={this.props.type}
+					placeholder={this.props.placeholder}
+					required={this.props.required}
+					minLength={this.props.minLength}
 					onChange={e => this.onChange(e)}
 					value={value}
 				/>

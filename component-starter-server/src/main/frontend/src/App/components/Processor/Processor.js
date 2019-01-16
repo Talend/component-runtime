@@ -92,7 +92,7 @@ export default class Processor extends React.Component {
 
 	render() {
 		return (
-			<processor className={theme.Processor}>
+			<div className={theme.Processor}>
 				<TileContext.Consumer>
 					{tileService => (
 						<AppButton
@@ -210,7 +210,7 @@ export default class Processor extends React.Component {
 						</div>
 					</div>
 				</div>
-			</processor>
+			</div>
 		);
 	}
 }

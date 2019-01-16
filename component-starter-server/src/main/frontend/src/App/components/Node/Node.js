@@ -237,7 +237,7 @@ export default class Node extends React.Component {
 					<Input
 						type="text"
 						placeholder="Enter the configuration name..."
-						required="required"
+						required
 						minLength="1"
 						aggregate={this.props.node}
 						accessor="name"

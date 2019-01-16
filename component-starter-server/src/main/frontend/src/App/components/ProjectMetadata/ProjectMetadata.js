@@ -184,7 +184,7 @@ export default class ProjectMetadata extends React.Component {
 											id="projectFamily"
 											type="text"
 											placeholder="Enter the component family..."
-											required="required"
+											required
 											aggregate={project.project}
 											accessor="family"
 										/>
@@ -247,7 +247,7 @@ export default class ProjectMetadata extends React.Component {
 										id="projectGroup"
 										type="text"
 										placeholder="Enter the project group..."
-										required="required"
+										required
 										aggregate={this.state.project}
 										accessor="group"
 									/>
@@ -279,7 +279,7 @@ export default class ProjectMetadata extends React.Component {
 										id="projectArtifact"
 										type="text"
 										placeholder="Enter the project artifact..."
-										required="required"
+										required
 										aggregate={this.state.project}
 										accessor="artifact"
 									/>
@@ -301,7 +301,7 @@ export default class ProjectMetadata extends React.Component {
 										id="projectPackage"
 										type="text"
 										placeholder="Enter the project base package..."
-										required="required"
+										required
 										aggregate={this.state.project}
 										accessor="packageBase"
 									/>
