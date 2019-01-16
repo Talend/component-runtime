@@ -35,7 +35,7 @@ export default class Connections extends React.Component {
 
 	render() {
 		return (
-			<ul className={theme.Connections}>
+			<ul className={`${theme.Connections} connections`}>
 				{this.props.connections.map(connection => (
 					<Connection
 						key={connection.name}

@@ -189,7 +189,7 @@ export default class Processor extends React.Component {
 						</div>
 					</div>
 					<div className={classnames(theme.ComponentWrapper, 'col-sm-12')}>
-						<div className={classnames(theme.Inputs, 'col-sm-5')}>
+						<div className={classnames(theme.Inputs, 'processor-inputs col-sm-5')}>
 							<Connections
 								connections={this.props.component.processor.inputStructures}
 								theme={theme}
@@ -200,7 +200,7 @@ export default class Processor extends React.Component {
 						<div className={classnames(theme.ComponentBox, 'col-sm-2')}>
 							<component-box>component</component-box>
 						</div>
-						<div className={classnames(theme.Outputs, 'col-sm-5')}>
+						<div className={classnames(theme.Outputs, 'processor-outputs col-sm-5')}>
 							<Connections
 								connections={this.props.component.processor.outputStructures}
 								theme={theme}

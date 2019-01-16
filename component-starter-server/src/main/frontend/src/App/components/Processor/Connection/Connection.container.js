@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Drawer, Action } from '@talend/react-components';
 
-import { Drawer, Icon } from '@talend/react-components';
 import Help from '../../Help';
 import Input from '../../Input';
 import EmbeddableToggle from '../../EmbeddableToggle';
@@ -110,8 +110,12 @@ export default class Connection extends React.Component {
 					{!this.props.readOnly && (
 						<span>
 							(
-							<Icon
-								name="talend-trash"
+							<Action
+								bsStyle="link"
+								icon="talend-trash"
+								label="Delete connection"
+								className="btn-icon-only"
+								hideLabel
 								onClick={e => {
 									e.preventDefault();
 									this.props.removeConnection(this.props.connection);

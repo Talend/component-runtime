@@ -1,1 +1,88 @@
 // Connection styles
+.Connection {
+    position: relative;
+    height: 35px;
+}
+
+:global(.processor-inputs) {
+	.Connection {
+		text-align: right;
+        width: 100%;
+
+		> div {
+			margin-right: 1rem;
+		}
+
+		&:after {
+			content: '\25CF';
+			font-size: 20px;
+			color: $brand-blue;
+			position: absolute;
+			right: -5px;
+			top: 0;
+		}
+
+		&:only-of-type:before {
+			content: none;
+		}
+
+		&:before {
+			content: '';
+			position: absolute;
+			right: 0;
+			top: 0;
+			border-left: 1px solid $brand-blue;
+			margin-left: 5px;
+			height: 100%;
+		}
+
+		&:first-child:before {
+			top: 50%;
+		}
+
+		&:last-child:before {
+			top: -50%;
+		}
+	}
+}
+
+:global(.processor-outputs) {
+	.Connection {
+		text-align: left;
+		width: 100%;
+
+		> div {
+			margin-left: 1rem;
+		}
+
+		&:only-of-type:after {
+			content: none;
+		}
+
+		&:before {
+			content: '\25CF';
+			font-size: 20px;
+			color: $brand-blue;
+			position: absolute;
+			left: -5px;
+			top: 3px;
+		}
+
+		&:after {
+			position: absolute;
+			left: 0;
+			top: 0;
+			content: '';
+			border-left: 1px solid $brand-blue;
+			height: 100%;
+		}
+
+		&:first-child:after {
+			top: 50%;
+		}
+
+		&:last-child:after {
+			top: -50%;
+		}
+	}
+}
