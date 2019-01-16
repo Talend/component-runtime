@@ -413,7 +413,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                                 .relativize(dep)
                                 .toString();
                         mainDepSize.addAndGet(it.getFile().length());
-                        final AbsoluteUnixPath target = mainLibs.resolve(relativized);
+                        final AbsoluteUnixPath target = mainLibs.resolve(relativized.replace(File.separatorChar, '/'));
                         dependenciesLayer.addEntry(dep, target);
                         return target.toString();
                     })
