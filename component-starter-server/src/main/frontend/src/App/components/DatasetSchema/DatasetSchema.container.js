@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 //
 // import SelectDataset from '../SelectDataset';
 import DatastoreContext from '../../DatastoreContext';
-import Schema from '../../Component/Schema';
+import Schema from '../Schema';
 // import TileContext from '../../tile';
 
 function getDatastoreReference(datastore) {

@@ -4,10 +4,10 @@ import classnames from 'classnames';
 
 import { Actions, Icon } from '@talend/react-components';
 
-import Input from '../../Component/Input';
-import Help from '../../Component/Help';
-import Mapper from '../../Generator/Mapper';
-import Processor from '../../Generator/Processor';
+import Input from '../Input';
+import Help from '../Help';
+import Mapper from '../Mapper';
+import Processor from '../Processor';
 
 import theme from './ComponentEditForm.scss';
 
@@ -16,6 +16,7 @@ const TYPE_PROCESSOR = 'Processor';
 
 function onComponentNameChange(service, component) {
 	return newName => {
+		// eslint-disable-next-line no-param-reassign
 		component.name = newName;
 		service.updateComponent();
 	};
@@ -28,7 +29,7 @@ function ComponentEditForm(props) {
 	const typeActions = [
 		{
 			label: 'Input',
-			type: TYPE_INPUT,
+			// type: TYPE_INPUT,
 			className: classnames({
 				'btn-info': props.component.type === TYPE_INPUT,
 				'btn-inverse': props.component.type !== TYPE_INPUT,
@@ -39,7 +40,7 @@ function ComponentEditForm(props) {
 		},
 		{
 			label: 'Processor/Output',
-			type: TYPE_PROCESSOR,
+			// type: TYPE_PROCESSOR,
 			className: classnames({
 				'btn-info': props.component.type === TYPE_PROCESSOR,
 				'btn-inverse': props.component.type !== TYPE_PROCESSOR,
@@ -81,7 +82,7 @@ function ComponentEditForm(props) {
 
 			<div className={theme['form-row']}>
 				<p className={theme.title}>Configuration</p>
-				<form noValidate submit={e => e.preventDefault()}>
+				<form noValidate onSubmit={e => e.preventDefault()}>
 					<div className="field">
 						<label htmlFor="componentName">Name</label>
 						<Help

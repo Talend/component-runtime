@@ -19,11 +19,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import i18n from 'i18next';
 import { reactI18nextModule } from 'react-i18next';
-import App from './App';
+import App from './components/App';
 import helpTexts from './locales/en/Help.json';
 
 import './index.scss';
 
+// eslint-disable-next-line import/no-named-as-default-member
 i18n.use(reactI18nextModule).init({
 	lng: 'en',
 	resources: {
@@ -38,7 +39,8 @@ i18n.use(reactI18nextModule).init({
   3. launch the app and browse pages (don't forget configuration tabs)
   3. update the json content from the captured key/value pairs
   */
-	// , saveMissing: true, missingKeyHandler: (lang, ns, key, value) => console.log(`"${key}": "${value.replace(/"/g, '\\"')}"`)
+	// , saveMissing: true, missingKeyHandler: (lang, ns, key, value)
+	// => console.log(`"${key}": "${value.replace(/"/g, '\\"')}"`)
 });
 i18n.addResourceBundle('en', 'Help', helpTexts);
 

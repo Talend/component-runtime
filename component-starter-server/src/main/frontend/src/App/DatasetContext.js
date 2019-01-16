@@ -1,8 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const DatasetContext = React.createContext({ datasets: [] });
 
 class Provider extends React.Component {
+	static propTypes = {
+		value: PropTypes.object,
+		datastore: PropTypes.object,
+		children: PropTypes.node,
+	};
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -18,6 +24,7 @@ class Provider extends React.Component {
 				if (exists) {
 					throw new Error('Dataset name is required');
 				}
+				// eslint-disable-next-line no-param-reassign
 				prevState.datasets = prevState.datasets.concat(dataset);
 				return Object.assign({}, prevState);
 			});

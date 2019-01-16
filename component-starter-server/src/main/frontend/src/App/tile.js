@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const EMPTY = <div />;
 
@@ -13,6 +14,10 @@ tileService.resetTile = tile => {
 const TileContext = React.createContext(tileService);
 
 class Provider extends React.Component {
+	static propTypes = {
+		value: PropTypes.array,
+		children: PropTypes.node,
+	};
 	constructor(props) {
 		super(props);
 		this.state = {

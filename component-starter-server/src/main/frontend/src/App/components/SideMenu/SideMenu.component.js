@@ -7,35 +7,63 @@ import ComponentsContext from '../../ComponentsContext';
 
 import theme from './SideMenu.scss';
 
+function activateIO(service) {
+	return event => {
+		event.preventDefault();
+		service.activateIO();
+	};
+}
+
 function SideMenu(props) {
 	return (
 		<nav className={theme.menu}>
 			<ol>
 				<li
 					className={classnames({
-						[theme.active]: props.location.pathname === '/' || props.location.pathname === '/project',
+						[theme.active]:
+							props.location.pathname === '/' || props.location.pathname === '/project',
 					})}
 				>
-					<Link to="/project">Start</Link>
+					<Link to="/project" id="step-start">Start</Link>
 				</li>
-				<li
-					className={classnames({
-						[theme.active]: props.location.pathname === '/datastore',
-					})}
-				>
-					<Link to="/datastore">Connection</Link>
-				</li>
-				<li
-					className={classnames({
-						[theme.active]: props.location.pathname === '/dataset',
-					})}
-				>
-					<Link to="/dataset">Dataset</Link>
-				</li>
+				<ComponentsContext.Consumer>
+					{components => {
+						if (components.withIO) {
+							return (
+								<React.Fragment>
+									<li
+										id="step-datastore"
+										className={classnames({
+											[theme.active]: props.location.pathname === '/datastore',
+										})}
+									>
+										<Link to="/datastore">Datastore</Link>
+									</li>
+									<li
+										id="step-dataset"
+										className={classnames({
+											[theme.active]: props.location.pathname === '/dataset',
+										})}
+									>
+										<Link to="/dataset">Dataset</Link>
+									</li>
+								</React.Fragment>
+							);
+						}
+						return (
+							<li id="step-activate-io">
+								<a href="#/createNew" onClick={activateIO(components)}>
+									Activate IO
+								</a>
+							</li>
+						);
+					}}
+				</ComponentsContext.Consumer>
 				<ComponentsContext.Consumer>
 					{components =>
 						components.components.map((component, i) => (
 							<li
+								id={`step-component-${i}`}
 								className={classnames({
 									[theme.active]: props.location.pathname === `/component/${i}`,
 								})}
@@ -46,7 +74,17 @@ function SideMenu(props) {
 						))
 					}
 				</ComponentsContext.Consumer>
+				<ComponentsContext.Consumer>
+					{components => (
+						<li id="step-add-component">
+							<Link to="/component/last" onClick={() => components.addComponent()}>
+								Add A Component
+							</Link>
+						</li>
+					)}
+				</ComponentsContext.Consumer>
 				<li
+					id="step-finish"
 					className={classnames({
 						[theme.active]: props.location.pathname === '/export',
 					})}

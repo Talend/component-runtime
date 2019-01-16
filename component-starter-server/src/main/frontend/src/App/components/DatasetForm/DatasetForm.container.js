@@ -1,13 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Action } from '@talend/react-components';
-import { Prompt } from 'react-router'
+// import { Prompt } from 'react-router';
 
-import theme from './DatasetForm.scss';
+// import theme from './DatasetForm.scss';
 import DatasetContext from '../../DatasetContext';
-import Node from '../../Component/Node';
+// import Node from '../Node';
 import DatasetSchema from '../DatasetSchema/DatasetSchema.container';
 import getUUID from '../../uuid';
+
+/* eslint-disable no-param-reassign */
 
 function onChangeValidate(schema) {
 	const messages = [];

@@ -23,6 +23,7 @@ class Provider extends React.Component {
 				if (exists) {
 					throw new Error('Datastore name is required');
 				}
+				// eslint-disable-next-line no-param-reassign
 				prevState.datastores = prevState.datastores.concat(datastore);
 				return Object.assign({}, prevState);
 			});

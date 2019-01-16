@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { Action } from '@talend/react-components';
 import DatastoreContext from '../../DatastoreContext';
@@ -12,7 +11,7 @@ function DatastoreList() {
 			{datastore => (
 				<div className={theme.container}>
 					<div className={theme.column}>
-						<h2>Connection</h2>
+						<h2>Datastore</h2>
 						<Action
 							id={`${theme['add-new-datastore']}`}
 							label="Add new Datastore"
@@ -25,14 +24,14 @@ function DatastoreList() {
 						{datastore.datastores.length === 0 && (
 							<div className="alert alert-warning">
 								<div>
-									<p>No connection found.</p>
+									<p>No datstore found.</p>
 									<p>
-										A connection is required in many cases. They define the way to connect to the
+										A datastore is required in many cases. They define the way to connect to the
 										source of data.
 									</p>
-									<p>You should define at least one connection to hold metadata.</p>
+									<p>You should define at least one datastore to hold metadata.</p>
 									<p>
-										In the case of JDBC, the connection has either, jdbc 'url' or 'host', 'port',
+										In the case of JDBC, the datastore has either, jdbc 'url' or 'host', 'port',
 										'username', etc...
 									</p>
 								</div>

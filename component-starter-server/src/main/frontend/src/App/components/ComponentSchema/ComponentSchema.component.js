@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Schema from '../../Component/Schema';
-import ComponentsContext from '../../ComponentsContext';
+import Schema from '../Schema';
+// import ComponentsContext from '../../ComponentsContext';
 import DatasetContext from '../../DatasetContext';
 
 function getReference(dataset) {

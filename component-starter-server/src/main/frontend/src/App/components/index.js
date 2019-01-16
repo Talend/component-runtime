@@ -16,6 +16,8 @@ import DatasetSchema from './DatasetSchema';
 
 import ComponentSchema from './ComponentSchema';
 
+import EmbeddableToggle from './EmbeddableToggle';
+
 export default {
     SelectDataset,
     ComponentEditForm,
@@ -26,4 +28,5 @@ export default {
     DatasetForm,
     DatasetSchema,
     ComponentSchema,
+    EmbeddableToggle,
 };

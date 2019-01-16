@@ -3,15 +3,16 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Action } from '@talend/react-components';
 
-import theme from './DatastoreForm.scss';
+// import theme from './DatastoreForm.scss';
 import DatastoreContext from '../../DatastoreContext';
-import Node from '../../Component/Node';
+import Node from '../Node';
 import getUUID from '../../uuid';
 
 class DatastoreForm extends React.Component {
 	static propTypes = {
 		datastore: PropTypes.object,
 		className: PropTypes.string,
+		name: PropTypes.string,
 	};
 
 	constructor(props) {
@@ -35,7 +36,7 @@ class DatastoreForm extends React.Component {
 				// from edit mode to add mode
 				this.setState({
 					$id: getUUID(),
-					name: `Connection${this.service.datastores.length + 1}`,
+					name: `Datastore${this.service.datastores.length + 1}`,
 					schema: {
 						entries: [],
 					},
@@ -81,7 +82,7 @@ class DatastoreForm extends React.Component {
 						noValidate
 						className={classnames('form', this.props.className)}
 					>
-						<h2>{this.props.datastore ? 'Edit the connection' : 'Create a new connection'}</h2>
+						<h2>{this.props.datastore ? 'Edit the datastore' : 'Create a new datastore'}</h2>
 						<div className="form-group required">
 							<label htmlFor="datastore-name" className="control-label">
 								Name

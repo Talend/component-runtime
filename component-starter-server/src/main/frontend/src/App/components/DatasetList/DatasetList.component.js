@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { Action } from '@talend/react-components';
 import DatasetContext from '../../DatasetContext';
@@ -27,14 +26,11 @@ function DatasetList() {
 								<div>
 									<p>No dataset found.</p>
 									<p>
-										Datasets are required in many cases. They define the way to take data throw a connection.
+										Datasets are required in many cases. They define the way to take data throw a
+										datastore.
 									</p>
-									<p>
-										You should define at least one dataset to get data from a connection.
-									</p>
-									<p>
-										In the case of JDBC, the dataset is a SQL query.
-									</p>
+									<p>You should define at least one dataset to get data from a datastore.</p>
+									<p>In the case of JDBC, the dataset is a SQL query.</p>
 								</div>
 							</div>
 						)}
@@ -42,11 +38,7 @@ function DatasetList() {
 						<ul>
 							{dataset.datasets.map((d, index) => (
 								<li key={index} className={theme.li}>
-									<Action
-										bsStyle="link"
-										onClick={() => dataset.setCurrent(d)}
-										label={d.name}
-									/>
+									<Action bsStyle="link" onClick={() => dataset.setCurrent(d)} label={d.name} />
 								</li>
 							))}
 						</ul>
@@ -59,8 +51,6 @@ function DatasetList() {
 }
 
 DatasetList.displayName = 'DatasetList';
-DatasetList.propTypes = {
-
-};
+DatasetList.propTypes = {};
 
 export default DatasetList;
