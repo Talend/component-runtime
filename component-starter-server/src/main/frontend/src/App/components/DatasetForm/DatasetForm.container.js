@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Action } from '@talend/react-components';
+import { Prompt } from 'react-router'
 
 import theme from './DatasetForm.scss';
 import DatasetContext from '../../DatasetContext';
 import Node from '../../Component/Node';
 import DatasetSchema from '../DatasetSchema/DatasetSchema.container';
+import getUUID from '../../uuid';
 
 function onChangeValidate(schema) {
 	const messages = [];
@@ -37,12 +39,14 @@ class DatasetForm extends React.Component {
 		this.onSubmit = this.onSubmit.bind(this);
 		this.onNameChange = this.onNameChange.bind(this);
 		const dataset = this.props.dataset || {
+			$id: getUUID(),
 			name: 'Dataset1',
 			schema: {
 				entries: [],
 			},
 		};
 		this.state = {
+			dirty: false,
 			messages: [],
 			dataset,
 		};
@@ -56,7 +60,9 @@ class DatasetForm extends React.Component {
 			} else {
 				// from edit mode to add mode
 				this.setState({
+					dirty: false,
 					dataset: {
+						$id: getUUID(),
 						name: `Dataset${this.service.datasets.length + 1}`,
 						schema: {
 							entries: [],
@@ -94,6 +100,7 @@ class DatasetForm extends React.Component {
 
 	onNameChange(event) {
 		this.setState(prevState => {
+			prevState.dirty = true;
 			prevState.dataset.name = event.target.value;
 			return Object.assign({}, prevState);
 		});
@@ -103,6 +110,7 @@ class DatasetForm extends React.Component {
 		const messages = onChangeValidate(schema);
 		this.setState({
 			edited: new Date(),
+			dirty: true,
 			messages,
 		});
 		return messages;

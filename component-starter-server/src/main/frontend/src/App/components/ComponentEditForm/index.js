@@ -1,6 +1,3 @@
-import ComponentEditForm from './ComponentEditForm.container.js';
-
-
-
+import ComponentEditForm from './ComponentEditForm.component';
 
 export default ComponentEditForm;

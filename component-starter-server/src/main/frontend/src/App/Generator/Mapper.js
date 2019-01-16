@@ -14,15 +14,20 @@
  *  limitations under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Toggle } from '@talend/react-components';
 import Help from '../Component/Help';
 import AppButton from '../Component/AppButton';
 import Schema from '../Component/Schema';
+import ComponentSchema from '../components/ComponentSchema';
 import TileContext from '../tile';
 
 import theme from './Mapper.scss';
 
 export default class Mapper extends React.Component {
+	static propTypes = {
+		component: PropTypes.object,
+	};
 	constructor(props) {
 		super(props);
 
@@ -69,7 +74,7 @@ export default class Mapper extends React.Component {
 		const tile = (
 			<div>
 				<h2>Configuration Model</h2>
-				<Schema schema={this.state.configurationStructure} readOnly={true} name="configuration" />
+				<ComponentSchema component={this.props.component} />
 			</div>
 		);
 
@@ -84,7 +89,7 @@ export default class Mapper extends React.Component {
 		const tile = (
 			<div>
 				<h2>Record Model</h2>
-				<Schema schema={this.state.outputStructure} readOnly={true} name="root" />
+				<Schema schema={this.state.outputStructure} readOnly name="root" />
 			</div>
 		);
 
