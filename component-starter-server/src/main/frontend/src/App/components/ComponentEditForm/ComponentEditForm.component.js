@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import { Actions, Icon } from '@talend/react-components';
+import { Actions } from '@talend/react-components/lib/Actions';
+import Icon from '@talend/react-components/lib/Icon';
 
 import Input from '../Input';
 import Help from '../Help';

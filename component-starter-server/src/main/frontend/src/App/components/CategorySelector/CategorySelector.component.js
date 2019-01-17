@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import keycode from 'keycode';
-import { Typeahead } from '@talend/react-components';
+import Typeahead from '@talend/react-components/lib/Typeahead';
 
 import theme from './CategorySelector.scss';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Action } from '@talend/react-components';
+import { Action } from '@talend/react-components/lib/Actions';
 import DatastoreContext from '../../DatastoreContext';
 import DatastoreForm from '../DatastoreForm';
 import theme from './DatastoreList.scss';

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Action } from '@talend/react-components';
+import { Action } from '@talend/react-components/lib/Actions';
 // import { Prompt } from 'react-router';
 
 // import theme from './DatasetForm.scss';

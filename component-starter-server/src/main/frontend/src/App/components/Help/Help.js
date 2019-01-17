@@ -17,7 +17,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Trans, I18n } from 'react-i18next';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { Icon } from '@talend/react-components';
+import Icon from '@talend/react-components/lib/Icon';
 
 import theme from './Help.scss';
 

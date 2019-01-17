@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Toggle } from '@talend/react-components';
+import Toggle from '@talend/react-components/lib/Toggle';
 import Help from '../Help';
 import AppButton from '../AppButton';
 import Schema from '../Schema';

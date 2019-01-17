@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Icon } from '@talend/react-components';
+import Icon from '@talend/react-components/lib/Icon';
 import Help from '../Help';
 import AppButton from '../AppButton';
 import TileContext from '../../tile';

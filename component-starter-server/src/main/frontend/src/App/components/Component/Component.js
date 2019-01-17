@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router';
-import { Action } from '@talend/react-components';
+import { Action } from '@talend/react-components/lib/Actions';
 
 import ComponentEditForm from '../ComponentEditForm';
 import TileContext from '../../tile';

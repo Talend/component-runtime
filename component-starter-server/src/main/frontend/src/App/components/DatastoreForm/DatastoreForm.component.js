@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Action } from '@talend/react-components';
+import { Action } from '@talend/react-components/lib/Actions';
 
 // import theme from './DatastoreForm.scss';
 import DatastoreContext from '../../DatastoreContext';

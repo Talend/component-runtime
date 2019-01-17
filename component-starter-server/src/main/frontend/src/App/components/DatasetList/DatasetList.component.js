@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Action } from '@talend/react-components';
+import { Action } from '@talend/react-components/lib/Actions';
 import DatasetContext from '../../DatasetContext';
 import DatasetForm from '../DatasetForm';
 import theme from './DatasetList.scss';

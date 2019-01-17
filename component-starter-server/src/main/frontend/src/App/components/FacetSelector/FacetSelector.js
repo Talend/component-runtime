@@ -16,7 +16,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import keycode from 'keycode';
-import { Typeahead, Badge } from '@talend/react-components';
+import Badge from '@talend/react-components/lib/Badge';
+import Typeahead from '@talend/react-components/lib/Typeahead';
 import Help from '../Help';
 
 import theme from './FacetSelector.scss';

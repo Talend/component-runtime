@@ -15,7 +15,9 @@
  */
 import React from 'react';
 import classnames from 'classnames';
-import { Action, Dialog, Toggle } from '@talend/react-components';
+import { Action } from '@talend/react-components/lib/Actions';
+import Dialog from '@talend/react-components/lib/Dialog';
+import Toggle from '@talend/react-components/lib/Toggle';
 
 import Help from '../Help';
 import Input from '../Input';

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dialog, Action } from '@talend/react-components';
+import { Action } from '@talend/react-components/lib/Actions';
+import Dialog from '@talend/react-components/lib/Dialog';
 
 import Help from '../../Help';
 import Input from '../../Input';
