@@ -321,9 +321,9 @@ export default class Finish extends React.Component {
 										</div>
 									)}
 									{this.state.statusOK && (
-										<div>
+										<div className="alert alert-success">
 											<p>
-												Project
+												Project&nbsp;
 												<a
 													target="_blank"
 													rel="noopener noreferrer"
@@ -335,7 +335,7 @@ export default class Finish extends React.Component {
 												>
 													{this.state.github.repository}
 												</a>
-												created with success!
+												&nbsp;created with success!
 											</p>
 										</div>
 									)}
