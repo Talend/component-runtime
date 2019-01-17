@@ -99,21 +99,17 @@ export default class Connection extends React.Component {
 					</Dialog>
 
 					{!this.props.readOnly && (
-						<span>
-							(
-							<Action
-								bsStyle="link"
-								icon="talend-trash"
-								label="Delete connection"
-								className="btn-icon-only"
-								hideLabel
-								onClick={e => {
-									e.preventDefault();
-									this.props.removeConnection(this.props.connection);
-								}}
-							/>
-							)
-						</span>
+						<Action
+							bsStyle="link"
+							icon="talend-trash"
+							label="Delete connection"
+							className="btn-icon-only"
+							hideLabel
+							onClick={e => {
+								e.preventDefault();
+								this.props.removeConnection(this.props.connection);
+							}}
+						/>
 					)}
 				</div>
 			</li>

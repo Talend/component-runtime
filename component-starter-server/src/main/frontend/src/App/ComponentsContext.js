@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import getUUID from './uuid';
 
 const Context = React.createContext({});
 
@@ -43,16 +44,32 @@ class Provider extends React.Component {
 		this.setState(prevState => {
 			// eslint-disable-next-line no-param-reassign
 			component.type = type;
-			// business rules
-			// if (type === INPUT) {
-			// } else {
-			// }
 			return Object.assign({}, prevState);
 		});
 	}
 
-	activateIO() {
+	activateIO(datastore, dataset) {
 		this.setState({ withIO: true });
+		this.dataset = dataset; // keep a ref on it
+		const datastoreId = getUUID();
+		datastore.add({
+			$id: datastoreId,
+			name: 'Datastore1',
+			schema: {
+				entries: [],
+			},
+		});
+		dataset.add({
+			$id: getUUID(),
+			name: 'Dataset1',
+			schema: {
+				entries: [{
+					name: 'datastore',
+					type: 'datastore',
+					reference: datastoreId,
+				}],
+			},
+		});
 	}
 
 	/**
@@ -97,6 +114,22 @@ class Provider extends React.Component {
 				outputStructures: [],
 			},
 		};
+		if (this.state.withIO && this.dataset.datasets.length > 0) {
+			component.source.configurationStructure.entries.push({
+				name: 'dataset',
+				type: 'dataset',
+				reference: this.dataset.datasets[0].$id,
+			});
+		}
+		if (!this.state.withIO) {
+			component.processor.outputStructures.push({
+				name: 'MAIN',
+				generic: false,
+				structure: {
+					entries: [],
+				},
+			});
+		}
 		this.setState(
 			state => {
 				state.components.push(component);

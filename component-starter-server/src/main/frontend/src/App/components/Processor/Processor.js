@@ -47,7 +47,6 @@ export default class Processor extends React.Component {
 				configurationStructure: PropTypes.object,
 			}),
 		}),
-		onUpdateDrawers: PropTypes.func,
 	};
 	constructor(props) {
 		super(props);
@@ -191,8 +190,6 @@ export default class Processor extends React.Component {
 						<div className={classnames(theme.Inputs, 'processor-inputs col-sm-5')}>
 							<Connections
 								connections={this.props.component.processor.inputStructures}
-								theme={theme}
-								onUpdateDrawers={this.props.onUpdateDrawers}
 								type="Input"
 							/>
 						</div>
@@ -202,8 +199,6 @@ export default class Processor extends React.Component {
 						<div className={classnames(theme.Outputs, 'processor-outputs col-sm-5')}>
 							<Connections
 								connections={this.props.component.processor.outputStructures}
-								theme={theme}
-								onUpdateDrawers={this.props.onUpdateDrawers}
 								type="Output"
 							/>
 						</div>

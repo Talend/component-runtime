@@ -1,7 +1,6 @@
 {
   "component_name": "<0><0>Each component has a name which must be unique in a family.</0><1><0></0> The name must be a valid Java name (no space, no special character, and so on).</1></0>",
   "component_name_title": "Component Name",
-  "component_type": "<0><0>Talend Component Kit supports two types of components:<1><0>Input: this type of component creates records from itself. It only supports creating a main output branch of records.</0><1>Processor/Output: from one or multiple inputs, this type of component can read data, process it, and pass it to 0 or multiple outputs.</1></1></0></0>",
   "component_type_title": "Component Type",
   "facets_values": "<0><0>Selecting a facet allows you to add features to your generated project.</0><1>A common use case is to activate the testing facet to generate skeletons for the tests and ease the implementation.</1></0>",
   "facets_values_title": "Facets",

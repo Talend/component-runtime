@@ -4,13 +4,15 @@ import classnames from 'classnames';
 import { withRouter, Link } from 'react-router-dom';
 
 import ComponentsContext from '../../ComponentsContext';
+import DatastoreContext from '../../DatastoreContext';
+import DatasetContext from '../../DatasetContext';
 
 import theme from './SideMenu.scss';
 
-function activateIO(service) {
+function activateIO(service, datastore, dataset) {
 	return event => {
 		event.preventDefault();
-		service.activateIO();
+		service.activateIO(datastore, dataset);
 	};
 }
 
@@ -52,9 +54,17 @@ function SideMenu(props) {
 						}
 						return (
 							<li id="step-activate-io">
-								<a href="#/createNew" onClick={activateIO(components)}>
-									Activate IO
-								</a>
+								<DatastoreContext.Consumer>
+									{datastore => (
+										<DatasetContext.Consumer>
+											{dataset => (
+												<a href="#/createNew" onClick={activateIO(components, datastore, dataset)}>
+													Activate IO
+												</a>
+											)}
+										</DatasetContext.Consumer>
+									)}
+								</DatastoreContext.Consumer>
 							</li>
 						);
 					}}

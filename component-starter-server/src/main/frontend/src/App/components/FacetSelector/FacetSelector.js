@@ -135,14 +135,11 @@ export default class FacetSelector extends React.Component {
 				const regex = new RegExp(escapedValue, 'i');
 
 				suggestions = this.state.facetTypeahead
-					.map(category => {
-						const cat = this.state.facetTypeahead[category];
-						return {
-							icon: cat.icon,
-							title: cat.title,
-							suggestions: cat.suggestions.filter(item => regex.test(item.title)),
-						};
-					})
+					.map(category => ({
+						icon: category.icon,
+						title: category.title,
+						suggestions: category.suggestions.filter(item => regex.test(item.title)),
+					}))
 					.filter(category => category.suggestions.length > 0);
 			}
 			return {

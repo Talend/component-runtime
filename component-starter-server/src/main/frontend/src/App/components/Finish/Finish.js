@@ -141,13 +141,11 @@ export default class Finish extends React.Component {
 		}).then(d => {
 			if (d.status > 299) {
 				this.setState({
-					current: 'message',
 					statusOK: false,
 					error: d.statusText,
 				});
 			} else {
 				this.setState({
-					current: 'message',
 					statusOK: true,
 				});
 			}
@@ -193,7 +191,7 @@ export default class Finish extends React.Component {
 								</form>
 							</div>
 							<Dialog
-								show={this.state.current}
+								show={this.state.current === 'github'}
 								header="Github Configuration"
 								size="small"
 								onHide={this.onHideGithub}

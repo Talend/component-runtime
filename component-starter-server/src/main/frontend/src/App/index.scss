@@ -24,3 +24,7 @@ body {
     max-width: 100%
   }
 }
+
+a:global(.btn-link):hover {
+  text-decoration: none;
+}

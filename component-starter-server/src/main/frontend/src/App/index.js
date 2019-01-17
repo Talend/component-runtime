@@ -24,6 +24,11 @@ import helpTexts from './locales/en/Help.json';
 
 import './index.scss';
 
+function logKeys(lang, ns, key, value) {
+	// eslint-disable-next-line no-console
+	console.log(`"${key}": "${value.replace(/"/g, '\\"')}"`);
+}
+
 // eslint-disable-next-line import/no-named-as-default-member
 i18n.use(reactI18nextModule).init({
 	lng: 'en',
@@ -39,8 +44,8 @@ i18n.use(reactI18nextModule).init({
   3. launch the app and browse pages (don't forget configuration tabs)
   3. update the json content from the captured key/value pairs
   */
-	// , saveMissing: true, missingKeyHandler: (lang, ns, key, value)
-	// => console.log(`"${key}": "${value.replace(/"/g, '\\"')}"`)
+	saveMissing: true,
+	missingKeyHandler: logKeys,
 });
 i18n.addResourceBundle('en', 'Help', helpTexts);
 

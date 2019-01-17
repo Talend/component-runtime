@@ -254,7 +254,6 @@ export default class Node extends React.Component {
 					</select>
 					{this.isRef(this.state.type) && (
 						<select value={this.props.node.reference} onChange={this.onReferenceChange}>
-							<option value="">None</option>
 							{/* <option value="add-new">+ Add new</option> */}
 							{this.props.references[this.state.type].map(t => (
 								<option value={t.$id} key={t.$id}>

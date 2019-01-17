@@ -43,7 +43,9 @@ function DatasetList() {
 							))}
 						</ul>
 					</div>
-					<DatasetForm dataset={dataset.current} className={theme.column} />
+					<div className={theme.column}>
+						<DatasetForm dataset={dataset.current} className={theme.column} />
+					</div>
 				</div>
 			)}
 		</DatasetContext.Consumer>

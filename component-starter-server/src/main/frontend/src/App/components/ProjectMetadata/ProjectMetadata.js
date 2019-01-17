@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Icon } from '@talend/react-components/lib/Icon';
+import Icon from '@talend/react-components/lib/Icon';
 import { Action, Actions } from '@talend/react-components/lib/Actions';
 
 import Help from '../Help';
@@ -80,8 +80,8 @@ export default class ProjectMetadata extends React.Component {
 									<Help
 										title="Build Tool"
 										i18nKey="project_build_tool"
-										content={
-											<span>
+										content={(
+											<div>
 												<p>
 													Maven is the most commonly used build tool and Talend Component Kit
 													integrates with it smoothly.
@@ -95,8 +95,8 @@ export default class ProjectMetadata extends React.Component {
 													much features with Gradle than with Maven. The components validation is
 													not yet supported for instance.
 												</p>
-											</span>
-										}
+											</div>
+										)}
 									/>
 								</div>
 							</div>
