@@ -24,6 +24,7 @@
   .column {
     overflow-y: auto;
     flex: 1;
+    max-width: 800px;
     padding-right: $padding-large;
     padding-top: $padding-smaller;
     border-left: 1px solid $silver;

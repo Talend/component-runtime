@@ -61,7 +61,7 @@ export default class Mapper extends React.Component {
 		const tile = (
 			<div>
 				<h2>Configuration Model</h2>
-				<ComponentSchema component={this.props.component} />
+				<ComponentSchema schema={this.props.component.source.configurationStructure} withDataset />
 			</div>
 		);
 
@@ -132,7 +132,7 @@ export default class Mapper extends React.Component {
 					)}
 				</TileContext.Consumer>
 				<div className={theme['form-row']}>
-					<p className={theme.title}>
+					<h2>
 						Stream
 						<Help
 							title="Stream"
@@ -147,7 +147,7 @@ export default class Mapper extends React.Component {
 								</div>
 							}
 						/>
-					</p>
+					</h2>
 					<Toggle
 						id="mapper-toggle"
 						checked={this.props.component.source.stream}
@@ -155,7 +155,7 @@ export default class Mapper extends React.Component {
 					/>
 				</div>
 				<div className={theme['form-row']}>
-					<p className={theme.title}>
+					<h2>
 						Record Type
 						<Help
 							title="Record"
@@ -171,7 +171,7 @@ export default class Mapper extends React.Component {
 								</div>
 							}
 						/>
-					</p>
+					</h2>
 					<select
 						className={theme.recordSelector}
 						value={this.state.recordType}

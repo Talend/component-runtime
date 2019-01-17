@@ -16,14 +16,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router';
+import { Action } from '@talend/react-components';
 
 import ComponentEditForm from '../ComponentEditForm';
 import TileContext from '../../tile';
 import ComponentsContext from '../../ComponentsContext';
 
 import theme from './Component.scss';
-
-// const TYPE_INPUT = 'Input';
 
 function getComponent(service, index) {
 	return service.components[parseInt(index, 10)];
@@ -77,9 +76,14 @@ export default class Component extends React.Component {
 											return (
 												<div className={theme.column} key={index}>
 													{index > 0 && (
-														<button onClick={() => service.close(index)} title="close">
-															x
-														</button>
+														<Action
+															className="btn-icon-only"
+															bsStyle="link"
+															onClick={() => service.close(index)}
+															label="close"
+															hideLabel
+															icon="talend-cross"
+														/>
 													)}
 													{col}
 												</div>

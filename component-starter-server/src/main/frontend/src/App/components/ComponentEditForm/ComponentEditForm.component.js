@@ -53,9 +53,9 @@ function ComponentEditForm(props) {
 	return (
 		<div>
 			<div className={theme['form-row']}>
-				<p className={theme.title}>
+				<h1>
 					<em>{props.component.configuration.name || ''}</em> Configuration
-				</p>
+				</h1>
 				{props.withIO && (
 					<div>
 						<Actions actions={typeActions} />
@@ -83,7 +83,7 @@ function ComponentEditForm(props) {
 			</div>
 
 			<div className={theme['form-row']}>
-				<p className={theme.title}>Configuration</p>
+				<h2>Configuration</h2>
 				<form noValidate onSubmit={e => e.preventDefault()} className="form">
 					<div className="field form-group">
 						<label className="control-label" htmlFor="componentName">Name</label>

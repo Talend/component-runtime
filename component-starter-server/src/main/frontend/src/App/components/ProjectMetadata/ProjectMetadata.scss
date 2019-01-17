@@ -20,12 +20,6 @@ $grey: #ccc;
   width: 600px;
   margin: 0 $padding-normal;
 
-  .title {
-    font-weight: bolder;
-    font-size: 18px;
-    padding-top: 16px;
-  }
-
   .form-row {
     margin-top: 1rem;
     margin-bottom: 1rem;
@@ -36,9 +30,6 @@ $grey: #ccc;
     padding: $padding-small;
     min-height:100%;
     overflow-y: auto;
-  }
-
-  .facet {
   }
 
   button.selected {

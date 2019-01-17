@@ -19,10 +19,10 @@ import classnames from 'classnames';
 import { Icon } from '@talend/react-components';
 import Help from '../Help';
 import AppButton from '../AppButton';
-import Schema from '../Schema';
 import TileContext from '../../tile';
 import theme from './Processor.scss';
 import Connections from './Connections';
+import ComponentSchema from '../ComponentSchema';
 
 /* eslint-disable no-param-reassign */
 
@@ -56,10 +56,7 @@ export default class Processor extends React.Component {
 			inputs: this.props.component.processor.inputStructures,
 			outputs: this.props.component.processor.outputStructures,
 		};
-
-		['onConfigurationButtonClick'].forEach(i => {
-			this[i] = this[i].bind(this);
-		});
+		this.onConfigurationButtonClick = this.onConfigurationButtonClick.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -72,14 +69,16 @@ export default class Processor extends React.Component {
 	}
 
 	onConfigurationButtonClick(tileService) {
+		const props = {
+			schema: this.props.component.processor.configurationStructure,
+		};
+		if (this.props.component.processor.outputStructures.length === 0) {
+			props.withDataset = true;
+		}
 		const tile = (
 			<div>
 				<h2>Configuration Model</h2>
-				<Schema
-					schema={this.props.component.processor.configurationStructure}
-					readOnly
-					name="configuration"
-				/>
+				<ComponentSchema {...props} />
 			</div>
 		);
 
@@ -121,7 +120,7 @@ export default class Processor extends React.Component {
 				</TileContext.Consumer>
 
 				<div className={theme['form-row']}>
-					<p className={theme.title}>
+					<h2>
 						Input(s) / Ouput(s)
 						<Help
 							title="Connectivity"
@@ -139,7 +138,7 @@ export default class Processor extends React.Component {
 								</div>
 							}
 						/>
-					</p>
+					</h2>
 					<div className={classnames(theme.ComponentButtons, 'col-sm-12')}>
 						<div className="col-sm-6">
 							<AppButton

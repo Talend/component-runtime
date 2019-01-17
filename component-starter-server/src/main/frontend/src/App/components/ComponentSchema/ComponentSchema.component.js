@@ -11,7 +11,7 @@ function getReference(dataset) {
 	};
 }
 
-function onChangeValidate(schema) {
+function validateWithDataset(schema) {
 	const messages = [];
 	let hasOneDataset = false;
 	schema.entries.forEach(entry => {
@@ -32,7 +32,15 @@ function onChangeValidate(schema) {
 }
 
 
+function validateNoOp() {
+	return [];
+}
+
 function ComponentSchema(props) {
+	let onChangeValidate = validateNoOp;
+	if (props.withDataset) {
+		onChangeValidate = validateWithDataset;
+	}
 	return (
 		<DatasetContext.Consumer>
 			{dataset => {
@@ -44,7 +52,7 @@ function ComponentSchema(props) {
 				};
 				return (
 					<Schema
-						schema={props.component.source.configurationStructure}
+						schema={props.schema}
 						onChangeValidate={onChangeValidate}
 						readOnly
 						name="configuration"
@@ -60,7 +68,8 @@ function ComponentSchema(props) {
 
 ComponentSchema.displayName = 'ComponentSchema';
 ComponentSchema.propTypes = {
-	component: PropTypes.object,
+	schema: PropTypes.object,
+	withDataset: PropTypes.bool,
 };
 
 export default ComponentSchema;

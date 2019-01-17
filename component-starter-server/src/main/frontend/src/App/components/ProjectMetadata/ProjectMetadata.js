@@ -15,7 +15,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Actions, Icon } from '@talend/react-components';
+import { Icon } from '@talend/react-components/lib/Icon';
+import { Action, Actions } from '@talend/react-components/lib/Actions';
 
 import Help from '../Help';
 import FacetSelector from '../FacetSelector';
@@ -37,10 +38,10 @@ export default class ProjectMetadata extends React.Component {
 			project: props.project,
 			buildToolActions: [],
 			facets: {},
-			view: {
-				light: true,
-			},
+			showAll: false,
 		};
+		this.showAll = this.showAll.bind(this);
+		this.showLight = this.showLight.bind(this);
 	}
 
 	onCategoryUpdate(value) {
@@ -48,12 +49,12 @@ export default class ProjectMetadata extends React.Component {
 	}
 
 	showAll(event) {
-		this.setState(current => (current.view.light = false));
+		this.setState({ showAll: true });
 		event.preventDefault();
 	}
 
 	showLight(event) {
-		this.setState(current => (current.view.light = true));
+		this.setState({ showAll: false });
 		event.preventDefault();
 	}
 
@@ -256,103 +257,97 @@ export default class ProjectMetadata extends React.Component {
 									/>
 								</div>
 
-								{this.state.view.light && (
-									<a
-										href="#/see-more"
-										className="field"
-										onClick={e => {
-											e.preventDefault();
-											this.showAll(e);
-										}}
-									>
-										<Icon name="talend-plus-circle" />
-										<span>See more options</span>
-									</a>
+								{!this.state.showAll && (
+									<Action
+										bsStyle="link"
+										onClick={this.showAll}
+										label="see more options"
+										className="btn-xs"
+										icon="talend-plus-circle"
+									/>
 								)}
 
-								{!this.state.view.light && [
-									<div className="field">
-										<label htmlFor="projectVersion">Version</label>
-										<Help
-											title="Project Version"
-											i18nKey="project_version"
-											content={
-												<span>
-													<p>The version to use when deploying the artifact.</p>
-													<p>
-														Generally this generator is used for a first version so the default
-														should fit without modification.
-													</p>
-												</span>
-											}
+								{this.state.showAll && (
+									<React.Fragment>
+										<div className="field">
+											<label htmlFor="projectVersion">Version</label>
+											<Help
+												title="Project Version"
+												i18nKey="project_version"
+												content={
+													<span>
+														<p>The version to use when deploying the artifact.</p>
+														<p>
+															Generally this generator is used for a first version so the default
+															should fit without modification.
+														</p>
+													</span>
+												}
+											/>
+											<Input
+												className="form-control"
+												id="projectVersion"
+												type="text"
+												placeholder="Enter the project version..."
+												aggregate={this.state.project}
+												accessor="version"
+											/>
+										</div>
+										<div className="field">
+											<label htmlFor="projectName">Project Name</label>
+											<Help
+												title="Project Name"
+												i18nKey="project_name"
+												content={
+													<span>
+														<p>
+															Giving a human readable name to the project is more friendly in an IDE
+															or continuous integration platform.
+														</p>
+													</span>
+												}
+											/>
+											<Input
+												className="form-control"
+												id="projectName"
+												type="text"
+												placeholder="Enter the project name..."
+												aggregate={this.state.project}
+												accessor="name"
+											/>
+										</div>
+										<div className="field">
+											<label htmlFor="projectDescription">Project Description</label>
+											<Help
+												title="Project Description"
+												i18nKey="project_description"
+												content={
+													<span>
+														<p>
+															Giving a human readable description to the project allows to share
+															some goals of the project with other developers in a standard fashion.
+														</p>
+													</span>
+												}
+											/>
+											<Input
+												className="form-control"
+												id="projectDescription"
+												type="text"
+												placeholder="Enter the project description..."
+												aggregate={this.state.project}
+												accessor="description"
+											/>
+										</div>
+										<Action
+											icon="talend-zoomout"
+											label="See less options"
+											bsStyle="link"
+											className="btn-xs"
+											onClick={this.showLight}
 										/>
-										<Input
-											className="form-control"
-											id="projectVersion"
-											type="text"
-											placeholder="Enter the project version..."
-											aggregate={this.state.project}
-											accessor="version"
-										/>
-									</div>,
-									<div className="field">
-										<label htmlFor="projectName">Project Name</label>
-										<Help
-											title="Project Name"
-											i18nKey="project_name"
-											content={
-												<span>
-													<p>
-														Giving a human readable name to the project is more friendly in an IDE
-														or continuous integration platform.
-													</p>
-												</span>
-											}
-										/>
-										<Input
-											className="form-control"
-											id="projectName"
-											type="text"
-											placeholder="Enter the project name..."
-											aggregate={this.state.project}
-											accessor="name"
-										/>
-									</div>,
-									<div className="field">
-										<label htmlFor="projectDescription">Project Description</label>
-										<Help
-											title="Project Description"
-											i18nKey="project_description"
-											content={
-												<span>
-													<p>
-														Giving a human readable description to the project allows to share some
-														goals of the project with other developers in a standard fashion.
-													</p>
-												</span>
-											}
-										/>
-										<Input
-											className="form-control"
-											id="projectDescription"
-											type="text"
-											placeholder="Enter the project description..."
-											aggregate={this.state.project}
-											accessor="description"
-										/>
-									</div>,
-									<a
-										href="#/show-less"
-										className="field"
-										onClick={e => {
-											e.preventDefault();
-											this.showLight(e);
-										}}
-									>
-										<Icon name="talend-zoomout" />
-										<span>See less options</span>
-									</a>,
-								]}
+									</React.Fragment>
+								)}
 							</form>
 						</div>
 					</div>
