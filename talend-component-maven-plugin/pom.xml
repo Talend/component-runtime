@@ -92,10 +92,10 @@
       <version>2.3.28</version>
     </dependency>
 
-    <dependency><!-- todo: use jib-core when a new release will be available -->
+    <dependency>
       <groupId>com.google.cloud.tools</groupId>
-      <artifactId>jib-maven-plugin</artifactId>
-      <version>${jib.version}</version>
+      <artifactId>jib-core</artifactId>
+      <version>0.1.1</version>
     </dependency>
     <dependency><!-- upgrade for jib (to not get CVE) -->
       <groupId>org.apache.httpcomponents</groupId>
