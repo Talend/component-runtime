@@ -44,6 +44,10 @@ export default function Summary(props) {
 			<Info name="Build Tool" value={p.buildType} />
 			<Info name="Coordinates" value={`${p.group}:${p.artifact}:${p.version}`} />
 			<Info
+				name="Datasets"
+				value={`${p.datasets.length} datasets and ${p.datastores.length} datastores`}
+			/>
+			<Info
 				name="Components"
 				value={`${p.sources.length} inputs and ${p.processors.length} processors`}
 			/>
