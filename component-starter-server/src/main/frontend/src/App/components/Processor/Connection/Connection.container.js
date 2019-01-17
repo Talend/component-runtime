@@ -50,7 +50,7 @@ export default class Connection extends React.Component {
 		return (
 			<li className={theme.Connection}>
 				<div>
-					<a href="#/show-drawer" onClick={this.onClickShowModal}>
+					<a className="btn btn-link" href="#/show-drawer" onClick={this.onClickShowModal}>
 						{this.props.connection.name}&nbsp;
 						<span className={theme.recordType}>
 							({!this.props.connection.generic ? 'custom' : 'generic'})
@@ -61,6 +61,11 @@ export default class Connection extends React.Component {
 						show={this.state.show}
 						header={`${this.props.connection.name} Record Model (${this.props.type})`}
 						onHide={() => this.setState({ show: false })}
+						action={{
+							label: 'Save',
+							bsStyle: 'primary',
+							onClick: () => this.setState({ show: false }),
+						}}
 					>
 						<div className="field">
 							<label htmlFor="connection-name">Name</label>

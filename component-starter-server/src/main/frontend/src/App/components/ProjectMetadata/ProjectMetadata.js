@@ -64,7 +64,7 @@ export default class ProjectMetadata extends React.Component {
 					<div className={theme.ProjectMetadata}>
 						<div className={theme.main}>
 							<div className={theme['form-row']}>
-								<p className={theme.title}>Create a Talend Component Family Project</p>
+								<h1>Create a Talend Component Family Project</h1>
 								<div>
 									<Actions
 										actions={project.configuration.buildTypes.map(label => ({
@@ -110,7 +110,7 @@ export default class ProjectMetadata extends React.Component {
 							</div>
 
 							<div className={theme['form-row']}>
-								<p className={theme.title}>Component Metadata</p>
+								<h2>Component Metadata</h2>
 								<form noValidate onSubmit={e => e.preventDefault()}>
 									<div className="field">
 										<label htmlFor="projectFamily">Component Family</label>
@@ -166,7 +166,7 @@ export default class ProjectMetadata extends React.Component {
 								</form>
 							</div>
 
-							<p className={[theme.title, theme['form-row']].join(' ')}>Project Metadata</p>
+							<h2>Project Metadata</h2>
 							<form noValidate onSubmit={e => e.preventDefault()}>
 								<div className="field">
 									<label htmlFor="projectGroup">Group</label>
@@ -290,7 +290,7 @@ export default class ProjectMetadata extends React.Component {
 											className="form-control"
 											id="projectVersion"
 											type="text"
-											placeholder="Enter the project group..."
+											placeholder="Enter the project version..."
 											aggregate={this.state.project}
 											accessor="version"
 										/>

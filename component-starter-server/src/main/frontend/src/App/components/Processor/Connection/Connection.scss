@@ -1,7 +1,12 @@
 // Connection styles
 .Connection {
     position: relative;
-    height: 35px;
+	height: 35px;
+	:global(.btn-link) {
+		text-transform: none;
+		letter-spacing: normal;
+
+	}
 }
 
 :global(.processor-inputs) {
@@ -19,7 +24,7 @@
 			color: $brand-blue;
 			position: absolute;
 			right: -5px;
-			top: 0;
+			top: 3px;
 		}
 
 		&:only-of-type:before {

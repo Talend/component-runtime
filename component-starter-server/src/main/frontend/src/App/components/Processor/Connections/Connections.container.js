@@ -7,7 +7,6 @@ export default class Connections extends React.Component {
 	static propTypes = {
 		connections: PropTypes.array,
 		type: PropTypes.string,
-		onUpdateDrawers: PropTypes.func,
 	};
 
 	constructor(props) {
@@ -43,7 +42,6 @@ export default class Connections extends React.Component {
 						theme={theme}
 						readOnly={this.props.type === 'Input' && connection.name === 'MAIN'}
 						type={this.props.type}
-						onUpdateDrawers={this.props.onUpdateDrawers}
 						removeConnection={this.removeConnection}
 					/>
 				))}

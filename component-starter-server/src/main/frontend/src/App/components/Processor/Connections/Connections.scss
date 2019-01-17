@@ -8,6 +8,8 @@
 	list-style: none;
 }
 .ConnectionEnd {
+	position: relative;
+    height: 35px;
 	text-align: left;
 	width: 100%;
 
@@ -16,7 +18,7 @@
 		font-size: 20px;
 		color: $brand-blue;
 		position: absolute;
-		left: -5px;
-		top: 6px;
+		left: -8px;
+		top: 5px;
 	}
 }
