@@ -21,8 +21,7 @@ import Help from '../Help';
 import Input from '../Input';
 import Summary from '../Summary';
 import { GENERATOR_GITHUB_URL, GENERATOR_ZIP_URL } from '../../constants';
-import ComponentsContext from '../../ComponentsContext';
-import ProjectContext from '../../ProjectContext';
+import FinishContext from './FinishContext';
 
 import theme from './Finish.scss';
 
@@ -30,9 +29,12 @@ function isEmpty(str) {
 	return !str || str.trim().length === 0;
 }
 
-function createModel(project, components) {
+function createModel({ project, components, datastore, dataset }) {
 	// we copy the model to compute sources and processors attributes
-	const lightCopyModel = Object.assign({}, project.project);
+	const lightCopyModel = Object.assign({
+		datastores: datastore.datastores,
+		datasets: dataset.datasets,
+	}, project.project);
 	lightCopyModel.sources = components.components
 		.filter(c => c.type === 'Input')
 		.map(c => {
@@ -50,8 +52,8 @@ function createModel(project, components) {
 	return lightCopyModel;
 }
 
-function getDownloadValue(project, components) {
-	return btoa(JSON.stringify(createModel(project, components)));
+function getDownloadValue(services) {
+	return btoa(JSON.stringify(createModel(services)));
 }
 
 export default class Finish extends React.Component {
@@ -83,19 +85,21 @@ export default class Finish extends React.Component {
 		this.setState({ githubError: undefined, current: undefined });
 	}
 
-	onGithub() {
-		if (
-			isEmpty(this.state.github.username) ||
-			isEmpty(this.state.github.password) ||
-			(this.state.github.useOrganization && isEmpty(this.state.github.organization)) ||
-			isEmpty(this.state.github.repository)
-		) {
-			this.setState({
-				githubError: 'Please fill the form properly before launching the project creation.',
-			});
-		} else {
-			this.doGithub().then(this.notifyProgressDone, this.notifyProgressDone);
-		}
+	onGithub(model) {
+		return () => {
+			if (
+				isEmpty(this.state.github.username) ||
+				isEmpty(this.state.github.password) ||
+				(this.state.github.useOrganization && isEmpty(this.state.github.organization)) ||
+				isEmpty(this.state.github.repository)
+			) {
+				this.setState({
+					githubError: 'Please fill the form properly before launching the project creation.',
+				});
+			} else {
+				this.doGithub(model).then(this.notifyProgressDone, this.notifyProgressDone);
+			}
+		};
 	}
 
 	onHideResults() {
@@ -151,194 +155,196 @@ export default class Finish extends React.Component {
 	render() {
 		const fieldClasses = classnames('field', theme.field);
 		return (
-			<ProjectContext.Consumer>
-				{project => (
-					<ComponentsContext.Consumer>
-						{components => (
-							<div className={theme.Finish}>
-								<h2>Project Summary</h2>
-								<Summary project={createModel(project, components)} />
-								<div className={theme.bigButton}>
-									<form id="download-zip-form" noValidate action={GENERATOR_ZIP_URL} method="POST">
-										<input
-											type="hidden"
-											name="project"
-											value={getDownloadValue(project, components)}
-										/>
-										<Action
-											label="Download as ZIP"
-											bsStyle="info"
-											icon="fa-file-archive-o"
-											type="submit"
-											inProgress={this.state.progress === 'zip'}
-											disabled={!!this.state.progress && this.state.progress !== 'zip'}
-											className="btn btn-lg"
-										/>
-									</form>
-									<form noValidate onSubmit={e => e.preventDefault()}>
-										<Action
-											label="Create on Github"
-											bsStyle="primary"
-											onClick={this.onClickCreateGithub}
-											icon="fa-github"
-											inProgress={this.state.progress === 'github'}
-											disabled={!!this.state.progress && this.state.progress !== 'github'}
-											className="btn btn-lg"
-										/>
-									</form>
-								</div>
-								<Dialog
-									show={this.state.current}
-									header="Github Configuration"
-									size="small"
-									onHide={this.onHideGithub}
-									action={{ label: 'Create on Github', onClick: this.onGithub }}
-								>
-									<form noValidate onSubmit={e => e.preventDefault()} className={theme.modal}>
-										{!!this.state.githubError && (
-											<p className={theme.error}>{this.state.githubError}</p>
-										)}
-										<div className={fieldClasses}>
-											<label htmlFor="githubUser">User</label>
-											<Help
-												title="Github User"
-												i18nKey="finish_github_user"
-												content={
-													<span>
-														<p>The Github username to use to create the project.</p>
-													</span>
-												}
-											/>
-											<Input
-												className="form-control"
-												id="githubUser"
-												type="text"
-												placeholder="Enter your Github username..."
-												required
-												aggregate={this.state.github}
-												accessor="username"
-											/>
-										</div>
-										<div className={fieldClasses}>
-											<label htmlFor="githubPassword">Password</label>
-											<Help
-												title="Github Password"
-												i18nKey="finish_github_password"
-												content={
-													<span>
-														<p>The Github password to use to create the project.</p>
-													</span>
-												}
-											/>
-											<Input
-												className="form-control"
-												id="githubPassword"
-												type="password"
-												placeholder="Enter your Github password..."
-												required
-												aggregate={this.state.github}
-												accessor="password"
-											/>
-										</div>
-
-										{!!this.state.github.useOrganization && (
-											<div className={fieldClasses}>
-												<label htmlFor="githubOrganization">Organization</label>
-												<Help
-													title="Github Organization"
-													i18nKey="finish_github_organization"
-													content={
-														<span>
-															<p>The Github organization to use to create the project.</p>
-														</span>
-													}
-												/>
-												<Input
-													className="form-control"
-													id="githubOrganization"
-													type="text"
-													placeholder="Enter your Github organization..."
-													required
-													aggregate={this.state.github}
-													accessor="organization"
-												/>
-											</div>
-										)}
-										<div className={fieldClasses}>
-											<label htmlFor="githubRepository">Repository</label>
-											<Help
-												title="Github Repository"
-												i18nKey="finish_github_repository"
-												content={
-													<span>
-														<p>The Github repository to create for the project.</p>
-													</span>
-												}
-											/>
-											<Input
-												className="form-control"
-												id="githubRepository"
-												type="text"
-												placeholder="Enter the Github repository to create..."
-												required
-												aggregate={this.state.github}
-												accessor="repository"
-											/>
-										</div>
-
-										<div className={fieldClasses}>
-											<label htmlFor="githubUseOrganization">
-												Create the repository for an organization
-											</label>
-											<Help
-												title="Github Use Organization"
-												i18nKey="finish_github_useOrganization"
-												content={
-													<span>
-														<p>
-															If checked an organization project will be created instead of a user
-															project.
-														</p>
-													</span>
-												}
-											/>
-											<Toggle
-												id="githubUseOrganization"
-												checked={this.state.github.useOrganization}
-												onChange={this.onToggleOrganization}
-											/>
-										</div>
-										{this.state.error && (
-											<div className={theme.error}>
-												<p>{this.state.error.message || JSON.stringify(this.state.error)}</p>
-											</div>
-										)}
-										{this.state.statusOK && (
-											<div>
-												<p>
-													Project
-													<a
-														target="_blank"
-														rel="noopener noreferrer"
-														href={`https://github.com/${
-															this.state.github.useOrganization
-																? this.state.github.organization
-																: this.state.github.username
-														}/${this.state.github.repository}`}
-													>
-														{this.state.github.repository}
-													</a>
-													created with success!
-												</p>
-											</div>
-										)}
-									</form>
-								</Dialog>
+			<FinishContext.Provider>
+				<FinishContext.Consumer>
+					{services => (
+						<div className={theme.Finish}>
+							<h2>Project Summary</h2>
+							<Summary project={createModel(services)} />
+							<div className={theme.bigButton}>
+								<form id="download-zip-form" noValidate action={GENERATOR_ZIP_URL} method="POST">
+									<input
+										type="hidden"
+										name="project"
+										value={getDownloadValue(services)}
+									/>
+									<Action
+										label="Download as ZIP"
+										bsStyle="info"
+										icon="fa-file-archive-o"
+										type="submit"
+										inProgress={this.state.progress === 'zip'}
+										disabled={!!this.state.progress && this.state.progress !== 'zip'}
+										className="btn btn-lg"
+									/>
+								</form>
+								<form noValidate onSubmit={e => e.preventDefault()}>
+									<Action
+										label="Create on Github"
+										bsStyle="primary"
+										onClick={this.onClickCreateGithub}
+										icon="fa-github"
+										inProgress={this.state.progress === 'github'}
+										disabled={!!this.state.progress && this.state.progress !== 'github'}
+										className="btn btn-lg"
+									/>
+								</form>
 							</div>
-						)}
-					</ComponentsContext.Consumer>
-				)}
-			</ProjectContext.Consumer>
+							<Dialog
+								show={this.state.current}
+								header="Github Configuration"
+								size="small"
+								onHide={this.onHideGithub}
+								action={{
+									label: 'Create on Github',
+									onClick: this.onGithub(createModel(services)),
+									bsStyle: 'primary',
+								}}
+							>
+								<form noValidate onSubmit={e => e.preventDefault()} className={theme.modal}>
+									{!!this.state.githubError && (
+										<p className={theme.error}>{this.state.githubError}</p>
+									)}
+									<div className={fieldClasses}>
+										<label htmlFor="githubUser">User</label>
+										<Help
+											title="Github User"
+											i18nKey="finish_github_user"
+											content={
+												<span>
+													<p>The Github username to use to create the project.</p>
+												</span>
+											}
+										/>
+										<Input
+											className="form-control"
+											id="githubUser"
+											type="text"
+											placeholder="Enter your Github username..."
+											required
+											aggregate={this.state.github}
+											accessor="username"
+										/>
+									</div>
+									<div className={fieldClasses}>
+										<label htmlFor="githubPassword">Password</label>
+										<Help
+											title="Github Password"
+											i18nKey="finish_github_password"
+											content={
+												<span>
+													<p>The Github password to use to create the project.</p>
+												</span>
+											}
+										/>
+										<Input
+											className="form-control"
+											id="githubPassword"
+											type="password"
+											placeholder="Enter your Github password..."
+											required
+											aggregate={this.state.github}
+											accessor="password"
+										/>
+									</div>
+
+									{!!this.state.github.useOrganization && (
+										<div className={fieldClasses}>
+											<label htmlFor="githubOrganization">Organization</label>
+											<Help
+												title="Github Organization"
+												i18nKey="finish_github_organization"
+												content={
+													<span>
+														<p>The Github organization to use to create the project.</p>
+													</span>
+												}
+											/>
+											<Input
+												className="form-control"
+												id="githubOrganization"
+												type="text"
+												placeholder="Enter your Github organization..."
+												required
+												aggregate={this.state.github}
+												accessor="organization"
+											/>
+										</div>
+									)}
+									<div className={fieldClasses}>
+										<label htmlFor="githubRepository">Repository</label>
+										<Help
+											title="Github Repository"
+											i18nKey="finish_github_repository"
+											content={
+												<span>
+													<p>The Github repository to create for the project.</p>
+												</span>
+											}
+										/>
+										<Input
+											className="form-control"
+											id="githubRepository"
+											type="text"
+											placeholder="Enter the Github repository to create..."
+											required
+											aggregate={this.state.github}
+											accessor="repository"
+										/>
+									</div>
+
+									<div className={fieldClasses}>
+										<label htmlFor="githubUseOrganization">
+											Create the repository for an organization
+										</label>
+										<Help
+											title="Github Use Organization"
+											i18nKey="finish_github_useOrganization"
+											content={
+												<span>
+													<p>
+														If checked an organization project will be created instead of a user
+														project.
+													</p>
+												</span>
+											}
+										/>
+										<Toggle
+											id="githubUseOrganization"
+											checked={this.state.github.useOrganization}
+											onChange={this.onToggleOrganization}
+										/>
+									</div>
+									{this.state.error && (
+										<div className={theme.error}>
+											<p>{this.state.error.message || JSON.stringify(this.state.error)}</p>
+										</div>
+									)}
+									{this.state.statusOK && (
+										<div>
+											<p>
+												Project
+												<a
+													target="_blank"
+													rel="noopener noreferrer"
+													href={`https://github.com/${
+														this.state.github.useOrganization
+															? this.state.github.organization
+															: this.state.github.username
+													}/${this.state.github.repository}`}
+												>
+													{this.state.github.repository}
+												</a>
+												created with success!
+											</p>
+										</div>
+									)}
+								</form>
+							</Dialog>
+						</div>
+					)}
+				</FinishContext.Consumer>
+			</FinishContext.Provider>
 		);
 	}
 }
