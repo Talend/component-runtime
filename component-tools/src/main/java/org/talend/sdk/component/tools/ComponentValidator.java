@@ -821,7 +821,11 @@ public class ComponentValidator extends BaseTask {
     }
 
     private Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
-        return options.stream().flatMap(it -> Stream.concat(Stream.of(it), it.getNestedParameters().stream()));
+        return options
+                .stream()
+                .flatMap(it -> Stream
+                        .concat(Stream.of(it),
+                                it.getNestedParameters().isEmpty() ? empty() : flatten(it.getNestedParameters())));
     }
 
     private String validateFamilyI18nKey(final Class<?> clazz, final String... keys) {

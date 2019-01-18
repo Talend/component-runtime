@@ -385,6 +385,12 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.valid.nestedconfigtypes", success = true)
+    void testValidNestedConfigTypes() {
+        // no-op
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid.datasetassourceconfig", success = true)
     void testValidDataSetIsSourceConfig() {
         // no-op
