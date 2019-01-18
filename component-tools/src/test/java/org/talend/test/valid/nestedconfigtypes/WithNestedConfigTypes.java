@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.valid.nesteddataset;
+package org.talend.test.valid.nestedconfigtypes;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -35,8 +35,7 @@ import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 @Emitter(family = "test", name = "WithNestedConfigTypes")
 public class WithNestedConfigTypes implements Serializable {
 
-    public WithNestedConfigTypes(
-            @Option("configuration") final org.talend.test.failure.datasetrequiredinsource.MyComponent.Conf config) {
+    public WithNestedConfigTypes(@Option("configuration") final Conf config) {
         // no-op
     }
 
