@@ -1,13 +1,19 @@
 package {{package}};
 
 import java.io.Serializable;
-{{#datasetName}}
+{{#imports}}
 
-import {{datasetPackage}}.{{datasetName}};
-{{/datasetName}}
+import {{value}};
+{{/imports}}
 
 {{#structure.size}}
 import org.talend.sdk.component.api.configuration.Option;
+{{#dataset}}
+import org.talend.sdk.component.api.configuration.type.DataSet;
+{{/dataset}}
+{{#datastore}}
+import org.talend.sdk.component.api.configuration.type.DataStore;
+{{/datastore}}
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 {{#hasCredential}}
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
@@ -15,6 +21,12 @@ import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 {{/structure.size}}
 import org.talend.sdk.component.api.meta.Documentation;
 
+{{#dataset}}
+@DataSet("{{datasetName}}")
+{{/dataset}}
+{{#datastore}}
+@DataStore("{{datastoreName}}")
+{{/datastore}}
 @GridLayout({
     // the generated layout put one configuration entry per line,
     // customize it as much as needed

@@ -58,8 +58,8 @@ class ComponentGeneratorConfigurationTest {
                                         + "\n" + "public class Demo implements Serializable {\n}"),
                         // string field
                         new Scenario(
-                                new ProjectRequest.DataStructure(
-                                        new ArrayList<>(singleton(new ProjectRequest.Entry("name", "String", null)))),
+                                new ProjectRequest.DataStructure(new ArrayList<>(
+                                        singleton(new ProjectRequest.Entry("name", "String", null, null)))),
                                 "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
                                         + "import org.talend.sdk.component.api.configuration.Option;\n"
                                         + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n"
@@ -79,8 +79,8 @@ class ComponentGeneratorConfigurationTest {
                         // string field + int field
                         new Scenario(
                                 new ProjectRequest.DataStructure(
-                                        new ArrayList<>(asList(new ProjectRequest.Entry("name", "String", null),
-                                                new ProjectRequest.Entry("age", "int", null)))),
+                                        new ArrayList<>(asList(new ProjectRequest.Entry("name", "String", null, null),
+                                                new ProjectRequest.Entry("age", "int", null, null)))),
                                 "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
                                         + "import org.talend.sdk.component.api.configuration.Option;\n"
                                         + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n"

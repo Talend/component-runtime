@@ -184,7 +184,7 @@ public class ProjectGenerator {
 
         componentGenerator
                 .create(request.getPackageBase(), build, request.getFamily(), request.getCategory(),
-                        request.getSources(), request.getProcessors())
+                        request.getSources(), request.getProcessors(), request.getConfigurations())
                 .forEach(file -> files.put(file.getPath(), file.getContent()));
 
         // add wrapper build files
