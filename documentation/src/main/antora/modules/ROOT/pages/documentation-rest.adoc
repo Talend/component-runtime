@@ -559,6 +559,7 @@ services:
         -Dtalend.component.server.maven.repository=/opt/talend/connectors
     ports:
     - 1234:1234/tcp
+    - 5005:5005/tcp
     volumes:
     - connectors:/opt/talend/connectors:ro
 
@@ -575,3 +576,6 @@ volumes:
 ----
 
 To run one of the previous compose examples, you can use `docker-compose -f docker-compose.yml up`.
+
+IMPORTANT: the configuration related to port `5005` (in  `ports` and the `-agentlib` option in `_JAVA_OPTIONS`)
+are only useful if you want to debug the server on port `5005`, *don't* set it in *production*.
