@@ -481,23 +481,6 @@
         </dependencies>
       </plugin>
       <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
-        <version>${git-commit-id-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>get-the-git-infos</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <generateGitPropertiesFile>false</generateGitPropertiesFile>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>com.github.rmannibucau</groupId>
         <artifactId>common-maven-plugin</artifactId>
         <version>${common-plugin.version}</version>
@@ -574,7 +557,7 @@
               <arguments>run antora:build</arguments>
             </configuration>
           </execution>
-          <execution> <!-- mvn initialize git-commit-id:revision@get-the-git-infos gplus:execute@groovy-scripts frontend:yarn@yarn-dev -->
+          <execution> <!-- mvn initialize git-commit-id:revision@get-the-git-infos-in-m2-properties gplus:execute@groovy-scripts frontend:yarn@yarn-dev -->
             <id>yarn-dev</id>
             <phase />
             <goals>

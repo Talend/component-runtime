@@ -977,12 +977,32 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>${git-commit-id-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>get-the-git-infos-in-m2-properties</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <generateGitPropertiesFile>false</generateGitPropertiesFile>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.0.2</version>
         <configuration>
           <archive combine.children="append">
             <manifestEntries>
+              <Talend-Build-Timestamp>${maven.build.timestamp}</Talend-Build-Timestamp>
+              <Talend-Git-Sha>${git.commit.id}</Talend-Git-Sha>
+              <Talend-Git-Branch>${git.branch}</Talend-Git-Branch>
               <Automatic-Module-Name>${talend.build.name}</Automatic-Module-Name>
             </manifestEntries>
           </archive>

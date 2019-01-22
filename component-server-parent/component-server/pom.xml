@@ -161,7 +161,7 @@
         <version>${git-commit-id-plugin.version}</version>
         <executions>
           <execution>
-            <id>get-the-git-infos</id>
+            <id>generate-the-git-infos</id>
             <phase>generate-resources</phase>
             <goals>
               <goal>revision</goal>
