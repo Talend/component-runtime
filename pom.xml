@@ -121,6 +121,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
     <!-- when using -T X, X > 1 you can set -DsimpleLogger.showThreadName=true to have something a bit more readable -->
     <org.slf4j.simpleLogger.showThreadName>${simpleLogger.showThreadName}</org.slf4j.simpleLogger.showThreadName>
 
@@ -183,7 +184,7 @@
     <groovy.version>2.5.5</groovy.version>
     <gmavenplus.version>1.6.2</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
-    <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
+    <javadoc-plugin.version>3.0.1</javadoc-plugin.version>
     <clean-plugin.version>3.0.0</clean-plugin.version>
     <download-plugin.version>1.4.0</download-plugin.version>
     <shade-plugin.version>3.2.1</shade-plugin.version>
@@ -522,6 +523,7 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${javadoc-plugin.version}</version>
           <configuration>
+            <source>8</source>
             <jarOutputDirectory>${project.build.directory}/javadoc/binary</jarOutputDirectory>
             <outputDirectory>${project.build.directory}/javadoc/apidocs</outputDirectory>
             <splitindex>true</splitindex>
