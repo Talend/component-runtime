@@ -11,10 +11,10 @@ import getUUID from '../../uuid';
 
 /* eslint-disable no-param-reassign */
 
-function onChangeValidate(schema) {
+function onChangeValidate(structure) {
 	const messages = [];
 	let hasOneDatastore = false;
-	schema.entries.forEach(entry => {
+	structure.entries.forEach(entry => {
 		if (entry.type === 'datastore') {
 			if (!entry.reference) {
 				messages.push({
@@ -43,7 +43,7 @@ class DatasetForm extends React.Component {
 		const dataset = this.props.dataset || {
 			$id: getUUID(),
 			name: 'Dataset1',
-			schema: {
+			structure: {
 				entries: [],
 			},
 		};
@@ -66,7 +66,7 @@ class DatasetForm extends React.Component {
 					dataset: {
 						$id: getUUID(),
 						name: `Dataset${this.service.datasets.length + 1}`,
-						schema: {
+						structure: {
 							entries: [],
 						},
 					},
@@ -108,8 +108,8 @@ class DatasetForm extends React.Component {
 		});
 	}
 
-	onChangeValidate(schema) {
-		const messages = onChangeValidate(schema);
+	onChangeValidate(structure) {
+		const messages = onChangeValidate(structure);
 		this.setState({
 			edited: new Date(),
 			dirty: true,
@@ -138,7 +138,7 @@ class DatasetForm extends React.Component {
 							/>
 						</div>
 						<DatasetSchema
-							schema={this.state.dataset.schema}
+							schema={this.state.dataset.structure}
 							onChangeValidate={this.onChangeValidate}
 						/>
 						{this.state.error && (
