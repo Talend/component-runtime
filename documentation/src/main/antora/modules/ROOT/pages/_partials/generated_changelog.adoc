@@ -10,6 +10,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1267[TCOMP-1267^]: /documentation does not filter properly component
 
 
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1268[TCOMP-1268^]: Ensure /environment is not callable if not local or secured
+
+
 == Version 1.1.5
 
 === Bug
