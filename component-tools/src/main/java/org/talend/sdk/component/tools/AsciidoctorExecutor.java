@@ -44,7 +44,7 @@ import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.SafeMode;
 
 // indirection to not load asciidoctor if not in the classpath
-class AsciidoctorExecutor implements AutoCloseable {
+public class AsciidoctorExecutor implements AutoCloseable {
 
     private Asciidoctor asciidoctor;
 
