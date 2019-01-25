@@ -1,7 +1,7 @@
 ++++
 <jsonArray>[
   {
-    "commits":2042,
+    "commits":2049,
     "description":"Joined the Apache EE family (TomEE, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -92,7 +92,7 @@
   },
   {
     "commits":1,
-    "description":"Focused on Big Data technologies. Open Source fan, I contribute to Apache projects such as Apache Beam.\r\nI'm an Apache Beam committer",
+    "description":"Focused on Big Data technologies. Open Source fan, I contribute to Apache projects such as Apache Beam.\r\nI'm an Apache Beam committer and PMC member",
     "gravatar":"https://avatars3.githubusercontent.com/u/8821084?v=4",
     "id":"echauchot",
     "name":"Etienne Chauchot"

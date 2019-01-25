@@ -13,6 +13,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1268[TCOMP-1268^]: Ensure /environment is not callable if not local or secured
+- link:https://jira.talendforge.org/browse/TCOMP-1269[TCOMP-1269^]: Ensure ErrorReportValve does not leak Tomcat version OOTB
 
 
 == Version 1.1.5
