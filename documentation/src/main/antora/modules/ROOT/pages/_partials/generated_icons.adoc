@@ -217,6 +217,16 @@
   },
   {
     "legacy":false,
+    "name":"COMPONENT_NEGATIVE",
+    "path":"_images/icons/svg/component-negative.svg"
+  },
+  {
+    "legacy":false,
+    "name":"COMPONENT_POSITIVE",
+    "path":"_images/icons/svg/component-positive.svg"
+  },
+  {
+    "legacy":false,
     "name":"CONNECTIONS",
     "path":"_images/icons/svg/connections.svg"
   },
