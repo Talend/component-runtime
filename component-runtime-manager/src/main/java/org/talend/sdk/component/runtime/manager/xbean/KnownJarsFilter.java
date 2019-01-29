@@ -26,8 +26,6 @@ import lombok.Getter;
 
 public class KnownJarsFilter implements Predicate<String> {
 
-    public static final Predicate<String> INSTANCE = new KnownJarsFilter();
-
     @Getter
     private final Collection<String> excludes = new HashSet<String>() {
 
