@@ -116,7 +116,7 @@ Talend Component Kit runtime has two ways to find an artifact:
 - From the file system based on a configured Maven 2 repository.
 - From a fat JAR (uber JAR) with a nested Maven repository under `MAVEN-INF/repository`.
 
-The first option uses either `${user.home}/.m2/repository` default) or a specific path configured when creating a `ComponentManager`.
+The first option uses either `${user.home}/.m2/repository` (default) or a specific path configured when creating a `ComponentManager`.
 The nested repository option needs some configuration during the packaging to ensure the repository is correctly created.
 
 ==== Creating a nested Maven repository with maven-shade-plugin
@@ -254,7 +254,7 @@ Here is a final job/application bundle based on maven-shade-plugin:
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>nested-maven-repository-maven-plugin</artifactId>
+      <artifactId>nested-maven-repository</artifactId>
       <version>${the.version}</version>
     </dependency>
   </dependencies>
@@ -290,7 +290,7 @@ Talend Component Kit lets you handle that part but the recommended practice is t
 
 `ContainerDependenciesTransformer` specific configuration is the following one:
 
-- `pluginListResource`: base repository location (default to TALEND-INF/plugins.properties`).
+- `pluginListResource`: base repository location (default to `TALEND-INF/plugins.properties`).
 
 For example, if you want to list only the plugins you use, you can configure this transformer as follows:
 

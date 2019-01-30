@@ -577,5 +577,4 @@ volumes:
 
 To run one of the previous compose examples, you can use `docker-compose -f docker-compose.yml up`.
 
-IMPORTANT: the configuration related to port `5005` (in  `ports` and the `-agentlib` option in `_JAVA_OPTIONS`)
-are only useful if you want to debug the server on port `5005`, *don't* set it in *production*.
+IMPORTANT: Only use the configuration related to port `5005` (in `ports` and the `-agentlib` option in `_JAVA_OPTIONS`) to debug the server on port `5005`. *Don't* set it in *production*.
