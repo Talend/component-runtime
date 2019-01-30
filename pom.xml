@@ -134,6 +134,7 @@
 
     <xbean.version>4.12</xbean.version>
     <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
+    <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.1.0</ziplock.version>

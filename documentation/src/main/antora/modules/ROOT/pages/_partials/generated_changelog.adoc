@@ -14,6 +14,9 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1268[TCOMP-1268^]: Ensure /environment is not callable if not local or secured
 - link:https://jira.talendforge.org/browse/TCOMP-1269[TCOMP-1269^]: Ensure ErrorReportValve does not leak Tomcat version OOTB
+- link:https://jira.talendforge.org/browse/TCOMP-1271[TCOMP-1271^]: Upgrade to talend UI 2.3.0
+- link:https://jira.talendforge.org/browse/TCOMP-1272[TCOMP-1272^]: Move multiSelectTag to multiSelect for web environment
+- link:https://jira.talendforge.org/browse/TCOMP-1273[TCOMP-1273^]: [build/dev plugin] Automatically open the browser for talend-component:web task/goal
 
 
 == Version 1.1.5
