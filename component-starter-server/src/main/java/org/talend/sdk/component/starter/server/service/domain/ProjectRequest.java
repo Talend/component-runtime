@@ -38,9 +38,24 @@ public class ProjectRequest {
 
     private final Collection<ProcessorConfiguration> processors;
 
+    private final Collection<ReusableConfiguration> configurations;
+
     private final String family;
 
     private final String category;
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class ReusableConfiguration {
+
+        private final String id;
+
+        private final String name;
+
+        private final DataStructure structure;
+
+        private final String type; // datastore, dataset for now but could be extended in the future
+    }
 
     @Getter
     @RequiredArgsConstructor
@@ -71,6 +86,8 @@ public class ProjectRequest {
         private final String name;
 
         private final String type;
+
+        private final String reference;
 
         private final DataStructure nestedType;
     }

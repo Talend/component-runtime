@@ -97,4 +97,16 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.component.documentation.translations",
             defaultValue = "${home}/documentations")
     private String documentationI18nTranslations;
+
+    @Inject
+    @Documentation("Should the /api/v1/environment endpoint be activated. "
+            + "It shows some internal versions and git commit which are not always desirable over the wire.")
+    @ConfigProperty(name = "talend.component.server.environment.active", defaultValue = "true")
+    private Boolean supportsEnvironment;
+
+    @Inject
+    @Documentation("Accepted tokens in Authorization header for remote calls to secured endpoints "
+            + "(/api/v1/environment or /documentation).")
+    @ConfigProperty(name = "talend.component.server.filter.secured.tokens", defaultValue = "-")
+    private String securedEndpointsTokens;
 }

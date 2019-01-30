@@ -135,6 +135,20 @@ class UiSpecServiceTest {
     }
 
     @Test
+    void updatableWithCondition() throws Exception {
+        final ConfigTypeNode node = load("update-condition.json", ConfigTypeNode.class);
+        final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();
+        final Iterator<UiSchema> rootItems = payload.getUiSchema().iterator().next().getItems().iterator();
+        rootItems.next(); // datastore
+        final Iterator<UiSchema> updatableConfig = rootItems.next().getItems().iterator();
+        final UiSchema wrapper = updatableConfig.next();
+        assertNull(wrapper.getCondition());
+        final Iterator<UiSchema> wrapperIt = wrapper.getItems().iterator();
+        assertNotNull(wrapperIt.next().getCondition()); // input
+        assertNull(wrapperIt.next().getCondition()); // button
+    }
+
+    @Test
     void conditionAnd() throws Exception {
         final ComponentDetail node = load("condition-and.json", ComponentDetail.class);
         final Ui payload = service.convert(node, "en", null).toCompletableFuture().get();

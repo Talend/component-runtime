@@ -117,6 +117,8 @@ public class TaCoKitExtension {
 
     private Integer serverPort;
 
+    private boolean openInBrowser = true;
+
     //
     // car bundling
     //

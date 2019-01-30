@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.5-SNAPSHOT</version>
+    <version>1.1.6-SNAPSHOT</version>
   </parent>
 
   <artifactId>images</artifactId>
@@ -35,7 +35,7 @@
   <properties>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 
-    <talend.server.image.registry></talend.server.image.registry>
+    <talend.server.image.registry />
     <baseImage>openjdk:8-jre-alpine</baseImage>
     <boundPort>8080</boundPort>
     <baseImageDir>/opt/talend</baseImageDir>
@@ -52,23 +52,6 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
-        <version>${git-commit-id-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>get-the-git-infos</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <generateGitPropertiesFile>false</generateGitPropertiesFile>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>

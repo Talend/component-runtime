@@ -53,6 +53,9 @@ public class WebMojo extends AbstractMojo {
     @Parameter
     private UiConfiguration uiConfiguration;
 
+    @Parameter(defaultValue = "true", property = "talend.web.openBrowser")
+    private boolean openBrowser;
+
     @Override
     public void execute() {
         final String originalRepoSystProp = System.getProperty("talend.component.server.maven.repository");
@@ -65,9 +68,12 @@ public class WebMojo extends AbstractMojo {
             System.setProperty("talend.tools.web.ui.css", uiConfiguration.getCssLocation());
         }
         try {
-            new WebServer(serverArguments, port, getLog(),
-                    String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion()))
-                            .run();
+            final WebServer webServer = new WebServer(serverArguments, port, getLog(),
+                    String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion()));
+            if (openBrowser) {
+                webServer.openBrowserWhenReady();
+            }
+            webServer.run();
         } finally {
             if (originalRepoSystProp == null) {
                 System.clearProperty("talend.component.server.maven.repository");

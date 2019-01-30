@@ -43,6 +43,17 @@ class DocumentationResourceTest {
     private WebsocketClient ws;
 
     @Test
+    void selectById() {
+        final String foo = new DocumentationResource()
+                .selectById("Foo1",
+                        "== Foo0\n\n00000\n\n" + "=== Configuration\n\nWhatever0\n\n== Foo1\n\nThe description\n\n"
+                                + "=== Configuration\n\nWhatever1\n\n"
+                                + "== Foo2\n\n2222\n\n=== Configuration\n\nWhatever2",
+                        DocumentationResource.DocumentationSegment.DESCRIPTION);
+        assertEquals("The description", foo.trim());
+    }
+
+    @Test
     void wsDoc() {
         final DocumentationContent content =
                 ws.read(DocumentationContent.class, "GET", "/documentation/component/" + client.getJdbcId(), null);

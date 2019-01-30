@@ -251,7 +251,7 @@ public class DocumentationResource {
     }
 
     // see org.talend.sdk.component.tools.AsciidocDocumentationGenerator.toAsciidoc
-    private String selectById(final String name, final String value, final DocumentationSegment segment) {
+    String selectById(final String name, final String value, final DocumentationSegment segment) {
         final List<String> lines;
         try (final BufferedReader reader = new BufferedReader(new StringReader(value))) {
             lines = reader.lines().collect(toList());
@@ -281,7 +281,7 @@ public class DocumentationResource {
         int lineIdx = 0;
         for (final String line : endOfLines) {
             if (lineIdx > 0 && line.startsWith(prefixTitle)) {
-                endOfLines = lines.subList(0, lineIdx);
+                endOfLines = endOfLines.subList(0, lineIdx);
                 break;
             }
             lineIdx++;

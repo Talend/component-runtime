@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.5-SNAPSHOT</version>
+    <version>1.1.6-SNAPSHOT</version>
   </parent>
 
   <artifactId>talend-component-maven-plugin</artifactId>
@@ -91,10 +91,16 @@
       <artifactId>freemarker</artifactId>
       <version>2.3.28</version>
     </dependency>
-    <dependency><!-- todo: use jib-core when a new release will be available -->
+
+    <dependency>
       <groupId>com.google.cloud.tools</groupId>
-      <artifactId>jib-maven-plugin</artifactId>
-      <version>${jib.version}</version>
+      <artifactId>jib-core</artifactId>
+      <version>0.1.1</version>
+    </dependency>
+    <dependency><!-- upgrade for jib (to not get CVE) -->
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.6</version>
     </dependency>
 
     <dependency>
@@ -153,7 +159,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-invoker-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.0</version>
         <executions>
           <execution>
             <id>integration-test</id>

@@ -20,6 +20,7 @@ import static java.util.Collections.list;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
 import java.io.BufferedInputStream;
@@ -33,6 +34,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -44,7 +49,7 @@ import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.SafeMode;
 
 // indirection to not load asciidoctor if not in the classpath
-class AsciidoctorExecutor implements AutoCloseable {
+public class AsciidoctorExecutor implements AutoCloseable {
 
     private Asciidoctor asciidoctor;
 
@@ -52,6 +57,43 @@ class AsciidoctorExecutor implements AutoCloseable {
 
     private Runnable onClose = () -> {
     };
+
+    public static void main(final String[] args) throws IOException {
+        final Path adoc = Paths.get(args[0]).toAbsolutePath();
+        final File output =
+                adoc.getParent().resolve(args.length > 1 ? args[1] : args[0].replace(".adoc", ".pdf")).toFile();
+        final List<String> lines = Files.lines(adoc).collect(toList());
+        final String version = lines
+                .stream()
+                .filter(it -> it.startsWith("v"))
+                .findFirst()
+                .map(it -> it.substring(1))
+                .orElse(args.length > 2 ? args[2] : "");
+        new AsciidoctorExecutor()
+                .render(args.length > 3 ? new File(args[2]) : new File("target/pdf"), version, new Log() {
+
+                    @Override
+                    public void debug(final String s) {
+                        // no-op
+                    }
+
+                    @Override
+                    public void error(final String s) {
+                        System.err.println(s);
+                    }
+
+                    @Override
+                    public void info(final String s) {
+                        System.out.println(s);
+                    }
+                }, "pdf", adoc.toFile(), output,
+                        lines
+                                .stream()
+                                .filter(it -> it.startsWith("= "))
+                                .findFirst()
+                                .orElseGet(() -> args.length > 4 ? args[4] : "Document"),
+                        new HashMap<>(), null, null);
+    }
 
     public void render(final File workDir, final String version, final Log log, final String backend, final File source,
             final File output, final String title, final Map<String, String> attributes, final File templateDir,

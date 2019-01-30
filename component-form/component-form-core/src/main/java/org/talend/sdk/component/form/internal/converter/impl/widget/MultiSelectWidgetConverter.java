@@ -33,13 +33,13 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
+public class MultiSelectWidgetConverter extends AbstractWidgetConverter {
 
     private final Client client;
 
     private final String family;
 
-    public MultiSelectTagWidgetConverter(final Collection<UiSchema> schemas,
+    public MultiSelectWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Client client, final String family, final JsonSchema jsonSchema, final String lang) {
         super(schemas, properties, actions, jsonSchema, lang);
@@ -51,7 +51,7 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
     public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final UiSchema schema = newUiSchema(context);
-            schema.setWidget("multiSelectTag");
+            schema.setWidget("multiSelect");
             schema.setRestricted(false);
 
             final JsonSchema jsonSchema = findJsonSchema(context);

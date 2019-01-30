@@ -35,7 +35,7 @@ import org.talend.sdk.component.form.internal.converter.impl.widget.CredentialWi
 import org.talend.sdk.component.form.internal.converter.impl.widget.DataListWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.FieldSetWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.GridLayoutWidgetConverter;
-import org.talend.sdk.component.form.internal.converter.impl.widget.MultiSelectTagWidgetConverter;
+import org.talend.sdk.component.form.internal.converter.impl.widget.MultiSelectWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.NumberWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.ObjectArrayWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.SuggestionWidgetConverter;
@@ -116,7 +116,7 @@ public class UiSchemaConverter implements PropertyConverter {
                                             gridLayoutFilter, jsonSchema, lang, customConverters, metadata)
                                                     .convert(CompletableFuture.completedFuture(context));
                                 }
-                                return new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family,
+                                return new MultiSelectWidgetConverter(schemas, properties, actions, client, family,
                                         jsonSchema, lang).convert(CompletableFuture.completedFuture(context));
                             case "string":
                             default:

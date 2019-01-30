@@ -91,6 +91,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
     private String createM2(final String tempDir) {
         // reusing tempDir we don't need to delete it, done by meecrowave
+        // reusing tempDir we don't need to delete it, done by meecrowave
         final File m2 = new File(tempDir, ".m2/repository");
 
         final PluginGenerator generator = new PluginGenerator();
@@ -217,8 +218,9 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
                     out.putNextEntry(new JarEntry("TALEND-INF/documentation.adoc"));
                     out
-                            .write("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n\n== output\n\n=== Configuration\n\nSomething else"
-                                    .getBytes(StandardCharsets.UTF_8));
+                            .write(("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n\n"
+                                    + "== output\n\n=== Configuration\n\nSomething else")
+                                            .getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
                 } catch (final IOException e) {
                     fail(e.getMessage());

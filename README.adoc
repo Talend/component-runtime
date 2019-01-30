@@ -12,6 +12,8 @@ This brick provides all the integration around `component-api` to run components
 
 Maven 3.5 or later is required to build this project.
 
-Documentation is in documentation module.
+Documentation is in documentation module or available at https://talend.github.io/component-runtime/.
+
+Last release: image:https://img.shields.io/maven-central/v/org.talend.sdk.component/component-runtime.svg[]
 
 NOTE: the build relies on Node.JS and Yarn, the build uses `frontend-maven-plugin` to setup your environment.

@@ -50,11 +50,16 @@ public class NameConventions {
 
     public String toJavaConfigType(final String root, final String pack, final ProjectRequest.Entry entry,
             final BiConsumer<String, ProjectRequest.DataStructure> nestedGenerator) {
+        if (entry.getReference() != null && !entry.getReference().isEmpty()) {
+            nestedGenerator.accept(entry.getType(), entry.getNestedType());
+            return entry.getType().substring(entry.getType().lastIndexOf('.') + 1);
+        }
+
         final String type = entry.getType();
         if (type == null || type.isEmpty()) {
             if (entry.getNestedType() != null) {
                 final String name = (root == null ? "" : root) + capitalize(entry.getName()) + "Configuration";
-                nestedGenerator.accept(pack + '.' + name, entry.getNestedType());
+                nestedGenerator.accept(name.contains(".") ? name : (pack + '.' + name), entry.getNestedType());
                 return name;
             }
             return "String";
@@ -75,8 +80,9 @@ public class NameConventions {
             return "java.io.File";
         case "string":
         default:
-            if (type.endsWith("DataSet")) {
-                return type;
+            final String reference = entry.getReference();
+            if (reference != null && !reference.trim().isEmpty()) {
+                return reference.substring(reference.lastIndexOf('.') + 1);
             }
             return "String";
         }

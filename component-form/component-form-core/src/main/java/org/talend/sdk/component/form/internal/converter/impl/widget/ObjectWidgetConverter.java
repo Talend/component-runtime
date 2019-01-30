@@ -99,6 +99,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
         uiSchema.setTriggers(element.getTriggers());
         uiSchema.setTitleMap(element.getTitleMap());
         uiSchema.setDescription(element.getDescription());
+        uiSchema.setCondition(element.getCondition());
         return uiSchema;
     }
 
@@ -118,6 +119,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
         uiSchema.setTriggers(null);
         uiSchema.setTitleMap(null);
         uiSchema.setDescription(null);
+        uiSchema.setCondition(null);
     }
 
     protected Optional<UiSchema> findChild(final UiSchema uiSchema, final String name) {

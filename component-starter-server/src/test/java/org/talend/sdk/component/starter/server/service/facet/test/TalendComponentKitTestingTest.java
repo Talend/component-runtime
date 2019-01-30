@@ -173,12 +173,14 @@ class TalendComponentKitTestingTest {
     }
 
     private ProjectRequest.DataStructure complexConfig() {
-        return new ProjectRequest.DataStructure(new ArrayList<>(asList(new ProjectRequest.Entry("host", "string", null),
-                new ProjectRequest.Entry("port", "string", null),
-                new ProjectRequest.Entry("credential", "object",
-                        new ProjectRequest.DataStructure(
-                                new ArrayList<>(asList(new ProjectRequest.Entry("username", "string", null),
-                                        new ProjectRequest.Entry("password", "string", null))))))));
+        return new ProjectRequest.DataStructure(
+                new ArrayList<>(
+                        asList(new ProjectRequest.Entry("host", "string", null, null),
+                                new ProjectRequest.Entry("port", "string", null, null),
+                                new ProjectRequest.Entry("credential", "object", null,
+                                        new ProjectRequest.DataStructure(new ArrayList<>(asList(
+                                                new ProjectRequest.Entry("username", "string", null, null),
+                                                new ProjectRequest.Entry("password", "string", null, null))))))));
     }
 
 }

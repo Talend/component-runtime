@@ -120,15 +120,10 @@ public class BeamIOTransformer implements ClassFileTransformer {
                 new SerializableCoderReplacement(writer, plugin, tmpClass);
         final ComponentClassVisitor visitor = new ComponentClassVisitor(serializableCoderReplacement, plugin);
         reader.accept(visitor, ClassReader.SKIP_FRAMES);
-        return writer.toByteArray();
-    }
 
-    private boolean shouldForceContextualSerialization(final Class<?> tmpClass) {
-        try {
-            return doesHierarchyContain(tmpClass, typesToEnhance);
-        } catch (final NoClassDefFoundError e) {
-            return false;
-        }
+        unsupportedLog(className);
+
+        return writer.toByteArray();
     }
 
     private Class<?> loadTempClass(final ClassLoader tmpLoader, final String className) throws ClassNotFoundException {
@@ -148,6 +143,12 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
         // for now don't check interfaces since isBeamComponent only relies on classes
         return doesHierarchyContain(superclass, types);
+    }
+
+    private void unsupportedLog(final String className) {
+        log
+                .debug("Rewrote {} bytecode, note it is not an officially supported component type and feature, this support can be dropped anytime",
+                        className);
     }
 
     public static ClassLoader setPluginTccl(final String key) {

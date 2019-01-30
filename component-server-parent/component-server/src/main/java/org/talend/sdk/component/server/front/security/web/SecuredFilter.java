@@ -13,41 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.openapi;
+package org.talend.sdk.component.server.front.security.web;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Stream;
 
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
-@Dependent
-@WebFilter(urlPatterns = "/documentation/*")
-public class DocumentationToggle implements Filter {
+public abstract class SecuredFilter implements Filter {
 
     @Inject
     private ComponentServerConfiguration configuration;
 
+    private Set<String> tokens;
+
     @Override
-    public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
+    public void init(final FilterConfig filterConfig) {
+        tokens = Stream
+                .of(configuration.getSecuredEndpointsTokens().split(","))
+                .map(String::trim)
+                .filter(it -> !it.isEmpty() && !"-".equals(it))
+                .collect(toSet());
+    }
+
+    @Override
+    public final void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
             final FilterChain filterChain) throws IOException, ServletException {
-        if (configuration.getSupportsDocumentation() || isLocal(servletRequest)) {
+        if ((isLocal(servletRequest) || isSecured(servletRequest)) && canCall(servletRequest)) {
             filterChain.doFilter(servletRequest, servletResponse);
-        } else {
-            final HttpServletResponse response = HttpServletResponse.class.cast(servletResponse);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
+
+        final HttpServletResponse response = HttpServletResponse.class.cast(servletResponse);
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    protected boolean canCall(final ServletRequest servletRequest) {
+        return true;
+    }
+
+    private boolean isSecured(final ServletRequest servletRequest) {
+        final String authorization = HttpServletRequest.class.cast(servletRequest).getHeader("Authorization");
+        return authorization != null && tokens.contains(authorization);
     }
 
     private boolean isLocal(final ServletRequest servletRequest) {

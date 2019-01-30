@@ -45,13 +45,16 @@ public class WebTask extends TaCoKitTask {
         getLogger()
                 .info("This task will rely on a provisionned maven repository with your dependencies and " + gav + ","
                         + "you can publish your artifact with `./gradlew publishToMavenLocal`");
-        Runnable.class
+        final Runnable webServer = Runnable.class
                 .cast(Thread
                         .currentThread()
                         .getContextClassLoader()
                         .loadClass("org.talend.sdk.component.tools.WebServer")
                         .getConstructor(Collection.class, Integer.class, Object.class, String.class)
-                        .newInstance(extension.getServerArguments(), extension.getServerPort(), getLogger(), gav))
-                .run();
+                        .newInstance(extension.getServerArguments(), extension.getServerPort(), getLogger(), gav));
+        if (extension.isOpenInBrowser()) {
+            webServer.getClass().getMethod("openBrowserWhenReady").invoke(webServer);
+        }
+        webServer.run();
     }
 }

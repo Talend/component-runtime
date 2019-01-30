@@ -72,6 +72,8 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.eclipse.aether.artifact.Artifact;
 import org.talend.sdk.component.maven.api.Audience;
 
+import lombok.Data;
+
 @Audience(TALEND_INTERNAL)
 @Mojo(name = "image", defaultPhase = PACKAGE, threadSafe = true, requiresDependencyResolution = TEST)
 public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
@@ -155,9 +157,13 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
             }
 
             final String projectVersion = project.getVersion();
-            final String tag = projectVersion.endsWith("-SNAPSHOT") ? projectVersion.replace("-SNAPSHOT", "") + "_"
-                    + ofNullable(project.getProperties().getProperty("git.branch")).map(it -> it + "_").orElse("")
-                    + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) : projectVersion;
+            final String tag = projectVersion.endsWith("-SNAPSHOT")
+                    ? projectVersion.replace("-SNAPSHOT", "") + "_"
+                            + ofNullable(project.getProperties().getProperty("git.branch"))
+                                    .map(it -> it.replace('/', '_') + '_')
+                                    .orElse("")
+                            + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
+                    : projectVersion;
             final String image = toImage == null ? project.getArtifactId() : toImage;
             final String imageName =
                     ((repository == null || repository.trim().isEmpty()) ? "" : (repository + '/')) + image + ':' + tag;
@@ -281,7 +287,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                 getLog().info("Pushed image='" + imageName + "', tag='" + tag + "'");
                 break;
             } else {
-                getLog().warn("Push #" + (i + 1) + " got " + exit + " exist status");
+                getLog().warn("Push #" + (i + 1) + " got " + exit + " exit status");
             }
         }
         if (!ok) {
@@ -323,11 +329,12 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
     // 2. one layer with all our components
     // 3. one layer for the main dependencies
     // 4. one layer for the main
-    private void addLayers(final JibContainerBuilder builder) throws IOException {
-        final Set<Artifact> componentArtifacts = getComponents();
+    private void addLayers(final JibContainerBuilder builder) {
+        final Set<Artifact> components = getComponentArtifacts();
+        final Set<Artifact> cars = getComponentsCar(components);
 
         // 1
-        final List<String> coordinates = componentArtifacts.stream().sorted(comparing(Artifact::toString)).map(car -> {
+        final List<String> coordinates = cars.stream().map(car -> {
             final LayerConfiguration.Builder layerBuilder = LayerConfiguration.builder();
             layerBuilder.setName(car.getArtifactId() + " component stack");
             final AtomicLong size = new AtomicLong();
@@ -339,16 +346,22 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                         .addEntry(src.toPath().toAbsolutePath(),
                                 AbsoluteUnixPath.get(workingDirectory).resolve(depPath));
             });
-            builder.addLayer(layerBuilder.build());
-            getLog().info("Prepared layer for '" + car.getArtifactId() + "' dependencies (" + toSize(size.get()) + ")");
-            return gav;
-        }).filter(Objects::nonNull).distinct().sorted().collect(toList());
+            return gav == null ? null : new Layer(layerBuilder.build(), size.get(), gav);
+        })
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted(comparing(Layer::getSize).reversed())
+                .peek(it -> builder.addLayer(it.layerConfiguration))
+                .peek(it -> getLog().info("Prepared layer for '" + it.gav + "' dependencies (" + toSize(it.size) + ")"))
+                .map(it -> it.gav)
+                .collect(toList());
 
         // 2
-        final LayerConfiguration.Builder componentsLayerBuilder =
-                LayerConfiguration.builder().setName("Components " + coordinates.stream().sorted().collect(toList()));
+        final LayerConfiguration.Builder componentsLayerBuilder = LayerConfiguration
+                .builder()
+                .setName("Components " + components.stream().sorted(comparing(Artifact::toString)).collect(toList()));
         final AtomicLong componentSize = new AtomicLong();
-        componentArtifacts.forEach(it -> {
+        components.forEach(it -> {
             final Path from = it.getFile().toPath().toAbsolutePath();
             componentSize.addAndGet(it.getFile().length());
             componentsLayerBuilder
@@ -370,7 +383,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                         AbsoluteUnixPath.get(workingDirectory).resolve(registryLocation.getName()));
         builder.addLayer(componentsLayerBuilder.build());
         getLog()
-                .info("Prepared layer for components " + componentArtifacts.toString().replace(":car", "") + " ("
+                .info("Prepared layer for components " + cars.toString().replace(":car", "") + " ("
                         + toSize(componentSize.get()) + ")");
 
         // finally add the project binary
@@ -400,7 +413,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                                 .relativize(dep)
                                 .toString();
                         mainDepSize.addAndGet(it.getFile().length());
-                        final AbsoluteUnixPath target = mainLibs.resolve(relativized);
+                        final AbsoluteUnixPath target = mainLibs.resolve(relativized.replace(File.separatorChar, '/'));
                         dependenciesLayer.addEntry(dep, target);
                         return target.toString();
                     })
@@ -591,5 +604,15 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
 
             public abstract long convert(long sourceSize, SizeUnit sourceUnit);
         }
+    }
+
+    @Data
+    private static class Layer {
+
+        private final LayerConfiguration layerConfiguration;
+
+        private final long size;
+
+        private final String gav;
     }
 }

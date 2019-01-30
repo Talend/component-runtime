@@ -1,5 +1,21 @@
 
 
+== Version 1.1.6
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1263[TCOMP-1263^]: When using @Updateable(after=xxx) the visibility condition (@ActiveIf) of the after field shouldn't be inherited
+- link:https://jira.talendforge.org/browse/TCOMP-1264[TCOMP-1264^]: AvroSchema does not unwrap null(able types) to map to Schema model
+- link:https://jira.talendforge.org/browse/TCOMP-1265[TCOMP-1265^]: dataset / datastore cloud validation : allow nested configuration types
+- link:https://jira.talendforge.org/browse/TCOMP-1267[TCOMP-1267^]: /documentation does not filter properly component
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1268[TCOMP-1268^]: Ensure /environment is not callable if not local or secured
+- link:https://jira.talendforge.org/browse/TCOMP-1269[TCOMP-1269^]: Ensure ErrorReportValve does not leak Tomcat version OOTB
+
+
 == Version 1.1.5
 
 === Bug
@@ -18,6 +34,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1252[TCOMP-1252^]: Remove html support in documentation endpoint
 - link:https://jira.talendforge.org/browse/TCOMP-1253[TCOMP-1253^]: Refine OpenAPI documentation
 - link:https://jira.talendforge.org/browse/TCOMP-1256[TCOMP-1256^]: Add mapDescriptorToClassLoader to create a classloader from a list of gav
+- link:https://jira.talendforge.org/browse/TCOMP-1258[TCOMP-1258^]: Support to build a Record from a provided Schema
 - link:https://jira.talendforge.org/browse/TCOMP-1259[TCOMP-1259^]: Add getOptional to Record
 
 

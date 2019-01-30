@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.catalina.core.StandardServer;
@@ -40,6 +41,8 @@ public class WebServer implements Runnable {
 
     private final Log log;
 
+    private final Collection<Consumer<Meecrowave.Builder>> onOpen = new ArrayList<>();
+
     public WebServer(final Collection<String> serverArguments, final Integer port, final Object log, final String gav) {
         this.serverArguments = serverArguments;
         this.port = port;
@@ -49,6 +52,15 @@ public class WebServer implements Runnable {
             throw new IllegalArgumentException(e);
         }
         this.componentGav = gav;
+    }
+
+    public WebServer onOpen(final Consumer<Meecrowave.Builder> task) {
+        onOpen.add(task);
+        return this;
+    }
+
+    public WebServer openBrowserWhenReady() {
+        return onOpen(builder -> Browser.open("http://localhost:" + builder.getHttpPort(), log));
     }
 
     @Override
@@ -74,6 +86,7 @@ public class WebServer implements Runnable {
 
                     ref.set(meecrowave);
                     latch.countDown();
+                    onOpen.forEach(it -> it.accept(meecrowave.getConfiguration()));
                     meecrowave.getTomcat().getServer().await();
                 } catch (final RuntimeException re) {
                     latch.countDown();
@@ -130,6 +143,16 @@ public class WebServer implements Runnable {
         } else {
             args.add("--http");
             args.add(findPort());
+        }
+        if (!args.contains("--scanning-exclude")) { // nicer default logging
+            args.add("--scanning-exclude");
+            args
+                    .add("animal-sniffer-annotations,checker-qual,component-form,component-server-model,"
+                            + "error_prone_annotations,failureaccess,freemarker,j2objc-annotations,jib-core,"
+                            + "jsr305,listenablefuture,talend-component-maven-plugin,"
+                            + "avro,beam,paranamer,xz,component-api,component-spi,component-runtime-impl,"
+                            + "component-runtime-manager,component-runtime-design-extension,container-core,"
+                            + "component-runtime-beam");
         }
         if (!args.contains("--use-shutdown-hook")) {
             args.add("--use-shutdown-hook");

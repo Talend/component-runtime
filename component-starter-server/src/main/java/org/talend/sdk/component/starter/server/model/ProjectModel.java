@@ -17,6 +17,8 @@ package org.talend.sdk.component.starter.server.model;
 
 import java.util.Collection;
 
+import javax.json.bind.annotation.JsonbProperty;
+
 import lombok.Data;
 
 @Data
@@ -48,6 +50,21 @@ public class ProjectModel {
 
     private Collection<Processor> processors;
 
+    private Collection<ReusableStructure> datasets;
+
+    private Collection<ReusableStructure> datastores;
+
+    @Data
+    public static class ReusableStructure {
+
+        @JsonbProperty("$id")
+        private String id;
+
+        private String name;
+
+        private Model structure;
+    }
+
     @Data
     public static class Source {
 
@@ -76,6 +93,8 @@ public class ProjectModel {
         private String name;
 
         private String type;
+
+        private String reference;
 
         private Model model;
     }
