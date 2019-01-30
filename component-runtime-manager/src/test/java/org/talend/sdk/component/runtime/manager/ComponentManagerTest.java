@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
@@ -29,18 +30,22 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonObject;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -48,12 +53,13 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
+import org.apache.xbean.finder.util.Files;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.support.io.TempDirectory;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.container.Container;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
@@ -61,19 +67,22 @@ import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 
-@WithTemporaryFolder
+@ExtendWith(TempDirectory.class)
 class ComponentManagerTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
+    private ComponentManager newManager(final File m2) {
+        return new ComponentManager(m2, "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s");
+    }
+
     private ComponentManager newManager() {
-        return new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies",
-                "org.talend.test:type=plugin,value=%s");
+        return newManager(new File("target/test-dependencies"));
     }
 
     @Test
-    void configInstantiation(final TemporaryFolder temporaryFolder) {
-        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void configInstantiation(@TempDirectory.TempDir final File temporaryFolder) {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
         DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl("plugin"));
@@ -88,10 +97,7 @@ class ComponentManagerTest {
             assertEquals(System.getProperty("java.version", "notset-on-jvm"), next.get(String.class, "value"));
         } finally { // clean temp files
             DynamicContainerFinder.SERVICES.clear();
-            Stream.of(pluginFolder.listFiles()).forEach(File::delete);
-            if (ofNullable(pluginFolder.listFiles()).map(f -> f.length == 0).orElse(true)) {
-                pluginFolder.delete();
-            }
+            doCleanup(pluginFolder);
             if (jvd != null) {
                 System.setProperty("java.version.date", jvd);
             }
@@ -99,8 +105,8 @@ class ComponentManagerTest {
     }
 
     @Test
-    void run(final TemporaryFolder temporaryFolder) throws Exception {
-        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void run(@TempDirectory.TempDir final File temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
 
         // just some jars with classes we can scan
@@ -127,16 +133,143 @@ class ComponentManagerTest {
             final Date plugin1RecreatedDate = doCheckJmx(mBeanServer);
             assertTrue(plugin1CreatedDate.getTime() <= plugin1RecreatedDate.getTime());
         } finally { // clean temp files
-            DynamicContainerFinder.LOADERS.clear();
-
-            Stream.of(pluginFolder.listFiles()).forEach(File::delete);
-            if (ofNullable(pluginFolder.listFiles()).map(f -> f.length == 0).orElse(true)) {
-                pluginFolder.delete();
-            }
+            doCleanup(pluginFolder);
         }
 
         // unregistered
         assertFalse(mBeanServer.isRegistered(new ObjectName("org.talend.test:type=plugin,value=plugin1")));
+    }
+
+    @Test
+    void extendFamily(@TempDirectory.TempDir final File temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
+        pluginFolder.mkdirs();
+
+        // just some jars with classes we can scan
+        final File transitive = pluginGenerator
+                .createPluginAt(new File(new File("target/test-dependencies"),
+                        "org/talend/test/transitive/1.0.0/transitive-1.0.0.jar"), jar -> {
+                            try {
+                                jar.write(pluginGenerator.createProcessor(jar, "org/test2", "second"));
+                                jar.write(pluginGenerator.createModel(jar, "org/test2"));
+                            } catch (final IOException e) {
+                                fail(e.getMessage());
+                            }
+                        },
+                        // must be ignored, if needed it will be in main dependencies.txt
+                        "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+        final File plugin2 = pluginGenerator.createPlugin(pluginFolder, "main.jar", "org.talend.test:transitive:1.0.0");
+
+        try (final ComponentManager manager = newManager()) {
+            try {
+                manager.addPlugin(plugin2.getAbsolutePath());
+
+                final Container container = validateTransitiveComponent(manager);
+
+                final String[] dependencies = Stream
+                        .of(container.getLoader().getURLs())
+                        .map(Files::toFile)
+                        .map(File::getName)
+                        .sorted()
+                        .toArray(String[]::new);
+                assertEquals(2, dependencies.length); // ignored transitive deps, enables the new root to control it
+                assertEquals("main.jar", dependencies[0]);
+                assertEquals("transitive-1.0.0.jar", dependencies[1]);
+            } finally {
+                if (!transitive.delete()) {
+                    transitive.deleteOnExit();
+                }
+            }
+        } finally { // clean temp files
+            doCleanup(pluginFolder);
+        }
+    }
+
+    @Test
+    void extendFamilyInNestedRepo(@TempDirectory.TempDir final File temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
+        pluginFolder.mkdirs();
+
+        // just some jars with classes we can scan
+        final File transitive = pluginGenerator.createPluginAt(new File(pluginFolder, "transitive-1.0.0.jar"), jar -> {
+            try {
+                jar.write(pluginGenerator.createProcessor(jar, "org/test2", "second"));
+                jar.write(pluginGenerator.createModel(jar, "org/test2"));
+            } catch (final IOException e) {
+                fail(e.getMessage());
+            }
+        },
+                // must be ignored, if needed it will be in main dependencies.txt
+                "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+        final File plugin2 = pluginGenerator
+                .createPluginAt(new File(pluginFolder, "main.jar"),
+                        jar -> pluginGenerator.createComponent("comp", jar, "org/test"),
+                        "org.talend.test:transitive:1.0.0");
+
+        final File fatJar = new File(pluginFolder, "fatjar.jar");
+        try (final JarOutputStream jar = new JarOutputStream(new FileOutputStream(fatJar))) {
+            try {
+                jar
+                        .putNextEntry(new JarEntry(
+                                "MAVEN-INF/repository/org/talend/test/transitive/1.0.0/transitive-1.0.0.jar"));
+                java.nio.file.Files.copy(transitive.toPath(), jar);
+                jar.closeEntry();
+            } catch (final IOException ioe) {
+                fail(ioe.getMessage());
+            }
+        }
+        final Thread thread = Thread.currentThread();
+        final URLClassLoader parentLoader =
+                new URLClassLoader(new URL[] { fatJar.toURI().toURL() }, thread.getContextClassLoader());
+        thread.setContextClassLoader(parentLoader);
+        try (final ComponentManager manager = newManager(new File("target/missing_" + UUID.randomUUID().toString()))) {
+            try {
+                manager.addPlugin(plugin2.getAbsolutePath());
+
+                final Container container = validateTransitiveComponent(manager);
+
+                final String[] dependencies = Stream
+                        .of(container.getLoader().getURLs())
+                        .map(Files::toFile)
+                        .map(File::getName)
+                        .sorted()
+                        .toArray(String[]::new);
+                assertEquals(1, dependencies.length); // ignored transitive deps, enables the new root to control it
+                assertEquals("main.jar", dependencies[0]); // transitive-1.0.0.jar is nested
+            } finally {
+                if (!transitive.delete()) {
+                    transitive.deleteOnExit();
+                }
+            }
+        } finally { // clean temp files
+            thread.setContextClassLoader(parentLoader.getParent());
+            parentLoader.close();
+            doCleanup(pluginFolder);
+        }
+    }
+
+    private Container validateTransitiveComponent(ComponentManager manager) {
+        final Collection<Container> containers = manager.getContainer().findAll();
+        assertEquals(1, containers.size());
+
+        final Container container = containers.iterator().next();
+        final List<ComponentFamilyMeta.ProcessorMeta> processors = Stream
+                .of(container.get(ContainerComponentRegistry.class))
+                .map(ContainerComponentRegistry::getComponents)
+                .flatMap(comps -> comps.values().stream())
+                .flatMap(family -> family.getProcessors().values().stream())
+                .collect(toList());
+        assertEquals(asList("proc", "second"),
+                processors.stream().map(ComponentFamilyMeta.ProcessorMeta::getName).sorted().collect(toList()));
+        return container;
+    }
+
+    private void doCleanup(final File pluginFolder) {
+        DynamicContainerFinder.LOADERS.clear();
+        Stream.of(pluginFolder.listFiles()).forEach(File::delete);
+        if (ofNullable(pluginFolder.listFiles()).map(f -> f.length == 0).orElse(true)) {
+            pluginFolder.delete();
+        }
     }
 
     private Date doCheckJmx(final MBeanServer mBeanServer) throws Exception {

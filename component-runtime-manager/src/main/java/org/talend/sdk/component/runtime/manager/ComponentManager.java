@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.list;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -26,6 +27,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
+import static org.talend.sdk.component.classloader.ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
@@ -94,7 +96,10 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
+import org.apache.xbean.finder.archive.CompositeArchive;
+import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.FilteredArchive;
+import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
@@ -1433,6 +1438,93 @@ public class ComponentManager implements AutoCloseable {
 
         private Archive toArchive(final String module, final OriginalId originalId,
                 final ConfigurableClassLoader loader) {
+            final Collection<Archive> archives = new ArrayList<>();
+            final Archive mainArchive =
+                    toArchive(module, ofNullable(originalId).map(OriginalId::getValue).orElse(module), loader);
+            archives.add(mainArchive);
+            final URL mainUrl = archiveToUrl(mainArchive);
+            try {
+                final String dependenciesResource = MvnDependencyListLocalRepositoryResolver.class
+                        .cast(container.getResolver())
+                        .getDependenciesListFile();
+                archives.addAll(list(loader.getResources(dependenciesResource)).stream().map(url -> { // strip resource
+                    final String rawUrl = url.toExternalForm();
+                    try {
+                        if (rawUrl.startsWith("nested")) {
+                            return loader
+                                    .getParent()
+                                    .getResource(rawUrl.substring("nested:".length(), rawUrl.indexOf("!/")));
+                        }
+                        return new URL(rawUrl.substring(0, rawUrl.length() - dependenciesResource.length()));
+                    } catch (final MalformedURLException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                }).filter(Objects::nonNull).filter(url -> {
+                    if (Objects.equals(mainUrl, url)) {
+                        return false;
+                    }
+                    if (mainUrl == null) {
+                        return true;
+                    }
+
+                    // if not the same url, ensure it is not the same jar coming from file and nested repo
+                    // this is very unlikely but happens on dirty systems/setups
+                    final String mainPath = mainUrl.getPath();
+                    final String path = url.getPath();
+                    final String marker = "!/" + NESTED_MAVEN_REPOSITORY;
+                    if (path != null && path.contains(marker) && !mainPath.contains(marker)) {
+                        final String mvnPath = path.substring(path.lastIndexOf(marker) + marker.length());
+                        final File asFile = new File(container.getRootRepositoryLocation(), mvnPath);
+                        return !Objects.equals(Files.toFile(mainUrl), asFile);
+                    }
+                    return true;
+                }).map(nested -> {
+                    if ("nested".equals(nested.getProtocol())
+                            || (nested.getPath() != null && nested.getPath().contains("!/MAVEN-INF/repository/"))) {
+                        JarInputStream jarStream = null;
+                        try {
+                            jarStream = new JarInputStream(nested.openStream());
+                            log.debug("Found a nested resource for " + nested);
+                            return new NestedJarArchive(nested, jarStream, loader);
+                        } catch (final IOException e) {
+                            if (jarStream != null) {
+                                try { // normally not needed
+                                    jarStream.close();
+                                } catch (final IOException e1) {
+                                    // no-op
+                                }
+                            }
+                            throw new IllegalStateException(e);
+                        }
+                    }
+                    try {
+                        return ClasspathArchive.archive(loader, Files.toFile(nested).toURI().toURL());
+                    } catch (final MalformedURLException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }).collect(toList()));
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Error scanning " + module, e);
+            }
+            return new CompositeArchive(archives);
+        }
+
+        private URL archiveToUrl(final Archive mainArchive) {
+            if (JarArchive.class.isInstance(mainArchive)) {
+                return JarArchive.class.cast(mainArchive).getUrl();
+            } else if (FileArchive.class.isInstance(mainArchive)) {
+                try {
+                    return FileArchive.class.cast(mainArchive).getDir().toURI().toURL();
+                } catch (final MalformedURLException e) {
+                    throw new IllegalStateException(e);
+                }
+            } else if (NestedJarArchive.class.isInstance(mainArchive)) {
+                return NestedJarArchive.class.cast(mainArchive).getRootMarker();
+            }
+            return null;
+        }
+
+        private Archive toArchive(final String module, final String moduleId, final ConfigurableClassLoader loader) {
             final File file = of(new File(module)).filter(File::exists).orElseGet(() -> container.resolve(module));
             if (file.exists()) {
                 try {
@@ -1441,27 +1533,29 @@ public class ComponentManager implements AutoCloseable {
                     throw new IllegalArgumentException(e);
                 }
             }
-
-            info(module + " is not a file, will try to look it up from a nested maven repository");
-            final InputStream nestedJar =
-                    loader.getParent().getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
+            info(module + " (" + moduleId + ") is not a file, will try to look it up from a nested maven repository");
+            final URL nestedJar =
+                    loader.getParent().getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
             if (nestedJar != null) {
+                InputStream nestedStream = null;
                 final JarInputStream jarStream;
                 try {
-                    jarStream = new JarInputStream(nestedJar);
+                    nestedStream = nestedJar.openStream();
+                    jarStream = new JarInputStream(nestedStream);
                     log.debug("Found a nested resource for " + module);
-                    return new NestedJarArchive(jarStream, loader);
+                    return new NestedJarArchive(nestedJar, jarStream, loader);
                 } catch (final IOException e) {
-                    try {
-                        nestedJar.close();
-                    } catch (final IOException e1) {
-                        // no-op
+                    if (nestedStream != null) {
+                        try { // normally not needed
+                            nestedStream.close();
+                        } catch (final IOException e1) {
+                            // no-op
+                        }
                     }
                 }
             }
-
-            throw new IllegalArgumentException("Module error: check that the module exist and is a jar or a directory. "
-                    + ofNullable(originalId.getValue()).orElse(module));
+            throw new IllegalArgumentException(
+                    "Module error: check that the module exist and is a jar or a directory. " + moduleId);
         }
 
         @Override

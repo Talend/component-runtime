@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1271[TCOMP-1271^]: Upgrade to talend UI 2.3.0
 - link:https://jira.talendforge.org/browse/TCOMP-1272[TCOMP-1272^]: Move multiSelectTag to multiSelect for web environment
 - link:https://jira.talendforge.org/browse/TCOMP-1273[TCOMP-1273^]: [build/dev plugin] Automatically open the browser for talend-component:web task/goal
+- link:https://jira.talendforge.org/browse/TCOMP-1276[TCOMP-1276^]: Exclude xerces from component loadable resources for XMLReaderFactory
 
 
 == Version 1.1.5
