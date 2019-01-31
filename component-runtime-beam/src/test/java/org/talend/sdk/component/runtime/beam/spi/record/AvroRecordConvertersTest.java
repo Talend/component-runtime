@@ -46,19 +46,18 @@ class AvroRecordConvertersTest {
     @Test
     void convertListString() throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final Record record =
-                    new RecordConverters()
-                            .toRecord(
-                                    Json
-                                            .createObjectBuilder()
-                                            .add("list",
-                                                    Json
-                                                            .createArrayBuilder()
-                                                            .add(Json.createValue("a"))
-                                                            .add(Json.createValue("b"))
-                                                            .build())
-                                            .build(),
-                                    () -> jsonb, () -> new AvroRecordBuilderFactoryProvider().apply("test"));
+            final Record record = new RecordConverters()
+                    .toRecord(new RecordConverters.MappingMetaRegistry(),
+                            Json
+                                    .createObjectBuilder()
+                                    .add("list",
+                                            Json
+                                                    .createArrayBuilder()
+                                                    .add(Json.createValue("a"))
+                                                    .add(Json.createValue("b"))
+                                                    .build())
+                                    .build(),
+                            () -> jsonb, () -> new AvroRecordBuilderFactoryProvider().apply("test"));
             final Collection<String> list = record.getArray(String.class, "list");
             assertEquals(asList("a", "b"), list);
         }
@@ -70,14 +69,16 @@ class AvroRecordConvertersTest {
             final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
             final RecordConverters converters = new RecordConverters();
             final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
-            final Record record = converters
-                    .toRecord(builderFactory
-                            .createObjectBuilder()
-                            .add("value",
+            final Record record =
+                    converters
+                            .toRecord(new RecordConverters.MappingMetaRegistry(),
                                     builderFactory
                                             .createObjectBuilder()
-                                            .add("somekey", builderFactory.createArrayBuilder().build()))
-                            .build(), () -> jsonb, () -> factory);
+                                            .add("value", builderFactory
+                                                    .createObjectBuilder()
+                                                    .add("somekey", builderFactory.createArrayBuilder().build()))
+                                            .build(),
+                                    () -> jsonb, () -> factory);
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             SchemaRegistryCoder.of().encode(record, buffer);
             assertTrue(SchemaRegistryCoder
@@ -97,7 +98,7 @@ class AvroRecordConvertersTest {
             final RecordConverters converters = new RecordConverters();
             final JsonReaderFactory readerFactory = Json.createReaderFactory(emptyMap());
             final Record record = converters
-                    .toRecord(readerFactory
+                    .toRecord(new RecordConverters.MappingMetaRegistry(), readerFactory
                             .createReader(new StringReader(
                                     "{\"custom_attributes\":[" + "{\"attribute_code\":\"color\",\"value\":\"49\"},"
                                             + "{\"attribute_code\":\"category_ids\",\"value\":[]}]}"))

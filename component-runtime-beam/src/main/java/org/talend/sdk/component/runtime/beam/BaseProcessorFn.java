@@ -267,6 +267,8 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
         private final RecordConverters converters = new RecordConverters();
 
+        private final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+
         @Override
         public void emit(final Object value) {
             if (value == null) {
@@ -276,7 +278,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
         }
 
         private Record toRecord(final Object value) {
-            return Record.class.cast(converters.toRecord(value, () -> jsonb, () -> recordBuilderFactory));
+            return Record.class.cast(converters.toRecord(registry, value, () -> jsonb, () -> recordBuilderFactory));
         }
     }
 }

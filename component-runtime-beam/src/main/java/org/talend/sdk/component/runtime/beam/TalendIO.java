@@ -261,6 +261,8 @@ public final class TalendIO {
 
         private final RecordConverters converters;
 
+        private final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+
         private final RecordBuilderFactory recordBuilder;
 
         private final Jsonb jsonb;
@@ -272,7 +274,7 @@ public final class TalendIO {
         }
 
         private Object convert(final Object next) {
-            return converters.toRecord(next, () -> jsonb, () -> recordBuilder);
+            return converters.toRecord(registry, next, () -> jsonb, () -> recordBuilder);
         }
     }
 

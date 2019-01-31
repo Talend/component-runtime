@@ -24,12 +24,15 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.OutputFactory;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 public class OutputsHandler extends BaseIOHandler {
 
     private final JsonProvider jsonProvider;
 
     private final JsonBuilderFactory jsonBuilderFactory;
+
+    private final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
 
     public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
@@ -45,10 +48,14 @@ public class OutputsHandler extends BaseIOHandler {
                 if (value instanceof javax.json.JsonValue) {
                     jsonValueMapper = value.toString();
                 } else if (value instanceof Record) {
-                    jsonValueMapper = converters
-                            .toType(converters.toRecord(value, () -> jsonb, () -> recordBuilderMapper),
-                                    JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb)
-                            .toString();
+                    jsonValueMapper =
+                            converters
+                                    .toType(registry,
+                                            converters
+                                                    .toRecord(registry, value, () -> jsonb, () -> recordBuilderMapper),
+                                            JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                            () -> recordBuilderMapper)
+                                    .toString();
                 } else {
                     jsonValueMapper = jsonb.toJson(value);
                 }

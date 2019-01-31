@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -365,6 +366,7 @@ public class JobImpl implements Job {
                     })
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
+            final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
             try {
                 final Map<String, AtomicBoolean> sourcesWithData = levels
                         .values()
@@ -444,7 +446,7 @@ public class JobImpl implements Job {
                                     .findPlugin(processor.plugin())
                                     .get()
                                     .get(ComponentManager.AllServices.class)
-                                    .getServices());
+                                    .getServices(), registry);
                             processor.onElement(dataInputFactory, dataOutputFactory);
                             dataOutputFactory.getOutputs().forEach((branch, data) -> data.forEach(item -> {
                                 final String key = getKeyProvider(component.getId())
@@ -631,11 +633,13 @@ public class JobImpl implements Job {
 
         private final Map<Class<?>, Object> services;
 
+        private final RecordConverters.MappingMetaRegistry registry;
+
         private final Map<String, Collection<Record>> outputs = new HashMap<>();
 
         @Override
         public OutputEmitter create(final String name) {
-            return new OutputEmitterImpl(name);
+            return new OutputEmitterImpl(name, registry);
         }
 
         @AllArgsConstructor
@@ -643,12 +647,14 @@ public class JobImpl implements Job {
 
             private final String name;
 
+            private final RecordConverters.MappingMetaRegistry registry;
+
             @Override
             public void emit(final Object value) {
                 outputs
                         .computeIfAbsent(name, k -> new ArrayList<>())
                         .add(new RecordConverters()
-                                .toRecord(value, () -> Jsonb.class.cast(services.get(Jsonb.class)),
+                                .toRecord(registry, value, () -> Jsonb.class.cast(services.get(Jsonb.class)),
                                         () -> RecordBuilderFactory.class
                                                 .cast(services.get(RecordBuilderFactory.class))));
             }
@@ -662,6 +668,8 @@ public class JobImpl implements Job {
         private volatile Jsonb jsonb;
 
         private volatile RecordBuilderFactory factory;
+
+        private volatile RecordConverters.MappingMetaRegistry registry;
 
         private DataInputFactory withInput(final String branch, final Collection<Object> branchData) {
             inputs.put(branch, branchData.iterator());
@@ -682,13 +690,33 @@ public class JobImpl implements Job {
                 return next;
             }
 
-            final String str = jsonb.toJson(next);
+            final String str = jsonb().get().toJson(next);
             // primitives mainly, not that accurate in main code but for now not forbidden
             if (str.equals(next.toString())) {
                 return next;
             }
+            if (registry == null) {
+                synchronized (this) {
+                    if (registry == null) {
+                        registry = new RecordConverters.MappingMetaRegistry();
+                    }
+                }
+            }
             // pojo
-            return new RecordConverters().toRecord(next, () -> {
+            return new RecordConverters().toRecord(registry, next, jsonb(), () -> {
+                if (factory == null) {
+                    synchronized (this) {
+                        if (factory == null) {
+                            factory = new RecordBuilderFactoryImpl("test");
+                        }
+                    }
+                }
+                return factory;
+            });
+        }
+
+        private Supplier<Jsonb> jsonb() {
+            return () -> {
                 if (jsonb == null) {
                     synchronized (this) {
                         if (jsonb == null) {
@@ -700,16 +728,7 @@ public class JobImpl implements Job {
                     }
                 }
                 return jsonb;
-            }, () -> {
-                if (factory == null) {
-                    synchronized (this) {
-                        if (factory == null) {
-                            factory = new RecordBuilderFactoryImpl("test");
-                        }
-                    }
-                }
-                return factory;
-            });
+            };
         }
     }
 

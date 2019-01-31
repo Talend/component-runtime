@@ -39,6 +39,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.beam.TalendFn;
 import org.talend.sdk.component.runtime.beam.TalendIO;
+import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.beam.transform.ViewsMappingTransform;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordConverters;
@@ -72,9 +73,11 @@ public class Main {
 
         @ProcessElement
         public void processElement(final ProcessContext context) {
-            // not the best convertion impl but this is really to simplify the asserts, not for "prod"
-            final JsonObject asJson = JsonObject.class.cast(new RecordConverters().toType(context.element(), JsonObject.class,
-                    () -> Json.createBuilderFactory(emptyMap()), JsonProvider::provider, JsonbBuilder::create));
+            // not the best conversion impl but this is really to simplify the asserts, not for "prod"
+            final JsonObject asJson = JsonObject.class.cast(new RecordConverters().toType(
+                    new RecordConverters.MappingMetaRegistry(), context.element(), JsonObject.class,
+                    () -> Json.createBuilderFactory(emptyMap()), JsonProvider::provider, JsonbBuilder::create,
+                    () -> new AvroRecordBuilderFactoryProvider().apply("serialization-over-cluster")));
             context.output(asJson.values().iterator().next().asJsonArray().getJsonObject(0).toString());
         }
     }

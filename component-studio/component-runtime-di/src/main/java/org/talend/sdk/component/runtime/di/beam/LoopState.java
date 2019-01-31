@@ -58,6 +58,8 @@ public class LoopState implements AutoCloseable {
 
     private volatile RecordConverters recordConverters;
 
+    private volatile RecordConverters.MappingMetaRegistry registry;
+
     private volatile Jsonb jsonb;
 
     private volatile RecordBuilderFactory recordBuilderFactory;
@@ -138,10 +140,11 @@ public class LoopState implements AutoCloseable {
                             .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
                             .build();
                     recordConverters = new RecordConverters();
+                    registry = new RecordConverters.MappingMetaRegistry();
                     recordBuilderFactory = manager.getRecordBuilderFactoryProvider().apply(null);
                 }
             }
         }
-        return recordConverters.toRecord(value, () -> jsonb, () -> recordBuilderFactory);
+        return recordConverters.toRecord(registry, value, () -> jsonb, () -> recordBuilderFactory);
     }
 }
