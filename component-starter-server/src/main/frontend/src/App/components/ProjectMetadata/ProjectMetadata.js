@@ -197,7 +197,7 @@ export default class ProjectMetadata extends React.Component {
 									type="text"
 									placeholder="Enter the project group..."
 									required
-									aggregate={this.state.project}
+									aggregate={project.project}
 									accessor="group"
 								/>
 							</div>
@@ -229,7 +229,7 @@ export default class ProjectMetadata extends React.Component {
 									type="text"
 									placeholder="Enter the project artifact..."
 									required
-									aggregate={this.state.project}
+									aggregate={project.project}
 									accessor="artifact"
 								/>
 							</div>
@@ -251,7 +251,7 @@ export default class ProjectMetadata extends React.Component {
 									type="text"
 									placeholder="Enter the project base package..."
 									required
-									aggregate={this.state.project}
+									aggregate={project.project}
 									accessor="packageBase"
 								/>
 							</div>
@@ -288,7 +288,7 @@ export default class ProjectMetadata extends React.Component {
 											id="projectVersion"
 											type="text"
 											placeholder="Enter the project version..."
-											aggregate={this.state.project}
+											aggregate={project.project}
 											accessor="version"
 										/>
 									</div>
@@ -311,7 +311,7 @@ export default class ProjectMetadata extends React.Component {
 											id="projectName"
 											type="text"
 											placeholder="Enter the project name..."
-											aggregate={this.state.project}
+											aggregate={project.project}
 											accessor="name"
 										/>
 									</div>
@@ -334,7 +334,7 @@ export default class ProjectMetadata extends React.Component {
 											id="projectDescription"
 											type="text"
 											placeholder="Enter the project description..."
-											aggregate={this.state.project}
+											aggregate={project.project}
 											accessor="description"
 										/>
 									</div>

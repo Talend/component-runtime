@@ -68,34 +68,36 @@ export default class Connection extends React.Component {
 							onClick: () => this.setState({ show: false }),
 						}}
 					>
-						<div className="form-group">
-							<label htmlFor="connection-name">Name</label>
-							<Help
-								title="Branch Name"
-								i18nKey="processor_branch_name"
-								content={
-									<span>
-										<p>The name of the connection/branch.</p>
-										<p>
-											The main branch must be named <code>MAIN</code>.
-										</p>
-									</span>
-								}
-							/>
-							<Input
-								id="connection-name"
-								className="form-control"
-								type="text"
-								placeholder="Enter the connection name..."
-								aggregate={this.props.connection}
-								accessor="name"
+						<div>
+							<div className="form-group">
+								<label htmlFor="connection-name">Name</label>
+								<Help
+									title="Branch Name"
+									i18nKey="processor_branch_name"
+									content={
+										<span>
+											<p>The name of the connection/branch.</p>
+											<p>
+												The main branch must be named <code>MAIN</code>.
+											</p>
+										</span>
+									}
+								/>
+								<Input
+									id="connection-name"
+									className="form-control"
+									type="text"
+									placeholder="Enter the connection name..."
+									aggregate={this.props.connection}
+									accessor="name"
+								/>
+							</div>
+							<EmbeddableToggle
+								connection={this.props.connection}
+								theme={theme}
+								onChange={this.onToggleSwitchStructureType}
 							/>
 						</div>
-						<EmbeddableToggle
-							connection={this.props.connection}
-							theme={theme}
-							onChange={this.onToggleSwitchStructureType}
-						/>
 					</Dialog>
 
 					{!this.props.readOnly && (

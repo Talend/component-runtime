@@ -125,7 +125,6 @@ export default class Node extends React.Component {
 
 	onTypeChange(event) {
 		const type = event.target.value;
-		debugger;
 		switch (type) {
 			case 'object':
 				this.props.node.model = this.props.node.model || this.props.node._model || { entries: [] };
