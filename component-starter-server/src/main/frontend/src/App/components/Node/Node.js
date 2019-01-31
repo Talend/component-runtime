@@ -41,9 +41,11 @@ const HELP_CONTENT = (
 const NODE_TYPES = ['object', 'boolean', 'double', 'integer', 'uri', 'url', 'string'];
 
 function getReferenceName(id, values) {
-	const found = values.find(v => v.$id === id);
-	if (found) {
-		return found.name;
+	if (values) {
+		const found = values.find(v => v.$id === id);
+		if (found) {
+			return found.name;
+		}
 	}
 	return 'Not FOUND';
 }
@@ -134,6 +136,7 @@ export default class Node extends React.Component {
 				this.props.node.type = type;
 				this.props.node._model = this.props.node.model || this.props.node._model;
 				delete this.props.node.model;
+				delete this.props.node.reference;
 				if (this.isRef(type) && this.props.references[type].length > 0) {
 					this.props.node.reference = this.props.references[type][0].$id;
 				}
