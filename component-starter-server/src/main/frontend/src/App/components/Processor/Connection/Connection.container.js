@@ -68,7 +68,7 @@ export default class Connection extends React.Component {
 							onClick: () => this.setState({ show: false }),
 						}}
 					>
-						<div className="field">
+						<div className="form-group">
 							<label htmlFor="connection-name">Name</label>
 							<Help
 								title="Branch Name"

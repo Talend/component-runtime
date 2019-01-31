@@ -153,7 +153,7 @@ export default class Finish extends React.Component {
 	}
 
 	render() {
-		const fieldClasses = classnames('field', theme.field);
+		const fieldClasses = classnames('form-group', theme.field);
 		return (
 			<FinishContext.Provider>
 				<FinishContext.Consumer>

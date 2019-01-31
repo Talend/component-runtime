@@ -38,8 +38,10 @@ function validateNoOp() {
 
 function ComponentSchema(props) {
 	let onChangeValidate = validateNoOp;
+	const extraTypes = [];
 	if (props.withDataset) {
 		onChangeValidate = validateWithDataset;
+		extraTypes.push('dataset');
 	}
 	return (
 		<DatasetContext.Consumer>
@@ -58,7 +60,7 @@ function ComponentSchema(props) {
 						name="configuration"
 						references={references}
 						addRefNewLocation={addRefNewLocation}
-						extraTypes={['dataset']}
+						extraTypes={extraTypes}
 					/>
 				);
 			}}

@@ -152,9 +152,11 @@ export default class FacetSelector extends React.Component {
 
 	render() {
 		return (
-			<div className={theme.wrapper}>
+			<div className={`form-group ${theme.wrapper}`}>
 				<div>
+					<label htmlFor="facets">Facets</label>
 					<Typeahead
+						id="facets"
 						icon={{ name: 'talend-search', title: 'Toggle search input', bsStyle: 'link' }}
 						placeholder="Select a facet to add to your project"
 						// multiSection={false}

@@ -86,7 +86,7 @@ function ComponentEditForm(props) {
 			<div className={theme['form-row']}>
 				<h2>Configuration</h2>
 				<form noValidate onSubmit={e => e.preventDefault()} className="form">
-					<div className="field form-group">
+					<div className="form-group">
 						<label className="control-label" htmlFor="componentName">Name</label>
 						<Help
 							title="Component Name"

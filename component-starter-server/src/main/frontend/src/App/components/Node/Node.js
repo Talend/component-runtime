@@ -125,6 +125,7 @@ export default class Node extends React.Component {
 
 	onTypeChange(event) {
 		const type = event.target.value;
+		debugger;
 		switch (type) {
 			case 'object':
 				this.props.node.model = this.props.node.model || this.props.node._model || { entries: [] };
@@ -134,6 +135,10 @@ export default class Node extends React.Component {
 				this.props.node.type = type;
 				this.props.node._model = this.props.node.model || this.props.node._model;
 				delete this.props.node.model;
+				if (this.isRef(type) && this.props.references[type].length > 0) {
+					this.props.node.reference = this.props.references[type][0].$id;
+				}
+				break;
 		}
 		this.setState({
 			type,
@@ -219,9 +224,9 @@ export default class Node extends React.Component {
 		}
 	}
 
-	isRef() {
+	isRef(type) {
 		if (this.props.references) {
-			return !!this.props.references[this.state.type];
+			return !!this.props.references[type || this.state.type];
 		}
 		return false;
 	}
@@ -287,8 +292,10 @@ export default class Node extends React.Component {
 					) : (
 						<button onClick={() => this.onEdit()} className={theme.nodeName}>
 							{this.props.node.name || this.props.name} (
-							{this.props.node.reference
-								? `${getReferenceName(this.props.node.reference, this.props.references[this.state.type])}: ${this.props.node.type}`
+							{this.props.node.reference ? `${getReferenceName(
+								this.props.node.reference,
+								this.props.references[this.state.type],
+							)}: ${this.props.node.type}`
 								: `${this.props.node.type || 'object'}`}
 							)
 						</button>
@@ -358,7 +365,6 @@ export default class Node extends React.Component {
 		);
 	}
 }
-
 
 // const NodeWithRouter = withRouter(Node);
 // export default NodeWithRouter;
