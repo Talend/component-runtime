@@ -103,6 +103,7 @@ import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
+import org.apache.xbean.finder.filter.IncludeExcludeFilter;
 import org.apache.xbean.finder.util.Files;
 import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.apache.xbean.propertyeditor.BigDecimalEditor;
@@ -1180,7 +1181,11 @@ public class ComponentManager implements AutoCloseable {
                                 .map(s -> s.split(","))
                                 .map(Filters::patterns)
                                 .orElseGet(() -> name -> false);
-                        filter = new ExcludeIncludeFilter(accept, reject);
+                        if ("include-exclude".equals(config.getProperty("classloader.filter.strategy"))) {
+                            filter = new IncludeExcludeFilter(accept, reject);
+                        } else {
+                            filter = new ExcludeIncludeFilter(accept, reject);
+                        }
                     }
                 } catch (final IOException e) {
                     log.debug(e.getMessage(), e);
