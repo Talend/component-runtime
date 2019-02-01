@@ -195,7 +195,9 @@
           <cdiConversation>false</cdiConversation>
           <watcherBouncing>-1</watcherBouncing>
           <properties>
+            <!-- for dev with livereload
             <talend.component.starter.security.csp>default-src 'self' data: http://localhost:35729/livereload.js; frame-ancestors 'none'</talend.component.starter.security.csp>
+            -->
           </properties>
         </configuration>
         <dependencies>

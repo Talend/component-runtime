@@ -8,12 +8,12 @@
     "lint": "talend-scripts lint:es"
   },
   "dependencies": {
-    "@talend/bootstrap-theme": "${talend-ui-starter.version}",
-    "@talend/icons": "${talend-ui-starter.version}",
-    "@talend/react-components": "${talend-ui-starter.version}",
-    "@talend/scripts": "^0.5.2",
+    "@talend/bootstrap-theme": "${talend-ui.version}",
+    "@talend/icons": "${talend-ui.version}",
+    "@talend/react-components": "${talend-ui.version}",
+    "@talend/scripts": "^0.8.0",
     "i18next": "^9.0.0",
-    "keycode": "2.1.9",
+    "keycode": "2.2.0",
     "prop-types": "^15.6.2",
     "react": "^16.4.0",
     "react-addons-css-transition-group": "15.5.2",
@@ -23,7 +23,8 @@
     "react-i18next": "^7.6.1",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "uuid": "3.0.1"
+    "uuid": "^3.0.1",
+    "classnames": "2.2.6"
   },
   "devDependencies": {
     "atob": "^2.1.2",
