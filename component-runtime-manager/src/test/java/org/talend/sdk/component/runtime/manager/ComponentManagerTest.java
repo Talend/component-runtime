@@ -55,8 +55,7 @@ import javax.management.ReflectionException;
 
 import org.apache.xbean.finder.util.Files;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.support.io.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.container.Container;
@@ -67,7 +66,6 @@ import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 
-@ExtendWith(TempDirectory.class)
 class ComponentManagerTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
@@ -81,7 +79,7 @@ class ComponentManagerTest {
     }
 
     @Test
-    void configInstantiation(@TempDirectory.TempDir final File temporaryFolder) {
+    void configInstantiation(@TempDir final File temporaryFolder) {
         final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
@@ -105,7 +103,7 @@ class ComponentManagerTest {
     }
 
     @Test
-    void run(@TempDirectory.TempDir final File temporaryFolder) throws Exception {
+    void run(@TempDir final File temporaryFolder) throws Exception {
         final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
 
@@ -141,7 +139,7 @@ class ComponentManagerTest {
     }
 
     @Test
-    void extendFamily(@TempDirectory.TempDir final File temporaryFolder) throws Exception {
+    void extendFamily(@TempDir final File temporaryFolder) throws Exception {
         final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
 
@@ -186,7 +184,7 @@ class ComponentManagerTest {
     }
 
     @Test
-    void extendFamilyInNestedRepo(@TempDirectory.TempDir final File temporaryFolder) throws Exception {
+    void extendFamilyInNestedRepo(@TempDir final File temporaryFolder) throws Exception {
         final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
 

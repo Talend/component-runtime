@@ -42,17 +42,14 @@ import org.apache.xbean.asm7.Type;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.support.io.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 
-@ExtendWith(TempDirectory.class)
 class NestedJarArchiveTest {
 
     @Test
-    void xbeanNestedScanning(final TestInfo info, @TempDirectory.TempDir final File temporaryFolder)
-            throws IOException {
+    void xbeanNestedScanning(final TestInfo info, @TempDir final File temporaryFolder) throws IOException {
         final File jar = createPlugin(temporaryFolder, info.getTestMethod().get().getName());
         final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader("", new URL[0],
                 new URLClassLoader(new URL[] { jar.toURI().toURL() }, Thread.currentThread().getContextClassLoader()),
