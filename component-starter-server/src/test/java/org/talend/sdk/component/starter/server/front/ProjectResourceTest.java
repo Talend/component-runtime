@@ -177,8 +177,8 @@ class ProjectResourceTest {
 
         final String i18n = files.get("application/src/main/resources/com/application/Messages.properties");
         assertTrue(i18n
-                .contains("theFamily.dataset.DataSet1._displayName._displayName=DataSet1\n"
-                        + "theFamily.datastore.DataStore1._displayName._displayName=DataStore1"),
+                .contains("theFamily.dataset.DataSet1._displayName=DataSet1\n"
+                        + "theFamily.datastore.DataStore1._displayName=DataStore1"),
                 i18n);
     }
 

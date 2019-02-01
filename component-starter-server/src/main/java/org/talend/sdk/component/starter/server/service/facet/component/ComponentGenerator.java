@@ -139,7 +139,7 @@ public class ComponentGenerator {
                     files, lowerType);
             messageProperties
                     .computeIfAbsent(packageBase, k -> new TreeMap<>())
-                    .put(family + "." + lowerType + "." + name + "._displayName", name);
+                    .put(family + "." + lowerType + "." + name, name);
         });
 
         if (sources != null && !sources.isEmpty()) {
