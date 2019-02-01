@@ -69,14 +69,14 @@ class Provider extends React.Component {
 		datastore.add({
 			$id: datastoreId,
 			name: 'Datastore1',
-			schema: {
+			structure: {
 				entries: [],
 			},
 		});
 		dataset.add({
 			$id: getUUID(),
 			name: 'Dataset1',
-			schema: {
+			structure: {
 				entries: [{
 					name: 'datastore',
 					type: 'datastore',
