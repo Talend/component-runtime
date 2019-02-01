@@ -39,6 +39,8 @@ class Provider extends React.Component {
 				}
 				// eslint-disable-next-line no-param-reassign
 				prevState.datastores = prevState.datastores.concat(datastore);
+				// eslint-disable-next-line no-param-reassign
+				prevState.current = datastore;
 				return Object.assign({}, prevState);
 			});
 		};

@@ -36,7 +36,7 @@ class DatastoreForm extends React.Component {
 		this.state = this.props.datastore || {
 			$id: getUUID(),
 			name: 'Datastore1',
-			schema: {
+			structure: {
 				entries: [],
 			},
 		};
@@ -51,7 +51,7 @@ class DatastoreForm extends React.Component {
 				this.setState({
 					$id: getUUID(),
 					name: `Datastore${this.service.datastores.length + 1}`,
-					schema: {
+					structure: {
 						entries: [],
 					},
 				});
@@ -111,7 +111,7 @@ class DatastoreForm extends React.Component {
 						</div>
 						<div className="form-group">
 							<label htmlFor="datastore-model">Model</label>
-							<Node id="datastore-model" node={this.state.schema} readOnly name={this.props.name} />
+							<Node id="datastore-model" node={this.state.structure} readOnly name={this.props.name} />
 						</div>
 						{this.state.error && (
 							<div className="alert alert-danger">{this.state.error.message}</div>

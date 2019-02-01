@@ -170,6 +170,7 @@ export default class Finish extends React.Component {
 									/>
 									<Action
 										label="Download as ZIP"
+										id="download-zip-form"
 										bsStyle="info"
 										icon="fa-file-archive-o"
 										type="submit"

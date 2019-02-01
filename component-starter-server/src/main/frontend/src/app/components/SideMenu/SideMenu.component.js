@@ -113,7 +113,7 @@ function SideMenu(props) {
 						[theme.active]: props.location.pathname === '/export',
 					})}
 				>
-					<Link to="/export">Finish</Link>
+					<Link to="/export" id="go-to-finish-button">Finish</Link>
 				</li>
 			</ol>
 		</nav>
