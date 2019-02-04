@@ -408,7 +408,7 @@
           <scanningExcludes>
             apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket
           </scanningExcludes>
-          <webapp>${project.basedir}/src/dev/webapp</webapp>
+          <!--<webapp>${project.basedir}/src/dev/webapp</webapp>-->
           <properties>
             <!--
             <talend.component.server.documentation.active>true</talend.component.server.documentation.active>

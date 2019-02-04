@@ -140,10 +140,10 @@
     <ziplock.version>7.1.0</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.1.10</johnzon.version>
-    <meecrowave.version>1.2.5</meecrowave.version>
+    <meecrowave.version>1.2.6</meecrowave.version>
     <owb.version>2.0.10</owb.version>
     <tomcat.version>9.0.14</tomcat.version>
-    <cxf.version>3.2.7</cxf.version>
+    <cxf.version>3.3.0</cxf.version>
     <log4j2.version>2.11.1</log4j2.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
     <geronimo-atinject.version>1.1</geronimo-atinject.version>
@@ -344,6 +344,10 @@
         <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         <version>${cxf.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
