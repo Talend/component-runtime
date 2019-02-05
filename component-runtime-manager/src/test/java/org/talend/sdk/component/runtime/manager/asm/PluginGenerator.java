@@ -38,7 +38,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
+import java.util.jar.JarException;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -97,20 +99,31 @@ public class PluginGenerator {
         return target;
     }
 
+    public File createPlugin(final File pluginFolder, final String name, final String... deps) throws IOException {
+        return createPluginAt(new File(pluginFolder, name),
+                jar -> createComponent(name, jar, toPackage(name).replace(".", "/")), deps);
+    }
+
     // avoid to load any class and since we have a shade of asm in the classpath
     // just generate the jars directly
-    public File createPlugin(final File pluginFolder, final String name, final String... deps) throws IOException {
-        final File target = new File(pluginFolder, name);
+    public File createPluginAt(final File target, final Consumer<JarOutputStream> jarFiller, final String... deps)
+            throws IOException {
+        target.getParentFile().mkdirs();
         try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
             addDependencies(outputStream, deps);
-
-            // write the classes
-            final String packageName = toPackage(name).replace(".", "/");
-            outputStream.write(createProcessor(outputStream, packageName));
-            outputStream.write(createModel(outputStream, packageName));
-            outputStream.write(createService(outputStream, packageName, name));
+            jarFiller.accept(outputStream);
         }
         return target;
+    }
+
+    public void createComponent(final String name, final JarOutputStream outputStream, final String packageName) {
+        try {
+            outputStream.write(createProcessor(outputStream, packageName, "proc"));
+            outputStream.write(createModel(outputStream, packageName));
+            outputStream.write(createService(outputStream, packageName, name));
+        } catch (final IOException ioe) {
+            throw new IllegalStateException(ioe);
+        }
     }
 
     private byte[] createService(final JarOutputStream outputStream, final String packageName, final String name)
@@ -146,7 +159,7 @@ public class PluginGenerator {
         return writer.toByteArray();
     }
 
-    private byte[] createModel(final JarOutputStream outputStream, String packageName) throws IOException {
+    public byte[] createModel(final JarOutputStream outputStream, final String packageName) throws IOException {
         final String className = packageName + "/AModel.class";
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
@@ -163,13 +176,14 @@ public class PluginGenerator {
         return writer.toByteArray();
     }
 
-    private byte[] createProcessor(final JarOutputStream outputStream, final String packageName) throws IOException {
+    public byte[] createProcessor(final JarOutputStream outputStream, final String packageName, final String name)
+            throws IOException {
         final String className = packageName + "/AProcessor.class";
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
         final AnnotationVisitor processorAnnotation = writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
         processorAnnotation.visit("family", "comp");
-        processorAnnotation.visit("name", "proc");
+        processorAnnotation.visit("name", name);
         processorAnnotation.visitEnd();
         writer
                 .visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),

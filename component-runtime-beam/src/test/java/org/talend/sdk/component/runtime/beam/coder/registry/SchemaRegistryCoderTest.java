@@ -50,7 +50,8 @@ class SchemaRegistryCoderTest {
             final RecordConverters converters = new RecordConverters();
             final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
             final Record record1 = converters
-                    .toRecord(builderFactory.createObjectBuilder().add("value", "firstSchemaUsesAString").build(),
+                    .toRecord(new RecordConverters.MappingMetaRegistry(),
+                            builderFactory.createObjectBuilder().add("value", "firstSchemaUsesAString").build(),
                             () -> jsonb, () -> factory);
             // go through the encoder with a schema which will change
             final ByteArrayOutputStream buffer1 = new ByteArrayOutputStream();
@@ -60,15 +61,17 @@ class SchemaRegistryCoderTest {
             assertEquals("firstSchemaUsesAString", decoded1.getString("value"));
 
             final Record record2 = converters
-                    .toRecord(builderFactory
-                            .createObjectBuilder()
-                            .add("value",
-                                    Json
-                                            .createArrayBuilder()
-                                            .add(Json.createValue("a"))
-                                            .add(Json.createValue("b"))
-                                            .build())
-                            .build(), () -> jsonb, () -> factory);
+                    .toRecord(new RecordConverters.MappingMetaRegistry(),
+                            builderFactory
+                                    .createObjectBuilder()
+                                    .add("value",
+                                            Json
+                                                    .createArrayBuilder()
+                                                    .add(Json.createValue("a"))
+                                                    .add(Json.createValue("b"))
+                                                    .build())
+                                    .build(),
+                            () -> jsonb, () -> factory);
             final ByteArrayOutputStream buffer2 = new ByteArrayOutputStream();
             SchemaRegistryCoder.of().encode(record2, buffer2);
 

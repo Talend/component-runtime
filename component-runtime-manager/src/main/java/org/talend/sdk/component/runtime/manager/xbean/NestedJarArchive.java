@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.xbean;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
@@ -24,10 +25,14 @@ import java.util.zip.ZipEntry;
 import org.apache.xbean.finder.archive.Archive;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class NestedJarArchive implements Archive, AutoCloseable {
+
+    @Getter
+    private final URL rootMarker;
 
     private final JarInputStream jarStream;
 
@@ -35,7 +40,7 @@ public class NestedJarArchive implements Archive, AutoCloseable {
     private final ConfigurableClassLoader loader;
 
     @Override
-    public InputStream getBytecode(final String className) throws IOException, ClassNotFoundException {
+    public InputStream getBytecode(final String className) {
         return loader.getResourceAsStream(className);
     }
 

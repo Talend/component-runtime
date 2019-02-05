@@ -83,8 +83,9 @@ public final class RecordImpl implements Record {
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withFormatting(true).setProperty("johnzon.cdi.activated", false))) {
             return new RecordConverters()
-                    .toType(this, JsonObject.class, () -> Json.createBuilderFactory(emptyMap()), JsonProvider::provider,
-                            () -> jsonb)
+                    .toType(new RecordConverters.MappingMetaRegistry(), this, JsonObject.class,
+                            () -> Json.createBuilderFactory(emptyMap()), JsonProvider::provider, () -> jsonb,
+                            () -> new RecordBuilderFactoryImpl("tostring"))
                     .toString();
         } catch (final Exception e) {
             return super.toString();

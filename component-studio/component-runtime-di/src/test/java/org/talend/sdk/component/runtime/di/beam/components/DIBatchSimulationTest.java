@@ -247,6 +247,8 @@ class DIBatchSimulationTest {
                 RecordBuilderFactory.class.cast(servicesMapper.get(RecordBuilderFactory.class));
         final RecordConverters converters = new RecordConverters();
 
+        final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
             final String jsonValueMapper;
@@ -254,8 +256,12 @@ class DIBatchSimulationTest {
                 jsonValueMapper = javax.json.JsonValue.class.cast(dataMapper).toString();
             } else if (org.talend.sdk.component.api.record.Record.class.isInstance(dataMapper)) {
                 jsonValueMapper = converters
-                        .toType(converters.toRecord(dataMapper, () -> jsonbMapper, () -> recordBuilderMapper),
-                                JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonbMapper)
+                        .toType(registry,
+                                converters
+                                        .toRecord(new RecordConverters.MappingMetaRegistry(), dataMapper,
+                                                () -> jsonbMapper, () -> recordBuilderMapper),
+                                JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonbMapper,
+                                () -> recordBuilderMapper)
                         .toString();
             } else {
                 jsonValueMapper = jsonbMapper.toJson(dataMapper);

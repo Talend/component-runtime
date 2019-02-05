@@ -1,0 +1,52 @@
+/**
+ *  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ :global{
+     form {
+        .form-group {
+            padding-top: 5px;
+            margin-bottom: 10px;
+        }
+        .form-control {
+            // reset to get sth more bootstrapish
+            border: 1px solid #ccc!important;
+            box-shadow: none!important;
+            // padding: 10px 15px !important;
+            padding-left: 15px !important;
+
+            font-size: 14px!important;
+            &:focus{
+                box-shadow: none!important;
+            }
+            margin-bottom: 15px;
+            border-radius: 5px!important;
+        }
+        label,
+        label.control-label {
+            color: $black!important;
+            font-size: 14px!important;
+            font-weight: 700!important;
+            margin-bottom: 5px!important;
+        }
+        .tc-typeahead-container {
+            input {
+                margin-bottom: 0;
+            }
+            > .tc-typeahead-typeahead-input-icon > div { //icon
+                margin: 0 0 0 -23px;
+            }
+        }
+    }
+}

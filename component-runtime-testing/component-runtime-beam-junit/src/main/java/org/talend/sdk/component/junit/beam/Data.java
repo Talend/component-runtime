@@ -58,6 +58,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public class Data {
 
+    public static final RecordConverters.MappingMetaRegistry REGISTRY = new RecordConverters.MappingMetaRegistry();
+
     public static <T> PTransform<PCollection<Record>, PCollection<Map<String, T>>> map(final String plugin,
             final Class<T> expectedRecordType) {
         return new DataMapper<>(plugin, expectedRecordType);
@@ -107,7 +109,9 @@ public class Data {
                                         .getValue()
                                         .stream()
                                         .map(it -> Record.class
-                                                .cast(converters.toRecord(it, () -> jsonb, () -> recordBuilderFactory)))
+                                                .cast(converters
+                                                        .toRecord(REGISTRY, it, () -> jsonb,
+                                                                () -> recordBuilderFactory)))
                                         .collect(toList());
                                 aggregator
                                         .withArray(recordBuilderFactory
@@ -142,7 +146,7 @@ public class Data {
             return collection
                     .apply(ParDo
                             .of(new DataMapperFn<>(JsonpJsonObjectCoder.of(plugin), JsonbCoder.of(type, plugin), plugin,
-                                    new RecordConverters())));
+                                    new RecordConverters(), new RecordConverters.MappingMetaRegistry())));
         }
     }
 
@@ -158,23 +162,28 @@ public class Data {
 
         private RecordConverters converters;
 
+        private volatile RecordConverters.MappingMetaRegistry registry;
+
         @ProcessElement
         public void onElement(final ProcessContext context) {
             context.output(map(context.element()));
         }
 
         private Map<String, T> map(final Record object) {
+            if (registry == null) {
+                registry = new RecordConverters.MappingMetaRegistry();
+            }
             return object.getSchema().getEntries().stream().collect(toMap(Schema.Entry::getName, e -> {
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     final Record record = object.getArray(Record.class, e.getName()).iterator().next();
                     final JsonObject jsonObject = JsonObject.class
                             .cast(converters
-                                    .toType(record, JsonObject.class, this::getJsonBuilder, this::getJsonProvider,
-                                            this::getJsonb));
+                                    .toType(registry, record, JsonObject.class, this::getJsonBuilder,
+                                            this::getJsonProvider, this::getJsonb, this::getRecordBuilderFactory));
                     if (Record.class == jsonbCoder.getType()) {
                         return (T) new RecordConverters()
-                                .toRecord(jsonObject, this::getJsonb, this::getRecordBuilderFactory);
+                                .toRecord(REGISTRY, jsonObject, this::getJsonb, this::getRecordBuilderFactory);
                     }
                     jsonpCoder.encode(jsonObject, baos);
                     return jsonbCoder.decode(new ByteArrayInputStream(baos.toByteArray()));

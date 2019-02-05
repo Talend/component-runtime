@@ -177,9 +177,20 @@ class ProjectResourceTest {
 
         final String i18n = files.get("application/src/main/resources/com/application/Messages.properties");
         assertTrue(i18n
-                .contains("theFamily.dataset.DataSet1._displayName._displayName=DataSet1\n"
-                        + "theFamily.datastore.DataStore1._displayName._displayName=DataStore1"),
+                .contains("theFamily.dataset.DataSet1._displayName=DataSet1\n"
+                        + "theFamily.datastore.DataStore1._displayName=DataStore1"),
                 i18n);
+
+        final String datasetI18n =
+                files.get("application/src/main/resources/com/application/dataset/Messages.properties");
+        assertTrue(
+                datasetI18n
+                        .contains("DataSet1.testDsoRef._displayName=testDsoRef\nDataSet1.testDst._displayName=testDst"),
+                datasetI18n);
+
+        final String datastoreI18n =
+                files.get("application/src/main/resources/com/application/datastore/Messages.properties");
+        assertTrue(datastoreI18n.contains("DataStore1.testDso._displayName=testDso"), datastoreI18n);
     }
 
     @Test

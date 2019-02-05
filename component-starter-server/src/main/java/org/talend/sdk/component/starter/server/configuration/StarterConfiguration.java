@@ -61,7 +61,7 @@ public class StarterConfiguration {
 
     @Inject
     @ConfigProperty(name = "talend.component.starter.security.csp",
-            defaultValue = "default-src 'self' data: ; frame-ancestors 'none'")
+            defaultValue = "default-src 'self' data: ; frame-ancestors 'none' ; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'")
     private String csp;
 
     @Inject

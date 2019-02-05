@@ -156,6 +156,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 ZipEntry entry;
                 while ((entry = jarInputStream.getNextEntry()) != null) {
                     if (!entry.isDirectory()) {
+                        if (isBlacklisted(entry.getName())) {
+                            logUnexpectedDependency(url, entry.getName());
+                            continue;
+                        }
                         out.reset();
 
                         int read;
@@ -171,6 +175,14 @@ public class ConfigurableClassLoader extends URLClassLoader {
             }
             resources.forEach((k, v) -> this.resources.computeIfAbsent(k, i -> new ArrayList<>()).add(v));
         });
+    }
+
+    private void logUnexpectedDependency(final URL url, final String entry) {
+        log.error("{} shouldn't be provided outside the JVM itself, origin={}", entry, url);
+    }
+
+    private boolean isBlacklisted(final String name) {
+        return "META-INF/services/org.xml.sax.driver".equals(name);
     }
 
     public String[] getJvmMarkers() {
@@ -322,6 +334,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private InputStream doGetResourceAsStream(final String name) {
         final URL resource = super.findResource(name);
+        if (isBlacklisted(name)) {
+            logUnexpectedDependency(resource, name);
+            return null;
+        }
         try {
             if (resource == null) {
                 final URL url = getParent().getResource(name);

@@ -40,6 +40,8 @@ public class JoinInputFactory implements ControllableInputFactory {
 
     private volatile Jsonb jsonb;
 
+    private volatile RecordConverters.MappingMetaRegistry registry;
+
     public JoinInputFactory withInput(final String branch, final Collection<?> branchData) {
         data.put(branch, branchData.iterator());
         return this;
@@ -92,12 +94,13 @@ public class JoinInputFactory implements ControllableInputFactory {
                             .create(new JsonbConfig()
                                     .withAdapters(new MultipleFormatDateAdapter())
                                     .setProperty("johnzon.cdi.activated", false));
+                    registry = new RecordConverters.MappingMetaRegistry();
                 }
             }
         }
 
         return new RecordConverters()
-                .toRecord(next, () -> jsonb,
+                .toRecord(registry, next, () -> jsonb,
                         () -> ComponentManager.instance().getRecordBuilderFactoryProvider().apply(null));
     }
 }

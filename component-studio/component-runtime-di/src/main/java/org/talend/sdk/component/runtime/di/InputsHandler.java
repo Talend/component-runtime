@@ -22,8 +22,11 @@ import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.InputFactory;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 public class InputsHandler extends BaseIOHandler {
+
+    private final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
 
     public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
@@ -50,7 +53,7 @@ public class InputsHandler extends BaseIOHandler {
                 jsonMapper = jsonb.toJson(value);
             }
 
-            return converters.toRecord(jsonMapper, () -> jsonb, () -> recordBuilderMapper);
+            return converters.toRecord(registry, jsonMapper, () -> jsonb, () -> recordBuilderMapper);
         };
     }
 

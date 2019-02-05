@@ -40,6 +40,9 @@ import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+
+import routines.system.IPersistableRow;
 
 class RecordConvertersTest {
 
@@ -57,8 +60,9 @@ class RecordConvertersTest {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
                     .cast(converter
-                            .toType(record, JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider,
-                                    () -> jsonb));
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, JsonObject.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
             assertNull(json.getJsonString("value"));
         }
     }
@@ -69,10 +73,47 @@ class RecordConvertersTest {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
                     .cast(converter
-                            .toType(record, JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider,
-                                    () -> jsonb));
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, JsonObject.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
             assertTrue(json.getBoolean("value"));
-            final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
+            final Record toRecord = converter
+                    .toRecord(new RecordConverters.MappingMetaRegistry(), json, () -> jsonb,
+                            () -> recordBuilderFactory);
+            assertTrue(toRecord.getBoolean("value"));
+        }
+    }
+
+    @Test
+    void intRoundTrip() throws Exception {
+        final Record record = recordBuilderFactory.newRecordBuilder().withInt("value", 2).build();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final IntStruct struct = IntStruct.class
+                    .cast(converter
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, IntStruct.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
+            final Record toRecord = converter
+                    .toRecord(new RecordConverters.MappingMetaRegistry(), struct, () -> jsonb,
+                            () -> recordBuilderFactory);
+            assertEquals(Schema.Type.INT, toRecord.getSchema().getEntries().iterator().next().getType());
+            assertEquals(2, toRecord.getInt("value"));
+        }
+    }
+
+    @Test
+    void booleanRoundTripPojo() throws Exception {
+        final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final BoolStruct struct = BoolStruct.class
+                    .cast(converter
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, BoolStruct.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
+            final Record toRecord = converter
+                    .toRecord(new RecordConverters.MappingMetaRegistry(), struct, () -> jsonb,
+                            () -> recordBuilderFactory);
+            assertEquals(Schema.Type.BOOLEAN, toRecord.getSchema().getEntries().iterator().next().getType());
             assertTrue(toRecord.getBoolean("value"));
         }
     }
@@ -83,10 +124,13 @@ class RecordConvertersTest {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
                     .cast(converter
-                            .toType(record, JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider,
-                                    () -> jsonb));
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, JsonObject.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
             assertEquals("yes", json.getString("value"));
-            final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
+            final Record toRecord = converter
+                    .toRecord(new RecordConverters.MappingMetaRegistry(), json, () -> jsonb,
+                            () -> recordBuilderFactory);
             assertEquals("yes", toRecord.getString("value"));
         }
     }
@@ -99,10 +143,13 @@ class RecordConvertersTest {
                 JsonbBuilder.create(new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64))) {
             final JsonObject json = JsonObject.class
                     .cast(converter
-                            .toType(record, JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider,
-                                    () -> jsonb));
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, JsonObject.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
             assertEquals(Base64.getEncoder().encodeToString(bytes), json.getString("value"));
-            final Record toRecord = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
+            final Record toRecord = converter
+                    .toRecord(new RecordConverters.MappingMetaRegistry(), json, () -> jsonb,
+                            () -> recordBuilderFactory);
             assertArrayEquals(bytes, toRecord.getBytes("value"));
 
             // now studio generator kind of convertion
@@ -110,7 +157,9 @@ class RecordConvertersTest {
             assertArrayEquals(bytes, struct.value);
             final String jsonFromStruct = jsonb.toJson(struct);
             assertEquals("{\"value\":\"AQID\"}", jsonFromStruct);
-            final Record structToRecordFromJson = converter.toRecord(json, () -> jsonb, () -> recordBuilderFactory);
+            final Record structToRecordFromJson = converter
+                    .toRecord(new RecordConverters.MappingMetaRegistry(), json, () -> jsonb,
+                            () -> recordBuilderFactory);
             assertArrayEquals(bytes, structToRecordFromJson.getBytes("value"));
         }
     }
@@ -130,15 +179,17 @@ class RecordConvertersTest {
     void convertListString() throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final Record record = converter
-                    .toRecord(Json
-                            .createObjectBuilder()
-                            .add("list",
-                                    Json
-                                            .createArrayBuilder()
-                                            .add(Json.createValue("a"))
-                                            .add(Json.createValue("b"))
-                                            .build())
-                            .build(), () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
+                    .toRecord(new RecordConverters.MappingMetaRegistry(),
+                            Json
+                                    .createObjectBuilder()
+                                    .add("list",
+                                            Json
+                                                    .createArrayBuilder()
+                                                    .add(Json.createValue("a"))
+                                                    .add(Json.createValue("b"))
+                                                    .build())
+                                    .build(),
+                            () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<String> list = record.getArray(String.class, "list");
             assertEquals(asList("a", "b"), list);
         }
@@ -148,15 +199,17 @@ class RecordConvertersTest {
     void convertListObject() throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final Record record = converter
-                    .toRecord(Json
-                            .createObjectBuilder()
-                            .add("list",
-                                    Json
-                                            .createArrayBuilder()
-                                            .add(Json.createObjectBuilder().add("name", "a").build())
-                                            .add(Json.createObjectBuilder().add("name", "b").build())
-                                            .build())
-                            .build(), () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
+                    .toRecord(new RecordConverters.MappingMetaRegistry(),
+                            Json
+                                    .createObjectBuilder()
+                                    .add("list",
+                                            Json
+                                                    .createArrayBuilder()
+                                                    .add(Json.createObjectBuilder().add("name", "a").build())
+                                                    .add(Json.createObjectBuilder().add("name", "b").build())
+                                                    .build())
+                                    .build(),
+                            () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<Record> list = record.getArray(Record.class, "list");
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }
@@ -165,5 +218,15 @@ class RecordConvertersTest {
     public static class BytesStruct {
 
         public byte[] value;
+    }
+
+    public static class IntStruct implements IPersistableRow {
+
+        public int value;
+    }
+
+    public static class BoolStruct implements IPersistableRow {
+
+        public boolean value;
     }
 }

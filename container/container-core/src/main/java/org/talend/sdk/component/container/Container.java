@@ -134,7 +134,8 @@ public class Container implements Lifecycle {
                     overrideClassLoaderConfig.isSupportsResourceDependencies()
                             ? Stream
                                     .concat(Stream.of(rootModule), Stream.of(dependencies).map(Artifact::toPath))
-                                    .filter(resourceExists)
+                                    .filter(it -> resourceExists.test(it)
+                                            || findNestedDependency(overrideClassLoaderConfig, it))
                                     .distinct()
                                     .toArray(String[]::new)
                             : null;

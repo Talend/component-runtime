@@ -86,6 +86,8 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private Map<String, String> internalConfiguration;
 
+    private RecordConverters.MappingMetaRegistry mappings;
+
     public ProcessorImpl(final String rootName, final String name, final String plugin,
             final Map<String, String> internalConfiguration, final Serializable delegate) {
         super(delegate, rootName, name, plugin);
@@ -118,6 +120,8 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             forwardReturn = process.getReturnType() != void.class;
 
             converter = new RecordConverters();
+
+            mappings = new RecordConverters.MappingMetaRegistry();
         }
 
         beforeGroup.forEach(this::doInvoke);
@@ -149,7 +153,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                 || parameterType.isPrimitive() /* mainly for tests, no > manager */) {
             return data;
         }
-        return converter.toType(data, parameterType, this::jsonBuilderFactory, this::jsonProvider, this::jsonb);
+        return converter
+                .toType(mappings, data, parameterType, this::jsonBuilderFactory, this::jsonProvider, this::jsonb,
+                        this::recordBuilderFactory);
     }
 
     private Jsonb jsonb() {

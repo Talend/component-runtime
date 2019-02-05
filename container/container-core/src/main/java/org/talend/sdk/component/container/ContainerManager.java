@@ -67,6 +67,7 @@ public class ContainerManager implements Lifecycle {
 
     private final ClassLoaderConfiguration classLoaderConfiguration;
 
+    @Getter
     private final Resolver resolver;
 
     @Getter
@@ -204,7 +205,6 @@ public class ContainerManager implements Lifecycle {
         if (file.exists()) {
             return file;
         }
-
         // from job lib folder
         final File libFile = new File(rootRepositoryLocation, path.substring(path.lastIndexOf('/') + 1));
         if (libFile.exists()) {

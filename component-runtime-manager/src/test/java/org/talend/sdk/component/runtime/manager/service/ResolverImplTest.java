@@ -34,20 +34,17 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.support.io.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 
 class ResolverImplTest {
 
     @Test
-    @ExtendWith(TempDirectory.class)
-    void createClassLoader(@TempDirectory.TempDir final Path temporaryFolder) throws Exception {
+    void createClassLoader(@TempDir final Path temporaryFolder) throws Exception {
         final File root = temporaryFolder.toFile();
         root.mkdirs();
         final String dep = "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.5";

@@ -15,9 +15,12 @@
  */
 package org.talend.sdk.component.classloader;
 
+import static java.lang.ClassLoader.getSystemClassLoader;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,6 +58,9 @@ import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.test.Constants;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 @WithTemporaryFolder
 class ConfigurableClassLoaderTest {
@@ -271,6 +277,37 @@ class ConfigurableClassLoaderTest {
                     .collect(toList());
             assertTrue(junitEngines.isEmpty());
         }
+    }
+
+    @Test
+    void excludedSpiResources() throws Exception {
+        final Predicate<String> parentClasses = name -> true;
+        final File xerces = new File(Constants.DEPENDENCIES_LOCATION, "xerces/xercesImpl/2.12.0/xercesImpl-2.12.0.jar");
+        assertTrue(xerces.exists());
+        try (final URLClassLoader parent =
+                new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader("test",
+                        new URL[] { xerces.toURI().toURL() }, parent, parentClasses, parentClasses.negate(),
+                        new String[0], new String[] {
+                                new File(System.getProperty("java.home")).toPath().toAbsolutePath().toString() })) {
+
+            final Thread thread = Thread.currentThread();
+            final ClassLoader old = thread.getContextClassLoader();
+            thread.setContextClassLoader(loader);
+            try {
+                assertXmlReader();
+            } finally {
+                thread.setContextClassLoader(old);
+            }
+            assertXmlReader();
+        }
+    }
+
+    private void assertXmlReader() throws SAXException {
+        final XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+        final Class<? extends XMLReader> clazz = xmlReader.getClass();
+        assertNotEquals("org.apache.xerces.parsers.SAXParser", clazz.getName());
+        assertTrue(asList(getSystemClassLoader(), null).contains(clazz.getClassLoader()));
     }
 
     private byte[] slurp(final InputStream inputStream) throws IOException {

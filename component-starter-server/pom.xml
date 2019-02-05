@@ -32,7 +32,6 @@
   <properties>
     <talend.build.name>${talend.build.name.base}.starter</talend.build.name>
 
-    <talend-ui-starter.version>0.124.0</talend-ui-starter.version>
   </properties>
 
   <dependencies>
@@ -196,7 +195,9 @@
           <cdiConversation>false</cdiConversation>
           <watcherBouncing>-1</watcherBouncing>
           <properties>
+            <!-- for dev with livereload
             <talend.component.starter.security.csp>default-src 'self' data: http://localhost:35729/livereload.js; frame-ancestors 'none'</talend.component.starter.security.csp>
+            -->
           </properties>
         </configuration>
         <dependencies>

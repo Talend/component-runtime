@@ -1,7 +1,7 @@
 ++++
 <jsonArray>[
   {
-    "commits":2052,
+    "commits":2067,
     "description":"Joined the Apache EE family (TomEE, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -22,11 +22,18 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":161,
+    "commits":162,
     "description":"Technical Writer at @Talend",
     "gravatar":"https://avatars1.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",
     "name":"Florent LB"
+  },
+  {
+    "commits":54,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
+    "id":"jmfrancois",
+    "name":"Jean-Michel FRANCOIS"
   },
   {
     "commits":23,
@@ -34,13 +41,6 @@
     "gravatar":"https://avatars1.githubusercontent.com/u/7741480?v=4",
     "id":"cmeng-talend",
     "name":"Chao MENG"
-  },
-  {
-    "commits":18,
-    "description":"",
-    "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
-    "id":"jmfrancois",
-    "name":"Jean-Michel FRANCOIS"
   },
   {
     "commits":17,

@@ -134,12 +134,16 @@ public class ComponentGenerator {
         configurations.stream().filter(it -> it.getType() != null && !it.getType().isEmpty()).forEach(it -> {
             final String lowerType = it.getType().toLowerCase(ENGLISH);
             final String configPck = packageBase + '.' + lowerType;
-            final String name = it.getName().substring(it.getName().lastIndexOf('.') + 1);
-            generateConfiguration(configPck + '.' + capitalize(name), configPck, mainJava, it.getStructure(), name,
-                    files, lowerType);
+            final String name = capitalize(it.getName().substring(it.getName().lastIndexOf('.') + 1));
+            generateConfiguration(configPck + '.' + name, configPck, mainJava, it.getStructure(), name, files,
+                    lowerType);
             messageProperties
                     .computeIfAbsent(packageBase, k -> new TreeMap<>())
-                    .put(family + "." + lowerType + "." + name + "._displayName", name);
+                    .put(family + "." + lowerType + "." + name, name);
+            if (it.getStructure() != null) {
+                final Map<String, String> i18n = messageProperties.computeIfAbsent(configPck, k -> new TreeMap<>());
+                toProperties(name, it.getStructure().getEntries()).forEach(t -> i18n.put(t.key, t.value));
+            }
         });
 
         if (sources != null && !sources.isEmpty()) {
@@ -156,7 +160,8 @@ public class ComponentGenerator {
                             .stream()
                             .filter(source -> source.getConfiguration() != null
                                     && source.getConfiguration().getEntries() != null)
-                            .flatMap(source -> toProperties(names.toMapperName(source.getName()),
+                            .flatMap(source -> toProperties(
+                                    names.toConfigurationName(names.toMapperName(source.getName())),
                                     source.getConfiguration().getEntries()))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
@@ -178,7 +183,8 @@ public class ComponentGenerator {
                             .filter(processor -> processor.getConfiguration() != null
                                     && processor.getConfiguration().getEntries() != null)
                             .filter(ComponentGenerator::isOutput)
-                            .flatMap(p -> toProperties(names.toProcessorName(p), p.getConfiguration().getEntries()))
+                            .flatMap(p -> toProperties(names.toConfigurationName(names.toProcessorName(p)),
+                                    p.getConfiguration().getEntries()))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
             });
@@ -196,7 +202,8 @@ public class ComponentGenerator {
                             .filter(processor -> processor.getConfiguration() != null
                                     && processor.getConfiguration().getEntries() != null)
                             .filter(ComponentGenerator::isProcessor)
-                            .flatMap(p -> toProperties(names.toProcessorName(p), p.getConfiguration().getEntries()))
+                            .flatMap(p -> toProperties(names.toConfigurationName(names.toProcessorName(p)),
+                                    p.getConfiguration().getEntries()))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
             });
@@ -205,14 +212,15 @@ public class ComponentGenerator {
         return files.stream();
     }
 
-    private Stream<StringTuple2> toProperties(final String componentName,
-            final Collection<ProjectRequest.Entry> structure) {
+    private Stream<StringTuple2> toProperties(final String prefix, final Collection<ProjectRequest.Entry> structure) {
         return structure.stream().flatMap(e -> {
-            final String prop = names.toConfigurationName(componentName) + "." + e.getName();
+            final String prop = prefix + "." + e.getName();
 
             final StringTuple2 pair = new StringTuple2(prop, e.getName());
             if (e.getNestedType() != null) {
-                return Stream.concat(Stream.of(pair), toProperties(e.getName(), e.getNestedType().getEntries()));
+                return Stream
+                        .concat(Stream.of(pair),
+                                toProperties(names.toConfigurationName(e.getName()), e.getNestedType().getEntries()));
             }
             return Stream.of(pair);
         });

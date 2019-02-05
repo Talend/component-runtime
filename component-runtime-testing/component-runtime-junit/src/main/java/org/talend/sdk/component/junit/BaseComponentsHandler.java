@@ -527,11 +527,14 @@ public class BaseComponentsHandler implements ComponentsHandler {
             return recordType.cast(r);
         }
         if (Record.class == recordType) {
-            return recordType.cast(new RecordConverters().toRecord(r, state::jsonb, state::recordBuilderFactory));
+            return recordType
+                    .cast(new RecordConverters()
+                            .toRecord(state.registry, r, state::jsonb, state::recordBuilderFactory));
         }
         return recordType
                 .cast(new RecordConverters()
-                        .toType(r, recordType, state::jsonBuilderFactory, state::jsonProvider, state::jsonb));
+                        .toType(state.registry, r, recordType, state::jsonBuilderFactory, state::jsonProvider,
+                                state::jsonb, state::recordBuilderFactory));
     }
 
     static class PreState {
@@ -545,6 +548,8 @@ public class BaseComponentsHandler implements ComponentsHandler {
         final ComponentManager manager;
 
         final Collection<Object> collector;
+
+        final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
 
         Iterator<?> emitter;
 

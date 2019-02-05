@@ -42,6 +42,8 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient RecordConverters converters;
 
+    private transient RecordConverters.MappingMetaRegistry registry;
+
     private transient Jsonb jsonb;
 
     private transient RecordBuilderFactory recordBuilderFactory;
@@ -68,7 +70,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
             // mainly for tests, can be dropped while build is green
             return record;
         }
-        return converters.toRecord(record, this::jsonb, this::recordBuilderFactory);
+        return converters.toRecord(registry, record, this::jsonb, this::recordBuilderFactory);
     }
 
     @Override
@@ -83,6 +85,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     protected void init() {
         next = findMethods(Producer.class).findFirst().get();
         converters = new RecordConverters();
+        registry = new RecordConverters.MappingMetaRegistry();
     }
 
     private Jsonb jsonb() {
