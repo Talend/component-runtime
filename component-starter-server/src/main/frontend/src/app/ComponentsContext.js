@@ -119,7 +119,7 @@ class Provider extends React.Component {
 				inputStructures: [
 					{
 						name: 'MAIN',
-						generic: false,
+						generic: true,
 						structure: {
 							entries: [],
 						},
@@ -138,7 +138,7 @@ class Provider extends React.Component {
 		if (!this.state.withIO) {
 			component.processor.outputStructures.push({
 				name: 'MAIN',
-				generic: false,
+				generic: true,
 				structure: {
 					entries: [],
 				},

@@ -12,10 +12,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */import React from 'react';
+ */
+import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { withRouter, Link } from 'react-router-dom';
+import ActionButton from '@talend/react-components/lib/Actions/ActionButton';
 
 import ComponentsContext from '../../ComponentsContext';
 import DatastoreContext from '../../DatastoreContext';
@@ -40,7 +42,9 @@ function SideMenu(props) {
 							props.location.pathname === '/' || props.location.pathname === '/project',
 					})}
 				>
-					<Link to="/project" id="step-start">Start</Link>
+					<Link to="/project" id="step-start">
+						Start
+					</Link>
 				</li>
 				<ComponentsContext.Consumer>
 					{components => {
@@ -93,6 +97,14 @@ function SideMenu(props) {
 								})}
 								key={i}
 							>
+								<ActionButton
+									className="btn-icon-only btn-sm"
+									bsStyle="link"
+									hideLabel
+									icon="talend-trash"
+									label="Delete"
+									onClick={() => components.deleteComponent(i)}
+								/>
 								<Link to={`/component/${i}`}>{component.configuration.name}</Link>
 							</li>
 						))
@@ -113,7 +125,9 @@ function SideMenu(props) {
 						[theme.active]: props.location.pathname === '/export',
 					})}
 				>
-					<Link to="/export" id="go-to-finish-button">Finish</Link>
+					<Link to="/export" id="go-to-finish-button">
+						Finish
+					</Link>
 				</li>
 			</ol>
 		</nav>

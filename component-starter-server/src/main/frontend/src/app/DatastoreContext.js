@@ -60,6 +60,17 @@ class Provider extends React.Component {
 		this.state.setCurrent = datastore => {
 			this.setState({ current: datastore });
 		};
+		this.state.delete = datastore => {
+			const index = this.state.datastores.indexOf(datastore);
+			this.setState(prevState => {
+				if (prevState.current === datastore) {
+					// eslint-disable-next-line no-param-reassign
+					delete prevState.current;
+				}
+				prevState.datastores.splice(index, 1);
+				return Object.assign({}, prevState);
+			});
+		};
 	}
 
 	componentWillReceiveProps(nextProps) {

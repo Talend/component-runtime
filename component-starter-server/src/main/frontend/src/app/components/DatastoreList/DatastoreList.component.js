@@ -17,6 +17,7 @@
 import { Action } from '@talend/react-components/lib/Actions';
 import DatastoreContext from '../../DatastoreContext';
 import DatastoreForm from '../DatastoreForm';
+import DatastoreDelete from '../DatastoreDelete';
 import theme from './DatastoreList.scss';
 
 function DatastoreList() {
@@ -55,6 +56,7 @@ function DatastoreList() {
 							{datastore.datastores.map((d, index) => (
 								<li key={index} className={theme.li}>
 									<Action bsStyle="link" onClick={() => datastore.setCurrent(d)} label={d.name} />
+									<DatastoreDelete item={d} />
 								</li>
 							))}
 						</ul>

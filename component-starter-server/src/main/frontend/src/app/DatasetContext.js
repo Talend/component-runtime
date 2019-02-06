@@ -62,6 +62,17 @@ class Provider extends React.Component {
 		this.state.setCurrent = dataset => {
 			this.setState({ current: dataset });
 		};
+		this.state.delete = dataset => {
+			const index = this.state.datasets.indexOf(dataset);
+			this.setState(prevState => {
+				if (prevState.current === dataset) {
+					// eslint-disable-next-line no-param-reassign
+					delete prevState.current;
+				}
+				prevState.datasets.splice(index, 1);
+				return Object.assign({}, prevState);
+			});
+		};
 	}
 
 	componentWillReceiveProps(nextProps) {

@@ -30,7 +30,7 @@ import ComponentSchema from '../ComponentSchema';
 function newStructure(prefix, array) {
 	array.push({
 		name: array.length === 0 ? 'MAIN' : `${prefix}_${array.length + 1}`,
-		generic: false,
+		generic: true,
 		structure: {
 			entries: [],
 		},
