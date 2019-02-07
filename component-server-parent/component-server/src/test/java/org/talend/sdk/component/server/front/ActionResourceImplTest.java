@@ -41,7 +41,7 @@ import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
 @MonoMeecrowaveConfig
-class ActionResourceTest {
+class ActionResourceImplTest {
 
     @Inject
     private WebTarget base;

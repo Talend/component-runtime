@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.server.front;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,22 +25,15 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Application;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.talend.sdk.component.server.api.EnvironmentResource;
 import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 
-@Tag(name = "Environment", description = "Endpoint giving access to versions and last update timestamp of the server.")
-@Path("environment")
 @ApplicationScoped
-public class EnvironmentResource {
+public class EnvironmentResourceImpl implements EnvironmentResource {
 
     private final AtomicReference<Environment> environment = new AtomicReference<>();
 
@@ -78,11 +69,7 @@ public class EnvironmentResource {
                 .orElse(1);
     }
 
-    @GET
-    @Operation(
-            description = "Returns the environment of this instance. Useful to check the version or configure a healthcheck for the server.")
-    @APIResponse(responseCode = "200", description = "Current environment representation.",
-            content = @Content(mediaType = APPLICATION_JSON))
+    @Override
     public Environment get() {
         return new Environment(latestApiVersion, version, commit, time, service.findLastUpdated());
     }

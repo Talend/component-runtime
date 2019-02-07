@@ -31,7 +31,7 @@ import org.talend.sdk.component.server.test.ComponentClient;
 
 @MonoMeecrowaveConfig
 @WithTemporaryFolder
-public class BeamComponentResourceTest {
+public class BeamComponentResourceImplTest {
 
     @Inject
     private WebTarget base;

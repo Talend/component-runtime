@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.server.vault.proxy.endpoint.headers;
 
+import static java.util.Optional.ofNullable;
+
 import javax.enterprise.context.Dependent;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -27,12 +29,10 @@ public class AddProxyMarkers implements ContainerResponseFilter {
 
     @Override
     public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext) {
-        responseContext.getHeaders().add("Talend-Vault-Cache-Time", getDuration(requestContext));
+        ofNullable(requestContext.getProperty("talendCacheStartTime")).map(Number.class::cast).ifPresent(start -> {
+            final long duration = System.currentTimeMillis() - Number.class.cast(start).longValue();
+            responseContext.getHeaders().add("Talend-Vault-Cache-Time", duration);
+        });
         responseContext.getHeaders().add("Talend-Vault-Cache", "true");
-    }
-
-    private long getDuration(final ContainerRequestContext requestContext) {
-        return System.currentTimeMillis()
-                - Number.class.cast(requestContext.getProperty("talendCacheStartTime")).longValue();
     }
 }

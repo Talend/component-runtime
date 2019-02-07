@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.server.vault.proxy.service.jcache;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -26,11 +24,6 @@ import java.util.Properties;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-import javax.cache.configuration.FactoryBuilder;
-import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.CreatedExpiryPolicy;
-import javax.cache.expiry.Duration;
 import javax.cache.spi.CachingProvider;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
@@ -53,16 +46,7 @@ public class JCacheSetup {
     private String configurationProperties;
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.jcache.cache.management", defaultValue = "false")
-    private Boolean cacheManagement;
-
-    @Inject
-    @ConfigProperty(name = "talend.vault.cache.jcache.cache.statistics", defaultValue = "false")
-    private Boolean cacheStatistics;
-
-    @Inject
-    @ConfigProperty(name = "talend.vault.cache.jcache.cache.expiry", defaultValue = "3600")
-    private Long cacheExpiry;
+    private CacheConfigurationFactory cacheConfiguration;
 
     @Produces
     @ApplicationScoped
@@ -92,15 +76,13 @@ public class JCacheSetup {
 
     @Produces
     @ApplicationScoped
-    public Cache<String, DecryptedValue> cache(final CacheManager manager, final CacheSizeManager cacheSizeManager) {
-        return manager
-                .createCache("talend.cache.vault", new MutableConfiguration<String, DecryptedValue>()
-                        .setStoreByValue(false)
-                        .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(SECONDS, cacheExpiry)))
-                        .setManagementEnabled(cacheManagement)
-                        .setStatisticsEnabled(cacheStatistics)
-                        .addCacheEntryListenerConfiguration(new MutableCacheEntryListenerConfiguration<>(
-                                new FactoryBuilder.SingletonFactory<>(cacheSizeManager), null, false, false)));
+    public Cache<String, DecryptedValue> cache(final CacheManager manager) {
+        final CacheSizeManager<String, DecryptedValue> listener = new CacheSizeManager<>(cacheConfiguration.maxSize());
+        final Cache<String, DecryptedValue> cache = manager
+                .createCache("org.talend.sdk.component.runtime.server.vault.DECRYPTED_VALUES",
+                        cacheConfiguration.createConfiguration(listener));
+        listener.accept(cache);
+        return cache;
     }
 
     public void releaseCache(@Disposes final Cache<String, DecryptedValue> cache) {

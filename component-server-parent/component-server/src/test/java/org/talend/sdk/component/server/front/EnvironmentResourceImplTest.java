@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.Environment;
 
 @MonoMeecrowaveConfig
-class EnvironmentResourceTest {
+class EnvironmentResourceImplTest {
 
     @Inject
     private WebTarget base;
@@ -44,6 +44,5 @@ class EnvironmentResourceTest {
                 .of(environment.getCommit(), environment.getTime(), environment.getVersion())
                 .forEach(Assertions::assertNotNull);
         assertTrue(environment.getLastUpdated().compareTo(new Date(0)) > 0);
-
     }
 }

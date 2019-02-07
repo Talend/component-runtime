@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.server.vault.proxy.service.jcache;
 
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import javax.cache.Cache;
 import javax.cache.event.CacheEntryCreatedListener;
@@ -24,34 +25,25 @@ import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.DecryptedValue;
+import lombok.RequiredArgsConstructor;
 
-import lombok.Getter;
+@RequiredArgsConstructor
+public class CacheSizeManager<K, V> implements CacheEntryCreatedListener<K, V>, CacheEntryExpiredListener<K, V>,
+        CacheEntryRemovedListener<K, V>, Consumer<Cache<K, V>> {
 
-@Getter
-@ApplicationScoped
-public class CacheSizeManager implements CacheEntryCreatedListener<String, DecryptedValue>,
-        CacheEntryExpiredListener<String, DecryptedValue>, CacheEntryRemovedListener<String, DecryptedValue> {
+    private final int maxCacheSize;
 
-    @Inject
-    @ConfigProperty(name = "talend.vault.cache.jcache.maxCacheSize", defaultValue = "100000")
-    private Integer maxCacheSize; // not strict constraint - for perf - but we ensure it is bound to avoid issues
+    private Cache<K, V> cache;
 
-    @Inject
-    private Cache<String, DecryptedValue> cache;
-
-    private final CopyOnWriteArrayList<String> keys = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<K> keys = new CopyOnWriteArrayList<>();
 
     @Override
-    public void onCreated(final Iterable<CacheEntryEvent<? extends String, ? extends DecryptedValue>> cacheEntryEvents)
+    public void onCreated(final Iterable<CacheEntryEvent<? extends K, ? extends V>> cacheEntryEvents)
             throws CacheEntryListenerException {
         cacheEntryEvents.forEach(it -> keys.add(it.getKey()));
         if (keys.size() > maxCacheSize) {
-            final Iterator<String> iterator = keys.iterator();
+            final Iterator<K> iterator = keys.iterator();
             synchronized (this) {
                 while (keys.size() > maxCacheSize && iterator.hasNext()) {
                     cache.remove(iterator.next());
@@ -62,14 +54,19 @@ public class CacheSizeManager implements CacheEntryCreatedListener<String, Decry
     }
 
     @Override
-    public void onExpired(final Iterable<CacheEntryEvent<? extends String, ? extends DecryptedValue>> cacheEntryEvents)
+    public void onExpired(final Iterable<CacheEntryEvent<? extends K, ? extends V>> cacheEntryEvents)
             throws CacheEntryListenerException {
         onRemoved(cacheEntryEvents);
     }
 
     @Override
-    public void onRemoved(final Iterable<CacheEntryEvent<? extends String, ? extends DecryptedValue>> cacheEntryEvents)
+    public void onRemoved(final Iterable<CacheEntryEvent<? extends K, ? extends V>> cacheEntryEvents)
             throws CacheEntryListenerException {
         cacheEntryEvents.forEach(it -> keys.remove(it.getKey()));
+    }
+
+    @Override
+    public void accept(final Cache<K, V> cache) {
+        this.cache = cache;
     }
 }

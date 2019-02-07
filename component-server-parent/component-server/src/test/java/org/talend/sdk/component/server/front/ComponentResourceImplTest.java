@@ -70,7 +70,7 @@ import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig
 @WithTemporaryFolder
-class ComponentResourceTest {
+class ComponentResourceImplTest {
 
     @Inject
     private WebTarget base;

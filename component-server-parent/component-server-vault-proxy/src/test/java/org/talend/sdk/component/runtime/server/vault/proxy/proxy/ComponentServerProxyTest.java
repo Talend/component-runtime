@@ -30,16 +30,61 @@ import javax.ws.rs.core.GenericType;
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.meecrowave.testing.ConfigurationInject;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.talend.sdk.component.server.front.model.ActionList;
+import org.talend.sdk.component.server.front.model.DocumentationContent;
+import org.talend.sdk.component.server.front.model.Environment;
 
 @MonoMeecrowaveConfig
-class TalendComponentKitProxyTest {
+class ComponentServerProxyTest {
 
     @ConfigurationInject
     private Meecrowave.Builder serverConfig;
 
     @Inject
     private Client client;
+
+    @Test
+    void environment() {
+        final Environment environment =
+                base().path("api/v1/environment").request(APPLICATION_JSON_TYPE).get(Environment.class);
+        assertEquals(1, environment.getLatestApiVersion());
+        assertEquals("test", environment.getCommit());
+    }
+
+    @RepeatedTest(2) // this also checks the cache and queries usage
+    void actionIndex() {
+        { // default
+            final ActionList index =
+                    base().path("api/v1/action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
+            assertEquals(1, index.getItems().size());
+            assertEquals("testf", index.getItems().iterator().next().getComponent());
+        }
+        { // change the family
+            final ActionList index = base()
+                    .path("api/v1/action/index")
+                    .queryParam("family", "foo")
+                    .request(APPLICATION_JSON_TYPE)
+                    .get(ActionList.class);
+            assertEquals(1, index.getItems().size());
+            assertEquals("foo", index.getItems().iterator().next().getComponent());
+        }
+    }
+
+    // this also checks the cache and path usage
+    @ParameterizedTest
+    @ValueSource(strings = { "first", "second", "first", "second", "third" })
+    void documentation(final String id) {
+        final DocumentationContent content = base()
+                .path("api/v1/documentation/component/{id}")
+                .resolveTemplate("id", id)
+                .request(APPLICATION_JSON_TYPE)
+                .get(DocumentationContent.class);
+        assertEquals(id, content.getSource());
+    }
 
     @Test
     void action() { // the mock returns its input to allow is to test input is deciphered

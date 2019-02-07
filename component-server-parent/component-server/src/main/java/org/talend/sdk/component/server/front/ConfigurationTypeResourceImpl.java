@@ -21,12 +21,6 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
-import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
-import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.BOOLEAN;
-import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
-import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,29 +31,15 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.design.extension.repository.Config;
 import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.server.api.ConfigurationTypeResource;
 import org.talend.sdk.component.server.dao.ConfigurationDao;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -72,14 +52,9 @@ import org.talend.sdk.component.server.service.PropertiesService;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Tag(name = "Configuration Type",
-        description = "Endpoints related to configuration types (reusable configuration) metadata access.")
 @Slf4j
-@Path("configurationtype")
 @ApplicationScoped
-@Consumes(APPLICATION_JSON)
-@Produces(APPLICATION_JSON)
-public class ConfigurationTypeResource {
+public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource {
 
     @Inject
     private ComponentManager manager;
@@ -96,39 +71,13 @@ public class ConfigurationTypeResource {
     @Inject
     private ConfigurationDao configurations;
 
-    @GET
-    @Path("index")
-    @Operation(description = "Returns all available configuration type - storable models. "
-            + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
-            + " to create a client model for all configurations.")
-    @APIResponse(responseCode = "200",
-            description = "the list of available and storable configurations (datastore, dataset, ...).",
-            content = @Content(mediaType = APPLICATION_JSON))
-    public ConfigTypeNodes getRepositoryModel(
-            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.", in = QUERY,
-                    schema = @Schema(type = STRING, defaultValue = "en")) final String language,
-            @QueryParam("lightPayload") @DefaultValue("true") @Parameter(name = "lightPayload",
-                    description = "should the payload skip the forms and actions associated to the configuration.",
-                    in = QUERY, schema = @Schema(type = BOOLEAN, defaultValue = "true")) final boolean lightPaylaod) {
+    @Override
+    public ConfigTypeNodes getRepositoryModel(final String language, final boolean lightPaylaod) {
         return toNodes(language, s -> true, lightPaylaod);
     }
 
-    @GET
-    @Path("details")
-    @Operation(description = "Returns all available configuration type - storable models. "
-            + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
-            + " to create a client model for all configurations.")
-    @APIResponse(responseCode = "200",
-            description = "the list of available and storable configurations (datastore, dataset, ...).",
-            content = @Content(mediaType = APPLICATION_JSON))
-    public ConfigTypeNodes getDetail(
-            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.", in = QUERY,
-                    schema = @Schema(type = STRING, defaultValue = "en")) final String language,
-            @QueryParam("identifiers") @Parameter(name = "identifiers",
-                    description = "the comma separated list of identifiers to request.",
-                    in = QUERY) final String[] ids) {
+    @Override
+    public ConfigTypeNodes getDetail(final String language, final String[] ids) {
         final Predicate<String> filter = ids == null ? s -> false : new Predicate<String>() {
 
             private final Collection<String> values = Stream.of(ids).collect(toSet());
@@ -142,26 +91,8 @@ public class ConfigurationTypeResource {
         return toNodes(language, filter, false);
     }
 
-    @POST
-    @Path("migrate/{id}/{configurationVersion}")
-    @Operation(description = "Allows to migrate a configuration without calling any component execution.")
-    @APIResponse(responseCode = "200",
-            description = "the new values for that configuration (or the same if no migration was needed).",
-            content = @Content(mediaType = APPLICATION_JSON))
-    @APIResponse(responseCode = "400",
-            description = "If the configuration is missing, payload will be an ErrorPayload with the code CONFIGURATION_MISSING.",
-            content = @Content(mediaType = APPLICATION_JSON,
-                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
-    @APIResponse(responseCode = "404", description = "The configuration is not found",
-            content = @Content(mediaType = APPLICATION_JSON))
-    public Map<String, String>
-            migrate(@PathParam("id") @Parameter(name = "id", description = "the configuration identifier",
-                    in = PATH) final String id,
-                    @PathParam("configurationVersion") @Parameter(name = "configurationVersion",
-                            description = "the configuration version you send", in = PATH) final int version,
-                    @RequestBody(description = "the actual configuration in key/value form.", required = true,
-                            content = @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(type = OBJECT))) final Map<String, String> config) {
+    @Override
+    public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
         final Config configuration = ofNullable(configurations.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)

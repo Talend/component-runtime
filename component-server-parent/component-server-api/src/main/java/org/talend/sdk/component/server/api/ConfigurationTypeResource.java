@@ -1,0 +1,103 @@
+/**
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.server.api;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.BOOLEAN;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
+
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+
+@Path("configurationtype")
+@Consumes(APPLICATION_JSON)
+@Produces(APPLICATION_JSON)
+@Tag(name = "Configuration Type",
+        description = "Endpoints related to configuration types (reusable configuration) metadata access.")
+public interface ConfigurationTypeResource {
+
+    @GET
+    @Path("index")
+    @Operation(description = "Returns all available configuration type - storable models. "
+            + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
+            + " to create a client model for all configurations.")
+    @APIResponse(responseCode = "200",
+            description = "the list of available and storable configurations (datastore, dataset, ...).",
+            content = @Content(mediaType = APPLICATION_JSON))
+    ConfigTypeNodes getRepositoryModel(
+            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
+                    description = "the language for display names.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "en")) String language,
+            @QueryParam("lightPayload") @DefaultValue("true") @Parameter(name = "lightPayload",
+                    description = "should the payload skip the forms and actions associated to the configuration.",
+                    in = QUERY, schema = @Schema(type = BOOLEAN, defaultValue = "true")) boolean lightPaylaod);
+
+    @GET
+    @Path("details")
+    @Operation(description = "Returns all available configuration type - storable models. "
+            + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
+            + " to create a client model for all configurations.")
+    @APIResponse(responseCode = "200",
+            description = "the list of available and storable configurations (datastore, dataset, ...).",
+            content = @Content(mediaType = APPLICATION_JSON))
+    ConfigTypeNodes getDetail(
+            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
+                    description = "the language for display names.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "en")) String language,
+            @QueryParam("identifiers") @Parameter(name = "identifiers",
+                    description = "the comma separated list of identifiers to request.", in = QUERY) String[] ids);
+
+    @POST
+    @Path("migrate/{id}/{configurationVersion}")
+    @Operation(description = "Allows to migrate a configuration without calling any component execution.")
+    @APIResponse(responseCode = "200",
+            description = "the new values for that configuration (or the same if no migration was needed).",
+            content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "400",
+            description = "If the configuration is missing, payload will be an ErrorPayload with the code CONFIGURATION_MISSING.",
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
+    @APIResponse(responseCode = "404", description = "The configuration is not found",
+            content = @Content(mediaType = APPLICATION_JSON))
+    Map<String, String> migrate(
+            @PathParam("id") @Parameter(name = "id", description = "the configuration identifier", in = PATH) String id,
+            @PathParam("configurationVersion") @Parameter(name = "configurationVersion",
+                    description = "the configuration version you send", in = PATH) int version,
+            @RequestBody(description = "the actual configuration in key/value form.", required = true,
+                    content = @Content(mediaType = APPLICATION_JSON,
+                            schema = @Schema(type = OBJECT))) Map<String, String> config);
+}

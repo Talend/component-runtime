@@ -25,7 +25,10 @@
   <artifactId>component-server-vault-proxy</artifactId>
 
   <name>Component Runtime :: Server Parent :: Vault Proxy</name>
-  <description>Proxies Component Server with decrypting of credential using Vault.</description>
+  <description>
+    Proxies Component Server with decrypting of credential using Vault.
+    Note that this proxy is intended to be replaced by a real more advanced proxy later on.
+  </description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.vault.proxy</talend.build.name>
@@ -128,6 +131,12 @@
       <version>${meecrowave.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit5.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -163,7 +172,7 @@
               <output>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</output>
               <application>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.TalendComponentServerVaultCacheApplication</application>
               <endpointClasses>
-                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.TalendComponentKitProxy</endpointClass>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.ComponentResourceProxy</endpointClass>
               </endpointClasses>
               <info>
                 <version>1</version>

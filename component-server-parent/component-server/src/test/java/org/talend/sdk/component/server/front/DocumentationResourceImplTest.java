@@ -31,7 +31,7 @@ import org.talend.sdk.component.server.test.ComponentClient;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig
-class DocumentationResourceTest {
+class DocumentationResourceImplTest {
 
     @Inject
     private WebTarget base;
@@ -44,12 +44,12 @@ class DocumentationResourceTest {
 
     @Test
     void selectById() {
-        final String foo = new DocumentationResource()
+        final String foo = new DocumentationResourceImpl()
                 .selectById("Foo1",
                         "== Foo0\n\n00000\n\n" + "=== Configuration\n\nWhatever0\n\n== Foo1\n\nThe description\n\n"
                                 + "=== Configuration\n\nWhatever1\n\n"
                                 + "== Foo2\n\n2222\n\n=== Configuration\n\nWhatever2",
-                        DocumentationResource.DocumentationSegment.DESCRIPTION);
+                        DocumentationResourceImpl.DocumentationSegment.DESCRIPTION);
         assertEquals("The description", foo.trim());
     }
 

@@ -32,7 +32,7 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig
-class ConfigurationTypeResourceTest {
+class ConfigurationTypeResourceImplTest {
 
     @Inject
     private WebsocketClient ws;

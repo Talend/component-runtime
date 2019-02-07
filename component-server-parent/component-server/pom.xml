@@ -48,7 +48,7 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-server-model</artifactId>
+      <artifactId>component-server-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -187,11 +187,11 @@
               <output>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</output>
               <application>org.talend.sdk.component.server.front.TalendComponentApplication</application>
               <endpointClasses>
-                <endpointClass>org.talend.sdk.component.server.front.ActionResource</endpointClass>
-                <endpointClass>org.talend.sdk.component.server.front.ComponentResource</endpointClass>
-                <endpointClass>org.talend.sdk.component.server.front.ConfigurationTypeResource</endpointClass>
-                <endpointClass>org.talend.sdk.component.server.front.DocumentationResource</endpointClass>
-                <endpointClass>org.talend.sdk.component.server.front.EnvironmentResource</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.ActionResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.ComponentResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.ConfigurationTypeResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.DocumentationResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.EnvironmentResourceImpl</endpointClass>
               </endpointClasses>
               <info>
                 <version>1</version>

@@ -30,6 +30,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -40,6 +41,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
@@ -49,6 +51,12 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ComponentServerMock {
+
+    @GET
+    @Path("documentation/component/{id}")
+    public DocumentationContent getDoc(@PathParam("id") final String id) {
+        return new DocumentationContent(id, id);
+    }
 
     @GET
     @Path("component/details")
@@ -70,7 +78,8 @@ public class ComponentServerMock {
     @Path("action/index")
     public ActionList getIndex(@QueryParam("type") final String[] types, @QueryParam("family") final String[] families,
             @QueryParam("language") final String language) {
-        return new ActionList(singletonList(new ActionItem("testf", "testt", "testa", createProperties())));
+        return new ActionList(singletonList(
+                new ActionItem(families.length == 0 ? "testf" : families[0], "testt", "testa", createProperties())));
     }
 
     @GET
