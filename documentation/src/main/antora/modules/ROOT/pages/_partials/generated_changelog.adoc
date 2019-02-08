@@ -22,6 +22,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1282[TCOMP-1282^]: Upgrade meecrowave to 1.2.6
 - link:https://jira.talendforge.org/browse/TCOMP-1283[TCOMP-1283^]: Upgrade cxf to 3.3.0
 - link:https://jira.talendforge.org/browse/TCOMP-1284[TCOMP-1284^]: Upgrade to johnzon 1.1.11
+- link:https://jira.talendforge.org/browse/TCOMP-1292[TCOMP-1292^]: Provide a vault friendly integration for the server
+- link:https://jira.talendforge.org/browse/TCOMP-1293[TCOMP-1293^]: Upgrade to Tomcat 9.0.16
 
 
 == Version 1.1.5

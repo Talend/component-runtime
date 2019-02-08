@@ -1,6 +1,7 @@
 
 NOTE: the configuration is read from system properties, environment variables, ....
 
+alend.vault.cache.security.tokens:: Default value: `-`. -
 talend.vault.cache.client.certificate.acceptAny:: Default value: `false`. -
 talend.vault.cache.client.executor.server.core:: Default value: `64`. -
 talend.vault.cache.client.executor.server.keepAlive:: Default value: `60000`. -
@@ -9,6 +10,7 @@ talend.vault.cache.client.executor.vault.core:: Default value: `64`. -
 talend.vault.cache.client.executor.vault.keepAlive:: Default value: `60000`. -
 talend.vault.cache.client.executor.vault.max:: Default value: `256`. -
 talend.vault.cache.client.providers:: -
+talend.vault.cache.client.server.authorization:: -
 talend.vault.cache.client.server.certificate.keystore.location:: -
 talend.vault.cache.client.server.certificate.keystore.password:: Default value: `changeit`. -
 talend.vault.cache.client.server.certificate.keystore.type:: -
@@ -28,6 +30,7 @@ talend.vault.cache.jcache.manager.properties:: Default value: ``. -
 talend.vault.cache.jcache.manager.uri:: Default value: `geronimo://simple-jcache.properties`. -
 talend.vault.cache.jcache.maxCacheSize:: Default value: `100000`. -
 talend.vault.cache.jcache.refresh.period:: Default value: `30000`. -
+talend.vault.cache.security.allowedIps:: Default value: `localhost,127.0.0.1,0:0:0:0:0:0:0:1`. -
 talend.vault.cache.service.auth.refreshDelayMargin:: Default value: `600000`. -
 talend.vault.cache.service.auth.refreshDelayOnFailure:: Default value: `10000`. -
 talend.vault.cache.talendComponentKit.url:: -
@@ -35,6 +38,5 @@ talend.vault.cache.vault.auth.endpoint:: Default value: `v1/auth/approle/login`.
 talend.vault.cache.vault.auth.roleId:: -
 talend.vault.cache.vault.auth.secretId:: -
 talend.vault.cache.vault.decrypt.endpoint:: -
-talend.vault.cache.vault.security.allowedIps:: Default value: `localhost,127.0.0.1,0:0:0:0:0:0:0:1`. -
 talend.vault.cache.vault.url:: -
 

@@ -432,6 +432,9 @@
               <excludes>
                 <exclude>**/beam/*Test.java</exclude>
               </excludes>
+              <systemPropertyVariables>
+                <org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>false</org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>
+              </systemPropertyVariables>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
                 <classpathDependencyExclude>org.talend.sdk.component:component-runtime-beam</classpathDependencyExclude>
@@ -449,6 +452,7 @@
                 <include>**/beam/*Test.java</include>
               </includes>
               <systemPropertyVariables>
+                <org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>false</org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>
                 <components.server.beam.active>true</components.server.beam.active>
                 <components.sample.beam.groupId>${sample.beam.groupId}</components.sample.beam.groupId>
                 <components.sample.beam.artifactId>${sample.beam.artifactId}</components.sample.beam.artifactId>
