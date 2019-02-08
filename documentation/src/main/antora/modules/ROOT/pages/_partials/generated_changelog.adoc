@@ -24,6 +24,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1284[TCOMP-1284^]: Upgrade to johnzon 1.1.11
 - link:https://jira.talendforge.org/browse/TCOMP-1292[TCOMP-1292^]: Provide a vault friendly integration for the server
 - link:https://jira.talendforge.org/browse/TCOMP-1293[TCOMP-1293^]: Upgrade to Tomcat 9.0.16
+- link:https://jira.talendforge.org/browse/TCOMP-1295[TCOMP-1295^]: Ensure local-configuration.properties of a container are merged
 
 
 == Version 1.1.5

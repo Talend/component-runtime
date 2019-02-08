@@ -52,17 +52,14 @@ import java.util.zip.ZipEntry;
 import javax.xml.stream.XMLOutputFactory;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.platform.engine.TestEngine;
-import org.talend.sdk.component.container.ContainerManager;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.test.Constants;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-@WithTemporaryFolder
 class ConfigurableClassLoaderTest {
 
     @Test
@@ -129,7 +126,7 @@ class ConfigurableClassLoaderTest {
     }
 
     @Test
-    void nestedPackageDefinition(final TemporaryFolder temporaryFolder) throws Exception {
+    void nestedPackageDefinition(@TempDir final File temporaryFolder) throws Exception {
         final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
@@ -148,7 +145,32 @@ class ConfigurableClassLoaderTest {
     }
 
     @Test
-    void nestedJars(final TemporaryFolder temporaryFolder) throws IOException {
+    void findContainedResources(@TempDir final File temporaryFolder) throws Exception {
+        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
+        try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
+                Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader =
+                        new ConfigurableClassLoader("", new URL[0], parent, name -> true, name -> true,
+                                new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" }, new String[0])) {
+            final List<InputStream> containedResources =
+                    loader.findContainedResources("org/apache/ziplock/ClassLoaders.class");
+            containedResources.forEach(it -> {
+                try {
+                    it.close();
+                } catch (final IOException e) {
+                    fail(e.getMessage());
+                }
+            });
+            assertEquals(1, containedResources.size());
+        } finally {
+            if (!nestedJar.delete()) {
+                nestedJar.deleteOnExit();
+            }
+        }
+    }
+
+    @Test
+    void nestedJars(@TempDir final File temporaryFolder) throws IOException {
         final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
@@ -212,8 +234,9 @@ class ConfigurableClassLoaderTest {
     }
 
     @Test
-    void getResourceAsStreamChildFirst(final TemporaryFolder temporaryFolder) throws IOException {
-        final File jar = temporaryFolder.newFile("getResourceAsStreamChildFirst.jar");
+    void getResourceAsStreamChildFirst(@TempDir final File temporaryFolder) throws IOException {
+        final File jar = new File(temporaryFolder, "getResourceAsStreamChildFirst.jar");
+        temporaryFolder.mkdirs();
         try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(jar))) {
             outputStream.putNextEntry(new JarEntry("found.in.child.and.parent"));
             outputStream.write("child".getBytes(StandardCharsets.UTF_8));
@@ -323,8 +346,9 @@ class ConfigurableClassLoaderTest {
     }
 
     // super light packaging of a nested jar, this is 100% for test purposes
-    private File createNestedJar(final TemporaryFolder temporaryFolder, final String... deps) throws IOException {
-        final File tmp = new File(temporaryFolder.getRoot(), UUID.randomUUID().toString() + ".jar");
+    private File createNestedJar(final File temporaryFolder, final String... deps) throws IOException {
+        final File tmp = new File(temporaryFolder, UUID.randomUUID().toString() + ".jar");
+        tmp.getParentFile().mkdirs();
         try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(tmp))) {
             {
                 out.putNextEntry(new ZipEntry(Constants.DEPENDENCIES_LIST_RESOURCE_PATH));
