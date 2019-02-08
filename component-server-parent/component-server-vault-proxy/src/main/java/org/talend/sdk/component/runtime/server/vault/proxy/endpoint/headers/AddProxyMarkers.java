@@ -31,8 +31,8 @@ public class AddProxyMarkers implements ContainerResponseFilter {
     public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext) {
         ofNullable(requestContext.getProperty("talendCacheStartTime")).map(Number.class::cast).ifPresent(start -> {
             final long duration = System.currentTimeMillis() - Number.class.cast(start).longValue();
-            responseContext.getHeaders().add("Talend-Vault-Cache-Time", duration);
+            responseContext.getHeaders().putSingle("Talend-Vault-Cache-Time", duration);
         });
-        responseContext.getHeaders().add("Talend-Vault-Cache", "true");
+        responseContext.getHeaders().putSingle("Talend-Vault-Cache", "true");
     }
 }

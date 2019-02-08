@@ -13,27 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.server.vault.proxy.service.http;
+package org.talend.sdk.component.server.vault.proxy.image;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Initialized;
+import javax.enterprise.event.Observes;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Qualifier;
+@Slf4j
+@ApplicationScoped
+public class Startup {
 
-@Qualifier
-@Target({ METHOD, FIELD, PARAMETER })
-@Retention(RUNTIME)
-public @interface Http {
-
-    Type value();
-
-    enum Type {
-        VAULT,
-        TALEND_COMPONENT_KIT
+    void onStart(@Observes @Initialized(ApplicationScoped.class) final Object start) {
+        log.info("Starting...");
     }
 }

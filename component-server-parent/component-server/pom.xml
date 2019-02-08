@@ -139,6 +139,7 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- just here to ensure the reactor is well structured, but shouldnt be in the classpath! -->
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>sample-beam</artifactId>

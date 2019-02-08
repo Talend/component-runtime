@@ -27,12 +27,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Vetoed;
-import javax.enterprise.inject.spi.CDI;
+import javax.enterprise.inject.spi.AfterDeploymentValidation;
+import javax.enterprise.inject.spi.Extension;
 
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.runner.cli.CliOption;
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
 import lombok.Data;
@@ -42,56 +46,41 @@ public class ComponentConfigurationLoader implements ConfigSource {
 
     private final Map<String, String> map = new HashMap<>();
 
-    private volatile boolean init;
-
-    private void ensureInit() {
-        if (init) {
-            return;
-        }
-        synchronized (this) {
-            if (init) {
-                return;
-            }
-            final Meecrowave.Builder builder = CDI.current().select(Meecrowave.Builder.class).get();
-            map.putAll(asMap(builder.getProperties()));
-            ofNullable(builder.getExtension(Cli.class).getConfiguration()).ifPresent(configuration -> {
-                final File file = new File(configuration);
-                if (file.exists()) {
-                    try (final InputStream is = new FileInputStream(file)) {
-                        map.putAll(load(is));
-                    } catch (final IOException e) {
-                        throw new IllegalArgumentException(e);
-                    }
-                } else {
-                    final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                    try (final InputStream is = loader.getResourceAsStream(configuration)) {
-                        if (is != null) {
-                            map.putAll(load(is));
-                        }
-                    } catch (final IOException e) {
-                        throw new IllegalArgumentException(e);
-                    }
+    private void doInit(final Meecrowave.Builder builder) {
+        map.putAll(asMap(builder.getProperties()));
+        ofNullable(builder.getExtension(Cli.class).getConfiguration()).ifPresent(configuration -> {
+            final File file = new File(configuration);
+            if (file.exists()) {
+                try (final InputStream is = new FileInputStream(file)) {
+                    map.putAll(load(is));
+                } catch (final IOException e) {
+                    throw new IllegalArgumentException(e);
                 }
-            });
-            init = true;
-        }
+            } else {
+                final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                try (final InputStream is = loader.getResourceAsStream(configuration)) {
+                    if (is != null) {
+                        map.putAll(load(is));
+                    }
+                } catch (final IOException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
     }
 
     @Override
     public Map<String, String> getProperties() {
-        ensureInit();
         return map;
     }
 
     @Override
     public Set<String> getPropertyNames() {
-        ensureInit();
         return map.keySet();
     }
 
     @Override
     public String getValue(final String key) {
-        ensureInit();
         return getProperties().get(key);
     }
 
@@ -120,5 +109,17 @@ public class ComponentConfigurationLoader implements ConfigSource {
 
         @CliOption(name = "component-configuration", description = "The file containing application configuration")
         private String configuration;
+    }
+
+    public static class Init implements Extension {
+
+        void doInit(@Observes final AfterDeploymentValidation afterDeploymentValidation, final Config config,
+                final Meecrowave.Builder builder) {
+            StreamSupport
+                    .stream(config.getConfigSources().spliterator(), false)
+                    .filter(ComponentConfigurationLoader.class::isInstance)
+                    .map(ComponentConfigurationLoader.class::cast)
+                    .forEach(it -> it.doInit(builder));
+        }
     }
 }

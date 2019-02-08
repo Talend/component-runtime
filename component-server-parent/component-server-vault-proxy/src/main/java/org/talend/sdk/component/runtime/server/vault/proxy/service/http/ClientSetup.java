@@ -27,6 +27,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -45,10 +46,14 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.opentracing.ClientTracingRegistrar;
+
+import lombok.Getter;
 
 @ApplicationScoped
 public class ClientSetup {
@@ -70,32 +75,75 @@ public class ClientSetup {
     private Boolean acceptAnyCertificate;
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.client.certificate.keystore.location")
-    private Optional<String> keystoreLocation;
+    @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.keystore.location")
+    private Optional<String> vaultKeystoreLocation;
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.client.certificate.keystore.type")
-    private Optional<String> keystoreType;
+    @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.keystore.type")
+    private Optional<String> vaultKeystoreType;
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.client.certificate.keystore.password", defaultValue = "changeit")
-    private String keystorePassword;
+    @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.keystore.password", defaultValue = "changeit")
+    private String vaultKeystorePassword;
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.client.certificate.truststore.type")
-    private Optional<String> truststoreType;
+    @ConfigProperty(name = "talend.vault.cache.client.vault.hostname.accepted",
+            defaultValue = "localhost,127.0.0.1,0:0:0:0:0:0:0:1")
+    private List<String> vaultHostnames;
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.client.executor.max", defaultValue = "512")
-    private Integer executorMaxSize;
+    @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.truststore.type")
+    private Optional<String> vaultTruststoreType;
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.client.executor.core", defaultValue = "64")
-    private Integer executorCoreSize;
+    @ConfigProperty(name = "talend.vault.cache.client.server.certificate.keystore.location")
+    private Optional<String> serverKeystoreLocation;
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.client.executor.keepAlive", defaultValue = "60000")
-    private Integer executorKeepAlive;
+    @ConfigProperty(name = "talend.vault.cache.client.server.certificate.keystore.type")
+    private Optional<String> serverKeystoreType;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.server.certificate.keystore.password", defaultValue = "changeit")
+    private String serverKeystorePassword;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.server.certificate.truststore.type")
+    private Optional<String> serverTruststoreType;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.server.hostname.accepted",
+            defaultValue = "localhost,127.0.0.1,0:0:0:0:0:0:0:1")
+    private List<String> serverHostnames;
+
+    @Inject
+    @Getter
+    @ConfigProperty(name = "talend.vault.cache.client.server.authorization")
+    private Optional<String> serverToken;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.max", defaultValue = "256")
+    private Integer vaultExecutorMaxSize;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.core", defaultValue = "64")
+    private Integer vaultExecutorCoreSize;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.keepAlive", defaultValue = "60000")
+    private Integer vaultExecutorKeepAlive;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.executor.server.max", defaultValue = "256")
+    private Integer serverExecutorMaxSize;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.executor.server.core", defaultValue = "64")
+    private Integer serverExecutorCoreSize;
+
+    @Inject
+    @ConfigProperty(name = "talend.vault.cache.client.executor.server.keepAlive", defaultValue = "60000")
+    private Integer serverExecutorKeepAlive;
 
     @Inject
     @ConfigProperty(name = "talend.vault.cache.vault.url")
@@ -108,22 +156,78 @@ public class ClientSetup {
     @Produces
     @Http(Http.Type.VAULT)
     @ApplicationScoped
-    public WebTarget vaultTarget(final Client client) {
+    public WebTarget vaultTarget(@Http(Http.Type.VAULT) final Client client) {
         return client.target(vaultUrl);
     }
 
     @Produces
     @Http(Http.Type.TALEND_COMPONENT_KIT)
     @ApplicationScoped
-    public WebTarget talendComponentKitTarget(final Client client) {
+    public WebTarget talendComponentKitTarget(@Http(Http.Type.TALEND_COMPONENT_KIT) final Client client) {
         return client.target(talendComponentKitUrl);
     }
 
     @Produces
     @ApplicationScoped
-    public ExecutorService executorService() {
-        return new ThreadPoolExecutor(executorCoreSize, executorMaxSize, executorKeepAlive, MILLISECONDS,
-                new LinkedBlockingQueue<>(), new ThreadFactory() {
+    @Http(Http.Type.TALEND_COMPONENT_KIT)
+    public ExecutorService serverExecutorService() {
+        return createExecutor(serverExecutorCoreSize, serverExecutorMaxSize, serverExecutorKeepAlive, "server");
+    }
+
+    public void releaseServerExecutor(
+            @Disposes @Http(Http.Type.TALEND_COMPONENT_KIT) final ExecutorService executorService) {
+        // should we be less aggressive? normally traffic is already off when hitting that so "ok"
+        executorService.shutdownNow();
+    }
+
+    @Produces
+    @ApplicationScoped
+    @Http(Http.Type.VAULT)
+    public ExecutorService vaultExecutorService() {
+        return createExecutor(vaultExecutorCoreSize, vaultExecutorMaxSize, vaultExecutorKeepAlive, "vault");
+    }
+
+    public void releaseVaultExecutor(@Disposes @Http(Http.Type.VAULT) final ExecutorService executorService) {
+        // should we be less aggressive? normally traffic is already off when hitting that so "ok"
+        executorService.shutdownNow();
+    }
+
+    @Produces
+    @ApplicationScoped
+    @Http(Http.Type.VAULT)
+    public Client vaultClient(@Http(Http.Type.VAULT) final ExecutorService executor) {
+        return createClient(executor, vaultKeystoreLocation, vaultKeystoreType, vaultKeystorePassword,
+                vaultTruststoreType, vaultHostnames).build();
+    }
+
+    @Produces
+    @ApplicationScoped
+    @Http(Http.Type.TALEND_COMPONENT_KIT)
+    public Client serverClient(@Http(Http.Type.TALEND_COMPONENT_KIT) final ExecutorService executor) {
+        ClientBuilder builder = createClient(executor, serverKeystoreLocation, serverKeystoreType,
+                serverKeystorePassword, serverTruststoreType, serverHostnames);
+        if (serverToken.isPresent()) {
+            final String token = serverToken.get();
+            builder = builder
+                    .register((ClientRequestFilter) requestContext -> requestContext
+                            .getHeaders()
+                            .putSingle(HttpHeaders.AUTHORIZATION, token));
+        }
+        return builder.build();
+    }
+
+    public void releaseVaultClient(@Disposes @Http(Http.Type.VAULT) final Client client) {
+        client.close();
+    }
+
+    public void releaseServerClient(@Disposes @Http(Http.Type.TALEND_COMPONENT_KIT) final Client client) {
+        client.close();
+    }
+
+    private ThreadPoolExecutor createExecutor(final int core, final int max, final long keepAlive,
+            final String nameMarker) {
+        return new ThreadPoolExecutor(core, max, keepAlive, MILLISECONDS, new LinkedBlockingQueue<>(),
+                new ThreadFactory() {
 
                     private final ThreadGroup group = ofNullable(System.getSecurityManager())
                             .map(SecurityManager::getThreadGroup)
@@ -133,8 +237,8 @@ public class ClientSetup {
 
                     @Override
                     public Thread newThread(final Runnable r) {
-                        final Thread t =
-                                new Thread(group, r, "talend-vault-client-" + threadNumber.getAndIncrement(), 0);
+                        final Thread t = new Thread(group, r,
+                                "talend-vault-proxy-" + nameMarker + "-" + threadNumber.getAndIncrement(), 0);
                         if (t.isDaemon()) {
                             t.setDaemon(false);
                         }
@@ -146,77 +250,77 @@ public class ClientSetup {
                 });
     }
 
-    public void releaseExecutor(@Disposes final ExecutorService executorService) {
-        // should we be less aggressive? normally traffic is already off when hitting that so "ok"
-        executorService.shutdownNow();
-    }
-
-    @Produces
-    @ApplicationScoped
-    public Client client(final ExecutorService executor) {
+    private ClientBuilder createClient(final ExecutorService executor, final Optional<String> keystoreLocation,
+            final Optional<String> keystoreType, final String keystorePassword, final Optional<String> truststoreType,
+            final List<String> serverHostnames) {
         final ClientBuilder builder = ClientBuilder.newBuilder();
         builder.connectTimeout(connectTimeout, MILLISECONDS);
         builder.readTimeout(readTimeout, MILLISECONDS);
         builder.executorService(executor);
         if (acceptAnyCertificate) {
-            builder.hostnameVerifier((s, session) -> true);
-
-            final TrustManager[] trustManagers = { new X509TrustManager() {
-
-                @Override
-                public void checkClientTrusted(final X509Certificate[] x509Certificates, final String s) {
-                    // no-op
-                }
-
-                @Override
-                public void checkServerTrusted(final X509Certificate[] x509Certificates, final String s) {
-                    // no-op
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-            } };
-            try {
-                final SSLContext sslContext = SSLContext.getInstance("SSL");
-                sslContext.init(null, trustManagers, new java.security.SecureRandom());
-                builder.sslContext(sslContext);
-            } catch (final NoSuchAlgorithmException | KeyManagementException e) {
-                throw new IllegalStateException(e);
-            }
+            builder.hostnameVerifier((host, session) -> true);
+            builder.sslContext(createUnsafeSSLContext());
         } else if (keystoreLocation.isPresent()) {
-            final File source = new File(keystoreLocation.orElseThrow(IllegalArgumentException::new));
-            if (!source.exists()) {
-                throw new IllegalArgumentException(source + " does not exist");
-            }
-            final KeyStore keyStore;
-            try (final FileInputStream stream = new FileInputStream(source)) {
-                keyStore = KeyStore.getInstance(keystoreType.orElseGet(KeyStore::getDefaultType));
-                keyStore.load(stream, keystorePassword.toCharArray());
-            } catch (final KeyStoreException | NoSuchAlgorithmException e) {
-                throw new IllegalStateException(e);
-            } catch (final CertificateException | IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-            try {
-                final TrustManagerFactory trustManagerFactory = TrustManagerFactory
-                        .getInstance(truststoreType.orElseGet(TrustManagerFactory::getDefaultAlgorithm));
-                trustManagerFactory.init(keyStore);
-                final SSLContext sslContext = SSLContext.getInstance("SSL");
-                sslContext.init(null, trustManagerFactory.getTrustManagers(), new java.security.SecureRandom());
-                builder.sslContext(sslContext);
-            } catch (final KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
-                throw new IllegalStateException(e);
-            }
+            builder.hostnameVerifier((host, session) -> serverHostnames.contains(host));
+            builder.sslContext(createSSLContext(keystoreLocation, keystoreType, keystorePassword, truststoreType));
         }
         providers
                 .map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()))
                 .ifPresent(it -> it.forEach(builder::register));
-        return ClientTracingRegistrar.configure(builder).build();
+        return ClientTracingRegistrar.configure(builder);
     }
 
-    public void releaseClient(@Disposes final Client client) {
-        client.close();
+    private SSLContext createUnsafeSSLContext() {
+        final TrustManager[] trustManagers = { new X509TrustManager() {
+
+            @Override
+            public void checkClientTrusted(final X509Certificate[] x509Certificates, final String s) {
+                // no-op
+            }
+
+            @Override
+            public void checkServerTrusted(final X509Certificate[] x509Certificates, final String s) {
+                // no-op
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        } };
+        try {
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustManagers, new java.security.SecureRandom());
+            return sslContext;
+        } catch (final NoSuchAlgorithmException | KeyManagementException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private SSLContext createSSLContext(final Optional<String> keystoreLocation, final Optional<String> keystoreType,
+            final String keystorePassword, final Optional<String> truststoreType) {
+        final File source = new File(keystoreLocation.orElseThrow(IllegalArgumentException::new));
+        if (!source.exists()) {
+            throw new IllegalArgumentException(source + " does not exist");
+        }
+        final KeyStore keyStore;
+        try (final FileInputStream stream = new FileInputStream(source)) {
+            keyStore = KeyStore.getInstance(keystoreType.orElseGet(KeyStore::getDefaultType));
+            keyStore.load(stream, keystorePassword.toCharArray());
+        } catch (final KeyStoreException | NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        } catch (final CertificateException | IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+        try {
+            final TrustManagerFactory trustManagerFactory =
+                    TrustManagerFactory.getInstance(truststoreType.orElseGet(TrustManagerFactory::getDefaultAlgorithm));
+            trustManagerFactory.init(keyStore);
+            final SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustManagerFactory.getTrustManagers(), new java.security.SecureRandom());
+            return sslContext;
+        } catch (final KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

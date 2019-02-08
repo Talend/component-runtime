@@ -67,6 +67,9 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
     @Override
     public void accept(final Meecrowave.Builder builder) {
+        if (Boolean.getBoolean("org.talend.sdk.component.server.test.InitTestInfra.skip")) {
+            return;
+        }
         Locale.setDefault(Locale.ENGLISH);
         builder.setJsonbPrettify(true);
         builder

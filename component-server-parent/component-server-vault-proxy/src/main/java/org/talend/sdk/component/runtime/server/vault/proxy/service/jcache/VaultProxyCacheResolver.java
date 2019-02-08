@@ -19,7 +19,7 @@ import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.lang.annotation.Annotation;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
@@ -65,12 +65,11 @@ public class VaultProxyCacheResolver implements CacheResolverFactory {
 
     private volatile boolean running = true;
 
-    private CountDownLatch shutdownLatch;
+    private Thread thread;
 
     @PostConstruct
     private void startRefresh() {
-        shutdownLatch = new CountDownLatch(1);
-        final Thread thread = new Thread(() -> refreshThread(refreshPeriod, shutdownLatch));
+        thread = new Thread(() -> refreshThread(refreshPeriod));
         thread.setName(getClass().getName() + "-refresher");
         thread.setPriority(Thread.NORM_PRIORITY);
         thread.setDaemon(false);
@@ -81,9 +80,10 @@ public class VaultProxyCacheResolver implements CacheResolverFactory {
     @PreDestroy
     private void stopRefresh() {
         running = false;
-        ofNullable(shutdownLatch).ifPresent(it -> {
+        ofNullable(thread).ifPresent(it -> {
             try {
-                it.await();
+                it.interrupt();
+                it.join(TimeUnit.SECONDS.toMillis(5)); // not super important here
             } catch (final InterruptedException e) {
                 log.warn(e.getMessage());
                 Thread.currentThread().interrupt();
@@ -91,7 +91,7 @@ public class VaultProxyCacheResolver implements CacheResolverFactory {
         });
     }
 
-    private void refreshThread(final long delay, final CountDownLatch onExit) {
+    private void refreshThread(final long delay) {
         try {
             while (running) {
                 try {
@@ -99,14 +99,10 @@ public class VaultProxyCacheResolver implements CacheResolverFactory {
                 } catch (final Exception e) {
                     log.warn(e.getMessage(), e);
                 }
-                try {
-                    Thread.sleep(delay);
-                } catch (final InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
+                Thread.sleep(delay);
             }
-        } finally {
-            onExit.countDown();
+        } catch (final InterruptedException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 

@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.server.vault.proxy.proxy;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.talend.sdk.component.runtime.server.vault.proxy.service.http.Http.Type.TALEND_COMPONENT_KIT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.talend.sdk.component.runtime.server.vault.proxy.service.http.Http;
 import org.talend.sdk.component.server.front.model.ActionList;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.Environment;
@@ -45,6 +47,7 @@ class ComponentServerProxyTest {
     private Meecrowave.Builder serverConfig;
 
     @Inject
+    @Http(TALEND_COMPONENT_KIT) // not important in tests
     private Client client;
 
     @Test

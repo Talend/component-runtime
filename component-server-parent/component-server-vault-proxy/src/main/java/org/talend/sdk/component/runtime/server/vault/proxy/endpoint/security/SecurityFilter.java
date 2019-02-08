@@ -29,6 +29,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -40,9 +41,13 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityFilter implements Filter {
 
     @Inject
-    @ConfigProperty(name = "talend.vault.cache.vault.security.allowedIps",
+    @ConfigProperty(name = "talend.vault.cache.security.allowedIps",
             defaultValue = "localhost,127.0.0.1,0:0:0:0:0:0:0:1")
     private List<String> allowedIp;
+
+    @Inject
+    @ConfigProperty(name = "alend.vault.cache.security.tokens", defaultValue = "-")
+    private List<String> securedEndpointsTokens;
 
     @Override
     public void init(final FilterConfig filterConfig) {
@@ -54,7 +59,7 @@ public class SecurityFilter implements Filter {
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        if (!isAllowed(HttpServletRequest.class.cast(request))) {
+        if (!isAllowed(HttpServletRequest.class.cast(request)) && !isSecured(request)) {
             final HttpServletResponse httpServletResponse = HttpServletResponse.class.cast(response);
             httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
             httpServletResponse.setContentType("application/json");
@@ -67,5 +72,11 @@ public class SecurityFilter implements Filter {
     // cheap security
     private boolean isAllowed(final HttpServletRequest request) {
         return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(request.getRemoteHost());
+    }
+
+    private boolean isSecured(final ServletRequest servletRequest) {
+        final String authorization = HttpServletRequest.class.cast(servletRequest).getHeader(HttpHeaders.AUTHORIZATION);
+        return authorization != null && !"-".equalsIgnoreCase(authorization)
+                && securedEndpointsTokens.contains(authorization);
     }
 }
