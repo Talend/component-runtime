@@ -52,22 +52,6 @@ public class ComponentServerConfiguration {
     private Optional<String> componentRegistry;
 
     @Inject
-    @Documentation("How long the application waits during shutdown for the execution tasks to complete")
-    @ConfigProperty(name = "talend.component.server.execution.pool.wait", defaultValue = "PT10S") // 10s
-    private String executionPoolShutdownTimeout;
-
-    @Inject
-    @Documentation("How long the read execution endpoint can last (max)")
-    @ConfigProperty(name = "talend.component.server.execution.dataset.retriever.timeout", defaultValue = "180") // in
-    // sec
-    private Long datasetRetrieverTimeout;
-
-    @Inject
-    @Documentation("The name used by the brave integration (zipkin)")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.service.name", defaultValue = "component-server")
-    private String serviceName;
-
-    @Inject
     @Documentation("Should the /documentation endpoint be activated. "
             + "Note that when called on localhost the doc is always available.")
     @ConfigProperty(name = "talend.component.server.documentation.active", defaultValue = "true")
