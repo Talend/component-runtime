@@ -28,7 +28,7 @@ function AlreadyUsedWarning() {
 			title="Delete datastore"
 			i18nKey="delete_datastore_warning_is_used"
 			icon="talend-warning"
-			content={<p>You can't delete this datastore because it's already used.</p>}
+			content={<p>You can't delete this configuration because it's already used.</p>}
 		/>
 	);
 }
@@ -39,7 +39,7 @@ function IsLastWarning() {
 			title="Delete datastore"
 			i18nKey="delete_datastore_warning_is_last"
 			icon="talend-warning"
-			content={<p>You can't delete this datastore because it's the last one.</p>}
+			content={<p>You can't delete this configuration because at least one is required for IO.</p>}
 		/>
 	);
 }
