@@ -980,15 +980,11 @@ public class ComponentManager implements AutoCloseable {
         // not JSON services
         final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
         if (!Boolean.getBoolean("talend.component.configuration." + containerId + ".ignoreLocalConfiguration")) {
-            try (final InputStream stream =
-                    container.getLoader().findContainedResource("TALEND-INF/local-configuration" + ".properties")) {
-                if (stream != null) {
-                    final Properties properties = new Properties();
-                    properties.load(stream);
-                    containerConfigurations.add(new PropertiesConfiguration(properties));
-                }
-            } catch (final IOException e) {
-                throw new IllegalArgumentException(e);
+            final Stream<InputStream> localConfigs =
+                    container.getLoader().findContainedResources("TALEND-INF/local-configuration.properties").stream();
+            final Properties aggregatedLocalConfigs = aggregateConfigurations(localConfigs);
+            if (!aggregatedLocalConfigs.isEmpty()) {
+                containerConfigurations.add(new PropertiesConfiguration(aggregatedLocalConfigs));
             }
         }
         services.put(LocalConfiguration.class, new LocalConfigurationService(containerConfigurations, containerId));
@@ -1002,6 +998,46 @@ public class ComponentManager implements AutoCloseable {
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId, propertyEditorRegistry));
         services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
         services.put(ContainerInfo.class, new ContainerInfo(containerId));
+    }
+
+    private Properties aggregateConfigurations(final Stream<InputStream> localConfigs) {
+        final AtomicReference<RuntimeException> re = new AtomicReference<>();
+        final Properties result = localConfigs.map(stream -> {
+            final Properties properties = new Properties();
+            try {
+                if (stream != null) {
+                    properties.load(stream);
+                }
+                return properties;
+            } catch (final IOException e) {
+                log.error(e.getMessage(), e);
+                RuntimeException runtimeException = re.get();
+                if (runtimeException == null) {
+                    runtimeException = new IllegalStateException("Can't read all local configurations");
+                    re.set(runtimeException);
+                }
+                runtimeException.addSuppressed(e);
+                return properties;
+            } finally {
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    } catch (final IOException e) {
+                        // no-op
+                    }
+                }
+            }
+        })
+                .sorted(comparing(it -> Integer.parseInt(it.getProperty("_ordinal", "0"))))
+                .reduce(new Properties(), (p1, p2) -> {
+                    p1.putAll(p2);
+                    return p1;
+                });
+        final RuntimeException error = re.get();
+        if (error != null) {
+            throw error;
+        }
+        return result;
     }
 
     protected static Collection<LocalConfiguration> createRawLocalConfigurations() {

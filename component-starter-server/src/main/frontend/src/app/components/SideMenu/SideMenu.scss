@@ -28,28 +28,42 @@
     $grey: #ccc;
     $color-inverse: white;
 	margin: 2rem 0;
+	width: $width;
 
-	ol {
+	> ol {
 		list-style: none;
-		margin: 0;
-		padding: 0;
+		margin: 0 0 0 1.5rem;
+		padding: 0 0 0 1rem;
 		display: flex;
 		flex-direction: column;
-		padding-left: 1rem;
-		margin-left: 2.5rem;
 
-		li {
+		> li {
 			position: relative;
 			box-sizing: border-box;
 			counter-increment: step-counter;
-			padding: 0 2rem 2rem;
+			padding: 0 0 2rem 2rem;
 			border: none;
 			border-left: $step-link-width solid $wizard-blue;
 			border-radius: 0;
-			display: flex;
+			// display: flex;
+			width: $width - 30px;
 
-			trash-icon {
-				display: inherit;
+			:global(.btn-icon-only) {
+				display: none;
+				float: right;
+				margin-top: 5px;
+			}
+			&:hover {
+				a {
+					width: $width - 60px;
+				}
+				:global(.btn-icon-only) {
+					display: initial;
+				}
+			}
+			> a {
+				word-wrap: break-word;
+				width: 100%;
 			}
 
 			&:hover {
@@ -62,11 +76,10 @@
 			}
 
 			&:before {
-				content: '';
 				content: counter(step-counter);
 				font-weight: bold;
 				float: left;
-				margin-left: -3.5rem;
+				margin-left: -3.3rem;
 				height: 2.5rem;
 				width: 2.5rem;
 				line-height: 2.5rem;
@@ -110,16 +123,12 @@
 
 				a {
 					color: $wizard-blue;
-					word-wrap: break-word;
-					max-width: 150px;
-					min-width: 150px;
 				}
 			}
 
-			> * {
+			> a {
 				display: block;
-				padding-left: 0.4rem;
-				padding-top: 0.4rem;
+				padding: 0.4rem 1rem 0 0.4rem;
 			}
 		}
 	}

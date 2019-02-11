@@ -31,6 +31,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
@@ -67,7 +68,7 @@ public abstract class SecuredFilter implements Filter {
     }
 
     private boolean isSecured(final ServletRequest servletRequest) {
-        final String authorization = HttpServletRequest.class.cast(servletRequest).getHeader("Authorization");
+        final String authorization = HttpServletRequest.class.cast(servletRequest).getHeader(HttpHeaders.AUTHORIZATION);
         return authorization != null && tokens.contains(authorization);
     }
 

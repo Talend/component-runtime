@@ -31,7 +31,6 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.starter</talend.build.name>
-
   </properties>
 
   <dependencies>

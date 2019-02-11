@@ -12,7 +12,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */import React from 'react';
+ */ import React from 'react';
 import PropTypes from 'prop-types';
 import { Action } from '@talend/react-components/lib/Actions';
 import Dialog from '@talend/react-components/lib/Dialog';
@@ -29,6 +29,9 @@ export default class Connection extends React.Component {
 		connection: PropTypes.shape({
 			name: PropTypes.string,
 			generic: PropTypes.bool,
+			structure: PropTypes.shape({
+				entries: PropTypes.array,
+			}),
 		}),
 		removeConnection: PropTypes.func,
 	};
@@ -62,15 +65,28 @@ export default class Connection extends React.Component {
 	}
 
 	render() {
+		let issue;
+		if (
+			!this.props.connection.generic &&
+			this.props.connection.structure.entries.length === 0
+		) {
+			issue = true;
+		}
 		return (
 			<li className={theme.Connection}>
 				<div>
 					<a className="btn btn-link" href="#/show-drawer" onClick={this.onClickShowModal}>
-						{this.props.connection.name}&nbsp;
-						<span className={theme.recordType}>
-							({!this.props.connection.generic ? 'custom' : 'generic'})
-						</span>
-						&nbsp;
+						{this.props.connection.name}
+						{issue && (
+							<Help
+								title="Custom record need schema"
+								i18nKey="error_processor_custom_need_schema"
+								icon="talend-warning"
+								content={
+									<p>When the record is not generic you must specify the structure schema</p>
+								}
+							/>
+						)}
 					</a>
 					<Dialog
 						show={this.state.show}

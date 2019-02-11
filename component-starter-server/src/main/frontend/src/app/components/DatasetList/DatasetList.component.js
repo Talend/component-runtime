@@ -18,6 +18,7 @@ import { Action } from '@talend/react-components/lib/Actions';
 import DatasetContext from '../../DatasetContext';
 import DatasetForm from '../DatasetForm';
 import theme from './DatasetList.scss';
+import DatasetDelete from '../DatasetDelete';
 
 function DatasetList() {
 	return (
@@ -53,6 +54,7 @@ function DatasetList() {
 							{dataset.datasets.map((d, index) => (
 								<li key={index} className={theme.li}>
 									<Action bsStyle="link" onClick={() => dataset.setCurrent(d)} label={d.name} />
+									<DatasetDelete item={d} />
 								</li>
 							))}
 						</ul>

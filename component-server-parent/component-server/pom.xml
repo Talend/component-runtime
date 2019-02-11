@@ -48,7 +48,7 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-server-model</artifactId>
+      <artifactId>component-server-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -139,6 +139,7 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- just here to ensure the reactor is well structured, but shouldnt be in the classpath! -->
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>sample-beam</artifactId>
@@ -187,11 +188,11 @@
               <output>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</output>
               <application>org.talend.sdk.component.server.front.TalendComponentApplication</application>
               <endpointClasses>
-                <endpointClass>org.talend.sdk.component.server.front.ActionResource</endpointClass>
-                <endpointClass>org.talend.sdk.component.server.front.ComponentResource</endpointClass>
-                <endpointClass>org.talend.sdk.component.server.front.ConfigurationTypeResource</endpointClass>
-                <endpointClass>org.talend.sdk.component.server.front.DocumentationResource</endpointClass>
-                <endpointClass>org.talend.sdk.component.server.front.EnvironmentResource</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.ActionResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.ComponentResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.ConfigurationTypeResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.DocumentationResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.EnvironmentResourceImpl</endpointClass>
               </endpointClasses>
               <info>
                 <version>1</version>
@@ -431,6 +432,9 @@
               <excludes>
                 <exclude>**/beam/*Test.java</exclude>
               </excludes>
+              <systemPropertyVariables>
+                <org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>false</org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>
+              </systemPropertyVariables>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
                 <classpathDependencyExclude>org.talend.sdk.component:component-runtime-beam</classpathDependencyExclude>
@@ -448,6 +452,7 @@
                 <include>**/beam/*Test.java</include>
               </includes>
               <systemPropertyVariables>
+                <org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>false</org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>
                 <components.server.beam.active>true</components.server.beam.active>
                 <components.sample.beam.groupId>${sample.beam.groupId}</components.sample.beam.groupId>
                 <components.sample.beam.artifactId>${sample.beam.artifactId}</components.sample.beam.artifactId>
