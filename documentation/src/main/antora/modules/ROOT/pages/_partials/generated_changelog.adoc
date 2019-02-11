@@ -25,6 +25,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1292[TCOMP-1292^]: Provide a vault friendly integration for the server
 - link:https://jira.talendforge.org/browse/TCOMP-1293[TCOMP-1293^]: Upgrade to Tomcat 9.0.16
 - link:https://jira.talendforge.org/browse/TCOMP-1295[TCOMP-1295^]: Ensure local-configuration.properties of a container are merged
+- link:https://jira.talendforge.org/browse/TCOMP-1296[TCOMP-1296^]: Ensure user can enrich families with custom jar+configuration
 
 
 == Version 1.1.5

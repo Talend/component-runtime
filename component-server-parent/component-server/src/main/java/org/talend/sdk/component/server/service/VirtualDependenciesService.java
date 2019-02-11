@@ -1,0 +1,363 @@
+/**
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.server.service;
+
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.Locale.ROOT;
+import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static lombok.AccessLevel.PACKAGE;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.stream.Stream;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
+
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
+import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.dependencies.maven.Artifact;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@ApplicationScoped
+public class VirtualDependenciesService {
+
+    @Getter(PACKAGE)
+    private final String virtualGroupId = "virtual.talend.component.server.generated.";
+
+    @Getter(PACKAGE)
+    private final String version = "dynamic";
+
+    @Getter(PACKAGE)
+    private final String configurationArtifactIdPrefix = "user-local-configuration-";
+
+    private final Enrichment noCustomization = new Enrichment(false, null, null, null);
+
+    @Inject
+    private ComponentServerConfiguration configuration;
+
+    private final Map<String, Enrichment> enrichmentsPerContainer = new HashMap<>();
+
+    @Getter(PACKAGE)
+    private final Map<Artifact, File> artifactMapping = new ConcurrentHashMap<>();
+
+    private final Map<Artifact, Supplier<InputStream>> configurationArtifactMapping = new ConcurrentHashMap<>();
+
+    void onDeploy(final String pluginId) {
+        if (!configuration.getUserExtensions().isPresent()) {
+            enrichmentsPerContainer.put(pluginId, noCustomization);
+            return;
+        }
+        final File extensions =
+                new File(configuration.getUserExtensions().orElseThrow(IllegalArgumentException::new), pluginId);
+        if (!extensions.isDirectory()) {
+            log.debug("'{}' does not exist so no extension will be added to family '{}'", extensions, pluginId);
+            enrichmentsPerContainer.put(pluginId, noCustomization);
+            return;
+        }
+
+        final Properties userConfiguration = loadUserConfiguration(pluginId, extensions);
+        final Map<Artifact, File> userJars = findJars(extensions, pluginId);
+        if (userConfiguration.isEmpty() && userJars.isEmpty()) {
+            log.debug("No customization for container '{}'", pluginId);
+            enrichmentsPerContainer.put(pluginId, noCustomization);
+            return;
+        }
+
+        final Map<String, String> customConfigAsMap = userConfiguration
+                .stringPropertyNames()
+                .stream()
+                .collect(toMap(identity(), userConfiguration::getProperty));
+        log
+                .debug("Set up customization for container '{}' (has-configuration={}, jars={})", pluginId,
+                        !userConfiguration.isEmpty(), userJars);
+
+        if (userConfiguration.isEmpty()) {
+            enrichmentsPerContainer.put(pluginId, new Enrichment(true, customConfigAsMap, null, userJars.keySet()));
+        } else {
+            final Artifact configurationArtifact = new Artifact(groupIdFor(pluginId),
+                    configurationArtifactIdPrefix + pluginId, "jar", "", version, "compile");
+            final byte[] localConfigurationJar = generateConfigurationJar(pluginId, userConfiguration);
+            enrichmentsPerContainer
+                    .put(pluginId, new Enrichment(true, customConfigAsMap, configurationArtifact, userJars.keySet()));
+            configurationArtifactMapping
+                    .put(configurationArtifact, () -> new ByteArrayInputStream(localConfigurationJar));
+        }
+
+        artifactMapping.putAll(userJars);
+    }
+
+    void onUnDeploy(final Container plugin) {
+        final Enrichment enrichment = enrichmentsPerContainer.remove(plugin.getId());
+        if (enrichment == null || enrichment == noCustomization) {
+            return;
+        }
+
+        if (enrichment.userArtifacts != null) {
+            enrichment.userArtifacts.forEach(artifactMapping::remove);
+            enrichment.userArtifacts.clear();
+        }
+        if (enrichment.configurationArtifact != null) {
+            configurationArtifactMapping.remove(enrichment.configurationArtifact);
+        }
+    }
+
+    public boolean isVirtual(final String gav) {
+        return gav.startsWith(virtualGroupId);
+    }
+
+    Enrichment getEnrichmentFor(final String pluginId) {
+        return enrichmentsPerContainer.get(pluginId);
+    }
+
+    public Stream<Artifact> userArtifactsFor(final String pluginId) {
+        final Enrichment enrichment = enrichmentsPerContainer.get(pluginId);
+        if (enrichment == null || !enrichment.customized) {
+            return Stream.empty();
+        }
+        final Stream<Artifact> userJars = enrichment.userArtifacts.stream();
+        if (enrichment.configurationArtifact != null) {
+            // config is added but will be ignored cause not physically here
+            // however it ensures our rest service returns right data
+            return Stream.concat(userJars, Stream.of(enrichment.configurationArtifact));
+        }
+        return userJars;
+    }
+
+    public Supplier<InputStream> retrieveArtifact(final Artifact artifact) {
+        return ofNullable(artifactMapping.get(artifact)).map(it -> (Supplier<InputStream>) () -> {
+            try {
+                return new FileInputStream(it);
+            } catch (FileNotFoundException e) {
+                throw new IllegalStateException(e);
+            }
+        }).orElseGet(() -> configurationArtifactMapping.get(artifact));
+    }
+
+    String groupIdFor(final String family) {
+        return virtualGroupId + sanitizedForGav(family);
+    }
+
+    private byte[] generateConfigurationJar(final String family, final Properties userConfiguration) {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final Manifest manifest = new Manifest();
+        final Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        mainAttributes.putValue("Created-By", "Talend Component Kit Server");
+        mainAttributes.putValue("Talend-Time", Long.toString(System.currentTimeMillis()));
+        mainAttributes.putValue("Talend-Family-Name", family);
+        try (final JarOutputStream jar = new JarOutputStream(new BufferedOutputStream(outputStream), manifest)) {
+            jar.putNextEntry(new JarEntry("TALEND-INF/local-configuration.properties"));
+            userConfiguration.store(jar, "Configuration of the family " + family);
+            jar.closeEntry();
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return outputStream.toByteArray();
+    }
+
+    private Properties loadUserConfiguration(final String plugin, final File root) {
+        final File userConfig = new File(root, "user-configuration.properties");
+        final Properties properties = new Properties();
+        if (!userConfig.exists()) {
+            return properties;
+        }
+        final String content;
+        try (final BufferedReader stream = new BufferedReader(new InputStreamReader(new FileInputStream(userConfig)))) {
+            content = stream.lines().collect(joining("\n"));
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        try (final Reader reader = new StringReader(replaceByGav(plugin, content))) {
+            properties.load(reader);
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return properties;
+    }
+
+    // handle "userJar(name)" function in the config, normally not needed since jars are in the context already
+    // note: if we make it more complex, switch to a real parser or StrSubstitutor
+    String replaceByGav(final String plugin, final String content) {
+        final StringBuilder output = new StringBuilder();
+        final String prefixFn = "userJar(";
+        int fnIdx = content.indexOf(prefixFn);
+        int previousEnd = 0;
+        if (fnIdx < 0) {
+            output.append(content);
+        } else {
+            while (fnIdx >= 0) {
+                final int end = content.indexOf(')', fnIdx);
+                output.append(content, previousEnd, fnIdx);
+                output.append(toGav(plugin, content.substring(fnIdx + prefixFn.length(), end)));
+                fnIdx = content.indexOf(prefixFn, end);
+                if (fnIdx < 0) {
+                    if (end < content.length() - 1) {
+                        output.append(content, end + 1, content.length());
+                    }
+                } else {
+                    previousEnd = end + 1;
+                }
+            }
+        }
+        return output.toString();
+    }
+
+    private String toGav(final String plugin, final String jarNameWithoutExtension) {
+        return groupIdFor(plugin) + ':' + jarNameWithoutExtension + ":jar:" + version;
+    }
+
+    private Map<Artifact, File> findJars(final File familyFolder, final String family) {
+        if (!familyFolder.isDirectory()) {
+            return emptyMap();
+        }
+        return ofNullable(familyFolder.listFiles((dir, name) -> name.endsWith(".jar")))
+                .map(files -> Stream
+                        .of(files)
+                        .collect(toMap(
+                                it -> new Artifact(groupIdFor(family), toArtifact(it), "jar", "", version, "compile"),
+                                identity())))
+                .orElseGet(Collections::emptyMap);
+    }
+
+    private String toArtifact(final File file) {
+        return file.getName().substring(0, file.getName().length() - ".jar".length());
+    }
+
+    private String sanitizedForGav(final String name) {
+        return name.replace(' ', '_').toLowerCase(ROOT);
+    }
+
+    @RequiredArgsConstructor
+    private static class Enrichment {
+
+        private final boolean customized;
+
+        private final Map<String, String> customConfiguration;
+
+        private final Artifact configurationArtifact;
+
+        private final Collection<Artifact> userArtifacts;
+    }
+
+    public static class LocalConfigurationImpl implements LocalConfiguration {
+
+        private final VirtualDependenciesService delegate;
+
+        public LocalConfigurationImpl() {
+            delegate = CDI.current().select(VirtualDependenciesService.class).get();
+        }
+
+        @Override
+        public String get(final String key) {
+            if (key == null || !key.contains(".")) {
+                return null;
+            }
+            final String plugin = key.substring(0, key.indexOf('.'));
+            final Enrichment enrichment = delegate.getEnrichmentFor(plugin);
+            if (enrichment == null || enrichment.customConfiguration == null) {
+                return null;
+            }
+            return enrichment.customConfiguration.get(key.substring(plugin.length() + 1));
+        }
+
+        @Override
+        public Set<String> keys() {
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            if (!ConfigurableClassLoader.class.isInstance(loader)) {
+                return emptySet();
+            }
+            final String id = ConfigurableClassLoader.class.cast(loader).getId();
+            final Enrichment enrichment = delegate.getEnrichmentFor(id);
+            if (enrichment == null || enrichment.customConfiguration == null) {
+                return emptySet();
+            }
+            return unmodifiableSet(enrichment.customConfiguration.keySet());
+        }
+    }
+
+    public static class UserContainerClasspathContributor implements ComponentManager.ContainerClasspathContributor {
+
+        private final VirtualDependenciesService delegate;
+
+        public UserContainerClasspathContributor() {
+            delegate = CDI.current().select(VirtualDependenciesService.class).get();
+        }
+
+        @Override
+        public Collection<Artifact> findContributions(final String pluginId) {
+            delegate.onDeploy(pluginId);
+            return delegate.userArtifactsFor(pluginId).collect(toList());
+        }
+
+        @Override
+        public boolean canResolve(final String path) {
+            return delegate.isVirtual(path.replace('/', '.'));
+        }
+
+        @Override
+        public File resolve(final String path) {
+            if (path.contains('/' + delegate.getConfigurationArtifactIdPrefix())) {
+                return null; // not needed, will be enriched on the fly, see LocalConfigurationImpl
+            }
+            final String[] segments = path.split("/");
+            if (segments.length < 9) {
+                return null;
+            }
+            // ex: virtual.talend.component.server.generated.<plugin id>:<artifact>:jar:dynamic
+            final Artifact artifact = new Artifact(delegate
+                    .groupIdFor(Stream.of(segments).skip(5).limit(segments.length - 5 - 3).collect(joining("."))),
+                    segments[segments.length - 3], "jar", null, delegate.getVersion(), "compile");
+            return delegate.getArtifactMapping().get(artifact);
+        }
+    }
+}
