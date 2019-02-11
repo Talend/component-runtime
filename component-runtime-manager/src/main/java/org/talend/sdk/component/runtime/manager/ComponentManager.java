@@ -155,6 +155,7 @@ import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
+import org.talend.sdk.component.dependencies.EmptyResolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.jmx.JmxManager;
@@ -362,7 +363,9 @@ public class ComponentManager implements AutoCloseable {
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
-                .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve))
+                .resolver(customizers.stream().noneMatch(Customizer::ignoreDefaultDependenciesDescriptor)
+                        ? new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve)
+                        : new EmptyResolver())
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
                 }, logInfoLevelMapping) {
@@ -1905,6 +1908,16 @@ public class ComponentManager implements AutoCloseable {
          * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.
          */
         boolean ignoreBeamClassLoaderExclusions();
+
+        /**
+         * Disable default built-in component classpath building mecanism. This is useful when relying on
+         * a custom {@link ContainerClasspathContributor} handling it.
+         *
+         * @return true if the default dependencies descriptor (TALEND-INF/dependencies.txt) must be ignored.
+         */
+        default boolean ignoreDefaultDependenciesDescriptor() {
+            return false;
+        }
     }
 
     /**
