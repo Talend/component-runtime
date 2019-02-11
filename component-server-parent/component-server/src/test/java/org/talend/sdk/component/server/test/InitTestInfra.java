@@ -42,8 +42,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
@@ -75,10 +77,38 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         builder
                 .setTempDir(new File(jarLocation(InitTestInfra.class).getParentFile(), getClass().getSimpleName())
                         .getAbsolutePath());
+        System.setProperty("component.manager.classpath.skip", "true");
+        System.setProperty("component.manager.callers.skip", "true");
         System.setProperty("talend.component.server.maven.repository", createM2(builder.getTempDir()));
         System
                 .setProperty("talend.component.server.component.documentation.translations",
                         createI18nDocRepo(builder.getTempDir()));
+        System.setProperty("talend.component.server.user.extensions.location", createUserJars(builder.getTempDir()));
+    }
+
+    private String createUserJars(final String tempDir) {
+        final File base = new File(tempDir, "/user-extensions/component-with-user-jars");
+        base.mkdirs();
+        try (final FileWriter writer = new FileWriter(new File(base, "user-configuration.properties"))) {
+            writer.write("i.m.a.virtual.configuration.entry = Yes I am!\n");
+            writer.write("i.m.another.virtual.configuration.entry = Yes I am too!");
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        final Manifest man = new Manifest();
+        man.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        man.getMainAttributes().putValue("Created-By", "Talend Component Kit Server tests");
+        try (final JarOutputStream jar =
+                new JarOutputStream(new FileOutputStream(new File(base, "user-extension.jar")), man)) {
+            jar
+                    .putNextEntry(new JarEntry(
+                            "TALEND-INF/org.talend.sdk.component.server.test.custom.CustomService.properties"));
+            jar.write("i.am = in the classpath\nand.was.added = by the user".getBytes(StandardCharsets.UTF_8));
+            jar.closeEntry();
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return base.getParentFile().getAbsolutePath();
     }
 
     private String createI18nDocRepo(final String tempDir) {
@@ -128,6 +158,12 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             final String artifactId = "collection-of-object";
             final String version = "0.0.1";
             createComponent(m2, groupId, artifactId, version, generator::createConfigPlugin);
+        }
+        {
+            final String groupId = "org.talend.test";
+            final String artifactId = "component-with-user-jars";
+            final String version = "0.0.1";
+            createComponent(m2, groupId, artifactId, version, generator::createCustomPlugin);
         }
         if (Boolean.getBoolean("components.server.beam.active")) {
             final String groupId = System.getProperty("components.sample.beam.groupId");
@@ -237,6 +273,17 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
         private File createConfigPlugin(final File target) {
             return createRepackaging(target, "org/talend/sdk/component/server/test/configuration", out -> {
+                try {
+                    out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
+                    out.closeEntry();
+                } catch (final IOException e) {
+                    fail(e.getMessage());
+                }
+            });
+        }
+
+        private File createCustomPlugin(final File target) {
+            return createRepackaging(target, "org/talend/sdk/component/server/test/custom", out -> {
                 try {
                     out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
                     out.closeEntry();

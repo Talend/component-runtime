@@ -29,6 +29,7 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
@@ -77,6 +79,7 @@ import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
+import org.talend.sdk.component.server.service.VirtualDependenciesService;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 
 import lombok.extern.slf4j.Slf4j;
@@ -114,6 +117,9 @@ public class ComponentResourceImpl implements ComponentResource {
     @Inject
     private ComponentServerConfiguration configuration;
 
+    @Inject
+    private VirtualDependenciesService virtualDependenciesService;
+
     @PostConstruct
     private void setupRuntime() {
         log.info("Initializing " + getClass());
@@ -130,40 +136,15 @@ public class ComponentResourceImpl implements ComponentResource {
         return new Dependencies(Stream
                 .of(ids)
                 .map(id -> componentDao.findById(id))
-                .collect(toMap(ComponentFamilyMeta.BaseMeta::getId,
-                        meta -> componentManagerService.manager().findPlugin(meta.getParent().getPlugin()).map(c -> {
-                            ComponentExtension.ComponentContext context =
-                                    c.get(ComponentContexts.class).getContexts().get(meta.getType());
-                            ComponentExtension extension = context.owningExtension();
-                            final Stream<Artifact> deps = c.findDependencies();
-                            final Stream<Artifact> artifacts;
-                            if (configuration.getAddExtensionDependencies() && extension != null) {
-                                final List<Artifact> dependencies = deps.collect(toList());
-                                final Stream<Artifact> addDeps = extension
-                                        .getAdditionalDependencies()
-                                        .stream()
-                                        .map(Artifact::from)
-                                        // filter required artifacts if they are already present in the list.
-                                        .filter(extArtifact -> dependencies
-                                                .stream()
-                                                .map(d -> d.getGroup() + ":" + d.getArtifact())
-                                                .noneMatch(ga -> ga
-                                                        .equals(extArtifact.getGroup() + ":"
-                                                                + extArtifact.getArtifact())));
-                                artifacts = Stream.concat(dependencies.stream(), addDeps);
-                            } else {
-                                artifacts = deps;
-                            }
-                            return new DependencyDefinition(artifacts.map(Artifact::toCoordinate).collect(toList()));
-                        }).orElse(new DependencyDefinition(emptyList())))));
+                .collect(toMap(ComponentFamilyMeta.BaseMeta::getId, this::getDependenciesFor)));
     }
 
     @Override
     public StreamingOutput getDependency(final String id) {
         final ComponentFamilyMeta.BaseMeta<?> component = componentDao.findById(id);
-        final File file;
+        final Supplier<InputStream> streamProvider;
         if (component != null) { // local dep
-            file = componentManagerService
+            final File file = componentManagerService
                     .manager()
                     .findPlugin(component.getParent().getPlugin())
                     .orElseThrow(() -> new WebApplicationException(Response
@@ -177,21 +158,40 @@ public class ComponentResourceImpl implements ComponentResource {
                             .type(APPLICATION_JSON_TYPE)
                             .entity(new ErrorPayload(PLUGIN_MISSING, "No dependency matching the id: " + id))
                             .build()));
+            if (!file.exists()) {
+                return onMissingJar(id);
+            }
+            streamProvider = () -> {
+                try {
+                    return new FileInputStream(file);
+                } catch (final FileNotFoundException e) {
+                    throw new IllegalStateException(e);
+                }
+            };
         } else { // just try to resolve it locally, note we would need to ensure some security here
-            // .map(Artifact::toPath).map(localDependencyRelativeResolver
             final Artifact artifact = Artifact.from(id);
-            file = componentManagerService.manager().getContainer().resolve(artifact.toPath());
-        }
-        if (!file.exists()) {
-            throw new WebApplicationException(Response
-                    .status(Response.Status.NOT_FOUND)
-                    .type(APPLICATION_JSON_TYPE)
-                    .entity(new ErrorPayload(PLUGIN_MISSING, "No file found for: " + id))
-                    .build());
+            if (virtualDependenciesService.isVirtual(id)) {
+                streamProvider = virtualDependenciesService.retrieveArtifact(artifact);
+                if (streamProvider == null) {
+                    return onMissingJar(id);
+                }
+            } else {
+                final File file = componentManagerService.manager().getContainer().resolve(artifact.toPath());
+                if (!file.exists()) {
+                    return onMissingJar(id);
+                }
+                streamProvider = () -> {
+                    try {
+                        return new FileInputStream(file);
+                    } catch (final FileNotFoundException e) {
+                        throw new IllegalStateException(e);
+                    }
+                };
+            }
         }
         return output -> {
             final byte[] buffer = new byte[40960]; // 5k
-            try (final InputStream stream = new BufferedInputStream(new FileInputStream(file), buffer.length)) {
+            try (final InputStream stream = new BufferedInputStream(streamProvider.get(), buffer.length)) {
                 int count;
                 while ((count = stream.read(buffer)) >= 0) {
                     if (count == 0) {
@@ -371,6 +371,39 @@ public class ComponentResourceImpl implements ComponentResource {
         return new ComponentDetailList(details);
     }
 
+    private DependencyDefinition getDependenciesFor(final ComponentFamilyMeta.BaseMeta<?> meta) {
+        final ComponentFamilyMeta familyMeta = meta.getParent();
+        final Optional<Container> container = componentManagerService.manager().findPlugin(familyMeta.getPlugin());
+        return new DependencyDefinition(container.map(c -> {
+            final ComponentExtension.ComponentContext context =
+                    c.get(ComponentContexts.class).getContexts().get(meta.getType());
+            final ComponentExtension extension = context.owningExtension();
+            final Stream<Artifact> deps = c.findDependencies();
+            final Stream<Artifact> artifacts;
+            if (configuration.getAddExtensionDependencies() && extension != null) {
+                final List<Artifact> dependencies = deps.collect(toList());
+                final Stream<Artifact> addDeps = getExtensionDependencies(extension, dependencies);
+                artifacts = Stream.concat(dependencies.stream(), addDeps);
+            } else {
+                artifacts = deps;
+            }
+            return artifacts.map(Artifact::toCoordinate).collect(toList());
+        }).orElseThrow(() -> new IllegalArgumentException("Can't find container '" + meta.getId() + "'")));
+    }
+
+    private Stream<Artifact> getExtensionDependencies(final ComponentExtension extension,
+            final List<Artifact> filtered) {
+        return extension
+                .getAdditionalDependencies()
+                .stream()
+                .map(Artifact::from)
+                // filter required artifacts if they are already present in the list.
+                .filter(extArtifact -> filtered
+                        .stream()
+                        .map(d -> d.getGroup() + ":" + d.getArtifact())
+                        .noneMatch(ga -> ga.equals(extArtifact.getGroup() + ":" + extArtifact.getArtifact())));
+    }
+
     private ComponentId createMetaId(final Container container, final ComponentFamilyMeta.BaseMeta<Object> meta) {
         return new ComponentId(meta.getId(), meta.getParent().getId(), meta.getParent().getPlugin(),
                 ofNullable(container.get(ComponentManager.OriginalId.class))
@@ -424,5 +457,13 @@ public class ComponentResourceImpl implements ComponentResource {
             return category + "/${family}";
         }
         return category;
+    }
+
+    private StreamingOutput onMissingJar(final String id) {
+        throw new WebApplicationException(Response
+                .status(Response.Status.NOT_FOUND)
+                .type(APPLICATION_JSON_TYPE)
+                .entity(new ErrorPayload(PLUGIN_MISSING, "No file found for: " + id))
+                .build());
     }
 }

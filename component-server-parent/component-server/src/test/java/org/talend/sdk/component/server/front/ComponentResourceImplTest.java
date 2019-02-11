@@ -53,8 +53,7 @@ import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.ziplock.IO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
@@ -69,7 +68,6 @@ import org.talend.sdk.component.server.test.ComponentClient;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig
-@WithTemporaryFolder
 class ComponentResourceImplTest {
 
     @Inject
@@ -102,14 +100,14 @@ class ComponentResourceImplTest {
     }
 
     @Test
-    void getDependency(final TestInfo info, final TemporaryFolder folder) {
+    void getDependency(final TestInfo info, @TempDir final File folder) {
         final Function<String, File> download = id -> {
             final InputStream stream = base
                     .path("component/dependency/{id}")
                     .resolveTemplate("id", id)
                     .request(APPLICATION_OCTET_STREAM_TYPE)
                     .get(InputStream.class);
-            final File file = new File(folder.getRoot(), info.getTestMethod().get().getName() + ".jar");
+            final File file = new File(folder, info.getTestMethod().get().getName() + ".jar");
             try (final OutputStream outputStream = new FileOutputStream(file)) {
                 IO.copy(stream, outputStream);
             } catch (final IOException e) {
@@ -313,7 +311,7 @@ class ComponentResourceImplTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(8, index.getComponents().size());
+        assertEquals(9, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
@@ -325,6 +323,7 @@ class ComponentResourceImplTest {
         assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
         assertComponent("collection-of-object", "config", "configurationWithArrayOfObject",
                 "configurationWithArrayOfObject", component, 1);
+        assertComponent("component-with-user-jars", "custom", "noop", "noop", component, 1);
         assertComponent("file-component", "file", "output", "output", component, 1);
         assertComponent("jdbc-component", "jdbc", "input", "input", component, 2);
         assertTrue(list.stream().anyMatch(c -> c.getId().getPluginLocation().startsWith("org.talend.test2:")));

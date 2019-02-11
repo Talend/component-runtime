@@ -155,6 +155,7 @@ import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.jmx.JmxManager;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -293,6 +294,8 @@ public class ComponentManager implements AutoCloseable {
 
     private final PropertyEditorRegistry propertyEditorRegistry;
 
+    private final List<ContainerClasspathContributor> classpathContributors;
+
     /**
      * @param m2 the maven repository location if on the file system.
      * @param dependenciesResource the resource path containing dependencies.
@@ -302,8 +305,9 @@ public class ComponentManager implements AutoCloseable {
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
-        customizers =
-                StreamSupport.stream(ServiceLoader.load(Customizer.class, tccl).spliterator(), false).collect(toList());
+        customizers = toStream(loadServiceProviders(Customizer.class, tccl)).collect(toList()); // must stay first
+        classpathContributors =
+                toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).collect(toList());
         classesFilter = Filters
                 .prefixes(Stream
                         .concat(Stream
@@ -361,7 +365,19 @@ public class ComponentManager implements AutoCloseable {
                 .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve))
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
-                }, logInfoLevelMapping);
+                }, logInfoLevelMapping) {
+
+            @Override
+            public File resolve(final String path) {
+                return classpathContributors
+                        .stream()
+                        .filter(it -> it.canResolve(path))
+                        .map(it -> it.resolve(path))
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElseGet(() -> super.resolve(path));
+            }
+        };
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern)
                 .map(String::trim)
@@ -844,6 +860,7 @@ public class ComponentManager implements AutoCloseable {
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(pluginRootFile))
+                .withAdditionalClasspath(findAdditionalClasspathFor(container.buildAutoIdFromName(pluginRootFile)))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
@@ -854,6 +871,7 @@ public class ComponentManager implements AutoCloseable {
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(location))
+                .withAdditionalClasspath(findAdditionalClasspathFor(container.buildAutoIdFromName(location)))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
@@ -864,10 +882,19 @@ public class ComponentManager implements AutoCloseable {
         final String id = this.container
                 .builder(forcedId, pluginRootFile)
                 .withCustomizer(createContainerCustomizer(forcedId))
+                .withAdditionalClasspath(findAdditionalClasspathFor(forcedId))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
+    }
+
+    private Collection<Artifact> findAdditionalClasspathFor(final String pluginId) {
+        return classpathContributors
+                .stream()
+                .flatMap(it -> it.findContributions(pluginId).stream())
+                .distinct()
+                .collect(toList())/* keep order */;
     }
 
     public void removePlugin(final String id) {
@@ -1878,5 +1905,17 @@ public class ComponentManager implements AutoCloseable {
          * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.
          */
         boolean ignoreBeamClassLoaderExclusions();
+    }
+
+    /**
+     * WARNING: internal extension point, use it only if you really understand what it implies.
+     */
+    public interface ContainerClasspathContributor {
+
+        Collection<Artifact> findContributions(String pluginId);
+
+        boolean canResolve(String path);
+
+        File resolve(String path);
     }
 }
