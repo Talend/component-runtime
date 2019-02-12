@@ -567,6 +567,8 @@ class UiSpecServiceTest {
                 });
                 assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0,
                         driver -> {
+                            assertTrue(driver.getRestricted());
+
                             assertNotNull(driver.getTriggers());
                             assertEquals(1, driver.getTriggers().size());
                             final Collection<UiSchema.NameValue> titleMap = driver.getTitleMap();
