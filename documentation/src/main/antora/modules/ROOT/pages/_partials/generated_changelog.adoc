@@ -11,8 +11,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1281[TCOMP-1281^]: Add jackson-mapper-asl in docker image of the server
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1297[TCOMP-1297^]: make max batch size property configurable for family and components through LocalConfiguration
+
+
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-1266[TCOMP-1266^]: Enhance starter to support dataset and datastore
 - link:https://jira.talendforge.org/browse/TCOMP-1268[TCOMP-1268^]: Ensure /environment is not callable if not local or secured
 - link:https://jira.talendforge.org/browse/TCOMP-1269[TCOMP-1269^]: Ensure ErrorReportValve does not leak Tomcat version OOTB
 - link:https://jira.talendforge.org/browse/TCOMP-1271[TCOMP-1271^]: Upgrade to talend UI 2.3.0

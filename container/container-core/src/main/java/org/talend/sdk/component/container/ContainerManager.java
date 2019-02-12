@@ -370,9 +370,8 @@ public class ContainerManager implements Lifecycle {
             final File resolved = resolve(moduleLocation);
             info("Creating module " + moduleLocation + " (from " + module
                     + (resolved.exists() ? ", location=" + resolved.getAbsolutePath() : "") + ")");
-            final Stream<Artifact> classpath = Stream
-                    .concat(resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation),
-                            additionalClasspath.stream());
+            final Stream<Artifact> classpath =
+                    Stream.concat(getBuiltInClasspath(moduleLocation), additionalClasspath.stream());
 
             final Container container = new Container(id, moduleLocation, classpath.toArray(Artifact[]::new),
                     classLoaderConfiguration, ContainerManager.this::resolve,
@@ -431,6 +430,10 @@ public class ContainerManager implements Lifecycle {
             container.setState(Container.State.DEPLOYED);
             info("Created container " + id);
             return container;
+        }
+
+        private Stream<Artifact> getBuiltInClasspath(final String moduleLocation) {
+            return resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation);
         }
 
         private Stream<String> getJvmMarkers() {

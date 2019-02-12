@@ -155,6 +155,7 @@ import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
+import org.talend.sdk.component.dependencies.EmptyResolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.jmx.JmxManager;
@@ -362,7 +363,9 @@ public class ComponentManager implements AutoCloseable {
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
-                .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve))
+                .resolver(customizers.stream().noneMatch(Customizer::ignoreDefaultDependenciesDescriptor)
+                        ? new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve)
+                        : new EmptyResolver())
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
                 }, logInfoLevelMapping) {
@@ -1814,28 +1817,31 @@ public class ComponentManager implements AutoCloseable {
                     });
 
             if (Stream.of(type.getMethods()).anyMatch(p -> p.isAnnotationPresent(AfterGroup.class))) {
-                final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root);
+                final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root, type.getSimpleName(),
+                        LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
                 final ParameterMeta maxBatchSize = paramBuilder.newBulkParameter();
-                final String layoutType = paramBuilder.getLayoutType();
-                if (layoutType == null) {
-                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxBatchSize.getName());
-                    root
-                            .getMetadata()
-                            .put("tcomp::ui::gridlayout::Main::value",
-                                    root
-                                            .getNestedParameters()
-                                            .stream()
-                                            .map(ParameterMeta::getName)
-                                            .collect(joining("|")));
-                } else if (!root.getMetadata().containsKey(layoutType)) {
-                    root
-                            .getMetadata()
-                            .put(layoutType, layoutType.contains("gridlayout") ? maxBatchSize.getName() : "true");
-                } else if (layoutType.contains("gridlayout")) {
-                    final String oldLayout = root.getMetadata().get(layoutType);
-                    root.getMetadata().put(layoutType, maxBatchSize.getName() + "|" + oldLayout);
+                if (maxBatchSize != null) {
+                    final String layoutType = paramBuilder.getLayoutType();
+                    if (layoutType == null) {
+                        root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxBatchSize.getName());
+                        root
+                                .getMetadata()
+                                .put("tcomp::ui::gridlayout::Main::value",
+                                        root
+                                                .getNestedParameters()
+                                                .stream()
+                                                .map(ParameterMeta::getName)
+                                                .collect(joining("|")));
+                    } else if (!root.getMetadata().containsKey(layoutType)) {
+                        root
+                                .getMetadata()
+                                .put(layoutType, layoutType.contains("gridlayout") ? maxBatchSize.getName() : "true");
+                    } else if (layoutType.contains("gridlayout")) {
+                        final String oldLayout = root.getMetadata().get(layoutType);
+                        root.getMetadata().put(layoutType, maxBatchSize.getName() + "|" + oldLayout);
+                    }
+                    root.getNestedParameters().add(maxBatchSize);
                 }
-                root.getNestedParameters().add(maxBatchSize);
             }
         }
 
@@ -1905,6 +1911,16 @@ public class ComponentManager implements AutoCloseable {
          * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.
          */
         boolean ignoreBeamClassLoaderExclusions();
+
+        /**
+         * Disable default built-in component classpath building mecanism. This is useful when relying on
+         * a custom {@link ContainerClasspathContributor} handling it.
+         *
+         * @return true if the default dependencies descriptor (TALEND-INF/dependencies.txt) must be ignored.
+         */
+        default boolean ignoreDefaultDependenciesDescriptor() {
+            return false;
+        }
     }
 
     /**

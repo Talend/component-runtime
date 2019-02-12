@@ -64,7 +64,7 @@ public class PluginGenerator {
         return "org.talend.test.generated." + container.replace(".jar", "");
     }
 
-    public File createChainPlugin(final File dir, final String plugin) {
+    public File createChainPlugin(final File dir, final String plugin, final int maxBatchSize) {
         final File target = new File(dir, plugin);
         try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
             final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".", "/");
@@ -89,14 +89,22 @@ public class PluginGenerator {
                             }), EXPAND_FRAMES);
                             outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
                             outputStream.write(writer.toByteArray());
+                            outputStream.closeEntry();
                         } catch (final IOException e) {
                             fail(e.getMessage());
                         }
                     });
+            outputStream.putNextEntry(new JarEntry("TALEND-INF/local-configuration.properties"));
+            outputStream.write(("_maxBatchSize.value=" + maxBatchSize).getBytes(StandardCharsets.UTF_8));
+            outputStream.closeEntry();
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
         return target;
+    }
+
+    public File createChainPlugin(final File dir, final String plugin) {
+        return createChainPlugin(dir, plugin, 1000);
     }
 
     public File createPlugin(final File pluginFolder, final String name, final String... deps) throws IOException {
