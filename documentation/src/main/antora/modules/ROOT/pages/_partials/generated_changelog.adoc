@@ -11,6 +11,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1281[TCOMP-1281^]: Add jackson-mapper-asl in docker image of the server
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1297[TCOMP-1297^]: make max batch size property configurable for family and components through LocalConfiguration
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1266[TCOMP-1266^]: Enhance starter to support dataset and datastore

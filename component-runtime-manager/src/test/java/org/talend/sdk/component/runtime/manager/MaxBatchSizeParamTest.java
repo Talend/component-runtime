@@ -26,21 +26,19 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 
-@WithTemporaryFolder
 class MaxBatchSizeParamTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
     @Test
-    void builtinParams(final TemporaryFolder temporaryFolder) throws Exception {
-        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void builtinParams(@TempDir final File temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
-        final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
+        final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar", 20);
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
@@ -76,7 +74,7 @@ class MaxBatchSizeParamTest {
                                     .findFirst()
                                     .orElseGet(() -> fail("Missing max batch size param"));
 
-                            assertEquals("1000", maxBatchSize.getMetadata().get("tcomp::ui::defaultvalue::value"));
+                            assertEquals("20", maxBatchSize.getMetadata().get("tcomp::ui::defaultvalue::value"));
                             assertEquals("1", maxBatchSize.getMetadata().get("tcomp::validation::min"));
                             assertEquals(ParameterMeta.Type.NUMBER, maxBatchSize.getType());
                             assertEquals(Integer.class, maxBatchSize.getJavaType());

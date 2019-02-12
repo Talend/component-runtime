@@ -1817,28 +1817,31 @@ public class ComponentManager implements AutoCloseable {
                     });
 
             if (Stream.of(type.getMethods()).anyMatch(p -> p.isAnnotationPresent(AfterGroup.class))) {
-                final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root);
+                final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root, type.getSimpleName(),
+                        LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
                 final ParameterMeta maxBatchSize = paramBuilder.newBulkParameter();
-                final String layoutType = paramBuilder.getLayoutType();
-                if (layoutType == null) {
-                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxBatchSize.getName());
-                    root
-                            .getMetadata()
-                            .put("tcomp::ui::gridlayout::Main::value",
-                                    root
-                                            .getNestedParameters()
-                                            .stream()
-                                            .map(ParameterMeta::getName)
-                                            .collect(joining("|")));
-                } else if (!root.getMetadata().containsKey(layoutType)) {
-                    root
-                            .getMetadata()
-                            .put(layoutType, layoutType.contains("gridlayout") ? maxBatchSize.getName() : "true");
-                } else if (layoutType.contains("gridlayout")) {
-                    final String oldLayout = root.getMetadata().get(layoutType);
-                    root.getMetadata().put(layoutType, maxBatchSize.getName() + "|" + oldLayout);
+                if (maxBatchSize != null) {
+                    final String layoutType = paramBuilder.getLayoutType();
+                    if (layoutType == null) {
+                        root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxBatchSize.getName());
+                        root
+                                .getMetadata()
+                                .put("tcomp::ui::gridlayout::Main::value",
+                                        root
+                                                .getNestedParameters()
+                                                .stream()
+                                                .map(ParameterMeta::getName)
+                                                .collect(joining("|")));
+                    } else if (!root.getMetadata().containsKey(layoutType)) {
+                        root
+                                .getMetadata()
+                                .put(layoutType, layoutType.contains("gridlayout") ? maxBatchSize.getName() : "true");
+                    } else if (layoutType.contains("gridlayout")) {
+                        final String oldLayout = root.getMetadata().get(layoutType);
+                        root.getMetadata().put(layoutType, maxBatchSize.getName() + "|" + oldLayout);
+                    }
+                    root.getNestedParameters().add(maxBatchSize);
                 }
-                root.getNestedParameters().add(maxBatchSize);
             }
         }
 

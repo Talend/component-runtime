@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 public class MaxBatchSizeParamBuilder {
@@ -35,14 +36,18 @@ public class MaxBatchSizeParamBuilder {
 
     private final String layoutType;
 
-    public MaxBatchSizeParamBuilder(final ParameterMeta root) {
+    public MaxBatchSizeParamBuilder(final ParameterMeta root, final String componentSimpleClassName,
+            final LocalConfiguration configuration) {
         this.root = root;
         this.layoutType = getLayoutType(root);
-        this.defaultValue = 1000; // fixme make this configurable ?
+        this.defaultValue = Integer
+                .parseInt(ofNullable(configuration.get(componentSimpleClassName + "._maxBatchSize.value"))
+                        .orElseGet(() -> ofNullable(configuration.get("_maxBatchSize.value")).orElse("1000"))
+                        .trim());
     }
 
     public ParameterMeta newBulkParameter() {
-        return new ParameterMeta(new ParameterMeta.Source() {
+        return defaultValue <= 0 ? null : new ParameterMeta(new ParameterMeta.Source() {
 
             @Override
             public String name() {
