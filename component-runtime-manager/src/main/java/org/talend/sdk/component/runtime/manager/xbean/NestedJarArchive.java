@@ -73,11 +73,17 @@ public class NestedJarArchive implements Archive, AutoCloseable {
             public Entry next() {
                 final ZipEntry returned = entry;
                 entry = null;
+
+                final String name = returned
+                        .getName()
+                        .replace('.', '/')
+                        .substring(0, returned.getName().length()
+                                - (returned.getName().endsWith(".class") ? ".class".length() : 0));
                 return new Entry() {
 
                     @Override
                     public String getName() {
-                        return returned.getName();
+                        return name;
                     }
 
                     @Override
