@@ -15,12 +15,15 @@
  */
 package org.talend.sdk.component.server.service;
 
+import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.File;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -30,19 +33,24 @@ class VirtualDependenciesServiceTemplatingTest {
     @ParameterizedTest
     @MethodSource("replaceGavConfigurationSource")
     void replaceGav(final Pair config) {
-        assertEquals(config.expected, new VirtualDependenciesService().replaceByGav("Foo Plugin", config.input));
+        assertEquals(config.expected,
+                new VirtualDependenciesService()
+                        .replaceByGav("Foo Plugin", config.input,
+                                singletonMap(new Artifact("foo", "bar", "jar", "", "any", "test"),
+                                        new File(System.getProperty("talend.component.server.user.extensions.location"),
+                                                "component-with-user-jars/bar.ajr"))));
     }
 
     private static Stream<Pair> replaceGavConfigurationSource() {
         return Stream
                 .of(new Pair("a=b\nc=d", "a=b\nc=d"),
                         new Pair("a=userJar(dummy)\nc=d",
-                                "a=virtual.talend.component.server.generated.foo_plugin:dummy:jar:dynamic\nc=d"),
+                                "a=virtual.talend.component.server.generated.foo_plugin:dummy:jar:unknown\nc=d"),
                         new Pair("a=b\nc=userJar(dummy)",
-                                "a=b\nc=virtual.talend.component.server.generated.foo_plugin:dummy:jar:dynamic"),
+                                "a=b\nc=virtual.talend.component.server.generated.foo_plugin:dummy:jar:unknown"),
                         new Pair("a=b\n" + "c=userJar(dummy)\n" + "another[0]=userJar(other)", "a=b\n"
-                                + "c=virtual.talend.component.server.generated.foo_plugin:dummy:jar:dynamic\n"
-                                + "another[0]=virtual.talend.component.server.generated.foo_plugin:other:jar:dynamic"));
+                                + "c=virtual.talend.component.server.generated.foo_plugin:dummy:jar:unknown\n"
+                                + "another[0]=virtual.talend.component.server.generated.foo_plugin:other:jar:unknown"));
     }
 
     @ToString

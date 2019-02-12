@@ -22,7 +22,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -31,13 +30,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.jar.JarFile;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -45,7 +40,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
@@ -79,9 +73,14 @@ class VirtualDependenciesServiceTest {
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertEquals(2, definition.getDependencies().size());
         assertEquals(Stream
-                .of("virtual.talend.component.server.generated.component-with-user-jars:user-extension:jar:dynamic",
-                        "virtual.talend.component.server.generated.component-with-user-jars:user-local-configuration-component-with-user-jars:jar:dynamic")
-                .collect(toSet()), new HashSet<>(definition.getDependencies()));
+                .of("virtual.talend.component.server.generated.component-with-user-jars:user-extension:jar:",
+                        "virtual.talend.component.server.generated.component-with-user-jars:user-local-configuration-component-with-user-jars:jar:")
+                .collect(toSet()),
+                definition
+                        .getDependencies()
+                        .stream()
+                        .map(it -> it.substring(0, it.lastIndexOf(':') + 1))
+                        .collect(toSet()));
     }
 
     @Test
@@ -100,8 +99,7 @@ class VirtualDependenciesServiceTest {
         };
 
         { // user jar
-            final File file = downloadJar(info, folder,
-                    "virtual.talend.component.server.generated.component-with-user-jars:user-extension:jar:dynamic");
+            final File file = downloadJar(info, folder, getGav("user-extension"));
             try (final JarFile jar = new JarFile(file)) {
                 final Properties p = readProperties
                         .apply(jar, "TALEND-INF/org.talend.sdk.component.server.test.custom.CustomService.properties");
@@ -111,8 +109,7 @@ class VirtualDependenciesServiceTest {
             }
         }
         { // user config
-            final File file = downloadJar(info, folder,
-                    "virtual.talend.component.server.generated.component-with-user-jars:user-local-configuration-component-with-user-jars:jar:dynamic");
+            final File file = downloadJar(info, folder, getGav("user-local-configuration-component-with-user-jars"));
             try (final JarFile jar = new JarFile(file)) {
                 final Properties p = readProperties.apply(jar, "TALEND-INF/local-configuration.properties");
                 assertEquals(props("i.m.a.virtual.configuration.entry", "Yes I am!",
@@ -141,6 +138,21 @@ class VirtualDependenciesServiceTest {
                         .getItems()
                         .stream()
                         .collect(toMap(SuggestionValues.Item::getId, SuggestionValues.Item::getLabel)));
+    }
+
+    private String getGav(final String artifact) {
+        return base
+                .path("component/dependencies")
+                .queryParam("identifier", client.getComponentId("custom", "noop"))
+                .request(APPLICATION_JSON_TYPE)
+                .get(Dependencies.class)
+                .getDependencies()
+                .values()
+                .stream()
+                .flatMap(it -> it.getDependencies().stream())
+                .filter(it -> it.contains(':' + artifact + ':'))
+                .findFirst()
+                .orElseThrow(IllegalStateException::new);
     }
 
     private Map<String, String> map(final String... kv) {

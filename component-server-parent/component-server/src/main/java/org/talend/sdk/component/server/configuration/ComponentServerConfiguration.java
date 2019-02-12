@@ -104,4 +104,11 @@ public class ComponentServerConfiguration {
             + "- a list of jars which will be merged with component family classpath\n")
     @ConfigProperty(name = "talend.component.server.user.extensions.location")
     private Optional<String> userExtensions;
+
+    @Inject
+    @Documentation("Should the implicit artifacts be provisionned to a m2. If set to `auto` it tries to detect "
+            + "if there is a m2 to provision - recommended, if set to `skip` it is ignored, else it uses the value as a "
+            + "m2 path.")
+    @ConfigProperty(name = "talend.component.server.user.extensions.provisioning.location", defaultValue = "auto")
+    private String userExtensionsAutoM2Provisioning;
 }

@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PACKAGE;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -38,6 +39,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,6 +58,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
@@ -71,11 +78,10 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class VirtualDependenciesService {
 
-    @Getter(PACKAGE)
-    private final String virtualGroupId = "virtual.talend.component.server.generated.";
+    private final char[] hexCode = "0123456789ABCDEF".toCharArray();
 
     @Getter(PACKAGE)
-    private final String version = "dynamic";
+    private final String virtualGroupId = "virtual.talend.component.server.generated.";
 
     @Getter(PACKAGE)
     private final String configurationArtifactIdPrefix = "user-local-configuration-";
@@ -92,6 +98,24 @@ public class VirtualDependenciesService {
 
     private final Map<Artifact, Supplier<InputStream>> configurationArtifactMapping = new ConcurrentHashMap<>();
 
+    private Path provisioningM2Base;
+
+    @PostConstruct
+    private void init() {
+        final String m2 = configuration.getUserExtensionsAutoM2Provisioning();
+        switch (m2) {
+        case "skip":
+            provisioningM2Base = null;
+            break;
+        case "auto":
+            provisioningM2Base = findStudioM2();
+            break;
+        default:
+            provisioningM2Base = Paths.get(m2);
+        }
+        log.debug("m2 provisioning base: {}", provisioningM2Base);
+    }
+
     void onDeploy(final String pluginId) {
         if (!configuration.getUserExtensions().isPresent()) {
             enrichmentsPerContainer.put(pluginId, noCustomization);
@@ -105,8 +129,9 @@ public class VirtualDependenciesService {
             return;
         }
 
-        final Properties userConfiguration = loadUserConfiguration(pluginId, extensions);
+        final File userConfig = new File(extensions, "user-configuration.properties");
         final Map<Artifact, File> userJars = findJars(extensions, pluginId);
+        final Properties userConfiguration = loadUserConfiguration(pluginId, userConfig, userJars);
         if (userConfiguration.isEmpty() && userJars.isEmpty()) {
             log.debug("No customization for container '{}'", pluginId);
             enrichmentsPerContainer.put(pluginId, noCustomization);
@@ -124,14 +149,23 @@ public class VirtualDependenciesService {
         if (userConfiguration.isEmpty()) {
             enrichmentsPerContainer.put(pluginId, new Enrichment(true, customConfigAsMap, null, userJars.keySet()));
         } else {
-            final Artifact configurationArtifact = new Artifact(groupIdFor(pluginId),
-                    configurationArtifactIdPrefix + pluginId, "jar", "", version, "compile");
             final byte[] localConfigurationJar = generateConfigurationJar(pluginId, userConfiguration);
+            final Artifact configurationArtifact =
+                    new Artifact(groupIdFor(pluginId), configurationArtifactIdPrefix + pluginId, "jar", "",
+                            Long.toString(userConfig.lastModified()), "compile");
+            doProvision(configurationArtifact, () -> new ByteArrayInputStream(localConfigurationJar));
             enrichmentsPerContainer
                     .put(pluginId, new Enrichment(true, customConfigAsMap, configurationArtifact, userJars.keySet()));
             configurationArtifactMapping
                     .put(configurationArtifact, () -> new ByteArrayInputStream(localConfigurationJar));
         }
+        userJars.forEach((artifact, file) -> doProvision(artifact, () -> {
+            try {
+                return Files.newInputStream(file.toPath(), StandardOpenOption.READ);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }));
 
         artifactMapping.putAll(userJars);
     }
@@ -205,8 +239,8 @@ public class VirtualDependenciesService {
         return outputStream.toByteArray();
     }
 
-    private Properties loadUserConfiguration(final String plugin, final File root) {
-        final File userConfig = new File(root, "user-configuration.properties");
+    private Properties loadUserConfiguration(final String plugin, final File userConfig,
+            final Map<Artifact, File> userJars) {
         final Properties properties = new Properties();
         if (!userConfig.exists()) {
             return properties;
@@ -217,7 +251,7 @@ public class VirtualDependenciesService {
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
-        try (final Reader reader = new StringReader(replaceByGav(plugin, content))) {
+        try (final Reader reader = new StringReader(replaceByGav(plugin, content, userJars))) {
             properties.load(reader);
         } catch (final IOException e) {
             throw new IllegalStateException(e);
@@ -227,7 +261,7 @@ public class VirtualDependenciesService {
 
     // handle "userJar(name)" function in the config, normally not needed since jars are in the context already
     // note: if we make it more complex, switch to a real parser or StrSubstitutor
-    String replaceByGav(final String plugin, final String content) {
+    String replaceByGav(final String plugin, final String content, final Map<Artifact, File> userJars) {
         final StringBuilder output = new StringBuilder();
         final String prefixFn = "userJar(";
         int fnIdx = content.indexOf(prefixFn);
@@ -238,7 +272,7 @@ public class VirtualDependenciesService {
             while (fnIdx >= 0) {
                 final int end = content.indexOf(')', fnIdx);
                 output.append(content, previousEnd, fnIdx);
-                output.append(toGav(plugin, content.substring(fnIdx + prefixFn.length(), end)));
+                output.append(toGav(plugin, content.substring(fnIdx + prefixFn.length(), end), userJars));
                 fnIdx = content.indexOf(prefixFn, end);
                 if (fnIdx < 0) {
                     if (end < content.length() - 1) {
@@ -252,8 +286,16 @@ public class VirtualDependenciesService {
         return output.toString();
     }
 
-    private String toGav(final String plugin, final String jarNameWithoutExtension) {
-        return groupIdFor(plugin) + ':' + jarNameWithoutExtension + ":jar:" + version;
+    private String toGav(final String plugin, final String jarNameWithoutExtension,
+            final Map<Artifact, File> userJars) {
+        return groupIdFor(plugin) + ':' + jarNameWithoutExtension + ":jar:"
+                + userJars
+                        .keySet()
+                        .stream()
+                        .filter(it -> it.getArtifact().equals(jarNameWithoutExtension))
+                        .findFirst()
+                        .map(Artifact::getVersion)
+                        .orElse("unknown");
     }
 
     private Map<Artifact, File> findJars(final File familyFolder, final String family) {
@@ -263,9 +305,8 @@ public class VirtualDependenciesService {
         return ofNullable(familyFolder.listFiles((dir, name) -> name.endsWith(".jar")))
                 .map(files -> Stream
                         .of(files)
-                        .collect(toMap(
-                                it -> new Artifact(groupIdFor(family), toArtifact(it), "jar", "", version, "compile"),
-                                identity())))
+                        .collect(toMap(it -> new Artifact(groupIdFor(family), toArtifact(it), "jar", "",
+                                Long.toString(it.lastModified()), "compile"), identity())))
                 .orElseGet(Collections::emptyMap);
     }
 
@@ -275,6 +316,38 @@ public class VirtualDependenciesService {
 
     private String sanitizedForGav(final String name) {
         return name.replace(' ', '_').toLowerCase(ROOT);
+    }
+
+    // note: we don't want to provision based on our real m2, only studio one for now
+    private Path findStudioM2() {
+        if (System.getProperty("talend.studio.version") != null && System.getProperty("osgi.bundles") != null) {
+            final File localM2 = new File(System.getProperty("talend.component.server.maven.repository", ""));
+            if (localM2.isDirectory()) {
+                return localM2.toPath();
+            }
+        }
+        return null;
+    }
+
+    private void doProvision(final Artifact artifact, final Supplier<InputStream> newInputStream) {
+        if (provisioningM2Base == null) {
+            log.debug("No m2 to provision, skipping {}", artifact);
+            return;
+        }
+        final Path target = provisioningM2Base.resolve(artifact.toPath());
+        if (target.toFile().exists()) {
+            log.debug("{} already exists, skipping", target);
+            return;
+        }
+        final File parentFile = target.getParent().toFile();
+        if (!parentFile.exists() && !parentFile.mkdirs()) {
+            throw new IllegalArgumentException("Can't create " + parentFile);
+        }
+        try (final InputStream stream = new BufferedInputStream(newInputStream.get())) {
+            Files.copy(stream, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @RequiredArgsConstructor
@@ -354,10 +427,17 @@ public class VirtualDependenciesService {
                 return null;
             }
             // ex: virtual.talend.component.server.generated.<plugin id>:<artifact>:jar:dynamic
-            final Artifact artifact = new Artifact(delegate
-                    .groupIdFor(Stream.of(segments).skip(5).limit(segments.length - 5 - 3).collect(joining("."))),
-                    segments[segments.length - 3], "jar", null, delegate.getVersion(), "compile");
-            return delegate.getArtifactMapping().get(artifact);
+            final String group = delegate
+                    .groupIdFor(Stream.of(segments).skip(5).limit(segments.length - 5 - 3).collect(joining(".")));
+            final String artifact = segments[segments.length - 3];
+            return delegate
+                    .getArtifactMapping()
+                    .entrySet()
+                    .stream()
+                    .filter(it -> it.getKey().getGroup().equals(group) && it.getKey().getArtifact().equals(artifact))
+                    .findFirst()
+                    .map(Map.Entry::getValue)
+                    .orElse(null);
         }
     }
 }
