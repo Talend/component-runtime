@@ -27,23 +27,28 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 
 @ApplicationScoped
 public class CacheConfigurationFactory {
 
     @Inject
+    @Documentation("Should JCache MBeans be registered.")
     @ConfigProperty(name = "talend.vault.cache.jcache.cache.management", defaultValue = "false")
     private Boolean cacheManagement;
 
     @Inject
+    @Documentation("Should JCache statistics be enabled.")
     @ConfigProperty(name = "talend.vault.cache.jcache.cache.statistics", defaultValue = "false")
     private Boolean cacheStatistics;
 
     @Inject
+    @Documentation("JCache expiry for decrypted values (ms).")
     @ConfigProperty(name = "talend.vault.cache.jcache.cache.expiry", defaultValue = "3600")
     private Long cacheExpiry;
 
     @Inject
+    @Documentation("JCache max size per cache.")
     @ConfigProperty(name = "talend.vault.cache.jcache.maxCacheSize", defaultValue = "100000")
     private Integer maxCacheSize; // not strict constraint - for perf - but we ensure it is bound to avoid issues
 

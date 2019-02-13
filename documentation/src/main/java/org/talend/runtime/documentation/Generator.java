@@ -680,25 +680,27 @@ public class Generator {
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class);
                     final String name =
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
-                    return name + ":: " + of(configProperty.defaultValue())
-                            .filter(it -> !it
-                                    .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
-                            .map(it -> "Default value: `" + it + "`. ")
-                            .orElse("")
-                            + Stream
-                                    .of(field.getDeclaredAnnotations())
-                                    .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
-                                    .map(a -> {
-                                        try {
-                                            return a.annotationType().getMethod("value").invoke(a).toString();
-                                        } catch (final IllegalAccessException | InvocationTargetException
-                                                | NoSuchMethodException e) {
-                                            return "-";
-                                        }
-                                    })
-                                    .findFirst()
-                                    .orElse("-");
+                    return name.startsWith("git.") ? null
+                            : (name + ":: " + of(configProperty.defaultValue())
+                                    .filter(it -> !it
+                                            .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
+                                    .map(it -> "Default value: `" + it + "`. ")
+                                    .orElse("")
+                                    + Stream
+                                            .of(field.getDeclaredAnnotations())
+                                            .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
+                                            .map(a -> {
+                                                try {
+                                                    return a.annotationType().getMethod("value").invoke(a).toString();
+                                                } catch (final IllegalAccessException | InvocationTargetException
+                                                        | NoSuchMethodException e) {
+                                                    return "-";
+                                                }
+                                            })
+                                            .findFirst()
+                                            .orElse("-"));
                 })
+                .filter(Objects::nonNull)
                 .sorted()
                 .forEach(stream::println);
     }

@@ -634,7 +634,7 @@ public class ComponentManager implements AutoCloseable {
             // check if we are in the studio process if so just grab the the studio config
             final String m2Repo = System.getProperty("maven.repository");
             if (!"global".equals(m2Repo)) {
-                {   // this shouldn't exist in recent studio
+                { // this shouldn't exist in recent studio
                     final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2");
                     if (localM2.exists()) {
                         return localM2;

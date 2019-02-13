@@ -31,17 +31,20 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 import org.talend.sdk.component.runtime.server.vault.proxy.service.DecryptedValue;
 
 @ApplicationScoped
 public class JCacheSetup {
 
     @Inject
+    @Documentation("Configuration for JCache setup, default implementation is Geronimo Simple Cache.")
     @ConfigProperty(name = "talend.vault.cache.jcache.manager.uri",
             defaultValue = "geronimo://simple-jcache.properties")
     private String configurationUri;
 
     @Inject
+    @Documentation("JCache `CacheManager` properties used to initialized the instance.")
     @ConfigProperty(name = "talend.vault.cache.jcache.manager.properties", defaultValue = "")
     private String configurationProperties;
 

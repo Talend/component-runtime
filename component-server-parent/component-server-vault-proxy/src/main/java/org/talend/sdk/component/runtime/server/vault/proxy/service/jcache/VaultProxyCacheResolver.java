@@ -38,6 +38,7 @@ import javax.ws.rs.client.WebTarget;
 
 import org.apache.geronimo.jcache.simple.cdi.CacheResolverImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 import org.talend.sdk.component.runtime.server.vault.proxy.service.http.Http;
 import org.talend.sdk.component.server.front.model.Environment;
 
@@ -54,6 +55,7 @@ public class VaultProxyCacheResolver implements CacheResolverFactory {
     private CacheConfigurationFactory cacheConfiguration;
 
     @Inject
+    @Documentation("How often (in ms) the Component Server should be checked to invalidate the caches on the component parameters (to identify credentials).")
     @ConfigProperty(name = "talend.vault.cache.jcache.refresh.period", defaultValue = "30000")
     private Long refreshPeriod;
 

@@ -55,6 +55,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 import org.talend.sdk.component.runtime.server.vault.proxy.service.http.Http;
 
 import lombok.AllArgsConstructor;
@@ -71,26 +72,32 @@ public class VaultService {
     private WebTarget vault;
 
     @Inject
+    @Documentation("The vault path to retrieve a token.")
     @ConfigProperty(name = "talend.vault.cache.vault.auth.endpoint", defaultValue = "v1/auth/approle/login")
     private String authEndpoint;
 
     @Inject
+    @Documentation("The vault path to decrypt values.")
     @ConfigProperty(name = "talend.vault.cache.vault.decrypt.endpoint")
     private String decryptEndpoint;
 
     @Inject
+    @Documentation("The vault role identifier to use to log in.")
     @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId")
     private String role;
 
     @Inject
+    @Documentation("The vault secret identifier to use to log in.")
     @ConfigProperty(name = "talend.vault.cache.vault.auth.secretId")
     private Optional<String> secret;
 
     @Inject
+    @Documentation("How often (in ms) to refresh the vault token.")
     @ConfigProperty(name = "talend.vault.cache.service.auth.refreshDelayMargin", defaultValue = "600000")
     private Long refreshDelayMargin;
 
     @Inject
+    @Documentation("How often (in ms) to refresh the vault token in case of an authentication failure.")
     @ConfigProperty(name = "talend.vault.cache.service.auth.refreshDelayOnFailure", defaultValue = "10000")
     private Long refreshDelayOnFailure;
 

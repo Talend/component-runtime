@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,12 +42,14 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityFilter implements Filter {
 
     @Inject
+    @Documentation("The IP or hosts allowed to call that server on `/api/*` if no token is passed.")
     @ConfigProperty(name = "talend.vault.cache.security.allowedIps",
             defaultValue = "localhost,127.0.0.1,0:0:0:0:0:0:0:1")
     private List<String> allowedIp;
 
     @Inject
-    @ConfigProperty(name = "alend.vault.cache.security.tokens", defaultValue = "-")
+    @Documentation("The tokens enabling a client to call this server without being in `allowedIp` whitelist.")
+    @ConfigProperty(name = "talend.vault.cache.security.tokens", defaultValue = "-")
     private List<String> securedEndpointsTokens;
 
     @Override

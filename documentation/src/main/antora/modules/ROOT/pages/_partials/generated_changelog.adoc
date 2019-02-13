@@ -9,6 +9,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1265[TCOMP-1265^]: dataset / datastore cloud validation : allow nested configuration types
 - link:https://jira.talendforge.org/browse/TCOMP-1267[TCOMP-1267^]: /documentation does not filter properly component
 - link:https://jira.talendforge.org/browse/TCOMP-1281[TCOMP-1281^]: Add jackson-mapper-asl in docker image of the server
+- link:https://jira.talendforge.org/browse/TCOMP-1298[TCOMP-1298^]: Support restricted lists for @Proposable
 
 
 === New Feature
