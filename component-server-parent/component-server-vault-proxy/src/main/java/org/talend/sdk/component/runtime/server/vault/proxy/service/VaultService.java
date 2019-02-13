@@ -82,12 +82,17 @@ public class VaultService {
     private String decryptEndpoint;
 
     @Inject
-    @Documentation("The vault role identifier to use to log in.")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId")
-    private String role;
+    @Documentation("The vault token to use to log in (will make roleId and secretId ignored).")
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.token")
+    private Optional<String> token;
 
     @Inject
-    @Documentation("The vault secret identifier to use to log in.")
+    @Documentation("The vault role identifier to use to log in (if token is not set).")
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId")
+    private Optional<String> role;
+
+    @Inject
+    @Documentation("The vault secret identifier to use to log in (if token is not set).")
     @ConfigProperty(name = "talend.vault.cache.vault.auth.secretId")
     private Optional<String> secret;
 
@@ -220,10 +225,18 @@ public class VaultService {
     }
 
     private CompletionStage<Authentication> getOrRequestAuth() {
-        return ofNullable(authToken.get())
-                .filter(auth -> (auth.getExpiresAt() - clock.millis()) <= refreshDelayMargin) // is expired
+        return token.map(value -> {
+            final Auth authInfo = new Auth();
+            authInfo.setClientToken(value);
+            authInfo.setLeaseDuration(Long.MAX_VALUE);
+            authInfo.setRenewable(false);
+            return new Authentication(authInfo, Long.MAX_VALUE);
+        })
                 .map(CompletableFuture::completedFuture)
-                .orElseGet(this::doAuth);
+                .orElseGet(() -> ofNullable(authToken.get())
+                        .filter(auth -> (auth.getExpiresAt() - clock.millis()) <= refreshDelayMargin) // is expired
+                        .map(CompletableFuture::completedFuture)
+                        .orElseGet(this::doAuth));
     }
 
     private CompletableFuture<Authentication> doAuth() {
@@ -232,7 +245,8 @@ public class VaultService {
                 .path(authEndpoint)
                 .request(APPLICATION_JSON_TYPE)
                 .rx()
-                .post(entity(new AuthRequest(role, secret.orElse(null)), APPLICATION_JSON_TYPE), AuthResponse.class)
+                .post(entity(new AuthRequest(role.orElseThrow(() -> new IllegalArgumentException("No roleId set")),
+                        secret.orElse(null)), APPLICATION_JSON_TYPE), AuthResponse.class)
                 .toCompletableFuture()
                 .thenApply(token -> {
                     log.info("Authenticated to vault");

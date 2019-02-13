@@ -35,8 +35,9 @@ talend.vault.cache.service.auth.refreshDelayMargin:: Default value: `600000`. Ho
 talend.vault.cache.service.auth.refreshDelayOnFailure:: Default value: `10000`. How often (in ms) to refresh the vault token in case of an authentication failure.
 talend.vault.cache.talendComponentKit.url:: Base URL to connect to Component Server
 talend.vault.cache.vault.auth.endpoint:: Default value: `v1/auth/approle/login`. The vault path to retrieve a token.
-talend.vault.cache.vault.auth.roleId:: The vault role identifier to use to log in.
-talend.vault.cache.vault.auth.secretId:: The vault secret identifier to use to log in.
+talend.vault.cache.vault.auth.roleId:: The vault role identifier to use to log in (if token is not set).
+talend.vault.cache.vault.auth.secretId:: The vault secret identifier to use to log in (if token is not set).
+talend.vault.cache.vault.auth.token:: The vault token to use to log in (will make roleId and secretId ignored).
 talend.vault.cache.vault.decrypt.endpoint:: The vault path to decrypt values.
 talend.vault.cache.vault.url:: Base URL to connect to Vault.
 
