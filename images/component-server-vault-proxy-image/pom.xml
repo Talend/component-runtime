@@ -45,6 +45,11 @@
 
     <!-- for prod/monitoring -->
     <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>docker-secrets-configsource</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.eclipse.microprofile.metrics</groupId>
       <artifactId>microprofile-metrics-api</artifactId>
       <version>1.1.1</version>
