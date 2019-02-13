@@ -1,40 +1,5 @@
 
 
-== Version 1.1.6
-
-=== Bug
-
-- link:https://jira.talendforge.org/browse/TCOMP-1263[TCOMP-1263^]: When using @Updateable(after=xxx) the visibility condition (@ActiveIf) of the after field shouldn't be inherited
-- link:https://jira.talendforge.org/browse/TCOMP-1264[TCOMP-1264^]: AvroSchema does not unwrap null(able types) to map to Schema model
-- link:https://jira.talendforge.org/browse/TCOMP-1265[TCOMP-1265^]: dataset / datastore cloud validation : allow nested configuration types
-- link:https://jira.talendforge.org/browse/TCOMP-1267[TCOMP-1267^]: /documentation does not filter properly component
-- link:https://jira.talendforge.org/browse/TCOMP-1281[TCOMP-1281^]: Add jackson-mapper-asl in docker image of the server
-- link:https://jira.talendforge.org/browse/TCOMP-1298[TCOMP-1298^]: Support restricted lists for @Proposable
-
-
-=== New Feature
-
-- link:https://jira.talendforge.org/browse/TCOMP-1297[TCOMP-1297^]: make max batch size property configurable for family and components through LocalConfiguration
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1266[TCOMP-1266^]: Enhance starter to support dataset and datastore
-- link:https://jira.talendforge.org/browse/TCOMP-1268[TCOMP-1268^]: Ensure /environment is not callable if not local or secured
-- link:https://jira.talendforge.org/browse/TCOMP-1269[TCOMP-1269^]: Ensure ErrorReportValve does not leak Tomcat version OOTB
-- link:https://jira.talendforge.org/browse/TCOMP-1271[TCOMP-1271^]: Upgrade to talend UI 2.3.0
-- link:https://jira.talendforge.org/browse/TCOMP-1272[TCOMP-1272^]: Move multiSelectTag to multiSelect for web environment
-- link:https://jira.talendforge.org/browse/TCOMP-1273[TCOMP-1273^]: [build/dev plugin] Automatically open the browser for talend-component:web task/goal
-- link:https://jira.talendforge.org/browse/TCOMP-1276[TCOMP-1276^]: Exclude xerces from component loadable resources for XMLReaderFactory
-- link:https://jira.talendforge.org/browse/TCOMP-1282[TCOMP-1282^]: Upgrade meecrowave to 1.2.6
-- link:https://jira.talendforge.org/browse/TCOMP-1283[TCOMP-1283^]: Upgrade cxf to 3.3.0
-- link:https://jira.talendforge.org/browse/TCOMP-1284[TCOMP-1284^]: Upgrade to johnzon 1.1.11
-- link:https://jira.talendforge.org/browse/TCOMP-1292[TCOMP-1292^]: Provide a vault friendly integration for the server
-- link:https://jira.talendforge.org/browse/TCOMP-1293[TCOMP-1293^]: Upgrade to Tomcat 9.0.16
-- link:https://jira.talendforge.org/browse/TCOMP-1295[TCOMP-1295^]: Ensure local-configuration.properties of a container are merged
-- link:https://jira.talendforge.org/browse/TCOMP-1296[TCOMP-1296^]: Ensure user can enrich families with custom jar+configuration
-
-
 == Version 1.1.5
 
 === Bug
