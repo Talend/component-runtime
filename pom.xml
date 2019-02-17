@@ -152,19 +152,19 @@
     <geronimo-jsonb.version>1.1</geronimo-jsonb.version>
     <geronimo-json.version>1.1</geronimo-json.version>
     <batik.version>1.9.1</batik.version>
-    <beam.version>2.9.0</beam.version>
-    <commons-codec.version>1.11</commons-codec.version>
+    <beam.version>2.10.0</beam.version>
+    <commons-codec.version>1.12</commons-codec.version>
     <commons-compress.version>1.18</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
     <commons-text.version>1.4</commons-text.version>
     <geronimo-jaxrs.version>1.0</geronimo-jaxrs.version>
-    <asciidoctorj.version>1.6.0</asciidoctorj.version>
+    <asciidoctorj.version>1.6.2</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
     <jsonb-api.version>1.1</jsonb-api.version>
     <jsonp-api.version>1.0</jsonp-api.version>
     <microprofile-config-api.version>1.3</microprofile-config-api.version>
-    <microprofile-openapi-api.version>1.1-RC1</microprofile-openapi-api.version>
+    <microprofile-openapi-api.version>1.1.1</microprofile-openapi-api.version>
     <microprofile-opentracing.version>1.2.1</microprofile-opentracing.version>
     <opentracing.version>0.31.0</opentracing.version>
     <geronimo-openapi.version>1.0.5</geronimo-openapi.version>
@@ -198,10 +198,10 @@
     <jgit.version>4.9.2.201712150930-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <surefire-plugin.version>3.0.0-M3</surefire-plugin.version>
-    <spotless.version>1.17.0</spotless.version>
+    <spotless.version>1.18.0</spotless.version>
     <jib.version>1.0.0-rc1</jib.version>
 
-    <jruby.version>9.2.4.0</jruby.version>
+    <jruby.version>9.2.5.0</jruby.version>
     <node.version>v10.14.2</node.version>
     <yarn.version>v1.12.3</yarn.version>
     <frontend.version>1.6</frontend.version>
@@ -701,7 +701,6 @@
             </licenseHeader>
             <eclipse>
               <file>${rootlocation}/formatter.xml</file>
-              <version>4.9.0</version>
             </eclipse>
           </java>
         </configuration>
