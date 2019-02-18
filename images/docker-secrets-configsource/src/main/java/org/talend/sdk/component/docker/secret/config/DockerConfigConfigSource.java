@@ -24,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
@@ -34,29 +36,40 @@ public class DockerConfigConfigSource implements ConfigSource {
     private final int ordinal;
 
     public DockerConfigConfigSource() {
-        this(System.getProperty("talend.docker.configs.base", "/"),
-                System.getProperty("talend.docker.configs.prefix", "talend."),
-                Integer.getInteger("talend.docker.configs.ordinal", 100));
+        this(InternalConfig.get(DockerConfigConfigSource.class.getName() + ".base", "/"),
+                Integer.parseInt(InternalConfig.get(DockerConfigConfigSource.class.getName() + ".ordinal", "100")),
+                Stream
+                        .of(InternalConfig.get(DockerConfigConfigSource.class.getName() + ".prefixes", "").split(","))
+                        .map(String::trim)
+                        .filter(it -> !it.isEmpty())
+                        .toArray(String[]::new));
     }
 
-    public DockerConfigConfigSource(final String base, final String prefix, final int ordinal) {
+    public DockerConfigConfigSource(final String base, final int ordinal, final String... prefixes) {
         this.ordinal = ordinal;
 
         final Path from = Paths.get(base);
         if (!Files.exists(from)) {
             entries = emptyMap();
         } else {
+            final Predicate<Path> matches =
+                    // if no prefix ensure it is not default unix folders or not supported config files
+                    prefixes.length == 0
+                            ? path -> !Files.isDirectory(path) && Stream
+                                    .of(".xml", ".properties", ".yml", ".yaml", ".so", ".json", ".old", ".img",
+                                            "vmlinuz", "core")
+                                    .noneMatch(ext -> path.getFileName().toString().endsWith(ext))
+                            : path -> Stream
+                                    .of(prefixes)
+                                    .anyMatch(prefix -> path.getFileName().toString().startsWith(prefix));
             try {
-                entries = Files
-                        .list(from)
-                        .filter(it -> it.getFileName().toString().startsWith(prefix))
-                        .collect(toMap(it -> it.getFileName().toString(), it -> {
-                            try {
-                                return new String(Files.readAllBytes(it), StandardCharsets.UTF_8);
-                            } catch (final IOException e) {
-                                throw new IllegalStateException(e);
-                            }
-                        }));
+                entries = Files.list(from).filter(matches).collect(toMap(it -> it.getFileName().toString(), it -> {
+                    try {
+                        return new String(Files.readAllBytes(it), StandardCharsets.UTF_8);
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }));
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }

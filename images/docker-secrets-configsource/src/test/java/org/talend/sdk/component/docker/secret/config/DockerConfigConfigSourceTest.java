@@ -43,8 +43,10 @@ class DockerConfigConfigSourceTest {
     @Test
     void testConfigs(@TempDir final Path base) throws IOException {
         Files.createDirectories(base);
-        System.setProperty("talend.docker.configs.base", base.toAbsolutePath().toString());
-        System.setProperty("talend.docker.configs.prefix", "my.");
+        System
+                .setProperty("org.talend.sdk.component.docker.secret.config.DockerConfigConfigSource.base",
+                        base.toAbsolutePath().toString());
+        System.setProperty("torg.talend.sdk.component.docker.secret.config.DockerConfigConfigSource.prefixes", "my.");
         try {
             Files
                     .write(base.resolve("my.config.1"), "My first config".getBytes(StandardCharsets.UTF_8),

@@ -43,7 +43,9 @@ class DockerSecretConfigSourceTest {
     @Test
     void testSecrets(@TempDir final Path base) throws IOException {
         Files.createDirectories(base);
-        System.setProperty("talend.docker.secrets.base", base.toAbsolutePath().toString());
+        System
+                .setProperty("org.talend.sdk.component.docker.secret.config.DockerSecretConfigSource.base",
+                        base.toAbsolutePath().toString());
         try {
             Files
                     .write(base.resolve("my.secret.1"), "My first secret".getBytes(StandardCharsets.UTF_8),

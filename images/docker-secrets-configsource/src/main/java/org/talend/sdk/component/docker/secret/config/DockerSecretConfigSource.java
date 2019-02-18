@@ -34,8 +34,8 @@ public class DockerSecretConfigSource implements ConfigSource {
     private final int ordinal;
 
     public DockerSecretConfigSource() {
-        this(System.getProperty("talend.docker.secrets.base", "/run/secrets"),
-                Integer.getInteger("talend.docker.secrets.ordinal", 100));
+        this(InternalConfig.get(DockerSecretConfigSource.class.getName() + ".base", "/run/secrets"),
+                Integer.parseInt(InternalConfig.get(DockerSecretConfigSource.class.getName() + ".ordinal", "100")));
     }
 
     public DockerSecretConfigSource(final String base, final int ordinal) {
