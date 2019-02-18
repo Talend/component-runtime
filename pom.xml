@@ -176,7 +176,7 @@
     <avro-jackson.version>1.9.13</avro-jackson.version>
 
     <talend-ui.version>2.3.0</talend-ui.version>
-    <component-api.version>1.1.4</component-api.version>
+    <component-api.version>1.1.5-SNAPSHOT</component-api.version>
 
     <!-- for the starter -->
     <gradle.version>5.0</gradle.version>

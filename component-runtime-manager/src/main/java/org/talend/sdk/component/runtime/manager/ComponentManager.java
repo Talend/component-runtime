@@ -140,6 +140,7 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.record.RecordPointerFactory;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.cache.LocalCache;
@@ -182,6 +183,7 @@ import org.talend.sdk.component.runtime.manager.service.InjectorImpl;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.ObjectFactoryImpl;
+import org.talend.sdk.component.runtime.manager.service.RecordPointerFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
@@ -1035,6 +1037,7 @@ public class ComponentManager implements AutoCloseable {
         services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId, propertyEditorRegistry));
         services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
+        services.put(RecordPointerFactory.class, new RecordPointerFactoryImpl(containerId));
         services.put(ContainerInfo.class, new ContainerInfo(containerId));
     }
 
