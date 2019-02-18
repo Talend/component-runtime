@@ -34,10 +34,20 @@ public class Artifact {
 
     private final String scope;
 
+    public Artifact(final String group, final String artifact, final String type, final String classifier,
+            final String version, final String scope) {
+        this.group = group;
+        this.artifact = artifact;
+        this.type = type;
+        this.classifier = classifier != null && classifier.isEmpty() ? null : classifier;
+        this.version = version;
+        this.scope = scope;
+    }
+
     public String toPath() {
         return String
                 .format("%s/%s/%s/%s-%s%s.%s", group.replace(".", "/"), artifact, version, artifact, version,
-                        ofNullable(classifier).map(c -> '-' + c).orElse(""), type);
+                        ofNullable(classifier).filter(it -> !it.isEmpty()).map(c -> '-' + c).orElse(""), type);
     }
 
     public String toCoordinate() {

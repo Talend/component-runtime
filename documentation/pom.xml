@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.6-SNAPSHOT</version>
+    <version>1.1.7-SNAPSHOT</version>
   </parent>
 
   <artifactId>documentation</artifactId>
@@ -73,6 +73,12 @@
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-server-vault-proxy</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -409,6 +415,17 @@
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-api</artifactId>
             <version>${component-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>component-server-vault-proxy</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>

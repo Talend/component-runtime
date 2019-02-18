@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
@@ -406,19 +407,26 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return false;
     }
 
-    public InputStream findContainedResource(final String name) {
-        return ofNullable(super.findResource(name)).map(u -> {
-            try {
-                return u.openStream();
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        })
-                .orElseGet(() -> ofNullable(resources.get(name))
-                        .filter(s -> s.size() > 0)
-                        .map(s -> s.iterator().next().resource)
-                        .map(ByteArrayInputStream::new)
-                        .orElse(null));
+    public List<InputStream> findContainedResources(final String name) {
+        try {
+            return Stream.concat(ofNullable(super.findResources(name)).map(urls -> list(urls).stream().map(url -> {
+                try {
+                    return url.openStream();
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            })).orElseGet(Stream::empty),
+                    ofNullable(resources.get(name))
+                            .map(s -> s
+                                    .stream()
+                                    .map(it -> it.resource)
+                                    .map(ByteArrayInputStream::new)
+                                    .map(InputStream.class::cast))
+                            .orElseGet(Stream::empty))
+                    .collect(toList());
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private URL nestedResourceToURL(final String name, final Resource nestedResource) {

@@ -52,22 +52,6 @@ public class ComponentServerConfiguration {
     private Optional<String> componentRegistry;
 
     @Inject
-    @Documentation("How long the application waits during shutdown for the execution tasks to complete")
-    @ConfigProperty(name = "talend.component.server.execution.pool.wait", defaultValue = "PT10S") // 10s
-    private String executionPoolShutdownTimeout;
-
-    @Inject
-    @Documentation("How long the read execution endpoint can last (max)")
-    @ConfigProperty(name = "talend.component.server.execution.dataset.retriever.timeout", defaultValue = "180") // in
-    // sec
-    private Long datasetRetrieverTimeout;
-
-    @Inject
-    @Documentation("The name used by the brave integration (zipkin)")
-    @ConfigProperty(name = "talend.component.server.monitoring.brave.service.name", defaultValue = "component-server")
-    private String serviceName;
-
-    @Inject
     @Documentation("Should the /documentation endpoint be activated. "
             + "Note that when called on localhost the doc is always available.")
     @ConfigProperty(name = "talend.component.server.documentation.active", defaultValue = "true")
@@ -109,4 +93,22 @@ public class ComponentServerConfiguration {
             + "(/api/v1/environment or /documentation).")
     @ConfigProperty(name = "talend.component.server.filter.secured.tokens", defaultValue = "-")
     private String securedEndpointsTokens;
+
+    @Inject
+    @Documentation("A folder available for the server - don't forget to mount it in docker if you are using the "
+            + "image - which accepts subfolders named as component plugin id "
+            + "(generally the artifactId or jar name without the version, ex: jdbc). Each family folder can contain:\n\n"
+            + "- a `user-configuration.properties` file which will be merged with component configuration system "
+            + "(see services). This properties file enables the function `userJar(xxxx)` to replace the jar named `xxxx` "
+            + "by its virtual gav (`groupId:artifactId:version`),\n"
+            + "- a list of jars which will be merged with component family classpath\n")
+    @ConfigProperty(name = "talend.component.server.user.extensions.location")
+    private Optional<String> userExtensions;
+
+    @Inject
+    @Documentation("Should the implicit artifacts be provisionned to a m2. If set to `auto` it tries to detect "
+            + "if there is a m2 to provision - recommended, if set to `skip` it is ignored, else it uses the value as a "
+            + "m2 path.")
+    @ConfigProperty(name = "talend.component.server.user.extensions.provisioning.location", defaultValue = "auto")
+    private String userExtensionsAutoM2Provisioning;
 }

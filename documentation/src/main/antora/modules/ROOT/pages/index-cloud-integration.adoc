@@ -7,6 +7,7 @@
 :description: Integrate components into Talend Cloud and learn about the component server
 :keywords: web, component server, cloud
 
-Learn about the component server with the following articles:
+Learn about the Component Server with the following articles:
 
 * xref:documentation-rest.adoc[Component server and HTTP API]
+* xref:vault-proxy.adoc[Component Server Vault Proxy]

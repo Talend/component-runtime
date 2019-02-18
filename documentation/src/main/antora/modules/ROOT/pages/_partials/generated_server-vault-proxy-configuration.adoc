@@ -1,0 +1,43 @@
+
+NOTE: the configuration is read from system properties, environment variables, ....
+
+talend.vault.cache.client.certificate.acceptAny:: Default value: `false`. Should any certificate be accepted - only for dev purposes.
+talend.vault.cache.client.executor.server.core:: Default value: `64`. Thread pool core size for Component Server client.
+talend.vault.cache.client.executor.server.keepAlive:: Default value: `60000`. Thread keep alive (in ms) for Component Server client thread pool.
+talend.vault.cache.client.executor.server.max:: Default value: `256`. Thread pool max size for Component Server client.
+talend.vault.cache.client.executor.vault.core:: Default value: `64`. Thread pool core size for Vault client.
+talend.vault.cache.client.executor.vault.keepAlive:: Default value: `60000`. Thread keep alive (in ms) for Vault client thread pool.
+talend.vault.cache.client.executor.vault.max:: Default value: `256`. Thread pool max size for Vault client.
+talend.vault.cache.client.providers:: JAX-RS fully qualified name of the provides (message body readers/writers) for vault and component-server clients.
+talend.vault.cache.client.server.authorization:: The token to use to call component-server if any.
+talend.vault.cache.client.server.certificate.keystore.location:: Where the keystore to use to connect to Component Server is located.
+talend.vault.cache.client.server.certificate.keystore.password:: Default value: `changeit`. The keystore password for `talend.vault.cache.client.server.certificate.keystore.location`.
+talend.vault.cache.client.server.certificate.keystore.type:: The keystore type for `talend.vault.cache.client.server.certificate.keystore.location`.
+talend.vault.cache.client.server.certificate.truststore.type:: The truststore type for `talend.vault.cache.client.server.certificate.keystore.location`.
+talend.vault.cache.client.server.hostname.accepted:: Default value: `localhost,127.0.0.1,0:0:0:0:0:0:0:1`. Valid hostnames for the Component Server certificates (see `java.net.ssl.HostnameVerifier`).
+talend.vault.cache.client.timeout.connect:: Default value: `30000`. HTTP connection timeout to vault server.
+talend.vault.cache.client.timeout.read:: Default value: `30000`. HTTP read timeout to vault server.
+talend.vault.cache.client.vault.certificate.keystore.location:: Where the keystore to use to connect to vault is located.
+talend.vault.cache.client.vault.certificate.keystore.password:: Default value: `changeit`. The keystore password for `talend.vault.cache.client.vault.certificate.keystore.location`.
+talend.vault.cache.client.vault.certificate.keystore.type:: The keystore type for `talend.vault.cache.client.vault.certificate.keystore.location`.
+talend.vault.cache.client.vault.certificate.truststore.type:: The truststore type for `talend.vault.cache.client.vault.certificate.keystore.location`.
+talend.vault.cache.client.vault.hostname.accepted:: Default value: `localhost,127.0.0.1,0:0:0:0:0:0:0:1`. Valid hostnames for the Vault certificates (see `java.net.ssl.HostnameVerifier`).
+talend.vault.cache.jcache.cache.expiry:: Default value: `3600`. JCache expiry for decrypted values (ms).
+talend.vault.cache.jcache.cache.management:: Default value: `false`. Should JCache MBeans be registered.
+talend.vault.cache.jcache.cache.statistics:: Default value: `false`. Should JCache statistics be enabled.
+talend.vault.cache.jcache.manager.properties:: Default value: ``. JCache `CacheManager` properties used to initialized the instance.
+talend.vault.cache.jcache.manager.uri:: Default value: `geronimo://simple-jcache.properties`. Configuration for JCache setup, default implementation is Geronimo Simple Cache.
+talend.vault.cache.jcache.maxCacheSize:: Default value: `100000`. JCache max size per cache.
+talend.vault.cache.jcache.refresh.period:: Default value: `30000`. How often (in ms) the Component Server should be checked to invalidate the caches on the component parameters (to identify credentials).
+talend.vault.cache.security.allowedIps:: Default value: `localhost,127.0.0.1,0:0:0:0:0:0:0:1`. The IP or hosts allowed to call that server on `/api/*` if no token is passed.
+talend.vault.cache.security.tokens:: Default value: `-`. The tokens enabling a client to call this server without being in `allowedIp` whitelist.
+talend.vault.cache.service.auth.refreshDelayMargin:: Default value: `600000`. How often (in ms) to refresh the vault token.
+talend.vault.cache.service.auth.refreshDelayOnFailure:: Default value: `10000`. How often (in ms) to refresh the vault token in case of an authentication failure.
+talend.vault.cache.talendComponentKit.url:: Base URL to connect to Component Server
+talend.vault.cache.vault.auth.endpoint:: Default value: `v1/auth/approle/login`. The vault path to retrieve a token.
+talend.vault.cache.vault.auth.roleId:: The vault role identifier to use to log in (if token is not set).
+talend.vault.cache.vault.auth.secretId:: The vault secret identifier to use to log in (if token is not set).
+talend.vault.cache.vault.auth.token:: The vault token to use to log in (will make roleId and secretId ignored).
+talend.vault.cache.vault.decrypt.endpoint:: The vault path to decrypt values.
+talend.vault.cache.vault.url:: Base URL to connect to Vault.
+

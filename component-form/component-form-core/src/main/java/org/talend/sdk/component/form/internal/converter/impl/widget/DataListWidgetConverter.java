@@ -80,6 +80,7 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
                                 nameValue.setValue(v);
                                 return nameValue;
                             }).collect(toList()));
+            schema.setRestricted(true);
             jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
         } else {
             final String actionName = context.getProperty().getMetadata().get("action::dynamic_values");
@@ -88,6 +89,7 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
                         loadDynamicValues(client, family, actionName, context.getRootContext());
                 return pairs.thenApply(namedValues -> {
                     schema.setTitleMap(namedValues);
+                    schema.setRestricted(true);
                     jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));
                     return context;
                 });
@@ -100,6 +102,5 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
 
     protected void setupUiSchema(final PropertyContext<?> context, final UiSchema schema) {
         schema.setWidget("datalist");
-        schema.setRestricted("ENUM".equalsIgnoreCase(context.getProperty().getType()));
     }
 }

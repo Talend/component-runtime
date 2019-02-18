@@ -38,7 +38,7 @@ export default function Help(props) {
 					overlay={overlay}
 				>
 					<span className={theme.Help}>
-						<Icon name="talend-question-circle" />
+						<Icon name={props.icon} />
 					</span>
 				</OverlayTrigger>
 			)}
@@ -47,8 +47,13 @@ export default function Help(props) {
 }
 
 Help.propTypes = {
+	icon: PropTypes.string,
 	i18nKey: PropTypes.string,
 	content: PropTypes.object,
 	placement: PropTypes.string,
 	title: PropTypes.string,
+};
+
+Help.defaultProps = {
+	icon: 'talend-question-circle',
 };

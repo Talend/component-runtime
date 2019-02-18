@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.6-SNAPSHOT</version>
+    <version>1.1.7-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-parent</artifactId>
@@ -29,6 +29,8 @@
 
   <modules>
     <module>component-server-model</module>
+    <module>component-server-api</module>
     <module>component-server</module>
+    <module>component-server-vault-proxy</module>
   </modules>
 </project>

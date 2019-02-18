@@ -140,6 +140,7 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.record.RecordPointerFactory;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.cache.LocalCache;
@@ -155,6 +156,8 @@ import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
+import org.talend.sdk.component.dependencies.EmptyResolver;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.jmx.JmxManager;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -180,6 +183,7 @@ import org.talend.sdk.component.runtime.manager.service.InjectorImpl;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.ObjectFactoryImpl;
+import org.talend.sdk.component.runtime.manager.service.RecordPointerFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
@@ -293,6 +297,8 @@ public class ComponentManager implements AutoCloseable {
 
     private final PropertyEditorRegistry propertyEditorRegistry;
 
+    private final List<ContainerClasspathContributor> classpathContributors;
+
     /**
      * @param m2 the maven repository location if on the file system.
      * @param dependenciesResource the resource path containing dependencies.
@@ -302,8 +308,9 @@ public class ComponentManager implements AutoCloseable {
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
-        customizers =
-                StreamSupport.stream(ServiceLoader.load(Customizer.class, tccl).spliterator(), false).collect(toList());
+        customizers = toStream(loadServiceProviders(Customizer.class, tccl)).collect(toList()); // must stay first
+        classpathContributors =
+                toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).collect(toList());
         classesFilter = Filters
                 .prefixes(Stream
                         .concat(Stream
@@ -358,10 +365,24 @@ public class ComponentManager implements AutoCloseable {
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
-                .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve))
+                .resolver(customizers.stream().noneMatch(Customizer::ignoreDefaultDependenciesDescriptor)
+                        ? new MvnDependencyListLocalRepositoryResolver(dependenciesResource, this::resolve)
+                        : new EmptyResolver())
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
-                }, logInfoLevelMapping);
+                }, logInfoLevelMapping) {
+
+            @Override
+            public File resolve(final String path) {
+                return classpathContributors
+                        .stream()
+                        .filter(it -> it.canResolve(path))
+                        .map(it -> it.resolve(path))
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElseGet(() -> super.resolve(path));
+            }
+        };
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern)
                 .map(String::trim)
@@ -615,9 +636,17 @@ public class ComponentManager implements AutoCloseable {
             // check if we are in the studio process if so just grab the the studio config
             final String m2Repo = System.getProperty("maven.repository");
             if (!"global".equals(m2Repo)) {
-                final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2");
-                if (localM2.exists()) {
-                    return localM2;
+                { // this shouldn't exist in recent studio
+                    final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2");
+                    if (localM2.exists()) {
+                        return localM2;
+                    }
+                }
+                {
+                    final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2/repository");
+                    if (localM2.exists()) {
+                        return localM2;
+                    }
                 }
             }
             return findDefaultM2();
@@ -844,6 +873,7 @@ public class ComponentManager implements AutoCloseable {
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(pluginRootFile))
+                .withAdditionalClasspath(findAdditionalClasspathFor(container.buildAutoIdFromName(pluginRootFile)))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
@@ -854,6 +884,7 @@ public class ComponentManager implements AutoCloseable {
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(location))
+                .withAdditionalClasspath(findAdditionalClasspathFor(container.buildAutoIdFromName(location)))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
@@ -864,10 +895,19 @@ public class ComponentManager implements AutoCloseable {
         final String id = this.container
                 .builder(forcedId, pluginRootFile)
                 .withCustomizer(createContainerCustomizer(forcedId))
+                .withAdditionalClasspath(findAdditionalClasspathFor(forcedId))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
+    }
+
+    private Collection<Artifact> findAdditionalClasspathFor(final String pluginId) {
+        return classpathContributors
+                .stream()
+                .flatMap(it -> it.findContributions(pluginId).stream())
+                .distinct()
+                .collect(toList())/* keep order */;
     }
 
     public void removePlugin(final String id) {
@@ -980,15 +1020,11 @@ public class ComponentManager implements AutoCloseable {
         // not JSON services
         final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
         if (!Boolean.getBoolean("talend.component.configuration." + containerId + ".ignoreLocalConfiguration")) {
-            try (final InputStream stream =
-                    container.getLoader().findContainedResource("TALEND-INF/local-configuration" + ".properties")) {
-                if (stream != null) {
-                    final Properties properties = new Properties();
-                    properties.load(stream);
-                    containerConfigurations.add(new PropertiesConfiguration(properties));
-                }
-            } catch (final IOException e) {
-                throw new IllegalArgumentException(e);
+            final Stream<InputStream> localConfigs =
+                    container.getLoader().findContainedResources("TALEND-INF/local-configuration.properties").stream();
+            final Properties aggregatedLocalConfigs = aggregateConfigurations(localConfigs);
+            if (!aggregatedLocalConfigs.isEmpty()) {
+                containerConfigurations.add(new PropertiesConfiguration(aggregatedLocalConfigs));
             }
         }
         services.put(LocalConfiguration.class, new LocalConfigurationService(containerConfigurations, containerId));
@@ -1001,7 +1037,48 @@ public class ComponentManager implements AutoCloseable {
         services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId, propertyEditorRegistry));
         services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
+        services.put(RecordPointerFactory.class, new RecordPointerFactoryImpl(containerId));
         services.put(ContainerInfo.class, new ContainerInfo(containerId));
+    }
+
+    private Properties aggregateConfigurations(final Stream<InputStream> localConfigs) {
+        final AtomicReference<RuntimeException> re = new AtomicReference<>();
+        final Properties result = localConfigs.map(stream -> {
+            final Properties properties = new Properties();
+            try {
+                if (stream != null) {
+                    properties.load(stream);
+                }
+                return properties;
+            } catch (final IOException e) {
+                log.error(e.getMessage(), e);
+                RuntimeException runtimeException = re.get();
+                if (runtimeException == null) {
+                    runtimeException = new IllegalStateException("Can't read all local configurations");
+                    re.set(runtimeException);
+                }
+                runtimeException.addSuppressed(e);
+                return properties;
+            } finally {
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    } catch (final IOException e) {
+                        // no-op
+                    }
+                }
+            }
+        })
+                .sorted(comparing(it -> Integer.parseInt(it.getProperty("_ordinal", "0"))))
+                .reduce(new Properties(), (p1, p2) -> {
+                    p1.putAll(p2);
+                    return p1;
+                });
+        final RuntimeException error = re.get();
+        if (error != null) {
+            throw error;
+        }
+        return result;
     }
 
     protected static Collection<LocalConfiguration> createRawLocalConfigurations() {
@@ -1751,28 +1828,31 @@ public class ComponentManager implements AutoCloseable {
                     });
 
             if (Stream.of(type.getMethods()).anyMatch(p -> p.isAnnotationPresent(AfterGroup.class))) {
-                final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root);
+                final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root, type.getSimpleName(),
+                        LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
                 final ParameterMeta maxBatchSize = paramBuilder.newBulkParameter();
-                final String layoutType = paramBuilder.getLayoutType();
-                if (layoutType == null) {
-                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxBatchSize.getName());
-                    root
-                            .getMetadata()
-                            .put("tcomp::ui::gridlayout::Main::value",
-                                    root
-                                            .getNestedParameters()
-                                            .stream()
-                                            .map(ParameterMeta::getName)
-                                            .collect(joining("|")));
-                } else if (!root.getMetadata().containsKey(layoutType)) {
-                    root
-                            .getMetadata()
-                            .put(layoutType, layoutType.contains("gridlayout") ? maxBatchSize.getName() : "true");
-                } else if (layoutType.contains("gridlayout")) {
-                    final String oldLayout = root.getMetadata().get(layoutType);
-                    root.getMetadata().put(layoutType, maxBatchSize.getName() + "|" + oldLayout);
+                if (maxBatchSize != null) {
+                    final String layoutType = paramBuilder.getLayoutType();
+                    if (layoutType == null) {
+                        root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxBatchSize.getName());
+                        root
+                                .getMetadata()
+                                .put("tcomp::ui::gridlayout::Main::value",
+                                        root
+                                                .getNestedParameters()
+                                                .stream()
+                                                .map(ParameterMeta::getName)
+                                                .collect(joining("|")));
+                    } else if (!root.getMetadata().containsKey(layoutType)) {
+                        root
+                                .getMetadata()
+                                .put(layoutType, layoutType.contains("gridlayout") ? maxBatchSize.getName() : "true");
+                    } else if (layoutType.contains("gridlayout")) {
+                        final String oldLayout = root.getMetadata().get(layoutType);
+                        root.getMetadata().put(layoutType, maxBatchSize.getName() + "|" + oldLayout);
+                    }
+                    root.getNestedParameters().add(maxBatchSize);
                 }
-                root.getNestedParameters().add(maxBatchSize);
             }
         }
 
@@ -1842,5 +1922,27 @@ public class ComponentManager implements AutoCloseable {
          * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.
          */
         boolean ignoreBeamClassLoaderExclusions();
+
+        /**
+         * Disable default built-in component classpath building mecanism. This is useful when relying on
+         * a custom {@link ContainerClasspathContributor} handling it.
+         *
+         * @return true if the default dependencies descriptor (TALEND-INF/dependencies.txt) must be ignored.
+         */
+        default boolean ignoreDefaultDependenciesDescriptor() {
+            return false;
+        }
+    }
+
+    /**
+     * WARNING: internal extension point, use it only if you really understand what it implies.
+     */
+    public interface ContainerClasspathContributor {
+
+        Collection<Artifact> findContributions(String pluginId);
+
+        boolean canResolve(String path);
+
+        File resolve(String path);
     }
 }

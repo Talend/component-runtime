@@ -19,12 +19,12 @@ a| `javax.json.JsonWriterFactory` a| A JSON-P instance. It is recommended to use
 a| `javax.json.JsonReaderFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
 a| `javax.json.stream.JsonParserFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
 a| `javax.json.stream.JsonGeneratorFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
-a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Represents the local configuration that can be used during the design.
 a| `org.talend.sdk.component.api.service.dependency.Resolver` a| Allows to resolve files from Maven coordinates (like `dependencies.txt` for component). Note that it assumes that the files are available in the component Maven repository.
 a| `org.talend.sdk.component.api.service.injector.Injector` a| Utility to inject services in fields marked with `@Service`.
 a| `org.talend.sdk.component.api.service.factory.ObjectFactory` a| Allows to instantiate an object from its class name and properties.
 a| `org.talend.sdk.component.api.service.record.RecordBuilderFactory` a| Allows to instantiate a xref:record-types.adoc#record[record].
-
+a| `org.talend.sdk.component.api.service.record.RecordPointerFactory` a| Allows to instantiate a `RecordPointer` which enables to extract a data from a `Record` based on link:https://tools.ietf.org/html/rfc6901[jsonpointer] specification.
+a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Represents the local configuration that can be used during the design.
 
 It is not recommended to use it for the runtime because the local configuration is usually different and the instances are distinct.
 

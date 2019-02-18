@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.6-SNAPSHOT</version>
+    <version>1.1.7-SNAPSHOT</version>
   </parent>
 
   <artifactId>images</artifactId>
@@ -30,6 +30,8 @@
   <modules>
     <module>component-server-image</module>
     <module>component-starter-server-image</module>
+    <module>component-server-vault-proxy-image</module>
+    <module>docker-secrets-configsource</module>
   </modules>
 
   <properties>
@@ -39,6 +41,7 @@
     <baseImage>openjdk:8-jre-alpine</baseImage>
     <boundPort>8080</boundPort>
     <baseImageDir>/opt/talend</baseImageDir>
+    <libraryPathWithSigar>/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib</libraryPathWithSigar>
   </properties>
 
   <build>

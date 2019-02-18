@@ -5,7 +5,7 @@
 
 This tutorial walks you through all the required steps to get started with *Talend Component Kit*, from the creation of a simple component to its integration into *Talend Open Studio*.
 
-The component created in this tutorial is a simple output component that receives data from the previous component and displays it in the logs, along with an extra information entered by a user.
+The component created in this tutorial is a simple processor component that receives data from the previous component and displays it in the logs, along with an extra information entered by a user.
 
 Once the prerequisites completed, this tutorial should take you about 20 minutes.
 
@@ -18,8 +18,6 @@ This tutorial aims at helping you to create your very first component. But befor
 - Download and install Talend Open Studio. For example, from link:https://sourceforge.net/projects/talend-studio[Sourceforge].
 - Download and install https://www.jetbrains.com/idea/download[IntelliJ].
 - Download the Talend Component Kit plugin for IntelliJ. The detailed installation steps for the plugin are available in xref:installing-talend-intellij-plugin.adoc[this document].
-
-IMPORTANT: For this tutorial to work correctly, you must use the version 1.1.1 or below of the plugin (for both `component-api` and `talend-component-maven-plugin` artifacts.). Check how to change the framework version in xref:compatibility.adoc[this document]. 
 
 == Generating a simple component project
 The first step in this tutorial is to generate a project containing a simple output component using the *Starter* included in the Talend Component Kit plugin for IntelliJ.
@@ -34,15 +32,17 @@ The *Talend Component Kit Starter* opens.
 image::intellij_tutorial_project_metadata.png[Project metadata,70%,window="_blank",link="_images/intellij_tutorial_project_metadata.png"]
 - The *Component Family* and the *Category* will be used later in Talend Open Studio to find the new component.
 - The project metadata are mostly used to identify the project structure. A common practice is to replace 'company' in the default value by a value of your own, like your domain name. +
-. Once the metadata is filled, select *ADD A COMPONENT*. A new screen is displayed in the *Talend Component Kit Starter* that lets you define the generic configuration of the component.
-. Select *PROCESSOR/OUTPUT* and enter a valid Java name for the component. For example, *Logger*.
-. Select *CONFIGURATION MODEL* and add a string field named `level`. This input field will be used in the component configuration to enter additional information to display in the logs. +
+. Once the metadata is filled, select *Add a component*. A new screen is displayed in the *Talend Component Kit Starter* that lets you define the generic configuration of the component. By default, new components are processors,
+. Enter a valid Java name for the component. For example, *Logger*.
+. Select *Configuration Model* and add a string field named `level`. This input field will be used in the component configuration to enter additional information to display in the logs. +
 +
 image::tutorial_component_configuration_model.png[Configuration Model,70%,window="_blank",link="_images/tutorial_component_configuration_model.png"]
-. In the *Input(s) / Output(s)* section, click the default *MAIN* input branch to access its detail, and toggle the *Generic* option to specify that the component can receive any type of data. Leave the *Name* of the branch with its default `MAIN` value. +
+. In the *Input(s) / Output(s)* section, click the default *MAIN* input branch to access its detail, and make sure that the record model is set to *Generic*. Leave the *Name* of the branch with its default `MAIN` value. +
 +
 image::tutorial_component_generic_input.png[Generic Input,70%,window="_blank",link="_images/tutorial_component_generic_input.png"]
-NOTE: By default, when selecting *PROCESSOR/OUTPUT*, there is one input branch and no output branch for the component, which is fine in the case of this tutorial. A processor without any output branch is considered an output component.
+. Repeat the same step for the default *MAIN* output branch. +
++
+NOTE: Because the component is a processor, it has an output branch by default. A processor without any output branch is considered an output component. Yo ucan create output components when the *Activate IO* option is selected.
 . Click *Next* and check the name and location of your project, then click *Finish* to generate the project in the IDE. +
 
 At this point, your component is technically already ready to be compiled and deployed to Talend Open Studio. But first, have a look at the generated project:
@@ -50,8 +50,8 @@ At this point, your component is technically already ready to be compiled and de
 image::tutorial_generated_project_view.png[Project view,70%,window="_blank",link="_images/tutorial_generated_project_view.png"]
 
 - Two classes based on the name and type of component defined in the *Talend Component Kit Starter* have been generated:
-** *LoggerOutput* is where the component logic is defined
-** *LoggerOutputConfiguration* is where the component layout and configurable fields are defined, including the *level* string field that was defined earlier in the configuration model of the component.
+** *LoggerProcessor* is where the component logic is defined
+** *LoggerProcessorConfiguration* is where the component layout and configurable fields are defined, including the *level* string field that was defined earlier in the configuration model of the component.
 - The *package-info.java* file contains the component metadata defined in the *Talend Component Kit Starter*, like the family and category.
 - You can notice as well that the elements in the tree structure are named after the project metadata defined in the *Talend Component Kit Starter*.
 
@@ -66,10 +66,9 @@ This way, it will be easy to check that what is visible in the Studio is what is
 
 Before starting to run any command, make sure Talend Open Studio is not running.
 
-. From your component project in IntelliJ, open a terminal. +
+. From your component project in IntelliJ, open a terminal and make sure that the selected directory is the root of the project. All commands shown in this tutorial are performed from this location. +
 +
 image::tutorial_intellij_terminal_blank.png[Compile terminal,70%,window="_blank",link="_images/tutorial_intellij_terminal_blank.png"]
-There, you can see that the terminal opens directly at the root of the project. All commands shown in this tutorial are performed from this location.
 . Compile the project by running the following command: `mvnw clean install`. +
 The `mvnw` command refers to the Maven wrapper that is shipped with Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.
 . Once the command is executed and you see *BUILD SUCCESS* in the terminal, deploy the component to your local instance of Talend Open Studio using the following command: +
@@ -86,15 +85,13 @@ image::tutorial_deploy_in_studio_success.png[Build success,70%,window="_blank",l
 image::tutorial_first_component_in_studio.png[Component in Studio,70%,window="_blank",link="_images/tutorial_first_component_in_studio.png"]
 
 At this point, your new component is available in Talend Open Studio, and its configurable part is already set. But the component logic is still to be defined. +
-As a reminder, the initial goal of this component is to output the information it received in input in the logs of the job.
-Go to the next section to learn how to define a simple logic.
 
 
 == Editing the component
-You can now edit the component to implement a simple logic aiming at reading the data contained in the input branch of the component, to display it the execution logs of the job. The value of the *level* field of the component also needs to be displayed and changed to uppercase.
+You can now edit the component to implement a simple logic: reading the data contained in the input branch of the component to display it the execution logs of the job. The value of the *level* field of the component also needs to be displayed and changed to uppercase.
 
 1. Save the job created earlier and close Talend Open Studio.
-2. Back in IntelliJ open the *LoggerOutput* class. This is the class where the component logic can be defined.
+2. Back in IntelliJ open the *LoggerProcessor* class. This is the class where the component logic can be defined.
 3. Look for the `@ElementListener` method. It is already present and references the default input branch that was defined in the *Talend Component Kit Starter*, but it is not complete yet.
 4. To be able to log the data in input to the console, add the following lines: +
 +
@@ -137,8 +134,8 @@ As the component is now ready to be used, it is time to create a job and check t
 1. Open Talend Open Studio again and go to the job created earlier. The new component is still there.
 2. Add a *tRowGenerator* component and connect it to the logger.
 3. Double-click the *tRowGenerator* to specify the data to generate:
-** Add a first column named `firstName` and select the *TalendDataGenerator.getFirstName() function.
-** Add a second column named 'lastName' and select the *TalendDataGenerator.getLastName() function.
+** Add a first column named `firstName` and select the *TalendDataGenerator.getFirstName()* function.
+** Add a second column named 'lastName' and select the *TalendDataGenerator.getLastName()* function.
 ** Set the *Number of Rows for RowGenerator* to `10`. +
 +
 image::tutorial_build_job_trowgenerator.png[tRowGenerator,70%,window="_blank",link="_images/tutorial_build_job_trowgenerator.png"]

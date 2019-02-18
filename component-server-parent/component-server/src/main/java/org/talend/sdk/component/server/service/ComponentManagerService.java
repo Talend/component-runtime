@@ -77,6 +77,9 @@ public class ComponentManagerService {
     @Inject
     private ConfigurationDao configurationDao;
 
+    @Inject
+    private VirtualDependenciesService virtualDependenciesService;
+
     private ComponentManager instance;
 
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
@@ -95,7 +98,8 @@ public class ComponentManagerService {
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
-        deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao, configurationDao);
+        deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao, configurationDao,
+                virtualDependenciesService);
         instance.getContainer().registerListener(deploymentListener);
 
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
@@ -170,6 +174,8 @@ public class ComponentManagerService {
 
         private final ConfigurationDao configurationDao;
 
+        private final VirtualDependenciesService virtualDependenciesService;
+
         @Override
         public void onCreate(final Container container) {
             container.set(CleanupTask.class, new CleanupTask(postDeploy(container)));
@@ -224,6 +230,7 @@ public class ComponentManagerService {
                     .collect(toList());
 
             return () -> {
+                virtualDependenciesService.onUnDeploy(plugin);
                 componentIds.forEach(componentDao::removeById);
                 actions.forEach(actionDao::removeById);
                 families.forEach(componentFamilyDao::removeById);

@@ -1,1 +1,2 @@
 org.talend.sdk.component.server.configuration.PropertiesSetup
+org.talend.sdk.component.server.tomcat.GenerateCertificateAndActivateHttps

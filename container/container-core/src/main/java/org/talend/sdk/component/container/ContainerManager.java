@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.container;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.list;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -30,6 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -181,7 +183,7 @@ public class ContainerManager implements Lifecycle {
      * @return the newly created container.
      */
     public ContainerBuilder builder(final String id, final String module) {
-        return new ContainerBuilder(id, module, null);
+        return new ContainerBuilder(id, module, null, emptySet());
     }
 
     public File resolve(final String path) {
@@ -345,6 +347,13 @@ public class ContainerManager implements Lifecycle {
 
         private Consumer<Container> customizer;
 
+        private Collection<Artifact> additionalClasspath = new ArrayList<>();
+
+        public ContainerBuilder withAdditionalClasspath(final Collection<Artifact> additionalClasspath) {
+            this.additionalClasspath = ofNullable(additionalClasspath).orElseGet(Collections::emptySet);
+            return this;
+        }
+
         public ContainerBuilder withCustomizer(final Consumer<Container> customizer) {
             this.customizer = customizer;
             return this;
@@ -361,7 +370,8 @@ public class ContainerManager implements Lifecycle {
             final File resolved = resolve(moduleLocation);
             info("Creating module " + moduleLocation + " (from " + module
                     + (resolved.exists() ? ", location=" + resolved.getAbsolutePath() : "") + ")");
-            final Stream<Artifact> classpath = resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation);
+            final Stream<Artifact> classpath =
+                    Stream.concat(getBuiltInClasspath(moduleLocation), additionalClasspath.stream());
 
             final Container container = new Container(id, moduleLocation, classpath.toArray(Artifact[]::new),
                     classLoaderConfiguration, ContainerManager.this::resolve,
@@ -420,6 +430,10 @@ public class ContainerManager implements Lifecycle {
             container.setState(Container.State.DEPLOYED);
             info("Created container " + id);
             return container;
+        }
+
+        private Stream<Artifact> getBuiltInClasspath(final String moduleLocation) {
+            return resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation);
         }
 
         private Stream<String> getJvmMarkers() {

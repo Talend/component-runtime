@@ -131,6 +131,12 @@ import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.reflect.Defaults;
+import org.talend.sdk.component.runtime.server.vault.proxy.endpoint.security.SecurityFilter;
+import org.talend.sdk.component.runtime.server.vault.proxy.service.VaultService;
+import org.talend.sdk.component.runtime.server.vault.proxy.service.http.ClientSetup;
+import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.CacheConfigurationFactory;
+import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.JCacheSetup;
+import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.VaultProxyCacheResolver;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
@@ -169,6 +175,7 @@ public class Generator {
             tasks.register(() -> generatedActions(generatedDir));
             tasks.register(() -> generatedUi(generatedDir));
             tasks.register(() -> generatedServerConfiguration(generatedDir));
+            tasks.register(() -> generatedServerVaultProxyConfiguration(generatedDir));
             tasks.register(() -> updateComponentServerApi(generatedDir));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
@@ -651,6 +658,18 @@ public class Generator {
         }
     }
 
+    private static void generatedServerVaultProxyConfiguration(final File generatedDir) {
+        final File file = new File(generatedDir, "generated_server-vault-proxy-configuration.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
+            stream.println();
+            stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
+            stream.println();
+            generateConfigTableContent(stream, ClientSetup.class, VaultService.class, JCacheSetup.class,
+                    SecurityFilter.class, VaultProxyCacheResolver.class, CacheConfigurationFactory.class);
+            stream.println();
+        }
+    }
+
     private static void generateConfigTableContent(final PrintStream stream, final Class<?>... configClass) {
         Stream
                 .of(configClass)
@@ -661,25 +680,27 @@ public class Generator {
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class);
                     final String name =
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
-                    return name + ":: " + of(configProperty.defaultValue())
-                            .filter(it -> !it
-                                    .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
-                            .map(it -> "Default value: `" + it + "`. ")
-                            .orElse("")
-                            + Stream
-                                    .of(field.getDeclaredAnnotations())
-                                    .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
-                                    .map(a -> {
-                                        try {
-                                            return a.annotationType().getMethod("value").invoke(a).toString();
-                                        } catch (final IllegalAccessException | InvocationTargetException
-                                                | NoSuchMethodException e) {
-                                            return "-";
-                                        }
-                                    })
-                                    .findFirst()
-                                    .orElse("-");
+                    return name.startsWith("git.") ? null
+                            : (name + ":: " + of(configProperty.defaultValue())
+                                    .filter(it -> !it
+                                            .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
+                                    .map(it -> "Default value: `" + it + "`. ")
+                                    .orElse("")
+                                    + Stream
+                                            .of(field.getDeclaredAnnotations())
+                                            .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
+                                            .map(a -> {
+                                                try {
+                                                    return a.annotationType().getMethod("value").invoke(a).toString();
+                                                } catch (final IllegalAccessException | InvocationTargetException
+                                                        | NoSuchMethodException e) {
+                                                    return "-";
+                                                }
+                                            })
+                                            .findFirst()
+                                            .orElse("-"));
                 })
+                .filter(Objects::nonNull)
                 .sorted()
                 .forEach(stream::println);
     }

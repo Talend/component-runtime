@@ -197,7 +197,7 @@ As an illustration, a configuration type index for the example above can be defi
 
 [IMPORTANT]
 ====
-The model allows you to define meta information without restrictions. However, it is highly recommended to ensure that:
+Make sure that:
 
 - a datastore is used in each dataset.
 - each dataset has a corresponding source (mapper or emitter) which has a configuration that is usable if the software only fills the dataset part. All other properties must not be required.
