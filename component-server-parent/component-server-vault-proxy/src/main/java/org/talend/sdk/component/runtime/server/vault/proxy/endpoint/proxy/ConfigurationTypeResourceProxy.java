@@ -34,6 +34,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.runtime.server.vault.proxy.endpoint.jaxrs.RequestForwarder;
@@ -63,10 +65,11 @@ public class ConfigurationTypeResourceProxy {
     @POST
     @Path("migrate/{id}/{configurationVersion}")
     public CompletionStage<Response> migrateConfiguration(@PathParam("id") final String id,
-            @PathParam("configurationVersion") final int version, final Map<String, String> config) {
+            @PathParam("configurationVersion") final int version, final Map<String, String> config,
+            @Context final HttpHeaders headers) {
         return service
                 .getConfigurationSpec(id)
-                .thenCompose(spec -> service.decrypt(spec, config))
+                .thenCompose(spec -> service.decrypt(spec, config, headers))
                 .thenApply(payload -> decorate(client
                         .path("configurationtype/migrate/{id}/{configurationVersion}")
                         .resolveTemplate("id", id)

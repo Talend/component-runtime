@@ -34,6 +34,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.runtime.server.vault.proxy.endpoint.jaxrs.RequestForwarder;
@@ -65,10 +67,11 @@ public class ActionResourceProxy {
     @Path("execute")
     public CompletionStage<Response> execute(@QueryParam("family") final String family,
             @QueryParam("type") final String type, @QueryParam("action") final String action,
-            @QueryParam("lang") final String lang, final Map<String, String> params) {
+            @QueryParam("lang") final String lang, final Map<String, String> params,
+            @Context final HttpHeaders headers) {
         return service
                 .getActionSpec(family, type, action)
-                .thenCompose(spec -> service.decrypt(spec, params))
+                .thenCompose(spec -> service.decrypt(spec, params, headers))
                 .thenCompose(payload -> decorate(new RequestBuilder(client)
                         .path("action/execute")
                         .queryParam("family", family)

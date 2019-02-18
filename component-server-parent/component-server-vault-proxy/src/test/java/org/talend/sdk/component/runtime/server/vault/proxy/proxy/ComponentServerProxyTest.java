@@ -98,6 +98,7 @@ class ComponentServerProxyTest {
                 .queryParam("action", "testa")
                 .queryParam("lang", "testl")
                 .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
                 .post(entity(new HashMap<String, String>() {
 
                     {

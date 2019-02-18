@@ -2,6 +2,11 @@
 
 == Version 1.1.7
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1306[TCOMP-1306^]: Add RecordPointerFactory to enable to extract data from Record using json pointer spec
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1303[TCOMP-1303^]: Support docker configs/secrets in docker images

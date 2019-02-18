@@ -33,6 +33,7 @@ import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.talend.sdk.component.runtime.server.vault.proxy.service.DecryptedValue;
 import org.talend.sdk.component.runtime.server.vault.proxy.service.VaultService;
@@ -64,10 +65,10 @@ public class TalendComponentKitService {
     private TalendComponentKitService self;
 
     public CompletionStage<Map<String, String>> decrypt(final Collection<SimplePropertyDefinition> properties,
-            final Map<String, String> original) {
+            final Map<String, String> original, final HttpHeaders headers) {
         final List<String> cipheredKeys = findCipheredKeys(properties, original);
         return vault
-                .get(cipheredKeys.stream().map(original::get).collect(Collectors.toList()), clock.millis())
+                .get(cipheredKeys.stream().map(original::get).collect(Collectors.toList()), clock.millis(), headers)
                 .thenApply(decrypted -> original
                         .entrySet()
                         .stream()

@@ -170,7 +170,7 @@
             <talend.vault.cache.vault.auth.roleId>Test-Role</talend.vault.cache.vault.auth.roleId>
             <talend.vault.cache.vault.auth.secretId>Test-Secret</talend.vault.cache.vault.auth.secretId>
             <talend.vault.cache.vault.auth.endpoint>/api/v1/mock/vault/login</talend.vault.cache.vault.auth.endpoint>
-            <talend.vault.cache.vault.decrypt.endpoint>/api/v1/mock/vault/decrypt</talend.vault.cache.vault.decrypt.endpoint>
+            <talend.vault.cache.vault.decrypt.endpoint>/api/v1/mock/vault/decrypt/{x-talend-tenant-id}</talend.vault.cache.vault.decrypt.endpoint>
             <talend.vault.cache.vault.url>see SetMockUrl</talend.vault.cache.vault.url>
             <talend.vault.cache.talendComponentKit.url>see SetMockUrl</talend.vault.cache.talendComponentKit.url>
           </systemPropertyVariables>
