@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -63,13 +64,12 @@ public class DockerConfigConfigSource implements ConfigSource {
                                     .of(prefixes)
                                     .anyMatch(prefix -> path.getFileName().toString().startsWith(prefix));
             try {
-                entries = Files.list(from).filter(matches).collect(toMap(it -> it.getFileName().toString(), it -> {
-                    try {
-                        return new String(Files.readAllBytes(it), StandardCharsets.UTF_8);
-                    } catch (final IOException e) {
-                        throw new IllegalStateException(e);
-                    }
-                }));
+                entries = Files
+                        .list(from)
+                        .filter(matches)
+                        .map(path -> new AbstractMap.SimpleEntry<>(path.getFileName().toString(), read(path)))
+                        .filter(e -> e.getValue() != null)
+                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -94,5 +94,13 @@ public class DockerConfigConfigSource implements ConfigSource {
     @Override
     public String getName() {
         return "docker-configs";
+    }
+
+    private String read(final Path path) {
+        try {
+            return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        } catch (final Exception e) {
+            return null;
+        }
     }
 }
