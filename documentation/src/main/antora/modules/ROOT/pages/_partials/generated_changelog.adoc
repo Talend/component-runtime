@@ -5,6 +5,8 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1303[TCOMP-1303^]: Support docker configs/secrets in docker images
+- link:https://jira.talendforge.org/browse/TCOMP-1304[TCOMP-1304^]: Vault proxy should support token configuration
+- link:https://jira.talendforge.org/browse/TCOMP-1305[TCOMP-1305^]: Upgrade to beam 2.10.0
 
 
 == Version 1.1.6
