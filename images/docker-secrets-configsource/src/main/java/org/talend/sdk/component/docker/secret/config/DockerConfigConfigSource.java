@@ -30,11 +30,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
-public class DockerConfigConfigSource implements ConfigSource {
-
-    private final Map<String, String> entries;
-
-    private final int ordinal;
+public class DockerConfigConfigSource extends BaseConfigSource implements ConfigSource {
 
     public DockerConfigConfigSource() {
         this(InternalConfig.get(DockerConfigConfigSource.class.getName() + ".base", "/"),
@@ -47,48 +43,7 @@ public class DockerConfigConfigSource implements ConfigSource {
     }
 
     public DockerConfigConfigSource(final String base, final int ordinal, final String... prefixes) {
-        this.ordinal = ordinal;
-
-        final Path from = Paths.get(base);
-        if (!Files.exists(from)) {
-            entries = emptyMap();
-        } else {
-            final Predicate<Path> matches =
-                    // if no prefix ensure it is not default unix folders or not supported config files
-                    prefixes.length == 0
-                            ? path -> !Files.isDirectory(path) && Stream
-                                    .of(".xml", ".properties", ".yml", ".yaml", ".so", ".json", ".old", ".img",
-                                            "vmlinuz", "core")
-                                    .noneMatch(ext -> path.getFileName().toString().endsWith(ext))
-                            : path -> Stream
-                                    .of(prefixes)
-                                    .anyMatch(prefix -> path.getFileName().toString().startsWith(prefix));
-            try {
-                entries = Files
-                        .list(from)
-                        .filter(matches)
-                        .map(path -> new AbstractMap.SimpleEntry<>(path.getFileName().toString(), read(path)))
-                        .filter(e -> e.getValue() != null)
-                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-    }
-
-    @Override
-    public int getOrdinal() {
-        return ordinal;
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return entries;
-    }
-
-    @Override
-    public String getValue(final String propertyName) {
-        return entries.get(propertyName);
+        super(() -> reload(base, prefixes), ordinal);
     }
 
     @Override
@@ -96,7 +51,34 @@ public class DockerConfigConfigSource implements ConfigSource {
         return "docker-configs";
     }
 
-    private String read(final Path path) {
+    private static Map<String, String> reload(final String base, final String... prefixes) {
+        final Path from = Paths.get(base);
+        if (!Files.exists(from)) {
+            return emptyMap();
+        }
+        final Predicate<Path> matches =
+                // if no prefix ensure it is not default unix folders or not supported config files
+                prefixes.length == 0
+                        ? path -> !Files.isDirectory(path) && Stream
+                                .of(".xml", ".properties", ".yml", ".yaml", ".so", ".json", ".old", ".img", "vmlinuz",
+                                        "core")
+                                .noneMatch(ext -> path.getFileName().toString().endsWith(ext))
+                        : path -> Stream
+                                .of(prefixes)
+                                .anyMatch(prefix -> path.getFileName().toString().startsWith(prefix));
+        try {
+            return Files
+                    .list(from)
+                    .filter(matches)
+                    .map(path -> new AbstractMap.SimpleEntry<>(path.getFileName().toString(), read(path)))
+                    .filter(e -> e.getValue() != null)
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static String read(final Path path) {
         try {
             return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
         } catch (final Exception e) {

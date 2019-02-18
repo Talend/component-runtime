@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.server.vault.proxy.service;
 
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -41,6 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import javax.annotation.PreDestroy;
 import javax.cache.Cache;
@@ -83,18 +85,18 @@ public class VaultService {
 
     @Inject
     @Documentation("The vault token to use to log in (will make roleId and secretId ignored).")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.token")
-    private Optional<String> token;
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.token", defaultValue = "-")
+    private Supplier<String> token;
 
     @Inject
     @Documentation("The vault role identifier to use to log in (if token is not set).")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId")
-    private Optional<String> role;
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId", defaultValue = "-")
+    private Supplier<String> role;
 
     @Inject
     @Documentation("The vault secret identifier to use to log in (if token is not set).")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.secretId")
-    private Optional<String> secret;
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.secretId", defaultValue = "-")
+    private Supplier<String> secret;
 
     @Inject
     @Documentation("How often (in ms) to refresh the vault token.")
@@ -225,7 +227,7 @@ public class VaultService {
     }
 
     private CompletionStage<Authentication> getOrRequestAuth() {
-        return token.map(value -> {
+        return of(token.get()).filter(this::isReloadableConfigSet).map(value -> {
             final Auth authInfo = new Auth();
             authInfo.setClientToken(value);
             authInfo.setLeaseDuration(Long.MAX_VALUE);
@@ -245,8 +247,13 @@ public class VaultService {
                 .path(authEndpoint)
                 .request(APPLICATION_JSON_TYPE)
                 .rx()
-                .post(entity(new AuthRequest(role.orElseThrow(() -> new IllegalArgumentException("No roleId set")),
-                        secret.orElse(null)), APPLICATION_JSON_TYPE), AuthResponse.class)
+                .post(entity(
+                        new AuthRequest(
+                                of(role.get())
+                                        .filter(this::isReloadableConfigSet)
+                                        .orElseThrow(() -> new IllegalArgumentException("No roleId set")),
+                                of(secret.get()).filter(this::isReloadableConfigSet).orElse(null)),
+                        APPLICATION_JSON_TYPE), AuthResponse.class)
                 .toCompletableFuture()
                 .thenApply(token -> {
                     log.info("Authenticated to vault");
@@ -301,6 +308,12 @@ public class VaultService {
                     scheduledExecutorService.schedule(this::doAuth, refreshDelayOnFailure, MILLISECONDS);
                     return null;
                 });
+    }
+
+    // workaround while geronimo-config does not support generics of generics
+    // (1.2.1 in org.apache.geronimo.config.cdi.ConfigInjectionBean.create)
+    private boolean isReloadableConfigSet(final String value) {
+        return !"-".equals(value);
     }
 
     @Data
