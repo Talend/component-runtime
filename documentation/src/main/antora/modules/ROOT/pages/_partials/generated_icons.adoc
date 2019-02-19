@@ -117,6 +117,11 @@
   },
   {
     "legacy":false,
+    "name":"CALENDAR_MOVE",
+    "path":"_images/icons/svg/calendar-move.svg"
+  },
+  {
+    "legacy":false,
     "name":"CAMPAIGNS",
     "path":"_images/icons/svg/campaigns.svg"
   },
@@ -949,6 +954,11 @@
     "legacy":false,
     "name":"SMILEY_UNHAPPY",
     "path":"_images/icons/svg/smiley-unhappy.svg"
+  },
+  {
+    "legacy":false,
+    "name":"SORT",
+    "path":"_images/icons/svg/sort.svg"
   },
   {
     "legacy":false,

@@ -17,6 +17,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1303[TCOMP-1303^]: Support docker configs/secrets in docker images
 - link:https://jira.talendforge.org/browse/TCOMP-1304[TCOMP-1304^]: Vault proxy should support token configuration
 - link:https://jira.talendforge.org/browse/TCOMP-1305[TCOMP-1305^]: Upgrade to beam 2.10.0
+- link:https://jira.talendforge.org/browse/TCOMP-1308[TCOMP-1308^]: Upgrade to Talend UI 2.6.0
+- link:https://jira.talendforge.org/browse/TCOMP-1309[TCOMP-1309^]: Upgrade to Component API 1.1.5
 
 
 == Version 1.1.6
