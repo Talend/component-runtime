@@ -202,40 +202,45 @@ public class ParameterModelService {
 
     private Map<String, String> buildExtensions(final String name, final Type genericType,
             final Annotation[] annotations, final BaseParameterEnricher.Context context) {
+        return getAnnotations(genericType, annotations).distinct().flatMap(a -> enrichers.stream().map(e -> {
+            if (BaseParameterEnricher.class.isInstance(e)) {
+                final BaseParameterEnricher bpe = BaseParameterEnricher.class.cast(e);
+                return bpe.withContext(context, () -> bpe.onParameterAnnotation(name, genericType, a));
+            }
+            return e.onParameterAnnotation(name, genericType, a);
+        })).flatMap(map -> map.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Stream<Annotation> getAnnotations(final Type genericType, final Annotation[] annotations) {
         return Stream
-                .concat(Stream.of(annotations), Class.class.isInstance(genericType) // if a class concat its
-                        // annotations
-                        ? Stream
-                                .of(Class.class.cast(genericType).getAnnotations())
-                                .filter(a -> Stream
-                                        .of(annotations)
-                                        .noneMatch(o -> o.annotationType() == a.annotationType()))
-                        : (ParameterizedType.class.isInstance(genericType) // if a list concat the item type annotations
-                                && ParameterizedType.class.cast(genericType).getActualTypeArguments().length == 1
-                                && Class.class
-                                        .isInstance(
-                                                ParameterizedType.class.cast(genericType).getActualTypeArguments()[0])
-                                                        ? Stream
-                                                                .of(Class.class
-                                                                        .cast(ParameterizedType.class
-                                                                                .cast(genericType)
-                                                                                .getActualTypeArguments()[0])
-                                                                        .getAnnotations())
-                                                                .filter(a -> Stream
-                                                                        .of(annotations)
-                                                                        .noneMatch(o -> o.annotationType() == a
-                                                                                .annotationType()))
-                                                        : Stream.empty()))
-                .distinct()
-                .flatMap(a -> enrichers.stream().map(e -> {
-                    if (BaseParameterEnricher.class.isInstance(e)) {
-                        final BaseParameterEnricher bpe = BaseParameterEnricher.class.cast(e);
-                        return bpe.withContext(context, () -> bpe.onParameterAnnotation(name, genericType, a));
-                    }
-                    return e.onParameterAnnotation(name, genericType, a);
-                }))
-                .flatMap(map -> map.entrySet().stream())
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .concat(Stream.of(annotations),
+                        // if a class concat its annotations
+                        Class.class.isInstance(genericType)
+                                ? Stream
+                                        .of(Class.class.cast(genericType).getAnnotations())
+                                        .filter(a -> Stream
+                                                .of(annotations)
+                                                .noneMatch(o -> o.annotationType() == a.annotationType()))
+                                : (ParameterizedType.class.isInstance(genericType) // if a list concat the item type
+                                                                                   // annotations
+                                        && ParameterizedType.class
+                                                .cast(genericType)
+                                                .getActualTypeArguments().length == 1
+                                        && Class.class
+                                                .isInstance(ParameterizedType.class
+                                                        .cast(genericType)
+                                                        .getActualTypeArguments()[0])
+                                                                ? Stream
+                                                                        .of(Class.class
+                                                                                .cast(ParameterizedType.class
+                                                                                        .cast(genericType)
+                                                                                        .getActualTypeArguments()[0])
+                                                                                .getAnnotations())
+                                                                        .filter(a -> Stream
+                                                                                .of(annotations)
+                                                                                .noneMatch(o -> o.annotationType() == a
+                                                                                        .annotationType()))
+                                                                : Stream.empty()));
     }
 
     private List<ParameterMeta> buildParametersMetas(final String name, final String prefix, final Type type,
@@ -346,6 +351,9 @@ public class ParameterModelService {
             // we handled char before so we only have numbers now for primitives
             if (Primitives.unwrap(clazz) == boolean.class) {
                 return ParameterMeta.Type.BOOLEAN;
+            }
+            if (Primitives.unwrap(clazz) == char.class) {
+                return ParameterMeta.Type.STRING;
             }
             if (clazz.isPrimitive() || Primitives.unwrap(clazz) != clazz) {
                 return ParameterMeta.Type.NUMBER;

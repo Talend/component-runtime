@@ -68,6 +68,31 @@ class ParameterModelServiceTest {
     }
 
     @Test
+    void charAsString() throws NoSuchMethodException {
+        final List<ParameterMeta> params = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("charOption", char.class, Character.class), "def",
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        assertEquals(2, params.size());
+        {
+            final ParameterMeta param = params.get(0);
+            assertEquals("delimiter", param.getPath());
+            assertEquals(ParameterMeta.Type.STRING, param.getType());
+            assertEquals("1", param.getMetadata().get("tcomp::validation::minLength"),
+                    () -> param.getMetadata().toString());
+            assertEquals("1", param.getMetadata().get("tcomp::validation::maxLength"),
+                    () -> param.getMetadata().toString());
+        }
+        {
+            final ParameterMeta param = params.get(1);
+            assertEquals("delimiter2", param.getPath());
+            assertEquals(ParameterMeta.Type.STRING, param.getType());
+            assertEquals("1", param.getMetadata().get("tcomp::validation::maxLength"),
+                    () -> param.getMetadata().toString());
+            assertNull(param.getMetadata().get("tcomp::validation::minLength"), () -> param.getMetadata().toString());
+        }
+    }
+
+    @Test
     void collection() throws NoSuchMethodException {
         final List<ParameterMeta> params = service
                 .buildParameterMetas(MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class),

@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.test;
 
-import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +23,14 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
+import lombok.Getter;
+
 public class MethodsHolder {
+
+    public void charOption(@Option("delimiter") final char delimiter,
+            @Option("delimiter2") final Character delimiter2) {
+        // no-op
+    }
 
     public void primitives(@Option("url") final String url, @Option final String defaultName,
             @Option("port") final int port) {

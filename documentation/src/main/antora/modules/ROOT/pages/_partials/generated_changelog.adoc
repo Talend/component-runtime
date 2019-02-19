@@ -2,6 +2,11 @@
 
 == Version 1.1.7
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1307[TCOMP-1307^]: support char and character types in configuration.
+
+
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1306[TCOMP-1306^]: Add RecordPointerFactory to enable to extract data from Record using json pointer spec
