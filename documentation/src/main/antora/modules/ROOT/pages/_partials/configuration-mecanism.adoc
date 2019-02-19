@@ -31,7 +31,7 @@ The mecanism relies on `org.talend.sdk.component.configuration.converter.secured
 2. encrypt a value
 3. decrypt a value (for testing purposes)
 
-High level it uses a master password stored obfuscated in a `master_key` file. Then it uses algorithm to cipher the value
+High level it uses a master password stored obfuscated in a `master_key` file. Then it uses algorithm `AES/CBC/PKCS5Padding` to cipher the value
 and finally it encodes the result in base64 to ensure it can be managed as a plain text and easily passed through all
 potential ways you can set a configuration.
 
