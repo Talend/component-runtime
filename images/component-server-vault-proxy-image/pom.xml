@@ -34,6 +34,7 @@
     <talend.server.image.name>${talend.server.image.registry}tacokit/component-server-vault-proxy:${image.currentVersion}</talend.server.image.name>
     <additionalDockerFiles>${project.build.outputDirectory}/docker/additional</additionalDockerFiles>
     <boundPort>9090</boundPort>
+    <talend.build.name>${talend.build.name.base}.vault.proxy.image</talend.build.name>
   </properties>
 
   <dependencies>
@@ -47,6 +48,11 @@
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>docker-secrets-configsource</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>secured-string-converter</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

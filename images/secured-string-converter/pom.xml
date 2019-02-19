@@ -22,12 +22,12 @@
     <version>1.1.7-SNAPSHOT</version>
   </parent>
 
-  <artifactId>docker-secrets-configsource</artifactId>
+  <artifactId>secured-string-converter</artifactId>
 
-  <name>Component Runtime :: Images :: Docker Secret ConfigSource</name>
+  <name>Component Runtime :: Images :: Secured Config Converter</name>
 
   <properties>
-    <talend.build.name>${talend.build.name.base}.config.docker</talend.build.name>
+    <talend.build.name>${talend.build.name.base}.config.converter.secured</talend.build.name>
   </properties>
 
   <dependencies>
@@ -35,6 +35,18 @@
       <groupId>org.eclipse.microprofile.config</groupId>
       <artifactId>microprofile-config-api</artifactId>
       <version>${microprofile-config-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jcdi_2.0_spec</artifactId>
+      <version>${geronimo-jcdi.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-annotation_1.3_spec</artifactId>
+      <version>${geronimo-annotation.version}</version>
       <scope>provided</scope>
     </dependency>
 

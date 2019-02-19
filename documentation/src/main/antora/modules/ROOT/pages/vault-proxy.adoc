@@ -18,9 +18,9 @@ This Vault proxy:
 
 == Vault proxy configuration
 
-The configuration mechanism is the same as for the component server (microprofile config).
-
 include::{partialsdir}/generated_server-vault-proxy-configuration.adoc[leveloffset=+1]
+
+include::{partialsdir}/configuration-mecanism.adoc[leveloffset=+2]
 
 == Adding the Vault Proxy to your Docker Compose
 

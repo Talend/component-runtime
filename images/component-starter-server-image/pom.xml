@@ -30,6 +30,7 @@
     <imageWorkDir>${baseImageDir}/component-starter</imageWorkDir>
     <talend.image.version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</talend.image.version>
     <talend.server.image.name>${talend.server.image.registry}tacokit/component-starter-server:${talend.image.version}</talend.server.image.name>
+    <talend.build.name>${talend.build.name.base}.starter.image</talend.build.name>
   </properties>
 
   <dependencies>
