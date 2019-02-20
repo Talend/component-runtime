@@ -1,76 +1,70 @@
-= Configuration mecanism
+= Configuration mechanism
 
-The configuration uses for most entries Microprofile Config. It means it can be passed through system properties,
-environment variables (potentially replacing dots by underscores and uppercasing the keys).
+The configuration uses Microprofile Config for most entries. It means it can be passed through system properties and environment variables (by replacing dots with underscores and making the keys uppercase).
 
-If you want to configure a docker image and not a standalone instance we also add Docker secrets and config integration
-which will enable you to read configuration from files. Here you can want to customize the configuration of these integration
-through system properties (see children parts). Also note that Docker integration provides a `secure:` support to encrypt
-values if needed which can be used with Docker integrations or not (it works for system properties too).
+To configure a Docker image rather than a standalone instance, Docker Config and secrets integration allow you to read the configuration from files. You can customize the configuration of these integrations through system properties, as described below in this document.
+
+Also note that Docker integration provides a `secure:` support to encrypt values when required. it also works for system properties.
 
 == Docker Config
 
-org.talend.sdk.component.docker.secret.config.DockerConfigConfigSource.base:: where to look for configuration, default to `/`.
-org.talend.sdk.component.docker.secret.config.DockerConfigConfigSource.prefixes:: which file name prefixes are to take into account, default to nothing which means all but the common UNIx exclusions.
+org.talend.sdk.component.docker.secret.config.DockerConfigConfigSource.base:: configuration location. Defaults to `/`.
+org.talend.sdk.component.docker.secret.config.DockerConfigConfigSource.prefixes:: file name prefixes to take into account. Defaults to nothing, which means that all prefixes but the common UNIx exclusions are taken into account.
 
-For instance creating a file `/talend.foo.bar` will make available its content under the key `talend.foo.bar`.
+For example, creating a `/talend.foo.bar` file makes its content available under the `talend.foo.bar` key.
 
 == Docker Secrets
 
-org.talend.sdk.component.docker.secret.config.DockerSecretConfigSource:: where to look for secrets, default to `/run/secrets`.
+org.talend.sdk.component.docker.secret.config.DockerSecretConfigSource:: secrets location. Defaults to `/run/secrets`.
 
-For instance creating a file `/run/secrets/talend.foo.bar` will make available its content under the key `talend.foo.bar`.
+For example, creating a `/run/secrets/talend.foo.bar` file makes its content available under the `talend.foo.bar` key.
 
 == Secure values support
 
-The goal here is to not enter a clear value for a credential (password, secret, token, ...) but a ciphered value.
+A security mechanism allows to use a ciphered value instead of a clear value for passing sensitive data (password, secret, token, etc.).
 
-The mecanism relies on `org.talend.sdk.component.configuration.converter.secured.ConfigurationMain` which will enable you to:
+It relies on `org.talend.sdk.component.configuration.converter.secured.ConfigurationMain`, which allows you to:
 
 1. create a `master_key` file
 2. encrypt a value
 3. decrypt a value (for testing purposes)
 
-High level it uses a master password stored obfuscated in a `master_key` file. Then it uses algorithm `AES/CBC/PKCS5Padding` to cipher the value
-and finally it encodes the result in base64 to ensure it can be managed as a plain text and easily passed through all
-potential ways you can set a configuration.
+A master password is stored and obfuscated in a `master_key` file. The algorithm `AES/CBC/PKCS5Padding` ciphers the value and encodes the result in base64. This mechanism allows to manage the value as plain text and easily pass it through all potential ways you can set the configuration.
 
-IMPORTANT: all the management commands for the secure values support is done through `org.talend.sdk.component:secured-string-converter`
-artifact. It can be found with other releases on link:http://repo.maven.apache.org/maven2/org/talend/sdk/component/secured-string-converter[central].
+IMPORTANT: The secure values support is managed through the `org.talend.sdk.component:secured-string-converter` artifact. You can find it for released versions on link:http://repo.maven.apache.org/maven2/org/talend/sdk/component/secured-string-converter[Central].
 
-The coming command examples will assume you have the set in your profile the alias:
+The command examples in the sections below assume you have set the alias in your profile:
 
 [source,sh]
 ----
 alias tssc="java -cp secured-string-converter.jar org.talend.sdk.component.configuration.converter.secured.ConfigurationMain"
 ----
 
-If not just replace `tssc` by the full command.
+If it is not the case, replace `tssc` by the full command.
 
-=== Generate your master
+=== Generating the master key
 
-To generate the master key just use the provided main in `org.talend.sdk.component:secured-string-converter` artifact:
+To generate the master key, use the provided configuration in the `org.talend.sdk.component:secured-string-converter` artifact:
 
 [source,sh]
 ----
 tssc --master-key /path/to/my_master_key [secret-value]
 ----
 
-IMPORTANT: don't forget to set `talend.component.server.configuration.master_key.location` system property on the server
-to ensure it uses this master key. Also it is very very important to ensure only the applications needing this key can read it!
+IMPORTANT: Set the `talend.component.server.configuration.master_key.location` system property on the server to ensure it uses this master key. Make sure that only the applications needing this key can read it.
 
-=== Encrypt a value
+=== Encrypting a value
 
-To encrypt a value you can also use the provided main in `org.talend.sdk.component:secured-string-converter` artifact:
+To encrypt a value, use the provided configuration in the `org.talend.sdk.component:secured-string-converter` artifact:
 
 [source,sh]
 ----
 tssc --encrypt /path/to/my_master_key my_credential_to_encrypt
 ----
 
-=== Decrypt a value
+=== Decrypting a value
 
-To decrypt a value you can also use the provided main in `org.talend.sdk.component:secured-string-converter` artifact:
+To decrypt a value, use the provided configuration in the `org.talend.sdk.component:secured-string-converter` artifact:
 
 [source,sh]
 ----
