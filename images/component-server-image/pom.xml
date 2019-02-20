@@ -33,6 +33,7 @@
     </image.currentVersion>
     <talend.server.image.name>${talend.server.image.registry}tacokit/component-server:${image.currentVersion}</talend.server.image.name>
     <additionalDockerFiles>${project.build.outputDirectory}/docker/additional</additionalDockerFiles>
+    <talend.build.name>${talend.build.name.base}.server.image</talend.build.name>
   </properties>
 
   <dependencies>
@@ -67,6 +68,11 @@
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>docker-secrets-configsource</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>secured-string-converter</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

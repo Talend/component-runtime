@@ -32,6 +32,7 @@
     <module>component-starter-server-image</module>
     <module>component-server-vault-proxy-image</module>
     <module>docker-secrets-configsource</module>
+    <module>secured-string-converter</module>
   </modules>
 
   <properties>

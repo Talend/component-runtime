@@ -3,3 +3,7 @@
 :page-talend_skipindexation:
 
 include::{partialsdir}/generated_server-configuration.adoc[leveloffset=+1]
+
+include::{partialsdir}/configuration-mecanism.adoc[leveloffset=+1]
+
+

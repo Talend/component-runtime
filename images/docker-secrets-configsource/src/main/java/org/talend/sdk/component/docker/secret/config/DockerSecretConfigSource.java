@@ -27,11 +27,7 @@ import java.util.Map;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
-public class DockerSecretConfigSource implements ConfigSource {
-
-    private final Map<String, String> entries;
-
-    private final int ordinal;
+public class DockerSecretConfigSource extends BaseConfigSource implements ConfigSource {
 
     public DockerSecretConfigSource() {
         this(InternalConfig.get(DockerSecretConfigSource.class.getName() + ".base", "/run/secrets"),
@@ -39,43 +35,29 @@ public class DockerSecretConfigSource implements ConfigSource {
     }
 
     public DockerSecretConfigSource(final String base, final int ordinal) {
-        this.ordinal = ordinal;
-
-        final Path from = Paths.get(base);
-        if (!Files.exists(from)) {
-            entries = emptyMap();
-        } else {
-            try {
-                entries = Files.list(from).collect(toMap(it -> it.getFileName().toString(), it -> {
-                    try {
-                        return new String(Files.readAllBytes(it), StandardCharsets.UTF_8);
-                    } catch (final IOException e) {
-                        throw new IllegalStateException(e);
-                    }
-                }));
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-    }
-
-    @Override
-    public int getOrdinal() {
-        return ordinal;
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return entries;
-    }
-
-    @Override
-    public String getValue(final String propertyName) {
-        return entries.get(propertyName);
+        super(() -> reload(base), ordinal);
     }
 
     @Override
     public String getName() {
         return "docker-secrets";
+    }
+
+    private static Map<String, String> reload(final String base) {
+        final Path from = Paths.get(base);
+        if (!Files.exists(from)) {
+            return emptyMap();
+        }
+        try {
+            return Files.list(from).collect(toMap(it -> it.getFileName().toString(), it -> {
+                try {
+                    return new String(Files.readAllBytes(it), StandardCharsets.UTF_8);
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }));
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

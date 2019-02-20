@@ -26,6 +26,10 @@
 
   <name>Component Runtime :: Images :: Docker Secret ConfigSource</name>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.config.docker</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.eclipse.microprofile.config</groupId>

@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.server.vault.proxy.service;
 
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -41,6 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import javax.annotation.PreDestroy;
 import javax.cache.Cache;
@@ -52,6 +54,7 @@ import javax.json.bind.annotation.JsonbProperty;
 import javax.servlet.ServletContext;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -63,6 +66,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+// todo: the suppliers should probably be replaced by invalidating a config bean
+// and become plain String or Optional<String>
 @Slf4j
 @ApplicationScoped
 public class VaultService {
@@ -73,28 +78,29 @@ public class VaultService {
 
     @Inject
     @Documentation("The vault path to retrieve a token.")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.endpoint", defaultValue = "v1/auth/approle/login")
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.endpoint", defaultValue = "v1/auth/engines/login")
     private String authEndpoint;
 
     @Inject
-    @Documentation("The vault path to decrypt values.")
-    @ConfigProperty(name = "talend.vault.cache.vault.decrypt.endpoint")
+    @Documentation("The vault path to decrypt values. You can use the variable `{x-talend-tenant-id}` to replace by `x-talend-tenant-id` header value.")
+    @ConfigProperty(name = "talend.vault.cache.vault.decrypt.endpoint",
+            defaultValue = "v1/tenants-keyrings/decrypt/{x-talend-tenant-id}")
     private String decryptEndpoint;
 
     @Inject
-    @Documentation("The vault token to use to log in (will make roleId and secretId ignored).")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.token")
-    private Optional<String> token;
+    @Documentation("The vault token to use to log in (will make roleId and secretId ignored). `-` means it is ignored.")
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.token", defaultValue = "-")
+    private Supplier<String> token;
 
     @Inject
-    @Documentation("The vault role identifier to use to log in (if token is not set).")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId")
-    private Optional<String> role;
+    @Documentation("The vault role identifier to use to log in (if token is not set). `-` means it is ignored.")
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId", defaultValue = "-")
+    private Supplier<String> role;
 
     @Inject
-    @Documentation("The vault secret identifier to use to log in (if token is not set).")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.secretId")
-    private Optional<String> secret;
+    @Documentation("The vault secret identifier to use to log in (if token is not set). `-` means it is ignored.")
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.secretId", defaultValue = "-")
+    private Supplier<String> secret;
 
     @Inject
     @Documentation("How often (in ms) to refresh the vault token.")
@@ -116,7 +122,8 @@ public class VaultService {
 
     private ScheduledExecutorService scheduledExecutorService;
 
-    public CompletionStage<List<DecryptedValue>> get(final Collection<String> values, final long currentTime) {
+    public CompletionStage<List<DecryptedValue>> get(final Collection<String> values, final long currentTime,
+            final HttpHeaders headers) {
         final Map<String, Optional<DecryptedValue>> alreadyCached =
                 new HashSet<>(values).stream().collect(toMap(identity(), it -> ofNullable(cache.get(it))));
         final Collection<String> missing = alreadyCached
@@ -129,66 +136,74 @@ public class VaultService {
             return completedFuture(values.stream().map(alreadyCached::get).map(Optional::get).collect(toList()));
         }
         return getOrRequestAuth()
-                .thenCompose(auth -> ofNullable(auth.getAuth())
-                        .map(Auth::getClientToken)
-                        .map(clientToken -> vault
-                                .path(decryptEndpoint)
-                                .request(APPLICATION_JSON_TYPE)
-                                .header("X-Vault-Token", clientToken)
-                                .rx()
-                                .post(entity(new DecryptRequest(
-                                        missing.stream().map(it -> new DecryptInput(it, null, null)).collect(toList())),
-                                        APPLICATION_JSON_TYPE), DecryptResponse.class)
-                                .toCompletableFuture()
-                                .thenApply(decrypted -> {
-                                    final Collection<DecryptResult> results = decrypted.getData().getBatchResults();
-                                    if (results.isEmpty()) {
-                                        throw new WebApplicationException(Response.Status.FORBIDDEN);
-                                    }
+                .thenCompose(auth -> ofNullable(auth.getAuth()).map(Auth::getClientToken).map(clientToken -> {
+                    WebTarget path = vault.path(decryptEndpoint);
+                    if (decryptEndpoint.contains("x-talend-tenant-id")) {
+                        path = path
+                                .resolveTemplate("x-talend-tenant-id",
+                                        ofNullable(headers.getHeaderString("x-talend-tenant-id"))
+                                                .orElseThrow(() -> new WebApplicationException(Response
+                                                        .status(Response.Status.BAD_REQUEST)
+                                                        .entity("{\"message\":\"No header x-talend-tenant-id\"}")
+                                                        .build())));
+                    }
+                    return path
+                            .request(APPLICATION_JSON_TYPE)
+                            .header("X-Vault-Token", clientToken)
+                            .rx()
+                            .post(entity(new DecryptRequest(
+                                    missing.stream().map(it -> new DecryptInput(it, null, null)).collect(toList())),
+                                    APPLICATION_JSON_TYPE), DecryptResponse.class)
+                            .toCompletableFuture()
+                            .thenApply(decrypted -> {
+                                final Collection<DecryptResult> results = decrypted.getData().getBatchResults();
+                                if (results.isEmpty()) {
+                                    throw new WebApplicationException(Response.Status.FORBIDDEN);
+                                }
 
-                                    final Iterator<String> keyIterator = missing.iterator();
-                                    final Map<String, DecryptedValue> decryptedResults = results
-                                            .stream()
-                                            .map(it -> new String(Base64.getDecoder().decode(it.getPlaintext()),
-                                                    StandardCharsets.UTF_8))
-                                            .collect(toMap(it -> keyIterator.next(),
-                                                    it -> new DecryptedValue(it, currentTime)));
+                                final Iterator<String> keyIterator = missing.iterator();
+                                final Map<String, DecryptedValue> decryptedResults = results
+                                        .stream()
+                                        .map(it -> new String(Base64.getDecoder().decode(it.getPlaintext()),
+                                                StandardCharsets.UTF_8))
+                                        .collect(toMap(it -> keyIterator.next(),
+                                                it -> new DecryptedValue(it, currentTime)));
 
-                                    cache.putAll(decryptedResults);
+                                cache.putAll(decryptedResults);
 
-                                    return values
-                                            .stream()
-                                            .map(it -> decryptedResults
-                                                    .getOrDefault(it, alreadyCached.get(it).orElse(null)))
-                                            .collect(toList());
-                                })
-                                .exceptionally(e -> { // we don't cache failure for now since it is not supposed to
-                                                      // happen
-                                    final Throwable cause = e.getCause();
-                                    String debug = "";
-                                    if (WebApplicationException.class.isInstance(cause)) {
-                                        final WebApplicationException wae = WebApplicationException.class.cast(cause);
-                                        final Response response = wae.getResponse();
-                                        if (response != null) {
-                                            try {
-                                                debug = response.readEntity(String.class);
-                                            } catch (final Exception ignored) {
-                                                // no-op
-                                            }
+                                return values
+                                        .stream()
+                                        .map(it -> decryptedResults
+                                                .getOrDefault(it, alreadyCached.get(it).orElse(null)))
+                                        .collect(toList());
+                            })
+                            .exceptionally(e -> { // we don't cache failure for now since it is not supposed to
+                                                  // happen
+                                final Throwable cause = e.getCause();
+                                String debug = "";
+                                if (WebApplicationException.class.isInstance(cause)) {
+                                    final WebApplicationException wae = WebApplicationException.class.cast(cause);
+                                    final Response response = wae.getResponse();
+                                    if (response != null) {
+                                        try {
+                                            debug = response.readEntity(String.class);
+                                        } catch (final Exception ignored) {
+                                            // no-op
+                                        }
 
-                                            final int status = response.getStatus();
-                                            if (status == Response.Status.NOT_FOUND.getStatusCode()) {
-                                                log
-                                                        .error("Failed to decrypt to vault, endpoint not found, check your setup",
-                                                                e);
-                                                return null;
-                                            }
+                                        final int status = response.getStatus();
+                                        if (status == Response.Status.NOT_FOUND.getStatusCode()) {
+                                            log
+                                                    .error("Failed to decrypt to vault, endpoint not found, check your setup",
+                                                            e);
+                                            return null;
                                         }
                                     }
-                                    log.error("Failed to decrypt, debug='" + debug + "'", e);
-                                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-                                }))
-                        .orElseThrow(() -> new WebApplicationException(Response.Status.FORBIDDEN)))
+                                }
+                                log.error("Failed to decrypt, debug='" + debug + "'", e);
+                                throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                            });
+                }).orElseThrow(() -> new WebApplicationException(Response.Status.FORBIDDEN)))
                 .toCompletableFuture();
     }
 
@@ -211,7 +226,7 @@ public class VaultService {
                 return t;
             }
         });
-        scheduledExecutorService.submit(this::getOrRequestAuth);
+        // note: by default we start without the token so no: scheduledExecutorService.submit(this::getOrRequestAuth);
     }
 
     @PreDestroy
@@ -225,7 +240,7 @@ public class VaultService {
     }
 
     private CompletionStage<Authentication> getOrRequestAuth() {
-        return token.map(value -> {
+        return of(token.get()).filter(this::isReloadableConfigSet).map(value -> {
             final Auth authInfo = new Auth();
             authInfo.setClientToken(value);
             authInfo.setLeaseDuration(Long.MAX_VALUE);
@@ -245,8 +260,13 @@ public class VaultService {
                 .path(authEndpoint)
                 .request(APPLICATION_JSON_TYPE)
                 .rx()
-                .post(entity(new AuthRequest(role.orElseThrow(() -> new IllegalArgumentException("No roleId set")),
-                        secret.orElse(null)), APPLICATION_JSON_TYPE), AuthResponse.class)
+                .post(entity(
+                        new AuthRequest(
+                                of(role.get())
+                                        .filter(this::isReloadableConfigSet)
+                                        .orElseThrow(() -> new IllegalArgumentException("No roleId set")),
+                                of(secret.get()).filter(this::isReloadableConfigSet).orElse(null)),
+                        APPLICATION_JSON_TYPE), AuthResponse.class)
                 .toCompletableFuture()
                 .thenApply(token -> {
                     log.info("Authenticated to vault");
@@ -301,6 +321,12 @@ public class VaultService {
                     scheduledExecutorService.schedule(this::doAuth, refreshDelayOnFailure, MILLISECONDS);
                     return null;
                 });
+    }
+
+    // workaround while geronimo-config does not support generics of generics
+    // (1.2.1 in org.apache.geronimo.config.cdi.ConfigInjectionBean.create)
+    private boolean isReloadableConfigSet(final String value) {
+        return !"-".equals(value);
     }
 
     @Data

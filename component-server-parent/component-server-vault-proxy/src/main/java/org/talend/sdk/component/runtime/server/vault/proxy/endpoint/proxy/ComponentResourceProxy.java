@@ -35,6 +35,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -65,10 +67,11 @@ public class ComponentResourceProxy {
     @POST
     @Path("migrate/{id}/{configurationVersion}")
     public CompletionStage<Response> migrateComponent(@PathParam("id") final String id,
-            @PathParam("configurationVersion") final int version, final Map<String, String> config) {
+            @PathParam("configurationVersion") final int version, final Map<String, String> config,
+            @Context final HttpHeaders headers) {
         return service
                 .getComponentSpec(id)
-                .thenCompose(spec -> service.decrypt(spec, config))
+                .thenCompose(spec -> service.decrypt(spec, config, headers))
                 .thenApply(payload -> decorate(client
                         .path("component/migrate/{id}/{configurationVersion}")
                         .resolveTemplate("id", id)

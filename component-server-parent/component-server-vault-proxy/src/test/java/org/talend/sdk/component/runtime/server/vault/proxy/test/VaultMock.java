@@ -26,6 +26,7 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -55,10 +56,11 @@ public class VaultMock {
     }
 
     @POST
-    @Path("decrypt")
+    @Path("decrypt/{tenant}")
     public VaultService.DecryptResponse decrypt(@HeaderParam("X-Vault-Token") final String token,
-            final VaultService.DecryptRequest request) {
-        if (!"client-test-token".equals(token)) {
+            @PathParam("tenant") final String tenant, final VaultService.DecryptRequest request) {
+        if (!"client-test-token".equals(token) || tenant == null || tenant.isEmpty()
+                || "x-talend-tenant-id".equals(tenant)) {
             throw new ForbiddenException();
         }
 
