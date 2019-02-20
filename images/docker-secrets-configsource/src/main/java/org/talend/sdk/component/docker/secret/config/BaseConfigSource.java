@@ -15,9 +15,15 @@
  */
 package org.talend.sdk.component.docker.secret.config;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+
+import java.io.IOException;
+import java.io.StringReader;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -33,6 +39,8 @@ abstract class BaseConfigSource implements ConfigSource {
 
     private final long updateInterval;
 
+    private final Map<String, String> mapping;
+
     private volatile Map<String, String> entries;
 
     private volatile long lastUpdate = -1;
@@ -41,6 +49,7 @@ abstract class BaseConfigSource implements ConfigSource {
         this.loader = loader;
         this.ordinal = ordinal;
         this.updateInterval = Long.parseLong(InternalConfig.get(getClass().getName() + ".updateInterval", "10000"));
+        this.mapping = asMap(InternalConfig.get(getClass().getName() + ".keyMapping", ""));
         doLoad();
     }
 
@@ -61,9 +70,27 @@ abstract class BaseConfigSource implements ConfigSource {
         return entries.get(propertyName);
     }
 
+    private Map<String, String> asMap(final String props) {
+        final Properties properties = new Properties();
+        try (final StringReader reader = new StringReader(props)) {
+            properties.load(reader);
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return properties.stringPropertyNames().stream().collect(toMap(identity(), properties::getProperty));
+    }
+
     private void doLoad() {
         lastUpdate = clock.millis(); // first to avoid concurrent updates
-        entries = loader.get();
+        final Map<String, String> entries = loader.get();
+        if (mapping.isEmpty()) {
+            this.entries = entries;
+        } else {
+            this.entries = entries
+                    .entrySet()
+                    .stream()
+                    .collect(toMap(it -> mapping.getOrDefault(it.getKey(), it.getKey()), Map.Entry::getValue));
+        }
     }
 
     private void reloadIfNeeded() {

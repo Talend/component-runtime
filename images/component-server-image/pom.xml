@@ -214,13 +214,15 @@
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
                   <jvmFlag>-Djava.library.path=${libraryPathWithSigar}</jvmFlag>
-                  <jvmFlag>-Dhttp=${boundPort}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dlog4j.configurationFile=log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
                   <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
                   <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
                 </jvmFlags>
+                <args>
+                  <arg>--http=${boundPort}</arg>
+                </args>
                 <ports>
                   <port>${boundPort}</port>
                 </ports>

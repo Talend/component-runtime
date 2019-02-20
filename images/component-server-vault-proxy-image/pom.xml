@@ -166,10 +166,12 @@
                   <LANG>en_US.UTF-8</LANG>
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
                 </environment>
+                <args>
+                  <arg>--http=${boundPort}</arg>
+                </args>
                 <jvmFlags>
                   <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>
                   <jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
-                  <jvmFlag>-Dhttp=${boundPort}</jvmFlag>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
                   <jvmFlag>-Djava.library.path=${libraryPathWithSigar}</jvmFlag>
