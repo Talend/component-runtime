@@ -46,8 +46,8 @@
     <Logger name="talend.component.starter.statistics" level="INFO">
       <AppenderRef ref="Stats"/>
     </Logger>
-    <Root level="INFO">
-      <AppenderRef ref="File" />
+    <Root level="${env:LOGGER_ROOT_LEVEL:-INFO}">
+      <AppenderRef ref="File" level="${env:FILE_LOG_LEVEL:-OFF}" />
       <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-OFF}" />
     </Root>
   </Loggers>
