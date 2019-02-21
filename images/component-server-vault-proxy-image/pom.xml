@@ -165,6 +165,7 @@
                   <MEECROWAVE_PID>${imageWorkDir}/conf/server-vault-proxy.pid</MEECROWAVE_PID>
                   <LANG>en_US.UTF-8</LANG>
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
+                  <LD_LIBRARY_PATH>${libraryPathWithSigar}</LD_LIBRARY_PATH>
                 </environment>
                 <args>
                   <arg>--http=${boundPort}</arg>
@@ -174,7 +175,6 @@
                   <jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
-                  <jvmFlag>-Djava.library.path=${libraryPathWithSigar}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dlog4j.configurationFile=log4j2-${env:LOGGING_LAYOUT}.xml</jvmFlag>

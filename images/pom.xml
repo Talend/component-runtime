@@ -42,7 +42,7 @@
     <baseImage>openjdk:8-jre-alpine</baseImage>
     <boundPort>8080</boundPort>
     <baseImageDir>/opt/talend</baseImageDir>
-    <libraryPathWithSigar>/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib</libraryPathWithSigar>
+    <libraryPathWithSigar>/opt/talend/component-kit/work/sigar/sigar</libraryPathWithSigar>
   </properties>
 
   <build>
