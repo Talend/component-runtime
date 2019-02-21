@@ -21,6 +21,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -68,7 +69,7 @@ class UiSchemaConverterTest {
         }
         assertEquals(1, schemas.size());
         final UiSchema configuration = schemas.iterator().next();
-        assertEquals("configuration", configuration.getKey());
+        assertNull(configuration.getKey());
         assertEquals(1, configuration.getItems().size());
         final UiSchema list = configuration.getItems().iterator().next();
         assertEquals("configuration.list", list.getKey());

@@ -84,6 +84,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
 
                 final UiSchema schema = newUiSchema(context);
                 schema.setTitle(null);
+                schema.setKey(null);
                 schema.setWidget("tabs");
 
                 final List<UiSchema> resolvedLayouts = new ArrayList<>();
