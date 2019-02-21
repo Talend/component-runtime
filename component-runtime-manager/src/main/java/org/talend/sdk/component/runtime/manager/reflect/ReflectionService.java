@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -72,7 +73,9 @@ import org.talend.sdk.component.runtime.manager.reflect.visibility.PayloadMapper
 import org.talend.sdk.component.runtime.manager.reflect.visibility.VisibilityService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class ReflectionService {
 
@@ -388,8 +391,7 @@ public class ReflectionService {
         recipe.allow(org.apache.xbean.recipe.Option.PRIVATE_PROPERTIES);
         recipe.allow(org.apache.xbean.recipe.Option.CASE_INSENSITIVE_PROPERTIES);
         recipe.allow(org.apache.xbean.recipe.Option.IGNORE_MISSING_PROPERTIES);
-        recipe.setProperty("rawProperties", new UnsetPropertiesRecipe()); // allows to access not matched properties
-                                                                          // directly
+        recipe.setProperty("rawProperties", new UnsetPropertiesRecipe()); // todo: log unused props?
         ofNullable(args).ifPresent(recipe::setConstructorArgNames);
 
         final Map<String, Object> specificMapping = config
@@ -406,7 +408,9 @@ public class ReflectionService {
                     && key.substring(idxStart - ".key".length(), idxStart).equals(".key"))
                     || (idxStart > ".value".length()
                             && key.substring(idxStart - ".value".length(), idxStart).equals(".value")));
-        }).sorted(this::sortIndexEntry).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        })
+                .sorted(this::sortIndexEntry)
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, noMerge(), LinkedHashMap::new));
         mapEntries.keySet().forEach(specificMapping::remove);
         final Map<String, Object> preparedMaps = new HashMap<>();
         for (final Map.Entry<String, Object> entry : mapEntries.entrySet()) {
@@ -421,6 +425,9 @@ public class ReflectionService {
                 throw new IllegalArgumentException("'" + key + "' is not supported, it is considered as a map binding");
             }
             if (preparedMaps.containsKey(enclosingName)) {
+                continue;
+            }
+            if (isUiParam(enclosingName)) { // normally cleaned up by the UI@back integration but safeguard here
                 continue;
             }
 
@@ -455,7 +462,9 @@ public class ReflectionService {
             final int idxEnd = key.indexOf(']', prefix.length());
             final int sep = key.indexOf('.', prefix.length() + 1);
             return idxStart > 0 && key.endsWith("]") && (sep > idxEnd || sep < 0);
-        }).sorted(this::sortIndexEntry).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        })
+                .sorted(this::sortIndexEntry)
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, noMerge(), LinkedHashMap::new));
         listEntries.keySet().forEach(specificMapping::remove);
         final Map<String, Object> preparedLists = new HashMap<>();
         for (final Map.Entry<String, Object> entry : listEntries.entrySet()) {
@@ -463,6 +472,9 @@ public class ReflectionService {
             final int idxStart = key.indexOf('[', prefix.length());
             final String enclosingName = key.substring(prefix.length(), idxStart);
             if (preparedLists.containsKey(enclosingName)) {
+                continue;
+            }
+            if (isUiParam(enclosingName)) {
                 continue;
             }
 
@@ -490,7 +502,6 @@ public class ReflectionService {
             }
 
             // now we need an actual collection type
-
             if (!ParameterizedType.class.isInstance(genericType)) {
                 throw new IllegalArgumentException(
                         clazz + "#" + enclosingName + " should be a generic collection and not a " + genericType);
@@ -540,6 +551,9 @@ public class ReflectionService {
         for (final Map.Entry<String, Object> entry : objectEntries.entrySet()) {
             final String nestedName =
                     entry.getKey().substring(prefix.length(), entry.getKey().indexOf('.', prefix.length() + 1));
+            if (isUiParam(nestedName)) {
+                continue;
+            }
             if (nestedName.endsWith("]")) { // complex lists
                 final int idxStart = nestedName.indexOf('[');
                 if (idxStart > 0) {
@@ -609,6 +623,21 @@ public class ReflectionService {
                     .forEach(e -> recipe.setProperty(e.getKey(), e.getValue()));
         }
         return recipe.create(loader);
+    }
+
+    private boolean isUiParam(final String name) {
+        final int dollar = name.indexOf('$');
+        if (dollar >= 0 && name.indexOf("_name", dollar) > dollar) {
+            log.warn("{} is not a valid configuration, it shouldn't be passed to the runtime", name);
+            return true;
+        }
+        return false;
+    }
+
+    private BinaryOperator<Object> noMerge() {
+        return (a, b) -> {
+            throw new IllegalArgumentException("Conflict");
+        };
     }
 
     private Map.Entry<String, Object> normalize(final Map.Entry<String, Object> it, final List<ParameterMeta> metas) {
