@@ -14,7 +14,6 @@ services:
     image: tacokit/component-server:${COMPONENT_SERVER_IMAGE_VERSION:-1.1.6_20190208104207}
     environment:
     - _JAVA_OPTIONS=
-        -Djava.library.path=/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
         -Dtalend.component.server.filter.secured.tokens=vault-proxy <2>
         -Dtalend.component.server.ssl.active=true <3>
         -Dtalend.component.server.ssl.keystore.location=/opt/talend/configuration/https.p12 <3>
@@ -35,7 +34,6 @@ services:
     image: tacokit/component-server-vault-proxy:${COMPONENT_SERVER_VAULT_PROXY_IMAGE_VERSION:-1.1.6_20190208104221}
     environment:
     - _JAVA_OPTIONS=
-        -Djava.library.path=/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
         -Dtalend.vault.cache.client.server.certificate.keystore.location=/opt/talend/configuration/https.p12 <6>
         -Dtalend.vault.cache.client.server.certificate.keystore.type=PKCS12 <6>
         -Dtalend.vault.cache.client.server.hostname.accepted=component-server <6>
