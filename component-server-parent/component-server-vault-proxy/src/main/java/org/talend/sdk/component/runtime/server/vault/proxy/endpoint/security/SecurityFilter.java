@@ -52,10 +52,21 @@ public class SecurityFilter implements Filter {
     @ConfigProperty(name = "talend.vault.cache.security.tokens", defaultValue = "-")
     private List<String> securedEndpointsTokens;
 
+    @Inject
+    @Documentation("Enable to sanitize the hostname before testing them.")
+    @ConfigProperty(name = "talend.vault.cache.security.hostname.docker", defaultValue = "false")
+    private Boolean docker;
+
+    @Inject
+    private DockerHostNameSanitizer dockerSanitizer;
+
     @Override
     public void init(final FilterConfig filterConfig) {
         if (log.isDebugEnabled()) {
             log.debug("Allowed remote hosts: {}", allowedIp);
+        }
+        if (docker) {
+            log.info("Activating docker mode, hosts will be rewritten to extract service names");
         }
     }
 
@@ -74,7 +85,14 @@ public class SecurityFilter implements Filter {
 
     // cheap security
     private boolean isAllowed(final HttpServletRequest request) {
-        return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(request.getRemoteHost());
+        return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(sanitizeHost(request.getRemoteHost()));
+    }
+
+    private String sanitizeHost(final String remoteHost) {
+        if (docker) { // better to not use it but for cases where the matching is too dynamic it helps
+            return dockerSanitizer.sanitize(remoteHost);
+        }
+        return remoteHost;
     }
 
     private boolean isSecured(final ServletRequest servletRequest) {

@@ -1,0 +1,60 @@
+/**
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.runtime.server.vault.proxy.endpoint.security;
+
+import static java.util.stream.Collectors.joining;
+
+import java.util.stream.Stream;
+
+import javax.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
+public class DockerHostNameSanitizer {
+
+    public String sanitize(final String remoteHost) {
+        // pattern we want to match is <folder>_<service>_<number>.<folder>_<network>
+        final String[] segments = remoteHost.split("\\.");
+        if (segments.length == 2) {
+            final String[] firstSegments = segments[0].split("_");
+            if (firstSegments.length >= 3) {
+                try {
+                    Integer.parseInt(firstSegments[firstSegments.length - 1]);
+                } catch (final NumberFormatException nfe) {
+                    return remoteHost; // not a docker name
+                }
+                final String[] secondPathSegments = segments[1].split("_");
+                if (secondPathSegments.length >= 2 && secondPathSegments[0].equalsIgnoreCase(firstSegments[0])) {
+                    final int commonSegments = countCommonSegments(firstSegments, secondPathSegments);
+                    return Stream
+                            .of(firstSegments)
+                            .skip(commonSegments)
+                            .limit(firstSegments.length - commonSegments - 1)
+                            .collect(joining("_"));
+                }
+            }
+        }
+        return remoteHost;
+    }
+
+    private int countCommonSegments(final String[] firstSegments, final String[] secondPathSegments) {
+        for (int i = 0; i < Math.min(firstSegments.length, secondPathSegments.length); i++) {
+            if (!firstSegments[i].equalsIgnoreCase(secondPathSegments[i])) {
+                return i;
+            }
+        }
+        return 0;
+    }
+}

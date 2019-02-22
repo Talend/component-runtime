@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -60,6 +61,7 @@ import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 import org.talend.sdk.component.runtime.server.vault.proxy.service.http.Http;
+import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -160,6 +162,17 @@ public class VaultService {
                                 if (results.isEmpty()) {
                                     throw new WebApplicationException(Response.Status.FORBIDDEN);
                                 }
+                                final List<String> errors = results
+                                        .stream()
+                                        .map(DecryptResult::getError)
+                                        .filter(Objects::nonNull)
+                                        .collect(toList());
+                                if (!errors.isEmpty()) {
+                                    throw new WebApplicationException(Response
+                                            .status(Response.Status.BAD_REQUEST)
+                                            .entity(new ErrorPayload(null, "Can't decipher properties: " + errors))
+                                            .build());
+                                }
 
                                 final Iterator<String> keyIterator = missing.iterator();
                                 final Map<String, DecryptedValue> decryptedResults = results
@@ -185,10 +198,19 @@ public class VaultService {
                                     final WebApplicationException wae = WebApplicationException.class.cast(cause);
                                     final Response response = wae.getResponse();
                                     if (response != null) {
-                                        try {
-                                            debug = response.readEntity(String.class);
-                                        } catch (final Exception ignored) {
-                                            // no-op
+                                        if (ErrorPayload.class.isInstance(response.getEntity())) { // internal error
+                                            log
+                                                    .error("{}",
+                                                            ErrorPayload.class
+                                                                    .cast(response.getEntity())
+                                                                    .getDescription());
+                                            throw wae;
+                                        } else {
+                                            try {
+                                                debug = response.readEntity(String.class);
+                                            } catch (final Exception ignored) {
+                                                // no-op
+                                            }
                                         }
 
                                         final int status = response.getStatus();
