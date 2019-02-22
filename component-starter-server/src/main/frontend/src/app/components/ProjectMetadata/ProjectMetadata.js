@@ -29,7 +29,6 @@ import theme from './ProjectMetadata.scss';
 function onCategoryUpdate(value, project) {
 	// eslint-disable-next-line no-param-reassign
 	project.project.category = value.value;
-	project.updateMe(project.project);
 }
 /* eslint-disable no-param-reassign */
 
