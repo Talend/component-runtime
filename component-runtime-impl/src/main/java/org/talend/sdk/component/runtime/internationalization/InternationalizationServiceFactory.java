@@ -59,8 +59,9 @@ public class InternationalizationServiceFactory {
         final String pck = api.getPackage().getName();
         return api
                 .cast(Proxy
-                        .newProxyInstance(loader, new Class<?>[] { api }, new InternationalizedHandler(
-                                api.getName() + '.', (pck == null || pck.isEmpty() ? "" : (pck + '.')) + "Messages")));
+                        .newProxyInstance(loader, new Class<?>[] { api },
+                                new InternationalizedHandler(api.getName() + '.', api.getSimpleName() + '.',
+                                        (pck == null || pck.isEmpty() ? "" : (pck + '.')) + "Messages")));
     }
 
     @RequiredArgsConstructor
@@ -69,6 +70,8 @@ public class InternationalizationServiceFactory {
         private static final Object[] NO_ARG = new Object[0];
 
         private final String prefix;
+
+        private final String shortPrefix;
 
         private final String messages;
 
@@ -90,8 +93,8 @@ public class InternationalizationServiceFactory {
             if (Object.class == method.getDeclaringClass()) {
                 switch (method.getName()) {
                 case "equals":
-                    return args != null && args.length == 1 && method.getDeclaringClass().isInstance(args[0])
-                            && Proxy.isProxyClass(args[0].getClass()) && this == Proxy.getInvocationHandler(args[0]);
+                    return args != null && args.length == 1 && args[0] != null && Proxy.isProxyClass(args[0].getClass())
+                            && this == Proxy.getInvocationHandler(args[0]);
                 case "hashCode":
                     return hashCode();
                 default:
@@ -104,9 +107,10 @@ public class InternationalizationServiceFactory {
             }
 
             final MethodMeta methodMeta = methods
-                    .computeIfAbsent(method, m -> new MethodMeta(createLocaleExtractor(m), createParameterFactory(m)));
+                    .computeIfAbsent(method, m -> new MethodMeta(createLocaleExtractor(m), createParameterFactory(m),
+                            prefix + m.getName(), shortPrefix + m.getName(), m.getName()));
             final Locale locale = methodMeta.localeExtractor.apply(args);
-            final String template = getTemplate(locale, method);
+            final String template = getTemplate(locale, methodMeta);
             // note: if we need we could pool message formats but not sure we'll abuse of it
             // that much at runtime yet
             return new MessageFormat(template, locale).format(methodMeta.parameterFactory.apply(args));
@@ -151,12 +155,13 @@ public class InternationalizationServiceFactory {
             return p -> Locale.getDefault();
         }
 
-        private String getTemplate(final Locale locale, final Method method) {
+        private String getTemplate(final Locale locale, final MethodMeta methodMeta) {
             final ResourceBundle bundle = bundles
                     .computeIfAbsent(locale,
                             l -> ResourceBundle.getBundle(messages, l, Thread.currentThread().getContextClassLoader()));
-            final String key = prefix + method.getName();
-            return bundle.containsKey(key) ? bundle.getString(key) : method.getName();
+            return bundle.containsKey(methodMeta.longName) ? bundle.getString(methodMeta.longName)
+                    : (bundle.containsKey(methodMeta.shortName) ? bundle.getString(methodMeta.shortName)
+                            : methodMeta.name);
         }
     }
 
@@ -166,5 +171,11 @@ public class InternationalizationServiceFactory {
         private final Function<Object[], Locale> localeExtractor;
 
         private final Function<Object[], Object[]> parameterFactory;
+
+        private final String longName;
+
+        private final String shortName;
+
+        private final String name;
     }
 }
