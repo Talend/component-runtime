@@ -14,7 +14,7 @@
     "@talend/react-components": "${talend-ui.version}",
     "@talend/react-forms": "${talend-ui.version}",
     "@talend/react-containers": "${talend-ui.version}",
-    "bootstrap-sass": "3.3.7",
+    "bootstrap-sass": "3.4.1",
     "classnames": "2.2.5",
     "date-fns": "1.27.2",
     "i18next": "9.0.0",
