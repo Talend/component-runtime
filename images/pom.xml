@@ -42,7 +42,6 @@
     <baseImage>openjdk:8-jre-alpine</baseImage>
     <boundPort>8080</boundPort>
     <baseImageDir>/opt/talend</baseImageDir>
-    <libraryPathWithSigar>/opt/talend/component-kit/work/sigar/sigar</libraryPathWithSigar>
   </properties>
 
   <build>
