@@ -29,7 +29,13 @@ class DockerHostNameSanitizerTest {
             "talend_long_remote-engine-client_1.talend_long_default,remote-engine-client",
             // default to input
             "talend_remote-engine-client_1.talen-d_default,talend_remote-engine-client_1.talen-d_default" })
-    void sanitize(final String input, final String output) {
-        assertEquals(output, new DockerHostNameSanitizer().sanitize(input));
+    void sanitizeDocker(final String input, final String output) {
+        assertEquals(output, new DockerHostNameSanitizer().sanitizeDockerHostname(input));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "docker_foo_1.weave,foo", "docker_foo_bar_1.weave,foo_bar", "docker_foo-bar_1.weave,foo-bar" })
+    void sanitizeWeave(final String input, final String output) {
+        assertEquals(output, new DockerHostNameSanitizer().sanitizeWeaveHostname(input));
     }
 }

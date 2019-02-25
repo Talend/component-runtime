@@ -24,7 +24,7 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class DockerHostNameSanitizer {
 
-    public String sanitize(final String remoteHost) {
+    public String sanitizeDockerHostname(final String remoteHost) {
         // pattern we want to match is <folder>_<service>_<number>.<folder>_<network>
         final String[] segments = remoteHost.split("\\.");
         if (segments.length == 2) {
@@ -44,6 +44,23 @@ public class DockerHostNameSanitizer {
                             .limit(firstSegments.length - commonSegments - 1)
                             .collect(joining("_"));
                 }
+            }
+        }
+        return remoteHost;
+    }
+
+    public String sanitizeWeaveHostname(final String remoteHost) {
+        // pattern we want to match is <prefix>_<service>_<number>.<suffix>
+        final String[] segments = remoteHost.split("\\.");
+        if (segments.length == 2) {
+            final String[] firstSegments = segments[0].split("_");
+            if (firstSegments.length >= 3) {
+                try {
+                    Integer.parseInt(firstSegments[firstSegments.length - 1]);
+                } catch (final NumberFormatException nfe) {
+                    return remoteHost; // not a docker name
+                }
+                return Stream.of(firstSegments).skip(1).limit(firstSegments.length - 2).collect(joining("_"));
             }
         }
         return remoteHost;

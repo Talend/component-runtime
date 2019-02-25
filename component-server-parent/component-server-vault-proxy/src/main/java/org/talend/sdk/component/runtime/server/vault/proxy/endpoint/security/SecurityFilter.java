@@ -53,9 +53,10 @@ public class SecurityFilter implements Filter {
     private List<String> securedEndpointsTokens;
 
     @Inject
-    @Documentation("Enable to sanitize the hostname before testing them.")
-    @ConfigProperty(name = "talend.vault.cache.security.hostname.docker", defaultValue = "false")
-    private Boolean docker;
+    @Documentation("Enable to sanitize the hostname before testing them. Default to `none` which is a noop. Supported values "
+            + "are `docker` (for `<folder>_<service>_<number>.<folder>_<network>` pattern) and `weave` (for `<prefix>_dataset_<number>.<suffix>` pattern).")
+    @ConfigProperty(name = "talend.vault.cache.security.hostname.sanitizer", defaultValue = "none")
+    private String sanitization;
 
     @Inject
     private DockerHostNameSanitizer dockerSanitizer;
@@ -65,8 +66,8 @@ public class SecurityFilter implements Filter {
         if (log.isDebugEnabled()) {
             log.debug("Allowed remote hosts: {}", allowedIp);
         }
-        if (docker) {
-            log.info("Activating docker mode, hosts will be rewritten to extract service names");
+        if (sanitization != null) {
+            log.info("Activating {} mode, hosts will be rewritten to extract service names", sanitization);
         }
     }
 
@@ -89,10 +90,20 @@ public class SecurityFilter implements Filter {
     }
 
     private String sanitizeHost(final String remoteHost) {
-        if (docker) { // better to not use it but for cases where the matching is too dynamic it helps
-            return dockerSanitizer.sanitize(remoteHost);
+        switch (sanitization) {
+        case "docker":
+            return logHostSanitization(remoteHost, dockerSanitizer.sanitizeDockerHostname(remoteHost));
+        case "weave":
+            return logHostSanitization(remoteHost, dockerSanitizer.sanitizeWeaveHostname(remoteHost));
+        case "none":
+        default:
+            return remoteHost;
         }
-        return remoteHost;
+    }
+
+    private String logHostSanitization(final String original, final String rewritten) {
+        log.debug("Mapped '{}' on '{}'", original, rewritten);
+        return rewritten;
     }
 
     private boolean isSecured(final ServletRequest servletRequest) {

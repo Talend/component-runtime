@@ -19,25 +19,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
 
-@WithTemporaryFolder
 class ConfigurationMigrationTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
     @Test
-    void run(final TemporaryFolder temporaryFolder) throws Exception {
-        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void run(@TempDir final Path temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder.toFile(), "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
-        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), "comps.jar");
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), "comps.jar");
 
         try (final ComponentManager manager = new ComponentManager(new File("target/test-dependencies"),
                 "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {

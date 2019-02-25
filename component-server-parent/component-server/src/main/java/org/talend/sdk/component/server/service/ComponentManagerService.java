@@ -87,7 +87,7 @@ public class ComponentManagerService {
     private DeploymentListener deploymentListener;
 
     void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
-        // we just want it to be touched
+        // no-op
     }
 
     @PostConstruct

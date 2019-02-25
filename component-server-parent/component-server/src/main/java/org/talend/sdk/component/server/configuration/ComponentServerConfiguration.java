@@ -17,14 +17,18 @@ package org.talend.sdk.component.server.configuration;
 
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @ApplicationScoped
 public class ComponentServerConfiguration {
@@ -111,4 +115,37 @@ public class ComponentServerConfiguration {
             + "m2 path.")
     @ConfigProperty(name = "talend.component.server.user.extensions.provisioning.location", defaultValue = "auto")
     private String userExtensionsAutoM2Provisioning;
+
+    @Inject
+    @Documentation("Timeout for extension initialization at startup, since it ensures the startup wait extensions "
+            + "are ready and loaded it allows to control the latency it implies.")
+    @ConfigProperty(name = "talend.component.server.component.extension.startup.timeout", defaultValue = "180000")
+    private Long extensionsStartupTimeout;
+
+    @Inject
+    @Documentation("If you deploy some extension, where they can create their dependencies if needed.")
+    @ConfigProperty(name = "talend.component.server.component.extension.maven.repository")
+    private Optional<String> extensionMavenRepository;
+
+    @Inject
+    @Documentation("Should the all requests/responses be logged (debug purposes - only work when running with CXF).")
+    @ConfigProperty(name = "talend.component.server.request.log", defaultValue = "false")
+    private Boolean logRequests;
+
+    @PostConstruct
+    private void init() {
+        if (logRequests != null && logRequests) {
+            try {
+                final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                final Class<?> feature = loader.loadClass("org.apache.cxf.feature.LoggingFeature");
+                final Class<?> bus = loader.loadClass("org.apache.cxf.Bus");
+                final Object instance = feature.getConstructor().newInstance();
+                final Object busInstance = CDI.current().select(bus).get();
+                feature.getMethod("initialize", bus).invoke(instance, busInstance);
+                log.info("Activated debug mode - will log requests/responses");
+            } catch (final Exception e) {
+                log.warn("Can't honor log request configuration, skipping ({})", e.getMessage());
+            }
+        }
+    }
 }

@@ -187,7 +187,13 @@ public class WebAppComponentProxy {
     }
 
     private String extractFamilyFromNode(final String id) {
-        return new String(Base64.getUrlDecoder().decode(id), StandardCharsets.UTF_8).split("#")[1];
+        final String decoded = new String(Base64.getUrlDecoder().decode(id), StandardCharsets.UTF_8);
+        if (decoded.startsWith("extension::")) {
+            // quick workaround for now, we should just grab component extension manager probably
+            final String[] split = decoded.split("::");
+            return split[split.length - 1];
+        }
+        return decoded.split("#")[1];
     }
 
     private void onException(final AsyncResponse response, final Throwable e) {
