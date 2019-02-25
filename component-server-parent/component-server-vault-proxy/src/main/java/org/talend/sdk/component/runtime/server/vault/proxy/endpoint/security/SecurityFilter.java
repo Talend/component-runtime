@@ -54,7 +54,7 @@ public class SecurityFilter implements Filter {
 
     @Inject
     @Documentation("Enable to sanitize the hostname before testing them.")
-    @ConfigProperty(name = "talend.vault.cache.security.disable.docker", defaultValue = "false")
+    @ConfigProperty(name = "talend.vault.cache.security.hostname.docker", defaultValue = "false")
     private Boolean docker;
     
     @Inject
