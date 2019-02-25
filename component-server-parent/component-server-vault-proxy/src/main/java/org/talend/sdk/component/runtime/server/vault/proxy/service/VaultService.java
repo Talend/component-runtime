@@ -293,7 +293,7 @@ public class VaultService {
                 .thenApply(token -> {
                     log.info("Authenticated to vault");
                     if (log.isDebugEnabled()) {
-                        log.debug("Authenticated to vault '" + token.toString() + "'");
+                        log.debug("Authenticated to vault '{}'", token);
                     }
 
                     final long validityMargin = TimeUnit.SECONDS.toMillis(token.getAuth().getLeaseDuration());
