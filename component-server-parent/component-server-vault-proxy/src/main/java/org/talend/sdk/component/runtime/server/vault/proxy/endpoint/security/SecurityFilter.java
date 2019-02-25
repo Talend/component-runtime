@@ -54,8 +54,13 @@ public class SecurityFilter implements Filter {
 
     @Inject
     @Documentation("Enable to sanitize the hostname before testing them.")
-    @ConfigProperty(name = "talend.vault.cache.security.hostname.docker", defaultValue = "false")
+    @ConfigProperty(name = "talend.vault.cache.security.disable.docker", defaultValue = "false")
     private Boolean docker;
+    
+    @Inject
+    @Documentation("Disable IP/host white list")
+    @ConfigProperty(name = "talend.vault.cache.security.allowedIps.disable", defaultValue = "false")
+    private Boolean disableAllowedIps;
 
     @Inject
     private DockerHostNameSanitizer dockerSanitizer;
@@ -85,7 +90,12 @@ public class SecurityFilter implements Filter {
 
     // cheap security
     private boolean isAllowed(final HttpServletRequest request) {
-        return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(sanitizeHost(request.getRemoteHost()));
+        if(!disableAllowedIps) {
+            log.debug("Allowed IPs checking is disabled, request will be accepted");
+            return true
+        } else {
+            return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(sanitizeHost(request.getRemoteHost()));
+        }
     }
 
     private String sanitizeHost(final String remoteHost) {
