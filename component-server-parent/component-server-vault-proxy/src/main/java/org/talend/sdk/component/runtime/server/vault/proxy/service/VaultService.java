@@ -227,7 +227,7 @@ public class VaultService {
                                     }
                                 }
                                 log.error("Failed to decrypt, debug='" + debug + "'", e);
-                                throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                                throw new WebApplicationException(cantDecipherStatusCode);
                             });
                 }).orElseThrow(() -> new WebApplicationException(Response.Status.FORBIDDEN)))
                 .toCompletableFuture();
