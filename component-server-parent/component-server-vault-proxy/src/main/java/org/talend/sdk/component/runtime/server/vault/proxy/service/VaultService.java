@@ -115,6 +115,10 @@ public class VaultService {
     private Long refreshDelayOnFailure;
 
     @Inject
+    @ConfigProperty(name = "talend.vault.cache.service.auth.cantDecipherStatusCode", defaultValue = "422")
+    private Integer cantDecipherStatusCode;
+
+    @Inject
     private Cache<String, DecryptedValue> cache;
 
     @Inject
@@ -169,7 +173,7 @@ public class VaultService {
                                         .collect(toList());
                                 if (!errors.isEmpty()) {
                                     throw new WebApplicationException(Response
-                                            .status(Response.Status.BAD_REQUEST)
+                                            .status(cantDecipherStatusCode)
                                             .entity(new ErrorPayload(null, "Can't decipher properties: " + errors))
                                             .build());
                                 }
