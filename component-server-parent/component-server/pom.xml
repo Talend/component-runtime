@@ -121,6 +121,18 @@
     </dependency>
 
     <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-server-extension-api</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion><!-- all the stack must be provided -->
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-junit</artifactId>
       <version>${meecrowave.version}</version>
@@ -387,7 +399,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin><!-- for dev for now -->
+      <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
         <version>${meecrowave.version}</version>

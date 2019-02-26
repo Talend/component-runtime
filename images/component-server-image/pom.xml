@@ -207,7 +207,7 @@
                   <MEECROWAVE_PID>${imageWorkDir}/conf/server.pid</MEECROWAVE_PID>
                   <LANG>en_US.UTF-8</LANG>
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
-                  <LD_LIBRARY_PATH>${libraryPathWithSigar}</LD_LIBRARY_PATH>
+                  <LD_LIBRARY_PATH>/opt/talend/component-kit/work/sigar/sigar</LD_LIBRARY_PATH>
                 </environment>
                 <jvmFlags>
                   <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>

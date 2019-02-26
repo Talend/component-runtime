@@ -29,6 +29,8 @@ import static java.util.stream.Collectors.toMap;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.classloader.ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
+import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.MAPPER;
+import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.PROCESSOR;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.io.File;
@@ -197,6 +199,7 @@ import org.talend.sdk.component.runtime.serialization.LightContainer;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
+import org.talend.sdk.component.spi.component.GenericComponentExtension;
 import org.w3c.dom.Document;
 
 import lombok.AllArgsConstructor;
@@ -809,56 +812,67 @@ public class ComponentManager implements AutoCloseable {
     // nothing more
     public Optional<Object> createComponent(final String plugin, final String name, final ComponentType componentType,
             final int version, final Map<String, String> configuration) {
-        final String familyName = container.buildAutoIdFromName(plugin);
-        return find(pluginContainer -> Stream.of(pluginContainer.get(ContainerComponentRegistry.class)))
-                .filter(Objects::nonNull)
-                .map(r -> r.getComponents().get(familyName))
-                .filter(Objects::nonNull)
-                .map(component -> ofNullable(componentType.findMeta(component).get(name))
-                        .map(comp -> comp
-                                .getInstantiator()
-                                .apply(configuration == null ? null
-                                        : comp.getMigrationHandler().migrate(version, configuration))))
-                .findFirst()
-                .flatMap(identity())
+        return findComponentInternal(plugin, name, componentType, version, configuration)
                 // unwrap to access the actual instance which is the desired one
                 .map(i -> Delegated.class.isInstance(i) ? Delegated.class.cast(i).getDelegate() : i);
     }
 
+    private Optional<Object> findComponentInternal(final String plugin, final String name,
+            final ComponentType componentType, final int version, final Map<String, String> configuration) {
+        return find(pluginContainer -> Stream
+                .of(findInstance(plugin, name, componentType, version, configuration, pluginContainer)))
+                        .filter(Objects::nonNull)
+                        .findFirst();
+    }
+
+    private Object findInstance(final String plugin, final String name, final ComponentType componentType,
+            final int version, final Map<String, String> configuration, final Container pluginContainer) {
+        return findGenericInstance(plugin, name, componentType, version, configuration, pluginContainer)
+                .orElseGet(
+                        () -> findDeployedInstance(plugin, name, componentType, version, configuration, pluginContainer)
+                                .filter(Objects::nonNull)
+                                .findFirst()
+                                .orElse(null));
+    }
+
+    private Stream<Object> findDeployedInstance(final String plugin, final String name,
+            final ComponentType componentType, final int version, final Map<String, String> configuration,
+            final Container pluginContainer) {
+        return Stream
+                .of(pluginContainer.get(ContainerComponentRegistry.class))
+                .filter(Objects::nonNull)
+                .map(r -> r.getComponents().get(container.buildAutoIdFromName(plugin)))
+                .filter(Objects::nonNull)
+                .map(component -> componentType.findMeta(component).get(name))
+                .filter(Objects::nonNull)
+                .map(comp -> comp
+                        .getInstantiator()
+                        .apply(configuration == null ? null
+                                : comp.getMigrationHandler().migrate(version, configuration)));
+    }
+
+    private Optional<Object> findGenericInstance(final String plugin, final String name,
+            final ComponentType componentType, final int version, final Map<String, String> configuration,
+            final Container pluginContainer) {
+        return ofNullable(pluginContainer.get(GenericComponentExtension.class))
+                .filter(ext -> ext.canHandle(componentType.runtimeType(), plugin, name))
+                .map(ext -> Object.class
+                        .cast(ext
+                                .createInstance(componentType.runtimeType(), plugin, name, version, configuration,
+                                        ofNullable(pluginContainer.get(AllServices.class))
+                                                .map(AllServices::getServices)
+                                                .orElseGet(Collections::emptyMap))));
+    }
+
     public Optional<Mapper> findMapper(final String plugin, final String name, final int version,
             final Map<String, String> configuration) {
-        return find(pluginContainer -> Stream
-                .of(pluginContainer
-                        .get(ContainerComponentRegistry.class)
-                        .getComponents()
-                        .get(container.buildAutoIdFromName(plugin))))
-                                .filter(Objects::nonNull)
-                                .map(component -> ofNullable(component.getPartitionMappers().get(name))
-                                        .map(mapper -> mapper
-                                                .getInstantiator()
-                                                .apply(configuration == null ? null
-                                                        : mapper.getMigrationHandler().migrate(version, configuration)))
-                                        .map(Mapper.class::cast))
-                                .findFirst()
-                                .flatMap(identity());
+        return findComponentInternal(plugin, name, MAPPER, version, configuration).map(Mapper.class::cast);
     }
 
     public Optional<org.talend.sdk.component.runtime.output.Processor> findProcessor(final String plugin,
             final String name, final int version, final Map<String, String> configuration) {
-        return find(pluginContainer -> Stream
-                .of(pluginContainer
-                        .get(ContainerComponentRegistry.class)
-                        .getComponents()
-                        .get(container.buildAutoIdFromName(plugin))))
-                                .filter(Objects::nonNull)
-                                .map(component -> ofNullable(component.getProcessors().get(name))
-                                        .map(proc -> proc
-                                                .getInstantiator()
-                                                .apply(configuration == null ? null
-                                                        : proc.getMigrationHandler().migrate(version, configuration)))
-                                        .map(org.talend.sdk.component.runtime.output.Processor.class::cast))
-                                .findFirst()
-                                .flatMap(identity());
+        return findComponentInternal(plugin, name, PROCESSOR, version, configuration)
+                .map(org.talend.sdk.component.runtime.output.Processor.class::cast);
     }
 
     public boolean hasPlugin(final String plugin) {
@@ -1187,6 +1201,11 @@ public class ComponentManager implements AutoCloseable {
             Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
                 return family.getPartitionMappers();
             }
+
+            @Override
+            Class<?> runtimeType() {
+                return Mapper.class;
+            }
         },
         PROCESSOR {
 
@@ -1194,9 +1213,16 @@ public class ComponentManager implements AutoCloseable {
             Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
                 return family.getProcessors();
             }
+
+            @Override
+            Class<?> runtimeType() {
+                return org.talend.sdk.component.runtime.output.Processor.class;
+            }
         };
 
         abstract Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
+
+        abstract Class<?> runtimeType();
     }
 
     @AllArgsConstructor
@@ -1279,6 +1305,21 @@ public class ComponentManager implements AutoCloseable {
             }
             final ContainerComponentRegistry registry = new ContainerComponentRegistry();
             container.set(ContainerComponentRegistry.class, registry);
+
+            final boolean isGeneric;
+            final Iterator<GenericComponentExtension> genericExtension =
+                    ServiceLoader.load(GenericComponentExtension.class, container.getLoader()).iterator();
+            if (genericExtension.hasNext()) {
+                final GenericComponentExtension first = genericExtension.next();
+                container.set(GenericComponentExtension.class, first);
+                isGeneric = true;
+                if (genericExtension.hasNext()) {
+                    throw new IllegalArgumentException("A component can't have two generic component extensions: "
+                            + finder + ", " + genericExtension.next());
+                }
+            } else {
+                isGeneric = false;
+            }
 
             final Map<Class<?>, Object> services = new HashMap<>();
             final AllServices allServices = new AllServices(services);
@@ -1371,72 +1412,79 @@ public class ComponentManager implements AutoCloseable {
 
             final ComponentContexts componentContexts = new ComponentContexts();
             container.set(ComponentContexts.class, componentContexts);
-            Stream
-                    .of(PartitionMapper.class, Processor.class, Emitter.class)
-                    .flatMap(a -> finder.findAnnotatedClasses(a).stream())
-                    .filter(t -> Modifier.isPublic(t.getModifiers()))
-                    .forEach(type -> {
-                        final Components components = findComponentsConfig(componentDefaults, type,
-                                container.getLoader(), Components.class, DEFAULT_COMPONENT);
+            if (!isGeneric) {
+                Stream
+                        .of(PartitionMapper.class, Processor.class, Emitter.class)
+                        .flatMap(a -> finder.findAnnotatedClasses(a).stream())
+                        .filter(t -> Modifier.isPublic(t.getModifiers()))
+                        .forEach(type -> onComponent(container, registry, services, allServices, componentDefaults,
+                                componentContexts, type));
+            }
+        }
 
-                        final ComponentContextImpl context = new ComponentContextImpl(type);
-                        componentContexts.getContexts().put(type, context);
-                        extensions.forEach(e -> {
-                            context.setCurrentExtension(e);
-                            try {
-                                e.onComponent(context);
-                            } finally {
-                                context.setCurrentExtension(null);
-                            }
-                            if (context.getOwningExtension() == e) {
-                                ofNullable(e.getExtensionServices(container.getId())).ifPresent(services::putAll);
-                            }
-                        });
+        private void onComponent(final Container container, final ContainerComponentRegistry registry,
+                final Map<Class<?>, Object> services, final AllServices allServices,
+                final Map<String, AnnotatedElement> componentDefaults, final ComponentContexts componentContexts,
+                final Class<?> type) {
+            final Components components = findComponentsConfig(componentDefaults, type, container.getLoader(),
+                    Components.class, DEFAULT_COMPONENT);
 
-                        final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), allServices,
-                                components, componentDefaults.get(getAnnotatedElementCacheKey(type)), context,
-                                migrationHandlerFactory);
+            final ComponentContextImpl context = new ComponentContextImpl(type);
+            componentContexts.getContexts().put(type, context);
+            extensions.forEach(e -> {
+                context.setCurrentExtension(e);
+                try {
+                    e.onComponent(context);
+                } finally {
+                    context.setCurrentExtension(null);
+                }
+                if (context.getOwningExtension() == e) {
+                    ofNullable(e.getExtensionServices(container.getId())).ifPresent(services::putAll);
+                }
+            });
 
-                        final Thread thread = Thread.currentThread();
-                        final ClassLoader old = thread.getContextClassLoader();
-                        thread.setContextClassLoader(container.getLoader());
-                        try {
-                            visitor.visit(type, builder, !context.isNoValidation());
-                        } finally {
-                            thread.setContextClassLoader(old);
-                        }
+            final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), allServices, components,
+                    componentDefaults.get(getAnnotatedElementCacheKey(type)), context, migrationHandlerFactory);
 
-                        ofNullable(builder.component).ifPresent(c -> {
-                            // for now we assume one family per module, we can remove this constraint if
-                            // really needed
-                            // but kind of enforce a natural modularity
+            final Thread thread = Thread.currentThread();
+            final ClassLoader old = thread.getContextClassLoader();
+            thread.setContextClassLoader(container.getLoader());
+            try {
+                visitor.visit(type, builder, !context.isNoValidation());
+            } finally {
+                thread.setContextClassLoader(old);
+            }
 
-                            final ComponentFamilyMeta componentFamilyMeta =
-                                    registry.getComponents().computeIfAbsent(c.getName(), n -> c);
-                            if (componentFamilyMeta != c) {
-                                if (componentFamilyMeta
-                                        .getProcessors()
-                                        .keySet()
-                                        .stream()
-                                        .anyMatch(k -> c.getProcessors().keySet().contains(k))) {
-                                    throw new IllegalArgumentException("Conflicting processors in " + c);
-                                }
-                                if (componentFamilyMeta
-                                        .getPartitionMappers()
-                                        .keySet()
-                                        .stream()
-                                        .anyMatch(k -> c.getPartitionMappers().keySet().contains(k))) {
-                                    throw new IllegalArgumentException("Conflicting mappers in " + c);
-                                }
+            ofNullable(builder.component).ifPresent(c -> {
+                // for now we assume one family per module, we can remove this constraint if
+                // really needed
+                // but kind of enforce a natural modularity
 
-                                // if we passed validations then merge
-                                componentFamilyMeta.getProcessors().putAll(c.getProcessors());
-                                componentFamilyMeta.getPartitionMappers().putAll(c.getPartitionMappers());
-                            }
-                        });
+                final ComponentFamilyMeta componentFamilyMeta =
+                        registry.getComponents().computeIfAbsent(c.getName(), n -> c);
+                if (componentFamilyMeta != c) {
+                    if (componentFamilyMeta
+                            .getProcessors()
+                            .keySet()
+                            .stream()
+                            .anyMatch(k -> c.getProcessors().keySet().contains(k))) {
+                        throw new IllegalArgumentException("Conflicting processors in " + c);
+                    }
+                    if (componentFamilyMeta
+                            .getPartitionMappers()
+                            .keySet()
+                            .stream()
+                            .anyMatch(k -> c.getPartitionMappers().keySet().contains(k))) {
+                        throw new IllegalArgumentException("Conflicting mappers in " + c);
+                    }
 
-                        info("Parsed component " + type + " for container-id=" + container.getId());
-                    });
+                    // if we passed validations then merge
+                    componentFamilyMeta.getProcessors().putAll(c.getProcessors());
+                    componentFamilyMeta.getPartitionMappers().putAll(c.getPartitionMappers());
+                }
+            });
+
+            info("Parsed component " + type + " for container-id=" + container.getId());
         }
 
         private ServiceMeta.ActionMeta createServiceMeta(final Container container,

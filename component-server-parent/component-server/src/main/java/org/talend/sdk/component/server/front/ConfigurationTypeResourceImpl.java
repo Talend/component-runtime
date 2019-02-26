@@ -47,6 +47,7 @@ import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.ActionsService;
+import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 
@@ -71,6 +72,9 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
     @Inject
     private ConfigurationDao configurations;
 
+    @Inject
+    private ExtensionComponentMetadataManager virtualComponents;
+
     @Override
     public ConfigTypeNodes getRepositoryModel(final String language, final boolean lightPaylaod) {
         return toNodes(language, s -> true, lightPaylaod);
@@ -93,6 +97,9 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
+        if (virtualComponents.isExtensionEntity(id)) {
+            return config;
+        }
         final Config configuration = ofNullable(configurations.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
@@ -160,10 +167,27 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
 
     private ConfigTypeNodes toNodes(final String language, final Predicate<String> filter, final boolean lightPayload) {
         final Locale locale = localeMapper.mapLocale(language);
+        return new ConfigTypeNodes(Stream
+                .concat(getDeployedConfigurations(filter, lightPayload, locale),
+                        virtualComponents
+                                .getConfigurations()
+                                .stream()
+                                .filter(it -> filter.test(it.getId()))
+                                .map(it -> lightPayload ? copyLight(it) : it))
+                .collect(toMap(ConfigTypeNode::getId, identity())));
+    }
+
+    private ConfigTypeNode copyLight(final ConfigTypeNode it) {
+        return new ConfigTypeNode(it.getId(), it.getVersion(), it.getParentId(), it.getConfigurationType(),
+                it.getName(), it.getDisplayName(), it.getEdges(), null, null);
+    }
+
+    private Stream<ConfigTypeNode> getDeployedConfigurations(final Predicate<String> filter, final boolean lightPayload,
+            final Locale locale) {
         return manager
                 .find(Stream::of)
                 .filter(c -> c.get(RepositoryModel.class) != null)
-                .map(c -> c
+                .flatMap(c -> c
                         .get(RepositoryModel.class)
                         .getFamilies()
                         .stream()
@@ -189,13 +213,6 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                                             createNode(family.getId(), family.getMeta().getName(),
                                                     family.getConfigs().stream(), resourcesBundle, c, locale, filter,
                                                     lightPayload));
-                        }))
-                .collect(() -> {
-                    final ConfigTypeNodes nodes = new ConfigTypeNodes();
-                    nodes.setNodes(new HashMap<>());
-                    return nodes;
-                }, (root,
-                        children) -> root.getNodes().putAll(children.collect(toMap(ConfigTypeNode::getId, identity()))),
-                        (first, second) -> first.getNodes().putAll(second.getNodes()));
+                        }));
     }
 }

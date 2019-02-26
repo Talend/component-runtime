@@ -293,8 +293,8 @@ public class ClientSetup {
         }
         providers.map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()).map(fqn -> {
             try {
-                return Thread.currentThread().getContextClassLoader().loadClass(fqn);
-            } catch (final ClassNotFoundException e) {
+                return Thread.currentThread().getContextClassLoader().loadClass(fqn).getConstructor().newInstance();
+            } catch (final Exception e) {
                 log.warn("Can't add provider " + fqn + ": " + e.getMessage(), e);
                 return null;
             }

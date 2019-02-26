@@ -535,7 +535,8 @@ public class ComponentValidator extends BaseTask {
                         .addAll(resourceBundle
                                 .keySet()
                                 .stream()
-                                .filter(k -> (k.startsWith(i.getName() + ".") || k.startsWith(i.getSimpleName() + ".")) && keys.stream().noneMatch(ks -> ks.contains(k)))
+                                .filter(k -> (k.startsWith(i.getName() + ".") || k.startsWith(i.getSimpleName() + "."))
+                                        && keys.stream().noneMatch(ks -> ks.contains(k)))
                                 .map(k -> "Key " + k + " from " + i + " is no more used")
                                 .sorted()
                                 .collect(toSet()));
