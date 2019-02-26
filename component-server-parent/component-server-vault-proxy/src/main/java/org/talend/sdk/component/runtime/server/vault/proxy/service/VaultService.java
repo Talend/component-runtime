@@ -267,33 +267,40 @@ public class VaultService {
             authInfo.setClientToken(value);
             authInfo.setLeaseDuration(Long.MAX_VALUE);
             authInfo.setRenewable(false);
-            return new Authentication(authInfo, Long.MAX_VALUE);
-        })
-                .map(CompletableFuture::completedFuture)
-                .orElseGet(() -> ofNullable(authToken.get())
-                        .filter(auth -> (auth.getExpiresAt() - clock.millis()) <= refreshDelayMargin) // is expired
-                        .map(CompletableFuture::completedFuture)
-                        .orElseGet(this::doAuth));
+            return completedFuture(new Authentication(authInfo, Long.MAX_VALUE));
+        }).orElseGet(() -> {
+            final String role = of(this.role.get()).filter(this::isReloadableConfigSet).orElse(null);
+            if (role == null) {
+                log.error("No vault token or role available, authentication will not be possible");
+                throw new WebApplicationException(
+                        Response.serverError().entity(new ErrorPayload(null, "Vault not reachable")).build());
+            }
+            return ofNullable(authToken.get())
+                    .filter(auth -> (auth.getExpiresAt() - clock.millis()) <= refreshDelayMargin) // is expired
+                    .map(CompletableFuture::completedFuture)
+                    .orElseGet(() -> doAuth(role).toCompletableFuture());
+        });
     }
 
-    private CompletableFuture<Authentication> doAuth() {
+    private CompletionStage<Authentication> doAuth(final String role) {
         log.info("Authenticating to vault");
         return vault
                 .path(authEndpoint)
                 .request(APPLICATION_JSON_TYPE)
                 .rx()
-                .post(entity(
-                        new AuthRequest(
-                                of(role.get())
-                                        .filter(this::isReloadableConfigSet)
-                                        .orElseThrow(() -> new IllegalArgumentException("No roleId set")),
-                                of(secret.get()).filter(this::isReloadableConfigSet).orElse(null)),
+                .post(entity(new AuthRequest(role, of(secret.get()).filter(this::isReloadableConfigSet).orElse(null)),
                         APPLICATION_JSON_TYPE), AuthResponse.class)
-                .toCompletableFuture()
                 .thenApply(token -> {
-                    log.info("Authenticated to vault");
                     if (log.isDebugEnabled()) {
                         log.debug("Authenticated to vault '{}'", token);
+                    }
+
+                    if (token.getAuth() == null || token.getAuth().getClientToken() == null) {
+                        log.error("Vault didn't return a token");
+                        throw new WebApplicationException(
+                                Response.serverError().entity(new ErrorPayload(null, "Vault not available")).build());
+                    } else {
+                        log.info("Authenticated to vault");
                     }
 
                     final long validityMargin = TimeUnit.SECONDS.toMillis(token.getAuth().getLeaseDuration());
@@ -301,7 +308,7 @@ public class VaultService {
                     final Authentication authentication = new Authentication(token.getAuth(), nextRefresh);
                     authToken.set(authentication);
                     if (!scheduledExecutorService.isShutdown() && token.getAuth().isRenewable()) {
-                        scheduledExecutorService.schedule(this::doAuth, nextRefresh, MILLISECONDS);
+                        scheduledExecutorService.schedule(() -> doAuth(role), nextRefresh, MILLISECONDS);
                     }
                     return authentication;
                 })
@@ -312,35 +319,42 @@ public class VaultService {
                         final WebApplicationException wae = WebApplicationException.class.cast(cause);
                         final Response response = wae.getResponse();
                         if (response != null) {
-                            try {
-                                debug = response.readEntity(String.class);
-                            } catch (final Exception ignored) {
-                                // no-op
-                            }
+                            if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
+                                // already logged and setup broken so just rethrow
+                                throw wae;
+                            } else {
+                                try {
+                                    debug = response.readEntity(String.class);
+                                } catch (final Exception ignored) {
+                                    // no-op
+                                }
 
-                            final int status = response.getStatus();
-                            if (status == Response.Status.NOT_FOUND.getStatusCode()) {
-                                log.error("Failed to authenticate to vault, endpoint not found, check your setup", e);
-                                return null;
-                            }
-                            if (status == Response.Status.FORBIDDEN.getStatusCode()) {
-                                log
-                                        .error("Failed to authenticate to vault, forbidden access, check your setup (key)",
-                                                e);
-                                return null;
-                            }
-                            if (status == 429) { // rate limit reached, wait
-                                log.error("Failed to authenticate to vault, rate limit reached", e);
-                                return null;
-                            }
-                            if (status >= 500) { // rate limit reached, wait
-                                log.error("Failed to authenticate to vault, unexpected error", e);
-                                return null;
+                                final int status = response.getStatus();
+                                if (status == Response.Status.NOT_FOUND.getStatusCode()) {
+                                    log
+                                            .error("Failed to authenticate to vault, endpoint not found, check your setup",
+                                                    e);
+                                    return null;
+                                }
+                                if (status == Response.Status.FORBIDDEN.getStatusCode()) {
+                                    log
+                                            .error("Failed to authenticate to vault, forbidden access, check your setup (key)",
+                                                    e);
+                                    return null;
+                                }
+                                if (status == 429) { // rate limit reached, wait
+                                    log.error("Failed to authenticate to vault, rate limit reached", e);
+                                    return null;
+                                }
+                                if (status >= 500) { // something wrong, no need to retry
+                                    log.error("Failed to authenticate to vault, unexpected error", e);
+                                    return null;
+                                }
                             }
                         }
                     }
                     log.error("Failed to authenticate to vault, retrying, debug='" + debug + "'", e);
-                    scheduledExecutorService.schedule(this::doAuth, refreshDelayOnFailure, MILLISECONDS);
+                    scheduledExecutorService.schedule(() -> doAuth(role), refreshDelayOnFailure, MILLISECONDS);
                     return null;
                 });
     }

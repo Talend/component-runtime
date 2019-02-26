@@ -92,6 +92,7 @@
           <watcherBouncing>-1</watcherBouncing>
           <systemProperties>
             <talend.server.extension.stitch.token>${dev.stitch.token}</talend.server.extension.stitch.token>
+            <talend.component.server.component.extension.maven.repository>${project.build.directory}/test/StitchRepo_dev</talend.component.server.component.extension.maven.repository>
           </systemProperties>
         </configuration>
         <dependencies>
