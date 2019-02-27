@@ -32,6 +32,7 @@ talend.vault.cache.jcache.refresh.period:: Default value: `30000`. How often (in
 talend.vault.cache.security.allowedIps:: Default value: `localhost,127.0.0.1,0:0:0:0:0:0:0:1`. The IP or hosts allowed to call that server on `/api/*` if no token is passed.
 talend.vault.cache.security.hostname.sanitizer:: Default value: `none`. Enable to sanitize the hostname before testing them. Default to `none` which is a noop. Supported values are `docker` (for `<folder>_<service>_<number>.<folder>_<network>` pattern) and `weave` (for `<prefix>_dataset_<number>.<suffix>` pattern).
 talend.vault.cache.security.tokens:: Default value: `-`. The tokens enabling a client to call this server without being in `allowedIp` whitelist.
+talend.vault.cache.service.auth.cantDecipherStatusCode:: Default value: `422`. -
 talend.vault.cache.service.auth.refreshDelayMargin:: Default value: `600000`. How often (in ms) to refresh the vault token.
 talend.vault.cache.service.auth.refreshDelayOnFailure:: Default value: `10000`. How often (in ms) to refresh the vault token in case of an authentication failure.
 talend.vault.cache.talendComponentKit.url:: Base URL to connect to Component Server
