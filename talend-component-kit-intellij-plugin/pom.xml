@@ -142,7 +142,7 @@
     <profile>
       <id>java11</id>
       <activation>
-        <jdk>11</jdk>
+        <jdk>[11,20)</jdk>
       </activation>
       <dependencies>
         <!-- /!\ GPL dependency, ensure to not deliver it -->
