@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.extension.stitch.server;
+package org.talend.sdk.component.server.extension.stitch.server.execution;
 
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;

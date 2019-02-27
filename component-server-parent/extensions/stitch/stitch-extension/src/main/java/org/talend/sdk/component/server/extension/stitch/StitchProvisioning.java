@@ -19,15 +19,12 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -49,8 +46,7 @@ import javax.ws.rs.client.ClientBuilder;
 import org.talend.sdk.component.server.extension.api.ExtensionRegistrar;
 import org.talend.sdk.component.server.extension.stitch.runtime.StitchGenericComponent;
 import org.talend.sdk.component.server.extension.stitch.runtime.StitchInput;
-import org.talend.sdk.component.server.front.model.ComponentDetail;
-import org.talend.sdk.component.server.front.model.ConfigTypeNode;
+import org.talend.sdk.component.server.extension.stitch.runtime.StitchMapper;
 import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.spi.component.GenericComponentExtension;
 
@@ -60,8 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class StitchProvisioning {
 
-    void register(@ObservesAsync final ExtensionRegistrar event, final StitchConfiguration configuration,
-            final StitchMapper mapper) {
+    void register(@ObservesAsync final ExtensionRegistrar event, final StitchConfiguration configuration) {
         if (!configuration.getToken().isPresent()) {
             log.info("Skipping stitch extension since token is not set");
             return;
@@ -70,12 +65,10 @@ public class StitchProvisioning {
         // ensure we can create our runtime first
         final DependencyDefinition dependencyDefinition = getRuntimeDependency(event);
 
-        log.info("Loading stitch data, this is an experimental extension, use with caution");
+        log.info("Loading stitch data, this is an experimental extension");
 
-        int threads = configuration.getParallelism();
-        if (threads <= 0) {
-            threads = Runtime.getRuntime().availableProcessors();
-        }
+        final int threads = configuration.getParallelism() <= 0 ? Runtime.getRuntime().availableProcessors()
+                : configuration.getParallelism();
         final ExecutorService stitchExecutor = new ThreadPoolExecutor(threads, threads, 1, MINUTES,
                 new LinkedBlockingQueue<>(), new StitchThreadFactory());
         final ClientBuilder builder = ClientBuilder.newBuilder();
@@ -102,32 +95,24 @@ public class StitchProvisioning {
                 Thread.currentThread().interrupt();
             }
         });
-        new StitchClient(stitchClient, configuration.getBase(),
+        new ModelLoader(stitchClient, configuration.getBase(),
                 configuration.getToken().orElseThrow(IllegalArgumentException::new), configuration.getRetries())
-                        .listSources()
-                        .thenApply(steps -> {
-                            final Collection<ComponentDetail> components = new ArrayList<>(steps.size());
-                            event.registerConfigurations(steps.stream().flatMap(step -> {
-                                final ConfigTypeNode family = mapper.mapFamily(step);
-                                final ConfigTypeNode datastore = mapper.mapDataStore(step, family);
-                                final ConfigTypeNode dataset = mapper.mapDataSet(step, datastore);
-                                components.add(mapper.mapSource(step, dataset));
-                                return Stream.of(family, datastore, dataset);
-                            }).collect(toList()));
-
-                            event.registerComponents(components);
-
+                        .load()
+                        .thenApply(model -> {
+                            event.registerComponents(model.getComponents());
+                            event.registerConfigurations(model.getConfigurations());
                             event
-                                    .registerDependencies(components
+                                    .registerDependencies(model
+                                            .getComponents()
                                             .stream()
                                             .collect(toMap(it -> it.getId().getId(), it -> dependencyDefinition)));
-                            return steps;
+                            return model;
                         })
-                        .whenComplete((steps, error) -> {
+                        .whenComplete((model, error) -> {
                             if (error != null) {
                                 log.error(error.getMessage(), error);
                             } else {
-                                log.info("Loaded {} Stitch components", steps.size());
+                                log.info("Loaded {} Stitch components", model.getComponents().size());
                             }
                             whenDone.run();
                         });

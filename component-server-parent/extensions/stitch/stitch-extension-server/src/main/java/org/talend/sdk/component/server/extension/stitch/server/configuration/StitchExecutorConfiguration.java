@@ -49,42 +49,52 @@ import lombok.extern.slf4j.Slf4j;
 public class StitchExecutorConfiguration {
 
     @Inject
+    @Documentation("Core thread number for the task executor.")
     @ConfigProperty(name = "talend.stitch.executor.threads.core", defaultValue = "16")
     private Integer executorCoreSize;
 
     @Inject
+    @Documentation("Max thread number for the task executor.")
     @ConfigProperty(name = "talend.stitch.executor.threads.max", defaultValue = "64")
     private Integer executorMaxSize;
 
     @Inject
+    @Documentation("Keep alive duration (ms) for the task executor.")
     @ConfigProperty(name = "talend.stitch.executor.threads.keepAlive", defaultValue = "10000")
     private Long executorKeepAliveMs;
 
     @Inject
+    @Documentation("Queue capacity (or -1 for an unbounded queue) for the task executor.")
     @ConfigProperty(name = "talend.stitch.executor.threads.queueSize", defaultValue = "-1")
     private Integer executorQueueCapacity;
 
     @Inject
+    @Documentation("Core thread number for the stream redirection.")
     @ConfigProperty(name = "talend.stitch.executor.streams.threads.core", defaultValue = "32")
     private Integer streamsExecutorCoreSize;
 
     @Inject
+    @Documentation("Max thread number for the stream redirection (recommended to be x2 executor one).")
     @ConfigProperty(name = "talend.stitch.executor.streams.threads.max", defaultValue = "128")
     private Integer streamsExecutorMaxSize;
 
     @Inject
+    @Documentation("Keep alive duration (ms) for the stream redirection.")
     @ConfigProperty(name = "talend.stitch.executor.streams.threads.keepAlive", defaultValue = "10000")
     private Long streamsExecutorKeepAliveMs;
 
     @Inject
+    @Documentation("Queue capacity (or -1 for an unbounded queue) for the streams redirection.")
     @ConfigProperty(name = "talend.stitch.executor.streams.threads.queueSize", defaultValue = "-1")
     private Integer streamsExecutorQueueCapacity;
 
     @Inject
-    @ConfigProperty(name = "talend.stitch.executor.executor_bulkhead.timeout", defaultValue = "120000")
+    @Documentation("Max duration for executions.")
+    @ConfigProperty(name = "talend.stitch.executor.executor.timeout", defaultValue = "120000")
     private Long executionTimeout;
 
     @Inject
+    @Documentation("Where extensions can create files.")
     @ConfigProperty(name = "talend.stitch.work.directory", defaultValue = "${base}/work/application")
     private String workDirectory;
 

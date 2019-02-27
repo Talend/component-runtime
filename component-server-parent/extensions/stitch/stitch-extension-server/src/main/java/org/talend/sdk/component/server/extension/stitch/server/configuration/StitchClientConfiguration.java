@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.extension.stitch;
+package org.talend.sdk.component.server.extension.stitch.server.configuration;
 
 import java.util.Optional;
 
@@ -21,21 +21,20 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.talend.sdk.component.server.extension.api.configuration.Documentation;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @ApplicationScoped
-public class StitchConfiguration {
+public class StitchClientConfiguration {
 
     @Inject
-    @Documentation("HTTP connection timeout to Stitch Model Server.")
+    @Documentation("HTTP connection timeout to Stitch server.")
     @ConfigProperty(name = "talend.server.extension.stitch.client.timeout.connect", defaultValue = "30000")
     private Long connectTimeout;
 
     @Inject
-    @Documentation("HTTP read timeout to Stitch Model Server.")
+    @Documentation("HTTP read timeout to Stitch server.")
     @ConfigProperty(name = "talend.server.extension.stitch.client.timeout.read", defaultValue = "30000")
     private Long readTimeout;
 
@@ -56,11 +55,12 @@ public class StitchConfiguration {
 
     @Inject
     @Documentation("Base Stitch API URL.")
-    @ConfigProperty(name = "talend.server.extension.stitch.client.base", defaultValue = "http://localhost:60000/v4/")
+    @ConfigProperty(name = "talend.server.extension.stitch.client.base",
+            defaultValue = "https://api.stitchdata.com/v4/")
     private String base;
 
     @Inject
-    @Documentation("Stitch Server Token to be able to connect to the server, if not set Stitch extension is skipped.")
+    @Documentation("Stitch Token to be able to connect to the server, if not set Stitch extension is skipped.")
     @ConfigProperty(name = "talend.server.extension.stitch.token")
     private Optional<String> token;
 }

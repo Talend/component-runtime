@@ -30,7 +30,7 @@ public class InitStitch {
             final Meecrowave.Builder config) {
         System
                 .setProperty("talend.server.extension.stitch.client.base",
-                        "http://localhost:" + config.getHttpPort() + "/api/v1/stitch");
+                        "http://localhost:" + config.getHttpPort() + "/api/v1/");
         System.setProperty("talend.server.extension.stitch.token", "test-token");
         System.setProperty("talend.server.extension.stitch.client.retries", "5");
         System.setProperty("talend.component.server.extension.stitch.versionMarker", Long.toString(System.nanoTime()));

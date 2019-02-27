@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.extension.stitch;
+package org.talend.sdk.component.server.extension.stitch.server.stitch;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;

@@ -35,6 +35,7 @@ import javax.json.JsonValue;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.extension.stitch.server.configuration.App;
+import org.talend.sdk.component.server.extension.stitch.server.execution.ProcessExecutor;
 
 @MonoMeecrowaveConfig
 class ProcessExecutorTest {

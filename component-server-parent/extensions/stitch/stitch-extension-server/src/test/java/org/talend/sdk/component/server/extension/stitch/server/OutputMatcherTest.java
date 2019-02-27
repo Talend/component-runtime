@@ -30,6 +30,7 @@ import javax.json.JsonReaderFactory;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.talend.sdk.component.server.extension.stitch.server.execution.OutputMatcher;
 
 class OutputMatcherTest {
 

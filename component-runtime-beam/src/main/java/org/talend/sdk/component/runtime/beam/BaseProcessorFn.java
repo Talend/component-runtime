@@ -78,7 +78,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
                         try {
                             maxBatchSize = Integer.parseInt(val.getValue().trim());
                         } catch (final NumberFormatException nfe) {
-                            log.warn("Invalid configuratoin: " + val);
+                            log.warn("Invalid configuration: " + val);
                         }
                     });
         }

@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.extension.stitch.server;
+package org.talend.sdk.component.server.extension.stitch.server.configuration;
 
-import javax.enterprise.context.Dependent;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-@Dependent
-@ApplicationPath("api/v1")
-public class StitchServerApplication extends Application {
+/**
+ * Enables to document {@link org.eclipse.microprofile.config.inject.ConfigProperty} entries.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Documentation {
+
+    String value();
 }

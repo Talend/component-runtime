@@ -88,6 +88,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>stitch-extension-model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-junit</artifactId>
       <version>${meecrowave.version}</version>
@@ -127,9 +133,9 @@
             </goals>
             <configuration>
               <output>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</output>
-              <application>org.talend.sdk.component.server.extension.stitch.server.StitchServerApplication</application>
+              <application>org.talend.sdk.component.server.extension.stitch.server.front.StitchServerApplication</application>
               <endpointClasses>
-                <endpointClass>org.talend.sdk.component.server.extension.stitch.server.StitchExecutorEndpoint</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.extension.stitch.server.front.StitchExecutorResource</endpointClass>
               </endpointClasses>
               <info>
                 <version>1</version>
@@ -139,6 +145,28 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>false</org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin><!-- for dev -->
+        <groupId>org.apache.meecrowave</groupId>
+        <artifactId>meecrowave-maven-plugin</artifactId>
+        <version>${meecrowave.version}</version>
+        <configuration>
+          <cdiConversation>false</cdiConversation>
+          <watcherBouncing>-1</watcherBouncing>
+          <httpPort>60000</httpPort>
+          <systemProperties>
+            <talend.server.extension.stitch.token>${dev.stitch.token}</talend.server.extension.stitch.token>
+          </systemProperties>
+        </configuration>
       </plugin>
     </plugins>
   </build>

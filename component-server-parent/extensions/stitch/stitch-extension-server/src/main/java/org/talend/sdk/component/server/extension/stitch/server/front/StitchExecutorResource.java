@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.extension.stitch.server;
+package org.talend.sdk.component.server.extension.stitch.server.front;
 
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -50,6 +50,8 @@ import javax.ws.rs.sse.Sse;
 import javax.ws.rs.sse.SseEventSink;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.talend.sdk.component.server.extension.stitch.model.Task;
+import org.talend.sdk.component.server.extension.stitch.server.execution.ProcessExecutor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Path("executor")
 @ApplicationScoped
-public class StitchExecutorEndpoint {
+public class StitchExecutorResource {
 
     @Inject
     private ProcessExecutor executor;
@@ -81,7 +83,7 @@ public class StitchExecutorEndpoint {
     private void init() {
         cleanerExecutor = Executors
                 .newSingleThreadScheduledExecutor(
-                        r -> new Thread(r, StitchExecutorEndpoint.this.getClass().getName() + "_cleaner_guard"));
+                        r -> new Thread(r, StitchExecutorResource.this.getClass().getName() + "_cleaner_guard"));
         cleanerExecutor.scheduleAtFixedRate(() -> {
             final long now = clock.millis();
             submittedTasks

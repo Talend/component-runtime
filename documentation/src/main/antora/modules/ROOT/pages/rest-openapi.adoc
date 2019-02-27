@@ -1,7 +1,7 @@
 = OpenAPI definition
 :page-partial:
 :page-talend_swaggerui: true
-:description: Component Kit Swagger Documentation
+:description: Component Kit OpenAPI Documentation
 :keywords: Swagger, REST, API
 
 include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+2]

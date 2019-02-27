@@ -38,9 +38,10 @@ import javax.ws.rs.sse.SseEventSource;
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.server.extension.stitch.model.Task;
 
 @MonoMeecrowaveConfig
-class StitchExecutorEndpointTest {
+class StitchExecutorResourceTest {
 
     @Inject
     private Meecrowave.Builder server;

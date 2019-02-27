@@ -19,6 +19,9 @@ import static java.util.Collections.emptyMap;
 
 import java.util.Map;
 
+import javax.enterprise.inject.spi.CDI;
+
+import org.apache.meecrowave.Meecrowave;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
 public class ConfigTestSource implements ConfigSource {
@@ -35,6 +38,13 @@ public class ConfigTestSource implements ConfigSource {
             return "ProcessCommandMapperTest_mapped = foo bar\nProcessCommandMapperTest_placeholder = ${configurationFile} ${tap} ${replaced.by.config}";
         case "replaced.by.config":
             return "done";
+        case "talend.server.extension.stitch.client.base":
+            return "http://localhost:" + CDI.current().select(Meecrowave.Builder.class).get().getHttpPort()
+                    + "/api/v1/stitch";
+        case "talend.server.extension.stitch.token":
+            return "test-token";
+        case "talend.server.extension.stitch.client.retries":
+            return "5";
         default:
             return null;
         }

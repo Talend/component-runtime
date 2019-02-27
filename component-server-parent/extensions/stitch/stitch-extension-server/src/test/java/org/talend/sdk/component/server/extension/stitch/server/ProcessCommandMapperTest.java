@@ -22,7 +22,7 @@ import javax.inject.Inject;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.server.extension.stitch.server.ProcessCommandMapper;
+import org.talend.sdk.component.server.extension.stitch.server.execution.ProcessCommandMapper;
 
 /**
  * Copyright (C) 2006-2019 Talend Inc. - www.talend.com

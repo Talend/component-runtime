@@ -23,7 +23,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Specializes;
 
-import org.talend.sdk.component.server.extension.stitch.server.ProcessCommandMapper;
+import org.talend.sdk.component.server.extension.stitch.server.execution.ProcessCommandMapper;
 
 @Specializes
 @ApplicationScoped

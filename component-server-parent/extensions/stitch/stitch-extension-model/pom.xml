@@ -18,19 +18,24 @@
 
   <parent>
     <groupId>org.talend.sdk.component</groupId>
-    <artifactId>extensions</artifactId>
+    <artifactId>stitch</artifactId>
     <version>1.1.7-SNAPSHOT</version>
   </parent>
 
-  <artifactId>stitch</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>stitch-extension-model</artifactId>
 
-  <name>Component Runtime :: Server Parent :: Extensions :: Stitch</name>
-  <description>Stitch modules to integrate with Stitchdata</description>
+  <name>Component Runtime :: Server Parent :: Extensions :: Stitch :: Model</name>
+  <description>Enrich the server with Stitch connectivity</description>
 
-  <modules>
-    <module>stitch-extension</module>
-    <module>stitch-extension-server</module>
-    <module>stitch-extension-model</module>
-  </modules>
+  <properties>
+    <talend.build.name>${talend.build.name.base}.server.extension.stitch.model</talend.build.name>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-server-model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 </project>

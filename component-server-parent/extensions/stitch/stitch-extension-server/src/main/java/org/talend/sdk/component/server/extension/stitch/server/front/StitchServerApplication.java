@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.extension.stitch.server;
+package org.talend.sdk.component.server.extension.stitch.server.front;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.enterprise.context.Dependent;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Task {
-
-    private String id;
+@Dependent
+@ApplicationPath("api/v1")
+public class StitchServerApplication extends Application {
 }

@@ -177,6 +177,7 @@ public class Generator {
             tasks.register(() -> generatedServerConfiguration(generatedDir));
             tasks.register(() -> generatedServerVaultProxyConfiguration(generatedDir));
             tasks.register(() -> updateComponentServerApi(generatedDir));
+            tasks.register(() -> updateComponentServerVaultApi(generatedDir));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
             tasks.register(() -> generatedIcons(generatedDir, iconOutput));
@@ -192,11 +193,17 @@ public class Generator {
     }
 
     private static void updateComponentServerApi(final File generatedDir) throws Exception {
-        final File output = new File(generatedDir, "generated_rest-resources.adoc");
-        try (final InputStream source = Thread
-                .currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream("META-INF/resources/documentation/openapi.json");
+        writeServerOpenApi(new File(generatedDir, "generated_rest-resources.adoc"),
+                "META-INF/resources/documentation/openapi.json");
+    }
+
+    private static void updateComponentServerVaultApi(final File generatedDir) throws Exception {
+        writeServerOpenApi(new File(generatedDir, "generated_rest-resources-vault.adoc"),
+                "META-INF/resources/openapi.json");
+    }
+
+    private static void writeServerOpenApi(final File output, final String resource) throws Exception {
+        try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
                 final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
             final String newJson = IO.slurp(source);
             String oldJson = !output.exists() ? "{}" : String.join("\n", Files.readAllLines(output.toPath()));
@@ -225,7 +232,7 @@ public class Generator {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
                     writer
                             .write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
-                                    + "(window.talend = (window.talend || {})).swaggerUi = " + newApi.toString()
+                                    + "(window.talend " + "= (window.talend || {})).swaggerUi = " + newApi.toString()
                                     + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
                                             .getBytes(StandardCharsets.UTF_8));
                 }

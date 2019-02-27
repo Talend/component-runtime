@@ -15,40 +15,38 @@
  */
 package org.talend.sdk.component.server.extension.stitch;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 
-@Path("stitch")
+@Path("model")
 @ApplicationScoped
 public class StitchMock {
 
     @GET
-    @Path("source-types")
-    public List<StitchClient.Steps> getSourceTypes(@HeaderParam(HttpHeaders.AUTHORIZATION) final String auth) {
-        if (!"Bearer test-token".equals(auth)) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+    public String getSourceTypes(@HeaderParam(HttpHeaders.AUTHORIZATION) final String auth) {
+        if (!"test-token".equals(auth)) {
+            throw new ForbiddenException();
         }
-        return asList(new StitchClient.Steps("platform.postgres", 1, asList(new StitchClient.Step("form", null,
-                asList(new StitchClient.Property("image_version", false, false, false, false, true, null),
-                        new StitchClient.Property("frequency_in_minutes", false, false, false, false, true,
-                                new StitchClient.JsonSchema("string", "^1$|^30$|^60$|^360$|^720$|^1440$", null, null)),
-                        new StitchClient.Property("anchor_time", false, false, false, false, false,
-                                new StitchClient.JsonSchema("string", null, "date-time", null)) // ....
-                )), new StitchClient.Step("discover_schema", null, emptyList()),
-                new StitchClient.Step("field_selection", null, emptyList()),
-                new StitchClient.Step("fully_configured", null, emptyList()))),
-                new StitchClient.Steps("platform.mysql", 1, singletonList(new StitchClient.Step("form", null,
-                        singletonList(new StitchClient.Property("dbname", false, false, false, false, true, null))))));
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(getModel()))) {
+            return reader.lines().collect(joining("\n")).trim();
+        } catch (final IOException e) {
+            throw new InternalServerErrorException();
+        }
+    }
+
+    private InputStream getModel() {
+        return Thread.currentThread().getContextClassLoader().getResourceAsStream("model.json");
     }
 }

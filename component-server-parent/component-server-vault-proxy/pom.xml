@@ -190,7 +190,11 @@
               <output>${project.build.outputDirectory}/META-INF/resources/openapi.json</output>
               <application>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.TalendComponentServerVaultCacheApplication</application>
               <endpointClasses>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.ActionResourceProxy</endpointClass>
                 <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.ComponentResourceProxy</endpointClass>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.DocumentationResourceProxy</endpointClass>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.EnvironmentResourceProxy</endpointClass>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.LocalEnvironmentResource</endpointClass>
               </endpointClasses>
               <info>
                 <version>1</version>
