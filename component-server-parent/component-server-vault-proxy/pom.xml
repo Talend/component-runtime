@@ -187,7 +187,7 @@
               <goal>openapi.json</goal>
             </goals>
             <configuration>
-              <output>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</output>
+              <output>${project.build.outputDirectory}/META-INF/resources/openapi.json</output>
               <application>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.TalendComponentServerVaultCacheApplication</application>
               <endpointClasses>
                 <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.ComponentResourceProxy</endpointClass>
