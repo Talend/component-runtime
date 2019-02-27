@@ -26,7 +26,8 @@
   <change-notes>
   <![CDATA[
     <ul>
-      <li>Auto completion for ui actions display name in resource bundles</li>
+      <li>User interface enhancement</li>
+      <li>Datastore/Dataset support for IO</li>
     </ul>
   ]]>
   </change-notes>
