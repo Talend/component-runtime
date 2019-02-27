@@ -40,6 +40,20 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-annotation_1.3_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-json_1.1_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency><!-- extends runtime manager with design time data -->
       <groupId>org.talend.sdk.component</groupId>
@@ -266,21 +280,8 @@
               <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script><![CDATA[
-                  import java.nio.file.Files
-                  import java.nio.file.StandardCopyOption
                   import javax.imageio.ImageIO
                   import net.sf.image4j.codec.ico.ICOEncoder
-                  import org.apache.maven.project.MavenProjectHelper
-
-                  // create the demo openapi.json
-                  def openapiJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/openapi.json')
-                  def content = openapiJson.text
-
-                  def openapiDemo = new File(project.build.directory, 'openapi-openshift.json')
-                  openapiDemo.text = content
-                    .replace('"paths":{', '"servers": [{ url: "talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com" }],\n  "paths":{')
-                  // and attach it to the release
-                  session.container.lookup(MavenProjectHelper).attachArtifact(project, 'json', 'openapi-openshift', openapiDemo);
 
                   // copy icon (in svg) for the topbar logo
                   def icon = Thread.currentThread().getContextClassLoader().getResourceAsStream('icons/svg/component-kit-positive.svg')
