@@ -123,6 +123,40 @@ class ComponentServerProxyTest {
         }, decrypted);
     }
 
+    @Test
+    void actionClear() {
+        final Map<String, String> decrypted = base()
+                .path("api/v1/action/execute")
+                .queryParam("family", "testf")
+                .queryParam("type", "testt")
+                .queryParam("action", "testa")
+                .queryParam("lang", "testl")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.username", "simple");
+                        put("configuration.password", "clearValue");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                // original value (not ciphered)
+                put("configuration.username", "simple");
+                // passthrough value
+                put("configuration.password", "clearValue");
+                // action input config
+                put("family", "testf");
+                put("type", "testt");
+                put("action", "testa");
+                put("lang", "testl");
+            }
+        }, decrypted);
+    }
+
     private WebTarget base() {
         return client.target("http://localhost:" + serverConfig.getHttpPort());
     }

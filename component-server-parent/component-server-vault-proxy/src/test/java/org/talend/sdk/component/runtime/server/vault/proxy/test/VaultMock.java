@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.HeaderParam;
@@ -62,6 +63,10 @@ public class VaultMock {
         if (!"client-test-token".equals(token) || tenant == null || tenant.isEmpty()
                 || "x-talend-tenant-id".equals(tenant)) {
             throw new ForbiddenException();
+        }
+        if (!"vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA=="
+                .equals(request.getBatchInput().iterator().next().getCiphertext())) {
+            throw new BadRequestException();
         }
 
         final VaultService.DecryptResult result = new VaultService.DecryptResult();

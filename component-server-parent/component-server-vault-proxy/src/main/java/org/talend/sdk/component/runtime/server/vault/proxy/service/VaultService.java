@@ -42,9 +42,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.cache.Cache;
 import javax.enterprise.context.ApplicationScoped;
@@ -66,6 +69,7 @@ import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 // todo: the suppliers should probably be replaced by invalidating a config bean
@@ -115,8 +119,14 @@ public class VaultService {
     private Long refreshDelayOnFailure;
 
     @Inject
+    @Documentation("Status code sent when vault can't decipher some values.")
     @ConfigProperty(name = "talend.vault.cache.service.auth.cantDecipherStatusCode", defaultValue = "422")
     private Integer cantDecipherStatusCode;
+
+    @Inject
+    @Documentation("The regex to whitelist ciphered keys, others will be passthrough in the output without going to vault.")
+    @ConfigProperty(name = "talend.vault.cache.service.decipher.skip.regex", defaultValue = "vault\\:v[0-9]+\\:.*")
+    private String passthroughRegex;
 
     @Inject
     private Cache<String, DecryptedValue> cache;
@@ -128,7 +138,36 @@ public class VaultService {
 
     private ScheduledExecutorService scheduledExecutorService;
 
-    public CompletionStage<List<DecryptedValue>> get(final Collection<String> values, final long currentTime,
+    private Pattern compiledPassthroughRegex;
+
+    @PostConstruct
+    private void init() {
+        compiledPassthroughRegex = Pattern.compile(passthroughRegex);
+    }
+
+    public CompletableFuture<List<DecryptedValue>> get(final Collection<String> values, final long currentTime,
+            final HttpHeaders headers) {
+        final AtomicInteger index = new AtomicInteger();
+        final Collection<EntryWithIndex<String>> clearValues = values
+                .stream()
+                .map(it -> new EntryWithIndex<>(index.getAndIncrement(), it))
+                .filter(it -> it.entry != null && !compiledPassthroughRegex.matcher(it.entry).matches())
+                .collect(toList());
+        if (clearValues.isEmpty()) {
+            return doDecipher(values, currentTime, headers).toCompletableFuture();
+        }
+        if (clearValues.size() == values.size()) {
+            final long now = clock.millis();
+            return completedFuture(values.stream().map(it -> new DecryptedValue(it, now)).collect(toList()));
+        }
+        return doDecipher(values, currentTime, headers).thenApply(deciphered -> {
+            final long now = clock.millis();
+            clearValues.forEach(entry -> deciphered.add(entry.index, new DecryptedValue(entry.entry, now)));
+            return deciphered;
+        }).toCompletableFuture();
+    }
+
+    private CompletionStage<List<DecryptedValue>> doDecipher(final Collection<String> values, final long currentTime,
             final HttpHeaders headers) {
         final Map<String, Optional<DecryptedValue>> alreadyCached =
                 new HashSet<>(values).stream().collect(toMap(identity(), it -> ofNullable(cache.get(it))));
@@ -229,8 +268,7 @@ public class VaultService {
                                 log.error("Failed to decrypt, debug='" + debug + "'", e);
                                 throw new WebApplicationException(cantDecipherStatusCode);
                             });
-                }).orElseThrow(() -> new WebApplicationException(Response.Status.FORBIDDEN)))
-                .toCompletableFuture();
+                }).orElseThrow(() -> new WebApplicationException(Response.Status.FORBIDDEN)));
     }
 
     void init(@Observes @Initialized(ApplicationScoped.class) final ServletContext init) {
@@ -449,5 +487,13 @@ public class VaultService {
         private final Auth auth;
 
         private final long expiresAt;
+    }
+
+    @RequiredArgsConstructor
+    private static class EntryWithIndex<T> {
+
+        private final int index;
+
+        private final T entry;
     }
 }
