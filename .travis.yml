@@ -79,7 +79,7 @@ jobs:
       before_install: chmod +x ./.travis/install.sh && ./.travis/install.sh
       script:
       - MAVEN_OPTS="$MAVEN_OPTS -Xverify:none" mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
-      - cd documentation && mvn clean verify pre-site -e -Dwebhost.ftphost=$WEBHOST_FTPPHOST -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
+      - cd documentation && travis_wait 50 mvn clean verify pre-site -e -Dwebhost.ftphost=$WEBHOST_FTPPHOST -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
       jdk: openjdk8
 
     - stage: master_build

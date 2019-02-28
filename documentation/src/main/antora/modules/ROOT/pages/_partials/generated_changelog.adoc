@@ -7,12 +7,15 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1307[TCOMP-1307^]: support char and character types in configuration.
 - link:https://jira.talendforge.org/browse/TCOMP-1312[TCOMP-1312^]: Component-form-core shouldn't trigger validation of object due to conditional visibility (only individual fields are validable)
 - link:https://jira.talendforge.org/browse/TCOMP-1314[TCOMP-1314^]: category field of the starter is broken
+- link:https://jira.talendforge.org/browse/TCOMP-1316[TCOMP-1316^]: [build] Ensure snapshot use timestamped versions in dependencies.txt
+
 
 
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1306[TCOMP-1306^]: Add RecordPointerFactory to enable to extract data from Record using json pointer spec
 - link:https://jira.talendforge.org/browse/TCOMP-1315[TCOMP-1315^]: Ensure @Internationalized can use shortnames too in Messages.properties
+
 
 
 === Work Item
@@ -23,7 +26,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1308[TCOMP-1308^]: Upgrade to Talend UI 2.6.0
 - link:https://jira.talendforge.org/browse/TCOMP-1309[TCOMP-1309^]: Upgrade to Component API 1.1.5
 - link:https://jira.talendforge.org/browse/TCOMP-1310[TCOMP-1310^]: Ensure there is a basic secured mecanism to store configuration data
-
+- link:https://jira.talendforge.org/browse/TCOMP-1317[TCOMP-1317^]: Use Apache Geronimo Microprofile Config extensions (docker and secured string)
+- link:https://jira.talendforge.org/browse/TCOMP-1318[TCOMP-1318^]: Upgrade to Apache Meecrowave 1.2.7
+- link:https://jira.talendforge.org/browse/TCOMP-1319[TCOMP-1319^]: Upgrade Apache Geronimo Metrics to 1.0.3
+- link:https://jira.talendforge.org/browse/TCOMP-1320[TCOMP-1320^]: Upgrade to Apache Geronimo OpenAPI 1.0.6
+- link:https://jira.talendforge.org/browse/TCOMP-1321[TCOMP-1321^]: Upgrade to Apache Geronimo OpenTracing 1.0.2
+- link:https://jira.talendforge.org/browse/TCOMP-1322[TCOMP-1322^]: Upgrade to Apache Geronimo Config 1.2.2
 
 == Version 1.1.6
 

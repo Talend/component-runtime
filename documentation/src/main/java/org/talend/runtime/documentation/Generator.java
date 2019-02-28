@@ -34,11 +34,13 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -54,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -500,6 +503,8 @@ public class Generator {
         }
     }
 
+    // to avoid to be very slow we just grab current version and extract other versions
+    // from the previous file
     private static void generatedJira(final File generatedDir, final String username, final String password,
             final String version) {
         if (username == null || username.trim().isEmpty() || "skip".equals(username)) {
@@ -527,15 +532,42 @@ public class Generator {
                     });
 
             final String currentVersion = version.replace("-SNAPSHOT", "");
-            final List<JiraVersion> loggedVersions = versions
+            final List<JiraVersion> jiraLoggedVersions = versions
                     .stream()
                     .filter(v -> (v.isReleased() || jiraVersionMatches(currentVersion, v.getName())))
                     .collect(toList());
-            if (loggedVersions.isEmpty()) {
+            if (jiraLoggedVersions.isEmpty()) {
                 try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
                     stream.println("No version found.");
                 }
                 return;
+            }
+
+            final Map<String, String> changelogPerVersion = new HashMap<>();
+            try (final BufferedReader reader =
+                    new BufferedReader(new StringReader(String.join("\n", Files.readAllLines(file.toPath()))))) {
+                final StringBuilder builder = new StringBuilder();
+                String line;
+                String versionRead = null;
+                while ((line = reader.readLine()) != null) {
+                    if (builder.length() == 0 && line.trim().isEmpty()) {
+                        continue;
+                    }
+                    if (line.startsWith("== Version ")) {
+                        if (builder.length() != 0) {
+                            changelogPerVersion.put(versionRead, builder.toString());
+                            builder.setLength(0);
+                        }
+                        versionRead = line.substring("== Version ".length());
+                    }
+                    builder.append(line).append('\n');
+                }
+                if (builder.length() != 0) {
+                    changelogPerVersion.put(versionRead, builder.toString());
+                    builder.setLength(0);
+                }
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
             }
 
             final int maxVersionPerQuery = 10;
@@ -561,11 +593,15 @@ public class Generator {
             final Set<String> includeStatus =
                     Stream.of("closed", "resolved", "development done", "qa done", "done").collect(toSet());
 
+            final List<JiraVersion> queriedVersion = jiraLoggedVersions
+                    .stream()
+                    .filter(it -> !changelogPerVersion.containsKey(it.getName()) || currentVersion.equals(it.getName()))
+                    .collect(toList());
             final Map<String, TreeMap<String, List<JiraIssue>>> issues = IntStream
-                    .range(0, (loggedVersions.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
-                    .mapToObj(pageIdx -> loggedVersions
+                    .range(0, (queriedVersion.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
+                    .mapToObj(pageIdx -> queriedVersion
                             .subList(pageIdx * maxVersionPerQuery,
-                                    min(maxVersionPerQuery * (pageIdx + 1), loggedVersions.size())))
+                                    min(maxVersionPerQuery * (pageIdx + 1), queriedVersion.size())))
                     .map(pageVersions -> "project=" + project + " AND labels=\"changelog\""
                             + pageVersions
                                     .stream()
@@ -584,14 +620,9 @@ public class Generator {
                                         l.sort(comparing(JiraIssue::getKey));
                                         return l;
                                     }))));
-
-            final String changelog = issues
-                    .entrySet()
-                    .stream()
-                    .map(versionnedIssues -> new StringBuilder("\n\n== Version ")
-                            .append(versionnedIssues.getKey())
-                            .append(versionnedIssues
-                                    .getValue()
+            issues
+                    .forEach((name, issuesMap) -> changelogPerVersion
+                            .put(name, "\n\n== Version " + name + issuesMap
                                     .entrySet()
                                     .stream()
                                     .collect((Supplier<StringBuilder>) StringBuilder::new,
@@ -603,10 +634,8 @@ public class Generator {
                                                             .getValue()
                                                             .stream()
                                                             .collect((Supplier<StringBuilder>) StringBuilder::new,
-                                                                    // note: for now we don't
-                                                                    // use the description since
-                                                                    // it is not that
-                                                                    // useful
+                                                                    // note: for now we don't use the description since
+                                                                    // it is not that useful
                                                                     (a, i) -> a
                                                                             .append("- link:")
                                                                             .append(jiraBase)
@@ -618,8 +647,28 @@ public class Generator {
                                                                             .append(": ")
                                                                             .append(i.getFields().getSummary().trim())
                                                                             .append("\n"),
-                                                                    StringBuilder::append)),
-                                            StringBuilder::append)))
+                                                                    StringBuilder::append))
+                                                    .append('\n'),
+                                            StringBuilder::append)));
+
+            final String changelog = changelogPerVersion.entrySet().stream().sorted((v1, v2) -> {
+                if (v1.equals(v2)) {
+                    return 0;
+                }
+                final int[] parts1 = Stream.of(v1.getKey().split("\\.")).mapToInt(Integer::parseInt).toArray();
+                final int[] parts2 = Stream.of(v2.getKey().split("\\.")).mapToInt(Integer::parseInt).toArray();
+                for (int i = 0; i < parts1.length; i++) {
+                    if (parts2.length <= i) {
+                        return 1;
+                    }
+                    final int comp = parts2[i] - parts1[i];
+                    if (comp != 0) {
+                        return comp;
+                    }
+                }
+                return 0;
+            })
+                    .map(Map.Entry::getValue)
                     .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                     .toString();
 
