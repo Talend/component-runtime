@@ -23,12 +23,17 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.time.Clock;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
@@ -36,7 +41,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -51,6 +58,8 @@ import javax.ws.rs.sse.SseEventSink;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.server.extension.stitch.model.Task;
+import org.talend.sdk.component.server.extension.stitch.server.configuration.App;
+import org.talend.sdk.component.server.extension.stitch.server.configuration.Threads;
 import org.talend.sdk.component.server.extension.stitch.server.execution.ProcessExecutor;
 
 import lombok.RequiredArgsConstructor;
@@ -65,12 +74,20 @@ public class StitchExecutorResource {
     private ProcessExecutor executor;
 
     @Inject
+    @Threads(Threads.Type.EXECUTOR) // todo: dedicated pool
+    private ExecutorService bulkheadPool;
+
+    @Inject
     @ConfigProperty(name = "talend.stitch.service.executor.taskValidityDuration", defaultValue = "120000")
     private Long validityDuration;
 
     @Inject
     @ConfigProperty(name = "talend.stitch.service.executor.evitionInterval", defaultValue = "60000")
     private Long evictionInterval;
+
+    @App
+    @Inject
+    private JsonBuilderFactory builderFactory;
 
     private final Clock clock = Clock.systemUTC();
 
@@ -124,7 +141,8 @@ public class StitchExecutorResource {
                                                 .name(type)
                                                 .data(JsonObject.class, data)
                                                 .mediaType(APPLICATION_JSON_TYPE)
-                                                .build()));
+                                                .build()),
+                                ProcessExecutor.ProcessOutputMode.LINE);
             }
         };
         String id;
@@ -138,9 +156,30 @@ public class StitchExecutorResource {
     @GET
     @Path("read/{id}")
     @Produces("text/event-stream")
-    public void execute(@PathParam("id") final String id, @Context final SseEventSink sink, @Context final Sse sse) {
-        ofNullable(submittedTasks.remove(id))
-                .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST)).impl.accept(sink, sse);
+    public CompletionStage<?> execute(@PathParam("id") final String id, @Context final SseEventSink sink,
+            @Context final Sse sse) {
+        final TaskDefinition definition = ofNullable(submittedTasks.remove(id))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        return CompletableFuture.runAsync(() -> definition.impl.accept(sink, sse), bulkheadPool);
+    }
+
+    @POST
+    @Path("discover")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public CompletionStage<JsonObject> output(final JsonObject payload) {
+        final JsonObject configuration = payload.getJsonObject("configuration");
+        final String tap = payload.getString("tap");
+        final JsonObjectBuilder builder = builderFactory.createObjectBuilder();
+        final Map<String, AtomicInteger> dataCounter = new HashMap<>();
+        return CompletableFuture.supplyAsync(() -> executor.execute(tap, configuration, () -> true, (type, data) -> {
+            final String key = "data".equals(type) ? type
+                    : type + '.' + dataCounter.computeIfAbsent(type, k -> new AtomicInteger(1)).getAndIncrement();
+            synchronized (builder) {
+                builder.add(key, data);
+            }
+        }, ProcessExecutor.ProcessOutputMode.JSON_OBJECT, "--discover"), bulkheadPool)
+                .thenApply(status -> builder.add("exitCode", status).build());
     }
 
     @RequiredArgsConstructor

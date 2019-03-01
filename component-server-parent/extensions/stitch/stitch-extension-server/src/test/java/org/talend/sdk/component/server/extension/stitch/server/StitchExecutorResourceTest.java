@@ -21,6 +21,7 @@ import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -88,6 +90,35 @@ class StitchExecutorResourceTest {
             events.sort(String.CASE_INSENSITIVE_ORDER);
             assertEquals(7, events.size());
             assertEquals(asList("exception", "log", "log", "metrics", "record", "schema", "state"), events);
+        });
+    }
+
+    @Test
+    void discover() {
+        withClient(target -> {
+            final JsonObject payload = Json
+                    .createObjectBuilder()
+                    .add("tap", "ProcessExecutorTest#execute")
+                    .add("configuration", Json.createObjectBuilder().add("config", "value"))
+                    .build();
+            final JsonObject result = target
+                    .path("executor/discover")
+                    .request(APPLICATION_JSON_TYPE)
+                    .post(entity(payload, APPLICATION_JSON_TYPE), JsonObject.class);
+            assertEquals(2, result.size());
+            assertEquals(0, result.getInt("exitCode"));
+            final JsonObject data = result.getJsonObject("data");
+            assertTrue(data.getBoolean("success"));
+            // we don't validate the whole payload here since it depends the tap
+            // but we ensure we have data
+            assertEquals("collaborators",
+                    data
+                            .getJsonObject("data")
+                            .getJsonArray("streams")
+                            .iterator()
+                            .next()
+                            .asJsonObject()
+                            .getString("stream"));
         });
     }
 

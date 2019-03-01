@@ -171,7 +171,11 @@ public class StitchMapper {
                                         it.getProposalDisplayNames())));
         final Stream<? extends SimplePropertyDefinition> formProps =
                 mapProperties(formStep).filter(it -> !ROOT.getPath().equals(it.getPath()) /* already handled */);
-        node.setProperties(Stream.concat(datastoreProps, formProps).collect(toList()));
+        final Stream<? extends SimplePropertyDefinition> schemaAndFieldSelection = Stream.empty();
+        node
+                .setProperties(Stream
+                        .concat(Stream.concat(datastoreProps, formProps), schemaAndFieldSelection)
+                        .collect(toList()));
         node.setActions(emptyList());
         node.setEdges(emptySet());
         return node;

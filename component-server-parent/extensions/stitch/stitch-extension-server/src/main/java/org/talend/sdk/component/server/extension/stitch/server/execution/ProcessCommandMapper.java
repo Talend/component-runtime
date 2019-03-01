@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.extension.stitch.server.execution;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -34,6 +35,7 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.talend.sdk.component.server.extension.stitch.server.configuration.StitchExecutorConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +45,9 @@ public class ProcessCommandMapper {
 
     @Inject
     private Config config;
+
+    @Inject
+    private StitchExecutorConfiguration configuration;
 
     @Inject
     @ConfigProperty(name = "talend.stitch.service.command.mapping", defaultValue = "")
@@ -68,18 +73,26 @@ public class ProcessCommandMapper {
     }
 
     public List<String> toCommand(final String tap, final String configPath) {
-        return ofNullable(mapping.get(tap)).orElseGet(() -> mapping.get("_default")).stream().map(it -> {
-            switch (it) {
-            case "${configurationFile}":
-                return configPath;
-            case "${tap}":
-                return tap;
-            default:
-                if (it.startsWith("${") && it.endsWith("}")) {
-                    return config.getOptionalValue(it.substring(2, it.length() - 1), String.class).orElse(it);
-                }
-                return it;
+        return ofNullable(mapping.get(tap))
+                .orElseGet(() -> mapping.get("_default"))
+                .stream()
+                .map(it -> Stream.of(it.split(" ")).map(key -> mapVariable(tap, configPath, key)).collect(joining(" ")))
+                .collect(toList());
+    }
+
+    private String mapVariable(final String tap, final String configPath, final String key) {
+        switch (key) {
+        case "${configurationFile}":
+            return configPath;
+        case "${tap}":
+            return tap;
+        case "${configurationsWorkingDirectory}":
+            return configuration.getConfigurationsWorkingDirectory().toAbsolutePath().toString();
+        default:
+            if (key.startsWith("${") && key.endsWith("}")) {
+                return config.getOptionalValue(key.substring(2, key.length() - 1), String.class).orElse(key);
             }
-        }).collect(toList());
+            return key;
+        }
     }
 }

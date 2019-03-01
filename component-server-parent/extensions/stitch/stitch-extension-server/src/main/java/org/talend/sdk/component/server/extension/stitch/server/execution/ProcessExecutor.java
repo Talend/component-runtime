@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.extension.stitch.server.execution;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Optional;
@@ -35,11 +35,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonException;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
@@ -82,12 +85,18 @@ public class ProcessExecutor {
     @Inject
     private ProcessCommandMapper commandMapper;
 
-    public void execute(final String tap, final JsonObject properties, final BooleanSupplier isRunning,
-            final BiConsumer<String, JsonObject> onData) {
+    public enum ProcessOutputMode {
+        LINE,
+        JSON_OBJECT
+    }
+
+    public int execute(final String tap, final JsonObject properties, final BooleanSupplier isRunning,
+            final BiConsumer<String, JsonObject> onData, final ProcessOutputMode outputMode, final String... args) {
         final CountDownLatch streamPumped = new CountDownLatch(2);
         try {
-            CompletableFuture
-                    .supplyAsync(() -> doExecute(tap, properties, isRunning, onData, streamPumped), executor)
+            final CloseableProcess closeableProcess = CompletableFuture
+                    .supplyAsync(() -> doExecute(tap, properties, isRunning, onData, streamPumped, outputMode, args),
+                            executor)
                     .handle((process, error) -> {
                         if (error != null) {
                             log.error(error.getMessage(), error);
@@ -104,18 +113,24 @@ public class ProcessExecutor {
                         return process;
                     })
                     .get(configuration.getExecutionTimeout(), MILLISECONDS);
+            if (closeableProcess.process.isAlive()) {
+                return -2;
+            }
+            return closeableProcess.process.exitValue();
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (final ExecutionException | TimeoutException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
+        return -1;
     }
 
     // note: we can switch to https://github.com/brettwooldridge/NuProcess if we start to rely on too much threads
     // or writing to a file to read it through an NIO.
     // That said it also means multiple processes and we want to control our resources so probably overkill.
     private CloseableProcess doExecute(final String tap, final JsonObject properties, final BooleanSupplier isRunning,
-            final BiConsumer<String, JsonObject> onData, final CountDownLatch streamPumped) {
+            final BiConsumer<String, JsonObject> onData, final CountDownLatch streamPumped,
+            final ProcessOutputMode outputMode, final String... args) {
         final String id = UUID.randomUUID().toString();
         final Path configFile = createConfigFile(properties);
         final AutoCloseable onClose = () -> {
@@ -127,13 +142,39 @@ public class ProcessExecutor {
         };
         try {
             final ProcessBuilder builder = new ProcessBuilder();
-            builder.command(createCommandFor(tap, configFile));
+            builder.command(createCommandFor(tap, configFile, args));
 
             final String marker = tap + " (" + id + ")";
             final Process process = builder.start();
             streamsExecutor.submit(() -> {
                 try {
-                    redirect(marker, "stdout", isRunning, onData, process.getInputStream());
+                    switch (outputMode) {
+                    case LINE:
+                        redirect(marker, "stdout", isRunning, onData, process.getInputStream());
+                        break;
+                    case JSON_OBJECT:
+                        try (final JsonReader reader = jsonReaderFactory
+                                .createReader(new BufferedReader(new InputStreamReader(process.getInputStream())))) {
+                            onData
+                                    .accept("data",
+                                            jsonBuilderFactory
+                                                    .createObjectBuilder()
+                                                    .add("data", reader.readObject())
+                                                    .add("success", true)
+                                                    .build());
+                        } catch (final JsonException ex) {
+                            onData
+                                    .accept("data",
+                                            jsonBuilderFactory
+                                                    .createObjectBuilder()
+                                                    .add("error", ex.getMessage())
+                                                    .add("success", false)
+                                                    .build());
+                        }
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unsupported output mode: " + outputMode);
+                    }
                 } finally {
                     streamPumped.countDown();
                 }
@@ -196,24 +237,23 @@ public class ProcessExecutor {
         }
     }
 
-    private List<String> createCommandFor(final String tap, final Path configFile) {
-        return commandMapper.toCommand(tap, configFile.toAbsolutePath().toString());
+    private List<String> createCommandFor(final String tap, final Path configFile, final String... args) {
+        return Stream
+                .concat(commandMapper.toCommand(tap, configFile.toAbsolutePath().toString()).stream(),
+                        args == null ? Stream.empty() : Stream.of(args))
+                .collect(toList());
     }
 
     private Path createConfigFile(final JsonObject properties) {
-        final Path configFileFolder = Paths
-                .get(configuration
-                        .getWorkDirectory()
-                        .replace("${base}",
-                                System.getProperty("catalina.base", System.getProperty("meecrowave.base", ""))));
-        if (!Files.exists(configFileFolder)) {
+        final Path configurationsWorkingDirectory = configuration.getConfigurationsWorkingDirectory();
+        if (!Files.exists(configurationsWorkingDirectory)) {
             try {
-                Files.createDirectories(configFileFolder);
+                Files.createDirectories(configurationsWorkingDirectory);
             } catch (IOException e) {
-                throw new IllegalStateException("Can't create directory " + configFileFolder);
+                throw new IllegalStateException("Can't create directory " + configurationsWorkingDirectory);
             }
         }
-        final Path configFile = configFileFolder.resolve(UUID.randomUUID().toString() + ".json");
+        final Path configFile = configurationsWorkingDirectory.resolve(UUID.randomUUID().toString() + ".json");
         try (final JsonWriter writer = jsonWriterFactory
                 .createWriter(
                         Files.newBufferedWriter(configFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE))) {

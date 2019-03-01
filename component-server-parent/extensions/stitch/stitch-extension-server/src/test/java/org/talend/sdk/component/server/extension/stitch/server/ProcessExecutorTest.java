@@ -58,7 +58,7 @@ class ProcessExecutorTest {
                             synchronized (jsons) {
                                 jsons.add(record);
                             }
-                        });
+                        }, ProcessExecutor.ProcessOutputMode.LINE);
         assertEquals(7, jsons.size());
         jsons.sort(comparing(it -> it.getString("type")));
         final Iterator<JsonObject> iterator = jsons.iterator();

@@ -22,6 +22,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.talend.sdk.component.server.extension.stitch.server.configuration.Threads.Type.EXECUTOR;
 import static org.talend.sdk.component.server.extension.stitch.server.configuration.Threads.Type.STREAMS;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -29,6 +31,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
@@ -55,7 +58,7 @@ public class StitchExecutorConfiguration {
 
     @Inject
     @Documentation("Max thread number for the task executor.")
-    @ConfigProperty(name = "talend.stitch.executor.threads.max", defaultValue = "64")
+    @ConfigProperty(name = "talend.stitch.executor.threads.max", defaultValue = "128")
     private Integer executorMaxSize;
 
     @Inject
@@ -74,7 +77,7 @@ public class StitchExecutorConfiguration {
     private Integer streamsExecutorCoreSize;
 
     @Inject
-    @Documentation("Max thread number for the stream redirection (recommended to be x2 executor one).")
+    @Documentation("Max thread number for the stream redirection (recommended to be == executor one).")
     @ConfigProperty(name = "talend.stitch.executor.streams.threads.max", defaultValue = "128")
     private Integer streamsExecutorMaxSize;
 
@@ -97,6 +100,17 @@ public class StitchExecutorConfiguration {
     @Documentation("Where extensions can create files.")
     @ConfigProperty(name = "talend.stitch.work.directory", defaultValue = "${base}/work/application")
     private String workDirectory;
+
+    @Getter
+    private Path configurationsWorkingDirectory;
+
+    @PostConstruct
+    private void init() {
+        configurationsWorkingDirectory = Paths
+                .get(workDirectory
+                        .replace("${base}",
+                                System.getProperty("catalina.base", System.getProperty("meecrowave.base", ""))));
+    }
 
     @App
     @Produces

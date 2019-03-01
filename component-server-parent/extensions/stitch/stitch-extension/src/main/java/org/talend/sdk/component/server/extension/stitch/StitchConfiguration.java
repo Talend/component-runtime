@@ -56,7 +56,8 @@ public class StitchConfiguration {
 
     @Inject
     @Documentation("Base Stitch API URL.")
-    @ConfigProperty(name = "talend.server.extension.stitch.client.base", defaultValue = "http://localhost:60000/v4/")
+    @ConfigProperty(name = "talend.server.extension.stitch.client.base",
+            defaultValue = "http://localhost:60000/api/v1/")
     private String base;
 
     @Inject

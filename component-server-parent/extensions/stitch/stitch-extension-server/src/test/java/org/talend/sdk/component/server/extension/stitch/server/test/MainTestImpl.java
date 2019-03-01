@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.extension.stitch.server.test;
 
+import static java.util.Arrays.asList;
 import static lombok.AccessLevel.PRIVATE;
 
 import lombok.NoArgsConstructor;
@@ -23,6 +24,27 @@ import lombok.NoArgsConstructor;
 public class MainTestImpl {
 
     public static void main(final String[] args) {
+        if (args != null && asList(args).contains("--discover")) {
+            System.out
+                    .println("{\n" + "  \"streams\": [\n" + "    {\n" + "      \"stream\": \"collaborators\",\n"
+                            + "      \"tap_stream_id\": \"collaborators\",\n" + "      \"schema\": {\n"
+                            + "        \"type\": [\n" + "          \"null\",\n" + "          \"object\"\n"
+                            + "        ],\n" + "        \"additionalProperties\": false,\n"
+                            + "        \"properties\": {\n" + "          \"login\": {\n" + "            \"type\": [\n"
+                            + "              \"null\",\n" + "              \"string\"\n" + "            ]\n"
+                            + "          },\n" + "          \"url\": {\n" + "            \"type\": [\n"
+                            + "              \"null\",\n" + "              \"string\"\n" + "            ]\n"
+                            + "          }\n" + "        }\n" + "      },\n" + "      \"metadata\": [\n" + "        {\n"
+                            + "          \"breadcrumb\": [\n" + "            \"properties\",\n"
+                            + "            \"login\"\n" + "          ],\n" + "          \"metadata\": {\n"
+                            + "            \"inclusion\": \"available\"\n" + "          }\n" + "        },\n"
+                            + "        {\n" + "          \"breadcrumb\": [\n" + "            \"properties\",\n"
+                            + "            \"url\"\n" + "          ],\n" + "          \"metadata\": {\n"
+                            + "            \"inclusion\": \"available\"\n" + "          }\n" + "        }\n"
+                            + "      ],\n" + "      \"key_properties\": [\n" + "        \"id\"\n" + "      ]\n"
+                            + "    }\n" + "  ]\n" + "}");
+            return;
+        }
         System.out.println("{\"type\": \"STATE\", \"value\": {}}");
         System.out
                 .println("{\"type\": \"SCHEMA\", \"stream\": \"commits\", \"schema\": {\"selected\": true, "
