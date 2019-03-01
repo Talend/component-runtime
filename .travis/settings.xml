@@ -46,6 +46,11 @@
         <timeout>30000</timeout>
       </configuration>
     </server>
+    <server>
+      <id>blackduck</id>
+      <username>${env.TLND_BLACKDUCK_USER}</username>
+      <password>${env.TLND_BLACKDUCK_PASS}</password>
+    </server>
 
     <!-- no more used ATM -->
     <server>
