@@ -20,13 +20,16 @@ import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.talend.sdk.component.server.extension.stitch.server.configuration.Threads.Type.EXECUTOR;
+import static org.talend.sdk.component.server.extension.stitch.server.configuration.Threads.Type.EXECUTOR_TIMEOUT;
 import static org.talend.sdk.component.server.extension.stitch.server.configuration.Threads.Type.STREAMS;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -70,6 +73,11 @@ public class StitchExecutorConfiguration {
     @Documentation("Queue capacity (or -1 for an unbounded queue) for the task executor.")
     @ConfigProperty(name = "talend.stitch.executor.threads.queueSize", defaultValue = "-1")
     private Integer executorQueueCapacity;
+
+    @Inject
+    @Documentation("Core thread number for the timeout executor.")
+    @ConfigProperty(name = "talend.stitch.executor.threads.core", defaultValue = "1")
+    private Integer timeoutExecutorCoreSize;
 
     @Inject
     @Documentation("Core thread number for the stream redirection.")
@@ -128,6 +136,38 @@ public class StitchExecutorConfiguration {
     @Produces
     public JsonWriterFactory jsonWriterFactory() {
         return Json.createWriterFactory(emptyMap());
+    }
+
+    @Produces
+    @Threads(EXECUTOR_TIMEOUT)
+    @ApplicationScoped
+    public ScheduledExecutorService createTimeoutExecutorPool() {
+        return Executors.newScheduledThreadPool(timeoutExecutorCoreSize, new ThreadFactory() {
+
+            private final ThreadGroup group = ofNullable(System.getSecurityManager())
+                    .map(SecurityManager::getThreadGroup)
+                    .orElseGet(() -> Thread.currentThread().getThreadGroup());
+
+            private final AtomicInteger threadNumber = new AtomicInteger(1);
+
+            @Override
+            public Thread newThread(final Runnable r) {
+                final Thread t =
+                        new Thread(group, r, "talend-stitch-timeout-executor-" + threadNumber.getAndIncrement(), 0);
+                if (t.isDaemon()) {
+                    t.setDaemon(false);
+                }
+                if (t.getPriority() != Thread.NORM_PRIORITY) {
+                    t.setPriority(Thread.NORM_PRIORITY);
+                }
+                return t;
+            }
+        });
+    }
+
+    public void
+            releaseExecutorPool(@Disposes @Threads(EXECUTOR_TIMEOUT) final ScheduledExecutorService executorService) {
+        doReleasePool(executorService);
     }
 
     @Produces

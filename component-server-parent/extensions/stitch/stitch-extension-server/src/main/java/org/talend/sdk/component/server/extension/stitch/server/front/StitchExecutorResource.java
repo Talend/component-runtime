@@ -26,11 +26,9 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,7 +57,6 @@ import javax.ws.rs.sse.SseEventSink;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.server.extension.stitch.model.Task;
 import org.talend.sdk.component.server.extension.stitch.server.configuration.App;
-import org.talend.sdk.component.server.extension.stitch.server.configuration.Threads;
 import org.talend.sdk.component.server.extension.stitch.server.execution.ProcessExecutor;
 
 import lombok.RequiredArgsConstructor;
@@ -72,10 +69,6 @@ public class StitchExecutorResource {
 
     @Inject
     private ProcessExecutor executor;
-
-    @Inject
-    @Threads(Threads.Type.EXECUTOR) // todo: dedicated pool
-    private ExecutorService bulkheadPool;
 
     @Inject
     @ConfigProperty(name = "talend.stitch.service.executor.taskValidityDuration", defaultValue = "120000")
@@ -131,19 +124,26 @@ public class StitchExecutorResource {
     public Task execute(@PathParam("task") final String task, final JsonObject properties) {
         final BiConsumer<SseEventSink, Sse> executionImpl = (sink, sse) -> {
             final AtomicLong idGenerator = new AtomicLong();
-            try (final SseEventSink toClose = sink) {
-                executor
-                        .execute(task, properties, () -> !sink.isClosed(),
-                                (type, data) -> sink
-                                        .send(sse
-                                                .newEventBuilder()
-                                                .id(Long.toString(idGenerator.incrementAndGet()))
-                                                .name(type)
-                                                .data(JsonObject.class, data)
-                                                .mediaType(APPLICATION_JSON_TYPE)
-                                                .build()),
-                                ProcessExecutor.ProcessOutputMode.LINE);
-            }
+            executor
+                    .execute(task, properties, () -> !sink.isClosed(),
+                            (type, data) -> sink
+                                    .send(sse
+                                            .newEventBuilder()
+                                            .id(Long.toString(idGenerator.incrementAndGet()))
+                                            .name(type)
+                                            .data(JsonObject.class, data)
+                                            .mediaType(APPLICATION_JSON_TYPE)
+                                            .build()),
+                            ProcessExecutor.ProcessOutputMode.LINE)
+                    .handle((r, t) -> {
+                        sink.close();
+                        if (RuntimeException.class.isInstance(t)) {
+                            throw RuntimeException.class.cast(t);
+                        } else if (t != null) {
+                            throw new IllegalStateException(t);
+                        }
+                        return r;
+                    });
         };
         String id;
         do {
@@ -156,11 +156,10 @@ public class StitchExecutorResource {
     @GET
     @Path("read/{id}")
     @Produces("text/event-stream")
-    public CompletionStage<?> execute(@PathParam("id") final String id, @Context final SseEventSink sink,
-            @Context final Sse sse) {
+    public void execute(@PathParam("id") final String id, @Context final SseEventSink sink, @Context final Sse sse) {
         final TaskDefinition definition = ofNullable(submittedTasks.remove(id))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-        return CompletableFuture.runAsync(() -> definition.impl.accept(sink, sse), bulkheadPool);
+        definition.impl.accept(sink, sse);
     }
 
     @POST
@@ -172,13 +171,13 @@ public class StitchExecutorResource {
         final String tap = payload.getString("tap");
         final JsonObjectBuilder builder = builderFactory.createObjectBuilder();
         final Map<String, AtomicInteger> dataCounter = new HashMap<>();
-        return CompletableFuture.supplyAsync(() -> executor.execute(tap, configuration, () -> true, (type, data) -> {
+        return executor.execute(tap, configuration, () -> true, (type, data) -> {
             final String key = "data".equals(type) ? type
                     : type + '.' + dataCounter.computeIfAbsent(type, k -> new AtomicInteger(1)).getAndIncrement();
             synchronized (builder) {
                 builder.add(key, data);
             }
-        }, ProcessExecutor.ProcessOutputMode.JSON_OBJECT, "--discover"), bulkheadPool)
+        }, ProcessExecutor.ProcessOutputMode.JSON_OBJECT, "--discover")
                 .thenApply(status -> builder.add("exitCode", status).build());
     }
 

@@ -118,7 +118,8 @@ class StitchExecutorResourceTest {
                             .iterator()
                             .next()
                             .asJsonObject()
-                            .getString("stream"));
+                            .getString("stream"),
+                    result::toString);
         });
     }
 

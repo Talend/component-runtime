@@ -35,6 +35,7 @@ public @interface Threads {
 
     enum Type {
         EXECUTOR,
+        EXECUTOR_TIMEOUT,
         STREAMS
     }
 }

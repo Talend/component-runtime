@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 import javax.json.Json;
@@ -48,7 +49,7 @@ class ProcessExecutorTest {
     private JsonBuilderFactory factory;
 
     @Test
-    void execute() {
+    void execute() throws ExecutionException, InterruptedException {
         final List<JsonObject> jsons = new ArrayList<>();
         executor
                 .execute("ProcessExecutorTest#execute", factory.createObjectBuilder().build(), () -> true,
@@ -58,7 +59,9 @@ class ProcessExecutorTest {
                             synchronized (jsons) {
                                 jsons.add(record);
                             }
-                        }, ProcessExecutor.ProcessOutputMode.LINE);
+                        }, ProcessExecutor.ProcessOutputMode.LINE)
+                .toCompletableFuture()
+                .get();
         assertEquals(7, jsons.size());
         jsons.sort(comparing(it -> it.getString("type")));
         final Iterator<JsonObject> iterator = jsons.iterator();

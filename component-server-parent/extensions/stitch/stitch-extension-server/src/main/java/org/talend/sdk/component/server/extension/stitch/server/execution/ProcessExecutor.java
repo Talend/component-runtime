@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.extension.stitch.server.execution;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
@@ -29,10 +30,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
@@ -68,6 +71,10 @@ public class ProcessExecutor {
     private ExecutorService streamsExecutor;
 
     @Inject
+    @Threads(Threads.Type.EXECUTOR_TIMEOUT)
+    private ScheduledExecutorService timeoutExecutor;
+
+    @Inject
     private StitchExecutorConfiguration configuration;
 
     @App
@@ -90,39 +97,54 @@ public class ProcessExecutor {
         JSON_OBJECT
     }
 
-    public int execute(final String tap, final JsonObject properties, final BooleanSupplier isRunning,
-            final BiConsumer<String, JsonObject> onData, final ProcessOutputMode outputMode, final String... args) {
+    public CompletionStage<Integer> execute(final String tap, final JsonObject properties,
+            final BooleanSupplier isRunning, final BiConsumer<String, JsonObject> onData,
+            final ProcessOutputMode outputMode, final String... args) {
         final CountDownLatch streamPumped = new CountDownLatch(2);
-        try {
-            final CloseableProcess closeableProcess = CompletableFuture
-                    .supplyAsync(() -> doExecute(tap, properties, isRunning, onData, streamPumped, outputMode, args),
-                            executor)
-                    .handle((process, error) -> {
-                        if (error != null) {
-                            log.error(error.getMessage(), error);
-                        }
-                        try {
-                            streamPumped.await(configuration.getExecutionTimeout(), MILLISECONDS);
-                        } catch (final InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        } finally {
-                            if (process != null) {
-                                process.close();
-                            }
-                        }
-                        return process;
-                    })
-                    .get(configuration.getExecutionTimeout(), MILLISECONDS);
-            if (closeableProcess.process.isAlive()) {
-                return -2;
+        final AtomicReference<CloseableProcess> closeableProcess = new AtomicReference<>();
+        final ScheduledFuture<?> timeout = timeoutExecutor.schedule(() -> {
+            final CloseableProcess process = closeableProcess.get();
+            if (process == null) {
+                log.warn("No process to cancel > {}", tap);
+                return;
             }
-            return closeableProcess.process.exitValue();
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (final ExecutionException | TimeoutException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-        return -1;
+            process.close();
+        }, configuration.getExecutionTimeout(), MILLISECONDS);
+        return CompletableFuture.supplyAsync(() -> {
+            final CloseableProcess process =
+                    doExecute(tap, properties, isRunning, onData, streamPumped, outputMode, args);
+            closeableProcess.set(process);
+            return process;
+        }, executor).thenApply(p -> {
+            timeout.cancel(true);
+            return p;
+        }).handle((process, error) -> {
+            if (error != null) {
+                log.error(error.getMessage(), error);
+            }
+            try {
+                streamPumped.await(configuration.getExecutionTimeout(), MILLISECONDS);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                if (process != null) {
+                    process.close();
+                }
+            }
+            return process;
+        }).thenApply(process -> {
+            if (timeout.isCancelled()) {
+                try {
+                    return process.exitValue();
+                } catch (final IllegalStateException ise) {
+                    if (process.isAlive()) {
+                        process.close();
+                    }
+                    return -1;
+                }
+            }
+            return -2; // timeout
+        });
     }
 
     // note: we can switch to https://github.com/brettwooldridge/NuProcess if we start to rely on too much threads
@@ -133,11 +155,13 @@ public class ProcessExecutor {
             final ProcessOutputMode outputMode, final String... args) {
         final String id = UUID.randomUUID().toString();
         final Path configFile = createConfigFile(properties);
-        final AutoCloseable onClose = () -> {
-            try {
-                Files.deleteIfExists(configFile);
-            } catch (final IOException e) {
-                log.warn("Can't delete {} ({})", configFile, e.getMessage());
+        final AutoCloseable cleanTempFiles = () -> {
+            if (Files.exists(configFile)) {
+                try {
+                    Files.deleteIfExists(configFile);
+                } catch (final IOException e) {
+                    log.warn("Can't delete {} ({})", configFile, e.getMessage());
+                }
             }
         };
         try {
@@ -186,12 +210,20 @@ public class ProcessExecutor {
                     streamPumped.countDown();
                 }
             });
-            return new CloseableProcess(process, onClose);
+            return new CloseableProcess(process, () -> {
+                try {
+                    cleanTempFiles.close();
+                } finally {
+                    if (process.isAlive()) {
+                        process.destroyForcibly().waitFor(5, SECONDS);
+                    }
+                }
+            });
         } catch (final IOException e) {
             try {
                 streamPumped.countDown();
                 streamPumped.countDown();
-                onClose.close();
+                cleanTempFiles.close();
             } catch (final Exception ignored) {
                 // no-op: will not happen here
             }
@@ -205,7 +237,7 @@ public class ProcessExecutor {
             String line = reader.readLine();
             do {
                 if (line == null) {
-                    log.info("Stream empty for '{}'", name);
+                    log.info("Stream {} empty for '{}'", streamName, name);
                     return;
                 }
                 if (!isRunning.getAsBoolean()) {
