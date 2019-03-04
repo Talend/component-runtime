@@ -20,9 +20,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -35,15 +37,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
-import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
@@ -61,10 +64,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 public class ProcessExecutor {
-
-    @Inject
-    @Threads(Threads.Type.EXECUTOR)
-    private ExecutorService executor;
 
     @Inject
     @Threads(Threads.Type.STREAMS)
@@ -92,67 +91,59 @@ public class ProcessExecutor {
     @Inject
     private ProcessCommandMapper commandMapper;
 
+    private Field filterInField;
+
     public enum ProcessOutputMode {
         LINE,
         JSON_OBJECT
     }
 
+    @PostConstruct
+    private void init() {
+        try {
+            filterInField = FilterInputStream.class.getDeclaredField("in");
+            if (!filterInField.isAccessible()) {
+                filterInField.setAccessible(true);
+            }
+        } catch (final NoSuchFieldException e) {
+            throw new IllegalStateException("not compatible jvm", e);
+        }
+    }
+
     public CompletionStage<Integer> execute(final String tap, final JsonObject properties,
             final BooleanSupplier isRunning, final BiConsumer<String, JsonObject> onData,
-            final ProcessOutputMode outputMode, final String... args) {
-        final CountDownLatch streamPumped = new CountDownLatch(2);
+            final ProcessOutputMode outputMode, final long timeoutDurationMs, final String... args) {
         final AtomicReference<CloseableProcess> closeableProcess = new AtomicReference<>();
+        final CountDownLatch readyToTimeout = new CountDownLatch(1);
         final ScheduledFuture<?> timeout = timeoutExecutor.schedule(() -> {
+            try {
+                readyToTimeout.await(timeoutDurationMs, MILLISECONDS);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
             final CloseableProcess process = closeableProcess.get();
             if (process == null) {
                 log.warn("No process to cancel > {}", tap);
                 return;
             }
             process.close();
-        }, configuration.getExecutionTimeout(), MILLISECONDS);
-        return CompletableFuture.supplyAsync(() -> {
-            final CloseableProcess process =
-                    doExecute(tap, properties, isRunning, onData, streamPumped, outputMode, args);
-            closeableProcess.set(process);
-            return process;
-        }, executor).thenApply(p -> {
-            timeout.cancel(true);
-            return p;
-        }).handle((process, error) -> {
-            if (error != null) {
-                log.error(error.getMessage(), error);
-            }
-            try {
-                streamPumped.await(configuration.getExecutionTimeout(), MILLISECONDS);
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } finally {
-                if (process != null) {
-                    process.close();
-                }
-            }
-            return process;
-        }).thenApply(process -> {
-            if (timeout.isCancelled()) {
-                try {
-                    return process.exitValue();
-                } catch (final IllegalStateException ise) {
-                    if (process.isAlive()) {
-                        process.close();
-                    }
-                    return -1;
-                }
-            }
-            return -2; // timeout
-        });
+        }, timeoutDurationMs, MILLISECONDS);
+
+        final CompletableFuture<Integer> onComplete = new CompletableFuture<>();
+        final CloseableProcess process =
+                doExecute(tap, properties, isRunning, onData, outputMode, onComplete, timeout, args);
+        closeableProcess.set(process);
+        readyToTimeout.countDown();
+        return onComplete;
     }
 
     // note: we can switch to https://github.com/brettwooldridge/NuProcess if we start to rely on too much threads
     // or writing to a file to read it through an NIO.
     // That said it also means multiple processes and we want to control our resources so probably overkill.
     private CloseableProcess doExecute(final String tap, final JsonObject properties, final BooleanSupplier isRunning,
-            final BiConsumer<String, JsonObject> onData, final CountDownLatch streamPumped,
-            final ProcessOutputMode outputMode, final String... args) {
+            final BiConsumer<String, JsonObject> onData, final ProcessOutputMode outputMode,
+            final CompletableFuture<Integer> onComplete, final ScheduledFuture<?> timeout, final String... args) {
         final String id = UUID.randomUUID().toString();
         final Path configFile = createConfigFile(properties);
         final AutoCloseable cleanTempFiles = () -> {
@@ -170,47 +161,9 @@ public class ProcessExecutor {
 
             final String marker = tap + " (" + id + ")";
             final Process process = builder.start();
-            streamsExecutor.submit(() -> {
-                try {
-                    switch (outputMode) {
-                    case LINE:
-                        redirect(marker, "stdout", isRunning, onData, process.getInputStream());
-                        break;
-                    case JSON_OBJECT:
-                        try (final JsonReader reader = jsonReaderFactory
-                                .createReader(new BufferedReader(new InputStreamReader(process.getInputStream())))) {
-                            onData
-                                    .accept("data",
-                                            jsonBuilderFactory
-                                                    .createObjectBuilder()
-                                                    .add("data", reader.readObject())
-                                                    .add("success", true)
-                                                    .build());
-                        } catch (final JsonException ex) {
-                            onData
-                                    .accept("data",
-                                            jsonBuilderFactory
-                                                    .createObjectBuilder()
-                                                    .add("error", ex.getMessage())
-                                                    .add("success", false)
-                                                    .build());
-                        }
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unsupported output mode: " + outputMode);
-                    }
-                } finally {
-                    streamPumped.countDown();
-                }
-            });
-            streamsExecutor.submit(() -> {
-                try {
-                    redirect(marker, "stderr", isRunning, onData, process.getErrorStream());
-                } finally {
-                    streamPumped.countDown();
-                }
-            });
-            return new CloseableProcess(process, () -> {
+
+            final AtomicInteger finishedStream = new AtomicInteger(2);
+            final CloseableProcess closeableProcess = new CloseableProcess(process, () -> {
                 try {
                     cleanTempFiles.close();
                 } finally {
@@ -219,54 +172,127 @@ public class ProcessExecutor {
                     }
                 }
             });
+
+            final Runnable onFinishStream = () -> onStreamRead(onComplete, timeout, closeableProcess, finishedStream);
+            readMainOutput(isRunning, onData, outputMode, marker, process, onFinishStream);
+            if (outputMode != ProcessOutputMode.JSON_OBJECT) { // don't consumer a thread for stderr for discovery
+                pipe(marker, "stderr", isRunning, onData, process.getErrorStream(), onFinishStream);
+            }
+
+            return closeableProcess;
         } catch (final IOException e) {
             try {
-                streamPumped.countDown();
-                streamPumped.countDown();
+                onComplete.complete(-50); // can't run
                 cleanTempFiles.close();
-            } catch (final Exception ignored) {
-                // no-op: will not happen here
+            } catch (final Exception ex) {
+                log.debug(ex.getMessage(), ex);
             }
             throw new IllegalStateException(e);
         }
     }
 
-    private void redirect(final String name, final String streamName, final BooleanSupplier isRunning,
-            final BiConsumer<String, JsonObject> onData, final InputStream stream) {
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-            String line = reader.readLine();
-            do {
-                if (line == null) {
-                    log.info("Stream {} empty for '{}'", streamName, name);
-                    return;
+    private void onStreamRead(final CompletableFuture<Integer> onComplete, final ScheduledFuture<?> timeout,
+            final CloseableProcess closeableProcess, final AtomicInteger streamCounter) {
+        if (streamCounter.decrementAndGet() == 0) {
+            if (timeout.isDone()) {
+                onComplete.complete(-100); // timeout
+                return;
+            }
+            timeout.cancel(true);
+            try {
+                // if there is any latency between streams and actual exit
+                closeableProcess.process.waitFor(1000, MILLISECONDS);
+                onComplete.complete(closeableProcess.process.exitValue());
+            } catch (final IllegalStateException ise) {
+                if (closeableProcess.process.isAlive()) {
+                    closeableProcess.close();
                 }
-                if (!isRunning.getAsBoolean()) {
-                    log.info("Exiting {} from '{}' because it is no more running", streamName, name);
-                    break;
-                }
-
-                final Optional<OutputMatcher> matcher = OutputMatcher.matches(line);
-                if (!matcher.isPresent()) {
-                    log.warn("Unknown {} line: '{}'", streamName, line);
-                    line = reader.readLine();
-                    continue;
-                }
-
-                final OutputMatcher.Data data = matcher.orElseThrow(IllegalArgumentException::new).read(line, () -> {
-                    try {
-                        return reader.readLine();
-                    } catch (final IOException e) {
-                        throw new IllegalStateException(e);
-                    }
-                }, jsonReaderFactory, jsonBuilderFactory.createObjectBuilder());
-                if (data.getObject() != null && data.getType() != null) {
-                    onData.accept(data.getType(), data.getObject());
-                }
-                line = data.getNextLine();
-            } while (line != null);
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
+                onComplete.complete(-1);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+                onComplete.complete(-2);
+            }
         }
+    }
+
+    private void readMainOutput(final BooleanSupplier isRunning, final BiConsumer<String, JsonObject> onData,
+            final ProcessOutputMode outputMode, final String marker, final Process process,
+            final Runnable onFinishStream) {
+        switch (outputMode) {
+        case LINE:
+            pipe(marker, "stdout", isRunning, onData, process.getInputStream(), onFinishStream);
+            break;
+        case JSON_OBJECT: // read both stdout and stderr since we optimize the threading not starting stderr poller
+            streamsExecutor.submit(() -> {
+                try (final JsonReader reader = jsonReaderFactory
+                        .createReader(new BufferedReader(new InputStreamReader(process.getInputStream())))) {
+                    onData
+                            .accept("data",
+                                    jsonBuilderFactory
+                                            .createObjectBuilder()
+                                            .add("data", reader.readObject())
+                                            .add("success", true)
+                                            .build());
+                } catch (final Exception ex) {
+                    onData
+                            .accept("data",
+                                    jsonBuilderFactory
+                                            .createObjectBuilder()
+                                            .add("error", ex.getMessage())
+                                            .add("success", false)
+                                            .build());
+                } finally {
+                    onFinishStream.run();
+                }
+            });
+            pipe(marker, "stderr", isRunning, onData, process.getErrorStream(), onFinishStream);
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported output mode: " + outputMode);
+        }
+    }
+
+    private void pipe(final String name, final String streamName, final BooleanSupplier isRunning,
+            final BiConsumer<String, JsonObject> onData, final InputStream stream, final Runnable onFinishStream) {
+        streamsExecutor.submit(() -> {
+            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                String line = reader.readLine();
+                do {
+                    if (line == null) {
+                        log.info("Stream {} empty for '{}'", streamName, name);
+                        return;
+                    }
+                    if (!isRunning.getAsBoolean()) {
+                        log.info("Exiting {} from '{}' because it is no more running", streamName, name);
+                        break;
+                    }
+
+                    final Optional<OutputMatcher> matcher = OutputMatcher.matches(line);
+                    if (!matcher.isPresent()) {
+                        log.warn("Unknown {} line: '{}'", streamName, line);
+                        line = reader.readLine();
+                        continue;
+                    }
+
+                    final OutputMatcher.Data data =
+                            matcher.orElseThrow(IllegalArgumentException::new).read(line, () -> {
+                                try {
+                                    return reader.readLine();
+                                } catch (final IOException e) {
+                                    throw new IllegalStateException(e);
+                                }
+                            }, jsonReaderFactory, jsonBuilderFactory.createObjectBuilder());
+                    if (data.getObject() != null && data.getType() != null) {
+                        onData.accept(data.getType(), data.getObject());
+                    }
+                    line = data.getNextLine();
+                } while (line != null);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            } finally {
+                onFinishStream.run();
+            }
+        });
     }
 
     private List<String> createCommandFor(final String tap, final Path configFile, final String... args) {

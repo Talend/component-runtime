@@ -57,6 +57,7 @@ import javax.ws.rs.sse.SseEventSink;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.server.extension.stitch.model.Task;
 import org.talend.sdk.component.server.extension.stitch.server.configuration.App;
+import org.talend.sdk.component.server.extension.stitch.server.configuration.StitchExecutorConfiguration;
 import org.talend.sdk.component.server.extension.stitch.server.execution.ProcessExecutor;
 
 import lombok.RequiredArgsConstructor;
@@ -81,6 +82,9 @@ public class StitchExecutorResource {
     @App
     @Inject
     private JsonBuilderFactory builderFactory;
+
+    @Inject
+    private StitchExecutorConfiguration configuration;
 
     private final Clock clock = Clock.systemUTC();
 
@@ -134,7 +138,7 @@ public class StitchExecutorResource {
                                             .data(JsonObject.class, data)
                                             .mediaType(APPLICATION_JSON_TYPE)
                                             .build()),
-                            ProcessExecutor.ProcessOutputMode.LINE)
+                            ProcessExecutor.ProcessOutputMode.LINE, configuration.getExecutionTimeout())
                     .handle((r, t) -> {
                         sink.close();
                         if (RuntimeException.class.isInstance(t)) {
@@ -177,8 +181,8 @@ public class StitchExecutorResource {
             synchronized (builder) {
                 builder.add(key, data);
             }
-        }, ProcessExecutor.ProcessOutputMode.JSON_OBJECT, "--discover")
-                .thenApply(status -> builder.add("exitCode", status).build());
+        }, ProcessExecutor.ProcessOutputMode.JSON_OBJECT, this.configuration.getDiscoverExecutionTimeout(),
+                "--discover").thenApply(status -> builder.add("exitCode", status).build());
     }
 
     @RequiredArgsConstructor

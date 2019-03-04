@@ -59,7 +59,7 @@ class ProcessExecutorTest {
                             synchronized (jsons) {
                                 jsons.add(record);
                             }
-                        }, ProcessExecutor.ProcessOutputMode.LINE)
+                        }, ProcessExecutor.ProcessOutputMode.LINE, 60000L)
                 .toCompletableFuture()
                 .get();
         assertEquals(7, jsons.size());

@@ -19,7 +19,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static org.talend.sdk.component.server.extension.stitch.server.configuration.Threads.Type.EXECUTOR;
 import static org.talend.sdk.component.server.extension.stitch.server.configuration.Threads.Type.EXECUTOR_TIMEOUT;
 import static org.talend.sdk.component.server.extension.stitch.server.configuration.Threads.Type.STREAMS;
 
@@ -55,26 +54,6 @@ import lombok.extern.slf4j.Slf4j;
 public class StitchExecutorConfiguration {
 
     @Inject
-    @Documentation("Core thread number for the task executor.")
-    @ConfigProperty(name = "talend.stitch.executor.threads.core", defaultValue = "16")
-    private Integer executorCoreSize;
-
-    @Inject
-    @Documentation("Max thread number for the task executor.")
-    @ConfigProperty(name = "talend.stitch.executor.threads.max", defaultValue = "128")
-    private Integer executorMaxSize;
-
-    @Inject
-    @Documentation("Keep alive duration (ms) for the task executor.")
-    @ConfigProperty(name = "talend.stitch.executor.threads.keepAlive", defaultValue = "10000")
-    private Long executorKeepAliveMs;
-
-    @Inject
-    @Documentation("Queue capacity (or -1 for an unbounded queue) for the task executor.")
-    @ConfigProperty(name = "talend.stitch.executor.threads.queueSize", defaultValue = "-1")
-    private Integer executorQueueCapacity;
-
-    @Inject
     @Documentation("Core thread number for the timeout executor.")
     @ConfigProperty(name = "talend.stitch.executor.threads.core", defaultValue = "1")
     private Integer timeoutExecutorCoreSize;
@@ -103,6 +82,11 @@ public class StitchExecutorConfiguration {
     @Documentation("Max duration for executions.")
     @ConfigProperty(name = "talend.stitch.executor.executor.timeout", defaultValue = "120000")
     private Long executionTimeout;
+
+    @Inject
+    @Documentation("Max duration for executions.")
+    @ConfigProperty(name = "talend.stitch.executor.discover.executor.timeout", defaultValue = "60000")
+    private Long discoverExecutionTimeout;
 
     @Inject
     @Documentation("Where extensions can create files.")
@@ -171,17 +155,6 @@ public class StitchExecutorConfiguration {
     }
 
     @Produces
-    @Threads(EXECUTOR)
-    @ApplicationScoped
-    public ExecutorService createExecutorPool() {
-        return doCreatePool("executor", executorCoreSize, executorMaxSize, executorKeepAliveMs, executorQueueCapacity);
-    }
-
-    public void releaseExecutorPool(@Disposes @Threads(EXECUTOR) final ExecutorService executorService) {
-        doReleasePool(executorService);
-    }
-
-    @Produces
     @Threads(STREAMS)
     @ApplicationScoped
     public ExecutorService createStreamsPool() {
@@ -195,9 +168,8 @@ public class StitchExecutorConfiguration {
 
     private ThreadPoolExecutor doCreatePool(final String nameMarker, final int core, final int max,
             final long keepAlive, final int capacity) {
-        return new ThreadPoolExecutor(core, max, keepAlive, MILLISECONDS,
-                capacity < 0 ? new LinkedBlockingQueue<>() : new ArrayBlockingQueue<>(executorQueueCapacity),
-                new ThreadFactory() {
+        final ThreadPoolExecutor pool = new ThreadPoolExecutor(core, max, keepAlive, MILLISECONDS,
+                capacity < 0 ? new LinkedBlockingQueue<>() : new ArrayBlockingQueue<>(capacity), new ThreadFactory() {
 
                     private final ThreadGroup group = ofNullable(System.getSecurityManager())
                             .map(SecurityManager::getThreadGroup)
@@ -217,7 +189,18 @@ public class StitchExecutorConfiguration {
                         }
                         return t;
                     }
-                });
+                }) {
+
+            @Override
+            protected void afterExecute(final Runnable r, final Throwable t) {
+                if (t != null) {
+                    log.error("Exception throw in {}", r, t);
+                }
+                super.afterExecute(r, t);
+            }
+        };
+        pool.setRejectedExecutionHandler((task, executor) -> log.error("Can't add {} in {}", task, nameMarker));
+        return pool;
     }
 
     private void doReleasePool(final ExecutorService executorService) {
