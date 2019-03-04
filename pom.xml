@@ -145,7 +145,7 @@
     <meecrowave.version>1.2.7</meecrowave.version>
     <owb.version>2.0.10</owb.version>
     <tomcat.version>9.0.16</tomcat.version>
-    <cxf.version>3.3.0</cxf.version>
+    <cxf.version>3.3.1</cxf.version>
     <log4j2.version>2.11.2</log4j2.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
     <geronimo-atinject.version>1.1</geronimo-atinject.version>
