@@ -1,1 +1,633 @@
-{"components":[{"actions":[],"displayName":"Stitch Postgres","id":{"family":"Stitch","familyId":"stitch","id":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OnNvdXJjZTo6cGxhdGZvcm0ucG9zdGdyZXM6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWNHOXpkR2R5WlhNPQ==","name":"platform.postgres","plugin":"stitch"},"inputFlows":[],"links":[],"outputFlows":["__default__"],"properties":[{"displayName":"","metadata":{"stitch::component":"platform.postgres"},"name":"configuration","path":"configuration","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Postgres","metadata":{},"name":"dataset","path":"configuration.dataset","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"","metadata":{"stitch::form":"form"},"name":"configuration","path":"configuration.dataset.configuration","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Postgres Connection","metadata":{},"name":"datastore","path":"configuration.dataset.configuration.datastore","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Stitch Connection","metadata":{},"name":"stitchConnection","path":"configuration.dataset.configuration.datastore.stitchConnection","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"defaultValue":"https://api.stitchdata.com/v4/","displayName":"URL","metadata":{},"name":"url","path":"configuration.dataset.configuration.datastore.stitchConnection.url","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"OAuth2 Token","metadata":{"ui::credential":"true"},"name":"token","path":"configuration.dataset.configuration.datastore.stitchConnection.token","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"Configuration","metadata":{},"name":"step_form","path":"configuration.dataset.configuration.step_form","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Image Version","metadata":{},"name":"image_version","path":"configuration.dataset.configuration.step_form.image_version","placeholder":"Image Version...","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"required":true}},{"displayName":"Frequency In Minutes","metadata":{},"name":"frequency_in_minutes","path":"configuration.dataset.configuration.step_form.frequency_in_minutes","placeholder":"Frequency In Minutes...","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"pattern":"^1$|^30$|^60$|^360$|^720$|^1440$","required":true}},{"displayName":"Anchor Time","metadata":{},"name":"anchor_time","path":"configuration.dataset.configuration.step_form.anchor_time","placeholder":"Anchor Time...","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"pattern":"^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2})\\:(\\d{2})\\:(\\d{2})[+-](\\d{2})\\:(\\d{2})","required":false}}],"type":"input","version":1},{"actions":[],"displayName":"Stitch Mysql","id":{"family":"Stitch","familyId":"stitch","id":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OnNvdXJjZTo6cGxhdGZvcm0ubXlzcWw6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWJYbHpjV3c9","name":"platform.mysql","plugin":"stitch"},"inputFlows":[],"links":[],"outputFlows":["__default__"],"properties":[{"displayName":"","metadata":{"stitch::component":"platform.mysql"},"name":"configuration","path":"configuration","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Mysql","metadata":{},"name":"dataset","path":"configuration.dataset","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"","metadata":{"stitch::form":"form"},"name":"configuration","path":"configuration.dataset.configuration","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Mysql Connection","metadata":{},"name":"datastore","path":"configuration.dataset.configuration.datastore","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Stitch Connection","metadata":{},"name":"stitchConnection","path":"configuration.dataset.configuration.datastore.stitchConnection","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"defaultValue":"https://api.stitchdata.com/v4/","displayName":"URL","metadata":{},"name":"url","path":"configuration.dataset.configuration.datastore.stitchConnection.url","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"OAuth2 Token","metadata":{"ui::credential":"true"},"name":"token","path":"configuration.dataset.configuration.datastore.stitchConnection.token","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"Configuration","metadata":{},"name":"step_form","path":"configuration.dataset.configuration.step_form","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"DB Name","metadata":{},"name":"dbname","path":"configuration.dataset.configuration.step_form.dbname","placeholder":"DB Name...","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"required":true}}],"type":"input","version":1}],"configurations":[{"actions":[],"displayName":"Postgres","edges":["ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ucG9zdGdyZXM6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWNHOXpkR2R5WlhNPQ=="],"id":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmZhbWlseTo6cGxhdGZvcm0ucG9zdGdyZXM=","name":"postgres_family","properties":[],"version":1},{"actions":[],"configurationType":"datastore","displayName":"Postgres Connection","edges":["ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzZXQ6OnBsYXRmb3JtLnBvc3RncmVzOjpaWGgwWlc1emFXOXVPanB6ZEdsMFkyZzZPbVpoYldsc2VUbzZjR3hoZEdadmNtMHVjRzl6ZEdkeVpYTT0="],"id":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ucG9zdGdyZXM6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWNHOXpkR2R5WlhNPQ==","name":"postgres_datastore","parentId":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmZhbWlseTo6cGxhdGZvcm0ucG9zdGdyZXM=","properties":[{"displayName":"Stitch Connection","metadata":{},"name":"stitchConnection","path":"stitchConnection","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"defaultValue":"https://api.stitchdata.com/v4/","displayName":"URL","metadata":{},"name":"url","path":"stitchConnection.url","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"OAuth2 Token","metadata":{"ui::credential":"true"},"name":"token","path":"stitchConnection.token","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}}],"version":1},{"actions":[],"configurationType":"dataset","displayName":"Postgres","edges":[],"id":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzZXQ6OnBsYXRmb3JtLnBvc3RncmVzOjpaWGgwWlc1emFXOXVPanB6ZEdsMFkyZzZPbVpoYldsc2VUbzZjR3hoZEdadmNtMHVjRzl6ZEdkeVpYTT0=","name":"postgres_dataset","parentId":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ucG9zdGdyZXM6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWNHOXpkR2R5WlhNPQ==","properties":[{"displayName":"","metadata":{"stitch::form":"form"},"name":"configuration","path":"configuration","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Postgres Connection","metadata":{},"name":"datastore","path":"configuration.datastore","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Stitch Connection","metadata":{},"name":"stitchConnection","path":"configuration.datastore.stitchConnection","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"defaultValue":"https://api.stitchdata.com/v4/","displayName":"URL","metadata":{},"name":"url","path":"configuration.datastore.stitchConnection.url","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"OAuth2 Token","metadata":{"ui::credential":"true"},"name":"token","path":"configuration.datastore.stitchConnection.token","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"Configuration","metadata":{},"name":"step_form","path":"configuration.step_form","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Image Version","metadata":{},"name":"image_version","path":"configuration.step_form.image_version","placeholder":"Image Version...","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"required":true}},{"displayName":"Frequency In Minutes","metadata":{},"name":"frequency_in_minutes","path":"configuration.step_form.frequency_in_minutes","placeholder":"Frequency In Minutes...","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"pattern":"^1$|^30$|^60$|^360$|^720$|^1440$","required":true}},{"displayName":"Anchor Time","metadata":{},"name":"anchor_time","path":"configuration.step_form.anchor_time","placeholder":"Anchor Time...","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"pattern":"^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2})\\:(\\d{2})\\:(\\d{2})[+-](\\d{2})\\:(\\d{2})","required":false}}],"version":1},{"actions":[],"displayName":"Mysql","edges":["ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ubXlzcWw6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWJYbHpjV3c9"],"id":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmZhbWlseTo6cGxhdGZvcm0ubXlzcWw=","name":"mysql_family","properties":[],"version":1},{"actions":[],"configurationType":"datastore","displayName":"Mysql Connection","edges":["ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzZXQ6OnBsYXRmb3JtLm15c3FsOjpaWGgwWlc1emFXOXVPanB6ZEdsMFkyZzZPbVpoYldsc2VUbzZjR3hoZEdadmNtMHViWGx6Y1d3PQ=="],"id":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ubXlzcWw6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWJYbHpjV3c9","name":"mysql_datastore","parentId":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmZhbWlseTo6cGxhdGZvcm0ubXlzcWw=","properties":[{"displayName":"Stitch Connection","metadata":{},"name":"stitchConnection","path":"stitchConnection","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"defaultValue":"https://api.stitchdata.com/v4/","displayName":"URL","metadata":{},"name":"url","path":"stitchConnection.url","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"OAuth2 Token","metadata":{"ui::credential":"true"},"name":"token","path":"stitchConnection.token","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}}],"version":1},{"actions":[],"configurationType":"dataset","displayName":"Mysql","edges":[],"id":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzZXQ6OnBsYXRmb3JtLm15c3FsOjpaWGgwWlc1emFXOXVPanB6ZEdsMFkyZzZPbVpoYldsc2VUbzZjR3hoZEdadmNtMHViWGx6Y1d3PQ==","name":"mysql_dataset","parentId":"ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ubXlzcWw6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWJYbHpjV3c9","properties":[{"displayName":"","metadata":{"stitch::form":"form"},"name":"configuration","path":"configuration","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Mysql Connection","metadata":{},"name":"datastore","path":"configuration.datastore","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"Stitch Connection","metadata":{},"name":"stitchConnection","path":"configuration.datastore.stitchConnection","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"defaultValue":"https://api.stitchdata.com/v4/","displayName":"URL","metadata":{},"name":"url","path":"configuration.datastore.stitchConnection.url","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"OAuth2 Token","metadata":{"ui::credential":"true"},"name":"token","path":"configuration.datastore.stitchConnection.token","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"minLength":1,"required":true}},{"displayName":"Configuration","metadata":{},"name":"step_form","path":"configuration.step_form","proposalDisplayNames":{},"type":"OBJECT","validation":{}},{"displayName":"DB Name","metadata":{},"name":"dbname","path":"configuration.step_form.dbname","placeholder":"DB Name...","proposalDisplayNames":{},"type":"STRING","validation":{"enumValues":[],"required":true}}],"version":1}]}
+{
+  "components": [
+    {
+      "actions": [],
+      "displayName": "Stitch Postgres",
+      "id": {
+        "family": "Stitch",
+        "familyId": "stitch",
+        "id": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OnNvdXJjZTo6cGxhdGZvcm0ucG9zdGdyZXM6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWNHOXpkR2R5WlhNPQ==",
+        "name": "platform.postgres",
+        "plugin": "stitch"
+      },
+      "inputFlows": [],
+      "links": [],
+      "outputFlows": [
+        "__default__"
+      ],
+      "properties": [
+        {
+          "displayName": "",
+          "metadata": {
+            "stitch::component": "platform.postgres"
+          },
+          "name": "configuration",
+          "path": "configuration",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Postgres",
+          "metadata": {},
+          "name": "dataset",
+          "path": "configuration.dataset",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "",
+          "metadata": {
+            "stitch::form": "form"
+          },
+          "name": "configuration",
+          "path": "configuration.dataset.configuration",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Postgres Connection",
+          "metadata": {},
+          "name": "datastore",
+          "path": "configuration.dataset.configuration.datastore",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Stitch Connection",
+          "metadata": {},
+          "name": "stitchConnection",
+          "path": "configuration.dataset.configuration.datastore.stitchConnection",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "defaultValue": "https://api.stitchdata.com/v4/",
+          "displayName": "URL",
+          "metadata": {},
+          "name": "url",
+          "path": "configuration.dataset.configuration.datastore.stitchConnection.url",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "OAuth2 Token",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "token",
+          "path": "configuration.dataset.configuration.datastore.stitchConnection.token",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "Configuration",
+          "metadata": {},
+          "name": "step_form",
+          "path": "configuration.dataset.configuration.step_form",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Image Version",
+          "metadata": {},
+          "name": "image_version",
+          "path": "configuration.dataset.configuration.step_form.image_version",
+          "placeholder": "Image Version...",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "required": true
+          }
+        },
+        {
+          "displayName": "Frequency In Minutes",
+          "metadata": {},
+          "name": "frequency_in_minutes",
+          "path": "configuration.dataset.configuration.step_form.frequency_in_minutes",
+          "placeholder": "Frequency In Minutes...",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "pattern": "^1$|^30$|^60$|^360$|^720$|^1440$",
+            "required": true
+          }
+        },
+        {
+          "displayName": "Anchor Time",
+          "metadata": {},
+          "name": "anchor_time",
+          "path": "configuration.dataset.configuration.step_form.anchor_time",
+          "placeholder": "Anchor Time...",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2})\\:(\\d{2})\\:(\\d{2})[+-](\\d{2})\\:(\\d{2})",
+            "required": false
+          }
+        }
+      ],
+      "type": "input",
+      "version": 1
+    },
+    {
+      "actions": [],
+      "displayName": "Stitch Mysql",
+      "id": {
+        "family": "Stitch",
+        "familyId": "stitch",
+        "id": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OnNvdXJjZTo6cGxhdGZvcm0ubXlzcWw6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWJYbHpjV3c9",
+        "name": "platform.mysql",
+        "plugin": "stitch"
+      },
+      "inputFlows": [],
+      "links": [],
+      "outputFlows": [
+        "__default__"
+      ],
+      "properties": [
+        {
+          "displayName": "",
+          "metadata": {
+            "stitch::component": "platform.mysql"
+          },
+          "name": "configuration",
+          "path": "configuration",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Mysql",
+          "metadata": {},
+          "name": "dataset",
+          "path": "configuration.dataset",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "",
+          "metadata": {
+            "stitch::form": "form"
+          },
+          "name": "configuration",
+          "path": "configuration.dataset.configuration",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Mysql Connection",
+          "metadata": {},
+          "name": "datastore",
+          "path": "configuration.dataset.configuration.datastore",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Stitch Connection",
+          "metadata": {},
+          "name": "stitchConnection",
+          "path": "configuration.dataset.configuration.datastore.stitchConnection",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "defaultValue": "https://api.stitchdata.com/v4/",
+          "displayName": "URL",
+          "metadata": {},
+          "name": "url",
+          "path": "configuration.dataset.configuration.datastore.stitchConnection.url",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "OAuth2 Token",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "token",
+          "path": "configuration.dataset.configuration.datastore.stitchConnection.token",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "Configuration",
+          "metadata": {},
+          "name": "step_form",
+          "path": "configuration.dataset.configuration.step_form",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "DB Name",
+          "metadata": {},
+          "name": "dbname",
+          "path": "configuration.dataset.configuration.step_form.dbname",
+          "placeholder": "DB Name...",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "required": true
+          }
+        }
+      ],
+      "type": "input",
+      "version": 1
+    }
+  ],
+  "configurations": [
+    {
+      "actions": [],
+      "displayName": "Postgres",
+      "edges": [
+        "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ucG9zdGdyZXM6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWNHOXpkR2R5WlhNPQ=="
+      ],
+      "id": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmZhbWlseTo6cGxhdGZvcm0ucG9zdGdyZXM=",
+      "name": "postgres_family",
+      "properties": [],
+      "version": 1
+    },
+    {
+      "actions": [],
+      "configurationType": "datastore",
+      "displayName": "Postgres Connection",
+      "edges": [
+        "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzZXQ6OnBsYXRmb3JtLnBvc3RncmVzOjpaWGgwWlc1emFXOXVPanB6ZEdsMFkyZzZPbVpoYldsc2VUbzZjR3hoZEdadmNtMHVjRzl6ZEdkeVpYTT0="
+      ],
+      "id": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ucG9zdGdyZXM6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWNHOXpkR2R5WlhNPQ==",
+      "name": "postgres_datastore",
+      "parentId": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmZhbWlseTo6cGxhdGZvcm0ucG9zdGdyZXM=",
+      "properties": [
+        {
+          "displayName": "Stitch Connection",
+          "metadata": {},
+          "name": "stitchConnection",
+          "path": "stitchConnection",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "defaultValue": "https://api.stitchdata.com/v4/",
+          "displayName": "URL",
+          "metadata": {},
+          "name": "url",
+          "path": "stitchConnection.url",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "OAuth2 Token",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "token",
+          "path": "stitchConnection.token",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        }
+      ],
+      "version": 1
+    },
+    {
+      "actions": [],
+      "configurationType": "dataset",
+      "displayName": "Postgres",
+      "edges": [],
+      "id": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzZXQ6OnBsYXRmb3JtLnBvc3RncmVzOjpaWGgwWlc1emFXOXVPanB6ZEdsMFkyZzZPbVpoYldsc2VUbzZjR3hoZEdadmNtMHVjRzl6ZEdkeVpYTT0=",
+      "name": "postgres_dataset",
+      "parentId": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ucG9zdGdyZXM6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWNHOXpkR2R5WlhNPQ==",
+      "properties": [
+        {
+          "displayName": "",
+          "metadata": {
+            "stitch::form": "form"
+          },
+          "name": "configuration",
+          "path": "configuration",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Postgres Connection",
+          "metadata": {},
+          "name": "datastore",
+          "path": "configuration.datastore",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Stitch Connection",
+          "metadata": {},
+          "name": "stitchConnection",
+          "path": "configuration.datastore.stitchConnection",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "defaultValue": "https://api.stitchdata.com/v4/",
+          "displayName": "URL",
+          "metadata": {},
+          "name": "url",
+          "path": "configuration.datastore.stitchConnection.url",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "OAuth2 Token",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "token",
+          "path": "configuration.datastore.stitchConnection.token",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "Configuration",
+          "metadata": {},
+          "name": "step_form",
+          "path": "configuration.step_form",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Image Version",
+          "metadata": {},
+          "name": "image_version",
+          "path": "configuration.step_form.image_version",
+          "placeholder": "Image Version...",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "required": true
+          }
+        },
+        {
+          "displayName": "Frequency In Minutes",
+          "metadata": {},
+          "name": "frequency_in_minutes",
+          "path": "configuration.step_form.frequency_in_minutes",
+          "placeholder": "Frequency In Minutes...",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "pattern": "^1$|^30$|^60$|^360$|^720$|^1440$",
+            "required": true
+          }
+        },
+        {
+          "displayName": "Anchor Time",
+          "metadata": {},
+          "name": "anchor_time",
+          "path": "configuration.step_form.anchor_time",
+          "placeholder": "Anchor Time...",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2})\\:(\\d{2})\\:(\\d{2})[+-](\\d{2})\\:(\\d{2})",
+            "required": false
+          }
+        }
+      ],
+      "version": 1
+    },
+    {
+      "actions": [],
+      "displayName": "Mysql",
+      "edges": [
+        "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ubXlzcWw6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWJYbHpjV3c9"
+      ],
+      "id": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmZhbWlseTo6cGxhdGZvcm0ubXlzcWw=",
+      "name": "mysql_family",
+      "properties": [],
+      "version": 1
+    },
+    {
+      "actions": [],
+      "configurationType": "datastore",
+      "displayName": "Mysql Connection",
+      "edges": [
+        "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzZXQ6OnBsYXRmb3JtLm15c3FsOjpaWGgwWlc1emFXOXVPanB6ZEdsMFkyZzZPbVpoYldsc2VUbzZjR3hoZEdadmNtMHViWGx6Y1d3PQ=="
+      ],
+      "id": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ubXlzcWw6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWJYbHpjV3c9",
+      "name": "mysql_datastore",
+      "parentId": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmZhbWlseTo6cGxhdGZvcm0ubXlzcWw=",
+      "properties": [
+        {
+          "displayName": "Stitch Connection",
+          "metadata": {},
+          "name": "stitchConnection",
+          "path": "stitchConnection",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "defaultValue": "https://api.stitchdata.com/v4/",
+          "displayName": "URL",
+          "metadata": {},
+          "name": "url",
+          "path": "stitchConnection.url",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "OAuth2 Token",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "token",
+          "path": "stitchConnection.token",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        }
+      ],
+      "version": 1
+    },
+    {
+      "actions": [],
+      "configurationType": "dataset",
+      "displayName": "Mysql",
+      "edges": [],
+      "id": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzZXQ6OnBsYXRmb3JtLm15c3FsOjpaWGgwWlc1emFXOXVPanB6ZEdsMFkyZzZPbVpoYldsc2VUbzZjR3hoZEdadmNtMHViWGx6Y1d3PQ==",
+      "name": "mysql_dataset",
+      "parentId": "ZXh0ZW5zaW9uOjpzdGl0Y2g6OmRhdGFzdG9yZTo6cGxhdGZvcm0ubXlzcWw6OlpYaDBaVzV6YVc5dU9qcHpkR2wwWTJnNk9tWmhiV2xzZVRvNmNHeGhkR1p2Y20wdWJYbHpjV3c9",
+      "properties": [
+        {
+          "displayName": "",
+          "metadata": {
+            "stitch::form": "form"
+          },
+          "name": "configuration",
+          "path": "configuration",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Mysql Connection",
+          "metadata": {},
+          "name": "datastore",
+          "path": "configuration.datastore",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "Stitch Connection",
+          "metadata": {},
+          "name": "stitchConnection",
+          "path": "configuration.datastore.stitchConnection",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "defaultValue": "https://api.stitchdata.com/v4/",
+          "displayName": "URL",
+          "metadata": {},
+          "name": "url",
+          "path": "configuration.datastore.stitchConnection.url",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "OAuth2 Token",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "token",
+          "path": "configuration.datastore.stitchConnection.token",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "minLength": 1,
+            "required": true
+          }
+        },
+        {
+          "displayName": "Configuration",
+          "metadata": {},
+          "name": "step_form",
+          "path": "configuration.step_form",
+          "proposalDisplayNames": {},
+          "type": "OBJECT",
+          "validation": {}
+        },
+        {
+          "displayName": "DB Name",
+          "metadata": {},
+          "name": "dbname",
+          "path": "configuration.step_form.dbname",
+          "placeholder": "DB Name...",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {
+            "enumValues": [],
+            "required": true
+          }
+        },
+        {
+          "displayName": "Schema",
+          "metadata": {
+            "action::suggestions": "schema_foo",
+            "action::suggestions::parameters": ".."
+          },
+          "name": "schema",
+          "path": "configuration.schema",
+          "proposalDisplayNames": {},
+          "type": "ARRAY",
+          "validation": {}
+        },
+        {
+          "displayName": "Schema",
+          "metadata": {},
+          "name": "schema[]",
+          "path": "configuration.schema[]",
+          "proposalDisplayNames": {},
+          "type": "STRING",
+          "validation": {}
+        }
+      ],
+      "version": 1
+    }
+  ]
+}

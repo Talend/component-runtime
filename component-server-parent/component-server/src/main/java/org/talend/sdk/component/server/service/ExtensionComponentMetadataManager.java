@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -48,6 +49,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.extension.api.ExtensionRegistrar;
+import org.talend.sdk.component.server.extension.api.action.Action;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentId;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -73,6 +75,8 @@ public class ExtensionComponentMetadataManager {
 
     private final Map<String, DependencyDefinition> dependencies = new LinkedHashMap<>();
 
+    private final Map<ActionKey, Action> actions = new LinkedHashMap<>();
+
     void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start,
             final ComponentServerConfiguration configuration) {
         try {
@@ -82,6 +86,20 @@ public class ExtensionComponentMetadataManager {
                 public void registerAwait(final Runnable waiter) {
                     synchronized (waiters) {
                         waiters.add(waiter);
+                    }
+                }
+
+                @Override
+                public void registerActions(final Collection<Action> userActions) {
+                    final Map<ActionKey, Action> actionMap =
+                            userActions
+                                    .stream()
+                                    .collect(toMap(
+                                            it -> new ActionKey(it.getReference().getFamily(),
+                                                    it.getReference().getType(), it.getReference().getName()),
+                                            identity()));
+                    synchronized (actions) {
+                        actions.putAll(actionMap);
                     }
                 }
 
@@ -188,6 +206,16 @@ public class ExtensionComponentMetadataManager {
         return details.containsKey(id) || id.startsWith(EXTENSION_MARKER);
     }
 
+    public Optional<Action> getAction(final String family, final String type, final String name) {
+        waitAndClearWaiters();
+        return ofNullable(actions.get(new ActionKey(family, type, name)));
+    }
+
+    public Collection<Action> getActions() {
+        waitAndClearWaiters();
+        return actions.values();
+    }
+
     public Collection<ConfigTypeNode> getConfigurations() {
         waitAndClearWaiters();
         return configurations.values();
@@ -240,4 +268,40 @@ public class ExtensionComponentMetadataManager {
      * return null; // error
      * }
      */
+
+    private static class ActionKey {
+
+        private final String family;
+
+        private final String type;
+
+        private final String name;
+
+        private final int hash;
+
+        private ActionKey(final String family, final String type, final String name) {
+            this.family = family;
+            this.type = type;
+            this.name = name;
+            this.hash = Objects.hash(family, type, name);
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            final ActionKey actionKey = ActionKey.class.cast(o);
+            return hash == actionKey.hash && family.equals(actionKey.family) && type.equals(actionKey.type)
+                    && name.equals(actionKey.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+    }
 }

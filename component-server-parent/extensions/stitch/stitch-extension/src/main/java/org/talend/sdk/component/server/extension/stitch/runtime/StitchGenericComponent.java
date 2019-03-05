@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.extension.stitch.runtime;
 import java.util.Map;
 
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonReaderFactory;
 
 import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -36,6 +37,7 @@ public class StitchGenericComponent implements GenericComponentExtension {
             final Map<String, String> configuration, final Map<Class<?>, Object> services) {
         return type
                 .cast(new StitchMapper(plugin, name, configuration,
+                        JsonReaderFactory.class.cast(services.get(JsonReaderFactory.class)),
                         JsonBuilderFactory.class.cast(services.get(JsonBuilderFactory.class)),
                         RecordBuilderFactory.class.cast(services.get(RecordBuilderFactory.class)),
                         HttpClientFactory.class.cast(services.get(HttpClientFactory.class))));

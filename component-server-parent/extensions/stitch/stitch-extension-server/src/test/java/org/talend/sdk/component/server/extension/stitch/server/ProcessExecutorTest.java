@@ -52,8 +52,8 @@ class ProcessExecutorTest {
     void execute() throws ExecutionException, InterruptedException {
         final List<JsonObject> jsons = new ArrayList<>();
         executor
-                .execute("ProcessExecutorTest#execute", factory.createObjectBuilder().build(), () -> true,
-                        (type, data) -> {
+                .execute("ProcessExecutorTest#execute", factory.createObjectBuilder().build(),
+                        factory.createObjectBuilder().build(), () -> true, (type, data) -> {
                             final JsonObject record =
                                     factory.createObjectBuilder().add("type", type).add("data", data).build();
                             synchronized (jsons) {

@@ -165,7 +165,7 @@
           <httpPort>60000</httpPort>
           <systemProperties>
             <talend.server.extension.stitch.token>${dev.stitch.token}</talend.server.extension.stitch.token>
-            <talend.stitch.service.command.mapping>_default = docker run -v \${configurationsWorkingDirectory}:/configurations registry.datapwn.com/talend/stitch \${tap} -c \${configurationLocation}</talend.stitch.service.command.mapping>
+            <talend.stitch.service.command.mapping>_default = docker run -v \${configurationsWorkingDirectory}:/configurations registry.datapwn.com/talend/stitch \${tap} -c /configurations/\${configurationFilename}</talend.stitch.service.command.mapping>
           </systemProperties>
         </configuration>
       </plugin>

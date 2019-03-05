@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonReaderFactory;
 
 import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -38,6 +39,8 @@ public class StitchMapper implements Mapper, Serializable {
     private final String name;
 
     private final Map<String, String> configuration;
+
+    private final JsonReaderFactory jsonReaderFactory;
 
     private final JsonBuilderFactory jsonBuilderFactory;
 
@@ -57,7 +60,8 @@ public class StitchMapper implements Mapper, Serializable {
 
     @Override
     public Input create() {
-        return new StitchInput(plugin, name, configuration, jsonBuilderFactory, factory, clientFactory);
+        return new StitchInput(plugin, name, configuration, jsonReaderFactory, jsonBuilderFactory, factory,
+                clientFactory);
     }
 
     @Override

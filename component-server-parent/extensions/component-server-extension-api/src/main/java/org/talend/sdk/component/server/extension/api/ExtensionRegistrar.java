@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.jar.JarOutputStream;
 
+import org.talend.sdk.component.server.extension.api.action.Action;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.DependencyDefinition;
@@ -30,6 +31,8 @@ import org.talend.sdk.component.server.front.model.DependencyDefinition;
 public interface ExtensionRegistrar {
 
     void registerAwait(final Runnable waiter);
+
+    void registerActions(Collection<Action> actions);
 
     void registerComponents(Collection<ComponentDetail> components);
 

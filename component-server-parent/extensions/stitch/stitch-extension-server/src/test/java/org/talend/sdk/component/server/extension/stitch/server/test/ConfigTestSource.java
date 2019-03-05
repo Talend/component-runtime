@@ -35,7 +35,7 @@ public class ConfigTestSource implements ConfigSource {
     public String getValue(final String propertyName) {
         switch (propertyName) {
         case "talend.stitch.service.command.mapping":
-            return "ProcessCommandMapperTest_mapped = foo bar\nProcessCommandMapperTest_placeholder = ${configurationFile} ${tap} ${replaced.by.config}";
+            return "ProcessCommandMapperTest_mapped = foo bar\nProcessCommandMapperTest_placeholder = ${configurationLocation} ${tap} ${replaced.by.config}";
         case "replaced.by.config":
             return "done";
         case "talend.server.extension.stitch.client.base":

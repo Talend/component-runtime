@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.extension.stitch.server.front;
 
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -23,6 +24,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -126,10 +129,13 @@ public class StitchExecutorResource {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Task execute(@PathParam("task") final String task, final JsonObject properties) {
+        // todo: do a discover to select the schema and potentially fields before the run
+        // and add it to the execute method to have it added to the command
+
         final BiConsumer<SseEventSink, Sse> executionImpl = (sink, sse) -> {
             final AtomicLong idGenerator = new AtomicLong();
             executor
-                    .execute(task, properties, () -> !sink.isClosed(),
+                    .execute(task, properties, null, () -> !sink.isClosed(),
                             (type, data) -> sink
                                     .send(sse
                                             .newEventBuilder()
@@ -171,18 +177,20 @@ public class StitchExecutorResource {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public CompletionStage<JsonObject> output(final JsonObject payload) {
-        final JsonObject configuration = payload.getJsonObject("configuration");
         final String tap = payload.getString("tap");
+        final JsonObject configuration = payload.getJsonObject("configuration");
+        final Collection<String> args = new ArrayList<>(singletonList("--discover"));
+
         final JsonObjectBuilder builder = builderFactory.createObjectBuilder();
         final Map<String, AtomicInteger> dataCounter = new HashMap<>();
-        return executor.execute(tap, configuration, () -> true, (type, data) -> {
+        return executor.execute(tap, configuration, null, () -> true, (type, data) -> {
             final String key = "data".equals(type) ? type
                     : type + '.' + dataCounter.computeIfAbsent(type, k -> new AtomicInteger(1)).getAndIncrement();
             synchronized (builder) {
                 builder.add(key, data);
             }
         }, ProcessExecutor.ProcessOutputMode.JSON_OBJECT, this.configuration.getDiscoverExecutionTimeout(),
-                "--discover").thenApply(status -> builder.add("exitCode", status).build());
+                args.toArray(new String[0])).thenApply(status -> builder.add("exitCode", status).build());
     }
 
     @RequiredArgsConstructor

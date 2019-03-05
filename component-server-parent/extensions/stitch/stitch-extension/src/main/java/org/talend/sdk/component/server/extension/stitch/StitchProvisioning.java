@@ -16,21 +16,19 @@
 package org.talend.sdk.component.server.extension.stitch;
 
 import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -40,14 +38,19 @@ import java.util.zip.ZipEntry;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import javax.inject.Inject;
+import javax.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.server.extension.api.ExtensionRegistrar;
+import org.talend.sdk.component.server.extension.api.action.Action;
+import org.talend.sdk.component.server.extension.stitch.model.Model;
 import org.talend.sdk.component.server.extension.stitch.runtime.StitchGenericComponent;
 import org.talend.sdk.component.server.extension.stitch.runtime.StitchInput;
 import org.talend.sdk.component.server.extension.stitch.runtime.StitchMapper;
+import org.talend.sdk.component.server.front.model.ActionReference;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.DependencyDefinition;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.spi.component.GenericComponentExtension;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +59,11 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class StitchProvisioning {
 
-    void register(@ObservesAsync final ExtensionRegistrar event, final StitchConfiguration configuration) {
+    @Inject
+    private ActionHandler actionHandler;
+
+    void register(@ObservesAsync final ExtensionRegistrar event, final StitchConfiguration configuration,
+            @Ext final WebTarget target) {
         if (!configuration.getToken().isPresent()) {
             log.info("Skipping stitch extension since token is not set");
             return;
@@ -67,27 +74,7 @@ public class StitchProvisioning {
 
         log.info("Loading stitch data, this is an experimental extension");
 
-        final int threads = configuration.getParallelism() <= 0 ? Runtime.getRuntime().availableProcessors()
-                : configuration.getParallelism();
-        final ExecutorService stitchExecutor = new ThreadPoolExecutor(threads, threads, 1, MINUTES,
-                new LinkedBlockingQueue<>(), new StitchThreadFactory());
-        final ClientBuilder builder = ClientBuilder.newBuilder();
-        builder.connectTimeout(configuration.getConnectTimeout(), MILLISECONDS);
-        builder.readTimeout(configuration.getReadTimeout(), MILLISECONDS);
-        builder.executorService(stitchExecutor);
-        final Client stitchClient = builder.build();
-
         final CountDownLatch latch = new CountDownLatch(1);
-        final Runnable whenDone = () -> {
-            latch.countDown();
-            stitchClient.close();
-            stitchExecutor.shutdownNow();
-            try {
-                stitchExecutor.awaitTermination(1, MINUTES);
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        };
         event.registerAwait(() -> {
             try {
                 latch.await(configuration.getInitTimeout(), MILLISECONDS);
@@ -95,27 +82,98 @@ public class StitchProvisioning {
                 Thread.currentThread().interrupt();
             }
         });
-        new ModelLoader(stitchClient, configuration.getBase(),
-                configuration.getToken().orElseThrow(IllegalArgumentException::new), configuration.getRetries())
-                        .load()
-                        .thenApply(model -> {
-                            event.registerComponents(model.getComponents());
-                            event.registerConfigurations(model.getConfigurations());
-                            event
-                                    .registerDependencies(model
-                                            .getComponents()
-                                            .stream()
-                                            .collect(toMap(it -> it.getId().getId(), it -> dependencyDefinition)));
-                            return model;
-                        })
-                        .whenComplete((model, error) -> {
-                            if (error != null) {
-                                log.error(error.getMessage(), error);
-                            } else {
-                                log.info("Loaded {} Stitch components", model.getComponents().size());
-                            }
-                            whenDone.run();
-                        });
+        new ModelLoader(target, configuration.getToken().orElseThrow(IllegalArgumentException::new),
+                configuration.getRetries()).load().thenApply(model -> {
+                    final Map<String, DependencyDefinition> dependenciesMap =
+                            createDependenciesMap(dependencyDefinition, model);
+
+                    final List<ActionReference> actions = model
+                            .getConfigurations()
+                            .stream()
+                            .filter(this::isDataset)
+                            .peek(config -> config.setActions(extractActions(config.getProperties()).collect(toList())))
+                            .map(ConfigTypeNode::getActions)
+                            .flatMap(Collection::stream)
+                            .distinct()
+                            .collect(toList());
+
+                    final List<Action> actionWithHandler = actions
+                            .stream()
+                            .map(ref -> new Action(ref, (payload, lang) -> actionHandler.onAction(ref, payload, lang)))
+                            .collect(toList());
+
+                    model
+                            .getComponents()
+                            .forEach(component -> component
+                                    .setActions(extractActions(component.getProperties()).collect(toList())));
+
+                    event.registerComponents(model.getComponents());
+                    event.registerConfigurations(model.getConfigurations());
+                    event.registerDependencies(dependenciesMap);
+                    event.registerActions(actionWithHandler);
+                    return model;
+                }).whenComplete((model, error) -> {
+                    if (error != null) {
+                        log.error(error.getMessage(), error);
+                    } else {
+                        log.info("Loaded {} Stitch components", model.getComponents().size());
+                    }
+                    latch.countDown();
+                });
+    }
+
+    private boolean isDataset(final ConfigTypeNode it) {
+        return "dataset".equalsIgnoreCase(it.getConfigurationType());
+    }
+
+    // only datasets have actions and it is only schema and field suggestions so impl is biased
+    private Stream<ActionReference> extractActions(final Collection<SimplePropertyDefinition> props) {
+        return props.stream().filter(it -> it.getMetadata().containsKey("action::suggestions")).map(it -> {
+            final String name = it.getMetadata().get("action::suggestions");
+            if (name.startsWith("fields_")) {
+                return new ActionReference("Stitch", name, "suggestions", name,
+                        Stream.concat(findStepForm(props).stream(), findSchema(props).stream()).collect(toList()));
+            } else if (name.startsWith("schema_")) { // resolve steps_form
+                return new ActionReference("Stitch", name, "suggestions", name, findStepForm(props));
+            } else {
+                throw new IllegalArgumentException("Unknown trigger: " + name);
+            }
+        });
+    }
+
+    private List<SimplePropertyDefinition> findStepForm(final Collection<SimplePropertyDefinition> props) {
+        return findParam(props, "step_form", "OBJECT", 0);
+    }
+
+    private List<SimplePropertyDefinition> findSchema(final Collection<SimplePropertyDefinition> props) {
+        return findParam(props, "schema", "ARRAY", 1);
+    }
+
+    private List<SimplePropertyDefinition> findParam(final Collection<SimplePropertyDefinition> props,
+            final String name, final String type, final int index) {
+        return props
+                .stream()
+                .filter(p -> name.equals(p.getName()) && type.equalsIgnoreCase(p.getType()))
+                .findFirst()
+                .map(root -> props.stream().filter(p -> p.getPath().startsWith(root.getPath())).map(p -> {
+                    final String newPath = name + p.getPath().substring(root.getPath().length());
+                    if (newPath.equals(name)) {
+                        final Map<String, String> metadata = new HashMap<>(p.getMetadata());
+                        metadata.put("definition::parameter::index", Integer.toString(index));
+                        return new SimplePropertyDefinition(newPath, p.getName(), p.getDisplayName(), p.getType(),
+                                p.getDefaultValue(), p.getValidation(), metadata, p.getPlaceholder(),
+                                p.getProposalDisplayNames());
+                    }
+                    return new SimplePropertyDefinition(newPath, p.getName(), p.getDisplayName(), p.getType(),
+                            p.getDefaultValue(), p.getValidation(), p.getMetadata(), p.getPlaceholder(),
+                            p.getProposalDisplayNames());
+                }).collect(toList()))
+                .orElseThrow(() -> new IllegalArgumentException("Can't find " + name + " in " + props));
+    }
+
+    private Map<String, DependencyDefinition> createDependenciesMap(final DependencyDefinition dependencyDefinition,
+            final Model model) {
+        return model.getComponents().stream().collect(toMap(it -> it.getId().getId(), it -> dependencyDefinition));
     }
 
     private DependencyDefinition getRuntimeDependency(final ExtensionRegistrar event) {
@@ -183,27 +241,5 @@ public class StitchProvisioning {
             }
         });
         return new DependencyDefinition(singletonList(groupId + ':' + artifactId + ':' + version));
-    }
-
-    private static class StitchThreadFactory implements ThreadFactory {
-
-        private final ThreadGroup group = ofNullable(System.getSecurityManager())
-                .map(SecurityManager::getThreadGroup)
-                .orElseGet(() -> Thread.currentThread().getThreadGroup());
-
-        private final AtomicInteger threadNumber = new AtomicInteger(1);
-
-        @Override
-        public Thread newThread(final Runnable worker) {
-            final Thread t =
-                    new Thread(group, worker, "talend-server-stitch-extension-" + threadNumber.getAndIncrement(), 0);
-            if (t.isDaemon()) {
-                t.setDaemon(false);
-            }
-            if (t.getPriority() != Thread.NORM_PRIORITY) {
-                t.setPriority(Thread.NORM_PRIORITY);
-            }
-            return t;
-        }
     }
 }

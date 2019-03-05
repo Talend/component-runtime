@@ -100,7 +100,7 @@ class ModelResourceTest {
         assertEquals("Stitch", detail.getId().getFamily());
         assertEquals("platform.postgres", detail.getId().getName());
         assertEquals("Stitch Postgres", detail.getDisplayName());
-        assertEquals(11, detail.getProperties().size());
+        assertEquals(15, detail.getProperties().size());
 
         final Iterator<SimplePropertyDefinition> properties = detail.getProperties().iterator();
         assertPostgresProperties(properties, "configuration.dataset");

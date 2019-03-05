@@ -21,6 +21,7 @@ import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJE
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -67,7 +68,7 @@ public interface ActionResource {
             description = "If the action execution failed, payload will be an ErrorPayload with the code ACTION_ERROR.",
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
-    Response execute(
+    CompletionStage<Response> execute(
             @QueryParam("family") @Parameter(name = "family", required = true, in = QUERY,
                     description = "the component family") String family,
             @QueryParam("type") @Parameter(name = "type", required = true, in = QUERY,

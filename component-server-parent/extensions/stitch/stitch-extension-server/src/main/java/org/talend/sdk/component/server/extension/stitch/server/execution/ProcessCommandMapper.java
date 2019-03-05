@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
@@ -68,7 +69,7 @@ public class ProcessCommandMapper {
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
-        mapping.putIfAbsent("_default", asList("${tap}", "-c", "${configurationFile}"));
+        mapping.putIfAbsent("_default", asList("${tap}", "-c", "${configurationLocation}"));
         log.info("Command mapping: {}", mapping);
     }
 
@@ -82,13 +83,23 @@ public class ProcessCommandMapper {
 
     private String mapVariable(final String tap, final String configPath, final String key) {
         switch (key) {
-        case "${configurationFile}":
+        case "${configurationLocation}":
             return configPath;
         case "${tap}":
             return tap;
         case "${configurationsWorkingDirectory}":
             return configuration.getConfigurationsWorkingDirectory().toAbsolutePath().toString();
         default:
+            // todo: enhance
+            if (key.contains("${configurationsWorkingDirectory}")) {
+                return key
+                        .replace("${configurationsWorkingDirectory}",
+                                configuration.getConfigurationsWorkingDirectory().toAbsolutePath().toString());
+            }
+            if (key.endsWith("${configurationFilename}")) {
+                final String normalized = configPath.replace(File.pathSeparatorChar, '/');
+                return key.replace("${configurationFilename}", normalized.substring(normalized.lastIndexOf('/') + 1));
+            }
             if (key.startsWith("${") && key.endsWith("}")) {
                 return config.getOptionalValue(key.substring(2, key.length() - 1), String.class).orElse(key);
             }

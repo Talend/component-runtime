@@ -36,6 +36,8 @@ import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.meecrowave.testing.ConfigurationInject;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.server.front.model.ActionItem;
+import org.talend.sdk.component.server.front.model.ActionList;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
@@ -121,6 +123,24 @@ class StitchProvisioningTest {
                     .getDetails()
                     .iterator()
                     .next());
+        } finally {
+            client.close();
+        }
+    }
+
+    @Test
+    void actions() {
+        final Client client = ClientBuilder.newClient();
+        final WebTarget api = client.target("http://localhost:" + builder.getHttpPort() + "/api/v1");
+        try {
+            final Collection<ActionItem> actions =
+                    api.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class).getItems();
+            assertEquals(1, actions.size());
+            final ActionItem action = actions.iterator().next();
+            assertEquals("Stitch", action.getComponent());
+            assertEquals("suggestions", action.getType());
+            assertEquals("schema_foo", action.getName());
+            assertEquals(2, action.getProperties().size());
         } finally {
             client.close();
         }

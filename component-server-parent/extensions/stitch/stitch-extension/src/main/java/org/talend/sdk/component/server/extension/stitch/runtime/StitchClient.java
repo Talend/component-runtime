@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.server.extension.stitch.runtime;
 
+import java.io.InputStream;
+
 import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.service.http.Header;
@@ -24,19 +26,12 @@ import org.talend.sdk.component.api.service.http.Request;
 
 public interface StitchClient extends HttpClient {
 
-    @Request(method = "POST", path = "/sources")
-    JsonObject createSource(@Header("Authorization") String bearer, @Header("Content-Type") String contentType,
-            JsonObject payload);
+    // returns {id:xxxx}
+    @Request(method = "POST", path = "/executor/submit/{tap}")
+    JsonObject createJob(@Header("Authorization") String bearer, @Header("Content-Type") String contentType,
+            @Path("tap") String tap, JsonObject payload);
 
-    @Request(path = "/sources/{source_id}/streams/{stream_id}")
-    JsonObject getSchema(@Header("Authorization") String bearer, @Header("Content-Type") String contentType,
-            @Path("source_id") String sourceId, @Path("stream_id") String streamId);
-
-    @Request(method = "PUT", path = "/sources/{source_id}/streams/metadata")
-    JsonObject customizeSchema(@Header("Authorization") String bearer, @Header("Content-Type") String contentType,
-            @Path("source_id") String sourceId);
-
-    @Request(method = "DELETE", path = "/sources/{source_id}")
-    JsonObject deleteSource(@Header("Authorization") String bearer, @Header("Content-Type") String contentType,
-            @Path("source_id") String sourceId, JsonObject payload);
+    @Request(path = "/executor/read/{id}")
+    InputStream readOutput(@Header("Authorization") String bearer, @Header("Content-Type") String contentType,
+            @Path("id") String id);
 }

@@ -110,8 +110,8 @@ public class ProcessExecutor {
         }
     }
 
-    public CompletionStage<Integer> execute(final String tap, final JsonObject properties,
-            final BooleanSupplier isRunning, final BiConsumer<String, JsonObject> onData,
+    public CompletionStage<Integer> execute(final String tap, final JsonObject configuration,
+            final JsonObject properties, final BooleanSupplier isRunning, final BiConsumer<String, JsonObject> onData,
             final ProcessOutputMode outputMode, final long timeoutDurationMs, final String... args) {
         final AtomicReference<CloseableProcess> closeableProcess = new AtomicReference<>();
         final CountDownLatch readyToTimeout = new CountDownLatch(1);
@@ -132,7 +132,7 @@ public class ProcessExecutor {
 
         final CompletableFuture<Integer> onComplete = new CompletableFuture<>();
         final CloseableProcess process =
-                doExecute(tap, properties, isRunning, onData, outputMode, onComplete, timeout, args);
+                doExecute(tap, configuration, properties, isRunning, onData, outputMode, onComplete, timeout, args);
         closeableProcess.set(process);
         readyToTimeout.countDown();
         return onComplete;
@@ -141,11 +141,13 @@ public class ProcessExecutor {
     // note: we can switch to https://github.com/brettwooldridge/NuProcess if we start to rely on too much threads
     // or writing to a file to read it through an NIO.
     // That said it also means multiple processes and we want to control our resources so probably overkill.
-    private CloseableProcess doExecute(final String tap, final JsonObject properties, final BooleanSupplier isRunning,
-            final BiConsumer<String, JsonObject> onData, final ProcessOutputMode outputMode,
-            final CompletableFuture<Integer> onComplete, final ScheduledFuture<?> timeout, final String... args) {
+    private CloseableProcess doExecute(final String tap, final JsonObject configuration, final JsonObject properties,
+            final BooleanSupplier isRunning, final BiConsumer<String, JsonObject> onData,
+            final ProcessOutputMode outputMode, final CompletableFuture<Integer> onComplete,
+            final ScheduledFuture<?> timeout, final String... args) {
         final String id = UUID.randomUUID().toString();
-        final Path configFile = createConfigFile(properties);
+        final Path configFile = createConfigFile(configuration);
+        final Path propertiesFile = properties == null || properties.isEmpty() ? null : createConfigFile(properties);
         final AutoCloseable cleanTempFiles = () -> {
             if (Files.exists(configFile)) {
                 try {
@@ -154,12 +156,21 @@ public class ProcessExecutor {
                     log.warn("Can't delete {} ({})", configFile, e.getMessage());
                 }
             }
+            if (propertiesFile != null && Files.exists(propertiesFile)) {
+                try {
+                    Files.deleteIfExists(propertiesFile);
+                } catch (final IOException e) {
+                    log.warn("Can't delete {} ({})", propertiesFile, e.getMessage());
+                }
+            }
         };
         try {
             final ProcessBuilder builder = new ProcessBuilder();
-            builder.command(createCommandFor(tap, configFile, args));
+            final List<String> command = createCommandFor(mapDefaultTapName(tap), configFile, propertiesFile, args);
+            builder.command(command);
 
             final String marker = tap + " (" + id + ")";
+            log.info("Launching command '{}': {}", marker, command);
             final Process process = builder.start();
 
             final AtomicInteger finishedStream = new AtomicInteger(2);
@@ -189,6 +200,11 @@ public class ProcessExecutor {
             }
             throw new IllegalStateException(e);
         }
+    }
+
+    // steps/connect api returns "platform.foo" and tap is "tap-foo
+    private String mapDefaultTapName(final String tap) {
+        return tap.replace("platform.", tap.startsWith("tap-") ? "" : "tap-");
     }
 
     private void onStreamRead(final CompletableFuture<Integer> onComplete, final ScheduledFuture<?> timeout,
@@ -295,10 +311,14 @@ public class ProcessExecutor {
         });
     }
 
-    private List<String> createCommandFor(final String tap, final Path configFile, final String... args) {
+    private List<String> createCommandFor(final String tap, final Path configFile, final Path propertiesFile,
+            final String... args) {
         return Stream
-                .concat(commandMapper.toCommand(tap, configFile.toAbsolutePath().toString()).stream(),
-                        args == null ? Stream.empty() : Stream.of(args))
+                .concat(Stream
+                        .concat(commandMapper.toCommand(tap, configFile.toAbsolutePath().toString()).stream(),
+                                args == null ? Stream.empty() : Stream.of(args)),
+                        propertiesFile == null ? Stream.empty()
+                                : Stream.of("--properties", propertiesFile.toAbsolutePath().toString()))
                 .collect(toList());
     }
 

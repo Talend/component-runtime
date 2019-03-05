@@ -24,8 +24,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import javax.enterprise.inject.Vetoed;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.CompletionStageRxInvoker;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
@@ -40,21 +40,15 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 class ModelLoader {
 
-    private final Client client;
-
-    private final String base;
+    private final WebTarget target;
 
     private final String token;
 
     private final int retries;
 
     CompletionStage<Model> load() {
-        final CompletionStageRxInvoker invoker = client
-                .target(base)
-                .path("model")
-                .request(APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .rx();
+        final CompletionStageRxInvoker invoker =
+                target.path("model").request(APPLICATION_JSON_TYPE).header(HttpHeaders.AUTHORIZATION, token).rx();
         return invoker.get().handle((ok, error) -> {
             if (isSuccess(ok, error)) {
                 return completedFuture(ok);

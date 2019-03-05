@@ -27,8 +27,10 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -171,14 +173,40 @@ public class StitchMapper {
                                         it.getProposalDisplayNames())));
         final Stream<? extends SimplePropertyDefinition> formProps =
                 mapProperties(formStep).filter(it -> !ROOT.getPath().equals(it.getPath()) /* already handled */);
-        final Stream<? extends SimplePropertyDefinition> schemaAndFieldSelection = Stream.empty();
-        node
-                .setProperties(Stream
-                        .concat(Stream.concat(datastoreProps, formProps), schemaAndFieldSelection)
-                        .collect(toList()));
+        final Stream<? extends SimplePropertyDefinition> datafields = createDataFields(steps);
+        node.setProperties(Stream.concat(Stream.concat(datastoreProps, formProps), datafields).collect(toList()));
         node.setActions(emptyList());
         node.setEdges(emptySet());
         return node;
+    }
+
+    private Stream<SimplePropertyDefinition> createDataFields(final StitchClient.Steps steps) {
+        final Collection<SimplePropertyDefinition> fields = new ArrayList<>(4);
+        final boolean hasDiscoverSchema =
+                steps.getSteps().stream().anyMatch(s -> "discover_schema".equals(s.getType()));
+        if (hasDiscoverSchema) {
+            final Map<String, String> suggestions = new HashMap<>();
+            suggestions.put("action::suggestions", "schema_" + steps.getType());
+            suggestions.put("action::suggestions::parameters", "step_form");
+            fields
+                    .add(new SimplePropertyDefinition("configuration.schema", "schema", "Schema", "ARRAY", null,
+                            NO_VALIDATION, suggestions, null, new LinkedHashMap<>()));
+            fields
+                    .add(new SimplePropertyDefinition("configuration.schema[]", "schema[]", "Schema", "STRING", null,
+                            NO_VALIDATION, emptyMap(), null, new LinkedHashMap<>()));
+        }
+        if (steps.getSteps().stream().anyMatch(s -> "field_selection".equals(s.getType()))) {
+            final Map<String, String> suggestions = new HashMap<>();
+            suggestions.put("action::suggestions", "fields_" + steps.getType());
+            suggestions.put("action::suggestions::parameters", "step_form" + (hasDiscoverSchema ? ",schema" : ""));
+            fields
+                    .add(new SimplePropertyDefinition("configuration.fields", "fields", "Fields", "ARRAY", null,
+                            NO_VALIDATION, suggestions, null, new LinkedHashMap<>()));
+            fields
+                    .add(new SimplePropertyDefinition("configuration.fields[]", "fields[]", "Fields", "STRING", null,
+                            NO_VALIDATION, emptyMap(), null, new LinkedHashMap<>()));
+        }
+        return fields.stream();
     }
 
     // https://www.stitchdata.com/docs/stitch-connect/api#connection-step-object
