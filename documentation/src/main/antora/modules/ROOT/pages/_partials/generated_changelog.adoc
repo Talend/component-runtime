@@ -1,5 +1,11 @@
 
 
+== Version 1.1.8
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1325[TCOMP-1325^]: Upgrade CXF to 3.3.1
+
 == Version 1.1.7
 
 === Bug
