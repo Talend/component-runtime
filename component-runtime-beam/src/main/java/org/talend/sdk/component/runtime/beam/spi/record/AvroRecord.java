@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import javax.json.bind.annotation.JsonbTransient;
+
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
@@ -48,8 +50,10 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private static final org.apache.avro.Schema NULL_SCHEMA =
             org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL);
 
+    @JsonbTransient
     private final IndexedRecord delegate;
 
+    @JsonbTransient
     private final AvroSchema schema;
 
     public AvroRecord(final IndexedRecord record) {

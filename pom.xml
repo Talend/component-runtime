@@ -178,6 +178,7 @@
     <junit5.version>5.4.0</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
+    <avro.version>1.8.2</avro.version>
 
     <talend-ui.version>2.6.0</talend-ui.version>
     <component-api.version>1.1.5</component-api.version>

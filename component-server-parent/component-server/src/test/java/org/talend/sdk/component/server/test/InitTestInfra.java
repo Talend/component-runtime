@@ -49,6 +49,8 @@ import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
+import javax.json.bind.config.PropertyOrderStrategy;
+
 import org.apache.meecrowave.Meecrowave;
 import org.apache.xbean.asm7.AnnotationVisitor;
 import org.apache.xbean.asm7.ClassReader;
@@ -69,6 +71,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
     @Override
     public void accept(final Meecrowave.Builder builder) {
+        builder.setJsonbOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL);
+
         if (Boolean.getBoolean("org.talend.sdk.component.server.test.InitTestInfra.skip")) {
             return;
         }
