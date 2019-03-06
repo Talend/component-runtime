@@ -58,8 +58,6 @@ import lombok.extern.slf4j.Slf4j;
 @Path("application")
 public class WebAppComponentProxy {
 
-    private static final String[] EMPTY_ARRAY = new String[0];
-
     @Inject
     private Client<Object> client;
 
