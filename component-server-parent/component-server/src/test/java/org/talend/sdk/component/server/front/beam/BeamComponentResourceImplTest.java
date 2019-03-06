@@ -24,14 +24,12 @@ import javax.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.server.front.model.Dependencies;
 import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.server.test.ComponentClient;
 
 @MonoMeecrowaveConfig
-@WithTemporaryFolder
-public class BeamComponentResourceImplTest {
+class BeamComponentResourceImplTest {
 
     @Inject
     private WebTarget base;

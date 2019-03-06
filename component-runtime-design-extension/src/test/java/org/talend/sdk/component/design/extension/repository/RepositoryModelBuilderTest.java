@@ -35,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -48,10 +49,9 @@ import org.apache.xbean.asm7.commons.Remapper;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -63,7 +63,6 @@ import org.talend.test.DataStore1;
 import org.talend.test.PartitionMapper1;
 import org.talend.test.WrappingStore;
 
-@WithTemporaryFolder
 class RepositoryModelBuilderTest {
 
     @Test
@@ -123,10 +122,10 @@ class RepositoryModelBuilderTest {
     }
 
     @Test
-    void test(final TemporaryFolder temporaryFolder, final TestInfo testInfo) throws Exception {
+    void test(@TempDir final Path temporaryFolder, final TestInfo testInfo) throws Exception {
 
         final String pluginName = testInfo.getTestMethod().get().getName() + ".jar";
-        final File pluginJar = createChainPlugin(temporaryFolder.getRoot(), pluginName);
+        final File pluginJar = createChainPlugin(temporaryFolder.toFile(), pluginName);
 
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {

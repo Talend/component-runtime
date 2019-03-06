@@ -33,21 +33,19 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithTemporaryFolder
 class AsciidocDocumentationGeneratorTest {
 
     @Test
-    void generateAdoc(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
-        final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
+    void generateAdoc(@TempDir final File temporaryFolder, final TestInfo info) throws IOException {
+        final File output = new File(temporaryFolder, info.getTestMethod().get().getName() + ".asciidoc");
         new AsciidocDocumentationGenerator(
-                new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
-                        info.getTestMethod().get().getName()) },
+                new File[] {
+                        copyBinaries("org.talend.test.valid", temporaryFolder, info.getTestMethod().get().getName()) },
                 output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
@@ -70,11 +68,11 @@ class AsciidocDocumentationGeneratorTest {
     }
 
     @Test
-    void generateAdocWithI18n(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
-        final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
+    void generateAdocWithI18n(@TempDir final File temporaryFolder, final TestInfo info) throws IOException {
+        final File output = new File(temporaryFolder, info.getTestMethod().get().getName() + ".asciidoc");
         new AsciidocDocumentationGenerator(
-                new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
-                        info.getTestMethod().get().getName()) },
+                new File[] {
+                        copyBinaries("org.talend.test.valid", temporaryFolder, info.getTestMethod().get().getName()) },
                 output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", new Locale("test")).run();
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
@@ -97,10 +95,10 @@ class AsciidocDocumentationGeneratorTest {
     }
 
     @Test
-    void generateAdocAdvancedConfig(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
-        final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
+    void generateAdocAdvancedConfig(@TempDir final File temporaryFolder, final TestInfo info) throws IOException {
+        final File output = new File(temporaryFolder, info.getTestMethod().get().getName() + ".asciidoc");
         new AsciidocDocumentationGenerator(
-                new File[] { copyBinaries("org.talend.test.configuration", temporaryFolder.getRoot(),
+                new File[] { copyBinaries("org.talend.test.configuration", temporaryFolder,
                         info.getTestMethod().get().getName()) },
                 output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(output.exists());
@@ -120,10 +118,10 @@ class AsciidocDocumentationGeneratorTest {
     }
 
     @Test
-    void generateAdocWithConditions(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
-        final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
+    void generateAdocWithConditions(@TempDir final File temporaryFolder, final TestInfo info) throws IOException {
+        final File output = new File(temporaryFolder, info.getTestMethod().get().getName() + ".asciidoc");
         new AsciidocDocumentationGenerator(
-                new File[] { copyBinaries("org.talend.test.activeif", temporaryFolder.getRoot(),
+                new File[] { copyBinaries("org.talend.test.activeif", temporaryFolder,
                         info.getTestMethod().get().getName()) },
                 output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(output.exists());
@@ -146,14 +144,14 @@ class AsciidocDocumentationGeneratorTest {
     }
 
     @Test
-    void generateHtmlPdf(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
+    void generateHtmlPdf(@TempDir final File temporaryFolder, final TestInfo info) throws IOException {
         final String testMethod = info.getTestMethod().get().getName();
-        final File output = new File(temporaryFolder.getRoot(), testMethod + ".asciidoc");
-        final File outputHtml = new File(temporaryFolder.getRoot(), testMethod + ".html");
-        final File outputPdf = new File(temporaryFolder.getRoot(), testMethod + ".pdf");
+        final File output = new File(temporaryFolder, testMethod + ".asciidoc");
+        final File outputHtml = new File(temporaryFolder, testMethod + ".html");
+        final File outputPdf = new File(temporaryFolder, testMethod + ".pdf");
         new AsciidocDocumentationGenerator(
-                new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
-                        info.getTestMethod().get().getName()) },
+                new File[] {
+                        copyBinaries("org.talend.test.valid", temporaryFolder, info.getTestMethod().get().getName()) },
                 output, "SuperTitle", 2, new HashMap<String, String>() {
 
                     {

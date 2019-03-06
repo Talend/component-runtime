@@ -25,14 +25,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.beam.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.chain.GroupKeyProvider;
@@ -41,17 +41,16 @@ import org.talend.sdk.component.runtime.manager.chain.Job;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithTemporaryFolder
 class BeamJobTest implements Serializable {
 
     private transient final PluginGenerator pluginGenerator = new PluginGenerator();
 
     @Test
-    void complex(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+    void complex(final TestInfo info, @TempDir final Path temporaryFolder) throws IOException {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
-        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
-        final File out = new File(temporaryFolder.getRoot(), testName + "-out.txt");
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), plugin);
+        final File out = new File(temporaryFolder.toFile(), testName + "-out.txt");
 
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {

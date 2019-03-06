@@ -51,23 +51,21 @@ import java.util.zip.ZipEntry;
 import org.apache.ziplock.IO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.OS;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.sun.net.httpserver.HttpServer;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithTemporaryFolder
 class CarBundlerTest {
 
     @Test
-    void bundleWithExistingSameComponent(final TemporaryFolder temporaryFolder) throws Exception {
+    void bundleWithExistingSameComponent(@TempDir final File temporaryFolder) throws Exception {
         final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
 
         // try to execute the main now in a fake studio
-        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeStudio = temporaryFolder;
         final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
         fakeConfig.getParentFile().mkdirs();
         try (final Writer writer = new FileWriter(fakeConfig)) {
@@ -87,11 +85,11 @@ class CarBundlerTest {
     }
 
     @Test
-    void bundleWithExistingOtherComponent(final TemporaryFolder temporaryFolder) throws Exception {
+    void bundleWithExistingOtherComponent(@TempDir final File temporaryFolder) throws Exception {
         final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
 
         // try to execute the main now in a fake studio
-        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeStudio = temporaryFolder;
         final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
         fakeConfig.getParentFile().mkdirs();
         try (final Writer writer = new FileWriter(fakeConfig)) {
@@ -111,11 +109,11 @@ class CarBundlerTest {
     }
 
     @Test
-    void bundleWithExistingSameComponentOtherVersion(final TemporaryFolder temporaryFolder) throws Exception {
+    void bundleWithExistingSameComponentOtherVersion(@TempDir final File temporaryFolder) throws Exception {
         final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
 
         // try to execute the main now in a fake studio
-        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeStudio = temporaryFolder;
         final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
         fakeConfig.getParentFile().mkdirs();
         try (final Writer writer = new FileWriter(fakeConfig)) {
@@ -135,12 +133,12 @@ class CarBundlerTest {
     }
 
     @Test
-    void bundleWithExistingSameComponentOtherVersionAndOtherComponents(final TemporaryFolder temporaryFolder)
+    void bundleWithExistingSameComponentOtherVersionAndOtherComponents(@TempDir final File temporaryFolder)
             throws Exception {
         final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
 
         // try to execute the main now in a fake studio
-        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeStudio = temporaryFolder;
         final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
         fakeConfig.getParentFile().mkdirs();
         try (final Writer writer = new FileWriter(fakeConfig)) {
@@ -160,11 +158,11 @@ class CarBundlerTest {
     }
 
     @Test
-    void bundle(final TemporaryFolder temporaryFolder) throws Exception {
+    void bundle(@TempDir final File temporaryFolder) throws Exception {
         final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
 
         // try to execute the main now in a fake studio
-        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeStudio = temporaryFolder;
         final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
         fakeConfig.getParentFile().mkdirs();
         try (final Writer writer = new FileWriter(fakeConfig)) {
@@ -186,11 +184,11 @@ class CarBundlerTest {
     }
 
     @Test
-    void uploadToNexusV2(final TemporaryFolder temporaryFolder)
+    void uploadToNexusV2(@TempDir final File temporaryFolder)
             throws IOException, NoSuchMethodException, InterruptedException {
         final String repoName = "releases";
         final String pathToJar = "foo/bar/dummy/1.2/dummy-1.2.jar";
-        final File m2 = temporaryFolder.newFolder();
+        final File m2 = temporaryFolder;
         final File dep = createTempJar(m2, pathToJar);
         final byte[] expected;
         try (final InputStream in = new FileInputStream(dep)) {
@@ -219,11 +217,11 @@ class CarBundlerTest {
     }
 
     @Test
-    void uploadToNexusV3(final TemporaryFolder temporaryFolder)
+    void uploadToNexusV3(@TempDir final File temporaryFolder)
             throws IOException, InterruptedException, NoSuchMethodException {
         final String repoName = "releases";
         final String pathToJar = "foo/bar/dummy/1.2/dummy-1.2.jar";
-        final File m2 = temporaryFolder.newFolder();
+        final File m2 = temporaryFolder;
         final File dep = createTempJar(m2, pathToJar);
         final byte[] expected;
         try (final InputStream in = new FileInputStream(dep)) {
@@ -251,9 +249,7 @@ class CarBundlerTest {
         assertEquals(3, serverCalls.intValue());
     }
 
-    private CarBundler.Configuration prepareBundle(final TemporaryFolder temporaryFolder)
-            throws IOException, NoSuchMethodException {
-        final File m2 = temporaryFolder.newFolder();
+    private CarBundler.Configuration prepareBundle(final File m2) throws IOException, NoSuchMethodException {
         final File dep = new File(m2, "foo/bar/dummy/1.2/dummy-1.2.jar");
         dep.getParentFile().mkdirs();
         try (final JarOutputStream jos = new JarOutputStream(new FileOutputStream(dep))) {
@@ -265,7 +261,7 @@ class CarBundlerTest {
         final CarBundler.Configuration configuration = new CarBundler.Configuration();
         configuration.setVersion("1.2.3");
         configuration.setArtifacts(singletonMap("foo.bar:dummy:1.2", dep));
-        configuration.setOutput(new File(temporaryFolder.getRoot(), "output.jar"));
+        configuration.setOutput(new File(m2, "output.jar"));
         configuration.setMainGav("foo.bar:dummy:1.2");
         new CarBundler(configuration, new ReflectiveLog(log)).run();
         assertTrue(configuration.getOutput().exists());
@@ -315,12 +311,12 @@ class CarBundlerTest {
         return dep;
     }
 
-    private CarBundler.Configuration createConfiguration(final TemporaryFolder temporaryFolder, final File dep)
+    private CarBundler.Configuration createConfiguration(final File temporaryFolder, final File dep)
             throws NoSuchMethodException {
         final CarBundler.Configuration configuration = new CarBundler.Configuration();
         configuration.setVersion("1.2.3");
         configuration.setArtifacts(singletonMap("foo.bar:dummy:1.2", dep));
-        configuration.setOutput(new File(temporaryFolder.getRoot(), "output.jar"));
+        configuration.setOutput(new File(temporaryFolder, "output.jar"));
         configuration.setMainGav("foo.bar:dummy:1.2");
         new CarBundler(configuration, new ReflectiveLog(log)).run();
         assertTrue(configuration.getOutput().exists());
