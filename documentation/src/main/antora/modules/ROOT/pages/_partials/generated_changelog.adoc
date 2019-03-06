@@ -2,9 +2,17 @@
 
 == Version 1.1.8
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1326[TCOMP-1326^]: Avro Schema is not serializable as JSON so guess schema action does not work when compoennt-runtime-beam is present
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1325[TCOMP-1325^]: Upgrade CXF to 3.3.1
+- link:https://jira.talendforge.org/browse/TCOMP-1327[TCOMP-1327^]: /environment iterates over deployed plugin for each call, this is not needed
+- link:https://jira.talendforge.org/browse/TCOMP-1328[TCOMP-1328^]: Upgrade to Beam 2.11.0
 
 == Version 1.1.7
 
