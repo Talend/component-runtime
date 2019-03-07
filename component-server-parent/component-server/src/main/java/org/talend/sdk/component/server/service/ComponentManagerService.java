@@ -223,7 +223,7 @@ public class ComponentManagerService {
                     .map(r -> r
                             .getFamilies()
                             .stream()
-                            .flatMap(f -> configAsStream(f.getConfigs().stream()))
+                            .flatMap(f -> configAsStream(f.getConfigs().get().stream()))
                             .collect(toList()))
                     .orElse(emptyList())
                     .stream()

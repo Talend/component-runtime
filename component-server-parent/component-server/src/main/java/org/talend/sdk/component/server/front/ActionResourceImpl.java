@@ -173,7 +173,7 @@ public class ActionResourceImpl implements ActionResource {
                         .filter(act -> typeMatcher.test(act.getType()) && componentMatcher.test(act.getFamily()))
                         .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(),
                                 propertiesService
-                                        .buildProperties(s.getParameters(), c.getLoader(), locale, null)
+                                        .buildProperties(s.getParameters().get(), c.getLoader(), locale, null)
                                         .collect(toList()))));
     }
 }

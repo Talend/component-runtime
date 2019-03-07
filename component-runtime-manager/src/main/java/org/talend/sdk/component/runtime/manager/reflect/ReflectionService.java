@@ -79,6 +79,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ReflectionService {
 
+    private static final Object[] EMPTY_ARGS = new Object[0];
+
     private final ParameterModelService parameterModelService;
 
     private final PropertyEditorRegistry propertyEditorRegistry;

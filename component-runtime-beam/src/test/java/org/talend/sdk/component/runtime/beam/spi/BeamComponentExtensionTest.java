@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.transforms.Create;
@@ -62,7 +63,7 @@ class BeamComponentExtensionTest {
                 .unwrap(FlowsFactory.class,
                         new ComponentFamilyMeta.ProcessorMeta(
                                 new ComponentFamilyMeta("test", emptyList(), null, "test", "test"), "beam", null, 1,
-                                BeamMapper.class, emptyList(), null, null, true) {
+                                BeamMapper.class, Collections::emptyList, null, null, true) {
 
                         });
         assertEquals(1, factory.getInputFlows().size());

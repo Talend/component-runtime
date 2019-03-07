@@ -43,13 +43,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Configurer;
@@ -71,8 +66,6 @@ import org.talend.sdk.component.runtime.manager.reflect.Constructors;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.MediaTypeComparator;
 import org.talend.sdk.component.runtime.manager.service.http.codec.CodecMatcher;
-import org.talend.sdk.component.runtime.manager.service.http.codec.JAXBDecoder;
-import org.talend.sdk.component.runtime.manager.service.http.codec.JAXBEncoder;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JsonpDecoder;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JsonpEncoder;
 
@@ -93,7 +86,7 @@ public class RequestParser {
 
     private final Decoder jsonpDecoder;
 
-    private volatile Map<Class<?>, JAXBContext> jaxbContexts = new HashMap<>();
+    private final JAXBManager jaxb = JAXB.ACTIVE ? new JAXBManager() : null;
 
     private volatile CodecMatcher<Encoder> codecMatcher = new CodecMatcher<>();
 
@@ -118,7 +111,9 @@ public class RequestParser {
 
         final Request request = method.getAnnotation(Request.class);
         Configurer configurerInstance = findConfigurerInstance(method);
-        initJaxbContext(method);
+        if (jaxb != null) {
+            jaxb.initJaxbContext(method);
+        }
         final Codec codec = ofNullable(method.getAnnotation(Codec.class))
                 .orElseGet(() -> method.getDeclaringClass().getAnnotation(Codec.class));
         final Map<String, Encoder> encoders = createEncoder(codec);
@@ -215,28 +210,6 @@ public class RequestParser {
         };
     }
 
-    private void initJaxbContext(final Method m) {
-        Stream
-                .concat(of(m.getGenericReturnType()),
-                        of(m.getParameters())
-                                .filter(p -> of(Path.class, Query.class, Header.class, QueryParams.class, Headers.class,
-                                        HttpMethod.class, Url.class).noneMatch(p::isAnnotationPresent))
-                                .map(Parameter::getParameterizedType))
-                .map(RequestParser::toClassType)
-                .filter(Objects::nonNull)
-                .filter(cType -> cType.isAnnotationPresent(XmlRootElement.class)
-                        || cType.isAnnotationPresent(XmlType.class))
-                .forEach(rootElemType -> {
-                    jaxbContexts.computeIfAbsent(rootElemType, k -> {
-                        try {
-                            return JAXBContext.newInstance(k);
-                        } catch (final JAXBException e) {
-                            throw new IllegalStateException(e);
-                        }
-                    });
-                });
-    }
-
     private Configurer findConfigurerInstance(final Method m) {
         final UseConfigurer configurer = ofNullable(m.getAnnotation(UseConfigurer.class))
                 .orElseGet(() -> m.getDeclaringClass().getAnnotation(UseConfigurer.class));
@@ -249,7 +222,7 @@ public class RequestParser {
         }
     }
 
-    private static Class<?> toClassType(final Type type) {
+    static Class<?> toClassType(final Type type) {
         Class<?> cType = null;
         if (Class.class.isInstance(type)) {
             cType = Class.class.cast(type);
@@ -323,8 +296,8 @@ public class RequestParser {
         }
 
         // keep the put order
-        if (!jaxbContexts.isEmpty()) {
-            final JAXBEncoder jaxbEncoder = new JAXBEncoder(jaxbContexts);
+        if (jaxb != null && !jaxb.isEmpty()) {
+            final Encoder jaxbEncoder = jaxb.newEncoder();
             encoders.putIfAbsent("*/xml", jaxbEncoder);
             encoders.putIfAbsent("*/*+xml", jaxbEncoder);
         }
@@ -365,8 +338,8 @@ public class RequestParser {
         }
         // add default decoders if not override by the user
         // keep the put order
-        if (!jaxbContexts.isEmpty()) {
-            final JAXBDecoder jaxbDecoder = new JAXBDecoder(jaxbContexts);
+        if (jaxb != null && !jaxb.isEmpty()) {
+            final Decoder jaxbDecoder = jaxb.newDecoder();
             decoders.putIfAbsent("*/xml", jaxbDecoder);
             decoders.putIfAbsent("*/*+xml", jaxbDecoder);
         }

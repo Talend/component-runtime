@@ -379,7 +379,7 @@ public class ComponentResourceImpl implements ComponentResource {
                                 meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
                 componentDetail
                         .setProperties(propertiesService
-                                .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
+                                .buildProperties(meta.getParameterMetas().get(), container.getLoader(), locale, null)
                                 .collect(toList()));
                 componentDetail
                         .setActions(actionsService

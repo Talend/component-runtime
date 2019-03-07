@@ -19,9 +19,13 @@ import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -53,41 +57,51 @@ public class RepositoryModelBuilder {
 
     public RepositoryModel create(final ComponentManager.AllServices services,
             final Collection<ComponentFamilyMeta> familyMetas, final MigrationHandlerFactory migrationHandlerFactory) {
-        return new RepositoryModel(familyMetas
+        final List<Family> families = familyMetas
                 .stream()
-                .map(familyMeta -> Stream
-                        .concat(familyMeta.getPartitionMappers().values().stream(),
-                                familyMeta.getProcessors().values().stream())
-                        .flatMap(b -> b.getParameterMetas().stream())
-                        .flatMap(this::flatten)
-                        .filter(RepositoryModelBuilder::isConfiguration)
-                        .map(p -> createConfig(familyMeta.getPlugin(), services, p, familyMeta.getName(),
-                                familyMeta.getIcon(), migrationHandlerFactory))
-                        .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1,
-                                LinkedHashMap::new))
+                .map(familyMeta -> createConfigForFamily(services, migrationHandlerFactory, familyMeta))
+                .collect(toList());
+        return new RepositoryModel(families);
+    }
+
+    private Family createConfigForFamily(final ComponentManager.AllServices services,
+            final MigrationHandlerFactory migrationHandlerFactory, final ComponentFamilyMeta familyMeta) {
+        final Family family = new Family();
+        family.setId(familyMeta.getId());
+        family.setMeta(familyMeta);
+        family
+                .setConfigs(lazy(() -> extractConfigurations(services, migrationHandlerFactory, familyMeta)
                         .values()
                         .stream()
-                        .collect(() -> {
-                            final Family family = new Family();
-                            family.setId(familyMeta.getId());
-                            family.setMeta(familyMeta);
-                            return family;
-                        }, (aggregator, item) -> {
+                        .collect(ArrayList::new, (aggregator, item) -> {
                             final Collection<Config> configs = aggregator
-                                    .getConfigs()
                                     .stream()
                                     .filter(c -> toParamStream(item.getMeta().getNestedParameters())
                                             .anyMatch(p -> p.getJavaType() == c.getMeta().getJavaType()))
                                     .findFirst()
                                     .map(Config::getChildConfigs)
-                                    .orElseGet(aggregator::getConfigs);
+                                    .orElse(aggregator);
                             if (configs
                                     .stream()
                                     .noneMatch(c -> c.getMeta().getJavaType() == item.getMeta().getJavaType())) {
                                 configs.add(item);
                             }
-                        }, (family1, family2) -> family1.getConfigs().addAll(family2.getConfigs())))
-                .collect(toList()));
+                        }, List::addAll)));
+        return family;
+    }
+
+    private Map<Type, Config> extractConfigurations(final ComponentManager.AllServices services,
+            final MigrationHandlerFactory migrationHandlerFactory, final ComponentFamilyMeta familyMeta) {
+        return Stream
+                .concat(familyMeta.getPartitionMappers().values().stream(),
+                        familyMeta.getProcessors().values().stream())
+                .flatMap(b -> b.getParameterMetas().get().stream())
+                .flatMap(this::flatten)
+                .filter(RepositoryModelBuilder::isConfiguration)
+                .map(p -> createConfig(familyMeta.getPlugin(), services, p, familyMeta.getName(), familyMeta.getIcon(),
+                        migrationHandlerFactory))
+                .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1,
+                        LinkedHashMap::new));
     }
 
     private Stream<ParameterMeta> toParamStream(final Collection<ParameterMeta> params) {
@@ -123,7 +137,7 @@ public class RepositoryModelBuilder {
                 if (version.migrationHandler() != MigrationHandler.class) {
                     c
                             .setMigrationHandler(migrationHandlerFactory
-                                    .findMigrationHandler(singletonList(c.getMeta()), clazz, services));
+                                    .findMigrationHandler(() -> singletonList(c.getMeta()), clazz, services));
                 }
             } else {
                 c.setVersion(-1);

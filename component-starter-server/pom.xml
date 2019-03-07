@@ -120,11 +120,6 @@
       <version>${junit5.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency><!-- for java >= 9 support -->
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
-    </dependency>
   </dependencies>
 
   <build>

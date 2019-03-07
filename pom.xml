@@ -152,7 +152,7 @@
     <geronimo-annotation.version>1.1</geronimo-annotation.version>
     <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.1</geronimo-jsonb.version>
-    <geronimo-json.version>1.1</geronimo-json.version>
+    <geronimo-json.version>1.2</geronimo-json.version>
     <batik.version>1.9.1</batik.version>
     <beam.version>2.11.0</beam.version>
     <commons-codec.version>1.12</commons-codec.version>
@@ -238,10 +238,10 @@
         <artifactId>geronimo-jsonb_1.0_spec</artifactId>
         <version>${geronimo-jsonb.version}</version>
       </dependency>
-      <dependency><!-- for java >= 9 support, /!\ CDDL license -->
+      <dependency>
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-runtime</artifactId>
-        <version>2.4.0-b180830.0438</version>
+        <version>${java11.jaxb.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

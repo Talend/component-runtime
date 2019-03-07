@@ -191,7 +191,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                         .get(RepositoryModel.class)
                         .getFamilies()
                         .stream()
-                        .filter(f -> !f.getConfigs().isEmpty())
+                        .filter(f -> !f.getConfigs().get().isEmpty())
                         .flatMap(family -> {
                             final FamilyBundle resourcesBundle = family.getMeta().findBundle(c.getLoader(), locale);
 
@@ -203,7 +203,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
 
                                 node.setDisplayName(resourcesBundle.displayName().orElse(family.getMeta().getName()));
 
-                                node.setEdges(family.getConfigs().stream().map(Config::getId).collect(toSet()));
+                                node.setEdges(family.getConfigs().get().stream().map(Config::getId).collect(toSet()));
                                 familyNode = Stream.of(node);
                             } else {
                                 familyNode = Stream.empty();
@@ -211,8 +211,8 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                             return Stream
                                     .concat(familyNode,
                                             createNode(family.getId(), family.getMeta().getName(),
-                                                    family.getConfigs().stream(), resourcesBundle, c, locale, filter,
-                                                    lightPayload));
+                                                    family.getConfigs().get().stream(), resourcesBundle, c, locale,
+                                                    filter, lightPayload));
                         }));
     }
 }

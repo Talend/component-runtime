@@ -45,7 +45,7 @@ class ConfigurationMigrationTest {
                     .getFamilies()
                     .stream()
                     .filter(f -> f.getMeta().getName().equals("metadata"))
-                    .map(f -> f.getConfigs().iterator().next())
+                    .map(f -> f.getConfigs().get().iterator().next())
                     .findFirst()
                     .get()
                     .getChildConfigs()
@@ -83,7 +83,7 @@ class ConfigurationMigrationTest {
                     .getFamilies()
                     .stream()
                     .filter(f -> f.getMeta().getName().equals("metadata"))
-                    .map(f -> f.getConfigs().iterator().next())
+                    .map(f -> f.getConfigs().get().iterator().next())
                     .findFirst()
                     .get();
 
