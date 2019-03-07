@@ -93,6 +93,11 @@
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
     </dependency>
+    <dependency><!-- for java >= 9 support -->
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-activation_1.1_spec</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
