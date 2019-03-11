@@ -37,9 +37,11 @@
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 
     <talend.server.image.registry />
-    <baseImage>openjdk:8-jre-alpine</baseImage>
     <boundPort>8080</boundPort>
     <baseImageDir>/opt/talend</baseImageDir>
+
+    <!-- u191 backported UseContainerSupport and activated it by default so ensure we use that version -->
+    <baseImage>openjdk:8u191-alpine3.9</baseImage>
   </properties>
 
   <build>

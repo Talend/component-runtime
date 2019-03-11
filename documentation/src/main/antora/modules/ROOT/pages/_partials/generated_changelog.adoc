@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1326[TCOMP-1326^]: Avro Schema is not serializable as JSON so guess schema action does not work when compoennt-runtime-beam is present
+- link:https://jira.talendforge.org/browse/TCOMP-1330[TCOMP-1330^]: Shade extensions don't inherit from pluginrepositories
 
 
 

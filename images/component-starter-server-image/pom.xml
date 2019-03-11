@@ -69,8 +69,6 @@
               <LANG>en_US.UTF-8</LANG>
             </environment>
             <jvmFlags>
-              <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>
-              <jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
               <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
               <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
               <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>

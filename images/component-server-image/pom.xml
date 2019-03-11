@@ -210,8 +210,6 @@
                   <LD_LIBRARY_PATH>/opt/talend/component-kit/work/sigar/sigar</LD_LIBRARY_PATH>
                 </environment>
                 <jvmFlags>
-                  <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>
-                  <jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
