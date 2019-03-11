@@ -95,6 +95,7 @@ import javax.json.stream.JsonParserFactory;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.archive.Archive;
+import org.apache.xbean.finder.archive.ClassesArchive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.apache.xbean.finder.archive.CompositeArchive;
 import org.apache.xbean.finder.archive.FileArchive;
@@ -1278,14 +1279,7 @@ public class ComponentManager implements AutoCloseable {
             final AnnotationFinder finder;
             Archive archive = null;
             try {
-                /*
-                 * container.findExistingClasspathFiles() - we just scan the root module for
-                 * now, no need to scan all the world
-                 */
-                archive = toArchive(container.getRootModule(), originalId, loader);
-
-                // undocumented scanning config for now since we would document it only if
-                // proven useful
+                String alreadyScannedClasses = null;
                 Filter filter = KnownClassesFilter.INSTANCE;
                 try (final InputStream containerFilterConfig =
                         container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
@@ -1309,9 +1303,29 @@ public class ComponentManager implements AutoCloseable {
                         } else {
                             filter = new ExcludeIncludeFilter(accept, reject);
                         }
+
+                        alreadyScannedClasses = config.getProperty("classes.list");
                     }
                 } catch (final IOException e) {
                     log.debug(e.getMessage(), e);
+                }
+
+                if (alreadyScannedClasses != null
+                        && !(alreadyScannedClasses = alreadyScannedClasses.trim()).isEmpty()) {
+                    archive =
+                            new ClassesArchive(Stream.of(alreadyScannedClasses.split(",")).map(String::trim).map(it -> {
+                                try {
+                                    return loader.loadClass(it);
+                                } catch (final ClassNotFoundException e) {
+                                    throw new IllegalArgumentException(e);
+                                }
+                            }).toArray(Class<?>[]::new));
+                } else {
+                    /*
+                     * container.findExistingClasspathFiles() - we just scan the root module for
+                     * now, no need to scan all the world
+                     */
+                    archive = toArchive(container.getRootModule(), originalId, loader);
                 }
                 finder = new AnnotationFinder(new FilteredArchive(archive, filter));
             } finally {

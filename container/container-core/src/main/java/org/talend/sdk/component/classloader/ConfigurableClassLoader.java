@@ -186,6 +186,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return "META-INF/services/org.xml.sax.driver".equals(name);
     }
 
+    private boolean isBlacklistedFromParent(final String name) {
+        return name != null && name.startsWith("TALEND-INF/");
+    }
+
     public String[] getJvmMarkers() {
         return Stream.of(nameJvmPrefixes, fullPathJvmPrefixes).flatMap(Stream::of).toArray(String[]::new);
     }
@@ -316,9 +320,11 @@ public class ConfigurableClassLoader extends URLClassLoader {
         if (resource != null) {
             return resource;
         }
-        resource = getParent().getResource(name);
-        if (resource != null && (isNestedDependencyResource(name) || isInJvm(resource))) {
-            return resource;
+        if (!isBlacklistedFromParent(name)) {
+            resource = getParent().getResource(name);
+            if (resource != null && (isNestedDependencyResource(name) || isInJvm(resource))) {
+                return resource;
+            }
         }
         return null;
     }
@@ -340,9 +346,12 @@ public class ConfigurableClassLoader extends URLClassLoader {
             return null;
         }
         try {
-            if (resource == null) {
+            if (resource == null && !isBlacklistedFromParent(name)) {
                 final URL url = getParent().getResource(name);
                 return url != null ? getInputStream(url) : null;
+            }
+            if (resource == null) {
+                return null;
             }
             return getInputStream(resource);
         } catch (final IOException e) {

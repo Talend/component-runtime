@@ -64,6 +64,13 @@ public class TalendLifecycleExtension extends AbstractMavenLifecycleParticipant 
             dependencies.setPhase("process-classes");
             executions.add(dependencies);
         }
+        if (isExecutionMissing(executions, "scan-descriptor")) {
+            final PluginExecution dependencies = new PluginExecution();
+            dependencies.setId("talend-scan-descriptor");
+            dependencies.addGoal("scan-descriptor");
+            dependencies.setPhase("process-classes");
+            executions.add(dependencies);
+        }
         if (isExecutionMissing(executions, "asciidoc")) {
             final PluginExecution documentation = new PluginExecution();
             documentation.setId("talend-asciidoc");

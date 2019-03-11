@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1329[TCOMP-1329^]: Lazy initialize parameter model to have a quicker cold start in plain main(String[])
 - link:https://jira.talendforge.org/browse/TCOMP-1331[TCOMP-1331^]: Use java 8u191 as base docker image
 - link:https://jira.talendforge.org/browse/TCOMP-1332[TCOMP-1332^]: Provide a simple way to filter configurations and component on /index endpoints
+- link:https://jira.talendforge.org/browse/TCOMP-1334[TCOMP-1334^]: Add a mojo to generate the list of components/services classes
 
 == Version 1.1.7
 
