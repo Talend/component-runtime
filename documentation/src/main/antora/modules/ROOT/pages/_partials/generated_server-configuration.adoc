@@ -1,6 +1,7 @@
 
 NOTE: the configuration is read from system properties, environment variables, ....
 
+talend.component.server.cache.maxSize:: Default value: `1000`. Maximum items a cache can store, used for index endpoints.
 talend.component.server.component.coordinates:: A comma separated list of gav to locate the components
 talend.component.server.component.documentation.translations:: Default value: `${home}/documentations`. A component translation repository. This is where you put your documentation translations. Their name must follow the pattern `documentation_${container-id}_language.adoc` where `${container-id}` is the component jar name (without the extension and version, generally the artifactId).
 talend.component.server.component.extend.dependencies:: Default value: `true`. Should the component extensions add required dependencies.

@@ -89,7 +89,13 @@ public interface ComponentResource {
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("includeIconContent") @DefaultValue("false") @Parameter(name = "includeIconContent",
                     description = "should the icon binary format be included in the payload.", in = QUERY,
-                    schema = @Schema(type = STRING, defaultValue = "en")) boolean includeIconContent);
+                    schema = @Schema(type = STRING, defaultValue = "en")) boolean includeIconContent,
+            @QueryParam("q") @Parameter(name = "q",
+                    description = "Query in simple query language to filter components. "
+                            + "It provides access to the component `plugin`, `name`, `id` and `metadata` of the first configuration property. "
+                            + "Ex: `(id = AYETAE658349453) AND (metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) AND "
+                            + "(name = input)`",
+                    in = QUERY, schema = @Schema(type = STRING)) String query);
 
     @GET
     @Path("icon/family/{id}")

@@ -132,6 +132,11 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.request.log", defaultValue = "false")
     private Boolean logRequests;
 
+    @Inject
+    @Documentation("Maximum items a cache can store, used for index endpoints.")
+    @ConfigProperty(name = "talend.component.server.cache.maxSize", defaultValue = "1000")
+    private Integer maxCacheSize;
+
     @PostConstruct
     private void init() {
         if (logRequests != null && logRequests) {

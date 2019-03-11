@@ -57,6 +57,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
+import org.talend.sdk.component.server.front.model.ComponentId;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.Dependencies;
@@ -135,6 +136,24 @@ class ComponentResourceImplTest {
     @Test
     void getIndex() {
         assertIndex(client.fetchIndex());
+    }
+
+    @Test
+    void getIndexWithQuery() {
+        final List<ComponentIndex> components = base
+                .path("component/index")
+                .queryParam("includeIconContent", false)
+                .queryParam("q",
+                        "(id = " + client.getJdbcId() + ") AND " + "(metadata[configurationtype::type] = dataset) AND "
+                                + "(plugin = jdbc-component) AND (name = input)")
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ComponentIndices.class)
+                .getComponents();
+        assertEquals(1, components.size());
+
+        final ComponentId id = components.iterator().next().getId();
+        assertEquals("jdbc#input", id.getFamily() + "#" + id.getName());
     }
 
     @Test
