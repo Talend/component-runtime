@@ -14,7 +14,6 @@ services:
     image: tacokit/component-server:${COMPONENT_SERVER_IMAGE_VERSION:-1.1.6_20190208104207}
     environment:
     - _JAVA_OPTIONS=
-        -Djava.library.path=/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
         -Dtalend.component.server.filter.secured.tokens=vault-proxy <2>
         -Dtalend.component.server.ssl.active=true <3>
         -Dtalend.component.server.ssl.keystore.location=/opt/talend/configuration/https.p12 <3>
@@ -35,7 +34,6 @@ services:
     image: tacokit/component-server-vault-proxy:${COMPONENT_SERVER_VAULT_PROXY_IMAGE_VERSION:-1.1.6_20190208104221}
     environment:
     - _JAVA_OPTIONS=
-        -Djava.library.path=/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
         -Dtalend.vault.cache.client.server.certificate.keystore.location=/opt/talend/configuration/https.p12 <6>
         -Dtalend.vault.cache.client.server.certificate.keystore.type=PKCS12 <6>
         -Dtalend.vault.cache.client.server.hostname.accepted=component-server <6>
@@ -65,19 +63,17 @@ volumes: <12>
   vault-proxy-configuration:
 ----
 
-<1> The standard Component Server entry
-<2> Ensure only a client with a particular token can call the server (it is a kind of shared secret and only enables to call the server in "remote" mode since only local mode is enabled by default)
-<3> Activates and configure the auto generation of a X.509 certificate which will be used for HTTPS connector on the server
-<4> Bind as usual the components to deploy into the server
-<5> This is where we will define the vault proxy service which will do the mediation between Vault and Component Server.
-<6> Since both server are colocalized we inherit from the Component Server certificate to create the client which will connect on it
-<7> We configure the base url to connect to the server - see <10>
-<8> We configure vault connection and security informations
-<9> We ensure we can connect from `$COMPONENT_SERVER_VAULT_PROXY_CLIENT_IP` to vault proxy (other IP will be rejected)
-<10> We link both services to let them communicate between them, it allows to not expose the Component Server port outside its own container (no `ports` mapping in Component Server service definition). Note that if your vault is a service as well you can link it here as well.
-<11> The common component image service definition (as previously)
-<12> The volumes used by the services, the `connectors` one is the same as before but we added `vault-proxy-configuration` for the automatic HTTPS configuration.
+<1> The standard Component Server entry.
+<2> Ensures only a client with a particular token can call the server. It is similar to a shared secret and only allows to call the server in "remote" mode, since only the local mode is enabled by default.
+<3> Activates and configures the auto generation of a X.509 certificate which is used for the HTTPS connector on the server.
+<4> Binds the components to deploy into the server.
+<5> Definition of the Vault proxy service which handles the mediation between Vault and the Component Server.
+<6> Since both servers are colocalized, the generated certificate is inherited from the Component Server, which allows to create the client that connects to it.
+<7> Configuration of the base URL to connect to the server - see <10>.
+<8> Configuration of the vault connection and security information.
+<9> Ensuring that connecting from `$COMPONENT_SERVER_VAULT_PROXY_CLIENT_IP` to vault proxy is possible. Any other IP will be rejected.
+<10> Linking both services so they can communicate. It allows not to expose the Component Server port outside of its own container (no `ports` mapping in the Component Server service definition). Note that if your vault is a service, you can link it here as well.
+<11> Common component image service definition.
+<12> Volumes used by the services. The `connectors` has not changed but  `vault-proxy-configuration` was added for the automatic HTTPS configuration.
 
-This setup enables the Vault Proxy and Component Server to communicate, now you can use
-the Vault Proxy as if it was the Component Server, just use `http://localhost:9090` - or any other host matching your deployment - instead of the
-Component Server directly.
+This setup enables the Vault Proxy and Component Server to communicate. You can now use the Vault Proxy as if it was the Component Server, by using `http://localhost:9090` (or any other host matching your deployment) instead of the Component Server directly.

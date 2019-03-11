@@ -32,6 +32,10 @@ import java.util.stream.Stream;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
+import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.filter.AndArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.CumulativeScopeArtifactFilter;
@@ -39,12 +43,14 @@ import org.apache.maven.artifact.resolver.filter.ExcludesArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.IncludesArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugins.shade.relocation.Relocator;
 import org.apache.maven.plugins.shade.resource.ResourceTransformer;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
@@ -53,6 +59,7 @@ import org.apache.maven.shared.dependency.graph.traversal.CollectingDependencyNo
 import org.apache.maven.shared.dependency.graph.traversal.FilteringDependencyNodeVisitor;
 import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResolver;
 import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResolverException;
+import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResult;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
@@ -109,14 +116,13 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                                     setExtension(type);
                                 }
                             });
-                    final Artifact artifact =
-                            resolver.resolveArtifact(session.getProjectBuildingRequest(), art).getArtifact();
+                    final Artifact artifact = doResolve(resolver, art, session).getArtifact();
                     if (includeTransitiveDependencies) {
                         final MavenProject fakeProject;
                         try {
-                            fakeProject = projectBuilder
-                                    .build(resolver
-                                            .resolveArtifact(session.getProjectBuildingRequest(),
+                            fakeProject =
+                                    projectBuilder
+                                            .build(doResolve(resolver,
                                                     new DefaultArtifact(art.getGroupId(), art.getArtifactId(),
                                                             art.getVersion(), art.getScope(), "pom", null,
                                                             new DefaultArtifactHandler() {
@@ -124,10 +130,10 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                                                                 {
                                                                     setExtension("pom");
                                                                 }
-                                                            }))
-                                            .getArtifact()
-                                            .getFile(), session.getProjectBuildingRequest())
-                                    .getProject();
+                                                            }),
+                                                    session).getArtifact().getFile(),
+                                                    session.getProjectBuildingRequest())
+                                            .getProject();
                         } catch (final ProjectBuildingException e) {
                             throw new IllegalStateException(e);
                         }
@@ -146,7 +152,7 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                                     .concat(Stream.of(artifact),
                                             visitor.getNodes().stream().map(DependencyNode::getArtifact).map(a -> {
                                                 try {
-                                                    return resolver.resolveArtifact(request, a).getArtifact();
+                                                    return doResolve(resolver, a, session).getArtifact();
                                                 } catch (final ArtifactResolverException e) {
                                                     throw new IllegalStateException(e);
                                                 }
@@ -178,6 +184,45 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
         }
 
         return !artifacts.isEmpty();
+    }
+
+    private ArtifactResult doResolve(final ArtifactResolver resolver, final Artifact art, final MavenSession session)
+            throws ArtifactResolverException {
+        final ProjectBuildingRequest request = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+        session
+                .getTopLevelProject()
+                .getPluginRepositories()
+                .stream()
+                .map(this::toArtifactRepo)
+                .filter(it -> request
+                        .getPluginArtifactRepositories()
+                        .stream()
+                        .noneMatch(a -> String.valueOf(a.getId()).equalsIgnoreCase(it.getId())))
+                .forEach(it -> request.getRemoteRepositories().add(it));
+        return resolver.resolveArtifact(request, art);
+    }
+
+    private ArtifactRepository toArtifactRepo(final Repository repository) {
+        final ArtifactRepositoryPolicy snapshots;
+        if (repository.getSnapshots() == null) {
+            snapshots = null;
+        } else {
+            snapshots = new ArtifactRepositoryPolicy();
+            snapshots.setChecksumPolicy(repository.getSnapshots().getChecksumPolicy());
+            snapshots.setEnabled(repository.getSnapshots().isEnabled());
+            snapshots.setUpdatePolicy(repository.getSnapshots().getUpdatePolicy());
+        }
+        final ArtifactRepositoryPolicy releases;
+        if (repository.getReleases() == null) {
+            releases = null;
+        } else {
+            releases = new ArtifactRepositoryPolicy();
+            releases.setChecksumPolicy(repository.getReleases().getChecksumPolicy());
+            releases.setEnabled(repository.getReleases().isEnabled());
+            releases.setUpdatePolicy(repository.getReleases().getUpdatePolicy());
+        }
+        return new MavenArtifactRepository(repository.getId(), repository.getUrl(), new DefaultRepositoryLayout(),
+                snapshots, releases);
     }
 
     private ArtifactFilter getFilter() {

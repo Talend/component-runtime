@@ -35,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -48,10 +49,9 @@ import org.apache.xbean.asm7.commons.Remapper;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -63,7 +63,6 @@ import org.talend.test.DataStore1;
 import org.talend.test.PartitionMapper1;
 import org.talend.test.WrappingStore;
 
-@WithTemporaryFolder
 class RepositoryModelBuilderTest {
 
     @Test
@@ -79,10 +78,16 @@ class RepositoryModelBuilderTest {
                     .filter(f -> f.getMeta().getName().equals("TheTestFamily"))
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
-            assertEquals(3, theTestFamily.getConfigs().size(),
-                    theTestFamily.getConfigs().stream().map(c -> c.getKey().getConfigName()).collect(joining(", ")));
+            assertEquals(3, theTestFamily.getConfigs().get().size(),
+                    theTestFamily
+                            .getConfigs()
+                            .get()
+                            .stream()
+                            .map(c -> c.getKey().getConfigName())
+                            .collect(joining(", ")));
             theTestFamily
                     .getConfigs()
+                    .get()
                     .forEach(it -> assertTrue(it.getKey().getConfigName().startsWith("Connection-"),
                             it.getKey().getConfigName()));
         }
@@ -111,22 +116,22 @@ class RepositoryModelBuilderTest {
                                 getPartitionMappers()
                                         .put("test",
                                                 new PartitionMapperMeta(this, "mapper", "noicon", 1,
-                                                        PartitionMapper1.class, singletonList(wrapper), m -> null,
+                                                        PartitionMapper1.class, () -> singletonList(wrapper), m -> null,
                                                         (a, b) -> null, true) {
                                                 });
                             }
                         }), new MigrationHandlerFactory(
                                 new ReflectionService(new ParameterModelService(registry), registry)));
         final List<Config> configs =
-                model.getFamilies().stream().flatMap(f -> f.getConfigs().stream()).collect(toList());
+                model.getFamilies().stream().flatMap(f -> f.getConfigs().get().stream()).collect(toList());
         assertEquals(1, configs.size());
     }
 
     @Test
-    void test(final TemporaryFolder temporaryFolder, final TestInfo testInfo) throws Exception {
+    void test(@TempDir final Path temporaryFolder, final TestInfo testInfo) throws Exception {
 
         final String pluginName = testInfo.getTestMethod().get().getName() + ".jar";
-        final File pluginJar = createChainPlugin(temporaryFolder.getRoot(), pluginName);
+        final File pluginJar = createChainPlugin(temporaryFolder.toFile(), pluginName);
 
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {
@@ -142,7 +147,7 @@ class RepositoryModelBuilderTest {
                     rm.getFamilies().stream().filter(it -> it.getMeta().getName().equals("family1")).findFirst().get();
             final String ds1Id = IdGenerator.get("test", "family1", "datastore", "dataStore1");
             final Config dataStore1Config =
-                    family.getConfigs().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
+                    family.getConfigs().get().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
             assertEquals("configuration", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
@@ -151,7 +156,7 @@ class RepositoryModelBuilderTest {
 
             final String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2");
             final Config dataStore2Config =
-                    family.getConfigs().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
+                    family.getConfigs().get().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
             assertNotNull(dataStore2Config);
             assertEquals(1, dataStore2Config.getChildConfigs().size());
             assertEquals("configuration", dataStore2Config.getChildConfigs().get(0).getMeta().getName());

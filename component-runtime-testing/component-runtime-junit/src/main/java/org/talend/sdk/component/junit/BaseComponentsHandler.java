@@ -392,9 +392,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
         return api
                 .cast(meta
                         .getInstantiator()
-                        .apply(configuration == null || meta.getParameterMetas().isEmpty() ? emptyMap()
+                        .apply(configuration == null || meta.getParameterMetas().get().isEmpty() ? emptyMap()
                                 : configurationByExample(configuration, meta
                                         .getParameterMetas()
+                                        .get()
                                         .stream()
                                         .filter(p -> p.getName().equals(p.getPath()))
                                         .findFirst()

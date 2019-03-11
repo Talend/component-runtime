@@ -182,6 +182,7 @@ public class TaCoKitGuessSchema {
 
         final String prefix = action
                 .getParameters()
+                .get()
                 .stream()
                 .filter(param -> param.getMetadata().containsKey("tcomp::configurationtype::type")
                         && "dataset".equals(param.getMetadata().get("tcomp::configurationtype::type")))
@@ -225,7 +226,7 @@ public class TaCoKitGuessSchema {
                 .orElseThrow(() -> new IllegalStateException("No component " + componentName));
 
         // dataset name should be the same as DiscoverSchema action name
-        final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas()).collect(toList());
+        final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).collect(toList());
         return ofNullable(metas
                 .stream()
                 .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type"))

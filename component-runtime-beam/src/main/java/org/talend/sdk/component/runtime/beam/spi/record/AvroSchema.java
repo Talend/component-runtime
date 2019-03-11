@@ -24,6 +24,8 @@ import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toObject
 
 import java.util.List;
 
+import javax.json.bind.annotation.JsonbTransient;
+
 import org.apache.avro.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
@@ -35,6 +37,7 @@ import lombok.ToString;
 @ToString(of = "delegate")
 public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
 
+    @JsonbTransient
     private final Schema delegate;
 
     private volatile AvroSchema elementSchema;

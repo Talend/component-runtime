@@ -19,6 +19,8 @@ To ensure your internationalization API is identified, you need to mark it with 
 
 [source,java]
 ----
+package org.superbiz;
+
 @Internationalized <1>
 public interface Translator {
 
@@ -36,6 +38,21 @@ public interface Translator {
 <2> You can pass parameters. The message uses the `MessageFormat` syntax to be resolved, based on the `ResourceBundle` template.
 <3> You can use `@Language` on a `Locale` parameter to specify manually the locale to use. Note that a single value is used (the first parameter tagged as such).
 <4> `@Language` also supports the `String` type.
+
+The corresponding `Messages.properties` placed in `org/superbiz` resource folder will contain:
+
+[source,properties]
+----
+org.superbiz.Translator.message = Some message
+org.superbiz.Translator.templatizedMessage = Some message with string {0} and with number {1}
+org.superbiz.Translator.localized = Some other message with string {0}
+
+# or the short version
+
+Translator.message = Some message
+Translator.templatizedMessage = Some message with string {0} and with number {1}
+Translator.localized = Some other message with string {0}
+----
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

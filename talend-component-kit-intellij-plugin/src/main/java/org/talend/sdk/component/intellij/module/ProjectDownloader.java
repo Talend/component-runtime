@@ -70,7 +70,7 @@ public class ProjectDownloader {
         try (final BufferedOutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream())) {
             outputStream
                     .write(("project=" + URLEncoder.encode(request.getProject(), StandardCharsets.UTF_8.name()))
-                            .getBytes("utf-8"));
+                            .getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         }
         final int responseCode = urlConnection.getResponseCode();

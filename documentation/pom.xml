@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>1.1.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>documentation</artifactId>
@@ -700,6 +700,27 @@
         <artifactId>asciidoctor-maven-plugin</artifactId>
         <version>1.5.7.1</version>
         <executions>
+          <!-- same as (but using java to avoid ruby setup, however it is x2 slower):
+          asciidoctor-pdf \
+            -a pdf-style=talend \
+            -a pdf-stylesdir=$PWD/src/main/asciidoctor/pdf/theme \
+            -a pdf-fonts=$PWD/target/build-dependencies/asciidoctorj-pdf/gems/asciidoctor-pdf-1.5.0.alpha.16/data/fonts \
+            -a pagenums \
+            -a toc \
+            -a numbered \
+            -a hide-uri-scheme \
+            -a idprefix \
+            -a icons=font \
+            -a icon-set=fa \
+            -a idseparator=- \
+            -a partialsdir=$PWD/src/main/antora/modules/ROOT/pages/_partials \
+            -a imagesdir=$PWD/src/main/antora/modules/ROOT/assets/images \
+            -a project_version=1.1.8 \
+            -a page-component-version=1.1.8 \
+            -a deploymentRoot=https://talend.github.io/component-runtime \
+            -a git.branch=master \
+            src/main/antora/modules/ROOT/pages/all-in-one.adoc
+          -->
           <execution>
             <id>pdf</id>
             <phase>generate-resources</phase>

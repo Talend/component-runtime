@@ -47,9 +47,13 @@ git checkout -b component-runtime-$release component-runtime-$release
 # push docker images
 echo "Building and pushing docker images $release"
 cd images
-    mvn -DskipTests -Dinvoker.skip=true -T1C \
-        clean install \
-        jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/
+    for i in component-server-image component-server-vault-proxy-image component-starter-server-image; do
+        cd $i
+        mvn -DskipTests -Dinvoker.skip=true -T1C \
+            clean install \
+            jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/
+        cd -
+    done
 cd -
 
 echo "Rebuilding master and updating it (doc) for next iteration"

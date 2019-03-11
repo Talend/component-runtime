@@ -24,9 +24,11 @@ import 'brace/ext/language_tools';
 import 'brace/mode/java';
 import 'brace/mode/python';
 import 'brace/mode/sql';
+import 'brace/mode/xml';
 import 'brace/snippets/java';
 import 'brace/snippets/sql';
 import 'brace/snippets/python';
+import 'brace/snippets/xml';
 
 import components from './components';
 import ComponentForm from '@talend/react-containers/lib/ComponentForm';

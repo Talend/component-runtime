@@ -38,7 +38,7 @@
             additivity="false">
       <AppenderRef ref="KafkaTracing"/>
     </Logger>
-    <Root level="INFO">
+    <Root level="${env:KAFKA_ROOT_LOGGER_LEVEL:-INFO}">
       <AppenderRef ref="KafkaLog"/>
     </Root>
   </Loggers>

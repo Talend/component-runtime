@@ -69,6 +69,7 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
                 uiSchema = newUiSchema(context);
                 uiSchema.setWidget("fieldset");
                 uiSchema.setItems(new ArrayList<>());
+                uiSchema.setKey(null);
             } else {
                 uiSchema = providedUiSchema;
             }

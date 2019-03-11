@@ -55,6 +55,7 @@ import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
 import org.talend.sdk.component.server.service.LocaleMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +63,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 public class DocumentationResourceImpl implements DocumentationResource {
+
+    private static final DocumentationContent NO_DOC = new DocumentationContent("asciidoc", "");
 
     @Inject
     private LocaleMapper localeMapper;
@@ -78,6 +81,9 @@ public class DocumentationResourceImpl implements DocumentationResource {
     @Inject
     private ComponentServerConfiguration configuration;
 
+    @Inject
+    private ExtensionComponentMetadataManager virtualComponents;
+
     private File i18nBase;
 
     @PostConstruct
@@ -90,6 +96,10 @@ public class DocumentationResourceImpl implements DocumentationResource {
     @Override
     public DocumentationContent getDocumentation(final String id, final String language,
             final DocumentationSegment segment) {
+        if (virtualComponents.isExtensionEntity(id)) {
+            return NO_DOC;
+        }
+
         final Locale locale = localeMapper.mapLocale(language);
         final Container container = ofNullable(componentDao.findById(id))
                 .map(meta -> manager

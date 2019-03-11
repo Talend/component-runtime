@@ -52,10 +52,22 @@ public class SecurityFilter implements Filter {
     @ConfigProperty(name = "talend.vault.cache.security.tokens", defaultValue = "-")
     private List<String> securedEndpointsTokens;
 
+    @Inject
+    @Documentation("Enable to sanitize the hostname before testing them. Default to `none` which is a noop. Supported values "
+            + "are `docker` (for `<folder>_<service>_<number>.<folder>_<network>` pattern) and `weave` (for `<prefix>_dataset_<number>.<suffix>` pattern).")
+    @ConfigProperty(name = "talend.vault.cache.security.hostname.sanitizer", defaultValue = "none")
+    private String sanitization;
+
+    @Inject
+    private DockerHostNameSanitizer dockerSanitizer;
+
     @Override
     public void init(final FilterConfig filterConfig) {
         if (log.isDebugEnabled()) {
             log.debug("Allowed remote hosts: {}", allowedIp);
+        }
+        if (sanitization != null) {
+            log.info("Activating {} mode, hosts will be rewritten to extract service names", sanitization);
         }
     }
 
@@ -74,7 +86,24 @@ public class SecurityFilter implements Filter {
 
     // cheap security
     private boolean isAllowed(final HttpServletRequest request) {
-        return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(request.getRemoteHost());
+        return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(sanitizeHost(request.getRemoteHost()));
+    }
+
+    private String sanitizeHost(final String remoteHost) {
+        switch (sanitization) {
+        case "docker":
+            return logHostSanitization(remoteHost, dockerSanitizer.sanitizeDockerHostname(remoteHost));
+        case "weave":
+            return logHostSanitization(remoteHost, dockerSanitizer.sanitizeWeaveHostname(remoteHost));
+        case "none":
+        default:
+            return remoteHost;
+        }
+    }
+
+    private String logHostSanitization(final String original, final String rewritten) {
+        log.debug("Mapped '{}' on '{}'", original, rewritten);
+        return rewritten;
     }
 
     private boolean isSecured(final ServletRequest servletRequest) {

@@ -39,13 +39,11 @@ import java.util.jar.JarOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithTemporaryFolder
 class StudioInstallerTest {
 
     private File artifact;
@@ -55,15 +53,15 @@ class StudioInstallerTest {
     private File configuration;
 
     @BeforeEach
-    void initEnv(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
+    void initEnv(@TempDir final File temporaryFolder, final TestInfo info) throws IOException {
         final String testName =
                 info.getTestMethod().orElseThrow(() -> new IllegalStateException("test name can't be null")).getName();
-        this.studioHome = new File(temporaryFolder.getRoot(), testName);
+        this.studioHome = new File(temporaryFolder, testName);
         this.configuration = org.apache.ziplock.Files.mkdir(new File(this.studioHome, "configuration"));
         try (final Writer configIni = new FileWriter(new File(this.configuration, "config.ini"))) {
             // no-op
         }
-        this.artifact = new File(temporaryFolder.getRoot(), testName + ".jar");
+        this.artifact = new File(temporaryFolder, testName + ".jar");
         try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(artifact))) {
             out.putNextEntry(new JarEntry("META-INF/MANIFEST.MF"));
             out.closeEntry();

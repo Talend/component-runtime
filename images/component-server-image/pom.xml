@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>1.1.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-image</artifactId>
@@ -66,19 +66,19 @@
 
     <!-- for prod/monitoring -->
     <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>docker-secrets-configsource</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>docker-configsource</artifactId>
+      <version>${geronimo-microprofile.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.talend.sdk.component</groupId>
+      <groupId>org.apache.geronimo</groupId>
       <artifactId>secured-string-converter</artifactId>
-      <version>${project.version}</version>
+      <version>${geronimo-microprofile.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.microprofile.metrics</groupId>
       <artifactId>microprofile-metrics-api</artifactId>
-      <version>1.1.1</version>
+      <version>${microprofile-metrics-api.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.osgi</groupId>
@@ -207,20 +207,22 @@
                   <MEECROWAVE_PID>${imageWorkDir}/conf/server.pid</MEECROWAVE_PID>
                   <LANG>en_US.UTF-8</LANG>
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
+                  <LD_LIBRARY_PATH>/opt/talend/component-kit/work/sigar/sigar</LD_LIBRARY_PATH>
                 </environment>
                 <jvmFlags>
                   <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>
                   <jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
-                  <jvmFlag>-Djava.library.path=${libraryPathWithSigar}</jvmFlag>
-                  <jvmFlag>-Dhttp=${boundPort}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dlog4j.configurationFile=log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
                   <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
                   <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
                 </jvmFlags>
+                <args>
+                  <arg>--http=${boundPort}</arg>
+                </args>
                 <ports>
                   <port>${boundPort}</port>
                 </ports>

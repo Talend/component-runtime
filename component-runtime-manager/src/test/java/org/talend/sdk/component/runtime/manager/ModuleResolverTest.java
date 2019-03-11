@@ -21,14 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 
-@WithTemporaryFolder
 class ModuleResolverTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
@@ -49,8 +48,8 @@ class ModuleResolverTest {
     }
 
     @Test
-    void unsupportedType(final TemporaryFolder temporaryFolder) throws IOException {
-        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void unsupportedType(@TempDir final Path temporaryFolder) throws IOException {
+        final File pluginFolder = new File(temporaryFolder.toFile(), "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createPlugin(pluginFolder, "plugin1.xyz", "");
         final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
@@ -64,8 +63,8 @@ class ModuleResolverTest {
     }
 
     @Test
-    void moduleFileExist(final TemporaryFolder temporaryFolder) throws IOException {
-        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void moduleFileExist(@TempDir final File temporaryFolder) throws IOException {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createPlugin(pluginFolder, "plugin1.jar", "");
 

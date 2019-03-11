@@ -66,20 +66,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-        <version>@spotless.version@</version>
-        <executions>
-          <execution>
-            <id>format-java</id>
-            <phase>none</phase>
-            <goals>
-              <goal>apply</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.github.rmannibucau</groupId>
         <artifactId>common-maven-plugin</artifactId>
         <version>@{common-plugin.version@</version>

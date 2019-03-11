@@ -27,21 +27,19 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
-@WithTemporaryFolder
 class InterceptorTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
     @Test
-    void run(final TemporaryFolder temporaryFolder) throws Exception {
-        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void run(@TempDir final File temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
 

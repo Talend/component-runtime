@@ -61,7 +61,7 @@ public class ActionsService {
 
     public Set<ActionReference> getActionReference(final ComponentFamilyMeta.BaseMeta<Object> meta,
             final FamilyBundle familyBundle) {
-        return getActionReference(toStream(meta.getParameterMetas()), meta.getParent().getName(), familyBundle);
+        return getActionReference(toStream(meta.getParameterMetas().get()), meta.getParent().getName(), familyBundle);
     }
 
     public Set<ActionReference> getActionReference(final Stream<ParameterMeta> parameters, final String familyName,
@@ -92,7 +92,7 @@ public class ActionsService {
                 .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(),
                         familyBundle.actionDisplayName(s.getType(), s.getAction()).orElse(s.getAction()),
                         propertiesService
-                                .buildProperties(s.getParameters(), container.getLoader(), locale, null)
+                                .buildProperties(s.getParameters().get(), container.getLoader(), locale, null)
                                 .collect(toList())))
                 .collect(toList());
     }

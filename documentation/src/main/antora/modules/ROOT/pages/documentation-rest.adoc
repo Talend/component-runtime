@@ -9,7 +9,7 @@ The HTTP API intends to expose most Talend Component Kit features over HTTP. It 
 
 TIP: The WebSocket protocol is activated for the endpoints. Endpoints then use `/websocket/v1` as base instead of `/api/v1`. See <<websocket-transport,WebSocket>> for more details.
 
-Browse the API description using xref:rest-swagger.adoc[OpenAPI].
+Browse the API description using xref:rest-openapi.adoc[OpenAPI].
 
 IMPORTANT: To make sure that the migration can be enabled, you need to set the version the component was created with in the execution configuration that you send to the server (component version is in component the detail endpoint). To do that, use `tcomp::component::version` key.
 

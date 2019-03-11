@@ -55,6 +55,7 @@ class MaxBatchSizeParamTest {
                     .forEach(c -> {
                         final ParameterMeta parent = c
                                 .getParameterMetas()
+                                .get()
                                 .stream()
                                 .filter(m -> m.getName().equals(m.getPath()))
                                 .findFirst()

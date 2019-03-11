@@ -242,7 +242,6 @@ class UiSpecServiceTest {
                 .filter(it -> it.getPath().equals("configuration"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("bad config"));
-        final String[] expectedOrder = root.getMetadata().get("ui::optionsorder::value").split(",");
         final Ui payload = service.convert("FileIO", "en", node, null).toCompletableFuture().get();
         final List<String> actualOrder = payload
                 .getUiSchema()
@@ -251,9 +250,12 @@ class UiSpecServiceTest {
                 .getItems()
                 .stream()
                 .map(UiSchema::getKey)
+                .filter(Objects::nonNull)
                 .map(s -> s.substring(s.lastIndexOf('.') + 1))
                 .collect(toList());
-        assertEquals(asList(expectedOrder), actualOrder);
+        assertEquals(asList("region", "unknownRegion", "bucket", "object", "encryptDataAtRest", "kmsForDataAtRest",
+                "format", "recordDelimiter", "specificRecordDelimiter", "fieldDelimiter", "specificFieldDelimiter",
+                "limit"), actualOrder);
     }
 
     @Test
@@ -448,7 +450,7 @@ class UiSpecServiceTest {
                 .next()
                 .getItems()
                 .stream()
-                .filter(c -> c.getKey().equals("configuration.driver"))
+                .filter(c -> c.getKey() != null && c.getKey().equals("configuration.driver"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No driver"))
                 .getTriggers()
@@ -474,7 +476,7 @@ class UiSpecServiceTest {
                 .next()
                 .getItems()
                 .stream()
-                .filter(c -> c.getKey().equals("configuration.driver"))
+                .filter(c -> c.getKey() != null && c.getKey().equals("configuration.driver"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No driver"))
                 .getTriggers()
@@ -548,11 +550,11 @@ class UiSpecServiceTest {
         final Collection<UiSchema> uiSchema = payload.getUiSchema();
         assertNotNull(uiSchema);
         assertEquals(1, uiSchema.size());
-        assertUiSchema(uiSchema.iterator().next(), "fieldset", "Configuration", "configuration", 2, schema -> {
+        assertUiSchema(uiSchema.iterator().next(), "fieldset", "Configuration", null, 2, schema -> {
             final List<UiSchema> items = new ArrayList<>(schema.getItems());
             items.sort(Comparator.comparing(UiSchema::getTitle));
             final Iterator<UiSchema> it = items.iterator();
-            assertUiSchema(it.next(), "fieldset", "JDBC Connection", "configuration.connection", 5, connection -> {
+            assertUiSchema(it.next(), "fieldset", "JDBC Connection", null, 5, connection -> {
                 final List<UiSchema> connectionItems = new ArrayList<>(connection.getItems());
                 connectionItems.sort(Comparator.comparing(UiSchema::getTitle));
                 final Iterator<UiSchema> connectionIt = connectionItems.iterator();
@@ -597,7 +599,7 @@ class UiSpecServiceTest {
                         });
                 assertFalse(connectionIt.hasNext());
             });
-            assertUiSchema(it.next(), "fieldset", "query", "configuration.query", 2, query -> {
+            assertUiSchema(it.next(), "fieldset", "query", null, 2, query -> {
                 final List<UiSchema> queryItems = new ArrayList<>(query.getItems());
                 queryItems.sort(Comparator.comparing(UiSchema::getKey));
                 final Iterator<UiSchema> queryIt = queryItems.iterator();

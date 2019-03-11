@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-studio</artifactId>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>1.1.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-di</artifactId>
@@ -104,7 +104,7 @@
     <profile>
       <id>java11</id>
       <activation>
-        <jdk>11</jdk>
+        <jdk>[11,20)</jdk>
       </activation>
       <build> <!-- beam does not support java 11 yet -->
         <plugins>

@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -55,7 +56,9 @@ import org.eclipse.microprofile.opentracing.ClientTracingRegistrar;
 import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class ClientSetup {
 
@@ -288,9 +291,14 @@ public class ClientSetup {
             builder.hostnameVerifier((host, session) -> serverHostnames.contains(host));
             builder.sslContext(createSSLContext(keystoreLocation, keystoreType, keystorePassword, truststoreType));
         }
-        providers
-                .map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()))
-                .ifPresent(it -> it.forEach(builder::register));
+        providers.map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()).map(fqn -> {
+            try {
+                return Thread.currentThread().getContextClassLoader().loadClass(fqn).getConstructor().newInstance();
+            } catch (final Exception e) {
+                log.warn("Can't add provider " + fqn + ": " + e.getMessage(), e);
+                return null;
+            }
+        }).filter(Objects::nonNull)).ifPresent(it -> it.forEach(builder::register));
         return ClientTracingRegistrar.configure(builder);
     }
 

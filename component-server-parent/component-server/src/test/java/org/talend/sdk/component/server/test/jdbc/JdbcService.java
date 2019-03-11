@@ -16,6 +16,9 @@
 package org.talend.sdk.component.server.test.jdbc;
 
 import static java.util.Collections.singletonMap;
+import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
+import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
+import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,8 +26,11 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 
 @Service
 public class JdbcService {
@@ -45,6 +51,19 @@ public class JdbcService {
     @Action("custom")
     public Map<String, String> test(@Option("enum") final MyEnum myEnum) {
         return singletonMap("value", myEnum.name());
+    }
+
+    @DiscoverSchema("jdbc_discover_schema")
+    public Schema guessSchema(final RecordBuilderFactory factory) {
+        return factory
+                .newSchemaBuilder(RECORD)
+                .withEntry(factory
+                        .newEntryBuilder()
+                        .withName("array")
+                        .withType(ARRAY)
+                        .withElementSchema(factory.newSchemaBuilder(STRING).build())
+                        .build())
+                .build();
     }
 
     public enum MyEnum {

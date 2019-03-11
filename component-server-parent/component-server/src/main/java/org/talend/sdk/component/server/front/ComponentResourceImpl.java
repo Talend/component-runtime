@@ -20,7 +20,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
@@ -76,6 +75,7 @@ import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.ActionsService;
 import org.talend.sdk.component.server.service.ComponentManagerService;
+import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
 import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
@@ -120,6 +120,9 @@ public class ComponentResourceImpl implements ComponentResource {
     @Inject
     private VirtualDependenciesService virtualDependenciesService;
 
+    @Inject
+    private ExtensionComponentMetadataManager virtualComponents;
+
     @PostConstruct
     private void setupRuntime() {
         log.info("Initializing " + getClass());
@@ -133,10 +136,18 @@ public class ComponentResourceImpl implements ComponentResource {
         if (ids.length == 0) {
             return new Dependencies(emptyMap());
         }
-        return new Dependencies(Stream
-                .of(ids)
-                .map(id -> componentDao.findById(id))
-                .collect(toMap(ComponentFamilyMeta.BaseMeta::getId, this::getDependenciesFor)));
+        final Map<String, DependencyDefinition> dependencies = new HashMap<>();
+        for (final String id : ids) {
+            if (virtualComponents.isExtensionEntity(id)) {
+                final DependencyDefinition deps = ofNullable(virtualComponents.getDependenciesFor(id))
+                        .orElseGet(() -> new DependencyDefinition(emptyList()));
+                dependencies.put(id, deps);
+            } else {
+                final ComponentFamilyMeta.BaseMeta<Object> meta = componentDao.findById(id);
+                dependencies.put(meta.getId(), getDependenciesFor(meta));
+            }
+        }
+        return new Dependencies(dependencies);
     }
 
     @Override
@@ -207,29 +218,32 @@ public class ComponentResourceImpl implements ComponentResource {
     public ComponentIndices getIndex(final String language, final boolean includeIconContent) {
         final Locale locale = localeMapper.mapLocale(language);
         return indicesPerRequest
-                .computeIfAbsent(new RequestKey(locale, includeIconContent), k -> new ComponentIndices(manager
-                        .find(c -> c
-                                .execute(
-                                        () -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                                .flatMap(component -> Stream
-                                        .concat(component
-                                                .getPartitionMappers()
-                                                .values()
-                                                .stream()
-                                                .map(mapper -> toComponentIndex(c, locale, c.getId(), mapper,
-                                                        c.get(ComponentManager.OriginalId.class), includeIconContent)),
-                                                component
-                                                        .getProcessors()
-                                                        .values()
-                                                        .stream()
-                                                        .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
-                                                                c.get(ComponentManager.OriginalId.class),
-                                                                includeIconContent)))))
-                        .collect(toList())));
+                .computeIfAbsent(new RequestKey(locale, includeIconContent),
+                        k -> new ComponentIndices(Stream
+                                .concat(findDeployedComponents(includeIconContent, locale), virtualComponents
+                                        .getDetails()
+                                        .stream()
+                                        .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
+                                                detail.getId().getFamily(), new Icon(detail.getIcon(), null, null),
+                                                new Icon(
+                                                        virtualComponents
+                                                                .getFamilyIconFor(detail.getId().getFamilyId()),
+                                                        null, null),
+                                                detail.getVersion(), singletonList(detail.getId().getFamily()),
+                                                detail.getLinks())))
+                                .collect(toList())));
     }
 
     @Override
     public Response familyIcon(final String id) {
+        if (virtualComponents.isExtensionEntity(id)) { // todo or just use front bundle?
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta meta = componentFamilyDao.findById(id);
         if (meta == null) {
@@ -263,6 +277,14 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     public Response icon(final String id) {
+        if (virtualComponents.isExtensionEntity(id)) { // todo if the front bundle is not sufficient
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta.BaseMeta<Object> meta = componentDao.findById(id);
         if (meta == null) {
@@ -297,6 +319,9 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
+        if (virtualComponents.isExtensionEntity(id)) {
+            return config;
+        }
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
@@ -313,62 +338,86 @@ public class ComponentResourceImpl implements ComponentResource {
         }
 
         final Map<String, ErrorPayload> errors = new HashMap<>();
-        final List<ComponentDetail> details =
-                Stream.of(ids).map(id -> ofNullable(componentDao.findById(id)).orElseGet(() -> {
-                    errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No component '" + id + "'"));
+        final List<ComponentDetail> details = Stream.of(ids).map(id -> {
+            if (virtualComponents.isExtensionEntity(id)) {
+                return virtualComponents.findComponentById(id).orElseGet(() -> {
+                    errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No virtual component '" + id + "'"));
                     return null;
-                })).filter(Objects::nonNull).map(meta -> {
-                    final Optional<Container> plugin = manager.findPlugin(meta.getParent().getPlugin());
-                    if (!plugin.isPresent()) {
-                        errors
-                                .put(meta.getId(), new ErrorPayload(PLUGIN_MISSING,
-                                        "No plugin '" + meta.getParent().getPlugin() + "'"));
-                        return null;
-                    }
+                });
+            }
+            return ofNullable(componentDao.findById(id)).map(meta -> {
+                final Optional<Container> plugin = manager.findPlugin(meta.getParent().getPlugin());
+                if (!plugin.isPresent()) {
+                    errors
+                            .put(meta.getId(), new ErrorPayload(PLUGIN_MISSING,
+                                    "No plugin '" + meta.getParent().getPlugin() + "'"));
+                    return null;
+                }
 
-                    final Container container = plugin.get();
+                final Container container = plugin.get();
+                final Optional<DesignModel> model = ofNullable(meta.get(DesignModel.class));
+                if (!model.isPresent()) {
+                    errors
+                            .put(meta.getId(),
+                                    new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
+                    return null;
+                }
 
-                    final Optional<DesignModel> model = ofNullable(meta.get(DesignModel.class));
-                    if (!model.isPresent()) {
-                        errors
-                                .put(meta.getId(), new ErrorPayload(DESIGN_MODEL_MISSING,
-                                        "No design model '" + meta.getId() + "'"));
-                        return null;
-                    }
+                final Locale locale = localeMapper.mapLocale(language);
 
-                    final Locale locale = localeMapper.mapLocale(language);
+                final ComponentDetail componentDetail = new ComponentDetail();
+                componentDetail.setLinks(emptyList() /* todo ? */);
+                componentDetail.setId(createMetaId(container, meta));
+                componentDetail.setVersion(meta.getVersion());
+                componentDetail.setIcon(meta.getIcon());
+                componentDetail.setInputFlows(model.get().getInputFlows());
+                componentDetail.setOutputFlows(model.get().getOutputFlows());
+                componentDetail
+                        .setType(ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor" : "input");
+                componentDetail
+                        .setDisplayName(
+                                meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
+                componentDetail
+                        .setProperties(propertiesService
+                                .buildProperties(meta.getParameterMetas().get(), container.getLoader(), locale, null)
+                                .collect(toList()));
+                componentDetail
+                        .setActions(actionsService
+                                .findActions(meta.getParent().getName(), container, locale, meta,
+                                        meta.getParent().findBundle(container.getLoader(), locale)));
 
-                    final ComponentDetail componentDetail = new ComponentDetail();
-                    componentDetail.setLinks(emptyList() /* todo ? */);
-                    componentDetail.setId(createMetaId(container, meta));
-                    componentDetail.setVersion(meta.getVersion());
-                    componentDetail.setIcon(meta.getIcon());
-                    componentDetail.setInputFlows(model.get().getInputFlows());
-                    componentDetail.setOutputFlows(model.get().getOutputFlows());
-                    componentDetail
-                            .setType(ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor" : "input");
-                    componentDetail
-                            .setDisplayName(meta
-                                    .findBundle(container.getLoader(), locale)
-                                    .displayName()
-                                    .orElse(meta.getName()));
-                    componentDetail
-                            .setProperties(propertiesService
-                                    .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
-                                    .collect(toList()));
-                    componentDetail
-                            .setActions(actionsService
-                                    .findActions(meta.getParent().getName(), container, locale, meta,
-                                            meta.getParent().findBundle(container.getLoader(), locale)));
-
-                    return componentDetail;
-                }).filter(Objects::nonNull).collect(toList());
+                return componentDetail;
+            }).orElseGet(() -> {
+                errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No component '" + id + "'"));
+                return null;
+            });
+        }).filter(Objects::nonNull).collect(toList());
 
         if (!errors.isEmpty()) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(errors).build());
         }
 
         return new ComponentDetailList(details);
+    }
+
+    private Stream<ComponentIndex> findDeployedComponents(final boolean includeIconContent, final Locale locale) {
+        return manager
+                .find(c -> c
+                        .execute(() -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
+                        .flatMap(component -> Stream
+                                .concat(component
+                                        .getPartitionMappers()
+                                        .values()
+                                        .stream()
+                                        .map(mapper -> toComponentIndex(c, locale, c.getId(), mapper,
+                                                c.get(ComponentManager.OriginalId.class), includeIconContent)),
+                                        component
+                                                .getProcessors()
+                                                .values()
+                                                .stream()
+                                                .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
+                                                        c.get(ComponentManager.OriginalId.class),
+                                                        includeIconContent)))));
     }
 
     private DependencyDefinition getDependenciesFor(final ComponentFamilyMeta.BaseMeta<?> meta) {

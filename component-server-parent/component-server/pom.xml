@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>1.1.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server</artifactId>
@@ -40,6 +40,20 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-annotation_1.3_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-json_1.1_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency><!-- extends runtime manager with design time data -->
       <groupId>org.talend.sdk.component</groupId>
@@ -118,6 +132,18 @@
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-websocket</artifactId>
       <version>${tomcat.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-server-extension-api</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion><!-- all the stack must be provided -->
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -254,21 +280,8 @@
               <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script><![CDATA[
-                  import java.nio.file.Files
-                  import java.nio.file.StandardCopyOption
                   import javax.imageio.ImageIO
                   import net.sf.image4j.codec.ico.ICOEncoder
-                  import org.apache.maven.project.MavenProjectHelper
-
-                  // create the demo openapi.json
-                  def openapiJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/openapi.json')
-                  def content = openapiJson.text
-
-                  def openapiDemo = new File(project.build.directory, 'openapi-openshift.json')
-                  openapiDemo.text = content
-                    .replace('"paths":{', '"servers": [{ url: "talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com" }],\n  "paths":{')
-                  // and attach it to the release
-                  session.container.lookup(MavenProjectHelper).attachArtifact(project, 'json', 'openapi-openshift', openapiDemo);
 
                   // copy icon (in svg) for the topbar logo
                   def icon = Thread.currentThread().getContextClassLoader().getResourceAsStream('icons/svg/component-kit-positive.svg')
@@ -382,12 +395,33 @@
                   <type>jar</type>
                   <outputDirectory>${sample.beam.location}/deps</outputDirectory>
                 </artifact>
+                <artifact>
+                  <groupId>org.apache.avro</groupId>
+                  <artifactId>avro</artifactId>
+                  <version>${avro.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${sample.beam.location}/deps</outputDirectory>
+                </artifact>
+                <artifact>
+                  <groupId>org.codehaus.jackson</groupId>
+                  <artifactId>jackson-core-asl</artifactId>
+                  <version>${avro-jackson.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${sample.beam.location}/deps</outputDirectory>
+                </artifact>
+                <artifact>
+                  <groupId>org.codehaus.jackson</groupId>
+                  <artifactId>jackson-mapper-asl</artifactId>
+                  <version>${avro-jackson.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${sample.beam.location}/deps</outputDirectory>
+                </artifact>
               </artifactItems>
             </configuration>
           </execution>
         </executions>
       </plugin>
-      <plugin><!-- for dev for now -->
+      <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
         <version>${meecrowave.version}</version>
@@ -463,7 +497,13 @@
                 <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
               </classpathDependencyExcludes>
               <additionalClasspathElements>
-                <additionalClasspathElement>${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-core.jar</additionalClasspathElement>
+                <additionalClasspathElement>
+                  ${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-core.jar,
+                  ${sample.beam.location}${file.separator}deps${file.separator}component-runtime-beam.jar,
+                  ${sample.beam.location}${file.separator}deps${file.separator}jackson-core-asl.jar,
+                  ${sample.beam.location}${file.separator}deps${file.separator}jackson-mapper-asl.jar,
+                  ${sample.beam.location}${file.separator}deps${file.separator}avro.jar
+                </additionalClasspathElement>
               </additionalClasspathElements>
             </configuration>
           </execution>
@@ -473,30 +513,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>java11</id>
-      <activation>
-        <jdk>11</jdk>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-jaxws_2.2_spec</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>javax.xml.bind</groupId>
-          <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>com.sun.xml.bind</groupId>
-          <artifactId>jaxb-impl</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
     <profile>
       <id>travis</id>
       <build>

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>1.1.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-vault-proxy</artifactId>
@@ -187,10 +187,14 @@
               <goal>openapi.json</goal>
             </goals>
             <configuration>
-              <output>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</output>
+              <output>${project.build.outputDirectory}/META-INF/resources/openapi.json</output>
               <application>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.TalendComponentServerVaultCacheApplication</application>
               <endpointClasses>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.ActionResourceProxy</endpointClass>
                 <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.ComponentResourceProxy</endpointClass>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.DocumentationResourceProxy</endpointClass>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.EnvironmentResourceProxy</endpointClass>
+                <endpointClass>org.talend.sdk.component.runtime.server.vault.proxy.endpoint.proxy.LocalEnvironmentResource</endpointClass>
               </endpointClasses>
               <info>
                 <version>1</version>
@@ -203,31 +207,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>java11</id>
-      <activation>
-        <jdk>11</jdk>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-jaxws_2.2_spec</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>javax.xml.bind</groupId>
-          <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>com.sun.xml.bind</groupId>
-          <artifactId>jaxb-impl</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 </project>

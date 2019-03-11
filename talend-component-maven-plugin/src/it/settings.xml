@@ -20,6 +20,10 @@
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
+      <properties>
+        <spotless.check.skip>true</spotless.check.skip>
+        <rootlocation>@rootlocation@</rootlocation>
+      </properties>
       <repositories>
         <repository>
           <id>local.central</id>

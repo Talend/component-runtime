@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.design.extension.repository;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 
@@ -32,6 +32,6 @@ public class Family {
 
     private ComponentFamilyMeta meta;
 
-    private List<Config> configs = new ArrayList<>();
+    private Supplier<List<Config>> configs;
 
 }

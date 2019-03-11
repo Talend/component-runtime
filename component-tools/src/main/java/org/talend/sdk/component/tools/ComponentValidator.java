@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -59,6 +60,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -517,16 +519,15 @@ public class ComponentValidator extends BaseTask {
         for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
             final ResourceBundle resourceBundle = findResourceBundle(i);
             if (resourceBundle != null) {
-                final Collection<String> keys = of(i.getMethods())
+                final Collection<Collection<String>> keys = of(i.getMethods())
                         .filter(m -> m.getDeclaringClass() != Object.class)
-                        .map(m -> i.getName() + "." + m.getName())
-                        .sorted()
-                        .collect(toSet());
+                        .map(m -> asList(i.getName() + "." + m.getName(), i.getSimpleName() + "." + m.getName()))
+                        .collect(Collectors.toSet());
                 errors
                         .addAll(keys
                                 .stream()
-                                .filter(k -> !resourceBundle.containsKey(k))
-                                .map(k -> "Missing key " + k + " in " + i + " resource bundle")
+                                .filter(ks -> ks.stream().noneMatch(resourceBundle::containsKey))
+                                .map(k -> "Missing key " + k.iterator().next() + " in " + i + " resource bundle")
                                 .sorted()
                                 .collect(toSet()));
 
@@ -534,7 +535,8 @@ public class ComponentValidator extends BaseTask {
                         .addAll(resourceBundle
                                 .keySet()
                                 .stream()
-                                .filter(k -> k.startsWith(i.getName() + ".") && !keys.contains(k))
+                                .filter(k -> (k.startsWith(i.getName() + ".") || k.startsWith(i.getSimpleName() + "."))
+                                        && keys.stream().noneMatch(ks -> ks.contains(k)))
                                 .map(k -> "Key " + k + " from " + i + " is no more used")
                                 .sorted()
                                 .collect(toSet()));

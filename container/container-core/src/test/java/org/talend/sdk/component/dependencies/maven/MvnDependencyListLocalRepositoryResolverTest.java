@@ -32,16 +32,15 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
-import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 
-@WithTemporaryFolder
 class MvnDependencyListLocalRepositoryResolverTest {
 
     @Test
-    void nestedDependency(final TemporaryFolder temporaryFolder) throws IOException {
-        final File file = temporaryFolder.newFile(UUID.randomUUID().toString() + ".jar");
+    void nestedDependency(@TempDir final File temporaryFolder) throws IOException {
+        final File file = new File(temporaryFolder, UUID.randomUUID().toString() + ".jar");
+        file.getParentFile().mkdirs();
         try (final JarOutputStream enclosing = new JarOutputStream(new FileOutputStream(file))) {
             enclosing.putNextEntry(new ZipEntry("MAVEN-INF/repository/foo/bar/dummy/1.0.0/dummy-1.0.0.jar"));
             try (final JarOutputStream nested = new JarOutputStream(enclosing)) {

@@ -41,6 +41,7 @@ import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
@@ -164,6 +165,23 @@ public class BeamIOTransformer implements ClassFileTransformer {
 
     // we want to ensure java.io.ObjectStreamClass.writeReplaceMethod is disabled
     private static BiConsumer<OutputStream, Object> createSerializer() {
+        // lazy for the case we don't use that in the execution
+        // no need to init that which is slow for nothing
+        // concurrency not being a challenge *here* we use this simple lazy impl
+        final AtomicReference<BiConsumer<OutputStream, Object>> impl = new AtomicReference<>();
+        return (output, obj) -> {
+            BiConsumer<OutputStream, Object> serializer = impl.get();
+            if (serializer == null) {
+                serializer = doCreateSerializer();
+                if (!impl.compareAndSet(null, serializer)) {
+                    serializer = impl.get();
+                }
+            }
+            serializer.accept(output, obj);
+        };
+    }
+
+    private static BiConsumer<OutputStream, Object> doCreateSerializer() {
         final Method writeOrdinaryObject;
         final Method setBlockDataMode;
         final Field bout;

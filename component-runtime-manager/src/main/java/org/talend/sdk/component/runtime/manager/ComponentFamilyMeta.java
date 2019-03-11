@@ -30,6 +30,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
@@ -141,7 +142,7 @@ public class ComponentFamilyMeta {
 
         private final MigrationHandler migrationHandler;
 
-        private final List<ParameterMeta> parameterMetas;
+        private final Supplier<List<ParameterMeta>> parameterMetas;
 
         private final ConcurrentMap<Locale, ComponentBundle> bundles = new ConcurrentHashMap<>();
 
@@ -160,8 +161,9 @@ public class ComponentFamilyMeta {
         private final boolean validated;
 
         BaseMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
-                final Class<?> type, final List<ParameterMeta> parameterMetas, final MigrationHandler migrationHandler,
-                final Function<Map<String, String>, T> instantiator, final boolean validated) {
+                final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
+                final MigrationHandler migrationHandler, final Function<Map<String, String>, T> instantiator,
+                final boolean validated) {
             this.parent = parent;
             this.name = name;
             this.icon = icon;
@@ -226,7 +228,7 @@ public class ComponentFamilyMeta {
     public static class PartitionMapperMeta extends BaseMeta<Mapper> {
 
         protected PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon,
-                final int version, final Class<?> type, final List<ParameterMeta> parameterMetas,
+                final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
                 final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
@@ -238,7 +240,7 @@ public class ComponentFamilyMeta {
     public static class ProcessorMeta extends BaseMeta<Processor> {
 
         protected ProcessorMeta(final ComponentFamilyMeta parent, final String name, final String icon,
-                final int version, final Class<?> type, final List<ParameterMeta> parameterMetas,
+                final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
                 final Function<Map<String, String>, Processor> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);

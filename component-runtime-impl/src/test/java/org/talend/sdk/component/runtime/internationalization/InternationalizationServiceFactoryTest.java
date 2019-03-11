@@ -30,6 +30,12 @@ class InternationalizationServiceFactoryTest {
             new InternationalizationServiceFactory().create(Translate.class, Translate.class.getClassLoader());
 
     @Test
+    void shortName() {
+
+        assertEquals("The Short Name Works", translate.shortName());
+    }
+
+    @Test
     void noConfiguredValue() {
 
         assertEquals("noConfiguredValue", translate.noConfiguredValue());
@@ -64,6 +70,8 @@ class InternationalizationServiceFactoryTest {
 
     @Internationalized
     public interface Translate {
+
+        String shortName();
 
         String noConfiguredValue();
 

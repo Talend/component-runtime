@@ -86,8 +86,10 @@ public class ComponentManagerService {
 
     private DeploymentListener deploymentListener;
 
+    private volatile Date lastUpdated = new Date();
+
     void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
-        // we just want it to be touched
+        // no-op
     }
 
     @PostConstruct
@@ -138,7 +140,9 @@ public class ComponentManagerService {
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
 
         final File m2 = instance.getContainer().getRootRepositoryLocation();
-        return instance.addWithLocationPlugin(pluginGAV, new File(m2, pluginPath).getAbsolutePath());
+        final String plugin = instance.addWithLocationPlugin(pluginGAV, new File(m2, pluginPath).getAbsolutePath());
+        lastUpdated = new Date();
+        return plugin;
     }
 
     public void undeploy(final String pluginGAV) {
@@ -153,14 +157,11 @@ public class ComponentManagerService {
                 .orElseThrow(() -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
 
         instance.removePlugin(pluginID);
+        lastUpdated = new Date();
     }
 
     public Date findLastUpdated() {
-        return instance
-                .find(Stream::of)
-                .map(Container::getLastModifiedTimestamp)
-                .max(Date::compareTo)
-                .orElseGet(() -> new Date(0));
+        return lastUpdated;
     }
 
     @AllArgsConstructor
@@ -222,7 +223,7 @@ public class ComponentManagerService {
                     .map(r -> r
                             .getFamilies()
                             .stream()
-                            .flatMap(f -> configAsStream(f.getConfigs().stream()))
+                            .flatMap(f -> configAsStream(f.getConfigs().get().stream()))
                             .collect(toList()))
                     .orElse(emptyList())
                     .stream()

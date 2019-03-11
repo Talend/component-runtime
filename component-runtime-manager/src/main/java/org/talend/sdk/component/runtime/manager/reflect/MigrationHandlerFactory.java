@@ -15,12 +15,12 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Stream.concat;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
+import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
@@ -49,9 +50,15 @@ public class MigrationHandlerFactory {
 
     private final ReflectionService reflections;
 
-    public MigrationHandler findMigrationHandler(final List<ParameterMeta> parameterMetas, final Class<?> type,
-            final ComponentManager.AllServices services) {
+    public MigrationHandler findMigrationHandler(final Supplier<List<ParameterMeta>> parameterMetas,
+            final Class<?> type, final ComponentManager.AllServices services) {
+        return (incomingVersion, incomingData) -> lazy(() -> createHandler(parameterMetas.get(), type, services))
+                .get()
+                .migrate(incomingVersion, incomingData);
+    }
 
+    private MigrationHandler createHandler(final List<ParameterMeta> parameterMetas, final Class<?> type,
+            final ComponentManager.AllServices services) {
         final MigrationHandler implicitMigrationHandler = ofNullable(parameterMetas)
                 .map(Collection::stream)
                 .orElseGet(Stream::empty)
@@ -60,7 +67,7 @@ public class MigrationHandlerFactory {
                 .map(p -> {
                     // for now we can assume it is not in arrays
                     final Class<?> jType = Class.class.cast(p.getJavaType());
-                    final MigrationHandler handler = findMigrationHandler(emptyList(), jType, services);
+                    final MigrationHandler handler = findMigrationHandler(Collections::emptyList, jType, services);
                     if (handler == NO_MIGRATION) {
                         return null;
                     }
