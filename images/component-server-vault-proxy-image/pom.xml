@@ -171,8 +171,6 @@
                   <arg>--http=${boundPort}</arg>
                 </args>
                 <jvmFlags>
-                  <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>
-                  <jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>

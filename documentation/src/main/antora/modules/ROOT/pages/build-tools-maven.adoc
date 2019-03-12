@@ -78,6 +78,40 @@ The first goal is a shortcut for the *maven-dependency-plugin*. It creates the `
 </plugin>
 ----
 
+
+=== Scan
+
+This goal named `scan-descriptor` will scan the current module - optional other configured folders - to precompute the list
+of interesting classes for the framework (components, services). This saves some bootstrap time when launching a job which
+is interesting for some execution cases:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+  <executions>
+    <execution>
+      <id>talend-scan-descriptor</id>
+      <goals>
+        <goal>scan-descriptor</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+
+Configuration - excluding the ones used for defaults only:
+
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
+|===
+|Name |Description |User property |Default
+|output|Where to dump the scan result. Note it is not supported to change that value in the runtime.|`talend.scan.output`| `${project.build.outputDirectory}/TALEND-INF/scanning.properties`
+|scannedDirectories|Explicit list of directories to scan.|`talend.scan.scannedDirectories`| If not set default to `${project.build.outputDirectory}`
+|scannedDependencies|Explicit list of dependencies to scan - set them in format `groupId:artifactId`. It is appended to the file to scan.|`talend.scan.scannedDependencies`| -
+|===
+
 === Validating the component programming model
 
 This goal helps you validate the common programming model of the component. To activate it, you can use following execution definition:

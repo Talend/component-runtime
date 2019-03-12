@@ -23,12 +23,18 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -40,22 +46,28 @@ import org.talend.sdk.component.design.extension.repository.Config;
 import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.server.api.ConfigurationTypeResource;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.dao.ConfigurationDao;
+import org.talend.sdk.component.server.front.base.internal.RequestKey;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.lang.MapCache;
 import org.talend.sdk.component.server.service.ActionsService;
 import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
+import org.talend.sdk.component.server.service.SimpleQueryLanguageCompiler;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
 public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource {
+
+    private final ConcurrentMap<RequestKey, ConfigTypeNodes> indicesPerRequest = new ConcurrentHashMap<>();
 
     @Inject
     private ComponentManager manager;
@@ -75,9 +87,38 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
     @Inject
     private ExtensionComponentMetadataManager virtualComponents;
 
+    @Inject
+    private MapCache caches;
+
+    @Inject
+    private ComponentServerConfiguration configuration;
+
+    @Inject
+    private SimpleQueryLanguageCompiler queryLanguageCompiler;
+
+    private Map<String, Function<ConfigTypeNode, Object>> configNodeEvaluators = new HashMap<>();
+
+    @PostConstruct
+    private void init() {
+        configNodeEvaluators.put("id", ConfigTypeNode::getId);
+        configNodeEvaluators.put("type", ConfigTypeNode::getConfigurationType);
+        configNodeEvaluators.put("name", ConfigTypeNode::getName);
+        configNodeEvaluators.put("metadata", node -> {
+            final Iterator<SimplePropertyDefinition> iterator = node.getProperties().stream().iterator();
+            if (iterator.hasNext()) {
+                return iterator.next().getMetadata();
+            }
+            return Collections.emptyMap();
+        });
+    }
+
     @Override
-    public ConfigTypeNodes getRepositoryModel(final String language, final boolean lightPaylaod) {
-        return toNodes(language, s -> true, lightPaylaod);
+    public ConfigTypeNodes getRepositoryModel(final String language, final boolean lightPayload, final String query) {
+        final Locale locale = localeMapper.mapLocale(language);
+        caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
+        return indicesPerRequest
+                .computeIfAbsent(new RequestKey(locale, !lightPayload, query), key -> toNodes(locale, lightPayload,
+                        it -> true, queryLanguageCompiler.compile(query, configNodeEvaluators)));
     }
 
     @Override
@@ -91,8 +132,8 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                 return values.contains(s);
             }
         };
-
-        return toNodes(language, filter, false);
+        final Locale locale = localeMapper.mapLocale(language);
+        return toNodes(locale, false, filter, it -> true);
     }
 
     @Override
@@ -165,14 +206,15 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
         });
     }
 
-    private ConfigTypeNodes toNodes(final String language, final Predicate<String> filter, final boolean lightPayload) {
-        final Locale locale = localeMapper.mapLocale(language);
+    private ConfigTypeNodes toNodes(final Locale locale, final boolean lightPayload, final Predicate<String> filter,
+            final Predicate<ConfigTypeNode> nodeFilter) {
         return new ConfigTypeNodes(Stream
-                .concat(getDeployedConfigurations(filter, lightPayload, locale),
+                .concat(getDeployedConfigurations(filter, nodeFilter, lightPayload, locale),
                         virtualComponents
                                 .getConfigurations()
                                 .stream()
                                 .filter(it -> filter.test(it.getId()))
+                                .filter(nodeFilter)
                                 .map(it -> lightPayload ? copyLight(it) : it))
                 .collect(toMap(ConfigTypeNode::getId, identity())));
     }
@@ -182,8 +224,8 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                 it.getName(), it.getDisplayName(), it.getEdges(), null, null);
     }
 
-    private Stream<ConfigTypeNode> getDeployedConfigurations(final Predicate<String> filter, final boolean lightPayload,
-            final Locale locale) {
+    private Stream<ConfigTypeNode> getDeployedConfigurations(final Predicate<String> filter,
+            final Predicate<ConfigTypeNode> nodeFilter, final boolean lightPayload, final Locale locale) {
         return manager
                 .find(Stream::of)
                 .filter(c -> c.get(RepositoryModel.class) != null)
@@ -213,6 +255,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                                             createNode(family.getId(), family.getMeta().getName(),
                                                     family.getConfigs().get().stream(), resourcesBundle, c, locale,
                                                     filter, lightPayload));
-                        }));
+                        }))
+                .filter(nodeFilter);
     }
 }

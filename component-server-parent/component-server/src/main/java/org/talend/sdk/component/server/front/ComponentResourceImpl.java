@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,6 +40,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -72,13 +75,16 @@ import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.Link;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.lang.MapCache;
 import org.talend.sdk.component.server.service.ActionsService;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
 import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
+import org.talend.sdk.component.server.service.SimpleQueryLanguageCompiler;
 import org.talend.sdk.component.server.service.VirtualDependenciesService;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 
@@ -123,12 +129,38 @@ public class ComponentResourceImpl implements ComponentResource {
     @Inject
     private ExtensionComponentMetadataManager virtualComponents;
 
+    @Inject
+    private MapCache caches;
+
+    @Inject
+    private SimpleQueryLanguageCompiler queryLanguageCompiler;
+
+    private Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
+
     @PostConstruct
     private void setupRuntime() {
         log.info("Initializing " + getClass());
 
         // preload some highly used data
-        getIndex("en", false);
+        getIndex("en", false, null);
+
+        componentEvaluators.put("plugin", c -> c.getId().getPlugin());
+        componentEvaluators.put("id", c -> c.getId().getId());
+        componentEvaluators.put("familyId", c -> c.getId().getFamilyId());
+        componentEvaluators.put("name", c -> c.getId().getName());
+        componentEvaluators.put("metadata", component -> {
+            final Iterator<SimplePropertyDefinition> iterator =
+                    getDetail("en", new String[] { component.getId().getId() })
+                            .getDetails()
+                            .iterator()
+                            .next()
+                            .getProperties()
+                            .iterator();
+            if (iterator.hasNext()) {
+                return iterator.next().getMetadata();
+            }
+            return Collections.emptyMap();
+        });
     }
 
     @Override
@@ -215,23 +247,25 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
-    public ComponentIndices getIndex(final String language, final boolean includeIconContent) {
+    public ComponentIndices getIndex(final String language, final boolean includeIconContent, final String query) {
         final Locale locale = localeMapper.mapLocale(language);
-        return indicesPerRequest
-                .computeIfAbsent(new RequestKey(locale, includeIconContent),
-                        k -> new ComponentIndices(Stream
-                                .concat(findDeployedComponents(includeIconContent, locale), virtualComponents
-                                        .getDetails()
-                                        .stream()
-                                        .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
-                                                detail.getId().getFamily(), new Icon(detail.getIcon(), null, null),
-                                                new Icon(
-                                                        virtualComponents
-                                                                .getFamilyIconFor(detail.getId().getFamilyId()),
-                                                        null, null),
-                                                detail.getVersion(), singletonList(detail.getId().getFamily()),
-                                                detail.getLinks())))
-                                .collect(toList())));
+        caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
+        return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent, query), k -> {
+            final Predicate<ComponentIndex> filter = queryLanguageCompiler.compile(query, componentEvaluators);
+            return new ComponentIndices(Stream
+                    .concat(findDeployedComponents(includeIconContent, locale),
+                            virtualComponents
+                                    .getDetails()
+                                    .stream()
+                                    .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
+                                            detail.getId().getFamily(), new Icon(detail.getIcon(), null, null),
+                                            new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()),
+                                                    null, null),
+                                            detail.getVersion(), singletonList(detail.getId().getFamily()),
+                                            detail.getLinks())))
+                    .filter(filter)
+                    .collect(toList()));
+        });
     }
 
     @Override

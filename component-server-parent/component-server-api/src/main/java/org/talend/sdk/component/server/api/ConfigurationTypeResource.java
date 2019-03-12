@@ -64,7 +64,13 @@ public interface ConfigurationTypeResource {
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("lightPayload") @DefaultValue("true") @Parameter(name = "lightPayload",
                     description = "should the payload skip the forms and actions associated to the configuration.",
-                    in = QUERY, schema = @Schema(type = BOOLEAN, defaultValue = "true")) boolean lightPaylaod);
+                    in = QUERY, schema = @Schema(type = BOOLEAN, defaultValue = "true")) boolean lightPayload,
+            @QueryParam("q") @Parameter(name = "q",
+                    description = "Query in simple query language to filter configurations. "
+                            + "It provides access to the configuration `type`, `name`, `type` and "
+                            + "first configuration property `metadata`. "
+                            + "See component index endpoint for a syntax example.",
+                    in = QUERY, schema = @Schema(type = STRING)) String query);
 
     @GET
     @Path("details")

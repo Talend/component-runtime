@@ -24,12 +24,15 @@ public class RequestKey {
 
     private final boolean includeIconContent;
 
+    private final String query;
+
     private final int cacheHash;
 
-    public RequestKey(final Locale locale, final boolean includeIconContent) {
+    public RequestKey(final Locale locale, final boolean includeIconContent, final String query) {
         this.locale = locale;
         this.includeIconContent = includeIconContent;
-        this.cacheHash = Objects.hash(locale, includeIconContent);
+        this.query = query;
+        this.cacheHash = Objects.hash(locale, includeIconContent, query);
     }
 
     @Override
@@ -44,7 +47,8 @@ public class RequestKey {
             return false;
         }
         final RequestKey that = RequestKey.class.cast(o);
-        return Objects.equals(locale, that.locale) && Objects.equals(includeIconContent, that.includeIconContent);
+        return Objects.equals(locale, that.locale) && Objects.equals(includeIconContent, that.includeIconContent)
+                && Objects.equals(query, that.query);
     }
 
     @Override

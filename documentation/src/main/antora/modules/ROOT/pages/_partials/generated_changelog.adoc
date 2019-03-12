@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1326[TCOMP-1326^]: Avro Schema is not serializable as JSON so guess schema action does not work when compoennt-runtime-beam is present
+- link:https://jira.talendforge.org/browse/TCOMP-1330[TCOMP-1330^]: Shade extensions don't inherit from pluginrepositories
 
 
 
@@ -14,6 +15,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1327[TCOMP-1327^]: /environment iterates over deployed plugin for each call, this is not needed
 - link:https://jira.talendforge.org/browse/TCOMP-1328[TCOMP-1328^]: Upgrade to Beam 2.11.0
 - link:https://jira.talendforge.org/browse/TCOMP-1329[TCOMP-1329^]: Lazy initialize parameter model to have a quicker cold start in plain main(String[])
+- link:https://jira.talendforge.org/browse/TCOMP-1331[TCOMP-1331^]: Use java 8u191 as base docker image
+- link:https://jira.talendforge.org/browse/TCOMP-1332[TCOMP-1332^]: Provide a simple way to filter configurations and component on /index endpoints
+- link:https://jira.talendforge.org/browse/TCOMP-1334[TCOMP-1334^]: Add a mojo to generate the list of components/services classes
 
 == Version 1.1.7
 
