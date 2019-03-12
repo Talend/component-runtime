@@ -124,8 +124,7 @@ public class AsciidocDocumentationGenerator extends BaseTask {
     @Override
     public void run() {
         final AnnotationFinder finder = newFinder();
-        final String doc = componentMarkers()
-                .flatMap(a -> finder.findAnnotatedClasses(a).stream())
+        final String doc = findComponents(finder)
                 .map(this::toAsciidoc)
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                 .toString();
@@ -154,6 +153,10 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                 }
             }));
         }
+    }
+
+    protected Stream<Class<?>> findComponents(final AnnotationFinder finder) {
+        return componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream());
     }
 
     private String toAsciidoc(final Class<?> aClass) {

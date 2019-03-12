@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
@@ -23,6 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -52,6 +55,31 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         executeInLoader();
+    }
+
+    protected List<String> getExcludes(final Collection<String> excludes, final Collection<String> sharedExcludes) {
+        return Stream
+                .of(excludes, sharedExcludes)
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .collect(toList());
+    }
+
+    protected Stream<File> getJarToScan(final Collection<String> deps) {
+        if (deps == null || deps.isEmpty()) {
+            return Stream.empty();
+        }
+        return deps
+                .stream()
+                .map(it -> project
+                        .getArtifacts()
+                        .stream()
+                        .filter(art -> it.equals(art.getGroupId() + ':' + art.getArtifactId()))
+                        .findFirst()
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .map(Artifact::getFile)
+                .filter(Objects::nonNull);
     }
 
     protected void executeInLoader() throws MojoExecutionException, MojoFailureException {
