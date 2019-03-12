@@ -37,6 +37,7 @@ import java.io.Writer;
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -52,6 +53,7 @@ import org.talend.sdk.component.runtime.manager.reflect.Constructors;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
@@ -88,14 +90,15 @@ public class AsciidocDocumentationGenerator extends BaseTask {
 
     private final AbsolutePathResolver resolver = new AbsolutePathResolver();
 
-    private final ParameterModelService parameterModelService =
-            new ParameterModelService(asList((ParameterExtensionEnricher) (parameterName, parameterType,
+    private final ParameterModelService parameterModelService = new ParameterModelService(
+            asList((ParameterExtensionEnricher) (parameterName, parameterType,
                     annotation) -> annotation.annotationType() == Documentation.class
                             ? singletonMap("documentation", Documentation.class.cast(annotation).value())
                             : emptyMap(),
-                    new ConditionParameterEnricher()), new PropertyEditorRegistry()) {
+                    new ConditionParameterEnricher(), new ConfigurationTypeParameterEnricher()),
+            new PropertyEditorRegistry()) {
 
-            };
+    };
 
     // CHECKSTYLE:OFF - used by reflection so better to not create a wrapper
     public AsciidocDocumentationGenerator(final File[] classes, final File output, final String title, final int level,
@@ -174,10 +177,11 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                         .name()
                 + "\n\n" + getDoc(aClass)
                 + (parameterMetas.isEmpty() ? ""
-                        : (levelPrefix + "= Configuration\n\n" + toAsciidocRows(sort(parameterMetas), null, null)
-                                .collect(joining("\n",
-                                        "[cols=\"d,d,m,a,e\",options=\"header\"]\n|===\n|Display Name|Description|Default Value|Enabled If|Configuration Path\n",
-                                        "\n|===\n\n"))));
+                        : (levelPrefix + "= Configuration\n\n"
+                                + toAsciidocRows(sort(parameterMetas), null, null, new HashMap<>())
+                                        .collect(joining("\n", "[cols=\"d,d,m,a,e\",options=\"header\"]\n"
+                                                + "|===\n|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n",
+                                                "\n|===\n\n"))));
     }
 
     private String getDoc(final Class<?> component) {
@@ -214,24 +218,45 @@ public class AsciidocDocumentationGenerator extends BaseTask {
     }
 
     private Stream<String> toAsciidocRows(final Collection<ParameterMeta> parameterMetas,
-            final DefaultValueInspector.Instance parentInstance, final ParameterBundle parentBundle) {
+            final DefaultValueInspector.Instance parentInstance, final ParameterBundle parentBundle,
+            final Map<String, String> types) {
         return parameterMetas.stream().flatMap(p -> {
             final DefaultValueInspector.Instance instance = defaultValueInspector
                     .createDemoInstance(
                             ofNullable(parentInstance).map(DefaultValueInspector.Instance::getValue).orElse(null), p);
             return Stream
-                    .concat(Stream.of(toAsciidoctor(p, instance, parentBundle)),
-                            toAsciidocRows(p.getNestedParameters(), instance, findBundle(p)));
+                    .concat(Stream.of(toAsciidoctor(p, instance, parentBundle, types)),
+                            toAsciidocRows(p.getNestedParameters(), instance, findBundle(p), types));
         });
     }
 
     private String toAsciidoctor(final ParameterMeta p, final DefaultValueInspector.Instance instance,
-            final ParameterBundle parent) {
+            final ParameterBundle parent, final Map<String, String> types) {
         final ParameterBundle bundle = findBundle(p);
+        final String type = findEnclosingConfigurationType(p, types);
         return "|" + bundle.displayName(parent).orElse(p.getName()) + '|'
                 + bundle.documentation(parent).orElseGet(() -> findDocumentation(p)) + '|'
                 + ofNullable(findDefault(p, instance)).orElse("-") + '|'
-                + renderConditions(p.getPath(), p.getMetadata()) + '|' + p.getPath();
+                + renderConditions(p.getPath(), p.getMetadata()) + '|' + p.getPath() + '|'
+                + ofNullable(type).orElse("-");
+    }
+
+    private String findEnclosingConfigurationType(final ParameterMeta p, final Map<String, String> types) {
+        String type = p.getMetadata().get("tcomp::configurationtype::type");
+        if (type != null) {
+            types.put(p.getPath(), type);
+        } else { // try to find the closest parent
+            String currentPath = p.getPath();
+            while (type == null) {
+                final int sep = currentPath.lastIndexOf('.');
+                if (sep < 0) {
+                    break;
+                }
+                currentPath = currentPath.substring(0, sep);
+                type = types.get(currentPath);
+            }
+        }
+        return type;
     }
 
     private String findDefault(final ParameterMeta p, final DefaultValueInspector.Instance instance) {
