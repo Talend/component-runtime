@@ -18,6 +18,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1331[TCOMP-1331^]: Use java 8u191 as base docker image
 - link:https://jira.talendforge.org/browse/TCOMP-1332[TCOMP-1332^]: Provide a simple way to filter configurations and component on /index endpoints
 - link:https://jira.talendforge.org/browse/TCOMP-1334[TCOMP-1334^]: Add a mojo to generate the list of components/services classes
+- link:https://jira.talendforge.org/browse/TCOMP-1335[TCOMP-1335^]: Add in doc mojo table the type of configuration the parameter belongs to
+- link:https://jira.talendforge.org/browse/TCOMP-1336[TCOMP-1336^]: Allow output processors to only have an @AfterGroup taking the list of record of the group in parameter
 
 == Version 1.1.7
 

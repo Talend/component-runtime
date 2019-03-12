@@ -35,7 +35,6 @@ You can define the following logic in the processor configuration:
 
 [source, java]
 ----
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +62,21 @@ public class BulkProcessor implements Serializable {
 
     @AfterGroup
     public void commit() {
-        // save buffer records at once (bulk)
+        // save buffered records at once (bulk)
+    }
+}
+----
+
+You can also use the condensed syntax for this kind of processor:
+
+[source,java]
+----
+@Processor(name = "BulkOutputDemo")
+public class BulkProcessor implements Serializable {
+
+    @AfterGroup
+    public void commit(final Collection<Record> records) {
+        // save records
     }
 }
 ----
