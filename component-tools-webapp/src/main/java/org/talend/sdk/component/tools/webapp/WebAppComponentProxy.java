@@ -75,8 +75,7 @@ public class WebAppComponentProxy {
     public void action(@Suspended final AsyncResponse response, @QueryParam("family") final String family,
             @QueryParam("type") final String type, @QueryParam("action") final String action,
             final Map<String, Object> params, @Context final HttpServletRequest request) {
-        final String lang = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
-        client.action(family, type, action, lang, params, null).handle((r, e) -> {
+        client.action(family, type, action, getLanguage(null, request), params, null).handle((r, e) -> {
             if (e != null) {
                 onException(response, e);
             } else {
@@ -88,13 +87,13 @@ public class WebAppComponentProxy {
 
     @GET
     @Path("index")
-    public void getIndex(@Suspended final AsyncResponse response,
-            @QueryParam("language") @DefaultValue("en") final String language,
-            @QueryParam("configuration") @DefaultValue("false") final boolean configuration) {
+    public void getIndex(@Suspended final AsyncResponse response, @QueryParam("language") final String language,
+            @QueryParam("configuration") @DefaultValue("false") final boolean configuration,
+            @Context final HttpServletRequest request) {
         if (configuration) {
             target
                     .path("configurationtype/index")
-                    .queryParam("language", language)
+                    .queryParam("language", getLanguage(language, request))
                     .request(APPLICATION_JSON_TYPE)
                     .rx()
                     .get(ConfigTypeNodes.class)
@@ -110,7 +109,7 @@ public class WebAppComponentProxy {
         } else {
             target
                     .path("component/index")
-                    .queryParam("language", language)
+                    .queryParam("language", getLanguage(language, request))
                     .request(APPLICATION_JSON_TYPE)
                     .rx()
                     .get(ComponentIndices.class)
@@ -137,15 +136,15 @@ public class WebAppComponentProxy {
 
     @GET
     @Path("detail/{id}")
-    public void getDetail(@Suspended final AsyncResponse response,
-            @QueryParam("language") @DefaultValue("en") final String language, @PathParam("id") final String id,
+    public void getDetail(@Suspended final AsyncResponse response, @QueryParam("language") final String language,
+            @PathParam("id") final String id,
             @QueryParam("configuration") @DefaultValue("false") final boolean configuration,
             @Context final HttpServletRequest request) {
         final String lang = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         if (configuration) {
             target
                     .path("configurationtype/details")
-                    .queryParam("language", language)
+                    .queryParam("language", getLanguage(language, request))
                     .queryParam("identifiers", id)
                     .request(APPLICATION_JSON_TYPE)
                     .rx()
@@ -166,7 +165,7 @@ public class WebAppComponentProxy {
         } else {
             target
                     .path("component/details")
-                    .queryParam("language", language)
+                    .queryParam("language", getLanguage(language, request))
                     .queryParam("identifiers", id)
                     .request(APPLICATION_JSON_TYPE)
                     .rx()
@@ -182,6 +181,14 @@ public class WebAppComponentProxy {
                         return null;
                     });
         }
+    }
+
+    private String getLanguage(final String language, final HttpServletRequest request) {
+        return ofNullable(language)
+                .orElseGet(() -> ofNullable(request.getLocale())
+                        .map(Locale::getLanguage)
+                        .filter(it -> !it.isEmpty())
+                        .orElse("en"));
     }
 
     private String extractFamilyFromNode(final String id) {

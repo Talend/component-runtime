@@ -29,17 +29,6 @@ function NoSelectedComponent() {
 	);
 }
 
-function parseQuery() {
-    const queryString = window.location.search || '?';
-    let query = {
-        language: 'en'
-    };
-    return (queryString.length && queryString[0] === '?' ? queryString.substr(1) : queryString)
-        .split('&')
-        .map(pair => pairs[i].split('='))
-        .reduce((a, p) => a[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || ''), {});
-}
-
 function Detail(props) {
     let notSelected = null;
     let submitted = null;
