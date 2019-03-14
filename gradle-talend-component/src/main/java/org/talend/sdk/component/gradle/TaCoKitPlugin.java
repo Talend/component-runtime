@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -149,5 +150,16 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put("description", "Creates a Component ARchive (.car) based on current project.");
             }
         }, "talendComponentKitComponentArchive");
+
+        // deploy in studio
+        project.task(new HashMap<String, Object>() {
+
+            {
+                put(Task.TASK_TYPE, DeployInStudioTask.class);
+                put(Task.TASK_GROUP, "Talend Component Kit deployment");
+                put(Task.TASK_DESCRIPTION, "Deploys the module components to the Studio.");
+                put(Task.TASK_DEPENDS_ON, "jar");
+            }
+        }, "deployInStudio");
     }
 }
