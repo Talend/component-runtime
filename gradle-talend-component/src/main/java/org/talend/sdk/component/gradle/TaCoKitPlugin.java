@@ -82,9 +82,9 @@ public class TaCoKitPlugin implements Plugin<Project> {
         project.task(new HashMap<String, Object>() {
 
             {
-                put("type", DependenciesTask.class);
-                put("group", group);
-                put("description",
+                put(Task.TASK_TYPE, DependenciesTask.class);
+                put(Task.TASK_GROUP, group);
+                put(Task.TASK_DESCRIPTION,
                         "Creates the Talend Component Kit dependencies file used by the runtime to build the component classloader");
             }
         }, "talendComponentKitDependencies");
@@ -100,9 +100,10 @@ public class TaCoKitPlugin implements Plugin<Project> {
         project.task(new HashMap<String, Object>() {
 
             {
-                put("type", ValidateTask.class);
-                put("group", group);
-                put("description", "Validates that the module components are respecting the component standards.");
+                put(Task.TASK_TYPE, ValidateTask.class);
+                put(Task.TASK_GROUP, group);
+                put(Task.TASK_DESCRIPTION,
+                        "Validates that the module components are respecting the component standards.");
             }
         }, "talendComponentKitValidation");
         project
@@ -117,9 +118,9 @@ public class TaCoKitPlugin implements Plugin<Project> {
         project.task(new HashMap<String, Object>() {
 
             {
-                put("type", DocumentationTask.class);
-                put("group", group);
-                put("description", "Generates an asciidoc file with the documentation of the components.");
+                put(Task.TASK_TYPE, DocumentationTask.class);
+                put(Task.TASK_GROUP, group);
+                put(Task.TASK_DESCRIPTION, "Generates an asciidoc file with the documentation of the components.");
             }
         }, "talendComponentKitDocumentation");
         project
@@ -134,9 +135,9 @@ public class TaCoKitPlugin implements Plugin<Project> {
         project.task(new HashMap<String, Object>() {
 
             {
-                put("type", WebTask.class);
-                put("group", group);
-                put("description",
+                put(Task.TASK_TYPE, WebTask.class);
+                put(Task.TASK_GROUP, group);
+                put(Task.TASK_DESCRIPTION,
                         "Starts a web server allowing you to browse your components (requires the component to be installed before).");
             }
         }, "talendComponentKitWebServer");
@@ -145,9 +146,9 @@ public class TaCoKitPlugin implements Plugin<Project> {
         project.task(new HashMap<String, Object>() {
 
             {
-                put("type", CarTask.class);
-                put("group", group);
-                put("description", "Creates a Component ARchive (.car) based on current project.");
+                put(Task.TASK_TYPE, CarTask.class);
+                put(Task.TASK_GROUP, group);
+                put(Task.TASK_DESCRIPTION, "Creates a Component ARchive (.car) based on current project.");
             }
         }, "talendComponentKitComponentArchive");
 
