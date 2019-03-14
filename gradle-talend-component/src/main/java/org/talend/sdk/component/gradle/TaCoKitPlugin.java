@@ -157,10 +157,10 @@ public class TaCoKitPlugin implements Plugin<Project> {
 
             {
                 put(Task.TASK_TYPE, DeployInStudioTask.class);
-                put(Task.TASK_GROUP, "Talend Component Kit deployment");
+                put(Task.TASK_GROUP, group);
                 put(Task.TASK_DESCRIPTION, "Deploys the module components to the Studio.");
                 put(Task.TASK_DEPENDS_ON, "jar");
             }
-        }, "deployInStudio");
+        }, "talendComponentKitDeployInStudio");
     }
 }
