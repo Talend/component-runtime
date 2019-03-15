@@ -26,6 +26,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -76,6 +77,7 @@ class AvroSchemaTest {
                         .build())
                 .getDelegate();
         assertEquals(DATETIME, new AvroSchema(avro).getEntries().iterator().next().getType());
+        assertEquals(LogicalTypes.timestampMillis(), LogicalTypes.fromSchema(avro.getField("date").schema()));
     }
 
     @Test
