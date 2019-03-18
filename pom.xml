@@ -133,6 +133,9 @@
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
     <blackduck-scan.log.level>INFO</blackduck-scan.log.level>
+    <blackduck.url>https://blackduck.talend.com</blackduck.url>
+    <blackduck.trust.all.cert>false</blackduck.trust.all.cert>
+    <blackduck.parallelism>64</blackduck.parallelism>
 
     <xbean.version>4.12</xbean.version>
     <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
@@ -839,17 +842,22 @@
         <artifactId>talend-tools-maven-plugin</artifactId>
         <version>1.0.7</version>
         <configuration>
-          <blackduckUrl>https://blackduck.talend.com</blackduckUrl>
+          <blackduckUrl>${blackduck.url}</blackduckUrl>
           <blackduckName>Talend Component (TCOMP)</blackduckName>
           <systemVariables>
             <!-- https://github.com/blackducksoftware/synopsys-detect/blob/master/detect-configuration/src/main/java/com/synopsys/integration/detect/configuration/DetectProperty.java -->
-            <blackduck.timeout>1200</blackduck.timeout>
+            <blackduck.timeout>3600</blackduck.timeout>
             <detect.output.path>${maven.multiModuleProjectDirectory}/.blackduck</detect.output.path>
             <logging.level.com.blackducksoftware.integration>${blackduck-scan.log.level}</logging.level.com.blackducksoftware.integration>
             <logging.level.org.apache.http>${blackduck-scan.log.level}</logging.level.org.apache.http>
-            <detect.blackduck.parallel.processors>64</detect.blackduck.parallel.processors>
-            <detect.blackduck.signature.scanner.parallel.processors>64</detect.blackduck.signature.scanner.parallel.processors>
+            <detect.blackduck.parallel.processors>${blackduck.parallelism}</detect.blackduck.parallel.processors>
+            <detect.blackduck.signature.scanner.parallel.processors>${blackduck.parallelism}</detect.blackduck.signature.scanner.parallel.processors>
+            <blackduck.trust.cert>${blackduck.trust.all.cert}</blackduck.trust.cert>
+            <detect.blackduck.signature.scanner.memory>8192</detect.blackduck.signature.scanner.memory>
           </systemVariables>
+          <jvmOptions>
+            <jvmOption>-Xmx6g</jvmOption>
+          </jvmOptions>
           <!-- to debug synopsys-detect
           <jvmOptions>
             <jvmOption>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmOption>
