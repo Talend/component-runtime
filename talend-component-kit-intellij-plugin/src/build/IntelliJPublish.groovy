@@ -31,22 +31,31 @@ if (project.version.endsWith('-SNAPSHOT')) {
     return
 }
 
+// find the plugin to deploy
 File pluginZip = new File(project.build.directory, "${project.build.finalName}-plugin.zip")
 if (!pluginZip.exists()) {
     log.error("No ${pluginZip} file found, skipping plublish")
     return
 }
 
+
 // grab the credentials
 def serverId = project.properties.getProperty('talend.jetbrains.serverId', 'jetbrains')
 def serverIt = session.settings.servers.findAll { it.id == serverId }.iterator()
-if (!serverIt.hasNext()) {
-    log.warn("no server '${serverId}' in your settings.xml, will skip jetbrains publication")
+if (!serverIt.hasNext()) { // todo: fail?
+    log.error("no server '${serverId}' in your settings.xml, will skip jetbrains publication")
     return
 }
 def server = serverIt.next()
 def decryptedServer = session.container.lookup(SettingsDecrypter).decrypt(new DefaultSettingsDecryptionRequest(server))
 server = decryptedServer.server != null ? decryptedServer.server : server
+
+// if not master we don't republish the plugin automatically - maintenance branches
+def gitBranch = project.properties['git.branch']
+if (gitBranch == null || gitBranch != 'master') {
+    log.info("Skipping idea plugin deployment (${pluginZip}) since current branch is not master: ${gitBranch}")
+    return
+}
 
 int pluginId = Integer.parseInt(project.properties['idea.plugin.id'].trim())
 def repositoryInstance = new PluginRepositoryInstance(project.properties['idea.intellij.public.url'], server.getUsername(), server.getPassword())
