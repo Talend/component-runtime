@@ -206,9 +206,21 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         .stream()
                         .filter(a -> actionMatch(v, a) && "suggestions".equals(a.getType()))
                         .findFirst())
-                .map(ref -> Stream
-                        .of(toTrigger(properties, property, ref))
-                        .peek(trigger -> trigger.setOnEvent("focus")))
+                .map(ref -> Stream.of(toTrigger(properties, property, ref)).flatMap(trigger -> {
+                    // we map it on focus + change
+                    trigger.setOnEvent("focus");
+
+                    // we also want to map it on "change" so we copy it
+                    final UiSchema.Trigger copy = new UiSchema.Trigger();
+                    copy.setOnEvent("change");
+                    copy.setAction(trigger.getAction());
+                    copy.setFamily(trigger.getFamily());
+                    copy.setType(trigger.getType());
+                    copy.setOptions(trigger.getOptions());
+                    copy.setParameters(trigger.getParameters());
+                    copy.setRemote(trigger.getRemote());
+                    return Stream.of(trigger, copy);
+                }))
                 .orElseGet(Stream::empty);
     }
 

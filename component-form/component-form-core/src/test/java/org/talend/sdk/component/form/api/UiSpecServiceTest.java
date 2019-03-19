@@ -445,7 +445,7 @@ class UiSpecServiceTest {
                 .toCompletableFuture()
                 .get();
         final Collection<UiSchema> schema = payload.getUiSchema();
-        final UiSchema.Trigger driverTrigger = schema
+        final Collection<UiSchema.Trigger> suggestionTriggers = schema
                 .iterator()
                 .next()
                 .getItems()
@@ -453,15 +453,19 @@ class UiSpecServiceTest {
                 .filter(c -> c.getKey() != null && c.getKey().equals("configuration.driver"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No driver"))
-                .getTriggers()
-                .iterator()
-                .next();
+                .getTriggers();
+        assertEquals(2, suggestionTriggers.size());
+        final Iterator<UiSchema.Trigger> triggers = suggestionTriggers.iterator();
+
+        final UiSchema.Trigger driverTrigger = triggers.next();
         assertEquals("focus", driverTrigger.getOnEvent());
         assertEquals("suggestions", driverTrigger.getType());
         assertEquals("SuggestionForJdbcDrivers", driverTrigger.getAction());
         assertNull(driverTrigger.getRemote());
         assertEquals(singletonList("currentValue/configuration.driver"),
                 driverTrigger.getParameters().stream().map(it -> it.getKey() + '/' + it.getPath()).collect(toList()));
+
+        assertEquals("change", triggers.next().getOnEvent());
     }
 
     @Test

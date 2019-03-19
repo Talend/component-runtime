@@ -30,6 +30,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1336[TCOMP-1336^]: Allow output processors to only have an @AfterGroup taking the list of record of the group in parameter
 - link:https://jira.talendforge.org/browse/TCOMP-1346[TCOMP-1346^]: Upgrade to Tomcat 9.0.17
 - link:https://jira.talendforge.org/browse/TCOMP-1347[TCOMP-1347^]: Upgrade to Slf4j 1.7.26
+- link:https://jira.talendforge.org/browse/TCOMP-1348[TCOMP-1348^]: [form-core] Ensure suggestions trigger is bound to "change" event too
 
 == Version 1.1.7
 
