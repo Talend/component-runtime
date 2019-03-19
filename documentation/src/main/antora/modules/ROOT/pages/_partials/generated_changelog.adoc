@@ -6,6 +6,14 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1326[TCOMP-1326^]: Avro Schema is not serializable as JSON so guess schema action does not work when compoennt-runtime-beam is present
 - link:https://jira.talendforge.org/browse/TCOMP-1330[TCOMP-1330^]: Shade extensions don't inherit from pluginrepositories
+- link:https://jira.talendforge.org/browse/TCOMP-1340[TCOMP-1340^]: Tools webapp (talend-component:web) does not support changing the locale anymore
+- link:https://jira.talendforge.org/browse/TCOMP-1343[TCOMP-1343^]: Use LogicalTypes.timestampMillis() on DATETIME for avro record builder
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1341[TCOMP-1341^]: Register deploy in studio task OOTB in gradle extension
 
 
 
@@ -20,6 +28,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1334[TCOMP-1334^]: Add a mojo to generate the list of components/services classes
 - link:https://jira.talendforge.org/browse/TCOMP-1335[TCOMP-1335^]: Add in doc mojo table the type of configuration the parameter belongs to
 - link:https://jira.talendforge.org/browse/TCOMP-1336[TCOMP-1336^]: Allow output processors to only have an @AfterGroup taking the list of record of the group in parameter
+- link:https://jira.talendforge.org/browse/TCOMP-1346[TCOMP-1346^]: Upgrade to Tomcat 9.0.17
+- link:https://jira.talendforge.org/browse/TCOMP-1347[TCOMP-1347^]: Upgrade to Slf4j 1.7.26
 
 == Version 1.1.7
 
