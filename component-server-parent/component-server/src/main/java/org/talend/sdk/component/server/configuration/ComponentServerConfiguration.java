@@ -51,7 +51,8 @@ public class ComponentServerConfiguration {
 
     // property to list plugins like in a fatjar, ie value = gav. Nice for assemblies, less for demo/cli usage.
     @Inject
-    @Documentation("A property file where the value is a gav of a component to register (complementary with `coordinates`)")
+    @Documentation("A property file where the value is a gav of a component to register (complementary with `coordinates`). "
+            + "Note that the path can end up with `*` or `*.properties` to take into account all properties in a folder.")
     @ConfigProperty(name = "talend.component.server.component.registry")
     private Optional<String> componentRegistry;
 
