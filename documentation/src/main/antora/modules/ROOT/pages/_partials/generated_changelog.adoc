@@ -31,6 +31,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1346[TCOMP-1346^]: Upgrade to Tomcat 9.0.17
 - link:https://jira.talendforge.org/browse/TCOMP-1347[TCOMP-1347^]: Upgrade to Slf4j 1.7.26
 - link:https://jira.talendforge.org/browse/TCOMP-1348[TCOMP-1348^]: [form-core] Ensure suggestions trigger is bound to "change" event too
+- link:https://jira.talendforge.org/browse/TCOMP-1349[TCOMP-1349^]: [form-core] When a tab is empty, don't show it
 
 == Version 1.1.7
 
