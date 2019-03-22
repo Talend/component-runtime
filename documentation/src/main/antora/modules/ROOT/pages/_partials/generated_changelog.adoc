@@ -32,6 +32,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1347[TCOMP-1347^]: Upgrade to Slf4j 1.7.26
 - link:https://jira.talendforge.org/browse/TCOMP-1348[TCOMP-1348^]: [form-core] Ensure suggestions trigger is bound to "change" event too
 - link:https://jira.talendforge.org/browse/TCOMP-1349[TCOMP-1349^]: [form-core] When a tab is empty, don't show it
+- link:https://jira.talendforge.org/browse/TCOMP-1350[TCOMP-1350^]: talend.component.server.component.registry should support glob pattern
+- link:https://jira.talendforge.org/browse/TCOMP-1351[TCOMP-1351^]: Upgrade jsoup for Spark Cluster Testing  module
 
 == Version 1.1.7
 
