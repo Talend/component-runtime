@@ -98,7 +98,9 @@ to avoid to transport more than desired during the job distribution.
 [[httpclient_usage]]
 == Using HttpClient
 
-The HttpClient usage is described in this section by using the REST API example below. It is assume that it requires a basic authentication header.
+You can access the API reference in the https://talend.github.io/component-runtime/apidocs/{page-component-version}/api/org/talend/sdk/component/api/service/http/package-summary.html[Javadocs]
+
+The HttpClient usage is described in this section by using the REST API example below. Assuming that it requires a basic authentication header:
 
 |===
 | GET     `/api/records/{id}` | -
