@@ -16,9 +16,11 @@
 package org.talend.sdk.component.form.api;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +53,9 @@ import javax.json.bind.config.PropertyOrderStrategy;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.form.internal.converter.PropertyContext;
+import org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter;
+import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
@@ -82,6 +87,18 @@ class UiSpecServiceTest {
             // no-op
         }
     });
+
+    @Test
+    void advancedWithoutMain() throws Exception {
+        final Collection<SimplePropertyDefinition> properties =
+                load("advanced-without-main.json", ComponentDetail.class).getProperties();
+        final List<UiSchema> schemas = createUiSchemas(properties);
+        assertEquals(1, schemas.size());
+        final UiSchema tabs = schemas.iterator().next();
+        assertEquals(1, tabs.getItems().size());
+        final UiSchema advanced = tabs.getItems().iterator().next();
+        assertEquals("Advanced", advanced.getTitle());
+    }
 
     @Test // ensure the resolution works, even when an nested array item request a parent sibling parameter
     void paramResolutionToParent() throws Exception {
@@ -445,7 +462,7 @@ class UiSpecServiceTest {
                 .toCompletableFuture()
                 .get();
         final Collection<UiSchema> schema = payload.getUiSchema();
-        final UiSchema.Trigger driverTrigger = schema
+        final Collection<UiSchema.Trigger> suggestionTriggers = schema
                 .iterator()
                 .next()
                 .getItems()
@@ -453,15 +470,19 @@ class UiSpecServiceTest {
                 .filter(c -> c.getKey() != null && c.getKey().equals("configuration.driver"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No driver"))
-                .getTriggers()
-                .iterator()
-                .next();
+                .getTriggers();
+        assertEquals(2, suggestionTriggers.size());
+        final Iterator<UiSchema.Trigger> triggers = suggestionTriggers.iterator();
+
+        final UiSchema.Trigger driverTrigger = triggers.next();
         assertEquals("focus", driverTrigger.getOnEvent());
         assertEquals("suggestions", driverTrigger.getType());
         assertEquals("SuggestionForJdbcDrivers", driverTrigger.getAction());
         assertNull(driverTrigger.getRemote());
         assertEquals(singletonList("currentValue/configuration.driver"),
                 driverTrigger.getParameters().stream().map(it -> it.getKey() + '/' + it.getPath()).collect(toList()));
+
+        assertEquals("change", triggers.next().getOnEvent());
     }
 
     @Test
@@ -691,6 +712,22 @@ class UiSpecServiceTest {
                                                 .map(it -> new Pair(
                                                         u.prefix + (u.prefix.isEmpty() ? "" : ".") + it.getKey(),
                                                         it.getValue())))));
+    }
+
+    private List<UiSchema> createUiSchemas(final Collection<SimplePropertyDefinition> properties) throws Exception {
+        final PropertyContext<Object> propertyContext =
+                new PropertyContext<>(properties.iterator().next(), null, new PropertyContext.Configuration(false));
+        final List<UiSchema> schemas = new ArrayList<>();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonSchema jsonSchema = new JsonSchema();
+            new JsonSchemaConverter(jsonb, jsonSchema, properties)
+                    .convert(completedFuture(propertyContext))
+                    .toCompletableFuture()
+                    .get();
+            new UiSchemaConverter(null, "test", schemas, properties, null, jsonSchema, properties, emptyList(), "en",
+                    emptyList()).convert(completedFuture(propertyContext)).toCompletableFuture().get();
+        }
+        return schemas;
     }
 
     @Data

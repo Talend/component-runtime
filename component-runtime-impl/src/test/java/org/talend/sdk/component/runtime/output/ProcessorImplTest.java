@@ -19,22 +19,27 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.runtime.serialization.Serializer;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.record.RecordImpl;
+import org.talend.sdk.component.runtime.serialization.Serializer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,6 +49,26 @@ class ProcessorImplTest {
     private static final OutputFactory NO_OUTPUT = name -> value -> {
         // no-op
     };
+
+    @Test
+    void bulkGroup() {
+        Bufferized.RECORDS = null;
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new Bufferized());
+        processor.start();
+        for (int i = 0; i < 3; i++) {
+            final Collection<Record> data = IntStream
+                    .rangeClosed(1, 3)
+                    .mapToObj(idx -> new RecordImpl.BuilderImpl().withInt("value", idx).build())
+                    .collect(toList());
+            processor.beforeGroup();
+            data.forEach(it -> processor.onNext(n -> it, null));
+            assertNull(Bufferized.RECORDS);
+            processor.afterGroup(null);
+            assertEquals(data, Bufferized.RECORDS);
+            Bufferized.RECORDS = null;
+        }
+        processor.stop();
+    }
 
     @Test
     void lifecycle() {
@@ -134,6 +159,16 @@ class ProcessorImplTest {
         public Sample onNext(final Sample sample) {
             stack.add("next{" + sample.data + "}");
             return sample;
+        }
+    }
+
+    public static class Bufferized implements Serializable {
+
+        private static Collection<Record> RECORDS;
+
+        @AfterGroup
+        public void onCommit(final Collection<Record> records) {
+            RECORDS = records;
         }
     }
 

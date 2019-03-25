@@ -38,6 +38,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.runtime.reflect.Parameters;
 
 public class ModelVisitor {
 
@@ -136,15 +137,37 @@ public class ModelVisitor {
     }
 
     private void validateProcessor(final Class<?> input) {
+        final List<Method> afterGroups =
+                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).collect(toList());
+        afterGroups.forEach(m -> {
+            final List<Parameter> invalidParams = Stream.of(m.getParameters()).peek(p -> {
+                if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
+                    throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
+                }
+            })
+                    .filter(p -> !p.isAnnotationPresent(Output.class))
+                    .filter(p -> !Parameters.isGroupBuffer(p.getParameterizedType()))
+                    .collect(toList());
+            if (!invalidParams.isEmpty()) {
+                throw new IllegalArgumentException("Parameter of AfterGroup method need to be annotated with Output");
+            }
+        });
+
         final List<Method> producers = Stream
                 .of(input.getMethods())
                 .filter(m -> m.isAnnotationPresent(ElementListener.class))
                 .collect(toList());
-        if (producers.size() != 1) {
+        if (producers.size() > 1) {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }
+        if (producers.size() == 0 && afterGroups
+                .stream()
+                .noneMatch(m -> Stream.of(m.getGenericParameterTypes()).anyMatch(Parameters::isGroupBuffer))) {
+            throw new IllegalArgumentException(input
+                    + " must have a single @ElementListener method or pass records as a Collection<Record|JsonObject> to its @AfterGroup method");
+        }
 
-        if (Stream.of(producers.get(0).getParameters()).peek(p -> {
+        if (!producers.isEmpty() && Stream.of(producers.get(0).getParameters()).peek(p -> {
             if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
                 throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
             }
@@ -155,17 +178,6 @@ public class ModelVisitor {
         Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(BeforeGroup.class)).forEach(m -> {
             if (m.getParameterCount() > 0) {
                 throw new IllegalArgumentException(m + " must not have any parameter");
-            }
-        });
-
-        Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).forEach(m -> {
-            final List<Parameter> invalidParams = Stream.of(m.getParameters()).peek(p -> {
-                if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
-                    throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
-                }
-            }).filter(p -> !p.isAnnotationPresent(Output.class)).collect(toList());
-            if (!invalidParams.isEmpty()) {
-                throw new IllegalArgumentException("Parameter of AfterGroup method need to be annotated with Output");
             }
         });
     }

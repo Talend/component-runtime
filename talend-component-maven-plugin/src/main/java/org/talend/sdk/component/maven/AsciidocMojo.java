@@ -34,6 +34,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.tools.AsciidocDocumentationGenerator;
 
@@ -122,6 +123,16 @@ public class AsciidocMojo extends ClasspathMojoBase {
     @Parameter(property = "talend.documentation.locales", defaultValue = "<root>,en")
     private Collection<String> locales;
 
+    @Parameter(defaultValue = "${project.build.outputDirectory}",
+            property = "talend.documentation.transitive.dependencies")
+    private Collection<String> includedDependencies;
+
+    @Parameter(property = "talend.documentation.excludes")
+    protected Collection<String> excludes;
+
+    @Parameter(property = "talend.excludes")
+    protected Collection<String> sharedExcludes;
+
     @Component
     private MavenProjectHelper helper;
 
@@ -134,7 +145,6 @@ public class AsciidocMojo extends ClasspathMojoBase {
 
         final String title =
                 this.title == null ? ofNullable(project.getName()).orElse(project.getArtifactId()) : this.title;
-        final File[] classes = { this.classes };
 
         final List<File> adocs =
                 locales.stream().map(it -> "<root>".equals(it) ? ROOT : new Locale(it)).flatMap(locale -> {
@@ -150,8 +160,16 @@ public class AsciidocMojo extends ClasspathMojoBase {
                                     .getAbsolutePath());
                         }
                     } : this.formats;
-                    new AsciidocDocumentationGenerator(classes, output, title, level, formats, attributes, templateDir,
-                            templateEngine, getLog(), workDir, version, locale).run();
+
+                    final Collection<String> exclusions = getExcludes(excludes, sharedExcludes);
+                    new AsciidocDocumentationGenerator(getClasses(), output, title, level, formats, attributes,
+                            templateDir, templateEngine, getLog(), workDir, version, locale) {
+
+                        @Override
+                        protected Stream<Class<?>> findComponents(final AnnotationFinder finder) {
+                            return super.findComponents(finder).filter(it -> !exclusions.contains(it.getName()));
+                        }
+                    }.run();
                     return formats == null || formats.isEmpty() ? Stream.of(output)
                             : Stream.concat(Stream.of(output), formats.values().stream().map(File::new));
                 }).collect(toList());
@@ -173,5 +191,10 @@ public class AsciidocMojo extends ClasspathMojoBase {
                 }
             });
         }
+    }
+
+    private File[] getClasses() {
+        return (includedDependencies == null ? Stream.of(classes)
+                : Stream.concat(Stream.of(classes), getJarToScan(includedDependencies))).toArray(File[]::new);
     }
 }

@@ -19,7 +19,7 @@ content:
   sources:
   - url: ../../../..
     branches:
-      - ${git.branch}
+      - master
     start_path: documentation/src/main/antora
 ui:
   bundle:

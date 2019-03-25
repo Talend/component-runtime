@@ -23,10 +23,8 @@ import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.talend.sdk.component.maven.api.Audience;
@@ -53,6 +51,9 @@ public class ScanDescriptorMojo extends ClasspathMojoBase {
     @Parameter(property = "talend.scan.excludes")
     private List<String> excludes;
 
+    @Parameter(property = "talend.excludes")
+    private Collection<String> sharedExcludes;
+
     @Parameter(property = "talend.scan.includes")
     private List<String> includes;
 
@@ -61,25 +62,8 @@ public class ScanDescriptorMojo extends ClasspathMojoBase {
 
     @Override
     public void doExecute() {
-        new ScanTask(Stream.concat(getDirectoriesToScan(), getJarToScan()).collect(toList()), excludes, includes,
-                filterStrategy, output).run();
-    }
-
-    private Stream<File> getJarToScan() {
-        if (scannedDependencies == null || scannedDependencies.isEmpty()) {
-            return Stream.empty();
-        }
-        return scannedDependencies
-                .stream()
-                .map(it -> project
-                        .getArtifacts()
-                        .stream()
-                        .filter(art -> it.equals(art.getGroupId() + ':' + art.getArtifactId()))
-                        .findFirst()
-                        .orElse(null))
-                .filter(Objects::nonNull)
-                .map(Artifact::getFile)
-                .filter(Objects::nonNull);
+        new ScanTask(Stream.concat(getDirectoriesToScan(), getJarToScan(scannedDependencies)).collect(toList()),
+                getExcludes(excludes, sharedExcludes), includes, filterStrategy, output).run();
     }
 
     private Stream<File> getDirectoriesToScan() {

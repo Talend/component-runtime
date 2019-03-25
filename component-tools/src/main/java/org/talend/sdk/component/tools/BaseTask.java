@@ -21,6 +21,7 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,8 +34,8 @@ import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
+import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.apache.xbean.finder.archive.CompositeArchive;
-import org.apache.xbean.finder.archive.FileArchive;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -61,10 +62,13 @@ abstract class BaseTask implements Runnable {
     }
 
     protected AnnotationFinder newFinder() {
-        return new AnnotationFinder(new CompositeArchive(Stream
-                .of(classes)
-                .map(c -> new FileArchive(Thread.currentThread().getContextClassLoader(), c))
-                .toArray(Archive[]::new))) {
+        return new AnnotationFinder(new CompositeArchive(Stream.of(classes).map(c -> {
+            try {
+                return ClasspathArchive.archive(Thread.currentThread().getContextClassLoader(), c.toURI().toURL());
+            } catch (final MalformedURLException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }).toArray(Archive[]::new))) {
 
             private final Map<Class<?>, List<Field>> fieldCache = new HashMap<>();
 

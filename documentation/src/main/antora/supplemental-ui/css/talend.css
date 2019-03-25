@@ -352,6 +352,15 @@ img {
   margin-top: 25px;
   margin-bottom:25px;
 }
+span.image.img-inline > img {
+    max-width: inherit !important;
+    display: inherit !important;
+    margin-left: inherit !important;
+    margin-right: inherit !important;
+    margin-top: inherit !important;
+    margin-bottom: inherit !important;
+}
+
 main {
   display: flex;
   overflow-y: scroll;

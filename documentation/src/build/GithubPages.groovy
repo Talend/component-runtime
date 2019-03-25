@@ -18,8 +18,6 @@
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest
 import org.apache.maven.settings.crypto.SettingsDecrypter
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.Status
-import org.eclipse.jgit.dircache.DirCache
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import static java.util.Collections.singleton

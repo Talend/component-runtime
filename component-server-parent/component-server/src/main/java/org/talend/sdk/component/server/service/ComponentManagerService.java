@@ -80,6 +80,9 @@ public class ComponentManagerService {
     @Inject
     private VirtualDependenciesService virtualDependenciesService;
 
+    @Inject
+    private GlobService globService;
+
     private ComponentManager instance;
 
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
@@ -112,20 +115,26 @@ public class ComponentManagerService {
                 .map(it -> Stream.of(it.split(",")).map(String::trim).filter(i -> !i.isEmpty()).collect(toList()))
                 .orElse(emptyList());
         coords.forEach(this::deploy);
-        configuration.getComponentRegistry().map(File::new).filter(File::exists).ifPresent(registry -> {
-            final Properties properties = new Properties();
-            try (final InputStream is = new FileInputStream(registry)) {
-                properties.load(is);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-            properties
-                    .stringPropertyNames()
-                    .stream()
-                    .map(properties::getProperty)
-                    .filter(gav -> !coords.contains(gav))
-                    .forEach(this::deploy);
-        });
+        configuration
+                .getComponentRegistry()
+                .map(Stream::of)
+                .orElseGet(Stream::empty)
+                .flatMap(globService::toFiles)
+                .filter(File::exists)
+                .forEach(registry -> {
+                    final Properties properties = new Properties();
+                    try (final InputStream is = new FileInputStream(registry)) {
+                        properties.load(is);
+                    } catch (final IOException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                    properties
+                            .stringPropertyNames()
+                            .stream()
+                            .map(properties::getProperty)
+                            .filter(gav -> !coords.contains(gav))
+                            .forEach(this::deploy);
+                });
     }
 
     @PreDestroy

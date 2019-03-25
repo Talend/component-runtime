@@ -19,7 +19,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
@@ -59,6 +58,10 @@ public class AsciidoctorExecutor implements AutoCloseable {
     };
 
     public static void main(final String[] args) throws IOException {
+        new AsciidoctorExecutor().doMain(args);
+    }
+
+    public void doMain(final String[] args) throws IOException {
         final Path adoc = Paths.get(args[0]).toAbsolutePath();
         final File output =
                 adoc.getParent().resolve(args.length > 1 ? args[1] : args[0].replace(".adoc", ".pdf")).toFile();
@@ -69,30 +72,29 @@ public class AsciidoctorExecutor implements AutoCloseable {
                 .findFirst()
                 .map(it -> it.substring(1))
                 .orElse(args.length > 2 ? args[2] : "");
-        new AsciidoctorExecutor()
-                .render(args.length > 3 ? new File(args[2]) : new File("target/pdf"), version, new Log() {
+        render(args.length > 3 ? new File(args[2]) : new File("target/pdf"), version, new Log() {
 
-                    @Override
-                    public void debug(final String s) {
-                        // no-op
-                    }
+            @Override
+            public void debug(final String s) {
+                // no-op
+            }
 
-                    @Override
-                    public void error(final String s) {
-                        System.err.println(s);
-                    }
+            @Override
+            public void error(final String s) {
+                System.err.println(s);
+            }
 
-                    @Override
-                    public void info(final String s) {
-                        System.out.println(s);
-                    }
-                }, "pdf", adoc.toFile(), output,
-                        lines
-                                .stream()
-                                .filter(it -> it.startsWith("= "))
-                                .findFirst()
-                                .orElseGet(() -> args.length > 4 ? args[4] : "Document"),
-                        new HashMap<>(), null, null);
+            @Override
+            public void info(final String s) {
+                System.out.println(s);
+            }
+        }, "pdf", adoc.toFile(), output,
+                lines
+                        .stream()
+                        .filter(it -> it.startsWith("= "))
+                        .findFirst()
+                        .orElseGet(() -> args.length > 4 ? args[4] : "Document"),
+                new HashMap<>(), null, null);
     }
 
     public void render(final File workDir, final String version, final Log log, final String backend, final File source,
@@ -131,7 +133,7 @@ public class AsciidoctorExecutor implements AutoCloseable {
         ofNullable(templateEngine).ifPresent(optionsBuilder::templateEngine);
 
         log.debug("Options: " + optionsBuilder.asMap());
-        asciidoctor.render(wrap(title, version, source), optionsBuilder);
+        asciidoctor.convert(wrap(title, version, source), optionsBuilder);
     }
 
     private void configureDefaultsAttributes(final File workDir, final Log log, final String backend,
@@ -231,8 +233,7 @@ public class AsciidoctorExecutor implements AutoCloseable {
 
     private String wrap(final String title, final String version, final File source) {
         try {
-            final String content =
-                    Files.readAllLines(source.toPath(), StandardCharsets.UTF_8).stream().collect(joining("\n"));
+            final String content = String.join("\n", Files.readAllLines(source.toPath(), StandardCharsets.UTF_8));
             if (content.startsWith("= ")) {
                 return content;
             }
@@ -242,7 +243,7 @@ public class AsciidoctorExecutor implements AutoCloseable {
         }
     }
 
-    private Asciidoctor getAsciidoctor() {
+    protected Asciidoctor getAsciidoctor() {
         return asciidoctor == null ? asciidoctor = Asciidoctor.Factory.create() : asciidoctor;
     }
 

@@ -15,10 +15,12 @@
  */
 package org.talend.sdk.component.runtime.output;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.reflect.Parameters.isGroupBuffer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,7 +30,10 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +89,10 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private transient RecordConverters converter;
 
+    private transient Class<?> expectedRecordType;
+
+    private transient Collection<Object> records;
+
     private Map<String, String> internalConfiguration;
 
     private RecordConverters.MappingMetaRegistry mappings;
@@ -104,20 +113,35 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     @Override
     public void beforeGroup() {
-        if (process == null) {
+        if (beforeGroup == null) {
             beforeGroup = findMethods(BeforeGroup.class).collect(toList());
             afterGroup = findMethods(AfterGroup.class).collect(toList());
-            process = findMethods(ElementListener.class).findFirst().get();
+            process = findMethods(ElementListener.class).findFirst().orElse(null);
 
             // IMPORTANT: ensure you call only once the create(....), see studio integration (mojo)
-            parameterBuilderProcess =
-                    Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).collect(toList());
+            parameterBuilderProcess = process == null ? emptyList()
+                    : Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).collect(toList());
             parameterBuilderAfterGroup = afterGroup
                     .stream()
-                    .map(after -> new AbstractMap.SimpleEntry<>(after,
-                            Stream.of(after.getParameters()).map(this::toOutputParamBuilder).collect(toList())))
+                    .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters()).map(param -> {
+                        if (isGroupBuffer(param.getParameterizedType())) {
+                            /*
+                             * unlikely + worse case you type it the same so not a big deal to let it go
+                             * if (expectedRecordType != null) {
+                             * throw new IllegalArgumentException(
+                             * "You can't use bulk groups on multiple @AfterGroup methods");
+                             * }
+                             */
+                            expectedRecordType = Class.class
+                                    .cast(ParameterizedType.class
+                                            .cast(param.getParameterizedType())
+                                            .getActualTypeArguments()[0]);
+                            return (Function<OutputFactory, Object>) o -> records;
+                        }
+                        return toOutputParamBuilder(param);
+                    }).collect(toList())))
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
-            forwardReturn = process.getReturnType() != void.class;
+            forwardReturn = process != null && process.getReturnType() != void.class;
 
             converter = new RecordConverters();
 
@@ -125,6 +149,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
         }
 
         beforeGroup.forEach(this::doInvoke);
+        if (process == null) { // collect records for @AfterGroup param
+            records = new ArrayList<>();
+        }
     }
 
     private BiFunction<InputFactory, OutputFactory, Object> buildProcessParamBuilder(final Parameter parameter) {
@@ -225,15 +252,25 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                                 .stream()
                                 .map(b -> b.apply(output))
                                 .toArray(Object[]::new)));
+        if (records != null) {
+            records = null;
+        }
     }
 
     @Override
     public void onNext(final InputFactory inputFactory, final OutputFactory outputFactory) {
-        final Object[] args =
-                parameterBuilderProcess.stream().map(b -> b.apply(inputFactory, outputFactory)).toArray(Object[]::new);
-        final Object out = doInvoke(process, args);
-        if (forwardReturn) {
-            outputFactory.create(Branches.DEFAULT_BRANCH).emit(out);
+        if (process == null) {
+            // todo: handle @Input there too? less likely it becomes useful
+            records.add(doConvertInput(expectedRecordType, inputFactory.read(Branches.DEFAULT_BRANCH)));
+        } else {
+            final Object[] args = parameterBuilderProcess
+                    .stream()
+                    .map(b -> b.apply(inputFactory, outputFactory))
+                    .toArray(Object[]::new);
+            final Object out = doInvoke(process, args);
+            if (forwardReturn) {
+                outputFactory.create(Branches.DEFAULT_BRANCH).emit(out);
+            }
         }
     }
 

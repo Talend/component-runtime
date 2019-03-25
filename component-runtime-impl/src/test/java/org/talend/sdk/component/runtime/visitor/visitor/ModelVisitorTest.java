@@ -34,8 +34,10 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.PartitionSize;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 
@@ -47,6 +49,13 @@ class ModelVisitorTest {
                 "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Mapper)",
                 "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Out)"),
                 visit(Registrar.class));
+    }
+
+    @Test
+    void validBulk() {
+        assertEquals(singletonList(
+                "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$ProcessorBulk$Out)"),
+                visit(ProcessorBulk.class));
     }
 
     @Test
@@ -353,6 +362,18 @@ class ModelVisitorTest {
 
         @Processor(family = "comp", name = "Output")
         public static class Out {
+        }
+    }
+
+    public static class ProcessorBulk {
+
+        @Processor(family = "comp", name = "Bulk")
+        public static class Out {
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
         }
     }
 

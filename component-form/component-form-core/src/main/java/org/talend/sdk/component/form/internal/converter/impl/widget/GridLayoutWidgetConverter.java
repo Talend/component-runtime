@@ -104,7 +104,11 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                                 .toArray(CompletableFuture[]::new))
                         .thenApply(done -> {
                             resolvedLayouts.sort(comparing(s -> tabs.indexOf(s.getTitle())));
-                            schema.setItems(resolvedLayouts);
+                            schema
+                                    .setItems(resolvedLayouts
+                                            .stream()
+                                            .filter(it -> it.getItems() != null && !it.getItems().isEmpty())
+                                            .collect(toList()));
                             return context;
                         });
             }

@@ -23,6 +23,7 @@ import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.avro.LogicalTypes;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
@@ -42,7 +43,12 @@ public class AvroSchemaBuilder implements Schema.Builder {
             new AvroSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG));
 
     private static final AvroSchema DATETIME_SCHEMA = new AvroSchema(new AvroPropertyMapper() {
-    }.setProp(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG), Schema.Type.DATETIME.name(), "true"));
+    }
+            .setProp(
+                    LogicalTypes
+                            .timestampMillis()
+                            .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
+                    Schema.Type.DATETIME.name(), "true"));
 
     private static final AvroSchema STRING_SCHEMA =
             new AvroSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING));
@@ -68,7 +74,10 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private static final AvroSchema DATETIME_SCHEMA_NULLABLE =
             new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
             }
-                    .setProp(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG),
+                    .setProp(
+                            LogicalTypes
+                                    .timestampMillis()
+                                    .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
                             Schema.Type.DATETIME.name(), "true"))));
 
     private static final AvroSchema STRING_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema

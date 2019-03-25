@@ -75,6 +75,23 @@
     </resources>
     <plugins>
       <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>${git-commit-id-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>get-the-git-infos-in-m2-properties</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <generateGitPropertiesFile>false</generateGitPropertiesFile>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>${gmavenplus.version}</version>
