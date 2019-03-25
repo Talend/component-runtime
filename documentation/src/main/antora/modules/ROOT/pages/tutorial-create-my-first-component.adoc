@@ -9,6 +9,8 @@ The component created in this tutorial is a simple processor component that rece
 
 Once the prerequisites completed, this tutorial should take you about 20 minutes.
 
+IMPORTANT: The component designed in this tutorial is a processor and does not require nor show any xref:component-configuration.adoc#dataset-and-datastore[datastore and dataset] configuration. Datasets and datastores are required only for input and output components.
+
 image::tutorial_build_job_run.png[Job run,70%,window="_blank",link="_images/tutorial_build_job_run.png"]
 
 == Prerequisites
@@ -42,7 +44,7 @@ image::tutorial_component_configuration_model.png[Configuration Model,70%,window
 image::tutorial_component_generic_input.png[Generic Input,70%,window="_blank",link="_images/tutorial_component_generic_input.png"]
 . Repeat the same step for the default *MAIN* output branch. +
 +
-NOTE: Because the component is a processor, it has an output branch by default. A processor without any output branch is considered an output component. Yo ucan create output components when the *Activate IO* option is selected.
+NOTE: Because the component is a processor, it has an output branch by default. A processor without any output branch is considered an output component. You can create output components when the *Activate IO* option is selected.
 . Click *Next* and check the name and location of your project, then click *Finish* to generate the project in the IDE. +
 
 At this point, your component is technically already ready to be compiled and deployed to Talend Open Studio. But first, have a look at the generated project:

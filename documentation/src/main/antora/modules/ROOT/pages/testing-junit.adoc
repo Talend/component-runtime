@@ -149,7 +149,7 @@ class ComponentExtensionTest {
 
 === Mocking the output
 
-Using the "test"/"collector" component as shown in the previous sample stores all records emitted by the chain (typically your source) in memory. You can then access them using `theSimpleComponentRule.getCollectedData(type)`.
+Using the `test://collector` component as shown in the previous sample stores all records emitted by the chain (typically your source) in memory. You can then access them using `theSimpleComponentRule.getCollectedData(type)`.
 
 Note that this method filters by type. If you don't need any specific type, you can use `Object.class`.
 
