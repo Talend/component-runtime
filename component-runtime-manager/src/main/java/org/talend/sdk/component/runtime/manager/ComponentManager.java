@@ -1439,7 +1439,7 @@ public class ComponentManager implements AutoCloseable {
                                         .of(m.getAnnotations())
                                         .anyMatch(a -> a.annotationType().isAnnotationPresent(ActionType.class)))
                                 .map(serviceMethod -> createServiceMeta(container, services, componentDefaults, service,
-                                        instance, serviceMethod))
+                                        instance, serviceMethod, service))
                                 .collect(toList())));
                 info("Added @Service " + service + " for container-id=" + container.getId());
             });
@@ -1523,9 +1523,10 @@ public class ComponentManager implements AutoCloseable {
 
         private ServiceMeta.ActionMeta createServiceMeta(final Container container,
                 final Map<Class<?>, Object> services, final Map<String, AnnotatedElement> componentDefaults,
-                final Class<?> service, final Object instance, final Method serviceMethod) {
-            final Components components = findComponentsConfig(componentDefaults, serviceMethod.getDeclaringClass(),
-                    container.getLoader(), Components.class, DEFAULT_COMPONENT);
+                final Class<?> service, final Object instance, final Method serviceMethod,
+                final Class<?> declaringClass) {
+            final Components components = findComponentsConfig(componentDefaults, declaringClass, container.getLoader(),
+                    Components.class, DEFAULT_COMPONENT);
 
             final Annotation marker = Stream
                     .of(serviceMethod.getAnnotations())
