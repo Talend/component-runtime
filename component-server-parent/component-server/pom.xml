@@ -343,7 +343,7 @@
               <goal>list</goal>
             </goals>
             <configuration>
-              <outputFile>${project.build.outputDirectory}/TALEND-INF/dependencies.txt</outputFile>
+              <outputFile>${project.build.outputDirectory}/TALEND-INF/server/dependencies.txt</outputFile>
             </configuration>
           </execution>
           <execution>
