@@ -173,7 +173,7 @@ public class MyComponentTest {
              .component("out", "yourcomponentfamily://myoutput?"+createComponentConfig())
            .connections()
               .from("emitter").to("out")
-           .build
+           .build()
            .run();
 
         assertMyOutputProcessedTheInputData();
