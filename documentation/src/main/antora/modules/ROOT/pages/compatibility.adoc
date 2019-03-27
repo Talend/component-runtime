@@ -16,6 +16,7 @@ The version of Talend Component Kit you need to use to develop new components de
 [options="header",role="table-striped table-hover table-ordered"]
 |===
 |*Talend product*|*Talend Component Kit version*
+|Talend Studio 7.2.1 M3|Framework until 1.1.4
 |Talend Studio 7.1.1|Framework until 1.1.1
 |Talend Studio 7.0.1|Framework until 0.0.5
 |Talend Cloud|Framework from 1.1.x
