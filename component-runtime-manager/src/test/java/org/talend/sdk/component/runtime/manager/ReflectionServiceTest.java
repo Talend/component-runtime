@@ -89,6 +89,22 @@ class ReflectionServiceTest {
     private final ReflectionService reflectionService = new ReflectionService(parameterModelService, registry);
 
     @Test
+    void renamedOption() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory =
+                getComponentFactory(RenamedOption.class, new HashMap<>());
+        final Object[] objects = factory.apply(singletonMap("configuration.$url", "set"));
+        assertEquals("set", objects[0].toString());
+    }
+
+    @Test
+    void nestedRenamedOption() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory =
+                getComponentFactory(NestedRenamedOption.class, new HashMap<>());
+        final Object[] objects = factory.apply(singletonMap("configuration.$option.$url", "set"));
+        assertEquals("set", objects[0].toString());
+    }
+
+    @Test
     void configurationFromLocalConf() throws NoSuchMethodException {
         final Properties properties = new Properties();
         properties.setProperty("test.myconfig.url", "http://foo");
@@ -699,6 +715,14 @@ class ReflectionServiceTest {
 
     public static class FakeComponent {
 
+        public FakeComponent(@Option("configuration") final NestedRenamedOption config) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("configuration") final RenamedOption config) {
+            // no-op
+        }
+
         public FakeComponent(@Configuration("myconfig") final MyConfig config) {
             // no-op
         }
@@ -747,5 +771,27 @@ class ReflectionServiceTest {
 
         @Option
         private String user;
+    }
+
+    public static class RenamedOption {
+
+        @Option("$url")
+        private String url;
+
+        @Override
+        public String toString() {
+            return url;
+        }
+    }
+
+    public static class NestedRenamedOption {
+
+        @Option("$option")
+        private RenamedOption option;
+
+        @Override
+        public String toString() {
+            return option.toString();
+        }
     }
 }
