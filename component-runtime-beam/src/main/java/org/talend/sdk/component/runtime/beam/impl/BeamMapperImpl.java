@@ -36,6 +36,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Serializer;
+import org.talend.sdk.component.runtime.beam.error.ErrorFactory;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -84,7 +85,7 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
                         ? BoundedSource.class.cast(flow.source).getEstimatedSizeBytes(options)
                         : 1;
             } catch (final Exception e) {
-                throw new IllegalStateException(e);
+                throw ErrorFactory.toIllegalState(e);
             }
         });
     }
@@ -103,7 +104,7 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
                         : UnboundedSource.class.cast(flow.source).createReader(options, null);
                 return new BeamInput(reader, flow.processor, plugin, family, name, loader, isBounded ? 0 : 30);
             } catch (final IOException e) {
-                throw new IllegalArgumentException(e);
+                throw ErrorFactory.toIllegalArgument(e);
             }
         });
     }
@@ -149,6 +150,10 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
         thread.setContextClassLoader(this.loader);
         try {
             return task.get();
+        } catch (final IllegalArgumentException | IllegalStateException ex) {
+            throw ex;
+        } catch (final RuntimeException ex) {
+            throw ErrorFactory.toIllegalState(ex);
         } finally {
             thread.setContextClassLoader(tccl);
         }

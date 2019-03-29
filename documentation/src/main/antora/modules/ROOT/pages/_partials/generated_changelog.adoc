@@ -38,6 +38,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1353[TCOMP-1353^]: component-server must not use TALEND-INF/dependencies.txt but another path
 - link:https://jira.talendforge.org/browse/TCOMP-1354[TCOMP-1354^]: Enforce services to belong to the delcaring service class
 - link:https://jira.talendforge.org/browse/TCOMP-1361[TCOMP-1361^]: Upgrade to asciidoctorj 2.0.0-RC.1
+- link:https://jira.talendforge.org/browse/TCOMP-1362[TCOMP-1362^]: Beam Wrapped Components should throw shared exception types
 
 == Version 1.1.7
 
