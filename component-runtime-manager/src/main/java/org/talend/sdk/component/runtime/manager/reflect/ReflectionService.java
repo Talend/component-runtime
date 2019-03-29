@@ -387,12 +387,7 @@ public class ReflectionService {
         }
 
         final String prefix = name + ".";
-        final ObjectRecipe recipe = new ObjectRecipe(clazz);
-        recipe.setRegistry(propertyEditorRegistry);
-        recipe.allow(org.apache.xbean.recipe.Option.FIELD_INJECTION);
-        recipe.allow(org.apache.xbean.recipe.Option.PRIVATE_PROPERTIES);
-        recipe.allow(org.apache.xbean.recipe.Option.CASE_INSENSITIVE_PROPERTIES);
-        recipe.allow(org.apache.xbean.recipe.Option.IGNORE_MISSING_PROPERTIES);
+        final ObjectRecipe recipe = newRecipe(clazz);
         recipe.setProperty("rawProperties", new UnsetPropertiesRecipe()); // todo: log unused props?
         ofNullable(args).ifPresent(recipe::setConstructorArgNames);
 
@@ -434,7 +429,8 @@ public class ReflectionService {
             }
 
             final Type genericType =
-                    findField(enclosingName.substring(enclosingName.indexOf('.') + 1), clazz).getGenericType();
+                    findField(normalizeName(enclosingName.substring(enclosingName.indexOf('.') + 1), metas), clazz)
+                            .getGenericType();
             if (!ParameterizedType.class.isInstance(genericType)) {
                 throw new IllegalArgumentException(
                         clazz + "#" + enclosingName + " should be a generic map and not a " + genericType);
@@ -480,7 +476,7 @@ public class ReflectionService {
                 continue;
             }
 
-            final Type genericType = findField(enclosingName, clazz).getGenericType();
+            final Type genericType = findField(normalizeName(enclosingName, metas), clazz).getGenericType();
             if (Class.class.isInstance(genericType)) {
                 final Class<?> arrayClass = Class.class.cast(genericType);
                 if (arrayClass.isArray()) {
@@ -560,7 +556,7 @@ public class ReflectionService {
                 final int idxStart = nestedName.indexOf('[');
                 if (idxStart > 0) {
                     final String listName = nestedName.substring(0, idxStart);
-                    final Field field = findField(listName, clazz);
+                    final Field field = findField(normalizeName(listName, metas), clazz);
                     if (ParameterizedType.class.isInstance(field.getGenericType())) {
                         final ParameterizedType pt = ParameterizedType.class.cast(field.getGenericType());
                         if (Class.class.isInstance(pt.getRawType())) {
@@ -585,9 +581,10 @@ public class ReflectionService {
                     throw new IllegalArgumentException("unsupported configuration type: " + nestedName);
                 }
             }
-            final Field field = findField(nestedName, clazz);
+            final String fieldName = normalizeName(nestedName, metas);
+            final Field field = findField(fieldName, clazz);
             preparedObjects
-                    .put(nestedName, createObject(loader, contextualSupplier, field.getType(),
+                    .put(fieldName, createObject(loader, contextualSupplier, field.getType(),
                             findArgsName(field.getType()), prefix + nestedName, config, translate(metas, nestedName)));
         }
 
@@ -627,6 +624,16 @@ public class ReflectionService {
         return recipe.create(loader);
     }
 
+    private ObjectRecipe newRecipe(final Class clazz) {
+        final ObjectRecipe recipe = new ObjectRecipe(clazz);
+        recipe.setRegistry(propertyEditorRegistry);
+        recipe.allow(org.apache.xbean.recipe.Option.FIELD_INJECTION);
+        recipe.allow(org.apache.xbean.recipe.Option.PRIVATE_PROPERTIES);
+        recipe.allow(org.apache.xbean.recipe.Option.CASE_INSENSITIVE_PROPERTIES);
+        recipe.allow(org.apache.xbean.recipe.Option.IGNORE_MISSING_PROPERTIES);
+        return recipe;
+    }
+
     private boolean isUiParam(final String name) {
         final int dollar = name.indexOf('$');
         if (dollar >= 0 && name.indexOf("_name", dollar) > dollar) {
@@ -650,6 +657,11 @@ public class ReflectionService {
             }
             return new AbstractMap.SimpleEntry<>(name, it.getValue());
         }).orElse(it);
+    }
+
+    private String normalizeName(final String name, final List<ParameterMeta> metas) {
+        return metas == null ? name
+                : metas.stream().filter(m -> m.getName().equals(name)).findFirst().map(this::findName).orElse(name);
     }
 
     private String findName(final ParameterMeta m) {

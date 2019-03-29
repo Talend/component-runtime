@@ -758,7 +758,8 @@
           <dependency>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj</artifactId>
-            <version>${asciidoctorj.version}</version>
+            <version>1.6.0</version>
+            <!-- older versions not compatible -->
             <exclusions>
               <exclusion>
                 <groupId>org.jruby</groupId>

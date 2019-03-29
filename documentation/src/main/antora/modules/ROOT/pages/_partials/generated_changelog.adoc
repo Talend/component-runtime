@@ -8,6 +8,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1330[TCOMP-1330^]: Shade extensions don't inherit from pluginrepositories
 - link:https://jira.talendforge.org/browse/TCOMP-1340[TCOMP-1340^]: Tools webapp (talend-component:web) does not support changing the locale anymore
 - link:https://jira.talendforge.org/browse/TCOMP-1343[TCOMP-1343^]: Use LogicalTypes.timestampMillis() on DATETIME for avro record builder
+- link:https://jira.talendforge.org/browse/TCOMP-1360[TCOMP-1360^]: Renaming an option (@Option("custom")) does not work on fields of type object
 
 
 
@@ -34,6 +35,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1349[TCOMP-1349^]: [form-core] When a tab is empty, don't show it
 - link:https://jira.talendforge.org/browse/TCOMP-1350[TCOMP-1350^]: talend.component.server.component.registry should support glob pattern
 - link:https://jira.talendforge.org/browse/TCOMP-1351[TCOMP-1351^]: Upgrade jsoup for Spark Cluster Testing  module
+- link:https://jira.talendforge.org/browse/TCOMP-1353[TCOMP-1353^]: component-server must not use TALEND-INF/dependencies.txt but another path
+- link:https://jira.talendforge.org/browse/TCOMP-1354[TCOMP-1354^]: Enforce services to belong to the delcaring service class
+- link:https://jira.talendforge.org/browse/TCOMP-1361[TCOMP-1361^]: Upgrade to asciidoctorj 2.0.0-RC.1
 
 == Version 1.1.7
 

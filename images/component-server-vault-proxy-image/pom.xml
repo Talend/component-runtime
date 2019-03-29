@@ -156,6 +156,7 @@
                 <image>${talend.server.image.name}</image>
               </to>
               <container>
+                <useCurrentTimestamp>true</useCurrentTimestamp>
                 <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
                 <appRoot>${imageWorkDir}</appRoot>
                 <workingDirectory>${imageWorkDir}</workingDirectory>
