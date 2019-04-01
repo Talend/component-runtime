@@ -1,0 +1,313 @@
+= From Javajet to Talend Component Kit
+:page-partial:
+:keywords: javajet, studio, learning, getting started, principles
+:description: The Javajet framework is being replaced by the new Talend Component Kit. Learn the main differences and the new approach introduced with this framework.
+
+From the version 7.0 of Talend Studio, Talend Component Kit becomes the recommended framework to use to develop components.
+
+This framework is being introduced to ensure that newly developed components can be deployed and executed both in on-premise/local and cloud/big data environments.
+
+From that new approach comes the need to provide a complete yet unique and compatible way of developing components.
+
+With the Component Kit, custom components are entirely implemented in Java. To help you get started with a new custom component development project, a https://starter-toolkit.talend.io/[Starter] is available. Using it, you will be able to generate the skeleton of your project.
+
+== Defining the component configuration
+
+With the previous Javajet framework, metadata,  widgets and configurable parts of a custom component were specified in XML.
+With the Component Kit, they are now defined in the `<component_name><component_type>Configuration` (for example, `LoggerProcessorConfiguration`) Java class of your development project.
+
+Note that most of this configuration is transparent if you specified the Configuration Model of your components right before generating the project from the Starter.
+
+NOTE: Any undocumented feature or option is considered not supported by the Component Kit framework.
+
+You can find examples of output in Studio or Cloud environments in the xref:gallery.adoc[Gallery].
+
+=== Widgets
+
+==== Input/Text
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+String config;
+----
+
+
+==== Password
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+@Credential
+String config;
+----
+
+
+==== Textarea
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+@Textarea
+String config;
+----
+
+
+==== Integer
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+@Documentation("This is a number")
+public Integer number;
+----
+
+==== Checkbox
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+Boolean config;
+----
+
+==== List
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+@Proposable("valuesProvider")
+String config;
+/** service class */
+@DynamicValues("valuesProvider")
+public Values actions(){
+  return new Values(asList(new Values.Item("1", "Delete"),
+                    new Values.Item("2", "Insert"),
+                    new Values.Item("3", "Update")));
+}
+----
+
+or
+
+Component Kit
+[source,java]
+----
+@Option
+ActionEnum config;
+
+/** Define enum */
+enum ActionEnum {
+    Delete,
+    Insert,
+    Update
+}
+----
+
+==== Suggestions
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+@Suggestable(value = "loadModules", parameters = { "myconfig" })
+@Documentation("module names are loaded using service")
+public String moduleName;
+
+
+// In Service class
+@Suggestions("loadModules")
+public SuggestionValues loadModules(@Option final MyConfig myconfig) { }
+----
+
+==== Table
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+List<MyObject> config;
+----
+
+==== Code
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Code("java")
+@Option
+String config;
+----
+
+==== Schema
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Option
+@Structure
+List<String> config;
+----
+
+=== Validations
+
+==== Property validation
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+/** configuration class */
+@Option
+@Validable("url")
+String config;
+
+/** service class */
+@AsyncValidation("url")
+ValidationResult doValidate(String url) {
+//validate the property
+}
+----
+
+==== Property validation with Pattern
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+/** configuration class */
+@Option
+@Pattern("/^[a-zA-Z\\-]+$/")
+String username;
+----
+
+==== Data store validation
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+@Datastore
+@Checkable
+public class config {
+/** config ...*/
+}
+
+/** service class */
+@HealthCheck
+public HealthCheckStatus testConnection(){
+
+//validate the connection
+}
+----
+
+=== Binding properties
+
+==== ActiveIf
+
+Javajet
+[source,XML]
+----
+----
+
+Component Kit
+[source,java]
+----
+----
+
+== Defining the runtime
+
+Previously, the execution of a custom component was described through several Javajet files:
+
+* <component_name>_begin.javajet, containing the code required to initialize the component.
+* <component_name>_main.javajet, containing the code required to process each line of the incoming data.
+* <component_name>_end.javajet, containing the code required to end the processing and go to the following step of the execution.
+
+With the Component Kit, the entire execution flow of a component is described through its main Java class `<component_name><component_type>` (for example, `LoggerProcessor`) and through services for reusable parts.
+
+include::component-execution.adoc[leveloffset=+1]
+
+=== Main changes
+
+To ensure that the Cloud-compatible approach of the Component Kit framework is respected, some changes were introduced on the implementation side, including:
+
+* The *File* mode is no longer supported. You can still work with URIs and remote storage systems to use files.
+* The input and output connections between two components can only be of the *Flow* or *Reject* types. Other types of connections are not supported.
+* Every Output component must have a corresponding Input component and use a dataset. All datasets must use a datastore.
+
+== Resources and examples
+
+To get started with the Component Kit framework, you can go through the following documents:
+
+* xref:index-getting-started-with-tck.adoc[Learn the basics about Talend Component Kit]
+* xref:tutorial-create-my-first-component.adoc[Create and deploy your first Component Kit component]
+* xref:tutorial-generate-project-using-starter.adoc[Learn about the Starter]
+* xref:index-creating-components.adoc[Start implementing components]
+* xref:index-deploying-components.adoc[Integrate a component to Talend Studio]
+* link:https://github.com/Talend/connectors-se[Check some examples of components built with Talend Component Kit]
