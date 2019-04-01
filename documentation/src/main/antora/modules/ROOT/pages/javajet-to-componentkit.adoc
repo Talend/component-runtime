@@ -297,7 +297,7 @@ include::component-execution.adoc[leveloffset=+1]
 
 To ensure that the Cloud-compatible approach of the Component Kit framework is respected, some changes were introduced on the implementation side, including:
 
-* The *File* mode is no longer supported. You can still work with URIs and remote storage systems to use files.
+* The *File* mode is no longer supported. You can still work with URIs and remote storage systems to use files. The file collection must be handled at the component implementation level.
 * The input and output connections between two components can only be of the *Flow* or *Reject* types. Other types of connections are not supported.
 * Every Output component must have a corresponding Input component and use a dataset. All datasets must use a datastore.
 
