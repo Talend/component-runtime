@@ -210,7 +210,7 @@
     <spotless.version>1.18.0</spotless.version>
     <jib.version>1.0.2</jib.version>
 
-    <jruby.version>9.2.5.0</jruby.version>
+    <jruby.version>9.2.6.0</jruby.version>
     <node.version>v10.14.2</node.version>
     <yarn.version>v1.12.3</yarn.version>
     <frontend.version>1.6</frontend.version>
