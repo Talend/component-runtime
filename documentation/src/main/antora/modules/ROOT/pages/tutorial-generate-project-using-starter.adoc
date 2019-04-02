@@ -99,8 +99,9 @@ image::starter/starter_processor-config.png[Processor configuration,80%,window="
 . Define the *Input(s)* of the component. For each input that you need to define, click *Add Input*. In this tutorial, only one input is needed to receive the record to log.
 . Click the input name to access its configuration. You can change the name of the input and define its structure using a POJO. If you added several inputs, repeat this step for each one of them. +
 The input in this tutorial is a generic record. Enable the *Generic* option and click *Save*.
-. Define the *Output(s)* of the component. For each output that you need to define, click *Add Output*. In this tutorial, only one generic output is needed to return the received record. +
-Outputs can be configured the same way as inputs (see previous steps).
+. Define the *Output(s)* of the component. For each output that you need to define, click *Add Output*. The first output must be named `MAIN`. In this tutorial, only one generic output is needed to return the received record. +
+Outputs can be configured the same way as inputs (see previous steps). +
+You can define a reject output connection by naming it `REJECT`. This naming is used by Talend applications to automatically set the connection type to Reject. 
 
 IMPORTANT: Make sure to check the configuration of inputs and outputs as they are not set to *Generic* by default.
 
