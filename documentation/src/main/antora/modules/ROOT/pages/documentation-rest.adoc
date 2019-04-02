@@ -80,7 +80,7 @@ Using the server ZIP (or https://github.com/Talend/component-runtime/blob/master
 
 [source,bash]
 ----
-# use -e for Docker
+# use -e for Docker and `--https=8443` to set the port
 #
 # this skips the http port binding and only binds https on the port 8443, and setups the correct certificate
 export _JAVA_OPTIONS="-Dskip-http=true -Dssl=true -Dhttps=8443 -Dkeystore-type=PKCS12 -Dkeystore-alias=talend -Dkeystore-password=talend -Dkeystore-file=/opt/certificates/component.p12"
@@ -517,11 +517,11 @@ services:
       retries: 3
       test: curl --fail http://localhost:1234/api/v1/environment
     image: tacokit/component-server:${COMPONENT_SERVER_IMAGE:-1.1.2_20181108161652}
+    command: --http=1234
     environment:
     - CONSOLE_LOG_LEVEL=INFO
     - _JAVA_OPTIONS=
         -Xmx1024m
-        -Dhttp=1234
         -Dtalend.component.server.component.registry=/opt/talend/connectors/component-registry.properties
         -Dtalend.component.server.maven.repository=/opt/talend/connectors
     ports:
@@ -549,12 +549,12 @@ services:
       retries: 3
       test: curl --fail http://localhost:1234/api/v1/environment
     image: tacokit/component-server:${COMPONENT_SERVER_IMAGE_VERSION}
+    command: --http=1234
     environment:
     - _JAVA_OPTIONS=
         -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
         -Djava.library.path=/opt/talend/component-kit/work/sigar/sigar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
         -Xmx1024m
-        -Dhttp=1234
         -Dtalend.component.server.component.registry=/opt/talend/connectors/component-registry.properties
         -Dtalend.component.server.maven.repository=/opt/talend/connectors
     ports:
