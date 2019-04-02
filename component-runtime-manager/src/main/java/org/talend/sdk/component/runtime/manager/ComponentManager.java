@@ -26,6 +26,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.classloader.ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
@@ -92,6 +93,7 @@ import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGeneratorFactory;
 import javax.json.stream.JsonParserFactory;
 
+import org.apache.xbean.asm7.Type;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.archive.Archive;
@@ -1271,6 +1273,12 @@ public class ComponentManager implements AutoCloseable {
 
         private final ModelVisitor visitor = new ModelVisitor();
 
+        private final Collection<String> supportedAnnotations = Stream
+                .of(Internationalized.class, Service.class, Request.class, PartitionMapper.class, Processor.class,
+                        Emitter.class)
+                .map(Type::getDescriptor)
+                .collect(toSet());
+
         @Override
         public void onCreate(final Container container) {
             final ConfigurableClassLoader loader = container.getLoader();
@@ -1327,7 +1335,18 @@ public class ComponentManager implements AutoCloseable {
                      */
                     archive = toArchive(container.getRootModule(), originalId, loader);
                 }
-                finder = new AnnotationFinder(new FilteredArchive(archive, filter));
+                finder = new AnnotationFinder(new FilteredArchive(archive, filter)) {
+
+                    @Override
+                    protected boolean cleanOnNaked() {
+                        return true;
+                    }
+
+                    @Override
+                    protected boolean isTracked(final String annotationType) {
+                        return supportedAnnotations.contains(annotationType);
+                    }
+                };
             } finally {
                 if (AutoCloseable.class.isInstance(archive)) {
                     try {
