@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import org.apache.beam.sdk.io.Source;
+import org.talend.sdk.component.runtime.beam.error.ErrorFactory;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.output.Processor;
 
@@ -100,7 +101,7 @@ public class BeamInput implements Input {
                     return records.next();
                 }
             } catch (final IOException e) {
-                throw new IllegalStateException(e);
+                throw ErrorFactory.toIllegalState(e);
             }
             return null;
         });
@@ -133,7 +134,7 @@ public class BeamInput implements Input {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    throw new IllegalStateException(e);
+                    throw ErrorFactory.toIllegalState(e);
                 } finally {
                     if (processor != null) {
                         try {
@@ -163,6 +164,10 @@ public class BeamInput implements Input {
         thread.setContextClassLoader(this.loader);
         try {
             return task.get();
+        } catch (final IllegalStateException | IllegalArgumentException e) {
+            throw e;
+        } catch (final Exception ex) {
+            throw ErrorFactory.toIllegalState(ex);
         } finally {
             thread.setContextClassLoader(tccl);
         }

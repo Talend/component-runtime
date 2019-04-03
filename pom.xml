@@ -137,7 +137,7 @@
     <blackduck.trust.all.cert>false</blackduck.trust.all.cert>
     <blackduck.parallelism>64</blackduck.parallelism>
 
-    <xbean.version>4.12</xbean.version>
+    <xbean.version>4.13</xbean.version>
     <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
     <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.26</slf4j.version>
@@ -210,7 +210,7 @@
     <spotless.version>1.18.0</spotless.version>
     <jib.version>1.0.2</jib.version>
 
-    <jruby.version>9.2.5.0</jruby.version>
+    <jruby.version>9.2.6.0</jruby.version>
     <node.version>v10.14.2</node.version>
     <yarn.version>v1.12.3</yarn.version>
     <frontend.version>1.6</frontend.version>

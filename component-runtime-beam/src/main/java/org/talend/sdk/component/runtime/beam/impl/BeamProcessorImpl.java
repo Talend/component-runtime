@@ -43,6 +43,7 @@ import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.joda.time.Instant;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Serializer;
+import org.talend.sdk.component.runtime.beam.error.ErrorFactory;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -208,7 +209,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 try {
                     setup.invoke(delegate);
                 } catch (final IllegalAccessException e) {
-                    throw new IllegalStateException(e);
+                    throw ErrorFactory.toIllegalState(e);
                 } catch (final InvocationTargetException e) {
                     throw toRuntimeException(e);
                 }
@@ -223,7 +224,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 try {
                     startBundle.invoke(delegate, startBundleArgumentFactory.get());
                 } catch (final IllegalAccessException e) {
-                    throw new IllegalStateException(e);
+                    throw ErrorFactory.toIllegalState(e);
                 } catch (final InvocationTargetException e) {
                     throw toRuntimeException(e);
                 }
@@ -239,7 +240,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
             try {
                 processElement.invoke(delegate, processArgumentFactory.get());
             } catch (final IllegalAccessException e) {
-                throw new IllegalStateException(e);
+                throw ErrorFactory.toIllegalState(e);
             } catch (final InvocationTargetException e) {
                 throw toRuntimeException(e);
             } finally {
@@ -257,7 +258,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 try {
                     finishBundle.invoke(delegate, finishBundleArgumentFactory.get());
                 } catch (final IllegalAccessException e) {
-                    throw new IllegalStateException(e);
+                    throw ErrorFactory.toIllegalState(e);
                 } catch (final InvocationTargetException e) {
                     throw toRuntimeException(e);
                 } finally {
@@ -274,7 +275,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 try {
                     tearDown.invoke(delegate);
                 } catch (final IllegalAccessException e) {
-                    throw new IllegalStateException(e);
+                    throw ErrorFactory.toIllegalState(e);
                 } catch (final InvocationTargetException e) {
                     throw toRuntimeException(e);
                 }
@@ -295,6 +296,10 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
         thread.setContextClassLoader(this.loader);
         try {
             task.run();
+        } catch (final IllegalArgumentException | IllegalStateException ex) {
+            throw ex;
+        } catch (final RuntimeException ex) {
+            throw ErrorFactory.toIllegalState(ex);
         } finally {
             thread.setContextClassLoader(tccl);
         }

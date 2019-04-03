@@ -40,9 +40,6 @@ import java.util.stream.Stream;
 import javax.json.bind.JsonbBuilder;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
-
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
@@ -67,6 +64,9 @@ import org.talend.sdk.component.api.service.http.configurer.oauth1.OAuth1;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
+
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpServer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

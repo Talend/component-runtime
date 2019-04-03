@@ -141,7 +141,7 @@ public class CarMain {
 
     private static void deployInM2(final String m2) {
         final File m2File = new File(m2);
-        if (m2File.exists()) {
+        if (!m2File.exists()) {
             throw new IllegalArgumentException(m2 + " doesn't exist");
         }
         final String component = installJars(m2File);
