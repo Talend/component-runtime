@@ -36,27 +36,31 @@ public class TomcatSetup implements Meecrowave.InstanceCustomizer {
                 System.exit(0);
             }
         });
-        Stream
-                .of(server.findServices())
-                .map(Service::getContainer)
-                .flatMap(e -> Stream.of(e.findChildren()))
-                .filter(StandardHost.class::isInstance)
-                .map(StandardHost.class::cast)
-                .forEach(host -> host.addLifecycleListener(event -> {
-                    if (event.getType().equals(Lifecycle.BEFORE_START_EVENT)) {
-                        StandardHost.class.cast(host).setErrorReportValveClass(MinimalErrorReportValve.class.getName());
-                    }
-                }));
+        // if we want it to be really configurable we should add it in ComponentServerConfiguration
+        // and set this instance in the standard context to be able to configure it from cdi side
+        final boolean dev = Boolean.getBoolean("talend.component.server.tomcat.valve.error.debug");
+        if (!dev) {
+            Stream
+                    .of(server.findServices())
+                    .map(Service::getContainer)
+                    .flatMap(e -> Stream.of(e.findChildren()))
+                    .filter(StandardHost.class::isInstance)
+                    .map(StandardHost.class::cast)
+                    .forEach(host -> host.addLifecycleListener(event -> {
+                        if (event.getType().equals(Lifecycle.BEFORE_START_EVENT)) {
+                            StandardHost.class
+                                    .cast(host)
+                                    .setErrorReportValveClass(MinimalErrorReportValve.class.getName());
+                        }
+                    }));
+        }
     }
 
     public static class MinimalErrorReportValve extends ErrorReportValve {
 
         public MinimalErrorReportValve() {
-            // if we want it to be really configurable we should add it in ComponentServerConfiguration
-            // and set this instance in the standard context to be able to configure it from cdi side
-            final boolean dev = Boolean.getBoolean("talend.component.server.tomcat.valve.error.debug");
-            setShowReport(dev);
-            setShowServerInfo(dev);
+            setShowReport(false);
+            setShowServerInfo(false);
         }
     }
 }

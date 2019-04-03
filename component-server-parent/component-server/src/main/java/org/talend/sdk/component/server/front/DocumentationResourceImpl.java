@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.front;
 
+import static java.util.Collections.list;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
@@ -30,6 +31,7 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -132,10 +134,19 @@ public class DocumentationResourceImpl implements DocumentationResource {
             final String content = Stream
                     .of("documentation_" + locale.getLanguage() + ".adoc", "documentation_" + language + ".adoc",
                             "documentation.adoc")
-                    .map(name -> ofNullable(container.getLoader().getResource("TALEND-INF/" + name))
-                            .orElseGet(() -> findLocalI18n(locale, container)))
+                    .flatMap(name -> {
+                        try {
+                            return ofNullable(container.getLoader().getResources("TALEND-INF/" + name))
+                                    .filter(Enumeration::hasMoreElements)
+                                    .map(e -> list(e).stream())
+                                    .orElseGet(() -> ofNullable(findLocalI18n(locale, container))
+                                            .map(Stream::of)
+                                            .orElseGet(Stream::empty));
+                        } catch (final IOException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    })
                     .filter(Objects::nonNull)
-                    .findFirst()
                     .map(url -> {
                         try (final BufferedReader stream =
                                 new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
@@ -147,6 +158,10 @@ public class DocumentationResourceImpl implements DocumentationResource {
                                     .build());
                         }
                     })
+                    .distinct()
+                    .sorted()
+                    // todo: handle exclusions? for now we assume nested components will rewrite the doc
+                    .reduce((s1, s2) -> String.join("\n\n", s1, ofNullable(s2).orElse("")))
                     .map(value -> ofNullable(container.get(ContainerComponentRegistry.class))
                             .flatMap(r -> r
                                     .getComponents()

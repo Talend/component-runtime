@@ -83,11 +83,11 @@
           <httpPort>10101</httpPort>
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
           <webResourceCached>false</webResourceCached>
-          <properties>
-            <talend.component.server.component.coordinates>
-              ${talend.component.server.component.coordinates.samples}
-            </talend.component.server.component.coordinates>
-          </properties>
+          <systemProperties>
+            <talend.component.server.documentation.active>true</talend.component.server.documentation.active>
+            <talend.component.server.tomcat.valve.error.debug>true</talend.component.server.tomcat.valve.error.debug>
+            <talend.component.server.component.coordinates>${talend.component.server.component.coordinates.samples}</talend.component.server.component.coordinates>
+          </systemProperties>
         </configuration>
         <dependencies>
           <dependency>

@@ -33,6 +33,7 @@
     <sample.beam.groupId>org.talend.sdk.components</sample.beam.groupId>
     <sample.beam.artifactId>sample-beam</sample.beam.artifactId>
     <sample.beam.location>${project.build.directory}${file.separator}lib</sample.beam.location>
+    <talend.component.server.tomcat.valve.error.debug>false</talend.component.server.tomcat.valve.error.debug>
   </properties>
 
   <dependencies>
@@ -444,12 +445,13 @@
             apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket
           </scanningExcludes>
           <!--<webapp>${project.basedir}/src/dev/webapp</webapp>-->
-          <properties>
-            <!--
+          <!--
+          <systemProperties>
             <talend.component.server.documentation.active>true</talend.component.server.documentation.active>
-            -->
+            <talend.component.server.tomcat.valve.error.debug>${talend.component.server.tomcat.valve.error.debug}</talend.component.server.tomcat.valve.error.debug>
             <talend.component.server.component.coordinates>${talend.component.server.component.coordinates.samples}</talend.component.server.component.coordinates>
-          </properties>
+          </systemProperties>
+          -->
         </configuration>
       </plugin>
       <plugin>
