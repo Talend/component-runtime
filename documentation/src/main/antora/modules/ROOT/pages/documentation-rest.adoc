@@ -86,6 +86,40 @@ Using the server ZIP (or https://github.com/Talend/component-runtime/blob/master
 export _JAVA_OPTIONS="-Dskip-http=true -Dssl=true -Dhttps=8443 -Dkeystore-type=PKCS12 -Dkeystore-alias=talend -Dkeystore-password=talend -Dkeystore-file=/opt/certificates/component.p12"
 ----
 
+== Defining queries
+
+You can define simple queries on the link:rest-openapi.html#/Configuration%20Type/getRepositoryModel[configuration types] and link:rest-openapi.html#/Component/getIndex[components] endpoints. These two endpoints support different parameters.
+
+Queries on the `configurationtype/index` endpoint supports the following parameters:
+
+* `type`
+* `id`
+* `name`
+* `metadata` of the first configuration property as parameters.
+
+Queries on the `component/index` endpoint supports the following parameters:
+
+* `plugin`
+* `name`
+* `id`
+* `familyId`
+* `metadata` of the first configuration property as parameters.
+
+
+In both cases, you can combine several conditions using `OR` and `AND` operators. If you combine more than two conditions, note that they are evaluated in the order they are written.
+
+Each supported parameter in a condition can be "equal to" (`=`) or "not equal to" (`!=`) a defined value (case-sensitive).
+
+For example:
+
+[source,java]
+----
+(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)
+----
+
+In this example, the query gets components that have a dataset and belong to the jdbc-component plugin, or components that are named `input`.
+
+
 == Web forms and REST API
 
 The `component-form` library provides a way to build a component REST API facade that is compatible with React form library.
