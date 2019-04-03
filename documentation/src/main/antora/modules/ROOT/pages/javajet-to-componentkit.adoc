@@ -29,6 +29,12 @@ You can find examples of output in Studio or Cloud environments in the xref:gall
 Javajet
 [source,XML]
 ----
+<PARAMETER
+    NAME="CONFIG"
+    FIELD="TEXT"
+    NUM_ROW="10">
+        <DEFAULT>""</DEFAULT>
+</PARAMETER>
 ----
 
 Component Kit
@@ -44,6 +50,11 @@ String config;
 Javajet
 [source,XML]
 ----
+<PARAMETER
+    NAME="PASSWORD"
+    FIELD="PASSWORD"
+    NUM_ROW="10"
+    REQUIRED="true">
 ----
 
 Component Kit
@@ -51,7 +62,7 @@ Component Kit
 ----
 @Option
 @Credential
-String config;
+String password;
 ----
 
 
@@ -60,6 +71,11 @@ String config;
 Javajet
 [source,XML]
 ----
+<PARAMETER NAME="QUERY"
+    FIELD="MEMO"
+    NUM_ROW="1">
+        <DEFAULT>""</DEFAULT>
+</PARAMETER>
 ----
 
 Component Kit
@@ -67,7 +83,7 @@ Component Kit
 ----
 @Option
 @Textarea
-String config;
+String query;
 ----
 
 
@@ -76,6 +92,13 @@ String config;
 Javajet
 [source,XML]
 ----
+<!-- There were no specific widget for number fields -->
+<PARAMETER
+    NAME="CONFIG"
+    FIELD="TEXT"
+    NUM_ROW="10">
+        <DEFAULT>""</DEFAULT>
+</PARAMETER>
 ----
 
 Component Kit
@@ -91,13 +114,19 @@ public Integer number;
 Javajet
 [source,XML]
 ----
+<PARAMETER
+    NAME="PRETTY_FORMAT"
+    FIELD="CHECK"
+    NUM_ROW="10">
+        <DEFAULT>false</DEFAULT>
+</PARAMETER>
 ----
 
 Component Kit
 [source,java]
 ----
 @Option
-Boolean config;
+Boolean pretty_format;
 ----
 
 ==== List
@@ -105,6 +134,16 @@ Boolean config;
 Javajet
 [source,XML]
 ----
+<PARAMETER
+    NAME="ACTION"
+    FIELD="CLOSED_LIST"
+    NUM_ROW="10">
+    <ITEMS DEFAULT="1">
+        <ITEM NAME="DELETE" VALUE="1" />
+        <ITEM NAME="INSERT" VALUE="2" />
+        <ITEM NAME="UPDATE" VALUE="3" />
+    </ITEMS>
+</PARAMETER>
 ----
 
 Component Kit
@@ -112,7 +151,7 @@ Component Kit
 ----
 @Option
 @Proposable("valuesProvider")
-String config;
+String action;
 /** service class */
 @DynamicValues("valuesProvider")
 public Values actions(){
@@ -128,7 +167,7 @@ Component Kit
 [source,java]
 ----
 @Option
-ActionEnum config;
+ActionEnum action;
 
 /** Define enum */
 enum ActionEnum {
@@ -143,6 +182,7 @@ enum ActionEnum {
 Javajet
 [source,XML]
 ----
+<!-- There were no simple way to load proposals from service in javajet -->
 ----
 
 Component Kit
@@ -164,6 +204,7 @@ public SuggestionValues loadModules(@Option final MyConfig myconfig) { }
 Javajet
 [source,XML]
 ----
+<!-- There were no simple way to select complex objects in javajet -->
 ----
 
 Component Kit
@@ -178,6 +219,11 @@ List<MyObject> config;
 Javajet
 [source,XML]
 ----
+<PARAMETERS>
+    <PARAMETER NAME="CODE" FIELD="MEMO_JAVA" RAW="true" REQUIRED="false" NUM_ROW="10" NB_LINES="10">
+        <DEFAULT>String foo = "bar";</DEFAULT>
+    </PARAMETER>
+</PARAMETERS>
 ----
 
 Component Kit
@@ -185,7 +231,7 @@ Component Kit
 ----
 @Code("java")
 @Option
-String config;
+String code;
 ----
 
 ==== Schema
@@ -193,6 +239,10 @@ String config;
 Javajet
 [source,XML]
 ----
+<PARAMETER
+    NAME="COLUMNS"
+    FIELD="COLUMN_LIST"
+    NUM_ROW="10"/>
 ----
 
 Component Kit
@@ -200,7 +250,7 @@ Component Kit
 ----
 @Option
 @Structure
-List<String> config;
+List<String> columns;
 ----
 
 === Validations
@@ -210,6 +260,7 @@ List<String> config;
 Javajet
 [source,XML]
 ----
+<!-- There were no url pattern validation in javajet -->
 ----
 
 Component Kit
@@ -232,6 +283,7 @@ ValidationResult doValidate(String url) {
 Javajet
 [source,XML]
 ----
+<!-- There were no regex validation in javajet -->
 ----
 
 Component Kit
@@ -248,6 +300,7 @@ String username;
 Javajet
 [source,XML]
 ----
+<!-- There were no healthcheck javajet -->
 ----
 
 Component Kit
@@ -274,11 +327,60 @@ public HealthCheckStatus testConnection(){
 Javajet
 [source,XML]
 ----
+<PARAMETER
+    NAME="AUTH_TYPE"
+    FIELD="CLOSED_LIST"
+    NUM_ROW="10">
+    <ITEMS DEFAULT="NOAUTH">
+        <ITEM NAME="NOAUTH" VALUE="NOAUTH" />
+        <ITEM NAME="BASIC" VALUE="BASIC" />
+        <ITEM NAME="BASIC" VALUE="OAUTH2" />
+    </ITEMS>
+</PARAMETER>
+
+<PARAMETER
+    NAME="LOGIN"
+    FIELD="TEXT"
+    NUM_ROW="20"
+    SHOW_IF="AUTH_TYPE == 'BASIC'">
+        <DEFAULT>"login"</DEFAULT>
+</PARAMETER>
+
+<PARAMETER
+    NAME="LOGIN"
+    FIELD="PASSWORD"
+    NUM_ROW="20"
+    SHOW_IF="AUTH_TYPE='BASIC'">
+        <DEFAULT>"login"</DEFAULT>
+</PARAMETER>
 ----
 
 Component Kit
 [source,java]
 ----
+ enum AuthorizationType {
+        NoAuth,
+        Basic,
+        oauth2
+}
+
+@Option
+@Required
+@Documentation("")
+private AuthorizationType type = AuthorizationType.NoAuth;
+
+@Option
+@required
+@ActiveIf(target = "type", value = "Basic")
+@Documentation("Username for the basic authentication")
+private String login;
+
+@Option
+@required
+@credential
+@ActiveIf(target = "type", value = "Basic")
+@Documentation("password for the basic authentication")
+private String password;
 ----
 
 == Defining the runtime
