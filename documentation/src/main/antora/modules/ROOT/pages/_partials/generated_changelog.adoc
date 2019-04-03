@@ -9,6 +9,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1340[TCOMP-1340^]: Tools webapp (talend-component:web) does not support changing the locale anymore
 - link:https://jira.talendforge.org/browse/TCOMP-1343[TCOMP-1343^]: Use LogicalTypes.timestampMillis() on DATETIME for avro record builder
 - link:https://jira.talendforge.org/browse/TCOMP-1360[TCOMP-1360^]: Renaming an option (@Option("custom")) does not work on fields of type object
+- link:https://jira.talendforge.org/browse/TCOMP-1370[TCOMP-1370^]: ImageM2Mojo does not set timestamp in the docker image leading to component-server having a wrong lastUpdated value
 
 
 

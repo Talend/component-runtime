@@ -141,7 +141,7 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("Should the lastUpdated timestamp value of `/environment` "
             + "endpoint be updated with server start time.")
-    @ConfigProperty(name = "talend.component.server.request.log", defaultValue = "false")
+    @ConfigProperty(name = "talend.component.server.lastUpdated.useStartTime", defaultValue = "false")
     private Boolean changeLastUpdatedAtStartup;
 
     @PostConstruct
