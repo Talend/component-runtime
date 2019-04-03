@@ -60,6 +60,7 @@
 ** xref:index-deploying-components.adoc[Studio integration overview]
 ** xref:studio.adoc[Deploying to Talend Studio]
 ** xref:compatibility.adoc[Version compatibility]
+** xref:javajet-to-componentkit.adoc[From Javajet to the Component Kit]
 * xref:index-cloud-integration.adoc[Integrating into Talend Cloud]
 ** xref:index-cloud-integration.adoc[Cloud integration overview]
 ** xref:documentation-rest.adoc[Component server and HTTP API]

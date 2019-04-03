@@ -39,7 +39,7 @@ public interface Translator {
 <3> You can use `@Language` on a `Locale` parameter to specify manually the locale to use. Note that a single value is used (the first parameter tagged as such).
 <4> `@Language` also supports the `String` type.
 
-The corresponding `Messages.properties` placed in `org/superbiz` resource folder will contain:
+The corresponding `Messages.properties` placed in the `org/superbiz` resource folder contains the following:
 
 [source,properties]
 ----

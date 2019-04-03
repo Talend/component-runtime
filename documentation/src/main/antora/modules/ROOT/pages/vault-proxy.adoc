@@ -7,7 +7,7 @@ Browse the API description using xref:rest-openapi-vault.adoc[OpenAPI].
 
 A Vault proxy dedicated to the component server allows to safely manage credential encryption when operating in a Cloud environment.
 
-image:tacokit_vault_proxy.png[Vault proxy,80%,window="_blank",link="_images/tacokit_vault_proxy.png"]
+image:tacokit_vault_proxy.png[Vault proxy,window="_blank",link="_images/tacokit_vault_proxy.png",80%]
 
 The Vault Proxy only concerns data marked as `@Credential` in the xref:tutorial-configuration-sensitive-data.adoc[component configuration].
 

@@ -75,14 +75,11 @@ Input and output components are particular because they can be linked to a set o
 
 The most common actions are the following ones:
 
-[options="header",role="table-striped table-hover table-ordered"]
-|====
-| Type | Action | Description | Configuration example | Action example
+===== @Checkable (DataStore)
 
-| DataStore
-| `@Checkable`
-| Exposes a way to ensure the datastore/connection works
-a|
+This action exposes a way to ensure the datastore/connection works.
+
+Configuration example:
 [source,java]
 ----
 @DataStore
@@ -104,7 +101,8 @@ public class JdbcDataStore
 }
 
 ----
-a|
+
+Action example:
 [source,java]
 ----
 @HealthCheck
@@ -116,8 +114,6 @@ public HealthCheckStatus healthCheck(@Option("datastore") JdbcDataStore datastor
     return new HealthCheckStatus(Status.KO, e.getMessage());
 }
 ----
-
-|====
 
 
 ==== Limitations

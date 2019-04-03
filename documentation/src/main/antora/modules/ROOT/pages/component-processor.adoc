@@ -75,11 +75,18 @@ public void endBatch() {
 
 You can optimize the data batch processing by using the `maxBatchSize` parameter. This parameter is automatically implemented on the component when it is deployed to a Talend application. Only the logic needs to be implemented. You can however customize its value setting in your `LocalConfiguration` the property `_maxBatchSize.value` - for the family - or `${component simple class name}._maxBatchSize.value` - for a particular component, otherwise its default will be `1000`. Learn how to implement chunking/bulking in xref:concept-processor-and-batch-processing.adoc[this document].
 
-== Defining multiple outputs
+== Defining output connections
 
-In some cases, you may need to split the output of a processor in two. A common example is to have "main" and "reject" branches where part of the incoming data are passed to a specific bucket to be processed later.
+In some cases, you may need to split the output of a processor in two or more connections. A common example is to have "main" and "reject" output connections where part of the incoming data are passed to a specific bucket and processed later.
 
-To do that, you can use `@Output` as replacement of the returned value:
+Talend Component Kit supports two types of output connections: Flow and Reject.
+
+* *Flow* is the main and standard output connection.
+* The *Reject* connection handles records rejected during the processing. A component can only have one reject connection, if any. Its name must be `REJECT` to be processed correctly in Talend applications.
+
+NOTE: You can also define the different output connections of your component in the Starter.
+
+To define an output connection, you can use `@Output` as replacement of the returned value in the `@ElementListener`:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -96,7 +103,7 @@ Alternatively, you can pass a string that represents the new branch:
 @ElementListener
 public void map(final MyData data,
                 @Output final OutputEmitter<MyNewData> main,
-                @Output("rejected") final OutputEmitter<MyNewDataWithError> rejected) {
+                @Output("REJECT") final OutputEmitter<MyNewDataWithError> rejected) {
     if (isRejected(data)) {
         rejected.emit(createNewData(data));
     } else {
@@ -108,7 +115,7 @@ public void map(final MyData data,
 
 @ElementListener
 public MyNewData map(final MyData data,
-                    @Output("rejected") final OutputEmitter<MyNewDataWithError> rejected) {
+                    @Output("REJECT") final OutputEmitter<MyNewDataWithError> rejected) {
     if (isSuspicious(data)) {
         rejected.emit(createNewData(data));
         return createNewData(data); // in this case the processing continues but notifies another channel

@@ -2,8 +2,8 @@
 
 The configuration uses Microprofile Config for most entries. It means it can be passed through system properties and environment variables (by replacing dots with underscores and making the keys uppercase).
 
-To configure a Docker image rather than a standalone instance, Docker Config and secrets integration allow you to read the configuration from files. You can customize the configuration of these integrations through system properties, as described below in this document.
+To configure a Docker image rather than a standalone instance, Docker Config and secrets integration allows you to read the configuration from files. You can customize the configuration of these integrations through system properties.
 
-Also note that Docker integration provides a `secure:` support to encrypt values when required. it also works for system properties.
+Docker integration provides a `secure:` support to encrypt values and  system properties, when required.
 
-It is fully implemented using link:http://geronimo.apache.org/microprofile/extensions.html[Apache Geronimo Microprofile Config] extensions.
+It is fully implemented using the link:http://geronimo.apache.org/microprofile/extensions.html[Apache Geronimo Microprofile Config] extensions.

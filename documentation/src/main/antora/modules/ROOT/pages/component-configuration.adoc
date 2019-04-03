@@ -205,7 +205,7 @@ Make sure that:
 
 The `validateDataSet` validation checks that each input or output (processor without output branch) component uses a dataset and that this dataset has a datastore.
 
-image::datastore_and_dataset_validation.png[Dataset validation,50%,window="_blank",link="_images/datastore_and_dataset_validation.png"]
+image::datastore_and_dataset_validation.png[Dataset validation,window="_blank",link="_images/datastore_and_dataset_validation.png",50%]
 
 == Defining links between properties
 
