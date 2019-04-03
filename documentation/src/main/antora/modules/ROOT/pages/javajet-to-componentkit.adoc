@@ -30,10 +30,10 @@ Javajet
 [source,XML]
 ----
 <PARAMETER
-		NAME="CONFIG"
-		FIELD="TEXT"
-		NUM_ROW="10">
-		<DEFAULT>""</DEFAULT>
+    NAME="CONFIG"
+    FIELD="TEXT"
+    NUM_ROW="10">
+        <DEFAULT>""</DEFAULT>
 </PARAMETER>
 ----
 
@@ -51,10 +51,10 @@ Javajet
 [source,XML]
 ----
 <PARAMETER
-  NAME="PASSWORD"
-  FIELD="PASSWORD"
-  NUM_ROW="10"
-  REQUIRED="true">
+    NAME="PASSWORD"
+    FIELD="PASSWORD"
+    NUM_ROW="10"
+    REQUIRED="true">
 ----
 
 Component Kit
@@ -71,8 +71,10 @@ String password;
 Javajet
 [source,XML]
 ----
-<PARAMETER NAME="QUERY" FIELD="MEMO" NUM_ROW="1">
-			<DEFAULT>""</DEFAULT>
+<PARAMETER NAME="QUERY"
+    FIELD="MEMO"
+    NUM_ROW="1">
+        <DEFAULT>""</DEFAULT>
 </PARAMETER>
 ----
 
@@ -92,10 +94,10 @@ Javajet
 ----
 <!-- There were no specific widget for number fields -->
 <PARAMETER
-		NAME="CONFIG"
-		FIELD="TEXT"
-		NUM_ROW="10"
-		<DEFAULT>""</DEFAULT>
+    NAME="CONFIG"
+    FIELD="TEXT"
+    NUM_ROW="10">
+        <DEFAULT>""</DEFAULT>
 </PARAMETER>
 ----
 
@@ -113,10 +115,10 @@ Javajet
 [source,XML]
 ----
 <PARAMETER
-	NAME="PRETTY_FORMAT"
-	FIELD="CHECK"
-	NUM_ROW="10">
-		<DEFAULT>false</DEFAULT>
+    NAME="PRETTY_FORMAT"
+    FIELD="CHECK"
+    NUM_ROW="10">
+        <DEFAULT>false</DEFAULT>
 </PARAMETER>
 ----
 
@@ -133,14 +135,14 @@ Javajet
 [source,XML]
 ----
 <PARAMETER
-	NAME="ACTION"
-	FIELD="CLOSED_LIST"
-	NUM_ROW="10">
-	<ITEMS DEFAULT="1">
-		<ITEM NAME="DELETE" VALUE="1" />
-		<ITEM NAME="INSERT" VALUE="2" />
-		<ITEM NAME="UPDATE" VALUE="3" />
-	</ITEMS>
+    NAME="ACTION"
+    FIELD="CLOSED_LIST"
+    NUM_ROW="10">
+    <ITEMS DEFAULT="1">
+        <ITEM NAME="DELETE" VALUE="1" />
+        <ITEM NAME="INSERT" VALUE="2" />
+        <ITEM NAME="UPDATE" VALUE="3" />
+    </ITEMS>
 </PARAMETER>
 ----
 
@@ -218,9 +220,9 @@ Javajet
 [source,XML]
 ----
 <PARAMETERS>
-  <PARAMETER NAME="CODE" FIELD="MEMO_JAVA" RAW="true" REQUIRED="false" NUM_ROW="10" NB_LINES="10">
-    <DEFAULT>String foo = "bar";</DEFAULT>
-  </PARAMETER>
+    <PARAMETER NAME="CODE" FIELD="MEMO_JAVA" RAW="true" REQUIRED="false" NUM_ROW="10" NB_LINES="10">
+        <DEFAULT>String foo = "bar";</DEFAULT>
+    </PARAMETER>
 </PARAMETERS>
 ----
 
@@ -238,9 +240,9 @@ Javajet
 [source,XML]
 ----
 <PARAMETER
-      NAME="COLUMNS"
-      FIELD="COLUMN_LIST"
-      NUM_ROW="10"/>
+    NAME="COLUMNS"
+    FIELD="COLUMN_LIST"
+    NUM_ROW="10"/>
 ----
 
 Component Kit
@@ -326,30 +328,30 @@ Javajet
 [source,XML]
 ----
 <PARAMETER
-	NAME="AUTH_TYPE"
-	FIELD="CLOSED_LIST"
-	NUM_ROW="10">
-	<ITEMS DEFAULT="1">
-		<ITEM NAME="NOAUTH" VALUE="NOAUTH" />
-		<ITEM NAME="BASIC" VALUE="BASIC" />
-		<ITEM NAME="BASIC" VALUE="OAUTH2" />
-	</ITEMS>
+    NAME="AUTH_TYPE"
+    FIELD="CLOSED_LIST"
+    NUM_ROW="10">
+    <ITEMS DEFAULT="NOAUTH">
+        <ITEM NAME="NOAUTH" VALUE="NOAUTH" />
+        <ITEM NAME="BASIC" VALUE="BASIC" />
+        <ITEM NAME="BASIC" VALUE="OAUTH2" />
+    </ITEMS>
 </PARAMETER>
 
 <PARAMETER
-		NAME="LOGIN"
-		FIELD="TEXT"
-		NUM_ROW="20"
-		SHOW_IF="AUTH_TYPE == 'BASIC'">
-		<DEFAULT>"login"</DEFAULT>
+    NAME="LOGIN"
+    FIELD="TEXT"
+    NUM_ROW="20"
+    SHOW_IF="AUTH_TYPE == 'BASIC'">
+        <DEFAULT>"login"</DEFAULT>
 </PARAMETER>
 
 <PARAMETER
-		NAME="LOGIN"
-		FIELD="PASSWORD"
-		NUM_ROW="20"
-		SHOW_IF="AUTH_TYPE='BASIC'">
-		<DEFAULT>"login"</DEFAULT>
+    NAME="LOGIN"
+    FIELD="PASSWORD"
+    NUM_ROW="20"
+    SHOW_IF="AUTH_TYPE='BASIC'">
+        <DEFAULT>"login"</DEFAULT>
 </PARAMETER>
 ----
 
