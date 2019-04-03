@@ -59,6 +59,7 @@ import com.google.cloud.tools.jib.event.EventHandlers;
 import com.google.cloud.tools.jib.filesystem.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.image.ImageReference;
 import com.google.cloud.tools.jib.image.InvalidImageReferenceException;
+import com.google.cloud.tools.jib.registry.RegistryException;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -297,7 +298,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
 
     private void toLocalDocker(final ExecutorService executor, final JibContainerBuilder builder, final String tag,
             final String imageName) throws InvalidImageReferenceException, InterruptedException, ExecutionException,
-            IOException, CacheDirectoryCreationException {
+            IOException, CacheDirectoryCreationException, RegistryException {
         final DockerDaemonImage docker = DockerDaemonImage.named(imageName);
         if (dockerEnvironment != null) {
             docker.setDockerEnvironment(dockerEnvironment);
@@ -344,7 +345,8 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                 size.addAndGet(src.length());
                 layerBuilder
                         .addEntry(src.toPath().toAbsolutePath(),
-                                AbsoluteUnixPath.get(workingDirectory).resolve(depPath));
+                                AbsoluteUnixPath.get(workingDirectory).resolve(depPath), null,
+                                lastModified(src.toPath()));
             });
             return gav == null ? null : new Layer(layerBuilder.build(), size.get(), gav);
         })
@@ -373,14 +375,16 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                                             .getBasedir()
                                             .toPath()
                                             .toAbsolutePath()
-                                            .relativize(from)));
+                                            .relativize(from)),
+                            null, lastModified(from));
         });
         // the registry (only depends on components so belongs to this layer)
         writeRegistry(getNewComponentRegistry(coordinates));
         final File registryLocation = getRegistry();
         componentsLayerBuilder
                 .addEntry(registryLocation.toPath().toAbsolutePath(),
-                        AbsoluteUnixPath.get(workingDirectory).resolve(registryLocation.getName()));
+                        AbsoluteUnixPath.get(workingDirectory).resolve(registryLocation.getName()), null,
+                        lastModified(registryLocation.toPath()));
         builder.addLayer(componentsLayerBuilder.build());
         getLog()
                 .info("Prepared layer for components " + cars.toString().replace(":car", "") + " ("
@@ -414,7 +418,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                                 .toString();
                         mainDepSize.addAndGet(it.getFile().length());
                         final AbsoluteUnixPath target = mainLibs.resolve(relativized.replace(File.separatorChar, '/'));
-                        dependenciesLayer.addEntry(dep, target);
+                        dependenciesLayer.addEntry(dep, target, null, lastModified(dep));
                         return target.toString();
                     })
                     .collect(toList());
@@ -428,7 +432,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                     .addLayer(LayerConfiguration
                             .builder()
                             .setName(project.getArtifactId() + " @" + project.getVersion())
-                            .addEntry(path, mainPath)
+                            .addEntry(path, mainPath, null, lastModified(path))
                             .build());
             getLog().info("Prepared layer for main artifact (" + toSize(path.toFile().length()) + ")");
 
@@ -448,6 +452,19 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
             }
         } else {
             getLog().info("No artifact attached to this project");
+        }
+    }
+
+    private long lastModified(final Path path) {
+        return Math.max(getInternalLastModified(path), new Date(1000).getTime());
+    }
+
+    // for now using local timestamp
+    private long getInternalLastModified(final Path path) {
+        try {
+            return Files.getLastModifiedTime(path).toMillis();
+        } catch (final IOException ioe) {
+            return path.toFile().lastModified();
         }
     }
 

@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.front;
 
+import java.util.Date;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.Application;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.server.api.EnvironmentResource;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 
@@ -50,12 +52,17 @@ public class EnvironmentResourceImpl implements EnvironmentResource {
     private String time;
 
     @Inject
+    private ComponentServerConfiguration configuration;
+
+    @Inject
     private Instance<Application> applications;
 
     @Inject
     private ComponentManagerService service;
 
     private int latestApiVersion;
+
+    private Date startTime;
 
     @PostConstruct
     private void init() {
@@ -67,10 +74,17 @@ public class EnvironmentResourceImpl implements EnvironmentResource {
                 .mapToInt(Integer::parseInt)
                 .max()
                 .orElse(1);
+        startTime = new Date();
     }
 
     @Override
     public Environment get() {
-        return new Environment(latestApiVersion, version, commit, time, service.findLastUpdated());
+        return new Environment(latestApiVersion, version, commit, time,
+                configuration.getChangeLastUpdatedAtStartup() ? findLastUpdated() : service.findLastUpdated());
+    }
+
+    private Date findLastUpdated() {
+        final Date lastUpdated = service.findLastUpdated();
+        return startTime.after(lastUpdated) ? startTime : lastUpdated;
     }
 }

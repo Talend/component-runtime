@@ -138,6 +138,12 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.cache.maxSize", defaultValue = "1000")
     private Integer maxCacheSize;
 
+    @Inject
+    @Documentation("Should the lastUpdated timestamp value of `/environment` "
+            + "endpoint be updated with server start time.")
+    @ConfigProperty(name = "talend.component.server.request.log", defaultValue = "false")
+    private Boolean changeLastUpdatedAtStartup;
+
     @PostConstruct
     private void init() {
         if (logRequests != null && logRequests) {

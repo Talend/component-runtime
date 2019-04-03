@@ -1,7 +1,7 @@
 ++++
 <jsonArray>[
   {
-    "commits":2182,
+    "commits":2183,
     "description":"Joined the Apache EE family (OpenWebBeans, Meecrowave, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -84,18 +84,18 @@
     "name":"Colm O hEigeartaigh"
   },
   {
+    "commits":2,
+    "description":"\n\nBlog: https://www.linkedin.com/in/zoltantakacsdev/",
+    "gravatar":"https://avatars0.githubusercontent.com/u/2045409?v=4",
+    "id":"ZoltanTakacs",
+    "name":"Zoltán Takács"
+  },
+  {
     "commits":1,
     "description":"",
     "gravatar":"https://avatars3.githubusercontent.com/u/7931696?v=4",
     "id":"pbailly",
     "name":"Pierre Bailly-Ferry"
-  },
-  {
-    "commits":1,
-    "description":"\n\nBlog: https://www.linkedin.com/in/zoltantakacsdev/",
-    "gravatar":"https://avatars0.githubusercontent.com/u/2045409?v=4",
-    "id":"ZoltanTakacs",
-    "name":"Zoltán Takács"
   },
   {
     "commits":1,
