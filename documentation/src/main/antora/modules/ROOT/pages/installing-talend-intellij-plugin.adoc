@@ -18,18 +18,14 @@ In the Intellij IDEA:
 
 . Go to *File* > *Settings...*
 . On the left panel, select *Plugins*.
-. Select *Browse repositories...*
-
-image::intellij/plugin/1-plugins.png[Plugins,70%,window="_blank",link="_images/intellij/plugin/1-plugins.png"]
-
-[start=4]
-. Enter `Talend` in the search field and choose *Talend Component Kit - Intellij Plugin*.
-. Select *Install* on the right.
+. Access the *Marketplace* tab.
+. Enter `Talend` in the search field and Select *Talend Component Kit*.
+. Select *Install*.
 
 image::intellij/plugin/2-browse-talend.png[Browse talend plugin,70%,window="_blank",link="_images/intellij/plugin/2-browse-talend.png"]
 
 [start=6]
-. Click the *Restart IntelliJ IDEA* button.
+. Click the *Restart IDE* button.
 
 image::intellij/plugin/3-restart.png[IDEA restart,70%,window="_blank",link="_images/intellij/plugin/3-restart.png"]
 
