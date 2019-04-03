@@ -41,6 +41,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1361[TCOMP-1361^]: Upgrade to asciidoctorj 2.0.0-RC.1
 - link:https://jira.talendforge.org/browse/TCOMP-1362[TCOMP-1362^]: Beam Wrapped Components should throw shared exception types
 - link:https://jira.talendforge.org/browse/TCOMP-1366[TCOMP-1366^]: Upgrade to XBean 4.13 to not track all classes scanned
+- link:https://jira.talendforge.org/browse/TCOMP-1371[TCOMP-1371^]: Upgrade to Apache Geronimo OpenAPI 1.0.7
 
 == Version 1.1.7
 
