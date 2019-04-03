@@ -21,7 +21,7 @@ Before being able to create components, you need to define the general settings 
 . Select your build tool. This tutorial uses Maven, but you can select Gradle instead.
 . Add the *Talend Component Kit Testing* facet to your project to automatically generate unit tests for the components created later in this tutorial. Add any facet you need. +
 +
-image::starter/starter_test_facet.png[Test facet,80%,window="_blank",link="_images/starter/starter_test_facet.png"]
+image::starter/starter_test_facet.png[Test facet,window="_blank",link="_images/starter/starter_test_facet.png",80%]
 . Enter the *Component Family* of the components you want to develop in the project. This name must be a valid java name and is recommended to be capitalized, for example 'MySQL'. +
 Once you have implemented your components in the Studio, this name is displayed in the Palette to group all of the MySQL-related components you develop, and is also part of your component name.
 . Select the *Category* of the components you want to create in the current project. As MySQL is a kind of database, select *Databases* in this tutorial. +
@@ -33,7 +33,7 @@ This *Databases* category is used and displayed as the parent family of the MySQ
 IMPORTANT: Input and Output components without dataset (itself containing a datastore) will not pass the validation step when building the components. Learn more about datasets and datastores in xref:component-configuration.adoc#dataset-and-datastore[this document].
 ** Components added to the project using *Add A Component* are now input or output components by default. When *Activate IO* is not enabled, new components are processors by default. Note that you are still able to define processors even with datasets and datastores activated. +
 +
-image::starter/starter_activate_io.png[Activate IO,80%,window="_blank",link="_images/starter/starter_activate_io.png"]
+image::starter/starter_activate_io.png[Activate IO,window="_blank",link="_images/starter/starter_activate_io.png",80%]
 
 == Defining a Datastore
 A datastore represents the data needed by an input or output component to connect to a database.
@@ -69,7 +69,7 @@ To create an input component, make sure you have selected *Activate IO*.
 When clicking *Add A Component* in the starter, a new step allows you to define a new component in your project. +
 The intent in this tutorial is to create an input component that connects to a MySQL database, executes a SQL query and gets the result.
 
-image::starter/starter_input-config.png[Input configuration,80%,window="_blank",link="_images/starter/starter_input-config.png"]
+image::starter/starter_input-config.png[Input configuration,window="_blank",link="_images/starter/starter_input-config.png",80%]
 . Choose the component type. *Input* in this case.
 . Enter the component name. For example, _MySQLInput_.
 . Click *Configuration model*. This button lets you specify the required configuration for the component. By default, a dataset is already specified.
@@ -92,7 +92,7 @@ The intent in this tutorial is to create a simple processor component that recei
 NOTE: If you did not select *Activate IO*, all new components you add to the project are processors by default. +
 If you selected *Activate IO*, you can choose the component type. In this case, to create a Processor component, you have to manually add at least one output.
 
-image::starter/starter_processor-config.png[Processor configuration,80%,window="_blank",link="_images/starter/starter_processor-config.png"]
+image::starter/starter_processor-config.png[Processor configuration,window="_blank",link="_images/starter/starter_processor-config.png",80%]
 . If required, choose the component type: *Processor/Output* in this case.
 . Enter the component name. For example, _RecordLogger_, as the processor created in this tutorial logs the records.
 . Specify the *Configuration Model* of the component. In this tutorial, the component doesn't need any specific configuration. Skip this step.
@@ -101,7 +101,7 @@ image::starter/starter_processor-config.png[Processor configuration,80%,window="
 The input in this tutorial is a generic record. Enable the *Generic* option and click *Save*.
 . Define the *Output(s)* of the component. For each output that you need to define, click *Add Output*. The first output must be named `MAIN`. In this tutorial, only one generic output is needed to return the received record. +
 Outputs can be configured the same way as inputs (see previous steps). +
-You can define a reject output connection by naming it `REJECT`. This naming is used by Talend applications to automatically set the connection type to Reject. 
+You can define a reject output connection by naming it `REJECT`. This naming is used by Talend applications to automatically set the connection type to Reject.
 
 IMPORTANT: Make sure to check the configuration of inputs and outputs as they are not set to *Generic* by default.
 
@@ -115,7 +115,7 @@ The intent in this tutorial is to create an output component that receives a rec
 
 NOTE: *Output* components are *Processors* without any output. In other words, the output is a processor that does not produce any records.
 
-image::starter/starter_output-config.png[Output configuration,80%,window="_blank",link="_images/starter/starter_output-config.png"]
+image::starter/starter_output-config.png[Output configuration,window="_blank",link="_images/starter/starter_output-config.png",80%]
 . Choose the component type. *Processor/Output* in this case.
 . Enter the component name. For example, _MySQLOutput_.
 . Click *Configuration Model*. This button lets you specify the required configuration for the component. By default, a dataset is already specified.
@@ -139,7 +139,7 @@ In this tutorial, the project was configured and three components of different t
 
 . Click *Finish* on the left panel. You are redirected to a page that summarizes the project. On the left panel, you can also see all the components that you added to the project.
 +
-image::starter/starter_project-download.png[Output configuration,80%,window="_blank",link="_images/starter/starter_project-download.png"]
+image::starter/starter_project-download.png[Output configuration,window="_blank",link="_images/starter/starter_project-download.png",80%]
 . Generate the project using one of the two options available:
 ** Download it locally as a ZIP file using the *Download as ZIP* button.
 ** Create a GitHub repository and push the project to it using the *Create on Github* button.
