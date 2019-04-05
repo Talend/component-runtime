@@ -751,7 +751,7 @@ public class ComponentValidator extends BaseTask {
                 .addAll(datasets
                         .entrySet()
                         .stream()
-                        .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().anyMatch(input -> {
+                        .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().allMatch(input -> {
                             final Collection<ParameterMeta> allProps = flatten(input.getValue()).collect(toList());
                             final Collection<ParameterMeta> datasetProperties =
                                     findNestedDataSets(allProps, dataset.getValue()).collect(toList());

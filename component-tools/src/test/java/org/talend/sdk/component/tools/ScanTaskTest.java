@@ -43,6 +43,8 @@ class ScanTaskTest {
                 + "org.talend.test.valid.MyInternalization,org.talend.test.valid.MySource,"
                 + "org.talend.test.valid.customicon.MyComponent,"
                 + "org.talend.test.valid.datasetassourceconfig.MyComponent,"
+                + "org.talend.test.valid.datasetintwosourceswithonewithadditionalrequired.MyComponent,"
+                + "org.talend.test.valid.datasetintwosourceswithonewithadditionalrequired.MyComponent2,"
                 + "org.talend.test.valid.datastore.MyService," + "org.talend.test.valid.localconfiguration.MyComponent,"
                 + "org.talend.test.valid.nestedconfigtypes.WithNestedConfigTypes,"
                 + "org.talend.test.valid.nesteddataset.MyComponent," + "org.talend.test.valid.update.Comp",

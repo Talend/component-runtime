@@ -397,6 +397,12 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.valid.datasetintwosourceswithonewithadditionalrequired", success = true)
+    void testValidDataSetIfASourceIsAvailableEvenIfAnotherOneHasRequireds() {
+        // no-op
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.failure.inputmissingdataset")
     void testFailureMissingDataSetInInput(final ExceptionSpec expectedException) {
         expectedException
