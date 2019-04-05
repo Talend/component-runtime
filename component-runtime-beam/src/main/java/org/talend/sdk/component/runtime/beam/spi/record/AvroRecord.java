@@ -199,6 +199,9 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             }
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
+        if (Utf8.class.isInstance(value) && Object.class == expectedType) {
+            return expectedType.cast(value.toString());
+        }
         return expectedType.cast(value);
     }
 

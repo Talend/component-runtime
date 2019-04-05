@@ -15,14 +15,18 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.util.Collections.singletonList;
 import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.function.Supplier;
 
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.util.Utf8;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -101,5 +105,18 @@ class AvroRecordTest {
 
         final Record copy = ensureSerializableByCoder(SchemaRegistryCoder.of(), record, "test");
         assertArrayEquals(array, copy.getBytes("bytes"));
+    }
+
+    @Test
+    void stringGetObject() {
+        final GenericData.Record avro = new GenericData.Record(org.apache.avro.Schema
+                .createRecord(getClass().getName() + ".StringTest", null, null, false,
+                        singletonList(new org.apache.avro.Schema.Field("str",
+                                org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING), null, null))));
+        avro.put(0, new Utf8("test"));
+        final Record record = new AvroRecord(avro);
+        final Object str = record.get(Object.class, "str");
+        assertFalse(str.getClass().getName(), Utf8.class.isInstance(str));
+        assertEquals("test", str);
     }
 }
