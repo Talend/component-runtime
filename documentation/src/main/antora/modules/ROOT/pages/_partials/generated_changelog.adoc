@@ -1,5 +1,18 @@
 
 
+== Version 1.1.9
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1374[TCOMP-1374^]: ensure Utf8 avro strings don't leak in AvroRecord API, even using get(Object.class, ...)
+- link:https://jira.talendforge.org/browse/TCOMP-1375[TCOMP-1375^]: When two sources use the same dataset and one source has additional required parameter the validation fails
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1376[TCOMP-1376^]: Upgrade jupiter to 5.4.2
+
 == Version 1.1.8
 
 === Bug
