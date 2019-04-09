@@ -117,7 +117,7 @@ public class ComponentManagerService {
         coords.forEach(this::deploy);
         configuration
                 .getComponentRegistry()
-                .map(Stream::of)
+                .map(Collection::stream)
                 .orElseGet(Stream::empty)
                 .flatMap(globService::toFiles)
                 .filter(File::exists)
