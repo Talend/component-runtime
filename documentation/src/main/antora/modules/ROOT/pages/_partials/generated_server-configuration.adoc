@@ -7,7 +7,7 @@ talend.component.server.component.documentation.translations:: Default value: `$
 talend.component.server.component.extend.dependencies:: Default value: `true`. Should the component extensions add required dependencies.
 talend.component.server.component.extension.maven.repository:: If you deploy some extension, where they can create their dependencies if needed.
 talend.component.server.component.extension.startup.timeout:: Default value: `180000`. Timeout for extension initialization at startup, since it ensures the startup wait extensions are ready and loaded it allows to control the latency it implies.
-talend.component.server.component.registry:: A property file where the value is a gav of a component to register (complementary with `coordinates`). Note that the path can end up with `*` or `*.properties` to take into account all properties in a folder.
+talend.component.server.component.registry:: A property file (or multiple comma separated) where the value is a gav of a component to register(complementary with `coordinates`). Note that the path can end up with `*` or `*.properties` to take into account all properties in a folder.
 talend.component.server.documentation.active:: Default value: `true`. Should the /documentation endpoint be activated. Note that when called on localhost the doc is always available.
 talend.component.server.environment.active:: Default value: `true`. Should the /api/v1/environment endpoint be activated. It shows some internal versions and git commit which are not always desirable over the wire.
 talend.component.server.filter.secured.tokens:: Default value: `-`. Accepted tokens in Authorization header for remote calls to secured endpoints (/api/v1/environment or /documentation).
