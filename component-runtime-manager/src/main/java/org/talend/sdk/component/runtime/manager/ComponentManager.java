@@ -811,7 +811,7 @@ public class ComponentManager implements AutoCloseable {
     private Optional<Object> findComponentInternal(final String plugin, final String name,
             final ComponentType componentType, final int version, final Map<String, String> configuration) {
         if (container.findAll().isEmpty()) {
-            autoDiscoverPlugins();
+            autoDiscoverPlugins(false, true);
         }
         return find(pluginContainer -> Stream
                 .of(findInstance(plugin, name, componentType, version, configuration, pluginContainer)))
@@ -819,13 +819,13 @@ public class ComponentManager implements AutoCloseable {
                         .findFirst();
     }
 
-    private void autoDiscoverPlugins() {
-        if (!Boolean.getBoolean("component.manager.callers.skip")) {
+    public void autoDiscoverPlugins(final boolean callers, final boolean classpath) {
+        if (callers && !Boolean.getBoolean("component.manager.callers.skip")) {
             addCallerAsPlugin();
         }
 
         // common for studio until job generation is updated to build a tcomp friendly bundle
-        if (!Boolean.getBoolean("component.manager.classpath.skip")) {
+        if (classpath && !Boolean.getBoolean("component.manager.classpath.skip")) {
             try {
                 final Enumeration<URL> componentMarkers =
                         Thread.currentThread().getContextClassLoader().getResources("TALEND-INF/dependencies.txt");

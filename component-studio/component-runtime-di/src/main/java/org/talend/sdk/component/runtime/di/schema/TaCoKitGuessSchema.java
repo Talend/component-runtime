@@ -100,6 +100,7 @@ public class TaCoKitGuessSchema {
         this.lineLimit = 50;
         this.lineCount = -1;
         this.componentManager = ComponentManager.instance();
+        this.componentManager.autoDiscoverPlugins(false, true);
         this.configuration = configuration;
         this.plugin = plugin;
         this.family = family;
