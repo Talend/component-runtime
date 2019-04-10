@@ -168,10 +168,11 @@ public class Generator {
             tasks.register((ThrowingSupplier<Asciidoctor>) Asciidoctor.Factory::create).thenApply(adoc -> {
                 generatedDocumentationIndex(generatedDir, adoc);
                 return null;
-            }).thenAccept(ignored -> {
-                // shutdown jruby which leaks threads by default
-                Ruby.getGlobalRuntime().getJITCompiler().tearDown();
-            });
+            })
+                    .thenAccept(ignored -> {
+                        // shutdown jruby which leaks threads by default
+                        Ruby.getGlobalRuntime().getJITCompiler().tearDown();
+                    });
             tasks.register(() -> generatedTypes(generatedDir));
             tasks.register(() -> generatedConstraints(generatedDir));
             tasks.register(() -> generatedConditions(generatedDir));

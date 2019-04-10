@@ -45,7 +45,7 @@ class RecordBuilderImplTest {
     }
 
     @Test
-    void recordEntryFromName() throws Exception {
+    void recordEntryFromName() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()

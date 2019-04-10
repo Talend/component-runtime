@@ -66,53 +66,55 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
 
     @Override
     public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
-        return cs.thenCompose(context -> {
-            // if we have a single tab we don't wrap the forms in tabs otherwise we do
-            if (layouts.size() == 1) {
-                final Map.Entry<String, String> first = layouts.entrySet().iterator().next();
-                return createLayout(context, first.getValue(), first.getKey()).thenApply(uiSchema -> {
-                    synchronized (schemas) {
-                        schemas.add(uiSchema);
-                    }
-                    return context;
-                });
-            } else {
-                // if we have multiple tabs, priority is MAIN/ADVANCED pair first
-                // but if they are not present then we use all layouts in "String" order
-                final List<String> tabs = (layouts.containsKey("Main") ? Stream.of("Main", "Advanced")
-                        : layouts.keySet().stream().sorted(String::compareToIgnoreCase)).collect(toList());
-
-                final UiSchema schema = newUiSchema(context);
-                schema.setTitle(null);
-                schema.setKey(null);
-                schema.setWidget("tabs");
-
-                final List<UiSchema> resolvedLayouts = new ArrayList<>();
-                return CompletableFuture
-                        .allOf(tabs
-                                .stream()
-                                .map(tab -> ofNullable(layouts.get(tab))
-                                        .map(layoutStr -> createLayout(context, layoutStr, tab).thenApply(layout -> {
-                                            layout.setTitle(tab);
-                                            synchronized (resolvedLayouts) {
-                                                resolvedLayouts.add(layout);
-                                            }
-                                            return layout;
-                                        }))
-                                        .orElse(null))
-                                .filter(Objects::nonNull)
-                                .toArray(CompletableFuture[]::new))
-                        .thenApply(done -> {
-                            resolvedLayouts.sort(comparing(s -> tabs.indexOf(s.getTitle())));
-                            schema
-                                    .setItems(resolvedLayouts
-                                            .stream()
-                                            .filter(it -> it.getItems() != null && !it.getItems().isEmpty())
-                                            .collect(toList()));
+        return cs
+                .thenCompose(context -> {
+                    // if we have a single tab we don't wrap the forms in tabs otherwise we do
+                    if (layouts.size() == 1) {
+                        final Map.Entry<String, String> first = layouts.entrySet().iterator().next();
+                        return createLayout(context, first.getValue(), first.getKey()).thenApply(uiSchema -> {
+                            synchronized (schemas) {
+                                schemas.add(uiSchema);
+                            }
                             return context;
                         });
-            }
-        });
+                    } else {
+                        // if we have multiple tabs, priority is MAIN/ADVANCED pair first
+                        // but if they are not present then we use all layouts in "String" order
+                        final List<String> tabs = (layouts.containsKey("Main") ? Stream.of("Main", "Advanced")
+                                : layouts.keySet().stream().sorted(String::compareToIgnoreCase)).collect(toList());
+
+                        final UiSchema schema = newUiSchema(context);
+                        schema.setTitle(null);
+                        schema.setKey(null);
+                        schema.setWidget("tabs");
+
+                        final List<UiSchema> resolvedLayouts = new ArrayList<>();
+                        return CompletableFuture
+                                .allOf(tabs
+                                        .stream()
+                                        .map(tab -> ofNullable(layouts.get(tab))
+                                                .map(layoutStr -> createLayout(context, layoutStr, tab)
+                                                        .thenApply(layout -> {
+                                                            layout.setTitle(tab);
+                                                            synchronized (resolvedLayouts) {
+                                                                resolvedLayouts.add(layout);
+                                                            }
+                                                            return layout;
+                                                        }))
+                                                .orElse(null))
+                                        .filter(Objects::nonNull)
+                                        .toArray(CompletableFuture[]::new))
+                                .thenApply(done -> {
+                                    resolvedLayouts.sort(comparing(s -> tabs.indexOf(s.getTitle())));
+                                    schema
+                                            .setItems(resolvedLayouts
+                                                    .stream()
+                                                    .filter(it -> it.getItems() != null && !it.getItems().isEmpty())
+                                                    .collect(toList()));
+                                    return context;
+                                });
+                    }
+                });
     }
 
     private CompletionStage<UiSchema> createLayout(final PropertyContext<?> root, final String layout,

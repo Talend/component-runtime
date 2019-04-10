@@ -10,6 +10,13 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1386[TCOMP-1386^]: Add withRecord(String,Record) in Record.Builder
+- link:https://jira.talendforge.org/browse/TCOMP-1387[TCOMP-1387^]: Use icon bundle version 3.1.0
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1376[TCOMP-1376^]: Upgrade jupiter to 5.4.2
