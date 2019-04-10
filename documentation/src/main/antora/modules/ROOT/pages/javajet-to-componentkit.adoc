@@ -9,7 +9,7 @@ This framework is being introduced to ensure that newly developed components can
 
 From that new approach comes the need to provide a complete yet unique and compatible way of developing components.
 
-With the Component Kit, custom components are entirely implemented in Java. To help you get started with a new custom component development project, a https://starter-toolkit.talend.io/[Starter] is available. Using it, you will be able to generate the skeleton of your project.
+With the Component Kit, custom components are entirely implemented in Java. To help you get started with a new custom component development project, a https://starter-toolkit.talend.io/[Starter] is available. Using it, you will be able to generate the skeleton of your project. By importing this skeleton in a development tool, you can then implement the components layout and execution logic in Java.
 
 == Defining the component configuration
 
