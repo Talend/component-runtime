@@ -5,43 +5,47 @@
 [[getting-started-introducing-talend-component]]
 //== Introducing Talend Component Kit
 
-_Talend Component Kit_ is a framework designed to simplify the development of components at two levels:
+_Talend Component Kit_ is a Java framework designed to simplify the development of components at two levels:
 
 * **Runtime**: Runtime is about injecting the specific component code into a job or pipeline. The framework helps unify as much as possible the code required to run in Data Integration (DI) and BEAM environments.
-* **Graphical interface**: The framework helps unify the code required to be able to render the component in a browser (web) or in the Eclipse-based Studio (SWT).
+* **Graphical interface**: The framework helps unifying the code required to be able to render the component in a browser (web) or in the Eclipse-based Studio (SWT).
 
-[[getting-started-system-requirements]]
-== System Requirements
+Most part of the development happens as a Maven or Gradle project and requires a dedicated tool such as IntelliJ.
 
-In order to use Talend Component Kit, you need the following tools installed on your machine:
+The Component Kit is made of:
 
-* Java JDK 1.8.x. You can download it from http://www.oracle.com/technetwork/pt/java/javase/downloads/jdk8-downloads-2133151.html[Oracle] website.
-* Apache Maven 3.5.x is recommended to develop a component or the project itself. You can download it from https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website. You can also use Gradle.
-* A Java Integrated Development Environment such as Eclipse or IntelliJ.
-* The version of your Studio is 7.0 and onwards.
+* A Starter, that is a graphical interface allowing you to define the skeleton of your development project.
+* APIs to implement components UI and runtime.
+* Development tools: Maven and Gradle wrappers, validation rules, packaging, Web preview, etc.
+* A testing kit based on JUnit 4 and 5.
 
-[[getting-started-principles]]
-== Main principles
+By using this tooling in a basic development environment, you can start creating components as described below.
 
-Developing new components using the framework includes:
+include::methodology-creating-components.adoc[leveloffset=+1]
 
-. Creating a project using the https://starter-toolkit.talend.io/[starter] or the xref:installing-talend-intellij-plugin.adoc[Talend IntelliJ plugin].
-.. Defining the general configuration model for each component in your project
-.. Generating and downloading the project's archive from the starter
-.. Compiling the project
-. Implementing the components
-.. Registering the components family
-.. Defining the layout and configurable part of the components
-.. Defining the partition mapper for Input components
-.. Implementing the source logic for Input components
-.. Defining the processor for Output components
-. Testing the components
+== Component types
 
-Some additional configuration steps can be necessary according to your requirements:
+There are three types of components, each type coming with its specificities, especially on the runtime side.
 
-include::{partialsdir}/tutorials-index.adoc[]
+* Input components: Retrieve the data to process from a defined source. An input component is made of:
+** The execution logic of the component, represented by a `Mapper` or an `Emitter` class.
+** The source logic of the component, represented by a `Source` class.
+** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class. All input components must have a dataset specified in their configuration, and every dataset must use a datastore.
+* Processors: Process and transform the data. A processor is made of:
+** The execution logic of the component, describing how to process each records or batches of records it receives. It also describes how to pass records to its output connections. This logic is defined in a `Processor` class.
+** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class.
+* Output components: Send the processed data to a defined destination. An output component is made of:
+** The execution logic of the component, describing how to process each records or batches of records it receives. This logic is defined in an `Output` class. Unlike processors, output components are the last components of the execution and return no data.
+** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class. All input components must have a dataset specified in their configuration, and every dataset must use a datastore.
 
-//[[getting-started-first-quick-start]]
-//== Quick Start
+The following example shows the different classes of an input components in a multi-component development project:
 
-//include::{partialsdir}/tutorials-index.adoc[]
+image::input_intellij.png[Input,window="_blank",link="_images/input_intellij.png",65%]
+
+include::component-execution.adoc[leveloffset=+1]
+
+== Next
+
+* Setup your development environment.
+* Generate your first project and develop your first component.
+* Learn how to use the Component Kit Starter.

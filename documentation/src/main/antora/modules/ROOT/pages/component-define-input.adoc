@@ -6,6 +6,7 @@
 Input components are the components generally placed at the beginning of a Talend job. They are in charge of retrieving the data that will later be processed in the job.
 
 An input component is primarily made of three distinct logics:
+
 - The execution logic of the component itself, defined through a partition mapper.
 - The configurable part of the component, defined through the mapper configuration.
 - The source logic defined through a producer.
