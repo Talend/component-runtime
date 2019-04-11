@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
@@ -78,6 +79,18 @@ class AvroSchemaTest {
                 .getDelegate();
         assertEquals(DATETIME, new AvroSchema(avro).getEntries().iterator().next().getType());
         assertEquals(LogicalTypes.timestampMillis(), LogicalTypes.fromSchema(avro.getField("date").schema()));
+    }
+
+    @Test
+    void checkDateConversionFromExternalAvro() {
+        final org.apache.avro.Schema avro = SchemaBuilder
+                .record("test")
+                .fields()
+                .name("date")
+                .type(LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG)))
+                .noDefault()
+                .endRecord();
+        assertEquals(DATETIME, new AvroSchema(avro).getEntries().iterator().next().getType());
     }
 
     @Test
