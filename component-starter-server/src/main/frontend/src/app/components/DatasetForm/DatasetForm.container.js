@@ -115,9 +115,10 @@ class DatasetForm extends React.Component {
 	}
 
 	onNameChange(event) {
+		const value = event.target.value;
 		this.setState(prevState => {
 			prevState.dirty = true;
-			prevState.dataset.name = event.target.value;
+			prevState.dataset.name = value;
 			return Object.assign({}, prevState);
 		});
 	}
