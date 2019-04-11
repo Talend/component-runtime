@@ -7,6 +7,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1374[TCOMP-1374^]: ensure Utf8 avro strings don't leak in AvroRecord API, even using get(Object.class, ...)
 - link:https://jira.talendforge.org/browse/TCOMP-1375[TCOMP-1375^]: When two sources use the same dataset and one source has additional required parameter the validation fails
 - link:https://jira.talendforge.org/browse/TCOMP-1384[TCOMP-1384^]: Enhance studio guess schema algorithm to find implicitly the action to call if needed
+- link:https://jira.talendforge.org/browse/TCOMP-1388[TCOMP-1388^]: Can't change the dataset name in starter
+- link:https://jira.talendforge.org/browse/TCOMP-1389[TCOMP-1389^]: Intellij starter fails to generate a project
 
 
 
@@ -21,6 +23,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1376[TCOMP-1376^]: Upgrade jupiter to 5.4.2
 - link:https://jira.talendforge.org/browse/TCOMP-1385[TCOMP-1385^]: talend.component.server.component.registry must be a list
+- link:https://jira.talendforge.org/browse/TCOMP-1390[TCOMP-1390^]: Move component-api to component-runtime repository
 
 == Version 1.1.8
 

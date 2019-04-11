@@ -43,7 +43,7 @@ public class TaCoKitExtension {
 
     private String sdkVersion = "${project.version}";
 
-    private String apiVersion = "${component-api.version}";
+    private String apiVersion = "${project.version}";
 
     private String meecrowaveVersion = "${meecrowave.version}";
 

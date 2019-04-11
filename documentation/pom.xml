@@ -413,7 +413,7 @@
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-api</artifactId>
-            <version>${component-api.version}</version>
+            <version>${project.version}</version>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
@@ -610,7 +610,7 @@
                 <artifactItem>
                   <groupId>org.talend.sdk.component</groupId>
                   <artifactId>component-api</artifactId>
-                  <version>${component-api.version}</version>
+                  <version>${project.version}</version>
                   <type>jar</type>
                   <classifier>javadoc</classifier>
                   <overWrite>true</overWrite>

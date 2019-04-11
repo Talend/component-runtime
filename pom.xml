@@ -80,6 +80,7 @@
   </developers>
 
   <modules>
+    <module>component-api</module>
     <module>container</module>
     <module>component-spi</module>
     <module>sample-parent</module>
@@ -185,7 +186,6 @@
     <jsoup.version>1.11.2</jsoup.version>
 
     <talend-ui.version>3.1.0</talend-ui.version>
-    <component-api.version>1.1.6</component-api.version>
 
     <!-- for the starter -->
     <gradle.version>5.0</gradle.version>
@@ -273,7 +273,7 @@
       <dependency>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>component-api</artifactId>
-        <version>${component-api.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.beam</groupId>
