@@ -162,12 +162,30 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
 
     @Override
     public ModuleWizardStep modifySettingsStep(final SettingsStep settingsStep) {
-        final JTextField namedFile = settingsStep.getModuleNameField();
-        if (namedFile != null) {
-            final String projectJsonString = new String(Base64.getUrlDecoder().decode(request.getProject()));
-            jsonProject = gson.fromJson(projectJsonString, JsonObject.class);
-            namedFile.setText(jsonProject.get("artifact").getAsString());
-            namedFile.setEditable(false);
+        final String projectJsonString = new String(Base64.getUrlDecoder().decode(request.getProject()));
+        jsonProject = gson.fromJson(projectJsonString, JsonObject.class);
+
+        try {
+            final Object moduleNameLocationSettings =
+                    settingsStep.getClass().getMethod("getModuleNameLocationSettings").invoke(settingsStep);
+            if (moduleNameLocationSettings != null) {
+                moduleNameLocationSettings
+                        .getClass()
+                        .getMethod("setModuleName", String.class)
+                        .invoke(moduleNameLocationSettings, jsonProject.get("artifact").getAsString());
+            }
+        } catch (final Error | Exception e) {
+            try {
+                final JTextField namedFile = settingsStep.getModuleNameField();
+                if (namedFile != null) {
+                    namedFile.setText(jsonProject.get("artifact").getAsString());
+                    namedFile.setEditable(false);
+                }
+            } catch (final RuntimeException ex) {
+                final IllegalStateException exception = new IllegalStateException(e);
+                exception.addSuppressed(ex);
+                throw exception;
+            }
         }
         return super.modifySettingsStep(settingsStep);
     }

@@ -41,6 +41,9 @@ import org.talend.sdk.component.api.service.http.Url;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JAXBDecoder;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JAXBEncoder;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 class JAXB {
 
     static final boolean ACTIVE;
@@ -52,6 +55,7 @@ class JAXB {
                     .loadClass("javax.xml.bind.annotation.XmlType");
             active = true;
         } catch (final ClassNotFoundException e) {
+            log.info("JAXB is not available in classloader {}", JAXB.class.getClassLoader());
             active = false;
         }
         ACTIVE = active;
