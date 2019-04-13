@@ -189,7 +189,7 @@
 
     <!-- for the starter -->
     <gradle.version>5.0</gradle.version>
-    <mvn.version>3.6.0</mvn.version>
+    <mvn.version>3.6.1</mvn.version>
 
     <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
     <jaxrs-analyzer-extension.version>0.0.6</jaxrs-analyzer-extension.version>
