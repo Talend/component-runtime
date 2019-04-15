@@ -30,7 +30,7 @@ class Provider extends React.Component {
 			datasets: props.value || [],
 			datastore: props.datastore,
 		};
-		this.state.add = dataset => {
+		this.state.add = (dataset, callback) => {
 			if (!dataset.name) {
 				throw new Error('Dataset name is required');
 			}
@@ -44,6 +44,10 @@ class Provider extends React.Component {
 				// eslint-disable-next-line no-param-reassign
 				prevState.current = dataset;
 				return Object.assign({}, prevState);
+			}, () => {
+				if (callback) {
+					callback();
+				}
 			});
 		};
 		this.state.edit = (dataset, newValues) => {
@@ -91,4 +95,5 @@ class Provider extends React.Component {
 export default {
 	Provider,
 	Consumer: DatasetContext.Consumer,
+	raw: DatasetContext,
 };

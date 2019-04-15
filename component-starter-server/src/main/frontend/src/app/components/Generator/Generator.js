@@ -20,8 +20,9 @@ import theme from './Generator.scss';
 
 import ProjectMetadata from '../ProjectMetadata';
 import Component from '../Component';
+import ComponentAddForm from '../ComponentAddForm';
+
 import Finish from '../Finish';
-// import ComponentsContext from '../ComponentsContext';
 import SideMenu from '../SideMenu';
 import DatastoreList from '../DatastoreList';
 import DatasetList from '../DatasetList';
@@ -40,26 +41,9 @@ export default function Generator() {
 						<Route exact path="/datastore" component={DatastoreList} />
 						<Route exact path="/dataset" component={DatasetList} />
 						<Route path="/component/:componentId" component={Component} />
+						<Route path="/add-component" component={ComponentAddForm} />
 						<Route path="/export" component={Finish} />
 					</main>
-					{/* {location.pathname !== '/export' && (
-						<footer>
-							<ComponentsContext.Consumer>
-								{components => (
-									<Link
-										to="/component/last"
-										className="btn btn-info"
-										onClick={() => components.addComponent()}
-									>
-										Add A Component
-									</Link>
-								)}
-							</ComponentsContext.Consumer>
-							<Link to="/export" className="btn btn-primary">
-								Go to Finish
-							</Link>
-						</footer>
-					)} */}
 				</div>
 			</div>
 		</div>

@@ -91,4 +91,5 @@ class Provider extends React.Component {
 export default {
 	Provider,
 	Consumer: DatastoreContext.Consumer,
+	raw: DatastoreContext,
 };

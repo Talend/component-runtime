@@ -22,7 +22,13 @@ import Toggle from '@talend/react-components/lib/Toggle';
 import Help from '../Help';
 import Input from '../Input';
 import Summary from '../Summary';
-import { GENERATOR_GITHUB_URL, GENERATOR_ZIP_URL } from '../../constants';
+import {
+	GENERATOR_GITHUB_URL,
+	GENERATOR_ZIP_URL,
+	COMPONENT_TYPE_PROCESSOR,
+	COMPONENT_TYPE_SOURCE,
+	COMPONENT_TYPE_SINK,
+} from '../../constants';
 import FinishContext from './FinishContext';
 
 import theme from './Finish.scss';
@@ -33,22 +39,34 @@ function isEmpty(str) {
 
 function createModel({ project, components, datastore, dataset }) {
 	// we copy the model to compute sources and processors attributes
-	const lightCopyModel = Object.assign({
-		datastores: datastore.datastores,
-		datasets: dataset.datasets,
-	}, project.project);
+	const lightCopyModel = Object.assign(
+		{
+			datastores: datastore.datastores,
+			datasets: dataset.datasets,
+		},
+		project.project,
+	);
 	lightCopyModel.sources = components.components
-		.filter(c => c.type === 'Input')
+		.filter(c => c.type === COMPONENT_TYPE_SOURCE)
 		.map(c => {
 			const source = Object.assign({}, c.source);
 			source.name = c.configuration.name;
+			delete source.inputStructures;
 			return source;
 		});
 	lightCopyModel.processors = components.components
-		.filter(c => c.type === 'Processor')
+		.filter(c => c.type === COMPONENT_TYPE_PROCESSOR)
 		.map(c => {
 			const processor = Object.assign({}, c.processor);
 			processor.name = c.configuration.name;
+			return processor;
+		});
+	lightCopyModel.processors = components.components
+		.filter(c => c.type === COMPONENT_TYPE_SINK)
+		.map(c => {
+			const processor = Object.assign({}, c.processor);
+			processor.name = c.configuration.name;
+			delete processor.outputStructures;
 			return processor;
 		});
 	return lightCopyModel;
@@ -163,11 +181,7 @@ export default class Finish extends React.Component {
 							<Summary project={createModel(services)} />
 							<div className={theme.bigButton}>
 								<form id="download-zip-form" noValidate action={GENERATOR_ZIP_URL} method="POST">
-									<input
-										type="hidden"
-										name="project"
-										value={getDownloadValue(services)}
-									/>
+									<input type="hidden" name="project" value={getDownloadValue(services)} />
 									<Action
 										label="Download as ZIP"
 										id="download-zip-form"

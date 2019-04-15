@@ -50,7 +50,8 @@ export default class Connections extends React.Component {
 	isReadOnly(connection, components) {
 		return (
 			(this.props.type === 'Input' && connection.name === 'MAIN') ||
-			(this.props.type === 'Output' && connection.name === 'MAIN' && !components.withIO)
+			(this.props.type === 'Output' && connection.name === 'MAIN' && !components.withIO) ||
+			(this.props.type === 'Output' && this.props.connections.length === 1)
 		);
 	}
 	render() {

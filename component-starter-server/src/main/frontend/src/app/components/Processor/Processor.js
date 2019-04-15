@@ -26,7 +26,6 @@ import ComponentSchema from '../ComponentSchema';
 
 /* eslint-disable no-param-reassign */
 
-
 function newStructure(prefix, array) {
 	array.push({
 		name: array.length === 0 ? 'MAIN' : `${prefix}_${array.length + 1}`,
@@ -47,6 +46,7 @@ export default class Processor extends React.Component {
 				configurationStructure: PropTypes.object,
 			}),
 		}),
+		sink: PropTypes.bool,
 	};
 	constructor(props) {
 		super(props);
@@ -138,10 +138,10 @@ export default class Processor extends React.Component {
 							}
 						/>
 					</h2>
-					<div className={classnames(theme.ComponentButtons, 'col-sm-12')}>
+					{!this.props.sink && (<div className={classnames(theme.ComponentButtons, 'col-sm-12')}>
 						<div className="col-sm-6">
 							<AppButton
-								text="Add Input"
+								text="Add"
 								icon="talend-plus-circle"
 								onClick={() =>
 									this.setState(s => (s.inputs = newStructure('input', this.state.inputs)))
@@ -164,7 +164,7 @@ export default class Processor extends React.Component {
 						</div>
 						<div className="col-sm-6">
 							<AppButton
-								text="Add Ouput"
+								text="Add"
 								icon="talend-plus-circle"
 								side="right"
 								iconPosition="left"
@@ -185,22 +185,29 @@ export default class Processor extends React.Component {
 								}
 							/>
 						</div>
-					</div>
+					</div>)}
 					<div className={classnames(theme.ComponentWrapper, 'col-sm-12')}>
 						<div className={classnames(theme.Inputs, 'processor-inputs col-sm-5')}>
-							<Connections
-								connections={this.props.component.processor.inputStructures}
-								type="Input"
-							/>
+							{this.props.sink ? (
+								<Connections
+									connections={[this.props.component.processor.inputStructures[0]]}
+									type="Input"
+								/>
+							) : (
+								<Connections
+									connections={this.props.component.processor.inputStructures}
+									type="Input"
+								/>
+							)}
 						</div>
-						<div className={classnames(theme.ComponentBox, 'col-sm-2')}>
+						<div className={classnames(theme.ComponentBox, 'col-sm-2', { processor: !this.props.sink })}>
 							<component-box>component</component-box>
 						</div>
 						<div className={classnames(theme.Outputs, 'processor-outputs col-sm-5')}>
-							<Connections
+							{!this.props.sink && (<Connections
 								connections={this.props.component.processor.outputStructures}
 								type="Output"
-							/>
+							/>)}
 						</div>
 					</div>
 				</div>

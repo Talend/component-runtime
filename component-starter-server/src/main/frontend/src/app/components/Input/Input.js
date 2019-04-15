@@ -23,6 +23,7 @@ import theme from './Input.scss';
 
 export default class Input extends React.Component {
 	static propTypes = {
+		autoFocus: PropTypes.bool,
 		initialValue: PropTypes.any,
 		aggregate: PropTypes.object,
 		className: PropTypes.string,
@@ -72,6 +73,7 @@ export default class Input extends React.Component {
 					minLength={this.props.minLength}
 					onChange={e => this.onChange(e)}
 					value={value}
+					autoFocus={this.props.autoFocus}
 				/>
 				{!!this.state.message && <span className={theme.error}>{this.state.message}</span>}
 			</span>

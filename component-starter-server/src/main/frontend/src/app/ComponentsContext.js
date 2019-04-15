@@ -12,14 +12,18 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */import React from 'react';
+ */
+import React from 'react';
 import PropTypes from 'prop-types';
 import getUUID from './uuid';
+import {
+	COMPONENT_TYPES,
+	COMPONENT_TYPE_SOURCE,
+	COMPONENT_TYPE_PROCESSOR,
+	COMPONENT_TYPE_SINK,
+} from './constants';
 
 const Context = React.createContext({});
-
-const INPUT = 'Input';
-const PROCESSOR = 'Processor';
 
 class Provider extends React.Component {
 	static propTypes = {
@@ -52,8 +56,8 @@ class Provider extends React.Component {
 
 	setComponentType(component, type) {
 		// type must be in Input / Processor
-		if (type !== INPUT && type !== PROCESSOR) {
-			throw new Error(`Invalid type ${type}. Only Input and Processor are valid`);
+		if (COMPONENT_TYPES.indexOf(type) === -1) {
+			throw new Error(`Invalid type ${type}. Only ${COMPONENT_TYPES.join(', ')} are valid`);
 		}
 		this.setState(prevState => {
 			// eslint-disable-next-line no-param-reassign
@@ -66,6 +70,7 @@ class Provider extends React.Component {
 		this.setState({ withIO: true });
 		this.dataset = dataset; // keep a ref on it
 		const datastoreId = getUUID();
+		const datasetId = getUUID();
 		datastore.add({
 			$id: datastoreId,
 			name: 'Datastore1',
@@ -74,15 +79,20 @@ class Provider extends React.Component {
 			},
 		});
 		dataset.add({
-			$id: getUUID(),
+			$id: datasetId,
 			name: 'Dataset1',
 			structure: {
-				entries: [{
-					name: 'datastore',
-					type: 'datastore',
-					reference: datastoreId,
-				}],
+				entries: [
+					{
+						name: 'datastore',
+						type: 'datastore',
+						reference: datastoreId,
+					},
+				],
 			},
+		}, () => {
+			this.addComponent(COMPONENT_TYPE_SOURCE);
+			this.addComponent(COMPONENT_TYPE_SINK);
 		});
 	}
 
@@ -96,11 +106,21 @@ class Provider extends React.Component {
 	 *  }
 	 * ]
 	 */
-	addComponent(callback) {
+	addComponent(type, callback) {
+		let name = `Company${type}`;
+		const found = this.state.components.find(c => c.configuration.name === name);
+		if (found) {
+			name = `${name}${this.state.components.length}`;
+		}
+		const dataset = {
+			name: 'dataset',
+			type: 'dataset',
+			reference: this.dataset.datasets[0].$id,
+		};
 		const component = {
-			type: this.state.withIO ? INPUT : PROCESSOR,
+			type,
 			configuration: {
-				name: `CompanyComponent${this.state.components.length + 1}`,
+				name,
 			},
 			source: {
 				genericOutput: true,
@@ -116,6 +136,32 @@ class Provider extends React.Component {
 				configurationStructure: {
 					entries: [],
 				},
+				inputStructures: [],
+				outputStructures: [],
+			},
+		};
+		if (type === COMPONENT_TYPE_PROCESSOR) {
+			component.processor.inputStructures.push({
+				name: 'MAIN',
+				generic: true,
+				structure: {
+					entries: [],
+				},
+			});
+			component.processor.outputStructures.push({
+				name: 'MAIN',
+				generic: true,
+				structure: {
+					entries: [],
+				},
+			});
+		} else if (type === COMPONENT_TYPE_SOURCE) {
+			component.source.configurationStructure.entries.push(dataset);
+		} else if (type === COMPONENT_TYPE_SINK) {
+			component.processor = {
+				configurationStructure: {
+					entries: [dataset],
+				},
 				inputStructures: [
 					{
 						name: 'MAIN',
@@ -126,23 +172,7 @@ class Provider extends React.Component {
 					},
 				],
 				outputStructures: [],
-			},
-		};
-		if (this.state.withIO && this.dataset.datasets.length > 0) {
-			component.source.configurationStructure.entries.push({
-				name: 'dataset',
-				type: 'dataset',
-				reference: this.dataset.datasets[0].$id,
-			});
-		}
-		if (!this.state.withIO) {
-			component.processor.outputStructures.push({
-				name: 'MAIN',
-				generic: true,
-				structure: {
-					entries: [],
-				},
-			});
+			};
 		}
 		this.setState(
 			state => {
@@ -172,4 +202,5 @@ class Provider extends React.Component {
 export default {
 	Provider,
 	Consumer: Context.Consumer,
+	raw: Context,
 };
