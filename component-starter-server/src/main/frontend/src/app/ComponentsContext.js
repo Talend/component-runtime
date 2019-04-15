@@ -78,22 +78,25 @@ class Provider extends React.Component {
 				entries: [],
 			},
 		});
-		dataset.add({
-			$id: datasetId,
-			name: 'Dataset1',
-			structure: {
-				entries: [
-					{
-						name: 'datastore',
-						type: 'datastore',
-						reference: datastoreId,
-					},
-				],
+		dataset.add(
+			{
+				$id: datasetId,
+				name: 'Dataset1',
+				structure: {
+					entries: [
+						{
+							name: 'datastore',
+							type: 'datastore',
+							reference: datastoreId,
+						},
+					],
+				},
 			},
-		}, () => {
-			this.addComponent(COMPONENT_TYPE_SOURCE);
-			this.addComponent(COMPONENT_TYPE_SINK);
-		});
+			() => {
+				this.addComponent(COMPONENT_TYPE_SOURCE);
+				this.addComponent(COMPONENT_TYPE_SINK);
+			},
+		);
 	}
 
 	/**
@@ -158,21 +161,14 @@ class Provider extends React.Component {
 		} else if (type === COMPONENT_TYPE_SOURCE) {
 			component.source.configurationStructure.entries.push(dataset);
 		} else if (type === COMPONENT_TYPE_SINK) {
-			component.processor = {
-				configurationStructure: {
-					entries: [dataset],
+			component.processor.configurationStructure.entries.push(dataset);
+			component.processor.inputStructures.push({
+				name: 'MAIN',
+				generic: true,
+				structure: {
+					entries: [],
 				},
-				inputStructures: [
-					{
-						name: 'MAIN',
-						generic: true,
-						structure: {
-							entries: [],
-						},
-					},
-				],
-				outputStructures: [],
-			};
+			});
 		}
 		this.setState(
 			state => {
