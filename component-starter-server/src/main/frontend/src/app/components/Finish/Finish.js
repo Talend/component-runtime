@@ -51,7 +51,6 @@ function createModel({ project, components, datastore, dataset }) {
 		.map(c => {
 			const source = Object.assign({}, c.source);
 			source.name = c.configuration.name;
-			delete source.inputStructures;
 			return source;
 		});
 	lightCopyModel.processors = components.components
@@ -66,7 +65,6 @@ function createModel({ project, components, datastore, dataset }) {
 		.map(c => {
 			const processor = Object.assign({}, c.processor);
 			processor.name = c.configuration.name;
-			delete processor.outputStructures;
 			return processor;
 		});
 	return lightCopyModel;

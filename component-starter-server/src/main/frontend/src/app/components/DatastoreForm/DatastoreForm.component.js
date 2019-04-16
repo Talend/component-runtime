@@ -50,7 +50,7 @@ class DatastoreForm extends React.Component {
 				// from edit mode to add mode
 				this.setState({
 					$id: getUUID(),
-					name: `Datastore${this.service.datastores.length + 1}`,
+					name: `Datastore${this.service.datastores.length}`,
 					structure: {
 						entries: [],
 					},

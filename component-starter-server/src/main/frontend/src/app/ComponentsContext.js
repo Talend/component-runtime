@@ -73,7 +73,7 @@ class Provider extends React.Component {
 		const datasetId = getUUID();
 		datastore.add({
 			$id: datastoreId,
-			name: 'Datastore1',
+			name: 'Datastore',
 			structure: {
 				entries: [],
 			},
@@ -81,7 +81,7 @@ class Provider extends React.Component {
 		dataset.add(
 			{
 				$id: datasetId,
-				name: 'Dataset1',
+				name: 'Dataset',
 				structure: {
 					entries: [
 						{
