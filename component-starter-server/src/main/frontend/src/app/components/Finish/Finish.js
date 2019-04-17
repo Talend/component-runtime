@@ -182,6 +182,7 @@ export default class Finish extends React.Component {
 									<input type="hidden" name="project" value={getDownloadValue(services)} />
 									<Action
 										label="Download as ZIP"
+										form="download-zip-form"
 										bsStyle="info"
 										icon="fa-file-archive-o"
 										type="submit"
