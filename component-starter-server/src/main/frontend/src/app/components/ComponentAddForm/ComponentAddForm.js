@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ActionButton } from '@talend/react-components/lib/Actions';
-import './ComponentAddForm.css';
+import './ComponentAddForm.scss';
 
 import {
 	COMPONENT_TYPE_SOURCE,
