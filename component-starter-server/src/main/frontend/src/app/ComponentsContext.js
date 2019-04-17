@@ -118,7 +118,7 @@ class Provider extends React.Component {
 		const dataset = {
 			name: 'dataset',
 			type: 'dataset',
-			reference: this.dataset.datasets[0].$id,
+			reference: this.dataset && this.dataset.datasets[0].$id,
 		};
 		const component = {
 			type,
