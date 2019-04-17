@@ -28,7 +28,7 @@ function IsUsedWarning() {
 			title="Delete dataset"
 			i18nKey="delete_dataset_warning_is_used"
 			icon="talend-warning"
-			content={<p>You can't delete this datastore because it's already used.</p>}
+			content={<p>You can't delete this dataset because it's already used.</p>}
 		/>
 	);
 }
@@ -47,7 +47,7 @@ function IsLastWarning() {
 function DoDelete(props) {
 	return (
 		<ActionButton
-			label={props.t('DELETE_DATASTORE_LABEL', { defaultValue: 'Delete this datastore' })}
+			label={props.t('DELETE_DATASET_LABEL', { defaultValue: 'Delete this dataset' })}
 			onClick={props.onClick}
 			icon="talend-trash"
 			hideLabel

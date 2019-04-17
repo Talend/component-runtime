@@ -31,5 +31,13 @@
   "project_package": "<0><0>The root package represents a unique namespace in terms of code.</0><1>Talend recommends aligning it with the selected group.</1></0>",
   "project_package_title": "Project Root package",
   "schema_designing_model": "<0><0>This view allows you to modelize your component.</0><1>You can click the <1></1> button to add an object field and the <3></3> button to delete one. Click any field to edit its name and type.</1><2>To add a nested object, add a field, click it, and customize its name. Then, set the field to the \"object\" type and validate your updates.</2><3><0></0> Field names must be valid Java names (no space, no special character, and so on). If the field name contains specific keywords, it will be considered as a credential and marked as such (for example, <2>password</2>, <4>token</4>, and so on).</3></0>",
-  "schema_designing_model_title": "Designing your model"
+  "schema_designing_model_title": "Designing your model",
+  "BADGE_DELETE": "delete",
+  "delete_dataset_warning_is_used_title": "Delete dataset",
+  "delete_dataset_warning_is_used": "<0>You can't delete this dataset because it's already used.</0>",
+  "DELETE_DATASET_LABEL": "Delete this dataset",
+  "DELETE_DATASTORE_LABEL": "Delete this datastore",
+  "delete_datastore_warning_is_used_title": "Delete datastore",
+  "delete_datastore_warning_is_used": "<0>You can't delete this configuration because it's already used.</0>",
+  "HEADERBAR_GO_PORTAL": "Go to Portal"
 }
