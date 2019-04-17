@@ -8,6 +8,8 @@ A Talend Component Kit plugin is available for each of the supported build tools
 
 *gradle-talend-component* helps you write components that match the best practices. It is inspired from the Maven plugin and adds the ability to generate automatically the `dependencies.txt` file used by the SDK to build the component classpath. For more information on the configuration, refer to the xref:build-tools-maven.adoc[Maven] properties matching the attributes.
 
+By default, Gradle does not log information messages. To see messages, use `--info` in your commands. Refer to link:https://docs.gradle.org/current/userguide/logging.html[Gradle's documentation] to learn about log levels.
+
 You can use it as follows:
 
 [source,groovy]
