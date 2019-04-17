@@ -34,8 +34,8 @@ export default function App() {
 				<div className={theme.header}>
 					<HeaderBar
 						logo={{ isFull: true }}
-						brand={{ label: 'Component Kit Starter' }}
-						app="Component Kit Starter"
+						brand={{ label: 'Starter Toolkit' }}
+						app="Starter Toolkit"
 					/>
 				</div>
 

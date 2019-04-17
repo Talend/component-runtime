@@ -33,6 +33,7 @@ class DatastoreForm extends React.Component {
 		super(props);
 		this.onSubmit = this.onSubmit.bind(this);
 		this.onNameChange = this.onNameChange.bind(this);
+		this.onChangeValidate = this.onChangeValidate.bind(this);
 		this.state = this.props.datastore || {
 			$id: getUUID(),
 			name: 'Datastore1',
@@ -50,7 +51,7 @@ class DatastoreForm extends React.Component {
 				// from edit mode to add mode
 				this.setState({
 					$id: getUUID(),
-					name: `Datastore${this.service.datastores.length + 1}`,
+					name: `Datastore${this.service.datastores.length}`,
 					structure: {
 						entries: [],
 					},
@@ -87,6 +88,12 @@ class DatastoreForm extends React.Component {
 		this.setState({ name: event.target.value });
 	}
 
+	onChangeValidate() {
+		this.setState({
+			edited: new Date(),
+		});
+	}
+
 	render() {
 		return (
 			<DatastoreContext.Consumer>
@@ -111,7 +118,7 @@ class DatastoreForm extends React.Component {
 						</div>
 						<div className="form-group">
 							<label htmlFor="datastore-model">Model</label>
-							<Node id="datastore-model" node={this.state.structure} readOnly name={this.props.name} />
+							<Node id="datastore-model" node={this.state.structure} readOnly name={this.props.name} onChangeValidate={this.onChangeValidate} />
 						</div>
 						{this.state.error && (
 							<div className="alert alert-danger">{this.state.error.message}</div>

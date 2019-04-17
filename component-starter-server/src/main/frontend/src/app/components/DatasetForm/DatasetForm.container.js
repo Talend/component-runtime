@@ -79,7 +79,7 @@ class DatasetForm extends React.Component {
 					dirty: false,
 					dataset: {
 						$id: getUUID(),
-						name: `Dataset${this.service.datasets.length + 1}`,
+						name: `Dataset${this.service.datasets.length}`,
 						structure: {
 							entries: [],
 						},
