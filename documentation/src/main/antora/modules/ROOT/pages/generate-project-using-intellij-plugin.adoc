@@ -6,19 +6,14 @@
 Once the plugin xref:installing-talend-intellij-plugin.adoc[installed], you can generate a component project.
 
 . Select *File* > *New* > *Project*.
-. In the *New Project* wizard, choose *Talend Component* and click *Next*.
-
+. In the *New Project* wizard, choose *Talend Component* and click *Next*. +
++
 image::intellij/plugin/new-project_1.png[New Talend Project,window="_blank",link="_images/intellij/plugin/new-project_1.png",70%]
-
 The plugin loads the component starter and lets you design your components.
 For more information about the Talend Component Kit starter, check xref:tutorial-generate-project-using-starter.adoc[this tutorial].
 
-image::intellij/plugin/new-project_2.png[New Talend Project,window="_blank",link="_images/intellij/plugin/new-project_2.png",70%]
-
 [start=3]
 . Once your project is configured, select *Next*, then click *Finish*.
-
-image::intellij/plugin/new-project_3.png[New Talend Project,window="_blank",link="_images/intellij/plugin/new-project_3.png",70%]
 
 The project is automatically imported into the IDEA using the build tool that you have chosen.
 
