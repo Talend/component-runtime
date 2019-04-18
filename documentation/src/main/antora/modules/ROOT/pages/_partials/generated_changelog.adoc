@@ -24,6 +24,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1376[TCOMP-1376^]: Upgrade jupiter to 5.4.2
 - link:https://jira.talendforge.org/browse/TCOMP-1385[TCOMP-1385^]: talend.component.server.component.registry must be a list
 - link:https://jira.talendforge.org/browse/TCOMP-1390[TCOMP-1390^]: Move component-api to component-runtime repository
+- link:https://jira.talendforge.org/browse/TCOMP-1392[TCOMP-1392^]: Tomcat 9.0.19 upgrade
 
 == Version 1.1.8
 
