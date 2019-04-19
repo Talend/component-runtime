@@ -20,6 +20,7 @@ import { reactI18nextModule } from 'react-i18next';
 import App from './components/App';
 import helpTexts from './locales/en/Help.json';
 
+// import './intellij.css';
 import './index.scss';
 
 function logKeys(lang, ns, key, value) {

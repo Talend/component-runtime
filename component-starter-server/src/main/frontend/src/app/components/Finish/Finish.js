@@ -53,20 +53,23 @@ function createModel({ project, components, datastore, dataset }) {
 			source.name = c.configuration.name;
 			return source;
 		});
-	lightCopyModel.processors = components.components
-		.filter(c => c.type === COMPONENT_TYPE_PROCESSOR)
-		.map(c => {
-			const processor = Object.assign({}, c.processor);
-			processor.name = c.configuration.name;
-			return processor;
-		});
-	lightCopyModel.processors = components.components
-		.filter(c => c.type === COMPONENT_TYPE_SINK)
-		.map(c => {
-			const processor = Object.assign({}, c.processor);
-			processor.name = c.configuration.name;
-			return processor;
-		});
+	if (components.withIO) {
+		lightCopyModel.processors = components.components
+			.filter(c => c.type === COMPONENT_TYPE_SINK)
+			.map(c => {
+				const processor = Object.assign({}, c.processor);
+				processor.name = c.configuration.name;
+				return processor;
+			});
+	} else {
+		lightCopyModel.processors = components.components
+			.filter(c => c.type === COMPONENT_TYPE_PROCESSOR)
+			.map(c => {
+				const processor = Object.assign({}, c.processor);
+				processor.name = c.configuration.name;
+				return processor;
+			});
+	}
 	return lightCopyModel;
 }
 

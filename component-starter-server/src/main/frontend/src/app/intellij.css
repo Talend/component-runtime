@@ -1,0 +1,7 @@
+/* CSS ADDED by intellij plugin */
+div[class^="Finish__bigButton"]{display:none !important;}
+div[class^="Drawer__tc-drawer-container"] > div:nth-child(2) {display:block !important;}
+div[class^="Drawer__tc-drawer-container"] > div:nth-child(2) {display:block !important;}
+#step-finish{display:none !important;}
+#step-add-component{border-left: none;}
+/* input {height:25px !important;} */
