@@ -559,7 +559,7 @@ public class Generator {
                             changelogPerVersion.put(versionRead, builder.toString());
                             builder.setLength(0);
                         }
-                        versionRead = line.substring("== Version ".length());
+                        versionRead = line.substring("== Version ".length()).replace(" (dev)", "");
                     }
                     builder.append(line).append('\n');
                 }
@@ -663,8 +663,10 @@ public class Generator {
                 if (v1.equals(v2)) {
                     return 0;
                 }
-                final int[] parts1 = Stream.of(v1.getKey().split("\\.")).mapToInt(Integer::parseInt).toArray();
-                final int[] parts2 = Stream.of(v2.getKey().split("\\.")).mapToInt(Integer::parseInt).toArray();
+                final int[] parts1 =
+                        Stream.of(v1.getKey().replace(" (dev)", "").split("\\.")).mapToInt(Integer::parseInt).toArray();
+                final int[] parts2 =
+                        Stream.of(v2.getKey().replace(" (dev)", "").split("\\.")).mapToInt(Integer::parseInt).toArray();
                 for (int i = 0; i < parts1.length; i++) {
                     if (parts2.length <= i) {
                         return 1;
