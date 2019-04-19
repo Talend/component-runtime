@@ -38,15 +38,15 @@
         {{#if page.component}}
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {{#if page.component}}Version {{page.version}}{{else}}Versions{{/if}} <span class="caret"></span>
+              {{#if page.component}}{{page.version}}{{~#if (eq page.origin.branch 'master')}} (dev){{/if}}{{else}}Versions{{/if}} <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
             {{#each site.components}}
               {{#each ./versions}}
                 <li class="navbar-item version
                   {{~#if (and (eq ../this @root.page.component) (eq this @root.page.componentVersion))}} is-current{{/if~}}
-                  {{~#if (eq this ../latestVersion)}} is-latest{{/if}}">
-                    <a href="{{{relativize @root.page.url ./url}}}">{{./version}}</a>
+                  {{~#if (eq this ../latest)}} is-latest{{/if}}">
+                    <a href="{{{relativize @root.page.url ./url}}}">{{./version}}{{~#if (eq this ../latest)}} (dev){{/if}}</a>
                 </li>
               {{/each}}
             {{/each}}

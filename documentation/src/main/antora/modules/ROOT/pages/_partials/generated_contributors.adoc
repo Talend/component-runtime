@@ -1,7 +1,7 @@
 ++++
 <jsonArray>[
   {
-    "commits":2216,
+    "commits":2219,
     "description":"Joined the Apache EE family (OpenWebBeans, Meecrowave, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -29,7 +29,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":56,
+    "commits":57,
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
     "id":"jmfrancois",
@@ -110,6 +110,13 @@
     "gravatar":"https://avatars1.githubusercontent.com/u/12494310?v=4",
     "id":"bguillon-td",
     "name":"Benoit Guillon"
+  },
+  {
+    "commits":1,
+    "description":"Committer and PMC member of @apache Beam. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?).\n\nBlog: https://www.ismaelmejia.com/",
+    "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
+    "id":"iemejia",
+    "name":"Ismaël Mejía"
   },
   {
     "commits":1,

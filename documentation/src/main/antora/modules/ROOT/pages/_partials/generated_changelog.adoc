@@ -1,6 +1,6 @@
 
 
-== Version 1.1.9
+== Version 1.1.9 (dev)
 
 === Bug
 
@@ -9,6 +9,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1384[TCOMP-1384^]: Enhance studio guess schema algorithm to find implicitly the action to call if needed
 - link:https://jira.talendforge.org/browse/TCOMP-1388[TCOMP-1388^]: Can't change the dataset name in starter
 - link:https://jira.talendforge.org/browse/TCOMP-1389[TCOMP-1389^]: Intellij starter fails to generate a project
+- link:https://jira.talendforge.org/browse/TCOMP-1398[TCOMP-1398^]: Using after option of @updateable can lead to a null pointer exception in component-form
 
 
 
