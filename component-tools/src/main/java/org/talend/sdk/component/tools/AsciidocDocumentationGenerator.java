@@ -179,7 +179,7 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                 + (parameterMetas.isEmpty() ? ""
                         : (levelPrefix + "= Configuration\n\n"
                                 + toAsciidocRows(sort(parameterMetas), null, null, new HashMap<>())
-                                        .collect(joining("\n", "[cols=\"d,d,m,a,e\",options=\"header\"]\n"
+                                        .collect(joining("\n", "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n"
                                                 + "|===\n|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n",
                                                 "\n|===\n\n"))));
     }

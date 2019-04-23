@@ -202,8 +202,7 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
                             + "#go-to-finish-button:before{display:none !important;}\n"
                             + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;}\n"
                             + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;}\n"
-                            + "input {height:25px !important;}\n"
-                            + "#step-finish{display:none !important;}\n"
+                            + "input {height:25px !important;}\n" + "#step-finish{display:none !important;}\n"
                             + "#step-add-component{border-left: none;}\n").getBytes(StandardCharsets.UTF_8));
             Platform.runLater(() -> {
                 browser = new WebView();

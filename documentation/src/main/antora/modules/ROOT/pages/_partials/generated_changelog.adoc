@@ -10,6 +10,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1388[TCOMP-1388^]: Can't change the dataset name in starter
 - link:https://jira.talendforge.org/browse/TCOMP-1389[TCOMP-1389^]: Intellij starter fails to generate a project
 - link:https://jira.talendforge.org/browse/TCOMP-1398[TCOMP-1398^]: Using after option of @updateable can lead to a null pointer exception in component-form
+- link:https://jira.talendforge.org/browse/TCOMP-1401[TCOMP-1401^]: Documentation table is broken
 
 
 
