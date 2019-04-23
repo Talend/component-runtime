@@ -286,6 +286,6 @@ public HealthCheckStatus testConnection(){
 
 You can also use other types of validation that are similar to `@Pattern`:
 
-* `@Min`, `@Max` for numbers.
-* `@Unique` for collection values.
+* `@Min`, `@Max` to specify a minimum and maximum value for numerical fields.
+* `@Uniques` for collection values.
 * `@Required` for a required configuration.
