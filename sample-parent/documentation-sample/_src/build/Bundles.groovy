@@ -43,7 +43,18 @@ def sanitizePom(path) {
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>talend-component-maven-plugin</artifactId>
         <version>${project.version}</version>
-      </extension>""")
+      </extension>""").replaceAll("""
+
+  <parent>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>documentation-sample</artifactId>
+    <version>${project.version}</version>
+  </parent>""", '').replace('  <packaging>',
+            "  <groupId>${project.groupId}</groupId>\n  <version>${project.version}</version>\n  <packaging>")
+    .replace("""
+
+    <spotless.check.skip>false</spotless.check.skip>
+    <spotless.apply.skip>false</spotless.apply.skip>""", '')
 }
 
 project.modules.each {

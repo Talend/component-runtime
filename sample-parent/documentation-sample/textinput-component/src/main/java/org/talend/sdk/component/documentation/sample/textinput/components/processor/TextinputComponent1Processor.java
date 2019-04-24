@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.documentation.sample.textinput.components.processor;
 
@@ -33,16 +33,16 @@ import org.talend.sdk.component.api.record.Record;
 @Processor(name = "textinputComponent1")
 @Documentation("TODO fill the documentation for this processor")
 public class TextinputComponent1Processor implements Serializable {
+
     private final TextinputComponent1ProcessorConfiguration configuration;
 
-    public TextinputComponent1Processor(@Option("configuration") final TextinputComponent1ProcessorConfiguration configuration) {
+    public TextinputComponent1Processor(
+            @Option("configuration") final TextinputComponent1ProcessorConfiguration configuration) {
         this.configuration = configuration;
     }
 
     @ElementListener
-    public void onNext(
-            @Input final Record defaultInput,
-            @Output final OutputEmitter<Record> defaultOutput) {
+    public void onNext(@Input final Record defaultInput, @Output final OutputEmitter<Record> defaultOutput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).

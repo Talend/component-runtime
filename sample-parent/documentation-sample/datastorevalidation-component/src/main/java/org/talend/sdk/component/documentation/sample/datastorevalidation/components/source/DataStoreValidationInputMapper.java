@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.documentation.sample.datastorevalidation.components.source;
 
@@ -38,9 +38,11 @@ import org.talend.sdk.component.api.meta.Documentation;
 @PartitionMapper(name = "DataStoreValidationInput")
 @Documentation("TODO fill the documentation for this mapper")
 public class DataStoreValidationInputMapper implements Serializable {
+
     private final DataStoreValidationInputMapperConfiguration configuration;
 
-    public DataStoreValidationInputMapper(@Option("configuration") final DataStoreValidationInputMapperConfiguration configuration) {
+    public DataStoreValidationInputMapper(
+            @Option("configuration") final DataStoreValidationInputMapperConfiguration configuration) {
         this.configuration = configuration;
     }
 
@@ -58,7 +60,8 @@ public class DataStoreValidationInputMapper implements Serializable {
         //
         // for instance if your estimateSize() returned 1000 and you can run on 10 nodes
         // then the environment can decide to run it concurrently (10 * 100).
-        // In this case bundles = 100 and we must try to return 10 DataStoreValidationInputMapper with 1/10 of the overall work each.
+        // In this case bundles = 100 and we must try to return 10 DataStoreValidationInputMapper with 1/10 of the
+        // overall work each.
         //
         // default implementation returns this which means it doesn't support the work to be split
         return singletonList(this);
