@@ -30,6 +30,7 @@
   <modules>
     <module>sample</module>
     <module>sample-beam</module>
+    <module>documentation-sample</module>
   </modules>
 
   <dependencies>
