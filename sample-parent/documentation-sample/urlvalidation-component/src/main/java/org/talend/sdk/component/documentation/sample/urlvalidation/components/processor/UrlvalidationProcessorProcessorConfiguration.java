@@ -25,7 +25,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 @GridLayout({
         // the generated layout put one configuration entry per line,
         // customize it as much as needed
-        @GridLayout.Row({ "URL" }) })
+        @GridLayout.Row({ "url" }) })
 @Documentation("TODO fill the documentation for this configuration")
 public class UrlvalidationProcessorProcessorConfiguration implements Serializable {
 

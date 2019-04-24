@@ -48,6 +48,7 @@
     <module>table-component</module>
     <module>textarea-component</module>
     <module>textinput-component</module>
+    <module>updatable-component</module>
     <module>urlvalidation-component</module>
   </modules>
 
@@ -56,6 +57,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
+        <version>${deploy-plugin.version}</version>
         <configuration>
           <skip>${maven.deploy.skip}</skip>
         </configuration>

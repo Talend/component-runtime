@@ -18,31 +18,29 @@
 
   <parent>
     <groupId>org.talend.sdk.component</groupId>
-    <artifactId>component-runtime</artifactId>
+    <artifactId>documentation-sample</artifactId>
     <version>1.1.9-SNAPSHOT</version>
   </parent>
 
-  <artifactId>sample-parent</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>updatable-component</artifactId>
+  <packaging>jar</packaging>
 
-  <name>Component Runtime :: Sample Parent</name>
+  <name>Component Runtime :: Sample Parent :: Documentation Samples :: Update</name>
+  <description>A generated component project</description>
 
-  <modules>
-    <module>sample</module>
-    <module>sample-beam</module>
-    <module>documentation-sample</module>
-  </modules>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <spotless.check.skip>true</spotless.check.skip>
+    <spotless.apply.skip>true</spotless.apply.skip>
+    <checkstyle.skip>true</checkstyle.skip>
+  </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>${slf4j.version}</version>
+      <version>1.1.5</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -51,30 +49,26 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>${deploy-plugin.version}</version>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
         <configuration>
-          <skip>true</skip> <!-- just a sample, we don't want to deploy it -->
+          <source>1.8</source>
+          <target>1.8</target>
+          <forceJavacCompilerUse>true</forceJavacCompilerUse>
+          <compilerId>javac</compilerId>
+          <fork>true</fork>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>${dependency-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>create-TALEND-INF/dependencies.txt</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>list</goal>
-            </goals>
-            <configuration>
-              <outputFile>${project.build.outputDirectory}/TALEND-INF/dependencies.txt</outputFile>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>talend-component-maven-plugin</artifactId>
+        <version>1.1.8</version>
+      </extension>
+    </extensions>
   </build>
 </project>
