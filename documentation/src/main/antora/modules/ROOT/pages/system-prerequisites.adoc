@@ -8,7 +8,7 @@
 In order to use Talend Component Kit, you need the following tools installed on your machine:
 
 * Java JDK 1.8.x. You can download it from http://www.oracle.com/technetwork/pt/java/javase/downloads/jdk8-downloads-2133151.html[Oracle] website.
-* Talend Open Studio 7.0 or greater to integrate your components.
+* Talend Open Studio to integrate your components.
 * A Java Integrated Development Environment such as Eclipse or IntelliJ. IntelliJ is recommended as a Talend Component Kit plugin is available.
 * Optional: If you use IntelliJ, you can install the xref:installing-talend-intellij-plugin.adoc[Talend Component Kit plugin for IntelliJ].
 * Optional: A build tool:

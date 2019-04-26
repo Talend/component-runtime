@@ -407,7 +407,7 @@ To ensure that the Cloud-compatible approach of the Component Kit framework is r
 
 To get started with the Component Kit framework, you can go through the following documents:
 
-* xref:index-getting-started-with-tck.adoc[Learn the basics about Talend Component Kit]
+* xref:getting-started.adoc[Learn the basics about Talend Component Kit]
 * xref:tutorial-create-my-first-component.adoc[Create and deploy your first Component Kit component]
 * xref:tutorial-generate-project-using-starter.adoc[Learn about the Starter]
 * xref:index-creating-components.adoc[Start implementing components]

@@ -1,6 +1,11 @@
 = Getting started with Talend Component Kit
 :page-partial:
-:page-talend_skipindexation:
+:page-documentationindex-index: 2000
+:page-documentationindex-label: Getting Started
+:page-documentationindex-icon: play-circle
+:page-documentationindex-description: Learn the basics about Talend Component Kit framework and get ready to create new components
+:description: Learn the basics about Talend Component Kit framework and get ready to create new components
+:keywords: quickstart, overview, principle, description
 
 [[getting-started-introducing-talend-component]]
 //== Introducing Talend Component Kit
@@ -46,6 +51,5 @@ include::component-execution.adoc[leveloffset=+1]
 
 == Next
 
-* Setup your development environment.
-* Generate your first project and develop your first component.
-* Learn how to use the Component Kit Starter.
+* xref:system-prerequisites.adoc.adoc[Setup your development environment]
+* xref:tutorial-create-my-first-component.adoc[Generate your first project and develop your first component]

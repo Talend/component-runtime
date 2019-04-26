@@ -8,7 +8,7 @@ The Component Kit starter lets you design your components configuration and gene
 
 The starter is available on the web or as an xref:generate-project-using-intellij-plugin.adoc[IntelliJ plugin].
 
-This tutorial shows you how to use the Component Kit Starter to generate new components for MySQL databases. Before starting, make sure that you have correctly setup your environment. See <<getting-started.adoc#getting-started-system-requirements, this section>>.
+This tutorial shows you how to use the Component Kit Starter to generate new components for MySQL databases. Before starting, make sure that you have correctly setup your environment. See xref:system-prerequisites.adoc[this section].
 
 IMPORTANT: When defining a project using the Starter, do not refresh the page to avoid losing your configuration.
 
