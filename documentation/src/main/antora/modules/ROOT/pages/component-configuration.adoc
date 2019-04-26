@@ -7,6 +7,8 @@ The component configuration is defined in the `<component_name>Configuration.jav
 
 To do that, you can specify parameters. When you import the project in your IDE, the parameters that you have specified in the starter are already present.
 
+IMPORTANT: All input and output components must reference a dataset in their configuration. Refer to xref:creating-dataset-datastore.adoc[Defining datasets and datastores].
+
 == Parameter name
 
 Components are configured using their constructor parameters. All parameters can be marked with the `@Option` property, which lets you give a name to them.
@@ -151,61 +153,7 @@ IMPORTANT: When using the programmatic API, metadata is prefixed by `tcomp::`. T
 Also note that these validations are executed before the runtime is started (when loading the component instance) and that the execution will fail if they don't pass.
 If it breaks your application, you can disable that validation on the JVM by setting the system property `talend.component.configuration.validation.skip` to `true`.
 
-[[dataset-and-datastore]]
-== Marking a configuration as dataset or datastore
-
-It is common to classify the incoming data. It is similar to tagging data with several types. Data can commonly be categorized as follows:
-
-- Datastore: The data you need to connect to the backend.
-- Dataset: A datastore coupled with the data you need to execute an action.
-
-include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+2]
-
-IMPORTANT: The component family associated with a configuration type (datastore/dataset) is always the one related to the component using that configuration.
-
-Those configuration types can be composed to provide one configuration item. For example, a dataset type often needs a datastore type to be provided. A datastore type (that provides the connection information) is used to create a dataset type.
-
-Those configuration types are also used at design time to create shared configurations that can be stored and used at runtime.
-
-For example, in the case of a relational database that supports JDBC:
-
-- A datastore can be made of:
-* a JDBC URL
-* a username
-* a password.
-- A dataset can be made of:
-* a datastore (that provides the data required to connect to the database)
-* a table name
-* data.
-
-The component server scans all configuration types and returns a configuration type index. This index can be used for the integration into the targeted platforms (Studio, web applications, and so on).
-
-The configuration type index is represented as a flat tree that contains all the configuration types, which themselves are represented as nodes and indexed by ID.
-
-Every node can point to other nodes. This relation is represented as an array of edges that provides the child IDs.
-
-As an illustration, a configuration type index for the example above can be defined as follows:
-
-[source,json]
-----
-{nodes: {
-             "idForDstore": { datastore:"datastore data", edges:[id:"idForDset"] },
-             "idForDset":   { dataset:"dataset data" }
-    }
-}
-----
-
-[IMPORTANT]
-====
-Make sure that:
-
-- a datastore is used in each dataset.
-- each dataset has a corresponding source (mapper or emitter) which has a configuration that is usable if the software only fills the dataset part. All other properties must not be required.
-====
-
-The `validateDataSet` validation checks that each input or output (processor without output branch) component uses a dataset and that this dataset has a datastore.
-
-image::datastore_and_dataset_validation.png[Dataset validation,window="_blank",link="_images/datastore_and_dataset_validation.png",50%]
+include::creating-dataset-datastores.adoc[leveloffset=+1]
 
 == Defining links between properties
 
@@ -233,7 +181,9 @@ IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`.
 
 For more details, refer to the related xref:apidocs.adoc[Javadocs].
 
-=== ActiveIf example
+=== ActiveIf examples
+
+==== Example 1
 
 A common use of the ActiveIf condition consists in testing if a target property has a value. To do that, it is possible to test if the length of the property value is different from 0:
 
@@ -251,6 +201,63 @@ A common use of the ActiveIf condition consists in testing if a target property 
   "condition::if::evaluationStrategy": "LENGTH",
 }
 ----
+
+==== Example 2
+
+The following example shows how to implement visibility conditions on several fields based on several checkbox configurations:
+
+* If the first checkbox is selected, an additional input field is displayed.
+* if the second or the third checkbox is selected, an additional input field is displayed.
+* if both second and third checkboxes are selected, an additional input field is displayed.
+
+[source,java]
+----
+@GridLayout({
+    // the generated layout put one configuration entry per line,
+    // customize it as much as needed
+    @GridLayout.Row({ "checkbox1" }),
+    @GridLayout.Row({ "checkbox2" }),
+    @GridLayout.Row({ "checkbox3" }),
+    @GridLayout.Row({ "configuration4" }),
+    @GridLayout.Row({ "configuration5" }),
+    @GridLayout.Row({ "configuration6" })
+})
+@Documentation("TODO fill the documentation for this configuration")
+public class ActiveifProcessorProcessorConfiguration implements Serializable {
+    @Option
+    @Documentation("")
+    private boolean checkbox1;
+
+    @Option
+    @Documentation("")
+    private boolean checkbox2;
+
+    @Option
+    @Documentation("")
+    private boolean checkbox3;
+
+    @Option
+    @ActiveIf(target = "checkbox1", value = "true")
+    @Documentation("Active if checkbox1 is selected")
+    private String configuration4;
+
+    @Option
+    @ActiveIfs(operator = ActiveIfs.Operator.OR, value = {
+            @ActiveIf(target = "checkbox2", value = "true"),
+            @ActiveIf(target = "checkbox3", value = "true")
+    })
+    @Documentation("Active if checkbox2 or checkbox 3 are selected")
+    private String configuration5;
+
+    @Option
+    @ActiveIfs(operator = ActiveIfs.Operator.AND, value = {
+            @ActiveIf(target = "checkbox2", value = "true"),
+            @ActiveIf(target = "checkbox3", value = "true")
+    })
+    @Documentation("Active if checkbox2 and checkbox 3 are selected")
+    private String configuration6;
+----
+
 
 [[documentation-ui-hints]]
 == Adding hints about the rendering

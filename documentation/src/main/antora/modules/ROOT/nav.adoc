@@ -27,6 +27,7 @@
 * xref:index-creating-components.adoc[Implementing components]
 ** xref:index-creating-components.adoc[Component implementation overview]
 ** xref:component-registering.adoc[Defining component metadata]
+** xref:creating-dataset-datastore.adoc[Defining datasets and datastores]
 ** xref:component-define-input.adoc[Defining an input component logic]
 ** xref:component-define-processor-output.adoc[Defining a processor/output logic]
 ** xref:component-configuration.adoc[Defining component configuration]

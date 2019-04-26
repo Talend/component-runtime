@@ -1,0 +1,199 @@
+= Defining datasets and datastores
+:page-partial:
+:description: Learn how to define datasets and datastores for input and output components.
+:keywords: datastore, dataset, validation, input, output
+
+[[dataset-and-datastore]]
+
+Datasets and datastores are configuration types that define how and where to pull the data from. They are used at design time to create shared configurations that can be stored and used at runtime.
+
+All input and output components created using Talend Component Kit must reference a valid dataset. Each dataset must reference a datastore.
+
+- Datastore: The data you need to connect to the backend.
+- Dataset: A datastore coupled with the data you need to execute an action.
+
+image::datastore_and_dataset_validation.png[Dataset validation,window="_blank",link="_images/datastore_and_dataset_validation.png",50%]
+
+[IMPORTANT]
+====
+Make sure that:
+
+- a datastore is used in each dataset.
+- each dataset has a corresponding input component (mapper or emitter) which has a configuration that is usable if the software only fills the dataset part. All other properties must not be required.
+
+These rules are enforced by the `validateDataSet` validation. If the conditions are not met, the component builds will fail.
+====
+
+== Defining a datastore
+
+A datastore defines the information required to connect to a data source. For example, it can be made of:
+
+* a URL
+* a username
+* a password.
+
+You can specify a datastore and its context of use (in which dataset, etc.) from the xref:tutorial-generate-project-using-starter.adoc[Component Kit Starter].
+
+IMPORTANT: Make sure to modelize the data your components are designed to handle before defining datasets and datastores in the Component Kit Starter.
+
+Once you generate and import the project into an IDE, you can find your datastores under a specific `datastore` node.
+
+image::datastore_view_intellij.png[Datastore view,window="_blank",link="_images/datastore_view_intellij.png",50%]
+
+Example of datastore:
+
+[source,java]
+----
+package com.mycomponent.components.datastore;
+
+@DataStore("DatastoreA") <1>
+@GridLayout({ <2>
+    // the generated layout put one configuration entry per line,
+    // customize it as much as needed
+    @GridLayout.Row({ "apiurl" }),
+    @GridLayout.Row({ "username" }),
+    @GridLayout.Row({ "password" })
+})
+@Documentation("TODO fill the documentation for this configuration") <3>
+public class DatastoreA implements Serializable {
+    @Option
+    @Documentation("")
+    private String apiurl;
+
+    @Option
+    @Documentation("")
+    private String username;
+
+    @Option
+    @Credential
+    @Documentation("")
+    private String password;
+
+    public String getApiurl() {
+        return apiurl;
+    }
+
+    public DatastoreA setApiurl(String apiurl) {
+        this.apiurl = apiurl;
+        return this;
+    }
+
+    public String getUsername() {
+        return Username;
+    }
+
+    public DatastoreA setuUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public DatastoreA setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+}
+----
+
+<1> Identifying the class as a datastore and naming it.
+<2> Defining the layout of the datastore configuration.
+<3> Defining each element of the configuration: a URL, a username, and a password. Note that the password is also marked as being a credential.
+
+== Defining a dataset
+
+A dataset represents the inbound data. It is generally made of:
+* A datastore that defines the connection information needed to access the data.
+* A query.
+
+You can specify a dataset and its context of use (in which input and output component it is used) from the xref:tutorial-generate-project-using-starter.adoc[Component Kit Starter].
+
+IMPORTANT: Make sure to modelize the data your components are designed to handle before defining datasets and datastores in the Component Kit Starter.
+
+Once you generate and import the project into an IDE, you can find your datastores under a specific `dataset` node.
+
+image::dataset_view_intellij.png[Dataset view,window="_blank",link="_images/dataset_view_intellij.png",50%]
+
+Example of dataset referencing the datastore shown above:
+
+[source,java]
+----
+package com.datastorevalidation.components.dataset;
+
+@DataSet("DatasetA") <1>
+@GridLayout({
+    // the generated layout put one configuration entry per line,
+    // customize it as much as needed
+    @GridLayout.Row({ "datastore" })
+})
+@Documentation("TODO fill the documentation for this configuration") <2>
+public class DatasetA implements Serializable {
+    @Option
+    @Documentation("TODO fill the documentation for this parameter")
+    private DatastoreA datastore;
+
+    public DatastoreA getDatastore() {
+        return datastore;
+    }
+
+    public DatasetA setDatastore(DatastoreA datastore) {
+        this.datastore = datastore;
+        return this;
+    }
+}
+----
+
+<1> Identifying the class as a dataset and naming it.
+<2> Implementing the dataset and referencing DatastoreA as the datastore to use.
+
+== Internationalizing datasets and datastores
+
+The display name of each dataset and datastore must be referenced in the `message.properties` file of the family package.
+
+The key for dataset and datastore display names follows a defined pattern: `${family}.${configurationType}.${name}._displayName`. For example:
+
+[source,java]
+----
+ComponentFamily.dataset.DatasetA._displayName=Dataset A
+ComponentFamily.datastore.DatastoreA._displayName=Datastore A
+----
+
+These keys are automatically added for datasets and datastores defined from the Component Kit Starter.
+
+== Reusing datasets and datastores in Talend Studio
+
+When deploying a component or set of components that include datasets and datastores to Talend Studio, a new node is created under *Metadata*. This node has the name of the component family that was deployed.
+
+It allows users to create reusable configurations for datastores and datasets.
+
+image::studio_create_dataset.png[Dataset in Studio,window="_blank",link="_images/studio_create_dataset.png",50%]
+
+With predefined datasets and datastores, users can then quickly fill the component configuration in their jobs. They can do so by selecting *Repository* as *Property Type* and by browsing to the predefined dataset or datastore.
+
+image::studio_select_predefined_dataset.png[Dataset in Component,window="_blank",link="_images/studio_select_predefined_dataset.png",50%]
+
+
+== How does the component server interact with datasets and datastores
+
+The component server scans all configuration types and returns a configuration type index. This index can be used for the integration into the targeted platforms (Studio, web applications, and so on).
+
+include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+2]
+
+NOTE: The component family associated with a configuration type (datastore/dataset) is always the one related to the component using that configuration.
+
+The configuration type index is represented as a flat tree that contains all the configuration types, which themselves are represented as nodes and indexed by ID.
+
+Every node can point to other nodes. This relation is represented as an array of edges that provides the child IDs.
+
+As an illustration, a configuration type index for the example above can be defined as follows:
+
+[source,json]
+----
+{nodes: {
+             "idForDstore": { datastore:"datastore data", edges:[id:"idForDset"] },
+             "idForDset":   { dataset:"dataset data" }
+    }
+}
+----
