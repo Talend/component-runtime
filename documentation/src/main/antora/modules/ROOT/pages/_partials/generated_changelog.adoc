@@ -27,6 +27,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1385[TCOMP-1385^]: talend.component.server.component.registry must be a list
 - link:https://jira.talendforge.org/browse/TCOMP-1390[TCOMP-1390^]: Move component-api to component-runtime repository
 - link:https://jira.talendforge.org/browse/TCOMP-1392[TCOMP-1392^]: Tomcat 9.0.19 upgrade
+- link:https://jira.talendforge.org/browse/TCOMP-1403[TCOMP-1403^]: Upgrade asciidoctor to 2.0.0 and asciidoctor-pdf to alpha17
+- link:https://jira.talendforge.org/browse/TCOMP-1404[TCOMP-1404^]: Upgrade to Apache Beam 2.12.0
 
 == Version 1.1.8
 
