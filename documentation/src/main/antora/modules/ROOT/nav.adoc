@@ -28,6 +28,7 @@
 ** xref:component-define-input.adoc[Defining an input component logic]
 ** xref:component-define-processor-output.adoc[Defining a processor/output logic]
 ** xref:component-configuration.adoc[Defining component configuration]
+** xref:component-execution.adoc[Component execution logic]
 ** xref:component-internationalization.adoc[Internationalizing a component]
 ** xref:component-versions-and-migration.adoc[Managing component versions]
 ** xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]

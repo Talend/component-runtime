@@ -1,6 +1,6 @@
-= General component execution logic
+= Component execution logic
 :page-partial:
-:description: Learn how components are generally executed
+:description: Learn how components are executed
 :keywords: PostConstruct, PreDestroy, BeforeGroup, AfterGroup
 
 Each type of component has its own execution logic. The same basic logic is applied to all components of the same type, and is then extended to implement each component specificities.
