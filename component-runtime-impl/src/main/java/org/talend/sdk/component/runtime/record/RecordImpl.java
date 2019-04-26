@@ -285,6 +285,15 @@ public final class RecordImpl implements Record {
             return append(entry, value);
         }
 
+        public Builder withRecord(final String name, final Record value) {
+            return withRecord(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withElementSchema(value.getSchema())
+                    .withType(RECORD)
+                    .withNullable(true)
+                    .build(), value);
+        }
+
         public <T> Builder withArray(final Schema.Entry entry, final Collection<T> values) {
             assertType(entry.getType(), ARRAY);
             if (entry.getElementSchema() == null) {

@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.json.bind.annotation.JsonbTransient;
 
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
@@ -125,7 +126,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     private Type doMapType(final Schema schema) {
         switch (schema.getType()) {
         case LONG:
-            if (Boolean.parseBoolean(readProp(schema, Type.DATETIME.name()))) {
+            if (Boolean.parseBoolean(readProp(schema, Type.DATETIME.name()))
+                    || LogicalTypes.timestampMillis().equals(LogicalTypes.fromSchemaIgnoreInvalid(schema))) {
                 return Type.DATETIME;
             }
             return Type.LONG;

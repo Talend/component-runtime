@@ -26,10 +26,7 @@ You can find more details about the framework design in xref:framework_design.ad
 
 == Repositories
 
-The *Talend Component Kit* project is available on GitHub in the following repositories:
-
-* https://github.com/talend/component-runtime[Runtime repository]
-* https://github.com/talend/component-api[API repository]
+The *Talend Component Kit* project is available on GitHub in the following https://github.com/talend/component-runtime[repository]
 
 
 ifeval::["{backend}" == "html5"]

@@ -33,6 +33,9 @@ function activateIO(service, datastore, dataset) {
 }
 
 function SideMenu(props) {
+	const components = React.useContext(ComponentsContext.raw);
+	const dataset = React.useContext(DatasetContext.raw);
+	const datastore = React.useContext(DatastoreContext.raw);
 	return (
 		<nav className={theme.menu}>
 			<ol>
@@ -46,79 +49,56 @@ function SideMenu(props) {
 						Start
 					</Link>
 				</li>
-				<ComponentsContext.Consumer>
-					{components => {
-						if (components.withIO) {
-							return (
-								<React.Fragment>
-									<li
-										id="step-datastore"
-										className={classnames({
-											[theme.active]: props.location.pathname === '/datastore',
-										})}
-									>
-										<Link to="/datastore">Datastore</Link>
-									</li>
-									<li
-										id="step-dataset"
-										className={classnames({
-											[theme.active]: props.location.pathname === '/dataset',
-										})}
-									>
-										<Link to="/dataset">Dataset</Link>
-									</li>
-								</React.Fragment>
-							);
-						}
-						return (
-							<li id="step-activate-io">
-								<DatastoreContext.Consumer>
-									{datastore => (
-										<DatasetContext.Consumer>
-											{dataset => (
-												<a href="#/createNew" onClick={activateIO(components, datastore, dataset)}>
-													Activate IO
-												</a>
-											)}
-										</DatasetContext.Consumer>
-									)}
-								</DatastoreContext.Consumer>
-							</li>
-						);
-					}}
-				</ComponentsContext.Consumer>
-				<ComponentsContext.Consumer>
-					{components =>
-						components.components.map((component, i) => (
-							<li
-								id={`step-component-${i}`}
-								className={classnames({
-									[theme.active]: props.location.pathname === `/component/${i}`,
-								})}
-								key={i}
-							>
-								<ActionButton
-									className="btn-icon-only btn-sm"
-									bsStyle="link"
-									hideLabel
-									icon="talend-trash"
-									label="Delete"
-									onClick={() => components.deleteComponent(i)}
-								/>
-								<Link to={`/component/${i}`}>{component.configuration.name}</Link>
-							</li>
-						))
-					}
-				</ComponentsContext.Consumer>
-				<ComponentsContext.Consumer>
-					{components => (
-						<li id="step-add-component">
-							<Link to="/component/last" onClick={() => components.addComponent()}>
-								Add A Component
-							</Link>
+				{components.withIO ? (
+					<React.Fragment>
+						<li
+							id="step-datastore"
+							className={classnames({
+								[theme.active]: props.location.pathname === '/datastore',
+							})}
+						>
+							<Link to="/datastore">Datastore</Link>
 						</li>
-					)}
-				</ComponentsContext.Consumer>
+						<li
+							id="step-dataset"
+							className={classnames({
+								[theme.active]: props.location.pathname === '/dataset',
+							})}
+						>
+							<Link to="/dataset">Dataset</Link>
+						</li>
+					</React.Fragment>
+				) : (
+					<li id="step-activate-io">
+						<a href="#/createNew" onClick={activateIO(components, datastore, dataset)}>
+							Activate IO
+						</a>
+					</li>
+				)}
+				{components.components.map((component, i) => (
+					<li
+						id={`step-component-${i}`}
+						className={classnames({
+							[theme.active]: props.location.pathname === `/component/${i}`,
+						})}
+						key={i}
+					>
+						<ActionButton
+							className="btn-icon-only btn-sm"
+							bsStyle="link"
+							hideLabel
+							icon="talend-trash"
+							label="Delete"
+							onClick={() => components.deleteComponent(i)}
+						/>
+						<Link to={`/component/${i}`}>{component.configuration.name}</Link>
+					</li>
+				))}
+				<li id="step-add-component">
+					<Link to="/add-component">
+						Add A Component
+					</Link>
+				</li>
 				<li
 					id="step-finish"
 					className={classnames({

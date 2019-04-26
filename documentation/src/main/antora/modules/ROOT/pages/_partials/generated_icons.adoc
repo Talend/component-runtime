@@ -67,6 +67,11 @@
   },
   {
     "legacy":false,
+    "name":"AZURE_EVENT_HUBS",
+    "path":"_images/icons/svg/azure-event-hubs.svg"
+  },
+  {
+    "legacy":false,
     "name":"BADGE",
     "path":"_images/icons/svg/badge.svg"
   },
@@ -697,6 +702,11 @@
   },
   {
     "legacy":false,
+    "name":"MONGODB",
+    "path":"_images/icons/svg/mongodb.svg"
+  },
+  {
+    "legacy":false,
     "name":"MORE_THAN",
     "path":"_images/icons/svg/more-than.svg"
   },
@@ -914,6 +924,16 @@
     "legacy":false,
     "name":"SHIELD",
     "path":"_images/icons/svg/shield.svg"
+  },
+  {
+    "legacy":false,
+    "name":"SHIELD_FULL",
+    "path":"_images/icons/svg/shield-full.svg"
+  },
+  {
+    "legacy":false,
+    "name":"SHIELD_FULL_CHECK",
+    "path":"_images/icons/svg/shield-full-check.svg"
   },
   {
     "legacy":false,

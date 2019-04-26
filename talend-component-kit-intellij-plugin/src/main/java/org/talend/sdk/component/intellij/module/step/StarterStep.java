@@ -17,13 +17,17 @@ package org.talend.sdk.component.intellij.module.step;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static com.intellij.openapi.ui.Messages.showErrorDialog;
+import static java.util.Optional.ofNullable;
 import static org.talend.sdk.component.intellij.Configuration.getMessage;
 
 import java.awt.BorderLayout;
+import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -44,6 +48,7 @@ import com.intellij.ui.components.JBLoadingPanel;
 import org.talend.sdk.component.intellij.Configuration;
 import org.talend.sdk.component.intellij.module.ProjectCreationRequest;
 import org.talend.sdk.component.intellij.module.TalendModuleBuilder;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -84,20 +89,43 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
 
     private CompletableFuture<ProjectCreationRequest> getProjectInformation() {
         final CompletableFuture<ProjectCreationRequest> result = new CompletableFuture<>();
-        Platform.runLater(() -> {
-            final Element el = starterPanel.getWebEngine().getDocument().getElementById("go-to-finish-button");
-            if (el != null) {// not on finish page
-                starterPanel.getWebEngine().executeScript("document.getElementById(\"go-to-finish-button\").click()");
+        final WebEngine webEngine = starterPanel.getWebEngine();
+        if (webEngine == null) {
+            result.completeExceptionally(new NullPointerException("webengine is null"));
+            return result;
+        }
+        starterPanel.document.handle((document, ex) -> {
+            if (ex != null) {
+                result.completeExceptionally(ex);
+                return document;
             }
+            Platform.runLater(() -> {
+                if (document == null) {
+                    result.completeExceptionally(new IllegalArgumentException("No document available"));
+                    return;
+                }
 
-            final Element form = starterPanel.getWebEngine().getDocument().getElementById("download-zip-form");
-            final Node input = form.getElementsByTagName("input").item(0);// project data
-            final String action = form.getAttribute("action");
-            final String method = form.getAttribute("method");
-            final String project = input.getAttributes().getNamedItem("value").getTextContent();
-            result.complete(new ProjectCreationRequest(action, method, project));
+                final Element el = document.getElementById("go-to-finish-button");
+                if (el == null) {
+                    result.completeExceptionally(new IllegalArgumentException("No finish step found"));
+                    return;
+                }
+                webEngine.executeScript("document.getElementById(\"go-to-finish-button\").click()");
+
+                final Element form = document.getElementById("download-zip-form");
+                if (form == null) {
+                    result.completeExceptionally(new IllegalArgumentException("No download form in the page"));
+                    return;
+                }
+
+                final Node input = form.getElementsByTagName("input").item(0); // project data
+                final String action = form.getAttribute("action");
+                final String method = form.getAttribute("method");
+                final String project = input.getAttributes().getNamedItem("value").getTextContent();
+                result.complete(new ProjectCreationRequest(action, method, project));
+            });
+            return document;
         });
-
         return result;
     }
 
@@ -106,10 +134,26 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
         if (!starterPanel.getPanelLoaded().isDone()) {
             throw new ConfigurationException(getMessage("wizard.starter.loading"), getMessage("wait.message"));
         }
+        if (starterPanel.getPanelLoaded().isCompletedExceptionally()) {
+            final AtomicReference<Throwable> error = new AtomicReference<>();
+            starterPanel.getPanelLoaded().handle((r, t) -> {
+                if (t != null) {
+                    error.set(t);
+                    if (RuntimeException.class.isInstance(t)) {
+                        throw RuntimeException.class.cast(t);
+                    }
+                    throw new IllegalStateException(t);
+                }
+                return r;
+            });
+            throw new ConfigurationException(
+                    ofNullable(error.get()).map(Throwable::getMessage).orElseGet(() -> getMessage("fail.to.load")),
+                    getMessage("fail.to.load"));
+        }
 
         try {
             request = getProjectInformation().get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (final InterruptedException | ExecutionException e) {
             if (InterruptedException.class.isInstance(e)) {
                 Thread.currentThread().interrupt();
             }
@@ -131,7 +175,7 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
 
     @Override
     public void dispose() {
-
+        // no-op
     }
 
     public static final class StarterPanel extends JPanel {
@@ -142,7 +186,9 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
 
         private WebView browser;
 
-        private final CompletableFuture<JPanel> panelLoaded = new CompletableFuture<>();
+        private final CompletableFuture<Document> document = new CompletableFuture<>();
+
+        private final CompletableFuture<StarterPanel> panelLoaded = new CompletableFuture<>();
 
         StarterPanel() {
             super(new BorderLayout());
@@ -151,31 +197,53 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
             add(jfxPanel, BorderLayout.CENTER);
             final String css = Base64
                     .getMimeEncoder()
-                    .encodeToString(
-                            ("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none  !important;} "
-                                    + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;} "
-                                    + "input {height:25px !important;}").getBytes(StandardCharsets.UTF_8));
+                    .encodeToString(("div[class^=\"Finish__bigButton\"]{display:none !important;}\n"
+                            + "#go-to-finish-button{color:white !important;}\n"
+                            + "#go-to-finish-button:before{display:none !important;}\n"
+                            + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;}\n"
+                            + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;}\n"
+                            + "input {height:25px !important;}\n" + "#step-finish{display:none !important;}\n"
+                            + "#step-add-component{border-left: none;}\n").getBytes(StandardCharsets.UTF_8));
             Platform.runLater(() -> {
                 browser = new WebView();
                 webEngine = browser.getEngine();
+                webEngine.getLoadWorker().exceptionProperty().addListener((observable, oldValue, newValue) -> {
+                    panelLoaded.completeExceptionally(newValue);
+                    document.completeExceptionally(newValue);
+                });
                 webEngine
                         .getLoadWorker()
                         .stateProperty()
                         .addListener((ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
                                 Worker.State newValue) -> {
-                            if (newValue != Worker.State.SUCCEEDED) {
-                                if (newValue == Worker.State.CANCELLED || newValue == Worker.State.FAILED) {
-                                    panelLoaded
-                                            .completeExceptionally(
-                                                    new IllegalStateException("failed loading panel: " + newValue));
-                                }
-                                return;
+                            switch (newValue) {
+                            case FAILED:
+                            case CANCELLED:
+                                panelLoaded
+                                        .completeExceptionally(
+                                                new IllegalStateException("failed loading panel: " + newValue));
+                                document
+                                        .completeExceptionally(
+                                                new IllegalStateException("Didn't load the starter properly"));
+                                break;
+                            case SUCCEEDED:
+                                webEngine.setUserStyleSheetLocation("data:text/css;charset=utf-8;base64," + css);
+                                panelLoaded.complete(StarterPanel.this);
+                                break;
+                            default:
                             }
-                            webEngine.setUserStyleSheetLocation("data:text/css;charset=utf-8;base64," + css);
-                            panelLoaded.complete(StarterPanel.this);
                         });
+                webEngine
+                        .documentProperty()
+                        .addListener((observable, oldValue, newValue) -> document.complete(newValue));
                 // todo timeouts, see com.sun.webkit.network.URLLoader.prepareConnection
-                webEngine.load(Configuration.getStarterHost());
+                final String starterHost = Configuration.getStarterHost();
+                try {
+                    new URL(starterHost).openStream().close();
+                } catch (final IllegalArgumentException | IOException e) {
+                    // no-op, just here to preload the JVM and not wait so much with next line
+                }
+                webEngine.load(starterHost);
                 jfxPanel.setScene(new Scene(browser));
             });
         }
@@ -184,7 +252,7 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
             return webEngine;
         }
 
-        CompletableFuture<JPanel> getPanelLoaded() {
+        CompletableFuture<StarterPanel> getPanelLoaded() {
             return panelLoaded;
         }
     }

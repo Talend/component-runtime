@@ -41,6 +41,7 @@ export default class Connection extends React.Component {
 			custom: !this.props.connection.generic,
 		};
 		this.onClickShowModal = this.onClickShowModal.bind(this);
+		this.onSubmit = this.onSubmit.bind(this);
 		this.onToggleSwitchStructureType = this.onToggleSwitchStructureType.bind(this);
 	}
 
@@ -62,6 +63,11 @@ export default class Connection extends React.Component {
 	onClickShowModal(event) {
 		event.preventDefault();
 		this.setState({ show: true });
+	}
+
+	onSubmit(event) {
+		event.preventDefault();
+		this.setState({ show: false });
 	}
 
 	render() {
@@ -95,10 +101,11 @@ export default class Connection extends React.Component {
 						action={{
 							label: 'Save',
 							bsStyle: 'primary',
-							onClick: () => this.setState({ show: false }),
+							onClick: this.onSubmit,
+							form: 'connection-form',
 						}}
 					>
-						<div>
+						<form onSubmit={this.onSubmit} id="connection-form">
 							<div className="form-group">
 								<label htmlFor="connection-name">Name</label>
 								<Help
@@ -120,6 +127,7 @@ export default class Connection extends React.Component {
 									placeholder="Enter the connection name..."
 									aggregate={this.props.connection}
 									accessor="name"
+									autoFocus
 								/>
 							</div>
 							<EmbeddableToggle
@@ -127,7 +135,7 @@ export default class Connection extends React.Component {
 								theme={theme}
 								onChange={this.onToggleSwitchStructureType}
 							/>
-						</div>
+						</form>
 					</Dialog>
 
 					{!this.props.readOnly && (

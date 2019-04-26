@@ -26,15 +26,28 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.function.Supplier;
 
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroRecordTest {
+
+    @Test
+    void recordEntryFromName() {
+        assertEquals("{\"record\": {\"name\": \"ok\"}}",
+                Unwrappable.class
+                        .cast(new AvroRecordBuilder()
+                                .withRecord("record", new AvroRecordBuilder().withString("name", "ok").build())
+                                .build())
+                        .unwrap(IndexedRecord.class)
+                        .toString());
+    }
 
     @Test
     void providedSchemaGetSchema() {

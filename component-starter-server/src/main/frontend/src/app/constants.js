@@ -17,3 +17,11 @@ export const SERVER_URL = '/api';
 export const CONFIGURATION_URL = `${SERVER_URL}/project/configuration`;
 export const GENERATOR_ZIP_URL = `${SERVER_URL}/project/zip/form`;
 export const GENERATOR_GITHUB_URL = `${SERVER_URL}/project/github`;
+export const COMPONENT_TYPE_SOURCE = 'Input';
+export const COMPONENT_TYPE_PROCESSOR = 'Processor';
+export const COMPONENT_TYPE_SINK = 'Output';
+export const COMPONENT_TYPES = [
+	COMPONENT_TYPE_SOURCE,
+	COMPONENT_TYPE_PROCESSOR,
+	COMPONENT_TYPE_SINK,
+];

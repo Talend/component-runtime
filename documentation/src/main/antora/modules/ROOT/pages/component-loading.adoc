@@ -82,7 +82,7 @@ The following files have been resolved:
 
 What is important to see is the scope related to the artifacts:
 
-- The APIs (*component-api0* and *geronimo-annotation_1.3_spec*) are `provided` because you can consider them to be there when executing (they come with the framework).
+- The APIs (*component-api* and *geronimo-annotation_1.3_spec*) are `provided` because you can consider them to be there when executing (they come with the framework).
 - Your specific dependencies (`awesome-project` in the example above) are marked as `compile`: they are included as needed dependencies by the framework (note that using `runtime` works too).
 - the other dependencies are ignored. For example, `test` dependencies.
 

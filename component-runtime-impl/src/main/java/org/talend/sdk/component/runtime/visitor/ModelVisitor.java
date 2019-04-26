@@ -115,13 +115,16 @@ public class ModelVisitor {
                         m + " must return a Collection<" + type.getName() + "> but found: " + arg);
             }
         });
-        Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Emitter.class)).forEach(m -> {
-            // for now we don't support injection propagation since the mapper should
-            // already own all the config
-            if (m.getParameterCount() > 0) {
-                throw new IllegalArgumentException(m + " must not have any parameter");
-            }
-        });
+        Stream
+                .of(type.getMethods())
+                .filter(m -> m.isAnnotationPresent(Emitter.class))
+                .forEach(m -> {
+                    // for now we don't support injection propagation since the mapper should
+                    // already own all the config
+                    if (m.getParameterCount() > 0) {
+                        throw new IllegalArgumentException(m + " must not have any parameter");
+                    }
+                });
     }
 
     private void validateEmitter(final Class<?> input) {

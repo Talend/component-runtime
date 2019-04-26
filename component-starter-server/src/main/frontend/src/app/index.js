@@ -13,8 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import '@talend/bootstrap-theme/src/theme/theme.scss';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import i18n from 'i18next';
@@ -22,6 +20,7 @@ import { reactI18nextModule } from 'react-i18next';
 import App from './components/App';
 import helpTexts from './locales/en/Help.json';
 
+// import './intellij.css';
 import './index.scss';
 
 function logKeys(lang, ns, key, value) {

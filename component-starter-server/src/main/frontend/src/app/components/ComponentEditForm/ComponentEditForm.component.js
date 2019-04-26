@@ -12,11 +12,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */import React from 'react';
+ */
+import React from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
-import { Actions } from '@talend/react-components/lib/Actions';
 import Icon from '@talend/react-components/lib/Icon';
 
 import Input from '../Input';
@@ -25,9 +24,7 @@ import Mapper from '../Mapper';
 import Processor from '../Processor';
 
 import theme from './ComponentEditForm.scss';
-
-const TYPE_INPUT = 'Input';
-const TYPE_PROCESSOR = 'Processor';
+import { COMPONENT_TYPES, COMPONENT_TYPE_SOURCE, COMPONENT_TYPE_PROCESSOR, COMPONENT_TYPE_SINK } from '../../constants';
 
 function onComponentNameChange(service, component) {
 	return newName => {
@@ -41,60 +38,12 @@ function ComponentEditForm(props) {
 	if (!props.component) {
 		return null;
 	}
-	const typeActions = [
-		{
-			label: 'Input',
-			// type: TYPE_INPUT,
-			className: classnames({
-				'btn-info': props.component.type === TYPE_INPUT,
-				'btn-inverse': props.component.type !== TYPE_INPUT,
-			}),
-			onClick: () => {
-				props.service.setComponentType(props.component, TYPE_INPUT);
-			},
-		},
-		{
-			label: 'Processor/Output',
-			// type: TYPE_PROCESSOR,
-			className: classnames({
-				'btn-info': props.component.type === TYPE_PROCESSOR,
-				'btn-inverse': props.component.type !== TYPE_PROCESSOR,
-			}),
-			onClick: () => {
-				props.service.setComponentType(props.component, TYPE_PROCESSOR);
-			},
-		},
-	];
 	return (
 		<div>
 			<div className={theme['form-row']}>
 				<h1>
 					<em>{props.component.configuration.name || ''}</em> Configuration
 				</h1>
-				{props.withIO && (
-					<div>
-						<Actions actions={typeActions} />
-						<Help
-							title="Component Type"
-							i18nKey="component_type"
-							content={
-								<div>
-									<p>Talend Component Kit supports two types of components:</p>
-									<ul>
-										<li>
-											Input: it is a component creating records from itself. It only supports to
-											create a main output branch of records.
-										</li>
-										<li>
-											Processor: this component type can read from 1 or multiple inputs the data,
-											process them and create 0 or multiple outputs.
-										</li>
-									</ul>
-								</div>
-							}
-						/>
-					</div>
-				)}
 			</div>
 
 			<div className={theme['form-row']}>
@@ -129,12 +78,19 @@ function ComponentEditForm(props) {
 					</div>
 				</form>
 			</div>
-			{props.component.type === TYPE_INPUT && <Mapper component={props.component} />}
-			{props.component.type === TYPE_PROCESSOR && (
+			{props.component.type === COMPONENT_TYPE_SOURCE && <Mapper component={props.component} />}
+			{props.component.type === COMPONENT_TYPE_PROCESSOR && (
 				<Processor
 					component={props.component}
 					addInput={props.service.addInput}
 					addOutput={props.service.addOutput}
+				/>
+			)}
+			{props.component.type === COMPONENT_TYPE_SINK && (
+				<Processor
+					component={props.component}
+					addInput={props.service.addInput}
+					sink
 				/>
 			)}
 		</div>
@@ -145,13 +101,14 @@ ComponentEditForm.displayName = 'ComponentEditForm';
 ComponentEditForm.propTypes = {
 	component: PropTypes.shape({
 		name: PropTypes.string,
-		type: PropTypes.oneOf([TYPE_INPUT, TYPE_PROCESSOR]),
+		type: PropTypes.oneOf(COMPONENT_TYPES),
 		configuration: PropTypes.object,
 	}),
 	service: PropTypes.shape({
 		addInput: PropTypes.func,
 		addOutput: PropTypes.func,
 		setComponentType: PropTypes.func,
+		TYPES: PropTypes.array,
 	}),
 	withIO: PropTypes.bool,
 };

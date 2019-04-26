@@ -84,6 +84,15 @@
 		}
 
 
+		.ComponentBox:global(.processor):after {
+			content: '';
+			position: absolute;
+			right: 0px;
+			bottom: 50%;
+			border-bottom: 1px solid $brand-blue;
+			width: 50%;
+			z-index: 0;
+		}
 
 		.ComponentBox {
 			display: flex;
@@ -94,16 +103,6 @@
 			&:before {
 				content: '';
 				position: absolute;
-				bottom: 50%;
-				border-bottom: 1px solid $brand-blue;
-				width: 50%;
-				z-index: 0;
-			}
-
-			&:after {
-				content: '';
-				position: absolute;
-				right: 0px;
 				bottom: 50%;
 				border-bottom: 1px solid $brand-blue;
 				width: 50%;

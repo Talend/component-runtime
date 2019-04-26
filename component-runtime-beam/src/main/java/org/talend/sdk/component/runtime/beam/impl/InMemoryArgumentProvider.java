@@ -83,6 +83,14 @@ public class InMemoryArgumentProvider implements DoFnInvoker.ArgumentProvider {
         return inputs.read(Branches.DEFAULT_BRANCH);
     }
 
+    public Object schemaElement(final DoFn doFn) {
+        return element(doFn);
+    }
+
+    public Row asRow(final String id) {
+        throw new UnsupportedOperationException("Schemas are not supported");
+    }
+
     @Override
     public DoFn.OutputReceiver outputReceiver(final DoFn doFn) {
         return new OutputReceiver(outputs, Branches.DEFAULT_BRANCH);
@@ -112,11 +120,6 @@ public class InMemoryArgumentProvider implements DoFnInvoker.ArgumentProvider {
     @Override
     public Instant timestamp(final DoFn doFn) {
         return Instant.now();
-    }
-
-    @Override
-    public Row asRow(final String id) {
-        throw new UnsupportedOperationException("Schemas are not supported");
     }
 
     @Override

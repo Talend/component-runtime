@@ -50,7 +50,7 @@ class AsciidocDocumentationGeneratorTest {
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals("== my\n" + "\n" + "super my component\n" + "\n" + "=== Configuration\n" + "\n"
-                    + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|configuration|configuration configuration|-|Always enabled|configuration|-\n"
                     + "|input|the input value|-|Always enabled|configuration.input|-\n"
@@ -58,7 +58,7 @@ class AsciidocDocumentationGeneratorTest {
                     + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n"
                     + "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" + "|===\n"
                     + "\n" + "== my2\n" + "\n" + "super my component2\n" + "\n" + "=== Configuration\n" + "\n"
-                    + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|ds|ds configuration|-|Always enabled|ds|dataset\n"
                     + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===\n",
@@ -76,7 +76,7 @@ class AsciidocDocumentationGeneratorTest {
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals("== WithNestedConfigTypes\n" + "\n" + "super my component\n" + "\n" + "=== Configuration\n"
-                    + "\n" + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "\n" + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|configuration|configuration configuration|-|Always enabled|configuration|-\n"
                     + "|conf With Datase|config with dataset|-|Always enabled|configuration.confWithDataset|-\n"
@@ -99,7 +99,7 @@ class AsciidocDocumentationGeneratorTest {
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals("== my\n" + "\n" + "Awesome Doc\n" + "\n" + "=== Configuration\n" + "\n"
-                    + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|configuration|configuration configuration|-|Always enabled|configuration|-\n"
                     + "|input|the input value|-|Always enabled|configuration.input|-\n"
@@ -107,7 +107,7 @@ class AsciidocDocumentationGeneratorTest {
                     + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n"
                     + "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" + "|===\n"
                     + "\n" + "== my2\n" + "\n" + "super my component2\n" + "\n" + "=== Configuration\n" + "\n"
-                    + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|ds|ds configuration|-|Always enabled|ds|dataset\n"
                     + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===\n",
@@ -125,7 +125,7 @@ class AsciidocDocumentationGeneratorTest {
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals("== configurationWithArrayOfObject\n" + "\n" + "=== Configuration\n" + "\n"
-                    + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|configuration|Aggregate fields.|-|Always enabled|configuration|-\n"
                     + "|groupBy|The list of fields used for the aggregation.|1|Always enabled|configuration.groupBy|-\n"
@@ -148,7 +148,7 @@ class AsciidocDocumentationGeneratorTest {
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals("== activeif\n" + "\n" + "=== Configuration\n" + "\n"
-                    + "[cols=\"d,d,m,a,e\",options=\"header\"]\n" + "|===\n"
+                    + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|configuration|configuration configuration|-|Always enabled|configuration|-\n"
                     + "|advanced|advanced configuration|false|Always enabled|configuration.advanced|-\n"

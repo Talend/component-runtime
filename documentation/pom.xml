@@ -43,8 +43,7 @@
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
 
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
-    <!-- alpha-16 in mvn, alpha.16 in gem -->
-    <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
+    <asciidoctor-pdf-gem.version>1.5.0.alpha.17</asciidoctor-pdf-gem.version>
     <crawler-commons.version>0.10</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
     <webhost.ftphost>files.000webhost.com</webhost.ftphost>
@@ -413,7 +412,7 @@
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-api</artifactId>
-            <version>${component-api.version}</version>
+            <version>${project.version}</version>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
@@ -610,7 +609,7 @@
                 <artifactItem>
                   <groupId>org.talend.sdk.component</groupId>
                   <artifactId>component-api</artifactId>
-                  <version>${component-api.version}</version>
+                  <version>${project.version}</version>
                   <type>jar</type>
                   <classifier>javadoc</classifier>
                   <overWrite>true</overWrite>

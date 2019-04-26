@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Date;
 import java.util.function.Supplier;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -39,6 +42,23 @@ class RecordBuilderImplTest {
                         .build())
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
+    }
+
+    @Test
+    void recordEntryFromName() {
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(true)
+                        .withType(Schema.Type.STRING)
+                        .build())
+                .build();
+        assertEquals("{\"record\":{\"name\":\"ok\"}}",
+                new RecordImpl.BuilderImpl()
+                        .withRecord("record", new RecordImpl.BuilderImpl(schema).withString("name", "ok").build())
+                        .build()
+                        .toString());
     }
 
     @Test

@@ -100,6 +100,7 @@ public class TaCoKitGuessSchema {
         this.lineLimit = 50;
         this.lineCount = -1;
         this.componentManager = ComponentManager.instance();
+        this.componentManager.autoDiscoverPlugins(false, true);
         this.configuration = configuration;
         this.plugin = plugin;
         this.family = family;
@@ -210,20 +211,8 @@ public class TaCoKitGuessSchema {
     }
 
     private Optional<ParameterMeta> findDataset(final ServiceMeta.ActionMeta action) {
-        final ComponentFamilyMeta familyMeta = componentManager
-                .findPlugin(plugin)
-                .orElseThrow(() -> new IllegalArgumentException("No component " + plugin))
-                .get(ContainerComponentRegistry.class)
-                .getComponents()
-                .get(family);
-
-        final ComponentFamilyMeta.BaseMeta<?> componentMeta = Stream
-                .concat(familyMeta.getPartitionMappers().entrySet().stream(),
-                        familyMeta.getProcessors().entrySet().stream())
-                .filter(e -> e.getKey().equals(componentName))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No component " + componentName));
+        final ComponentFamilyMeta familyMeta = findFamily();
+        final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(familyMeta);
 
         // dataset name should be the same as DiscoverSchema action name
         final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).collect(toList());
@@ -251,6 +240,25 @@ public class TaCoKitGuessSchema {
                 }));
     }
 
+    private ComponentFamilyMeta.BaseMeta<?> findComponent(final ComponentFamilyMeta familyMeta) {
+        return Stream
+                .concat(familyMeta.getPartitionMappers().entrySet().stream(),
+                        familyMeta.getProcessors().entrySet().stream())
+                .filter(e -> e.getKey().equals(componentName))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No component " + componentName));
+    }
+
+    private ComponentFamilyMeta findFamily() {
+        return componentManager
+                .findPlugin(plugin)
+                .orElseThrow(() -> new IllegalArgumentException("No component family " + plugin))
+                .get(ContainerComponentRegistry.class)
+                .getComponents()
+                .get(family);
+    }
+
     private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
         return Stream
                 .concat(parameterMetas.stream(),
@@ -261,21 +269,45 @@ public class TaCoKitGuessSchema {
                                 .flatMap(this::toStream));
     }
 
-    public boolean guessSchemaThroughAction() {
-        if (action == null || action.isEmpty()) {
-            return false;
-        }
+    private Optional<String> findFirstComponentDataSetName() {
+        final ComponentFamilyMeta familyMeta = findFamily();
+        final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(familyMeta);
+        return toStream(componentMeta.getParameterMetas().get())
+                .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type")))
+                .findFirst()
+                .map(p -> p.getMetadata().get("tcomp::configurationtype::name"));
+    }
 
-        final ServiceMeta.ActionMeta actionRef = componentManager
+    public boolean guessSchemaThroughAction() {
+        final Collection<ServiceMeta> services = componentManager
                 .findPlugin(plugin)
                 .orElseThrow(() -> new IllegalArgumentException("No component " + plugin))
                 .get(ContainerComponentRegistry.class)
-                .getServices()
-                .stream()
-                .flatMap(s -> s.getActions().stream())
-                .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action) && a.getType().equals(type))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + type + "#" + action));
+                .getServices();
+
+        final ServiceMeta.ActionMeta actionRef;
+        if (action == null || action.isEmpty()) {
+            // dataset name should be the same as DiscoverSchema action name so let's try to guess from the component
+            actionRef = findFirstComponentDataSetName()
+                    .flatMap(datasetName -> services
+                            .stream()
+                            .flatMap(s -> s.getActions().stream())
+                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(type))
+                            .filter(a -> a.getAction().equals(datasetName))
+                            .findFirst())
+                    .orElse(null);
+            if (actionRef == null) {
+                return false;
+            }
+        } else {
+            actionRef = services
+                    .stream()
+                    .flatMap(s -> s.getActions().stream())
+                    .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action)
+                            && a.getType().equals(type))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + type + "#" + action));
+        }
 
         final Object schemaResult = actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration));
 
@@ -283,7 +315,7 @@ public class TaCoKitGuessSchema {
             return fromSchema(Schema.class.cast(schemaResult));
 
         } else {
-            log.error("Result of built-in guess schema action is not an instance of TaCoKit Schema");
+            log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema");
             return false;
         }
     }

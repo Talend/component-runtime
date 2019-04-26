@@ -29,6 +29,8 @@ component-form/component-form-demo/src/main/frontend/build/
 documentation/src/main/frontend/.antora-cache
 dependency-reduced-pom.xml
 rebuild.bat
+.cache-loader
+.factorypath
 
 # generated from the filtered version
 component-starter-server/src/main/frontend/package.json
@@ -43,3 +45,4 @@ documentation/rebuild_newUI.bat
 documentation/rebuild_refresh_generated_pages.bat
 documentation/generate-index.bat
 documentation/rebuild_front.bat
+

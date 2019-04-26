@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.configuration;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
@@ -51,10 +52,11 @@ public class ComponentServerConfiguration {
 
     // property to list plugins like in a fatjar, ie value = gav. Nice for assemblies, less for demo/cli usage.
     @Inject
-    @Documentation("A property file where the value is a gav of a component to register (complementary with `coordinates`). "
-            + "Note that the path can end up with `*` or `*.properties` to take into account all properties in a folder.")
+    @Documentation("A property file (or multiple comma separated) where the value is a gav of a component to register"
+            + "(complementary with `coordinates`). Note that the path can end up with `*` or `*.properties` "
+            + "to take into account all properties in a folder.")
     @ConfigProperty(name = "talend.component.server.component.registry")
-    private Optional<String> componentRegistry;
+    private Optional<List<String>> componentRegistry;
 
     @Inject
     @Documentation("Should the /documentation endpoint be activated. "
@@ -68,7 +70,7 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.security.connection.handler", defaultValue = "securityNoopHandler")
     private String securityConnectionHandler;
 
-    // sync with org.talend.sdk.component.server.service.security.SecurityExtension.addSecurityHandlers(
+    // sync with org.talend.sdk.component.server.service.security.SecurityExtension.addSecurityHandlers
     @Inject
     @Documentation("How to validate a command/request. Accepted values: securityNoopHandler.")
     @ConfigProperty(name = "talend.component.server.security.command.handler", defaultValue = "securityNoopHandler")

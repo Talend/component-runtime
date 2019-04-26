@@ -38,6 +38,8 @@ export default function Summary(props) {
 	if (!p) {
 		return <div />;
 	}
+	const outputLength = p.processors.filter(proc => proc.outputStructures.length === 0).length;
+	const processorsLength = p.processors.length - outputLength;
 	return (
 		<div className={theme.Summary}>
 			<Info name="Name" value={p.name} />
@@ -49,7 +51,7 @@ export default function Summary(props) {
 			/>
 			<Info
 				name="Components"
-				value={`${p.sources.length} inputs and ${p.processors.length} processors`}
+				value={`${p.sources.length} inputs, ${processorsLength} processors and ${outputLength} outputs`}
 			/>
 		</div>
 	);

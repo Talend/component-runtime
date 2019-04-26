@@ -127,7 +127,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .flatMap(this::unwrapItems)
-                .filter(it -> it.getKey().endsWith("." + name))
+                .filter(it -> it.getKey() != null && it.getKey().endsWith("." + name))
                 .findFirst();
     }
 
