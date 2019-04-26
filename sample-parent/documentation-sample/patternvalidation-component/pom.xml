@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples :: Pattern</name>
-  <description>A generated component project</description>
+  <description>Enforce rules based on a specific a pattern to prevent users from entering invalid values.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
