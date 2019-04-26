@@ -25,7 +25,7 @@
   <artifactId>activeif-component</artifactId>
   <packaging>jar</packaging>
 
-  <name>Component Runtime :: Sample Parent :: Documentation Samples :: ActiveId</name>
+  <name>Component Runtime :: Sample Parent :: Documentation Samples :: ActiveIf</name>
   <description>A generated component project</description>
 
   <properties>

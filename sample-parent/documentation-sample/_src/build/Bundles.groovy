@@ -104,3 +104,21 @@ project.modules.each {
     jar.close()
     projectHelper.attachArtifact(project, 'zip', "${it}-distribution", zip)
 }
+
+
+def doc = project.modules.collect {
+    def pom = new File(project.basedir, "${it}/pom.xml").text
+    def nameStart = pom.indexOf('<name>') + '<name>'.length()
+    def nameEnd = pom.indexOf('</name>')
+    def descriptionStart = pom.indexOf('<description>') + '<description>'.length()
+    def descriptionEnd = pom.indexOf('</description>')
+    def name = pom.substring(nameStart, nameEnd).replace('Component Runtime :: Sample Parent :: Documentation Samples :: ', '')
+    def description = pom.substring(descriptionStart, descriptionEnd)
+    def link = project.version.endsWith('-SNAPSHOT') ?
+            "https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=${project.version}&e=zip&c=${it}-distribution" :
+            "http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/${project.version}/documentation-sample-${project.version}-${it}-distribution.zip"
+    "- link:${link}[$name]: ${description}"
+}.toSorted().join('\n')
+
+new File(project.basedir, '../../documentation/src/main/antora/modules/ROOT/pages/_partials/generated_sample-index.adoc')
+    .text = doc
