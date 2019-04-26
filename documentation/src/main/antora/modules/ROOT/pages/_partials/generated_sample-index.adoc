@@ -1,17 +1,102 @@
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=activeif-component-distribution[ActiveIf]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-activeif-component-distribution.zip[ActiveIf]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=checkbox-component-distribution[Checkbox]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-checkbox-component-distribution.zip[Checkbox]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=code-component-distribution[Code]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-code-component-distribution.zip[Code]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=credentials-component-distribution[Credential]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-credentials-component-distribution.zip[Credential]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=datastorevalidation-component-distribution[Datastore]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-datastorevalidation-component-distribution.zip[Datastore]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=dropdownlist-component-distribution[Datalist]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-dropdownlist-component-distribution.zip[Datalist]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=integer-component-distribution[Integer]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-integer-component-distribution.zip[Integer]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=minmaxvalidation-component-distribution[Min/Max]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-minmaxvalidation-component-distribution.zip[Min/Max]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=multiselect-component-distribution[Multiselect]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-multiselect-component-distribution.zip[Multiselect]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=patternvalidation-component-distribution[Pattern]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-patternvalidation-component-distribution.zip[Pattern]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=requiredvalidation-component-distribution[Required]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-requiredvalidation-component-distribution.zip[Required]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=suggestions-component-distribution[Suggestions]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-suggestions-component-distribution.zip[Suggestions]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=table-component-distribution[Table]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-table-component-distribution.zip[Table]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=textarea-component-distribution[Textarea]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-textarea-component-distribution.zip[Textarea]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=textinput-component-distribution[Input]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-textinput-component-distribution.zip[Input]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=updatable-component-distribution[Update]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-updatable-component-distribution.zip[Update]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" == "master"]
 - link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=urlvalidation-component-distribution[Validation]: A generated component project
+endif::[]
+ifeval::["{page-origin-refname}" != "master"]
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-urlvalidation-component-distribution.zip[Validation]: A generated component project
+endif::[]

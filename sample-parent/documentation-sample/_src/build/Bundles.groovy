@@ -114,10 +114,17 @@ def doc = project.modules.collect {
     def descriptionEnd = pom.indexOf('</description>')
     def name = pom.substring(nameStart, nameEnd).replace('Component Runtime :: Sample Parent :: Documentation Samples :: ', '')
     def description = pom.substring(descriptionStart, descriptionEnd)
-    def link = project.version.endsWith('-SNAPSHOT') ?
-            "https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=${project.version}&e=zip&c=${it}-distribution" :
-            "http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/${project.version}/documentation-sample-${project.version}-${it}-distribution.zip"
-    "- link:${link}[$name]: ${description}"
+    def snapshotLink = "https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=${project.version}&e=zip&c=${it}-distribution"
+    def releaseLink = "http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/${project.version.replace('-SNAPSHOT', '')}/documentation-sample-${project.version.replace('-SNAPSHOT', '')}-${it}-distribution.zip"
+
+    """
+    |ifeval::["{page-origin-refname}" == "master"]
+    |- link:${snapshotLink}[$name]: ${description}
+    |endif::[]
+    |ifeval::["{page-origin-refname}" != "master"]
+    |- link:${releaseLink}[$name]: ${description}
+    |endif::[]
+    """.stripMargin().stripIndent().trim()
 }.toSorted().join('\n')
 
 new File(project.basedir, '../../documentation/src/main/antora/modules/ROOT/pages/_partials/generated_sample-index.adoc')
