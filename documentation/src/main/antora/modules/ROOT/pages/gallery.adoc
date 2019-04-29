@@ -5,6 +5,10 @@
 
 This gallery shows how widgets and validations are rendered in both Studio and web environments, along with sample implementation code.
 
+You can also find sample working components for each of the configuration cases below:
+
+include::{partialsdir}/generated_sample-index.adoc[]
+
 == Widgets
 
 Widgets allow to easily implement different types of input fields to your components.

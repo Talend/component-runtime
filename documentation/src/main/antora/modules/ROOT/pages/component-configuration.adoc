@@ -256,6 +256,7 @@ public class ActiveifProcessorProcessorConfiguration implements Serializable {
     })
     @Documentation("Active if checkbox2 and checkbox 3 are selected")
     private String configuration6;
+  }
 ----
 
 
@@ -272,6 +273,12 @@ IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`.
 You can also check xref:tutorial-configuration-sensitive-data.adoc[this example] about masking credentials.
 
 Target support should cover `org.talend.core.model.process.EParameterFieldType` but you need to ensure that the web renderer is able to handle the same widgets.
+
+== Implementation samples
+
+You can find sample working components for each of the configuration cases below:
+
+include::{partialsdir}/generated_sample-index.adoc[]
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
