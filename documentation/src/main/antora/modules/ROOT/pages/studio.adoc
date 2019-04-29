@@ -1,9 +1,9 @@
-= Integrating components into Talend Studio
+= Iterating on component development with Talend Studio
 :page-partial:
 :description: How to install and configure components developed with Talend Component Kit in Talend Open Studio
 :keywords: component server, deploy, install
 
-Integrate components developed using Talend Component Kit to link:https://sourceforge.net/projects/talend-studio/[Talend Studio] in a few steps. Also learn how to enable the developer and debugging modes to iterate on your component development.
+Integrate components you developed using Talend Component Kit to link:https://sourceforge.net/projects/talend-studio/[Talend Studio] in a few steps. Also learn how to enable the developer and debugging modes to iterate on your component development.
 
 image::tutorial_build_job_run.png[Job run,window="_blank",link="_images/tutorial_build_job_run.png",70%]
 

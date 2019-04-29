@@ -1,0 +1,66 @@
+= Sharing and installing components in Talend Studio
+:page-partial:
+:description: How to build a component archive that you can easily share and how to install the shared .car file in Talend Studio.
+:keywords: deploy, install, car, .car, component archive
+
+Components built using Talend Component Kit can be shared as component archives (.car). These CAR files are executable files allowing to easily deploy the components it contains to any compatible version of link:https://sourceforge.net/projects/talend-studio/[Talend Studio].
+
+=== Generating the component archive
+
+You are a component developer and need to share your component externally.
+
+Component ARchive (*.car*) is the way to bundle a component to share it in the Talend ecosystem. It is a plain Java ARchive (*.jar*) containing a metadata file and a nested Maven repository containing the component and its dependencies.
+
+Use the following command from your development project to create a *.car* file in your build directory. This file can be shared on Talend platforms.
+
+[source]
+----
+mvn talend-component:car
+----
+
+This command has some optional parameters:
+
+[options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
+|===
+|Name |Description |User property |Default
+|attach |Specifies whether the component archive should be attached. |`talend.car.attach`| true
+|classifier |The classifier to use if attach is set to true. |`talend.car.classifier`| component
+|metadata |Additional custom metadata to bundle in the component archive. |-| -
+|output |Specifies the output path and name of the archive |`talend.car.output`| ${project.build.directory}/${project.build.finalName}.car
+|packaging |Specifies the packaging |-| ${project.packaging}
+|===
+
+This CAR is executable and exposes the `studio-deploy` command which takes a Talend Studio home path as parameter. When executed, it installs the dependencies into the Studio and registers the component in the user's instance.
+
+== Installing components from a component archive
+
+You have a component archive (.car) file and need to deploy it to Talend Studio.
+
+This CAR is executable and exposes the `studio-deploy` command which takes a Talend Studio home path as parameter. When executed, it installs the dependencies into the Studio and registers the component in your instance. For example:
+
+[source,bash]
+----
+# for a studio
+java -jar mycomponent.car studio-deploy /path/to/my/studio
+or
+java -jar mycomponent.car studio-deploy --location /path/to/my/studio
+
+# for a m2 provisioning
+java -jar mycomponent.car maven-deploy /path/to/.m2/repository
+or
+java -jar mycomponent.car maven-deploy --location /path/to/.m2/repository
+----
+
+You can also upload the dependencies to your Nexus server using the following command:
+
+[source,bash]
+----
+java -jar mycomponent.car deploy-to-nexus --url <nexus url> --repo <repository name> --user <username> --pass <password> --threads <parallel threads number> --dir <temp directory>
+----
+
+In this command, Nexus URL and repository name are mandatory arguments. All other arguments are optional. If arguments contain spaces or special symbols, you need to quote the whole value of the argument. For example:
+
+[source,bash]
+----
+--pass "Y0u will \ not G4iess i' ^"
+----

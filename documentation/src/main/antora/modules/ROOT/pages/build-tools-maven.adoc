@@ -443,7 +443,7 @@ For this command to work, you need to register the plugin as follows:
 
 === Generating the component archive
 
-Component ARchive (*.car*) is the way to bundle a component to share it in the Talend ecosystem. It is a plain Java ARchive (*.jar*) containing a metadata file and a nested Maven repository containing the component and its depenencies.
+Component ARchive (*.car*) is the way to bundle a component to share it in the Talend ecosystem. It is a plain Java ARchive (*.jar*) containing a metadata file and a nested Maven repository containing the component and its dependencies.
 
 [source]
 ----
