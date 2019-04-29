@@ -16,6 +16,9 @@
 package org.talend.sdk.component.runtime.manager.proxy;
 
 import static java.lang.ClassLoader.getSystemClassLoader;
+import static java.util.Arrays.asList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.Externalizable;
 import java.io.ObjectStreamException;
@@ -49,8 +52,31 @@ public class JavaProxyEnricherFactory {
     }
 
     private ClassLoader selectLoader(final Class[] api, final ClassLoader loader) {
-        return Stream.of(api).anyMatch(t -> t.getClassLoader() == loader) || loader.getParent() == null
-                || loader == getSystemClassLoader() ? loader : loader.getParent();
+        if (Stream.of(api).anyMatch(t -> t.getClassLoader() == loader) || loader.getParent() == null
+                || loader == getSystemClassLoader()) {
+            return loader;
+        }
+        final ClassLoader parent = loader.getParent();
+        if (parent == null) {
+            return getSystemClassLoader();
+        }
+        for (final Class<?> test : api) {
+            try {
+                parent.loadClass(test.getName());
+            } catch (final ClassNotFoundException e) {
+                for (final Class<?> test2 : api) {
+                    try {
+                        loader.loadClass(test2.getName());
+                    } catch (final ClassNotFoundException ex) {
+                        throw new IllegalStateException("No matching classloader for " + asList(api) + ":\n"
+                                + "Current: " + loader + "\n" + "Parent: " + parent + "\n" + "API: "
+                                + Stream.of(api).collect(toMap(identity(), Class::getClassLoader)) + "\n");
+                    }
+                }
+                return loader;
+            }
+        }
+        return parent;
     }
 
     @RequiredArgsConstructor
