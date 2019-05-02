@@ -965,8 +965,7 @@ public class ComponentManager implements AutoCloseable {
                         try {
                             final String strippedJar =
                                     new File(decode(new URL(file.substring(0, separator)).getFile())).getName();
-                            return strippedJar.startsWith("beam-sdks-java-core-")
-                                    || strippedJar.startsWith("org.apache.beam.beam-sdks-java-core-");
+                            return strippedJar.matches(".*beam.sdks.java.core.*");
                         } catch (final MalformedURLException e) {
                             // let it return false
                         }
