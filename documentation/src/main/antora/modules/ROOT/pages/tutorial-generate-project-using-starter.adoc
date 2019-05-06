@@ -44,10 +44,12 @@ When building a component, the `validateDataSet` validation checks that each inp
 You can define one or several datastores if you have selected the *Activate IO* step.
 
 . Select *Datastore*. The list of datastores opens. By default, a datastore is already open but not configured. You can configure it or create a new one using *Add new Datastore*.
-. Edit the datastore configuration. A typical configuration includes connection details to a database:
-** URL
-** Username
-** Password.
+. Specify the name of the datastore. Modify the default value to a meaningful name for your project. +
+This name must be a valid Java name as it will represent the datastore class in your project. It is a good practice to start it with an uppercase letter.
+. Edit the datastore configuration. Parameter names must be valid Java names. Use lower case as much as possible. A typical configuration includes connection details to a database:
+** url
+** username
+** password.
 . *Save* the datastore configuration.
 
 == Defining a Dataset
@@ -58,10 +60,12 @@ The `validateDataSet` validation checks that each input or output (processor wit
 You can define one or several datasets if you have selected the *Activate IO* step.
 
 . Select *Dataset*. The list of datasets opens. By default, a dataset is already open but not configured. You can configure it or create a new one using the *Add new Dataset* button.
-. Edit the dataset configuration. A typical configuration includes details of the data to retrieve:
+. Specify the name of the dataset. Modify the default value to a meaningful name for your project. +
+This name must be a valid Java name as it will represent the dataset class in your project. It is a good practice to start it with an uppercase letter.
+. Edit the dataset configuration. Parameter names must be valid Java names. Use lower case as much as possible. A typical configuration includes details of the data to retrieve:
 ** Datastore to use (that contains the connection details to the database)
-** Table name
-** Data
+** table name
+** data
 . *Save* the dataset configuration.
 
 == Creating an Input component
