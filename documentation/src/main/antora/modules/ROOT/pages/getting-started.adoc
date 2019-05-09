@@ -50,5 +50,5 @@ image::input_intellij.png[Input,window="_blank",link="https://talend.github.io/c
 
 == Next
 
-* xref:system-prerequisites.adoc.adoc[Setup your development environment]
+* xref:system-prerequisites.adoc[Setup your development environment]
 * xref:tutorial-create-my-first-component.adoc[Generate your first project and develop your first component]
