@@ -1989,6 +1989,7 @@ public class ComponentManager implements AutoCloseable {
 
         /**
          * Enables a customizer to know other configuration.
+         * 
          * @deprecated Mainly here for backward compatibility for beam customizer.
          *
          * @param customizers all customizers.
