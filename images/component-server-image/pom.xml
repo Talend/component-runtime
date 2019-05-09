@@ -190,7 +190,12 @@
             <id>build</id>
             <phase>none</phase>
             <configuration>
-              <extraDirectory>${additionalDockerFiles}</extraDirectory>
+              <extraDirectories>
+                <paths>
+                  <path>${additionalDockerFiles}
+                  </path>
+                </paths>
+              </extraDirectories>
               <from>
                 <image>${baseImage}</image>
               </from>
@@ -198,6 +203,7 @@
                 <image>${talend.server.image.name}</image>
               </to>
               <container>
+                <extraClasspath>${imageWorkDir}/custom/*</extraClasspath>
                 <useCurrentTimestamp>true</useCurrentTimestamp>
                 <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
                 <appRoot>${imageWorkDir}</appRoot>

@@ -1,11 +1,11 @@
 ++++
 <jsonArray>[
   {
-    "description":"Get an overview of the framework and create your first component",
+    "description":"Learn the basics about Talend Component Kit framework and get ready to create new components",
     "icon":"play-circle",
     "index":2000,
     "label":"Getting Started",
-    "link":"index-getting-started-with-tck.html"
+    "link":"getting-started.html"
   },
   {
     "description":"Follow guided and practical examples to know more about the framework",
