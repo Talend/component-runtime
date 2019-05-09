@@ -238,8 +238,6 @@ public class ComponentManager implements AutoCloseable {
     // + tcomp "runtime" indeed (invisible from the components but required for the runtime
     private final Filter classesFilter;
 
-    private final Filter excludeClassesFilter;
-
     private final ParameterModelService parameterModelService;
 
     private final InternationalizationServiceFactory internationalizationServiceFactory =
@@ -286,6 +284,7 @@ public class ComponentManager implements AutoCloseable {
     // org.slf4j.event but https://issues.apache.org/jira/browse/MNG-6360
     private final Level logInfoLevelMapping;
 
+    @Getter // use with caution
     private final List<Customizer> customizers;
 
     @Getter
@@ -312,6 +311,9 @@ public class ComponentManager implements AutoCloseable {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
         customizers = toStream(loadServiceProviders(Customizer.class, tccl)).collect(toList()); // must stay first
+        if (!customizers.isEmpty()) {
+            customizers.forEach(c -> c.setCustomizers(customizers));
+        }
         classpathContributors =
                 toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).collect(toList());
         classesFilter = Filters
@@ -323,7 +325,6 @@ public class ComponentManager implements AutoCloseable {
                                 additionalContainerClasses())
                         .distinct()
                         .toArray(String[]::new));
-        excludeClassesFilter = Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
 
         jsonpProvider = JsonProvider.provider();
         jsonbProvider = JsonbProvider.provider();
@@ -567,7 +568,7 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
-    private Stream<String> additionalContainerClassesThroughExtension() {
+    private Stream<String> additionalContainerClasses() {
         return Stream
                 .concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
                         ofNullable(
@@ -575,40 +576,6 @@ public class ComponentManager implements AutoCloseable {
                                         .map(s -> s.split(","))
                                         .map(Stream::of)
                                         .orElseGet(Stream::empty));
-    }
-
-    private Stream<String> additionalContainerClasses() {
-        try { // if beam is here just skips beam sdk java core classes and load them from the container
-            ComponentManager.class.getClassLoader().loadClass("org.apache.beam.sdk.Pipeline");
-            return Stream
-                    .concat(customizers.stream().anyMatch(Customizer::ignoreBeamClassLoaderExclusions) ? Stream.empty()
-                            : Stream
-                                    .of(
-                                            // beam
-                                            "org.apache.beam.runners.", "org.apache.beam.sdk.",
-                                            "org.apache.beam.repackaged.", "org.apache.beam.vendor.",
-                                            "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
-                                            "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
-                                            "com.fasterxml.jackson.databind.", "com.thoughtworks.paranamer.",
-                                            "org.apache.commons.compress.", "org.tukaani.xz.", "org.objenesis.",
-                                            "org.joda.time.", "org.xerial.snappy.", "avro.shaded.com.google.",
-                                            // avro package is used for hadoop, mapred etc, so doing a precise list
-                                            "org.apache.avro.data.", "org.apache.avro.file.",
-                                            "org.apache.avro.generic.", "org.apache.avro.io.",
-                                            "org.apache.avro.message.", "org.apache.avro.reflect.",
-                                            "org.apache.avro.specific.", "org.apache.avro.util.",
-                                            "org.apache.avro.Avro", "org.apache.avro.Conversion",
-                                            "org.apache.avro.Guava", "org.apache.avro.Json", "org.apache.avro.Logical",
-                                            "org.apache.avro.Protocol", "org.apache.avro.Schema",
-                                            "org.apache.avro.Unresolved", "org.apache.avro.Validate",
-                                            // scala - most engines
-                                            "scala.",
-                                            // engines
-                                            "org.apache.spark.", "org.apache.flink."),
-                            additionalContainerClassesThroughExtension());
-        } catch (final NoClassDefFoundError | ClassNotFoundException e) {
-            return additionalContainerClassesThroughExtension();
-        }
     }
 
     protected static File findM2() {
@@ -950,31 +917,6 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected boolean isContainerClass(final Filter filter, final String name) {
-        // workaround until beam is able to have a consistent packaging - i.e. no extensions/io in its core
-        if (excludeClassesFilter.accept(name)) {
-            // check if it is beam-sdks-java-core, if so then it is considered as a
-            // container class
-            final URL resource = ComponentManager.class.getClassLoader().getResource(name.replace('.', '/') + ".class");
-            if (resource != null) {
-                if (resource.getFile().startsWith("mvn:org.apache.beam/beam-sdks-java-core/")) { // studio
-                    return true;
-                } else if ("jar".equals(resource.getProtocol())) { // standalone
-                    final String file = resource.getFile();
-                    final int separator = file.indexOf('!');
-                    if (separator > 0) {
-                        try {
-                            final String strippedJar =
-                                    new File(decode(new URL(file.substring(0, separator)).getFile())).getName();
-                            return strippedJar.startsWith("beam-sdks-java-core-")
-                                    || strippedJar.startsWith("org.apache.beam.beam-sdks-java-core-");
-                        } catch (final MalformedURLException e) {
-                            // let it return false
-                        }
-                    }
-                }
-            }
-            return false;
-        }
         return name != null && filter.accept(name);
     }
 
@@ -2031,7 +1973,9 @@ public class ComponentManager implements AutoCloseable {
         /**
          * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.
          */
-        boolean ignoreBeamClassLoaderExclusions();
+        default boolean ignoreBeamClassLoaderExclusions() {
+            return false;
+        }
 
         /**
          * Disable default built-in component classpath building mecanism. This is useful when relying on
@@ -2041,6 +1985,17 @@ public class ComponentManager implements AutoCloseable {
          */
         default boolean ignoreDefaultDependenciesDescriptor() {
             return false;
+        }
+
+        /**
+         * Enables a customizer to know other configuration.
+         * @deprecated Mainly here for backward compatibility for beam customizer.
+         *
+         * @param customizers all customizers.
+         */
+        @Deprecated
+        default void setCustomizers(final Collection<Customizer> customizers) {
+            // no-op
         }
     }
 
