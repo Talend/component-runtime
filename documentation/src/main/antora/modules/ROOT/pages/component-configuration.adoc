@@ -153,7 +153,7 @@ IMPORTANT: When using the programmatic API, metadata is prefixed by `tcomp::`. T
 Also note that these validations are executed before the runtime is started (when loading the component instance) and that the execution will fail if they don't pass.
 If it breaks your application, you can disable that validation on the JVM by setting the system property `talend.component.configuration.validation.skip` to `true`.
 
-include::creating-dataset-datastores.adoc[leveloffset=+1]
+include::creating-dataset-datastore.adoc[leveloffset=+1]
 
 == Defining links between properties
 
