@@ -150,7 +150,7 @@ You can create it manually, as described in <<component-runtime-http-junit>>, bu
 
 In most cases, use `src/test/resources`. If `new File("src/test/resources")` resolves the valid folder when executing your test (Maven default), then you can just set the system property to `true`. Otherwise, you need to adjust accordingly the system property value.
 
-NOTE: When set to `false`, the capture is not disabled. Instead, captures are saved in a `false/` directory.
+NOTE: When set to `false`, the capture is enabled. Instead, captures are saved in a `false/` directory.
 
 When the tests run with this system property, the testing framework creates the correct mock response files. After that, you can remove the system property. The tests will still pass, using `google.com`, even if you disconnect your machine from the Internet.
 
