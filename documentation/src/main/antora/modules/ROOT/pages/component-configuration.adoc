@@ -222,7 +222,7 @@ The following example shows how to implement visibility conditions on several fi
     @GridLayout.Row({ "configuration5" }),
     @GridLayout.Row({ "configuration6" })
 })
-@Documentation("")
+@Documentation("A sample configuration with different visibility condition cases")
 public class ActiveifProcessorProcessorConfiguration implements Serializable {
     @Option
     @Documentation("")
