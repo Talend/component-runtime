@@ -54,7 +54,7 @@ package com.mycomponent.components.datastore;
     @GridLayout.Row({ "username" }),
     @GridLayout.Row({ "password" })
 })
-@Documentation("TODO fill the documentation for this configuration") <3>
+@Documentation("A Datastore made of an API URL, a username, and a password. The password is marked as Credential.") <3>
 public class DatastoreA implements Serializable {
     @Option
     @Documentation("")
@@ -128,10 +128,10 @@ package com.datastorevalidation.components.dataset;
     // customize it as much as needed
     @GridLayout.Row({ "datastore" })
 })
-@Documentation("TODO fill the documentation for this configuration") <2>
+@Documentation("A Dataset configuration containing a simple datastore") <2>
 public class DatasetA implements Serializable {
     @Option
-    @Documentation("TODO fill the documentation for this parameter")
+    @Documentation("Datastore")
     private DatastoreA datastore;
 
     public DatastoreA getDatastore() {
