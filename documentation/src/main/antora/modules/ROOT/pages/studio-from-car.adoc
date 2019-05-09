@@ -1,0 +1,39 @@
+= Installing components from a CAR file
+:page-partial:
+:description: How to build a component archive that you can easily share and how to install the shared .car file in Talend Studio.
+:keywords: deploy, install, car, .car, component archive
+
+Components built using Talend Component Kit can be shared as component archives (.car). These CAR files are executable files allowing to easily deploy the components it contains to any compatible version of link:https://sourceforge.net/projects/talend-studio/[Talend Studio].
+
+Component developers can generate .car files from their projects to share their components and make them available for other users, as detailed in xref:build-tools-maven.adoc[this document].
+
+This document assumes that you have a component archive (.car) file and need to deploy it to Talend Studio.
+
+This CAR is executable and exposes the `studio-deploy` command which takes a Talend Studio home path as parameter. When executed, it installs the dependencies into the Studio and registers the component in your instance. For example:
+
+[source,bash]
+----
+# for a studio
+java -jar mycomponent.car studio-deploy /path/to/my/studio
+or
+java -jar mycomponent.car studio-deploy --location /path/to/my/studio
+
+# for a m2 provisioning
+java -jar mycomponent.car maven-deploy /path/to/.m2/repository
+or
+java -jar mycomponent.car maven-deploy --location /path/to/.m2/repository
+----
+
+You can also upload the dependencies to your Nexus server using the following command:
+
+[source,bash]
+----
+java -jar mycomponent.car deploy-to-nexus --url <nexus url> --repo <repository name> --user <username> --pass <password> --threads <parallel threads number> --dir <temp directory>
+----
+
+In this command, Nexus URL and repository name are mandatory arguments. All other arguments are optional. If arguments contain spaces or special symbols, you need to quote the whole value of the argument. For example:
+
+[source,bash]
+----
+--pass "Y0u will \ not G4iess i' ^"
+----

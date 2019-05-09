@@ -2,13 +2,14 @@
 :page-partial:
 :description: Learn how to define the basic configuration of a component using the Talend Component Kit Starter to start your project
 :keywords: tutorial, example, starter
+:version: 1.1.9
 
 [[tutorial-generate-project-using-starter]]
 The Component Kit starter lets you design your components configuration and generates a ready-to-implement project structure.
 
 The starter is available on the web or as an xref:generate-project-using-intellij-plugin.adoc[IntelliJ plugin].
 
-This tutorial shows you how to use the Component Kit Starter to generate new components for MySQL databases. Before starting, make sure that you have correctly setup your environment. See <<getting-started.adoc#getting-started-system-requirements, this section>>.
+This tutorial shows you how to use the Component Kit Starter to generate new components for MySQL databases. Before starting, make sure that you have correctly setup your environment. See xref:system-prerequisites.adoc[this section].
 
 IMPORTANT: When defining a project using the Starter, do not refresh the page to avoid losing your configuration.
 
@@ -19,21 +20,22 @@ Before being able to create components, you need to define the general settings 
 . Create a folder on your local machine to store the resource files of the component you want to create. For example, `C:/my_components`.
 . Open the https://starter-toolkit.talend.io[starter] in the web browser of your choice.
 . Select your build tool. This tutorial uses Maven, but you can select Gradle instead.
-. Add the *Talend Component Kit Testing* facet to your project to automatically generate unit tests for the components created later in this tutorial. Add any facet you need. +
+. Add any facet you need. For example, add the *Talend Component Kit Testing* facet to your project to automatically generate unit tests for the components created in the project. +
 +
-image::starter/starter_test_facet.png[Test facet,window="_blank",link="_images/starter/starter_test_facet.png",80%]
+image::starter/starter_test_facet.png[Test facet,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/starter/starter_test_facet.png",80%]
 . Enter the *Component Family* of the components you want to develop in the project. This name must be a valid java name and is recommended to be capitalized, for example 'MySQL'. +
 Once you have implemented your components in the Studio, this name is displayed in the Palette to group all of the MySQL-related components you develop, and is also part of your component name.
 . Select the *Category* of the components you want to create in the current project. As MySQL is a kind of database, select *Databases* in this tutorial. +
 This *Databases* category is used and displayed as the parent family of the MySQL group in the Palette of the Studio.
 . Complete the project metadata by entering the *Group*, *Artifact* and *Package*.
-. If you need to create *Input* or *Output* components, select *Activate IO*. By doing this:
-** You can add datasets and datastores to your project, as they are required for input and output components. +
+. By default, you can only create *processors*. If you need to create *Input* or *Output* components, select *Activate IO*. By doing this:
+** Two new menu entries let you add datasets and datastores to your project, as they are required for input and output components. +
 +
 IMPORTANT: Input and Output components without dataset (itself containing a datastore) will not pass the validation step when building the components. Learn more about datasets and datastores in xref:component-configuration.adoc#dataset-and-datastore[this document].
-** Components added to the project using *Add A Component* are now input or output components by default. When *Activate IO* is not enabled, new components are processors by default. Note that you are still able to define processors even with datasets and datastores activated. +
+** An Input component and an Output component are automatically added to your project and ready to be configured.
+** Components added to the project using *Add A Component* can now be processors, input or output components. +
 +
-image::starter/starter_activate_io.png[Activate IO,window="_blank",link="_images/starter/starter_activate_io.png",80%]
+image::starter/starter_activate_io.png[Activate IO,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/starter/starter_activate_io.png",80%]
 
 == Defining a Datastore
 A datastore represents the data needed by an input or output component to connect to a database.
@@ -42,11 +44,13 @@ When building a component, the `validateDataSet` validation checks that each inp
 
 You can define one or several datastores if you have selected the *Activate IO* step.
 
-. Select *Datastore*. The list of datastores opens. By default, a datastore is already open but not configured. You can configure it or create a new one using the *Add new Datastore* button.
-. Edit the datastore configuration. A typical configuration includes connection details to a database:
-** JDBC URL
-** Username
-** Password.
+. Select *Datastore*. The list of datastores opens. By default, a datastore is already open but not configured. You can configure it or create a new one using *Add new Datastore*.
+. Specify the name of the datastore. Modify the default value to a meaningful name for your project. +
+This name must be a valid Java name as it will represent the datastore class in your project. It is a good practice to start it with an uppercase letter.
+. Edit the datastore configuration. Parameter names must be valid Java names. Use lower case as much as possible. A typical configuration includes connection details to a database:
+** url
+** username
+** password.
 . *Save* the datastore configuration.
 
 == Defining a Dataset
@@ -57,10 +61,12 @@ The `validateDataSet` validation checks that each input or output (processor wit
 You can define one or several datasets if you have selected the *Activate IO* step.
 
 . Select *Dataset*. The list of datasets opens. By default, a dataset is already open but not configured. You can configure it or create a new one using the *Add new Dataset* button.
-. Edit the dataset configuration. A typical configuration includes details of the data to retrieve:
+. Specify the name of the dataset. Modify the default value to a meaningful name for your project. +
+This name must be a valid Java name as it will represent the dataset class in your project. It is a good practice to start it with an uppercase letter.
+. Edit the dataset configuration. Parameter names must be valid Java names. Use lower case as much as possible. A typical configuration includes details of the data to retrieve:
 ** Datastore to use (that contains the connection details to the database)
-** Table name
-** Data
+** table name
+** data
 . *Save* the dataset configuration.
 
 == Creating an Input component
@@ -69,16 +75,18 @@ To create an input component, make sure you have selected *Activate IO*.
 When clicking *Add A Component* in the starter, a new step allows you to define a new component in your project. +
 The intent in this tutorial is to create an input component that connects to a MySQL database, executes a SQL query and gets the result.
 
-image::starter/starter_input-config.png[Input configuration,window="_blank",link="_images/starter/starter_input-config.png",80%]
+image::starter/starter_add_component.png[Input configuration,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/starter/starter_add_component.png",80%]
 . Choose the component type. *Input* in this case.
 . Enter the component name. For example, _MySQLInput_.
 . Click *Configuration model*. This button lets you specify the required configuration for the component. By default, a dataset is already specified.
 . For each parameter that you need to add, click the *(\+)* button on the right panel. Enter the parameter name and choose its type then click the tick button to save the changes. +
 In this tutorial, to be able to execute a SQL query on the Input MySQL database, the configuration requires the following parameters:+
 * a dataset (which contains the datastore with the connection information)
-* a timeout parameter. +
+* a timeout parameter.
 +
-NOTE: Closing the configuration panel on the right does *not* delete your configuration. However, refreshing the page resets the configuration.
+NOTE: Closing the configuration panel on the right does *not* delete your configuration. However, refreshing the page resets the configuration. +
++
+image::starter/starter_input-config.png[Input configuration,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/starter/starter_input-config.png",80%]
 . Specify whether the component issues a stream or not. In this tutorial, the MySQL input component created is an ordinary (non streaming) component. In this case, leave the *Stream* option disabled.
 . Select the *Record Type* generated by the component. In this tutorial, select *Generic* because the component is designed to generate records in the default `Record` format. +
 You can also select *Custom* to define a POJO that represents your records.
@@ -92,18 +100,17 @@ The intent in this tutorial is to create a simple processor component that recei
 NOTE: If you did not select *Activate IO*, all new components you add to the project are processors by default. +
 If you selected *Activate IO*, you can choose the component type. In this case, to create a Processor component, you have to manually add at least one output.
 
-image::starter/starter_processor-config.png[Processor configuration,window="_blank",link="_images/starter/starter_processor-config.png",80%]
-. If required, choose the component type: *Processor/Output* in this case.
+. If required, choose the component type: *Processor* in this case.
 . Enter the component name. For example, _RecordLogger_, as the processor created in this tutorial logs the records.
 . Specify the *Configuration Model* of the component. In this tutorial, the component doesn't need any specific configuration. Skip this step.
 . Define the *Input(s)* of the component. For each input that you need to define, click *Add Input*. In this tutorial, only one input is needed to receive the record to log.
 . Click the input name to access its configuration. You can change the name of the input and define its structure using a POJO. If you added several inputs, repeat this step for each one of them. +
-The input in this tutorial is a generic record. Enable the *Generic* option and click *Save*.
+The input in this tutorial is a generic record. Enable the *Generic* option and click *Save*. +
++
+image::starter/starter_processor-config.png[Processor configuration,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/starter/starter_processor-config.png",80%]
 . Define the *Output(s)* of the component. For each output that you need to define, click *Add Output*. The first output must be named `MAIN`. In this tutorial, only one generic output is needed to return the received record. +
 Outputs can be configured the same way as inputs (see previous steps). +
 You can define a reject output connection by naming it `REJECT`. This naming is used by Talend applications to automatically set the connection type to Reject.
-
-IMPORTANT: Make sure to check the configuration of inputs and outputs as they are not set to *Generic* by default.
 
 Your processor component is now defined. You can add another component or generate and download your project.
 
@@ -115,8 +122,8 @@ The intent in this tutorial is to create an output component that receives a rec
 
 NOTE: *Output* components are *Processors* without any output. In other words, the output is a processor that does not produce any records.
 
-image::starter/starter_output-config.png[Output configuration,window="_blank",link="_images/starter/starter_output-config.png",80%]
-. Choose the component type. *Processor/Output* in this case.
+image::starter/starter_output-config.png[Output configuration,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/starter/starter_output-config.png",80%]
+. Choose the component type. *Output* in this case.
 . Enter the component name. For example, _MySQLOutput_.
 . Click *Configuration Model*. This button lets you specify the required configuration for the component. By default, a dataset is already specified.
 . For each parameter that you need to add, click the *(\+)* button on the right panel. Enter the name and choose the type of the parameter, then click the tick button to save the changes. +
@@ -139,7 +146,7 @@ In this tutorial, the project was configured and three components of different t
 
 . Click *Finish* on the left panel. You are redirected to a page that summarizes the project. On the left panel, you can also see all the components that you added to the project.
 +
-image::starter/starter_project-download.png[Output configuration,window="_blank",link="_images/starter/starter_project-download.png",80%]
+image::starter/starter_project-download.png[Output configuration,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/starter/starter_project-download.png",80%]
 . Generate the project using one of the two options available:
 ** Download it locally as a ZIP file using the *Download as ZIP* button.
 ** Create a GitHub repository and push the project to it using the *Create on Github* button.
@@ -156,8 +163,6 @@ If you don't have Maven installed on your machine, you can use the Maven wrapper
 
 The generated project code contains documentation that can guide and help you implementing the component logic.
 Import the project to your favorite IDE to start the implementation.
-
-The next tutorial shows how to implement an Input component in details.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

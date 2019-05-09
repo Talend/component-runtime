@@ -7,7 +7,7 @@
 
 Some recommendations apply to the way component packages are organized:
 
-. Make sure to create a `package-info.java file` with the component family/categories at the root of your component package:
+. Make sure to create a `package-info.java` file with the component family/categories at the root of your component package:
 
 [source,java]
 ----

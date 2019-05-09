@@ -5,11 +5,15 @@ include::index-creating-components.adoc[]
 
 include::component-registering.adoc[leveloffset=+1]
 
+include::creating-dataset-datastore.adoc[leveloffset=+1]
+
 include::component-define-input.adoc[leveloffset=+1]
 
 include::component-define-processor-output.adoc[leveloffset=+1]
 
 include::component-configuration.adoc[leveloffset=+1]
+
+include::component-execution.adoc[leveloffset=+1]
 
 include::component-internationalization.adoc[leveloffset=+1]
 

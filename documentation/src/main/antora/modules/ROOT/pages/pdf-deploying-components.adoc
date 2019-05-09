@@ -7,4 +7,6 @@ include::compatibility.adoc[leveloffset=+1]
 
 include::studio.adoc[leveloffset=+1]
 
+include::studio-from-car.adoc[leveloffset=+1]
+
 include::javajet-to-componentkit.adoc[leveloffset=+1]

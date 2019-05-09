@@ -9,8 +9,14 @@
 
 To be able to see and use your newly developed components, you need to integrate them to the right application.
 
-Currently, you can deploy your components created using Talend Component Kit in the following applications:
+Currently, you can deploy your components to Talend Studio as part of your development process to iterate on them:
 
-* xref:studio.adoc[Integrating components to Talend Studio]
+* xref:studio.adoc[Iterating on component development with Talend Studio]
+
+You can also share your components externally and install them using a component archive (.car) file.
+
+* xref:studio-from-car[Sharing and installing components in Talend Studio]
 
 Check the versions of the framework that are compatible with your version of Talend Studio in xref:compatibility.adoc[this document].
+
+If you were used to create custom components with the Javajet framework and want to get to know the new approach and main differences of the Component Kit framework, refer to xref:javajet-to-componentkit.adoc[this document].

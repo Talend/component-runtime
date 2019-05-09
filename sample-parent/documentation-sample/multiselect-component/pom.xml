@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples :: Multiselect</name>
-  <description>A generated component project</description>
+  <description>Add a list and allow users to select multiple elements of that list.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

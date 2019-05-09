@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples :: Required</name>
-  <description>A generated component project</description>
+  <description>Make a configuration mandatory.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

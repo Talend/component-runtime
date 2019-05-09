@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples :: Credential</name>
-  <description>A generated component project</description>
+  <description>Mark a configuration as sensitive data to avoid displaying it as plain text.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

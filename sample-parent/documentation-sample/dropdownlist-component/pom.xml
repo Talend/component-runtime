@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples :: Datalist</name>
-  <description>A generated component project</description>
+  <description>Two ways of implementing a dropdown list with predefined choices.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

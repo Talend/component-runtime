@@ -1,4 +1,4 @@
-= xref:component-combiner.adoc[Defining a combiner]
+= Defining a combiner
 :page-partial:
 :description: How to develop a combiner component with Talend Component Kit
 :keywords: component type, combiner, output

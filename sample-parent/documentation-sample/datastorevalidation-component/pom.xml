@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples :: Datastore</name>
-  <description>A generated component project</description>
+  <description>Add a button allowing to check the connection to a datastore.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

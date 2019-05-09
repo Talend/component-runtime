@@ -2,6 +2,7 @@
 :page-partial:
 :description: Learn the basic concepts of the Talend Component Kit framework
 :keywords: framework
+:version: 1.1.9
 
 _Talend Component Kit_ is a toolkit based on Java and designed to simplify the development of components at two levels:
 
@@ -12,15 +13,15 @@ _Talend Component Kit_ is a toolkit based on Java and designed to simplify the d
 
 The *Talend Component Kit* framework is made of several tools designed to help you during the component development process. It allows to develop components that fit in both Java web UIs.
 
-* *Starter*: Generate the skeleton of your development project using a user-friendly interface. The *Talend Component Kit Starter* is available as a https://starter-toolkit.talend.io[web tool] or as a https://plugins.jetbrains.com/plugin/10558-talend-component-kit--intellij-plugin[plugin for the IntelliJ IDE].
+* *Starter*: Generate the skeleton of your development project using a user-friendly interface. The *Talend Component Kit Starter* is available as a https://starter-toolkit.talend.io[web tool] or as a https://plugins.jetbrains.com/plugin/10558-talend-component-kit[plugin for the IntelliJ IDE].
 
-image:tutorial_component_configuration_model.png[Starter,window="_blank",link="_images/tutorial_component_configuration_model.png",75%]
+image:tutorial_component_configuration_model.png[Starter,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/tutorial_component_configuration_model.png",75%]
 
 * *Component API*: Check all classes available to implement components.
 * *Build tools*: The framework comes with xref:build-tools-maven.adoc[Maven] and xref:build-tools-gradle.adoc[Gradle] wrappers, which allow to always use the version of Maven or Gradle that is right for your component development environment and version.
 * *Testing tools*: Test components before integrating them into Talend Studio or Cloud applications. Testing tools include the *Talend Component Kit Web Tester*, which allows to check the web UI of your components on your local machine.
 
-image:component_kit_web_tester.png[Web tester,window="_blank",link="_images/component_kit_web_tester.png",75%]
+image:component_kit_web_tester.png[Web tester,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/component_kit_web_tester.png",75%]
 
 You can find more details about the framework design in xref:framework_design.adoc[this document].
 

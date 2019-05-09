@@ -1,12 +1,8 @@
 :page-partial:
 :page-talend_skipindexation:
 
-include::index-getting-started-with-tck.adoc[]
-
-include::methodology-creating-components.adoc[leveloffset=+1]
-
-include::component-execution.adoc[leveloffset=+1]
-
-include::tck-framework-overview.adoc[leveloffset=+1]
+include::getting-started.adoc[]
 
 include::tutorial-create-my-first-component.adoc[leveloffset=+1]
+
+include::record-types.adoc[leveloffset=+1]

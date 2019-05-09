@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples :: Min/Max</name>
-  <description>A generated component project</description>
+  <description>Specify a minimum or a maximum value for a numeric configuration.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

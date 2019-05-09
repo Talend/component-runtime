@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples :: Update</name>
-  <description>A generated component project</description>
+  <description>Provide a button allowing to fill a part of the component configuration based on a service.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
