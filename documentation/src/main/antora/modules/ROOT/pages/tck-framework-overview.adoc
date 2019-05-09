@@ -12,7 +12,7 @@ _Talend Component Kit_ is a toolkit based on Java and designed to simplify the d
 
 The *Talend Component Kit* framework is made of several tools designed to help you during the component development process. It allows to develop components that fit in both Java web UIs.
 
-* *Starter*: Generate the skeleton of your development project using a user-friendly interface. The *Talend Component Kit Starter* is available as a https://starter-toolkit.talend.io[web tool] or as a https://plugins.jetbrains.com/plugin/10558-talend-component-kit--intellij-plugin[plugin for the IntelliJ IDE].
+* *Starter*: Generate the skeleton of your development project using a user-friendly interface. The *Talend Component Kit Starter* is available as a https://starter-toolkit.talend.io[web tool] or as a https://plugins.jetbrains.com/plugin/10558-talend-component-kit[plugin for the IntelliJ IDE].
 
 image:tutorial_component_configuration_model.png[Starter,window="_blank",link="_images/tutorial_component_configuration_model.png",75%]
 
