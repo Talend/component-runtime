@@ -247,6 +247,11 @@
   },
   {
     "legacy":false,
+    "name":"COUCHBASE",
+    "path":"_images/icons/svg/couchbase.svg"
+  },
+  {
+    "legacy":false,
     "name":"CREDITS_ENGINE",
     "path":"_images/icons/svg/credits-engine.svg"
   },
@@ -324,6 +329,11 @@
     "legacy":false,
     "name":"DRAG_AND_DROP",
     "path":"_images/icons/svg/drag-and-drop.svg"
+  },
+  {
+    "legacy":false,
+    "name":"DROPPER",
+    "path":"_images/icons/svg/dropper.svg"
   },
   {
     "legacy":false,
@@ -869,6 +879,11 @@
     "legacy":false,
     "name":"REPLICATE",
     "path":"_images/icons/svg/replicate.svg"
+  },
+  {
+    "legacy":false,
+    "name":"REST",
+    "path":"_images/icons/svg/rest.svg"
   },
   {
     "legacy":false,
