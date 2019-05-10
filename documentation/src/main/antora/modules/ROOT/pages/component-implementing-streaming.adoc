@@ -3,7 +3,6 @@
 :stem:
 :description: How to make your input component ready for a continuous flow of data.
 :keywords: stream, infinite, partition mapper, input
-:version: 1.1.9
 
 By default, input components are designed to receive a one-time batch of data to process. By enabling the streaming mode, you can instead set your component to process a continuous incoming flow of data.
 
@@ -25,7 +24,7 @@ You can enable streaming right from the design phase of the project by enabling 
 Doing so adds a default streaming-ready configuration to your component when generating the project. +
 This default configuration implements a constant pause duration of 500 ms between retries, with no limit of retries.
 
-image::starter/starter_enabling_streaming.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/starter/starter_enabling_streaming.png",80%]
+image::starter/starter_enabling_streaming.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/starter/starter_enabling_streaming.png",80%]
 
 == Configuring streaming from the project
 

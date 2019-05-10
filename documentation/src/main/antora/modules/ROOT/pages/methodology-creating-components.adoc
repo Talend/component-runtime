@@ -2,7 +2,6 @@
 :page-partial:
 :description: Learn the main steps to build a custom component using Talend Component Kit
 :keywords: get started, learn
-:version: 1.1.9
 
 [[getting-started-principles]]
 
@@ -22,4 +21,4 @@ Developing new components using the Component Kit framework includes:
 
 Optionally, you can use xref:index-defining-services.adoc[services]. Services are predefined or user-defined configurations that can be reused in several components.
 
-image:methodo.png[Methodology,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/methodo.png",65%]
+image:methodo.png[Methodology,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/methodo.png",65%]

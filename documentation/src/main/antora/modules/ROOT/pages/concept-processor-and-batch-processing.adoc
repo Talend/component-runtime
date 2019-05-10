@@ -2,7 +2,6 @@
 :page-partial:
 :description: Optimize the way your processor component handle records using groups
 :keywords: bulk, bulking, chunk, group, maxBatchSize, bulking
-:version: 1.1.9
 
 Depending on several requirements, including the system capacity and business needs, a processor can process records differently.
 
@@ -21,7 +20,7 @@ The component batch processes the data as follows:
 - Case 2 - The runtime estimates a group size of 4 but a `maxBatchSize` of 3 is specified in the component configuration. The system adapts the group size to 3. Records are processed by groups of 3.
 
 .*Processing schema (values are examples):*
-image:batch-processing-maxbatchsize.png[Batch processing,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/batch-processing-maxbatchsize.png",80%]
+image:batch-processing-maxbatchsize.png[Batch processing,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/batch-processing-maxbatchsize.png",80%]
 
 Each group is processed as follows until there is no record left:
 
@@ -30,7 +29,7 @@ Each group is processed as follows until there is no record left:
 . The previous step happens for all records of the group. Then the `@AfterGroup` method tests if the buffer is empty.
 
 .*Group execution detail (values are examples):*
-image:batch-processing-group.png[Group batch processing,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/batch-processing-group.png",80%]
+image:batch-processing-group.png[Group batch processing,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/batch-processing-group.png",80%]
 
 You can define the following logic in the processor configuration:
 
@@ -81,6 +80,8 @@ public class BulkProcessor implements Serializable {
     }
 }
 ----
+
+NOTE: When writing tests for your components, you can force the `maxBatchSize` parameter value by setting it with the following syntax: `$configuration.$maxBatchSize=10`.
 
 You can learn more about processors in xref:component-define-processor-output.adoc[this document].
 

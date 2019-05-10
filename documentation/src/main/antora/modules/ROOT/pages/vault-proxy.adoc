@@ -2,13 +2,12 @@
 :page-partial:
 :description: A Vault Proxy manages credential encryption before the data reaches the component server.
 :keywords: component server vault proxy, credentials, cloud
-:version: 1.1.9
 
 Browse the API description using xref:rest-openapi-vault.adoc[OpenAPI].
 
 A Vault proxy dedicated to the component server allows to safely manage credential encryption when operating in a Cloud environment.
 
-image:tacokit_vault_proxy.png[Vault proxy,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/tacokit_vault_proxy.png",80%]
+image:tacokit_vault_proxy.png[Vault proxy,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tacokit_vault_proxy.png",80%]
 
 The Vault Proxy only concerns data marked as `@Credential` in the xref:tutorial-configuration-sensitive-data.adoc[component configuration].
 
