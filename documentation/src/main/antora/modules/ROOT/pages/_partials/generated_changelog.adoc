@@ -1,5 +1,3 @@
-
-
 == Version 1.1.9
 
 === Bug
@@ -735,4 +733,18 @@
 - link:https://jira.talendforge.org/browse/TCOMP-719[TCOMP-719^]: Support Input Definition
 - link:https://jira.talendforge.org/browse/TCOMP-720[TCOMP-720^]: Support Output Definition
 - link:https://jira.talendforge.org/browse/TCOMP-721[TCOMP-721^]: Initial Widget Definitions
+
+ifeval::["{backend}" == "html5"]
+ifeval::["{page-origin-refname}" == "master"]
+++++
+<script>
+(function () {
+  var currentVersion = document.getElementsByClassName('navigation-container')[0].dataset.version.replace(/\./g, '_');
+  var title = document.getElementById('_version_' + currentVersion);
+  if (title) { title.append(' (dev)'); }
+})();
+</script>
+++++
+endif::[]
+endif::[]
 

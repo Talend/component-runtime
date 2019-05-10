@@ -623,41 +623,35 @@ public class Generator {
                                     }))));
             issues
                     .forEach((name, issuesMap) -> changelogPerVersion
-                            .put(name, "\n\n== Version " + name
-                                    + (name.equals(currentVersion) && version.endsWith("-SNAPSHOT") ? " (dev)" : "")
-                                    + issuesMap
-                                            .entrySet()
-                                            .stream()
-                                            .collect((Supplier<StringBuilder>) StringBuilder::new,
-                                                    (builder, issuesByType) -> builder
-                                                            .append("\n\n=== ")
-                                                            .append(issuesByType.getKey())
-                                                            .append("\n\n")
-                                                            .append(issuesByType
-                                                                    .getValue()
-                                                                    .stream()
-                                                                    .collect(
-                                                                            (Supplier<StringBuilder>) StringBuilder::new,
-                                                                            // note: for now we don't use the
-                                                                            // description since
-                                                                            // it is not that useful
-                                                                            (a, i) -> a
-                                                                                    .append("- link:")
-                                                                                    .append(jiraBase)
-                                                                                    .append("/browse/")
-                                                                                    .append(i.getKey())
-                                                                                    .append("[")
-                                                                                    .append(i.getKey())
-                                                                                    .append("^]")
-                                                                                    .append(": ")
-                                                                                    .append(i
-                                                                                            .getFields()
-                                                                                            .getSummary()
-                                                                                            .trim())
-                                                                                    .append("\n"),
-                                                                            StringBuilder::append))
-                                                            .append('\n'),
-                                                    StringBuilder::append)));
+                            .put(name, "\n\n== Version " + name + issuesMap
+                                    .entrySet()
+                                    .stream()
+                                    .collect((Supplier<StringBuilder>) StringBuilder::new,
+                                            (builder, issuesByType) -> builder
+                                                    .append("\n\n=== ")
+                                                    .append(issuesByType.getKey())
+                                                    .append("\n\n")
+                                                    .append(issuesByType
+                                                            .getValue()
+                                                            .stream()
+                                                            .collect((Supplier<StringBuilder>) StringBuilder::new,
+                                                                    // note: for now we don't use the
+                                                                    // description since
+                                                                    // it is not that useful
+                                                                    (a, i) -> a
+                                                                            .append("- link:")
+                                                                            .append(jiraBase)
+                                                                            .append("/browse/")
+                                                                            .append(i.getKey())
+                                                                            .append("[")
+                                                                            .append(i.getKey())
+                                                                            .append("^]")
+                                                                            .append(": ")
+                                                                            .append(i.getFields().getSummary().trim())
+                                                                            .append("\n"),
+                                                                    StringBuilder::append))
+                                                    .append('\n'),
+                                            StringBuilder::append)));
 
             final String changelog = changelogPerVersion.entrySet().stream().sorted((v1, v2) -> {
                 if (v1.equals(v2)) {
