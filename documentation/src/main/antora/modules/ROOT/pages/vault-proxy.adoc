@@ -47,6 +47,11 @@ talend.component.server.ssl.keypair.size:: Size of the key. `2048` by default.
 talend.component.server.ssl.port:: SSL port to use.
 
 
+== Adding extensions to the instance
+
+You can mount a volume in `/opt/talend/component-kit-vault-proxy/custom/` and the jars in that folder which will be deployed with the server.
+Since the server relies on CDI (Apache OpenWebBeans) you can use that technology to enrich it, including JAX-RS endpoints, interceptors etc...or just libraries needing to be in the JVM.
+
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 
