@@ -1,3 +1,11 @@
+
+
+== Version 1.1.10
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1419[TCOMP-1419^]: Upgrade build to groovy 2.5.7
+
 == Version 1.1.9
 
 === Bug
