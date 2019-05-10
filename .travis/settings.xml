@@ -22,7 +22,7 @@
     <server>
       <id>jetbrains</id>
       <username>${env.JETBRAINS_USER}</username>
-      <password>${env.JETBRAINS_PASS}</password>
+      <password>${env.JETBRAINS_PASSWORD}</password>
     </server>
     <server>
       <id>webhost</id>
