@@ -49,7 +49,7 @@ echo "Building and pushing docker images $release"
 cd images
     for i in component-server-image component-server-vault-proxy-image component-starter-server-image; do
         cd $i
-        mvn -DskipTests -Dinvoker.skip=true -T1C \
+        mvn -DskipTests -Dinvoker.skip=true -T1C -Prelease \
             clean install \
             jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/
         cd -
