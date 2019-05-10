@@ -46,28 +46,6 @@
         <timeout>30000</timeout>
       </configuration>
     </server>
-    <server>
-      <id>blackduck</id>
-      <username>${env.TLND_BLACKDUCK_USER}</username>
-      <password>${env.TLND_BLACKDUCK_PASS}</password>
-    </server>
-
-    <!-- no more used ATM -->
-    <server>
-      <id>freeshells</id>
-      <username>${env.FREESHELLS_LOGIN}</username>
-      <password>${env.FREESHELLS_PASS}</password>
-    </server>
-    <server>
-      <id>npm</id>
-      <username>${env.NPM_USER}</username>
-      <password>${env.NPM_PASS}</password>
-    </server>
-    <server>
-      <id>algolia_admin_key</id>
-      <username>algolia</username>
-      <password>${env.ALGOLIA_ADMIN_KEY}</password>
-    </server>
   </servers>
 
   <profiles>
