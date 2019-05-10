@@ -194,6 +194,76 @@ class ProjectResourceTest {
     }
 
     @Test
+    void lowercaseDataStore(final WebTarget target) throws IOException {
+        final ProjectModel.Entry datastoreConfig = new ProjectModel.Entry();
+        datastoreConfig.setName("testDso");
+        datastoreConfig.setType("string");
+
+        final ProjectModel.ReusableStructure datastore = new ProjectModel.ReusableStructure();
+        datastore.setId("24c20f6e-003b-9eb6-eb3b-4adf81adcc0a");
+        datastore.setName("dataStore1");
+        datastore.setStructure(new ProjectModel.Model());
+        datastore.getStructure().setEntries(singletonList(datastoreConfig));
+
+        final ProjectModel.Entry datasetDataStore = new ProjectModel.Entry();
+        datasetDataStore.setName("testDsoRef");
+        datasetDataStore.setType("datastore");
+        datasetDataStore.setReference(datastore.getId());
+
+        final ProjectModel.Entry datasetConfig = new ProjectModel.Entry();
+        datasetConfig.setName("testDst");
+        datasetConfig.setType("string");
+
+        final ProjectModel.ReusableStructure dataset = new ProjectModel.ReusableStructure();
+        dataset.setId("e35f8a48-0888-e6ff-9639-cd60a7b3ab6a");
+        dataset.setName("DataSet1");
+        dataset.setStructure(new ProjectModel.Model());
+        dataset.getStructure().setEntries(asList(datasetDataStore, datasetConfig));
+
+        final ProjectModel.Entry sourceDataSet = new ProjectModel.Entry();
+        sourceDataSet.setName("testDstRef");
+        sourceDataSet.setType("dataset");
+        sourceDataSet.setReference(dataset.getId());
+
+        final ProjectModel.Entry sourceAnything = new ProjectModel.Entry();
+        sourceAnything.setName("anything");
+        sourceAnything.setType("int");
+
+        final ProjectModel.Model sourceConfig = new ProjectModel.Model();
+        sourceConfig.setEntries(asList(sourceDataSet, sourceAnything));
+
+        final ProjectModel.Source source = new ProjectModel.Source();
+        source.setName("tIn");
+        source.setConfigurationStructure(sourceConfig);
+        source.setGenericOutput(true);
+
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setFamily("theFamily");
+        projectModel.setSources(singletonList(source));
+        projectModel.setDatastores(singletonList(datastore));
+        projectModel.setDatasets(singletonList(dataset));
+        final Map<String, String> files = createZip(projectModel, target);
+
+        final String datasetSrc = files.get("application/src/main/java/com/application/dataset/DataSet1.java");
+        assertTrue(datasetSrc.contains("import com.application.datastore.dataStore1;"), datasetSrc);
+        assertTrue(datasetSrc.contains("private dataStore1 testDsoRef;"), datasetSrc);
+
+        final String datastoreSrc = files.get("application/src/main/java/com/application/datastore/dataStore1.java");
+        assertTrue(datastoreSrc.contains("@DataStore(\"dataStore1\")"), datastoreSrc);
+        assertTrue(datastoreSrc.contains("private String testDso;"), datastoreSrc);
+
+        final String componentConfig =
+                files.get("application/src/main/java/com/application/source/TInMapperConfiguration.java");
+        assertTrue(componentConfig.contains("DataSet1 testDstRef;"), componentConfig);
+
+        final String i18n = files.get("application/src/main/resources/com/application/Messages.properties");
+        assertTrue(i18n
+                .contains("theFamily.dataset.DataSet1._displayName=DataSet1\n"
+                        + "theFamily.datastore.dataStore1._displayName=dataStore1"),
+                i18n);
+    }
+
+    @Test
     void formProject(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setBuildType("Gradle");

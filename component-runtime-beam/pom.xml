@@ -235,6 +235,7 @@
               <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>${project.basedir}/src/main/build/RunnerDependencies.groovy</script>
+                <script>${project.basedir}/src/main/build/ClassesIndices.groovy</script>
               </scripts>
             </configuration>
           </execution>

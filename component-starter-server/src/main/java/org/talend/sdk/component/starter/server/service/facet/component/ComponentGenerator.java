@@ -134,7 +134,7 @@ public class ComponentGenerator {
         configurations.stream().filter(it -> it.getType() != null && !it.getType().isEmpty()).forEach(it -> {
             final String lowerType = it.getType().toLowerCase(ENGLISH);
             final String configPck = packageBase + '.' + lowerType;
-            final String name = capitalize(it.getName().substring(it.getName().lastIndexOf('.') + 1));
+            final String name = it.getName().substring(it.getName().lastIndexOf('.') + 1);
             generateConfiguration(configPck + '.' + name, configPck, mainJava, it.getStructure(), name, files,
                     lowerType);
             messageProperties

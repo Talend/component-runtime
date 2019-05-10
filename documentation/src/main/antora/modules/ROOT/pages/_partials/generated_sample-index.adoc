@@ -1,102 +1,102 @@
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=activeif-component-distribution[ActiveIf]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=activeif-component-distribution[ActiveIf]: Add visibility conditions on some configurations.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-activeif-component-distribution.zip[ActiveIf]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-activeif-component-distribution.zip[ActiveIf]: Add visibility conditions on some configurations.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=checkbox-component-distribution[Checkbox]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=checkbox-component-distribution[Checkbox]: Add checkboxes or toggles to your component.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-checkbox-component-distribution.zip[Checkbox]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-checkbox-component-distribution.zip[Checkbox]: Add checkboxes or toggles to your component.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=code-component-distribution[Code]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=code-component-distribution[Code]: Allow users to enter their own code.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-code-component-distribution.zip[Code]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-code-component-distribution.zip[Code]: Allow users to enter their own code.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=credentials-component-distribution[Credential]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=credentials-component-distribution[Credential]: Mark a configuration as sensitive data to avoid displaying it as plain text.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-credentials-component-distribution.zip[Credential]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-credentials-component-distribution.zip[Credential]: Mark a configuration as sensitive data to avoid displaying it as plain text.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=datastorevalidation-component-distribution[Datastore]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=datastorevalidation-component-distribution[Datastore]: Add a button allowing to check the connection to a datastore.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-datastorevalidation-component-distribution.zip[Datastore]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-datastorevalidation-component-distribution.zip[Datastore]: Add a button allowing to check the connection to a datastore.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=dropdownlist-component-distribution[Datalist]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=dropdownlist-component-distribution[Datalist]: Two ways of implementing a dropdown list with predefined choices.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-dropdownlist-component-distribution.zip[Datalist]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-dropdownlist-component-distribution.zip[Datalist]: Two ways of implementing a dropdown list with predefined choices.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=integer-component-distribution[Integer]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=integer-component-distribution[Integer]: Add numeric fields to your component configuration.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-integer-component-distribution.zip[Integer]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-integer-component-distribution.zip[Integer]: Add numeric fields to your component configuration.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=minmaxvalidation-component-distribution[Min/Max]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=minmaxvalidation-component-distribution[Min/Max]: Specify a minimum or a maximum value for a numeric configuration.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-minmaxvalidation-component-distribution.zip[Min/Max]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-minmaxvalidation-component-distribution.zip[Min/Max]: Specify a minimum or a maximum value for a numeric configuration.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=multiselect-component-distribution[Multiselect]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=multiselect-component-distribution[Multiselect]: Add a list and allow users to select multiple elements of that list.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-multiselect-component-distribution.zip[Multiselect]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-multiselect-component-distribution.zip[Multiselect]: Add a list and allow users to select multiple elements of that list.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=patternvalidation-component-distribution[Pattern]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=patternvalidation-component-distribution[Pattern]: Enforce rules based on a specific a pattern to prevent users from entering invalid values.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-patternvalidation-component-distribution.zip[Pattern]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-patternvalidation-component-distribution.zip[Pattern]: Enforce rules based on a specific a pattern to prevent users from entering invalid values.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=requiredvalidation-component-distribution[Required]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=requiredvalidation-component-distribution[Required]: Make a configuration mandatory.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-requiredvalidation-component-distribution.zip[Required]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-requiredvalidation-component-distribution.zip[Required]: Make a configuration mandatory.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=suggestions-component-distribution[Suggestions]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=suggestions-component-distribution[Suggestions]: Suggest possible values in a field based on what the users are entering.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-suggestions-component-distribution.zip[Suggestions]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-suggestions-component-distribution.zip[Suggestions]: Suggest possible values in a field based on what the users are entering.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=table-component-distribution[Table]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=table-component-distribution[Table]: Add a table to your component configuration.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-table-component-distribution.zip[Table]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-table-component-distribution.zip[Table]: Add a table to your component configuration.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=textarea-component-distribution[Textarea]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=textarea-component-distribution[Textarea]: Add a text area for configurations expecting long texts or values.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-textarea-component-distribution.zip[Textarea]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-textarea-component-distribution.zip[Textarea]: Add a text area for configurations expecting long texts or values.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=textinput-component-distribution[Input]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=textinput-component-distribution[Input]: Add a simple text input field to the component configuration
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-textinput-component-distribution.zip[Input]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-textinput-component-distribution.zip[Input]: Add a simple text input field to the component configuration
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=updatable-component-distribution[Update]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=updatable-component-distribution[Update]: Provide a button allowing to fill a part of the component configuration based on a service.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-updatable-component-distribution.zip[Update]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-updatable-component-distribution.zip[Update]: Provide a button allowing to fill a part of the component configuration based on a service.
 endif::[]
 ifeval::["{page-origin-refname}" == "master"]
-- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=urlvalidation-component-distribution[Validation]: A generated component project
+- link:https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation-sample&v=1.1.9-SNAPSHOT&e=zip&c=urlvalidation-component-distribution[Validation]: Specify constraints to make sure that a URL is well formed.
 endif::[]
 ifeval::["{page-origin-refname}" != "master"]
-- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-urlvalidation-component-distribution.zip[Validation]: A generated component project
+- link:http://repo.maven.apache.org/maven2/org/talend/sdk/component//documentation-sample/1.1.9/documentation-sample-1.1.9-urlvalidation-component-distribution.zip[Validation]: Specify constraints to make sure that a URL is well formed.
 endif::[]

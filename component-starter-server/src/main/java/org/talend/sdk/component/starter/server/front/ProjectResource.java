@@ -401,8 +401,15 @@ public class ProjectResource {
             final Map<String, ProjectRequest.ReusableConfiguration> reusableConfigs) {
         return rs
                 .map(it -> new ProjectRequest.ReusableConfiguration(it.getId(),
-                        basePck + '.' + type + '.' + it.getName(),
+                        basePck + '.' + type + '.' + ensureUnAmbiguousName(type, it.getName()),
                         toStructure(false, it.getStructure(), true, reusableConfigs).getStructure(), type));
+    }
+
+    private String ensureUnAmbiguousName(final String type, final String name) {
+        if (type.equalsIgnoreCase(name)) {
+            return "Custom" + name;
+        }
+        return name;
     }
 
     private Map<String, ProjectRequest.StructureConfiguration> mapStructures(

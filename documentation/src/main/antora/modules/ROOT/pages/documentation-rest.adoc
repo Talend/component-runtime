@@ -612,3 +612,8 @@ volumes:
 To run one of the previous compose examples, you can use `docker-compose -f docker-compose.yml up`.
 
 IMPORTANT: Only use the configuration related to port `5005` (in `ports` and the `-agentlib` option in `_JAVA_OPTIONS`) to debug the server on port `5005`. *Don't* set it in *production*.
+
+=== Adding extensions to the server
+
+You can mount a volume in `/opt/talend/component-kit/custom/` and the jars in that folder which will be deployed with the server.
+Since the server relies on CDI (Apache OpenWebBeans) you can use that technology to enrich it, including JAX-RS endpoints, interceptors etc...or just libraries needing to be in the JVM.

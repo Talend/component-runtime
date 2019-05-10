@@ -11,6 +11,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1389[TCOMP-1389^]: Intellij starter fails to generate a project
 - link:https://jira.talendforge.org/browse/TCOMP-1398[TCOMP-1398^]: Using after option of @updateable can lead to a null pointer exception in component-form
 - link:https://jira.talendforge.org/browse/TCOMP-1401[TCOMP-1401^]: Documentation table is broken
+- link:https://jira.talendforge.org/browse/TCOMP-1407[TCOMP-1407^]: Databricks: interface javax.json.stream.JsonGeneratorFactory is not visible from class loader
 
 
 
@@ -18,6 +19,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1386[TCOMP-1386^]: Add withRecord(String,Record) in Record.Builder
 - link:https://jira.talendforge.org/browse/TCOMP-1387[TCOMP-1387^]: Use icon bundle version 3.1.0
+- link:https://jira.talendforge.org/browse/TCOMP-1412[TCOMP-1412^]: Add rest and couchbase icon to component api
 
 
 
@@ -27,8 +29,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1385[TCOMP-1385^]: talend.component.server.component.registry must be a list
 - link:https://jira.talendforge.org/browse/TCOMP-1390[TCOMP-1390^]: Move component-api to component-runtime repository
 - link:https://jira.talendforge.org/browse/TCOMP-1392[TCOMP-1392^]: Tomcat 9.0.19 upgrade
+- link:https://jira.talendforge.org/browse/TCOMP-1402[TCOMP-1402^]: Provide a placeholder for classpath extensions in docker images
 - link:https://jira.talendforge.org/browse/TCOMP-1403[TCOMP-1403^]: Upgrade asciidoctor to 2.0.0 and asciidoctor-pdf to alpha17
 - link:https://jira.talendforge.org/browse/TCOMP-1404[TCOMP-1404^]: Upgrade to Apache Beam 2.12.0
+- link:https://jira.talendforge.org/browse/TCOMP-1408[TCOMP-1408^]: Starter does not support types starting with a lowercase
+- link:https://jira.talendforge.org/browse/TCOMP-1411[TCOMP-1411^]: ComponentManager relies on beam jar name. This is unlikely and should move to beam integration module.
+- link:https://jira.talendforge.org/browse/TCOMP-1417[TCOMP-1417^]: Upgrade to Geronimo OpenAPI 1.0.8
 
 == Version 1.1.8
 
