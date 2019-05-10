@@ -1,6 +1,6 @@
 
 
-== Version 1.1.9 (dev)
+== Version 1.1.9
 
 === Bug
 
