@@ -34,6 +34,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1404[TCOMP-1404^]: Upgrade to Apache Beam 2.12.0
 - link:https://jira.talendforge.org/browse/TCOMP-1408[TCOMP-1408^]: Starter does not support types starting with a lowercase
 - link:https://jira.talendforge.org/browse/TCOMP-1411[TCOMP-1411^]: ComponentManager relies on beam jar name. This is unlikely and should move to beam integration module.
+- link:https://jira.talendforge.org/browse/TCOMP-1417[TCOMP-1417^]: Upgrade to Geronimo OpenAPI 1.0.8
 
 == Version 1.1.8
 
