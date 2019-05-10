@@ -6,7 +6,6 @@
 :page-documentationindex-description: Learn the basics about Talend Component Kit framework and get ready to create new components
 :description: Learn the basics about Talend Component Kit framework and get ready to create new components
 :keywords: quickstart, overview, principle, description
-:version: 1.1.9
 
 [[getting-started-introducing-talend-component]]
 //== Introducing Talend Component Kit
@@ -46,7 +45,7 @@ There are three types of components, each type coming with its specificities, es
 
 The following example shows the different classes of an input components in a multi-component development project:
 
-image::input_intellij.png[Input,window="_blank",link="https://talend.github.io/component-runtime/main/{version}/_images/input_intellij.png",65%]
+image::input_intellij.png[Input,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/input_intellij.png",65%]
 
 == Next
 

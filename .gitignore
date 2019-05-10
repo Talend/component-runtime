@@ -46,3 +46,4 @@ documentation/rebuild_refresh_generated_pages.bat
 documentation/generate-index.bat
 documentation/rebuild_front.bat
 
+documentation/rebuildpdf.bat

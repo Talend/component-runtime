@@ -210,6 +210,8 @@ final String uri = "family://component?" +
 
 It handles the encoding of the URI to ensure it is correctly done.
 
+NOTE: When writing tests for your components, you can force the `maxBatchSize` parameter value by setting it with the following syntax: `$configuration.$maxBatchSize=10`.
+
 === Testing a Mapper
 
 The `SimpleComponentRule` also allows to test a mapper unitarily. You can get an instance from a configuration and execute this instance to collect the output.
