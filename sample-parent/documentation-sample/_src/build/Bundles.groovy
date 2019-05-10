@@ -24,8 +24,46 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 
-def sanitizePom(path) {
-    path.toFile().text.replaceAll("""    <dependency>
+class Copier extends SimpleFileVisitor<Path> {
+    private def project
+    private Path module
+    private String rootFolder
+    private JarOutputStream jar
+
+    @Override
+    FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        toRelative(dir).map({ pathStr ->
+            jar.putNextEntry(new JarEntry(pathStr + '/'))
+            jar.closeEntry()
+            FileVisitResult.CONTINUE
+        }).orElse(FileVisitResult.SKIP_SUBTREE)
+    }
+
+    @Override
+    FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        toRelative(file).ifPresent({ pathStr ->
+            jar.putNextEntry(new JarEntry(pathStr))
+            if ('pom.xml' == file.fileName.toString()) {
+                jar.write(sanitizePom(file).getBytes(StandardCharsets.UTF_8))
+            } else {
+                Files.copy(file, jar)
+            }
+            jar.closeEntry()
+        })
+        super.visitFile(file, attrs)
+    }
+
+    private Optional<String> toRelative(Path file) {
+        def pathStr = module.relativize(file).toString().replace(File.separator, '/')
+        if (pathStr.isEmpty() || pathStr.startsWith('src') || pathStr == 'pom.xml' || pathStr == 'README.adoc') {
+            Optional.of(rootFolder + (!pathStr.isEmpty() ? '/' + pathStr : ''))
+        } else {
+            Optional.empty()
+        }
+    }
+
+    private sanitizePom(path) {
+        path.toFile().text.replaceAll("""    <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
       <version>.*</version>
@@ -50,11 +88,12 @@ def sanitizePom(path) {
     <artifactId>documentation-sample</artifactId>
     <version>${project.version}</version>
   </parent>""", '').replace('  <packaging>',
-            "  <groupId>${project.groupId}</groupId>\n  <version>${project.version}</version>\n  <packaging>")
-    .replace("""
+                "  <groupId>${project.groupId}</groupId>\n  <version>${project.version}</version>\n  <packaging>")
+                .replace("""
 
     <spotless.check.skip>false</spotless.check.skip>
     <spotless.apply.skip>false</spotless.apply.skip>""", '')
+    }
 }
 
 project.modules.each {
@@ -68,39 +107,7 @@ project.modules.each {
 
     def zip = workdir.resolve("${it}-${project.version}-distibution.zip").toFile()
     def jar = new JarOutputStream(zip.newOutputStream())
-    Files.walkFileTree(module, new SimpleFileVisitor<Path>() {
-        @Override
-        FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            toRelative(dir).map({ pathStr ->
-                jar.putNextEntry(new JarEntry(pathStr + '/'))
-                jar.closeEntry()
-                FileVisitResult.CONTINUE
-            }).orElse(FileVisitResult.SKIP_SUBTREE)
-        }
-
-        @Override
-        FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            toRelative(file).ifPresent({ pathStr ->
-                jar.putNextEntry(new JarEntry(pathStr))
-                if ('pom.xml' == file.fileName.toString()) {
-                    jar.write(sanitizePom(file).getBytes(StandardCharsets.UTF_8))
-                } else {
-                    Files.copy(file, jar)
-                }
-                jar.closeEntry()
-            })
-            super.visitFile(file, attrs)
-        }
-
-        private Optional<String> toRelative(Path file) {
-            def pathStr = module.relativize(file).toString().replace(File.separator, '/')
-            if (pathStr.isEmpty() || pathStr.startsWith('src') || pathStr == 'pom.xml' || pathStr == 'README.adoc') {
-                Optional.of(rootFolder + (!pathStr.isEmpty() ? '/' + pathStr : ''))
-            } else {
-                Optional.empty()
-            }
-        }
-    })
+    Files.walkFileTree(module, new Copier(project: project, module: module, rootFolder: rootFolder, jar: jar))
     jar.close()
     projectHelper.attachArtifact(project, 'zip', "${it}-distribution", zip)
 }

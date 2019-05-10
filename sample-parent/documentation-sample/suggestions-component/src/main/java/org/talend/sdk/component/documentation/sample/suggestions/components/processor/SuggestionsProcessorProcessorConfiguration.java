@@ -25,7 +25,8 @@ import java.io.Serializable;
 @GridLayout({
         // the generated layout put one configuration entry per line,
         // customize it as much as needed
-        @GridLayout.Row({ "suggestions" }) })
+        @GridLayout.Row("myconfig"),
+        @GridLayout.Row("suggestions") })
 @Documentation("TODO fill the documentation for this configuration")
 public class SuggestionsProcessorProcessorConfiguration implements Serializable {
 
