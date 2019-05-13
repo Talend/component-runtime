@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.serialization;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.IOException;
@@ -24,10 +25,12 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Proxy;
+import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 public class EnhancedObjectInputStream extends ObjectInputStream {
 
@@ -114,9 +117,11 @@ public class EnhancedObjectInputStream extends ObjectInputStream {
         return name;
     }
 
+    @Slf4j
     @NoArgsConstructor(access = PRIVATE)
     static class Defaults {
 
+        // IMPORTANT: this MUST come from the JVM and not from a SPI which could enable to break that!
         static final Predicate<String> SECURITY_FILTER_WHITELIST =
                 ofNullable(System.getProperty("talend.component.runtime.serialization.java.inputstream.whitelist"))
                         .map(s -> Stream
@@ -125,6 +130,26 @@ public class EnhancedObjectInputStream extends ObjectInputStream {
                                 .filter(it -> !it.isEmpty())
                                 .collect(toList()))
                         .map(l -> (Predicate<String>) name -> l.stream().anyMatch(name::startsWith))
-                        .orElseGet(() -> name -> true);
+                        .orElseGet(() -> {
+                            final Collection<String> blacklist = Stream
+                                    .of("org.codehaus.groovy.runtime.", "org.apache.commons.collections.functors.",
+                                            "org.apache.commons.collections4.functors.", "org.apache.xalan",
+                                            "java.lang.Process", "java.util.logging.", "java.rmi.server.",
+                                            "com.sun.org.apache.xalan.internal.xsltc.trax.", "com.sun.rowset.",
+                                            "org.springframework.beans.factory.config.",
+                                            "org.apache.tomcat.dbcp.dbcp2.", "com.sun.org.apache.bcel.internal.util.",
+                                            "org.hibernate.jmx.", "org.apache.ibatis.", "jodd.db.connection.",
+                                            "oracle.jdbc.", "org.slf4j.ext.", "flex.messaging.util.concurrent.",
+                                            "com.sun.deploy.security.ruleset.", "org.apache.axis2.jaxws.spi.handler.",
+                                            "org.apache.axis2.transport.jms.", "org.jboss.util.propertyeditor.",
+                                            "org.apache.openjpa.ee.")
+                                    .collect(toSet());
+                            log
+                                    .warn("talend.component.runtime.serialization.java.inputstream.whitelist "
+                                            + "system property not set, "
+                                            + "will use default blacklist but this is not considered as a secure setup. "
+                                            + "Blacklisted packages: {}", blacklist);
+                            return name -> blacklist.stream().noneMatch(name::startsWith);
+                        });
     }
 }

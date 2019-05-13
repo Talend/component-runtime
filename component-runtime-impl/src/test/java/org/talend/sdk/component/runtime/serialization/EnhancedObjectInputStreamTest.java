@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.serialization;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,11 +29,18 @@ import org.junit.jupiter.api.Test;
 class EnhancedObjectInputStreamTest {
 
     @Test
-    void allSupportedByDefault() {
+    void userCodeSupportedByDefault() {
         assertTrue(EnhancedObjectInputStream.Defaults.SECURITY_FILTER_WHITELIST.test("org.foo.Bar"));
         assertTrue(EnhancedObjectInputStream.Defaults.SECURITY_FILTER_WHITELIST.test("com.foo.Bar"));
         assertTrue(EnhancedObjectInputStream.Defaults.SECURITY_FILTER_WHITELIST.test("sun.foo.Bar"));
         assertTrue(EnhancedObjectInputStream.Defaults.SECURITY_FILTER_WHITELIST.test("jdk.foo.Bar"));
+    }
+
+    @Test
+    void someBuiltInExclusions() {
+        assertFalse(EnhancedObjectInputStream.Defaults.SECURITY_FILTER_WHITELIST.test("org.slf4j.ext.EventData"));
+        assertFalse(EnhancedObjectInputStream.Defaults.SECURITY_FILTER_WHITELIST
+                .test("org.apache.ibatis.parsing.XPathParser"));
     }
 
     @Test
