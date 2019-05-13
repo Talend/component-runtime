@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1419[TCOMP-1419^]: Upgrade build to groovy 2.5.7
+- link:https://jira.talendforge.org/browse/TCOMP-1420[TCOMP-1420^]: Upgrade maven compiler to 3.1.2
 
 == Version 1.1.9
 

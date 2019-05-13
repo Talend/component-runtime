@@ -28,6 +28,7 @@
 
   <properties>
     <rootlocation>${project.basedir}</rootlocation>
+    <talend.build.name>${talend.build.name.base}.sample.it.dependencies</talend.build.name>
   </properties>
 
   <dependencies>

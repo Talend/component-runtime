@@ -29,6 +29,7 @@
 
   <properties>
     <yarn.environment>production</yarn.environment>
+    <talend.build.name>${talend.build.name.base}.tools.webapp</talend.build.name>
   </properties>
 
   <dependencies>

@@ -26,6 +26,10 @@
 
   <name>Component Runtime :: Sample Parent :: Beam</name>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.sample.beam</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.beam</groupId>

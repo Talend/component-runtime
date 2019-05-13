@@ -34,6 +34,8 @@
     <spotless.check.skip>true</spotless.check.skip>
     <spotless.apply.skip>true</spotless.apply.skip>
     <checkstyle.skip>true</checkstyle.skip>
+
+    <talend.build.name>${project.groupId}.sample.checkbox</talend.build.name>
   </properties>
 
   <dependencies>
