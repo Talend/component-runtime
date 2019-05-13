@@ -54,6 +54,14 @@ import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
 // IMPORTANT: this class MUST not have ANY dependency, not even slf4j!
 public class CarMain {
 
@@ -161,21 +169,53 @@ public class CarMain {
             throw new IllegalArgumentException(studioLocation + " is not a valid directory");
         }
 
-        final File m2Root = new File(studioLocation, "configuration/.m2/repository/");
-        if (!m2Root.isDirectory()) {
-            throw new IllegalArgumentException(m2Root + " does not exist, did you specify a valid studio home?");
-        }
-
         final File config = new File(studioLocation, "configuration/config.ini");
         if (!config.exists()) {
             throw new IllegalArgumentException("No " + config + " found, is your studio location right?");
+        }
+
+        Properties configuration = readProperties(config);
+        final String repositoryType = configuration.getProperty("maven.repository");
+        File m2Root = null;
+        if ("global".equals(repositoryType)) {
+            String mvnHome = System.getenv("M2_HOME");
+            if (mvnHome == null) {
+                mvnHome = System.getenv("MAVEN_HOME");
+            }
+            if (mvnHome != null) {
+                File globalSettings = new File(mvnHome, "conf/settings.xml");
+                if (globalSettings.exists()) {
+                    try {
+                        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                        Document document = builder.parse(globalSettings);
+                        Node node = document.getElementsByTagName("localRepository").item(0);
+                        if (node != null) {
+                            String repoPath = node.getTextContent();
+                            if (repoPath != null) {
+                                m2Root = new File(repoPath);
+                            }
+                        }
+                    } catch (ParserConfigurationException | SAXException | IOException e) {
+                        throw new IllegalStateException(e);
+                    } 
+                }
+            }
+            if (m2Root == null) {
+                // set default
+                m2Root = new File(System.getProperty("user.home"), ".m2/repository/");
+            }
+        } else {
+            m2Root = new File(studioLocation, "configuration/.m2/repository/");
+        }
+        if (!m2Root.isDirectory()) {
+            throw new IllegalArgumentException(m2Root + " does not exist, did you specify a valid studio home?");
         }
 
         // install jars
         final String mainGav = installJars(m2Root);
 
         // register the component
-        final Properties configuration = readProperties(config);
+        configuration = readProperties(config);
         final String components = configuration.getProperty("component.java.coordinates");
         try {
             final List<String> configLines = Files.readAllLines(config.toPath());
