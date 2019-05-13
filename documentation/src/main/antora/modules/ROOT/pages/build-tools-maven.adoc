@@ -504,6 +504,7 @@ The `deploy-in-studio` goal deploys the current component module into a local Ta
 |===
 |Name |Description |User property |Default
 |studioHome|Path to the Studio home directory|`talend.component.studioHome`|-
+|studioM2|Path to the Studio maven repository if not the default one|`talend.component.studioM2`|-
 |===
 
 You can use the following command from the root folder of your project:

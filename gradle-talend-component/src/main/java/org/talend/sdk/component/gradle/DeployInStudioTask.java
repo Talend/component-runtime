@@ -50,9 +50,9 @@ public class DeployInStudioTask extends TaCoKitTask {
         final String mainGav = mainGav();
         final Runnable runnable = Runnable.class
                 .cast(impl
-                        .getConstructor(String.class, File.class, Map.class, Object.class, boolean.class)
+                        .getConstructor(String.class, File.class, Map.class, Object.class, boolean.class, File.class)
                         .newInstance(mainGav, extension.getStudioHome(), artifacts, getLogger(),
-                                extension.isEnforceDeployment()));
+                                extension.isEnforceDeployment(), extension.getStudioM2()));
         runnable.run();
     }
 }

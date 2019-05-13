@@ -88,7 +88,7 @@ class StudioInstallerTest {
         normalInstall();
         // install a different version should fail
         final StudioInstaller installer =
-                new StudioInstaller("gtest:atest:2.0-SNAPSHOT", studioHome, emptyMap(), LOGGER, false);
+                new StudioInstaller("gtest:atest:2.0-SNAPSHOT", studioHome, emptyMap(), LOGGER, false, null);
         final IllegalStateException e = assertThrows(IllegalStateException.class, installer::run);
         assertEquals(
                 "Can't deploy this component. A different version '1.0-SNAPSHOT' is already installed.\n"
@@ -101,7 +101,7 @@ class StudioInstallerTest {
         normalInstall();
         // enforce the installation of a different version
         final StudioInstaller installer =
-                new StudioInstaller("gtest:atest:2.0-SNAPSHOT", studioHome, emptyMap(), LOGGER, true);
+                new StudioInstaller("gtest:atest:2.0-SNAPSHOT", studioHome, emptyMap(), LOGGER, true, null);
         installer.run();
         final File registration = new File(studioHome, "configuration/components-registration.properties");
         assertTrue(registration.exists());
@@ -132,7 +132,7 @@ class StudioInstallerTest {
 
     private StudioInstaller newStudioInstaller() {
         return new StudioInstaller("gtest:atest:1.0-SNAPSHOT", studioHome,
-                singletonMap("gtest:atest:1.0-SNAPSHOT", artifact), LOGGER, false);
+                singletonMap("gtest:atest:1.0-SNAPSHOT", artifact), LOGGER, false, null);
     }
 
     private void assertSetup(File studioHome) throws IOException {

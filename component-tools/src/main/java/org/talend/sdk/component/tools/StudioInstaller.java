@@ -53,11 +53,14 @@ public class StudioInstaller implements Runnable {
 
     private final boolean enforceDeployment;
 
+    private final File m2;
+
     public StudioInstaller(final String mainGav, final File studioHome, final Map<String, File> artifacts,
-            final Object log, final boolean enforceDeployment) {
+            final Object log, final boolean enforceDeployment, final File m2) {
         this.mainGav = mainGav;
         this.studioHome = studioHome;
         this.artifacts = artifacts;
+        this.m2 = m2;
         this.enforceDeployment = enforceDeployment;
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
@@ -132,7 +135,9 @@ public class StudioInstaller implements Runnable {
             final MvnCoordinateToFileConverter converter = new MvnCoordinateToFileConverter();
             this.artifacts.forEach((gav, file) -> {
                 final Artifact dependency = converter.toArtifact(gav);
-                final File target = new File(studioHome, "configuration/.m2/repository/" + dependency.toPath());
+                final File target = m2 == null || !m2.exists()
+                        ? new File(studioHome, "configuration/.m2/repository/" + dependency.toPath())
+                        : new File(m2, dependency.toPath());
                 try {
                     if (target.exists() && !dependency.getVersion().endsWith("-SNAPSHOT")) {
                         log.info(gav + " already exists, skipping");
