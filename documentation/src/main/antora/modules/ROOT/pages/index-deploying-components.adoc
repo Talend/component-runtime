@@ -15,7 +15,7 @@ Currently, you can deploy your components to Talend Studio as part of your devel
 
 You can also share your components externally and install them using a component archive (.car) file.
 
-* xref:studio-from-car[Sharing and installing components in Talend Studio]
+* xref:studio-from-car.adoc[Sharing and installing components in Talend Studio]
 
 Check the versions of the framework that are compatible with your version of Talend Studio in xref:compatibility.adoc[this document].
 
