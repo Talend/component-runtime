@@ -81,9 +81,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
 
     private int slaves = 1;
 
-    private String scalaVersion = "2.10";
+    private String scalaVersion = SparkVersions.SPARK_SCALA_VERSION.getValue();
 
-    private String sparkVersion = "1.6.3";
+    private String sparkVersion = SparkVersions.SPARK_VERSION.getValue();
 
     private String hadoopBase = "https://github.com/steveloughran/winutils/blob/master";
 

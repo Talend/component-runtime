@@ -198,6 +198,10 @@
         </executions>
         <configuration>
           <trimStackTrace>false</trimStackTrace>
+          <systemPropertyVariables>
+            <spark-scala.version>@spark-scala.version@</spark-scala.version>
+            <spark.version>@spark.version@</spark.version>
+          </systemPropertyVariables>
           <classpathDependencyExcludes> <!-- shaded and would lead to logging errors -->
             <classpathDependencyExclude>org.slf4j:slf4j-api</classpathDependencyExclude>
             <classpathDependencyExclude>org.slf4j:slf4j-jdk14</classpathDependencyExclude>

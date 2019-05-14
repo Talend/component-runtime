@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toSet
 def replaceClassesFor = { name, classes ->
     def enumLocation = new File(project.basedir, 'src/main/java/org/talend/sdk/component/runtime/beam/customizer/Indices.java')
     def content = enumLocation.text
-    def startMarker = name.replace('-', '_').toUpperCase(Locale.ROOT) + '('
+    def startMarker = name.replace('-', '_').replace('.', '_').toUpperCase(Locale.ROOT) + '('
     def start = content.indexOf(startMarker)
     if (start < 0) {
         throw new IllegalArgumentException("No enum ${name}")
@@ -46,6 +46,79 @@ def replaceClassesFor = { name, classes ->
     }
 }
 
+def excludedPackages = [
+    'org.w3c',
+    'org.xml.sax',
+    'org.jboss.netty.',
+    'org.mortbay.util.',
+    'org.objenesis.',
+    'org.json4s.',
+    'org.htrace.',
+    'org.iq80.',
+    'org.glassfish.',
+    'org.apache.xml.',
+    'org.apache.xerces.',
+    'org.apache.xbean.',
+    'org.apache.wml.',
+    'org.apache.oro.',
+    'org.apache.log4j.',
+    'org.apache.jute.',
+    'org.apache.ivy.',
+    'org.apache.http.',
+    'scala.',
+    'org.slf4j.',
+    'org.apache.commons.',
+    'org.apache.curator.',
+    'jersey.',
+    'javax.',
+    'javassist.',
+    'io.netty.',
+    'com.sun.',
+    'com.ning.',
+    'com.google.protobuf.',
+    'com.google.gson.',
+    'com.github.luben.',
+    'com.esotericsoftware.',
+    'com.codehale.',
+    'com.clearspring.',
+    'org.jvnet.',
+    'net.razorvine.',
+    'net.jpountz.',
+    'com.twitter.chill.',
+    'com.google.errorprone.annotations.',
+    'org.apache.html.',
+    'org.aopalliance.',
+    'org.fusesource.',
+    'org.mortbay.',
+    // todo: check
+    'org.apache.zookeeper.',
+    'org.apache.hadoop.',
+    'org.apache.directory.',
+    'com.codahale.metrics.'
+]
+
+def simplifiedPackages = [
+    'org.apache.beam.repackaged.',
+    'org.apache.beam.vendor.',
+    'org.apache.beam.runners.',
+    'com.fasterxml.jackson.module.',
+    'org.apache.commons.compress.',
+    'avro.shaded.com.google.common.',
+    'com.fasterxml.jackson.',
+    'org.codehaus.jackson.',
+    'org.tukaani.xz.',
+    'com.google.common.',
+    'org.kohsuke.args4j.',
+    'org.joda.time.',
+    'org.apache.avro.',
+    'py4j.',
+    'org.znerd.',
+    'org.spark_project.',
+    'org.roaringbitmap.',
+    'org.fusesource.hawtjni.',
+    'org.apache.spark.'
+]
+
 def doIndex = { dependency, excludes ->
     def dependenciesResolver = session.container.lookup(LifecycleDependencyResolver)
 
@@ -58,58 +131,31 @@ def doIndex = { dependency, excludes ->
     def scopes = ['compile', 'runtime']
     dependenciesResolver.resolveProjectDependencies(resolutionProject, scopes, scopes, session, false, [project.artifact] as Set)
 
-    def classes = [] // TBD: what to do of org.apache.beam.sdk.io, should move in Apache Beam anyway
+    def classes = []
     resolutionProject.resolvedArtifacts.each { it ->
         def jar = new JarFile(it.file)
         classes = (classes << list(jar.entries())
                 .findAll {
+                    !it.isDirectory() &&
                     it.name.endsWith('.class') && // is a class
                     !it.name.startsWith('META-INF') && // is not a java 9 mjar thing - aliases another class so useless
-                    !it.name.startsWith('org/slf4j/') && // already handled
-                    !it.name.startsWith('javax/json/') && // already handled
-                    !it.name.startsWith('scala/') && // unlikely?
                     !it.name.endsWith('package-info.class') &&
                     !it.name.contains('$') // if nested the prefix test on the parent is enough, try to limit the number of classes we keep
                 }
-                .collect { it.name.substring(0, it.name.length() - '.class'.length()).replace('/', '.')}
+                .collect { it.name.substring(0, it.name.length() - '.class'.length()).replace('/', '.') }
+                .findAll { excludedPackages.stream().noneMatch { pref -> it.startsWith(pref) } }
                 .collect { // to limit the number of classes we replace some 100% sure classes by their package only
-                    if (it.startsWith('org.apache.beam.repackaged.')) {
-                        def marker = it.indexOf('.', 'org.apache.beam.repackaged.'.length())
-                        if (marker > 0) {
-                            return it.substring(0, marker)
+                    simplifiedPackages.stream()
+                        .filter { pck -> it.startsWith(pck) }
+                        .findFirst()
+                        .map { pck ->
+                            def marker = it.indexOf('.', pck.length())
+                            if (marker > 0) {
+                                return it.substring(0, marker)
+                            }
+                            it
                         }
-                    }
-                    if (it.startsWith('org.apache.beam.vendor.')) {
-                        def marker = it.indexOf('.', 'org.apache.beam.vendor.'.length())
-                        if (marker > 0) {
-                            return it.substring(0, marker)
-                        }
-                    }
-                    if (it.startsWith('org.apache.beam.runners.')) {
-                        def marker = it.indexOf('.', 'org.apache.beam.runners.'.length())
-                        if (marker > 0) {
-                            return it.substring(0, marker)
-                        }
-                    }
-                    if (it.startsWith('com.fasterxml.jackson.module.')) {
-                        def marker = it.indexOf('.', 'com.fasterxml.jackson.module.'.length())
-                        if (marker > 0) {
-                            return it.substring(0, marker)
-                        }
-                    }
-                    if (it.startsWith('org.apache.commons.compress.')) {
-                        def marker = it.indexOf('.', 'org.apache.commons.compress.'.length())
-                        if (marker > 0) {
-                            return it.substring(0, marker)
-                        }
-                    }
-                    if (it.startsWith('avro.shaded.com.google.common.')) {
-                        def marker = it.indexOf('.', 'avro.shaded.com.google.common.'.length())
-                        if (marker > 0) {
-                            return it.substring(0, marker)
-                        }
-                    }
-                    return it
+                        .orElse(it)
                 }
                 .collect { "\"$it\"" })
                 .flatten()
@@ -126,7 +172,8 @@ def depFor = { artifactId ->
 }
 
 def sdkClasses = doIndex(depFor('beam-sdks-java-core'), [])
-['beam-runners-direct-java', 'beam-runners-spark']
-        .each { doIndex(depFor(it), sdkClasses) }
-
-
+[
+    depFor('beam-runners-direct-java'),
+    depFor('beam-runners-spark'),
+    new Dependency(groupId: 'org.apache.spark', artifactId:  "spark-core_${project.properties['spark-scala.version']}", version:  "${project.properties['spark.version']}", scope: 'compile')
+].each { doIndex(it, sdkClasses) }

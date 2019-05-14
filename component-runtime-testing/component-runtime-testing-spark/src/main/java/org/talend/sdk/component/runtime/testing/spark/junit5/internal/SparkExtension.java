@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.testing.spark.junit5.internal;
 
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
@@ -28,6 +29,7 @@ import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.internal.TemporaryFolderExtension;
 import org.talend.sdk.component.runtime.testing.spark.internal.BaseSpark;
+import org.talend.sdk.component.runtime.testing.spark.internal.SparkVersions;
 import org.talend.sdk.component.runtime.testing.spark.junit5.SparkInject;
 import org.talend.sdk.component.runtime.testing.spark.junit5.WithSpark;
 
@@ -55,8 +57,12 @@ public class SparkExtension extends BaseSpark<SparkExtension>
             withHadoopBase(ws.hadoopBase());
             withHadoopVersion(ws.hadoopVersion());
             withInstallWinUtils(ws.installWinUtils());
-            withScalaVersion(ws.scalaVersion());
-            withSparkVersion(ws.sparkVersion());
+            withScalaVersion(of(ws.scalaVersion())
+                    .filter(it -> !"auto".equals(it))
+                    .orElse(SparkVersions.SPARK_SCALA_VERSION.getValue()));
+            withSparkVersion(of(ws.sparkVersion())
+                    .filter(it -> !"auto".equals(it))
+                    .orElse(SparkVersions.SPARK_VERSION.getValue()));
         });
         final Instances instances = start();
         if (instances.getException() != null) {

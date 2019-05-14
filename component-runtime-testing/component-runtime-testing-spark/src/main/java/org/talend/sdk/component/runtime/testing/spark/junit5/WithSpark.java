@@ -40,12 +40,12 @@ public @interface WithSpark {
     /**
      * @return scala version to use.
      */
-    String scalaVersion() default "2.11";
+    String scalaVersion() default "auto";
 
     /**
      * @return spark version.
      */
-    String sparkVersion() default "2.4.0";
+    String sparkVersion() default "auto";
 
     /**
      * @return where to find winutils for hadoop.

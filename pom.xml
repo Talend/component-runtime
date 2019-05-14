@@ -191,6 +191,9 @@
     <gradle.version>5.0</gradle.version>
     <mvn.version>3.6.1</mvn.version>
 
+    <spark.version>2.4.3</spark.version>
+    <spark-scala.version>2.11</spark-scala.version>
+
     <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
     <jaxrs-analyzer-extension.version>0.0.6</jaxrs-analyzer-extension.version>
     <groovy.version>2.5.7</groovy.version>

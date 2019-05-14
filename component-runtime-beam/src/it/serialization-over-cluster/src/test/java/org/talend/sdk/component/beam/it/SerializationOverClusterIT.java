@@ -37,7 +37,8 @@ public class SerializationOverClusterIT {
 
     private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
-    private static final SparkClusterRule SPARK = new SparkClusterRule("2.11", "2.4.0", 1);
+    private static final SparkClusterRule SPARK = new SparkClusterRule(
+            System.getProperty("spark-scala.version", "2.11"), System.getProperty("spark.version", "2.4.3"), 1);
 
     @ClassRule
     public static final TestRule RULE = outerRule(TEMPORARY_FOLDER).around(SPARK);
