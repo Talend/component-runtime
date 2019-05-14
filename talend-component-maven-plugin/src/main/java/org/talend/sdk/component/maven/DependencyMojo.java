@@ -60,7 +60,7 @@ public class DependencyMojo extends AbstractMojo {
                         .format("%s:%s:%s%s:%s:%s", a.getGroupId(), a.getArtifactId(), a.getType(),
                                 a.getClassifier() == null || a.getClassifier().isEmpty() ? ""
                                         : (":" + a.getClassifier()),
-                                a.getVersion(), a.getScope()))
+                                a.getBaseVersion(), a.getScope()))
                 .collect(joining("\n"));
         output.getParentFile().mkdirs();
         try (final Writer writer = new BufferedWriter(new FileWriter(output))) {
