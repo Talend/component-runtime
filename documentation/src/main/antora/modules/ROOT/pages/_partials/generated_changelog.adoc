@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1425[TCOMP-1425^]: Spark classes not excluded anymore in component-runtime-beam leading to classloading issues
+- link:https://jira.talendforge.org/browse/TCOMP-1427[TCOMP-1427^]: dependencies.txt mojo uses timestamped versions for snapshots instead of just -SNAPSHOT
 
 
 
