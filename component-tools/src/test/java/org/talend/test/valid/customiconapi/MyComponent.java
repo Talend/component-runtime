@@ -13,9 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Icon(Icon.IconType.STAR)
-@Components(family = "demo")
-package org.talend.test.failure.family;
+package org.talend.test.valid.customiconapi;
 
-import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.record.Record;
+
+import java.io.Serializable;
+
+@Documentation("super my component")
+@Version
+@MyIcon
+@Processor(family = "test", name = "my")
+public class MyComponent implements Serializable {
+
+    @ElementListener
+    public Record passthrough(final Record item) {
+        return item;
+    }
+}

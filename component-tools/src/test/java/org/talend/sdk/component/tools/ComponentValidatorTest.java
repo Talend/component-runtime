@@ -275,9 +275,7 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.missing.icon")
     void testFailureMissingIcon(final ExceptionSpec expectedException) {
-        expectedException
-                .expectMessage(
-                        "- Component class org.talend.test.failure.missing.icon.MyComponent should use @Icon and @Version");
+        expectedException.expectMessage("- No @Icon on class org.talend.test.failure.missing.icon.MyComponent");
     }
 
     @Test
@@ -336,6 +334,12 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.customicon")
     void testFailureCustomIcon(final ExceptionSpec spec) {
         spec.expectMessage("Some error were detected:\n- No icon: 'missing' found");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.customiconapi", success = true)
+    void testValidCustomIconAPI(final ExceptionSpec spec) {
+        // no-op
     }
 
     @Test

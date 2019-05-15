@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Icon(Icon.IconType.STAR)
 @Components(family = "demo")
-package org.talend.test.failure.family;
+@Icon(Icon.IconType.DEFAULT)
+package org.talend.test.valid.customiconapi;
 
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;

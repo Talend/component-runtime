@@ -17,6 +17,7 @@ package org.talend.sdk.component.tools;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -94,6 +95,7 @@ import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
@@ -136,9 +138,14 @@ public class ComponentValidator extends BaseTask {
             // but it should be enough for now
             components.forEach(c -> {
                 try {
-                    final Class<?> pck = findPackageOrFail(c, Icon.class);
-                    final Icon annotation = pck.getAnnotation(Icon.class);
-                    ofNullable(validateIcon(annotation)).ifPresent(errors::add);
+                    final IconFinder iconFinder = new IconFinder();
+                    if (iconFinder.findDirectIcon(c).isPresent()) {
+                        final Icon icon = findPackageOrFail(c, apiTester(Icon.class), Icon.class.getName())
+                                .getAnnotation(Icon.class);
+                        ofNullable(validateIcon(icon)).ifPresent(errors::add);
+                    } else if (!iconFinder.findIndirectIcon(c).isPresent()) {
+                        errors.add("No @Icon on " + c);
+                    }
                 } catch (final IllegalArgumentException iae) {
                     errors.add(iae.getMessage());
                 }
@@ -633,12 +640,24 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateMetadata(final List<Class<?>> components, final Set<String> errors) {
-        errors.addAll(components.stream().map(component -> {
-            final Icon icon = component.getAnnotation(Icon.class);
-            if (!component.isAnnotationPresent(Version.class) || icon == null) {
-                return "Component " + component + " should use @Icon and @Version";
+        errors.addAll(components.stream().flatMap(component -> {
+            Collection<String> messages = null;
+            final IconFinder iconFinder = new IconFinder();
+            if (iconFinder.findDirectIcon(component).isPresent()) {
+                final Icon icon = component.getAnnotation(Icon.class);
+                messages = new ArrayList<>();
+                messages.add(validateIcon(icon));
+            } else if (!iconFinder.findIndirectIcon(component).isPresent()) {
+                messages = new ArrayList<>(singleton("No @Icon on " + component));
             }
-            return validateIcon(icon);
+
+            if (!component.isAnnotationPresent(Version.class)) {
+                if (messages == null) {
+                    messages = new ArrayList<>();
+                }
+                messages.add("Component " + component + " should use @Icon and @Version");
+            }
+            return messages == null ? empty() : messages.stream();
         }).filter(Objects::nonNull).sorted().collect(toSet()));
     }
 
@@ -831,7 +850,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private String validateFamilyI18nKey(final Class<?> clazz, final String... keys) {
-        final Class<?> pck = findPackageOrFail(clazz, Components.class);
+        final Class<?> pck = findPackageOrFail(clazz, apiTester(Components.class), Components.class.getName());
         final String family = pck.getAnnotation(Components.class).family();
         final String baseName = ofNullable(pck.getPackage()).map(p -> p.getName() + ".").orElse("") + "Messages";
         final ResourceBundle bundle = findResourceBundle(pck);

@@ -30,6 +30,7 @@ import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -98,11 +99,16 @@ abstract class BaseTask implements Runnable {
         return ofNullable(c)
                 .map(Component::family)
                 .filter(name -> !name.isEmpty())
-                .orElseGet(
-                        () -> findPackageOrFail(pckMarker, Components.class).getAnnotation(Components.class).family());
+                .orElseGet(() -> findPackageOrFail(pckMarker, apiTester(Components.class), Components.class.getName())
+                        .getAnnotation(Components.class)
+                        .family());
     }
 
-    protected Class<?> findPackageOrFail(final Class<?> component, final Class<? extends Annotation> api) {
+    protected Predicate<Class<?>> apiTester(final Class<? extends Annotation> api) {
+        return a -> a.isAnnotationPresent(api);
+    }
+
+    protected Class<?> findPackageOrFail(final Class<?> component, final Predicate<Class<?>> tester, final String api) {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final String pck = component.getPackage() == null ? null : component.getPackage().getName();
         if (pck != null) {
@@ -110,7 +116,7 @@ abstract class BaseTask implements Runnable {
             do {
                 try {
                     final Class<?> pckInfo = loader.loadClass(currentPackage + ".package-info");
-                    if (pckInfo.isAnnotationPresent(api)) {
+                    if (tester.test(pckInfo)) {
                         return pckInfo;
                     }
                 } catch (final ClassNotFoundException e) {
@@ -125,7 +131,7 @@ abstract class BaseTask implements Runnable {
                 currentPackage = currentPackage.substring(0, endPreviousPackage);
             } while (true);
         }
-        throw new IllegalArgumentException("No @" + api.getName() + " for the component " + component
+        throw new IllegalArgumentException("No @" + api + " for the component " + component
                 + ", add it in package-info.java or disable this validation"
                 + " (which can have side effects in integrations/designers)");
     }

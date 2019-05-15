@@ -15,11 +15,13 @@
  */
 package org.talend.sdk.component.server.service;
 
+import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -34,6 +36,21 @@ import lombok.Data;
 @ApplicationScoped
 public class IconResolver {
 
+    /**
+     * The look up strategy of an icon is the following one:
+     * 1. Check in the server classpath in icons/override/${icon}_icon32.png,
+     * 2. Check in the family classloader the following names ${icon}_icon32.png, icons/${icon}_icon32.png, ...
+     * 3. Check in the server classloader the following names ${icon}_icon32.png, icons/${icon}_icon32.png, ...
+     *
+     * This enable to
+     * 1. override properly the icons (1),
+     * 2. provide them in the family (2) and
+     * 3. fallback on built-in icons if needed (3).
+     *
+     * @param container the component family container.
+     * @param icon the icon to look up.
+     * @return the icon if found.
+     */
     public Icon resolve(final Container container, final String icon) {
         if (icon == null) {
             return null;
@@ -49,7 +66,18 @@ public class IconResolver {
                 }
             }
         }
-        return cache.icons.computeIfAbsent(icon, k -> doLoad(container.getLoader(), icon)).orElse(null);
+        final ClassLoader appLoader = Thread.currentThread().getContextClassLoader();
+        return cache.icons
+                .computeIfAbsent(icon,
+                        k -> ofNullable(doLoad(appLoader, "icons/override/" + icon + "_icon32.png")
+                                .orElseGet(() -> Stream
+                                        .of(container.getLoader(), appLoader)
+                                        .map(loader -> doLoad(loader, icon))
+                                        .filter(Optional::isPresent)
+                                        .findFirst()
+                                        .flatMap(identity())
+                                        .orElse(null))))
+                .orElse(null);
     }
 
     private static class Cache {
@@ -62,15 +90,14 @@ public class IconResolver {
         return Stream
                 .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png", "icons/svg/" + icon + "_icon32.png",
                         "icons/svg-deprecated/" + icon + "_icon32.png")
-                .map(path -> {
-                    final InputStream resource = loader.getResourceAsStream(path);
-                    if (resource == null) {
-                        return null;
-                    }
-                    return new Icon("image/png", toBytes(resource));
-                })
-                .filter(Objects::nonNull)
-                .findFirst();
+                .map(path -> loadPng(loader, path))
+                .filter(Optional::isPresent)
+                .findFirst()
+                .flatMap(identity());
+    }
+
+    private Optional<Icon> loadPng(final ClassLoader loader, final String path) {
+        return ofNullable(loader.getResourceAsStream(path)).map(resource -> new Icon("image/png", toBytes(resource)));
     }
 
     @Data
