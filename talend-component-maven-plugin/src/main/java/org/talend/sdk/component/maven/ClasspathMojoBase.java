@@ -36,6 +36,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import lombok.Getter;
+
 public abstract class ClasspathMojoBase extends AbstractMojo {
 
     @Parameter(defaultValue = "false", property = "talend.skip")
@@ -109,7 +111,7 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
                 .of("container-core", "component-api", "component-spi", "component-runtime-impl",
                         "component-runtime-manager", "component-runtime-design-extension", "component-runtime-di")
                 .collect(toSet());
-        try (final URLClassLoader loader = new URLClassLoader(Stream
+        final List<File> classLoaderFiles = Stream
                 .concat(Stream.of(classes),
                         project
                                 .getArtifacts()
@@ -117,14 +119,14 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
                                 .filter(a -> !"org.talend.sdk.component".equals(a.getGroupId())
                                         || !excludedArtifacts.contains(a.getArtifactId()))
                                 .map(Artifact::getFile))
-                .map(file -> {
-                    try {
-                        return file.toURI().toURL();
-                    } catch (final MalformedURLException e) {
-                        throw new IllegalStateException(e.getMessage());
-                    }
-                })
-                .toArray(URL[]::new), pluginLoader) {
+                .collect(toList());
+        try (final URLClassLoader loader = new ExecutionClassLoader(classLoaderFiles.stream().map(file -> {
+            try {
+                return file.toURI().toURL();
+            } catch (final MalformedURLException e) {
+                throw new IllegalStateException(e.getMessage());
+            }
+        }).toArray(URL[]::new), classLoaderFiles, pluginLoader) {
 
             {
                 thread.setContextClassLoader(this);
@@ -171,4 +173,15 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
     }
 
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
+
+    protected static class ExecutionClassLoader extends URLClassLoader {
+
+        @Getter
+        private final Collection<File> files;
+
+        private ExecutionClassLoader(final URL[] urls, final Collection<File> files, final ClassLoader parent) {
+            super(urls, parent);
+            this.files = files;
+        }
+    }
 }

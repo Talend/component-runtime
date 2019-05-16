@@ -41,8 +41,7 @@ class ScanTaskTest {
         assertEquals(1, properties.size());
         assertEquals("org.talend.test.valid.MyComponent,"
                 + "org.talend.test.valid.MyInternalization,org.talend.test.valid.MySource,"
-                + "org.talend.test.valid.customicon.MyComponent,"
-                + "org.talend.test.valid.customiconapi.MyComponent,"
+                + "org.talend.test.valid.customicon.MyComponent," + "org.talend.test.valid.customiconapi.MyComponent,"
                 + "org.talend.test.valid.datasetassourceconfig.MyComponent,"
                 + "org.talend.test.valid.datasetintwosourceswithonewithadditionalrequired.MyComponent,"
                 + "org.talend.test.valid.datasetintwosourceswithonewithadditionalrequired.MyComponent2,"

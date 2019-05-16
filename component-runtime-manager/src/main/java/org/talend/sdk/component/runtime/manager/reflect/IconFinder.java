@@ -15,8 +15,10 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect;
 
+import static java.util.Comparator.comparing;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -33,27 +35,96 @@ public class IconFinder {
     }
 
     public Optional<String> findIndirectIcon(final AnnotatedElement type) {
-        return Stream.of(type.getAnnotations()).filter(it -> {
-            try {
-                final Class<? extends Annotation> clazz = it.annotationType();
-                return clazz.getSimpleName().endsWith("Icon") && clazz.getMethod("value") != null;
-            } catch (final NoSuchMethodException e) {
-                return false;
+        // first try an annotation decorated with @Icon
+        return ofNullable(findMetaIconAnnotation(type)
+                .map(this::getMetaIcon)
+                .orElseGet(() -> findImplicitIcon(type).orElse(null)));
+    }
+
+    private Optional<Annotation> findMetaIconAnnotation(final AnnotatedElement type) {
+        return Stream
+                .of(type.getAnnotations())
+                .filter(this::isMetaIcon)
+                .min(comparing(it -> it.annotationType().getName()));
+    }
+
+    private boolean isMetaIcon(final Annotation it) {
+        return it.annotationType().isAnnotationPresent(Icon.class) && hasMethod(it.annotationType(), "value");
+    }
+
+    private Optional<String> findImplicitIcon(final AnnotatedElement type) {
+        return findImplicitIconAnnotation(type).map(it -> String.valueOf(invoke(it, it.annotationType(), "value")));
+    }
+
+    private Optional<Annotation> findImplicitIconAnnotation(final AnnotatedElement type) {
+        return Stream
+                .of(type.getAnnotations())
+                .filter(it -> it.annotationType().getSimpleName().endsWith("Icon")
+                        && hasMethod(it.annotationType(), "value"))
+                .findFirst();
+    }
+
+    private String getMetaIcon(final Annotation it) {
+        // extract type and value (by convention), type can be custom to use value
+        if (hasMethod(it.annotationType(), "type")) {
+            final Object enumValue = invoke(it, it.annotationType(), "type");
+            if (!"custom".equalsIgnoreCase(String.valueOf(enumValue))) {
+                return getEnumKey(enumValue).orElseGet(() -> String.valueOf(invoke(it, it.annotationType(), "value")));
             }
-        }).map(it -> {
-            try {
-                return String.valueOf(it.annotationType().getMethod("value").invoke(it));
-            } catch (final IllegalAccessException | NoSuchMethodException e) {
-                throw new IllegalStateException(e);
-            } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
-            }
-        }).findFirst();
+        }
+        final Object value = invoke(it, it.annotationType(), "value");
+        if (value.getClass().isEnum()) {
+            return getEnumKey(value).orElseGet(() -> String.valueOf(value));
+        }
+        return String.valueOf(value);
+    }
+
+    private Optional<String> getEnumKey(final Object enumValue) {
+        return Stream
+                .of("getKey", "getValue", "name")
+                .filter(getter -> hasMethod(enumValue.getClass(), getter))
+                .map(name -> String.valueOf(invoke(enumValue, enumValue.getClass(), name)))
+                .findFirst();
+    }
+
+    private boolean hasMethod(final Class<?> clazz, final String method) {
+        try {
+            return clazz.getMethod(method) != null;
+        } catch (final NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    private Object invoke(final Object instance, final Class<?> type, final String method) {
+        try {
+            return type.getMethod(method).invoke(instance);
+        } catch (final IllegalAccessException | NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        } catch (final InvocationTargetException e) {
+            throw new IllegalStateException(e.getTargetException());
+        }
     }
 
     public Optional<String> findDirectIcon(final AnnotatedElement type) {
         return ofNullable(type.getAnnotation(Icon.class))
                 .map(i -> i.value() == Icon.IconType.CUSTOM ? of(i.custom()).filter(s -> !s.isEmpty()).orElse("default")
                         : i.value().getKey());
+    }
+
+    public boolean isCustom(final Annotation icon) {
+        if (Icon.class == icon.annotationType()) {
+            return Icon.class.cast(icon).value() == CUSTOM;
+        }
+        if (hasMethod(icon.annotationType(), "type")) {
+            return "custom".equalsIgnoreCase(String.valueOf(invoke(icon, icon.annotationType(), "type")));
+        }
+        return false;
+    }
+
+    public Annotation extractIcon(final AnnotatedElement annotatedElement) {
+        return ofNullable(annotatedElement.getAnnotation(Icon.class))
+                .map(Annotation.class::cast)
+                .orElseGet(() -> findMetaIconAnnotation(annotatedElement)
+                        .orElseGet(() -> findImplicitIconAnnotation(annotatedElement).orElse(null)));
     }
 }

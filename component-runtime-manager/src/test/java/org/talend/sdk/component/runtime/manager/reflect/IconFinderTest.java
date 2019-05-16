@@ -15,16 +15,17 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect;
 
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.component.Icon;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import java.util.Locale;
+
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.component.Icon;
 
 class IconFinderTest {
 
@@ -43,10 +44,30 @@ class IconFinderTest {
     }
 
     @Test
+    void findMetaIcon() {
+        assertFalse(finder.findDirectIcon(Indirect.class).isPresent());
+        assertEquals("complex_", finder.findIndirectIcon(Meta.class).get());
+    }
+
+    @Test
     void findIcon() {
         assertEquals("foo", finder.findIcon(Direct.class));
         assertEquals("yes", finder.findIcon(Indirect.class));
         assertEquals("default", finder.findIcon(None.class));
+    }
+
+    @Test
+    void helperMethod() {
+        {
+            final boolean isCustom = finder.isCustom(finder.extractIcon(Direct.class));
+            final String name = finder.findIcon(Direct.class);
+            assertEquals("foo/true", name + '/' + isCustom);
+        }
+        {
+            final boolean isCustom = finder.isCustom(finder.extractIcon(Meta.class));
+            final String name = finder.findIcon(Meta.class);
+            assertEquals("complex_/false", name + '/' + isCustom);
+        }
     }
 
     public static class None {
@@ -58,6 +79,29 @@ class IconFinderTest {
 
     @MyIcon
     public static class Indirect {
+    }
+
+    @MetaIcon(MetaIcon.MetaIconValue.COMPLEX)
+    public static class Meta {
+    }
+
+    @Icon
+    @Target(TYPE)
+    @Retention(RUNTIME)
+    public @interface MetaIcon {
+
+        MetaIconValue value();
+
+        // optional but normally not needed EnumOrString type() default "custom";
+
+        enum MetaIconValue {
+            SIMPLE,
+            COMPLEX;
+
+            public String getKey() {
+                return name().toLowerCase(Locale.ROOT) + '_';
+            }
+        }
     }
 
     @Target(TYPE)

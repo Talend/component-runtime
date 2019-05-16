@@ -22,7 +22,6 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.File;
@@ -30,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Base64;
@@ -49,9 +50,11 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.CompositeArchive;
 import org.apache.xbean.finder.archive.FileArchive;
+import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.ziplock.IO;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.maven.api.Audience;
+import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.server.service.IconResolver;
 
 import lombok.Data;
@@ -121,24 +124,46 @@ public class IconReporterMojo extends ClasspathMojoBase {
         }
     }
 
-    @Override
+    @Override // todo: findIcon != default but no @Icon
     protected void doExecute() {
-        final AnnotationFinder finder = new AnnotationFinder(new CompositeArchive(Stream
-                .of(classes)
-                .map(c -> new FileArchive(Thread.currentThread().getContextClassLoader(), c))
-                .toArray(Archive[]::new)));
+        final ExecutionClassLoader loader =
+                ExecutionClassLoader.class.cast(Thread.currentThread().getContextClassLoader());
+        final AnnotationFinder finder = new AnnotationFinder(
+                new CompositeArchive(Stream.of(classes).map(c -> new FileArchive(loader, c)).toArray(Archive[]::new)));
+
         final List<Class<?>> icons = finder.findAnnotatedClasses(Icon.class);
         final List<Package> packages = finder.findAnnotatedPackages(Icon.class);
-        if (!icons.isEmpty()) {
-            final List<IconModel> foundIcons = Stream
-                    .concat(icons.stream(), packages.stream())
-                    .map(type -> type.getAnnotation(Icon.class))
-                    .map(icon -> {
-                        final boolean isCustom = icon.value() == CUSTOM;
-                        final String name = isCustom ? icon.custom() : icon.value().getKey();
-                        return new IconModel(project.getArtifactId(), name, findIcon(name), isCustom);
-                    })
-                    .collect(toList());
+
+        // if talend-icon is there - so a meta icon API can be used - then grab the meta icon
+        loader
+                .getFiles()
+                .stream()
+                .filter(it -> it.getName().startsWith("talend-icon-") && it.getName().endsWith(".jar"))
+                .findFirst()
+                .flatMap(icon -> {
+                    try {
+                        return new AnnotationFinder(new JarArchive(loader, icon.toURI().toURL()))
+                                .findAnnotatedClasses(Icon.class)
+                                .stream()
+                                .findFirst();
+                    } catch (final MalformedURLException e) {
+                        throw new IllegalStateException(e);
+                    }
+                })
+                .filter(Class::isAnnotation)
+                .map(it -> (Class<? extends Annotation>) it)
+                .ifPresent(uiIcon -> {
+                    icons.addAll(finder.findAnnotatedClasses(uiIcon));
+                    packages.addAll(finder.findAnnotatedPackages(uiIcon));
+                });
+
+        if (!icons.isEmpty() && !packages.isEmpty()) {
+            final IconFinder iconFinder = new IconFinder();
+            final List<IconModel> foundIcons = Stream.concat(icons.stream(), packages.stream()).map(elt -> {
+                final boolean isCustom = iconFinder.isCustom(iconFinder.extractIcon(elt));
+                final String name = iconFinder.findIcon(elt);
+                return new IconModel(project.getArtifactId(), name, findIcon(name), isCustom);
+            }).collect(toList());
             final GlobalReporter reporter = getReporter();
             synchronized (reporter) {
                 reporter.icons.addAll(foundIcons);
