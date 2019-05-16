@@ -374,7 +374,7 @@ public class UiSchema {
 
         private Map<String, Collection<Object>> condition;
 
-        public Builder withConditions(final Map<String, Collection<Object>> condition) {
+        public Builder withCondition(final Map<String, Collection<Object>> condition) {
             if (this.condition != null) {
                 throw new IllegalStateException("conditions already set");
             }
