@@ -89,7 +89,7 @@ public class IconResolver {
     public Optional<Icon> doLoad(final ClassLoader loader, final String icon) {
         return Stream
                 .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png", "icons/svg/" + icon + "_icon32.png",
-                        "icons/svg-deprecated/" + icon + "_icon32.png")
+                        "icons/svg-deprecated/" + icon + "_icon32.png", "icons/png/" + icon + "_icon32.png")
                 .map(path -> loadPng(loader, path))
                 .filter(Optional::isPresent)
                 .findFirst()
