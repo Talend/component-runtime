@@ -138,16 +138,16 @@ public class ComponentValidator extends BaseTask {
             // but it should be enough for now
             components.forEach(c -> {
                 try {
-                    final IconFinder iconFinder = new IconFinder();
-                    if (iconFinder.findDirectIcon(c).isPresent()) {
-                        final Icon icon = findPackageOrFail(c, apiTester(Icon.class), Icon.class.getName())
-                                .getAnnotation(Icon.class);
-                        ofNullable(validateIcon(icon)).ifPresent(errors::add);
-                    } else if (!iconFinder.findIndirectIcon(c).isPresent()) {
-                        errors.add("No @Icon on " + c);
-                    }
+                    final Icon icon =
+                            findPackageOrFail(c, apiTester(Icon.class), Icon.class.getName()).getAnnotation(Icon.class);
+                    ofNullable(validateIcon(icon)).ifPresent(errors::add);
                 } catch (final IllegalArgumentException iae) {
-                    errors.add(iae.getMessage());
+                    final IconFinder iconFinder = new IconFinder();
+                    try {
+                        findPackageOrFail(c, it -> iconFinder.findIndirectIcon(it).isPresent(), Icon.class.getName());
+                    } catch (final IllegalArgumentException iae2) {
+                        errors.add(iae.getMessage());
+                    }
                 }
             });
         }
