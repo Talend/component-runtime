@@ -147,7 +147,7 @@ public class MyService {
     public MyService(...,APIClient client){
         //...
         this.client = client;
-        client.base("http://localhost:8080");// init the base of the api, ofen in a PostConstruct or init method
+        client.base("http://localhost:8080");// init the base of the api, often in a PostConstruct or init method
     }
 
     //...
