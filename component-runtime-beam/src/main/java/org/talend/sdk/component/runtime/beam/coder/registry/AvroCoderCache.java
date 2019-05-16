@@ -21,9 +21,9 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.beam.repackaged.beam_sdks_java_core.com.google.common.cache.CacheBuilder;
-import org.apache.beam.repackaged.beam_sdks_java_core.com.google.common.cache.CacheLoader;
-import org.apache.beam.repackaged.beam_sdks_java_core.com.google.common.cache.LoadingCache;
+import org.apache.beam.vendor.guava.v20_0.com.google.common.cache.CacheBuilder;
+import org.apache.beam.vendor.guava.v20_0.com.google.common.cache.CacheLoader;
+import org.apache.beam.vendor.guava.v20_0.com.google.common.cache.LoadingCache;
 import org.apache.beam.sdk.coders.AvroCoder;
 
 import lombok.NoArgsConstructor;
