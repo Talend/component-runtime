@@ -372,6 +372,16 @@ public class UiSchema {
 
         private Collection<NameValue> titleMap;
 
+        private Map<String, Collection<Object>> condition;
+
+        public Builder withConditions(final Map<String, Collection<Object>> condition) {
+            if (this.condition != null) {
+                throw new IllegalStateException("conditions already set");
+            }
+            this.condition = condition;
+            return this;
+        }
+
         public Builder withKey(final String key) {
             this.key = key;
             return this;
@@ -501,6 +511,8 @@ public class UiSchema {
             uiSchema.setTriggers(triggers);
             uiSchema.setTitleMap(titleMap);
             uiSchema.setDescription(description);
+            uiSchema.setItemWidget(itemWidget);
+            uiSchema.setCondition(condition);
             return uiSchema;
         }
     }

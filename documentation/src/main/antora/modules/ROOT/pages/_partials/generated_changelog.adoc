@@ -7,6 +7,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1425[TCOMP-1425^]: Spark classes not excluded anymore in component-runtime-beam leading to classloading issues
 - link:https://jira.talendforge.org/browse/TCOMP-1427[TCOMP-1427^]: dependencies.txt mojo uses timestamped versions for snapshots instead of just -SNAPSHOT
 - link:https://jira.talendforge.org/browse/TCOMP-1431[TCOMP-1431^]: [maven] Asciidoctor files should be attached with adoc extension and not jar one
+- link:https://jira.talendforge.org/browse/TCOMP-1433[TCOMP-1433^]: [form-model] itemwidget ignored from uischema builder
 
 
 
@@ -19,6 +20,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1426[TCOMP-1426^]: Ensure Spark rule and @WithSpark uses a default version consistent with the runtime
 - link:https://jira.talendforge.org/browse/TCOMP-1430[TCOMP-1430^]: Deprecate built-in icons in favor of vendor specific icons
 - link:https://jira.talendforge.org/browse/TCOMP-1432[TCOMP-1432^]: basic dita generation for the component documentation
+- link:https://jira.talendforge.org/browse/TCOMP-1434[TCOMP-1434^]: [form-model] Add withCondition to UISchema builder
 
 == Version 1.1.9
 
