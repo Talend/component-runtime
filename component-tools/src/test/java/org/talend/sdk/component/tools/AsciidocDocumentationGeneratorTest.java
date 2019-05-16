@@ -15,21 +15,16 @@
  */
 package org.talend.sdk.component.tools;
 
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -38,7 +33,7 @@ import org.junit.jupiter.api.io.TempDir;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class AsciidocDocumentationGeneratorTest {
+class AsciidocDocumentationGeneratorTest extends GeneratorBase {
 
     @Test
     void generateAdoc(@TempDir final File temporaryFolder, final TestInfo info) throws IOException {
@@ -186,30 +181,5 @@ class AsciidocDocumentationGeneratorTest {
         try (final BufferedReader reader = new BufferedReader(new FileReader(outputHtml))) {
             assertEquals("<!DOCTYPE html>", reader.lines().limit(1).findFirst().get());
         }
-    }
-
-    private File findWorkDir() {
-        return new File(jarLocation(AsciidocDocumentationGeneratorTest.class).getParentFile(),
-                getClass().getSimpleName() + "_workdir");
-    }
-
-    private File copyBinaries(final String pck, final File tmp, final String name) {
-        final String pckPath = pck.replace('.', '/');
-        final File root = new File(jarLocation(getClass()), pckPath);
-        final File scannable = new File(tmp, getClass().getName() + "_" + name);
-        final File classDir = new File(scannable, pckPath);
-        classDir.mkdirs();
-        ofNullable(root.listFiles())
-                .map(Stream::of)
-                .orElseGet(Stream::empty)
-                .filter(c -> c.getName().endsWith(".class") || c.getName().endsWith(".properties"))
-                .forEach(c -> {
-                    try {
-                        Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
-                    } catch (final IOException e) {
-                        fail("cant create test plugin");
-                    }
-                });
-        return scannable;
     }
 }
