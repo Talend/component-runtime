@@ -105,7 +105,7 @@ public class AsciidocMojo extends ClasspathMojoBase {
     private boolean htmlAndPdf;
 
     /**
-     * The title of the documentation if rendered as pdf or html (see formats).
+     * Should the documentation be attached.
      */
     @Parameter(property = "talend.documentation.attach", defaultValue = "true")
     private boolean attachDocumentations;
@@ -184,10 +184,10 @@ public class AsciidocMojo extends ClasspathMojoBase {
                 getLog().info("Attaching " + artifact.getAbsolutePath());
                 if (dot > 0) {
                     helper
-                            .attachArtifact(project, artifact,
-                                    artifactName.substring(dot + 1).replace('.', '-') + "-documentation");
+                            .attachArtifact(project, "adoc",
+                                    artifactName.substring(dot + 1).replace('.', '-') + "-documentation", artifact);
                 } else {
-                    helper.attachArtifact(project, artifact, artifactName + "-documentation");
+                    helper.attachArtifact(project, "adoc", artifactName + "-documentation", artifact);
                 }
             });
         }
