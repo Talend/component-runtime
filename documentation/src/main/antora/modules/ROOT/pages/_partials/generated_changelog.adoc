@@ -21,6 +21,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1430[TCOMP-1430^]: Deprecate built-in icons in favor of vendor specific icons
 - link:https://jira.talendforge.org/browse/TCOMP-1432[TCOMP-1432^]: basic dita generation for the component documentation
 - link:https://jira.talendforge.org/browse/TCOMP-1434[TCOMP-1434^]: [form-model] Add withCondition to UISchema builder
+- link:https://jira.talendforge.org/browse/TCOMP-1435[TCOMP-1435^]: Dont use beam_sdks_java_core shaded libraries
 
 == Version 1.1.9
 

@@ -17,13 +17,11 @@ package org.talend.sdk.component.runtime.beam.coder.registry;
 
 import static lombok.AccessLevel.PRIVATE;
 
-import java.util.concurrent.ExecutionException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.beam.repackaged.beam_sdks_java_core.com.google.common.cache.CacheBuilder;
-import org.apache.beam.repackaged.beam_sdks_java_core.com.google.common.cache.CacheLoader;
-import org.apache.beam.repackaged.beam_sdks_java_core.com.google.common.cache.LoadingCache;
 import org.apache.beam.sdk.coders.AvroCoder;
 
 import lombok.NoArgsConstructor;
@@ -33,23 +31,29 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = PRIVATE)
 class AvroCoderCache {
 
-    private static final LoadingCache<Schema, AvroCoder<IndexedRecord>> CACHED_CODERS = CacheBuilder
-            .newBuilder()
-            .maximumSize(Integer.getInteger("component.runtime.beam.avrocoder.cache.size", 1024))
-            .build(new CacheLoader<Schema, AvroCoder<IndexedRecord>>() {
+    private static final Map<Schema, AvroCoder<IndexedRecord>> CACHED_CODERS =
+            new LinkedHashMap<Schema, AvroCoder<IndexedRecord>>() {
+
+                private final int MAX_SIZE = Integer.getInteger("component.runtime.beam.avrocoder.cache.size", 1024);
 
                 @Override
-                public AvroCoder<IndexedRecord> load(final Schema schema) {
-                    return AvroCoder.of(IndexedRecord.class, schema);
+                protected boolean removeEldestEntry(final Map.Entry<Schema, AvroCoder<IndexedRecord>> eldest) {
+                    return size() > MAX_SIZE;
                 }
-            });
+
+                @Override
+                public synchronized AvroCoder<IndexedRecord> get(final Object key) {
+                    AvroCoder<IndexedRecord> coder = super.get(key);
+                    if (coder == null) {
+                        final Schema schema = Schema.class.cast(key);
+                        coder = AvroCoder.of(IndexedRecord.class, schema);
+                        put(schema, coder);
+                    }
+                    return coder;
+                }
+            };
 
     static AvroCoder<IndexedRecord> getCoder(final Schema avro) {
-        try {
-            return CACHED_CODERS.get(avro);
-        } catch (ExecutionException e) { // more than unlikely
-            log.warn(e.getMessage(), e);
-            return AvroCoder.of(IndexedRecord.class, avro);
-        }
+        return CACHED_CODERS.get(avro);
     }
 }
