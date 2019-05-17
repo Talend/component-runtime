@@ -63,7 +63,7 @@ public class ComponentServerMock {
     public ComponentDetailList component(@QueryParam("language") final String language,
             @QueryParam("identifiers") final String[] ids) {
         return new ComponentDetailList(singletonList(
-                new ComponentDetail(null, null, null, null, 1, createProperties(), null, null, null, null)));
+                new ComponentDetail(null, null, null, null, 1, createProperties(), null, null, null, null, null)));
     }
 
     @GET

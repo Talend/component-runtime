@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.design.extension.flows;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,6 +28,7 @@ import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 
 import lombok.Data;
@@ -63,6 +65,20 @@ class ProcessorFlowsFactoryTest {
         assertTrue(outputs.contains("OUTPUT"));
     }
 
+    @Test
+    void testProcessorBulk() {
+        final ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessorBulk.class);
+        assertTrue(factory.getOutputFlows().isEmpty());
+        assertEquals(singletonList("__default__"), factory.getInputFlows());
+    }
+
+    @Test
+    void testProcessorBulkWithoutOutput() {
+        final ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessorBulkWithOutput.class);
+        assertEquals(singletonList("__default__"), factory.getInputFlows());
+        assertEquals(singletonList("OUTPUT"), factory.getOutputFlows());
+    }
+
     @Processor
     private static class TestProcessor {
 
@@ -89,6 +105,25 @@ class ProcessorFlowsFactoryTest {
 
         }
 
+    }
+
+    @Processor
+    private static class TestProcessorBulk {
+
+        @AfterGroup
+        public void afterGroup(final Collection<Record> records) {
+
+        }
+    }
+
+    @Processor
+    private static class TestProcessorBulkWithOutput {
+
+        @AfterGroup
+        public void afterGroup(final Collection<Record> records,
+                @Output("OUTPUT") final OutputEmitter<OutputData1> output) {
+
+        }
     }
 
     @Data

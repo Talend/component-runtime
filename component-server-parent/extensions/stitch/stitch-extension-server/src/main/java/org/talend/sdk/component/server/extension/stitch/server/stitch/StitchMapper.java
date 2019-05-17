@@ -91,7 +91,7 @@ public class StitchMapper {
                                         .filter(it -> !alreadyHandled.contains(it.getType()))
                                         .flatMap(this::mapProperties))
                         .collect(toList()),
-                emptyList(), emptyList(), singletonList("__default__"), emptyList());
+                emptyList(), emptyList(), singletonList("__default__"), emptyList(), emptyMap());
     }
 
     public ConfigTypeNode mapFamily(final StitchClient.Steps step) {

@@ -23,6 +23,7 @@ import static java.util.stream.Stream.of;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.processor.AfterGroup;
@@ -41,54 +42,51 @@ class ProcessorFlowsFactory implements FlowsFactory {
 
     private final Class<?> type;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<String> getInputFlows() {
-        return getListenerParameters()
-                .map(p -> ofNullable(p.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH))
+        return getListener()
+                .map(m -> Stream.of(m.getParameters()))
+                .orElseGet(() -> getAfterGroup().map(it -> Stream.of(it.getParameters())).orElseGet(Stream::empty))
+                .filter(this::isInput)
+                .map(this::mapInputName)
                 .collect(toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<String> getOutputFlows() {
-        Method listener = getListener();
         return concat(
-                concat(listener.getReturnType().equals(Void.TYPE) ? Stream.empty() : of(Branches.DEFAULT_BRANCH),
-                        of(listener.getParameters())
-                                .filter(p -> p.isAnnotationPresent(Output.class))
-                                .map(p -> p.getAnnotation(Output.class).value())),
-                of(type.getMethods())
-                        .filter(m -> m.isAnnotationPresent(AfterGroup.class))
-                        .flatMap(m -> of(m.getParameters())
-                                .filter(p -> p.isAnnotationPresent(Output.class))
-                                .map(p -> p.getAnnotation(Output.class).value()))).distinct().collect(toList());
+                getListener()
+                        .map(listener -> concat(getReturnedBranches(listener), getOutputParameters(listener)))
+                        .orElseGet(Stream::empty),
+                getAfterGroup().map(this::getOutputParameters).orElseGet(Stream::empty)).distinct().collect(toList());
     }
 
-    /**
-     * Returns Processor class method annotated with {@link ElementListener}
-     *
-     * @return listener method
-     */
-    private Method getListener() {
+    private Optional<Method> getAfterGroup() {
         return of(type.getMethods())
-                .filter(m -> m.isAnnotationPresent(ElementListener.class))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + type));
+                .filter(m -> m.isAnnotationPresent(AfterGroup.class))
+                .filter(it -> it.getParameterCount() > 0)
+                .findFirst();
     }
 
-    /**
-     * Returns all {@link ElementListener} method parameters, which are not
-     * annotated with {@link Output}
-     *
-     * @return listener method input parameters
-     */
-    private Stream<Parameter> getListenerParameters() {
-        return of(getListener().getParameters())
-                .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
+    private Stream<String> getOutputParameters(final Method listener) {
+        return of(listener.getParameters())
+                .filter(p -> p.isAnnotationPresent(Output.class))
+                .map(p -> p.getAnnotation(Output.class).value());
+    }
+
+    private Stream<String> getReturnedBranches(final Method listener) {
+        return listener.getReturnType().equals(Void.TYPE) ? Stream.empty() : of(Branches.DEFAULT_BRANCH);
+    }
+
+    private Optional<Method> getListener() {
+        return of(type.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst();
+    }
+
+    private boolean isInput(final Parameter p) {
+        return p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class);
+    }
+
+    private String mapInputName(final Parameter p) {
+        return ofNullable(p.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH);
     }
 }
