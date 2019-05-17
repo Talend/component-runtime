@@ -227,11 +227,14 @@ public class ComponentFamilyMeta {
     @EqualsAndHashCode(callSuper = true)
     public static class PartitionMapperMeta extends BaseMeta<Mapper> {
 
+        private final boolean infinite;
+
         protected PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon,
                 final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
                 final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
-                final boolean validated) {
+                final boolean validated, final boolean infinite) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
+            this.infinite = infinite;
         }
     }
 

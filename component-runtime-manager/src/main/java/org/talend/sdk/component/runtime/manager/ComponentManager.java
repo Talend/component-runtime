@@ -1767,6 +1767,7 @@ public class ComponentManager implements AutoCloseable {
             final String name = of(partitionMapper.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(partitionMapper.family());
 
+            final boolean infinite = partitionMapper.infinite();
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
                             ? config -> executeInContainer(plugin,
@@ -1775,8 +1776,8 @@ public class ComponentManager implements AutoCloseable {
                                             .convert(new ComponentInstanceImpl(
                                                     doInvoke(constructor, parameterFactory.apply(config)), plugin,
                                                     component.getName(), name), Mapper.class))
-                            : config -> new PartitionMapperImpl(component.getName(), name, null, plugin,
-                                    partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
+                            : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
+                                    doInvoke(constructor, parameterFactory.apply(config)));
 
             component
                     .getPartitionMappers()
@@ -1784,7 +1785,7 @@ public class ComponentManager implements AutoCloseable {
                             new ComponentFamilyMeta.PartitionMapperMeta(component, name, iconFinder.findIcon(type),
                                     findVersion(type), type, parameterMetas, instantiator,
                                     migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
-                                    !context.isNoValidation()));
+                                    !context.isNoValidation(), infinite));
         }
 
         @Override
@@ -1815,7 +1816,7 @@ public class ComponentManager implements AutoCloseable {
                             new ComponentFamilyMeta.PartitionMapperMeta(component, name, iconFinder.findIcon(type),
                                     findVersion(type), type, parameterMetas, instantiator,
                                     migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
-                                    !context.isNoValidation()));
+                                    !context.isNoValidation(), false));
         }
 
         @Override

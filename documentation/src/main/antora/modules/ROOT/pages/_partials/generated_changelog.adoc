@@ -8,6 +8,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1427[TCOMP-1427^]: dependencies.txt mojo uses timestamped versions for snapshots instead of just -SNAPSHOT
 - link:https://jira.talendforge.org/browse/TCOMP-1431[TCOMP-1431^]: [maven] Asciidoctor files should be attached with adoc extension and not jar one
 - link:https://jira.talendforge.org/browse/TCOMP-1433[TCOMP-1433^]: [form-model] itemwidget ignored from uischema builder
+- link:https://jira.talendforge.org/browse/TCOMP-1438[TCOMP-1438^]: Index cache can lead to invalid index list of component
 
 
 
@@ -22,6 +23,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1432[TCOMP-1432^]: basic dita generation for the component documentation
 - link:https://jira.talendforge.org/browse/TCOMP-1434[TCOMP-1434^]: [form-model] Add withCondition to UISchema builder
 - link:https://jira.talendforge.org/browse/TCOMP-1435[TCOMP-1435^]: Dont use beam_sdks_java_core shaded libraries
+- link:https://jira.talendforge.org/browse/TCOMP-1437[TCOMP-1437^]: Add infinite metadata to ComponentDetail
 
 == Version 1.1.9
 

@@ -35,6 +35,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -53,6 +54,7 @@ import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.dao.ConfigurationDao;
+import org.talend.sdk.component.server.service.event.DeployedComponent;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -83,6 +85,9 @@ public class ComponentManagerService {
     @Inject
     private GlobService globService;
 
+    @Inject
+    private Event<DeployedComponent> deployedComponentEvent;
+
     private ComponentManager instance;
 
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
@@ -90,6 +95,8 @@ public class ComponentManagerService {
     private DeploymentListener deploymentListener;
 
     private volatile Date lastUpdated = new Date();
+
+    private boolean started;
 
     void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // no-op
@@ -135,10 +142,12 @@ public class ComponentManagerService {
                             .filter(gav -> !coords.contains(gav))
                             .forEach(this::deploy);
                 });
+        started = true;
     }
 
     @PreDestroy
     private void destroy() {
+        started = false;
         instance.getContainer().unregisterListener(deploymentListener);
     }
 
@@ -151,6 +160,9 @@ public class ComponentManagerService {
         final File m2 = instance.getContainer().getRootRepositoryLocation();
         final String plugin = instance.addWithLocationPlugin(pluginGAV, new File(m2, pluginPath).getAbsolutePath());
         lastUpdated = new Date();
+        if (started) {
+            deployedComponentEvent.fire(new DeployedComponent());
+        }
         return plugin;
     }
 

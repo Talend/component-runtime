@@ -195,6 +195,7 @@ class ComponentResourceImplTest {
         assertEquals("chain", detail.getId().getFamily());
         assertEquals("list", detail.getId().getName());
         assertEquals("The List Component", detail.getDisplayName());
+        assertEquals("false", detail.getMetadata().get("mapper::infinite"));
 
         final Collection<ActionReference> remoteActions = detail.getActions();
         assertEquals(1, remoteActions.size());
