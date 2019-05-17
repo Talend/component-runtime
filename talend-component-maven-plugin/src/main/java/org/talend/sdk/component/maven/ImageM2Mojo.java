@@ -104,7 +104,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
     private File additionalFiles;
 
     @Parameter(property = "talend-image.additionalFile")
-    private List<File> additionalFile;
+    private List<String> additionalFile;
 
     @Parameter
     private Map<String, String> labels;
@@ -436,13 +436,14 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
             final AtomicLong additionalFilesSize = new AtomicLong();
             if (additionalFile != null && !additionalFile.isEmpty()) {
                 try {
-                    builder.addLayer(additionalFile.stream().filter(File::exists).map(f -> {
+                    builder.addLayer(additionalFile.stream().map(File::new).filter(File::exists).map(f -> {
                         additionalFilesSize.addAndGet(f.length());
                         return f.toPath();
                     }).collect(toList()), AbsoluteUnixPath.fromPath(additionalFiles.toPath()));
                     getLog().info("Prepared layer for additional files (" + toSize(mainDepSize.get()) + ")");
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     getLog().error("Unable to add the additional files layer.", e);
+                    throw new IllegalStateException(e);
                 }
             }
 
