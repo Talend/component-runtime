@@ -100,11 +100,17 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
     @Parameter(property = "talend-image.mainDependenciesScope", defaultValue = "compile")
     private String mainDependenciesScope;
 
+    /**
+     * Target folder in the docker image for additionalFile.
+     */
     @Parameter(property = "talend-image.additionalFiles", defaultValue = "/opt/talend/addons")
-    private File additionalFiles;
+    private String additionalFiles;
 
+    /**
+     * Files to add in the docker image.
+     */
     @Parameter(property = "talend-image.additionalFile")
-    private List<String> additionalFile;
+    private List<File> additionalFile;
 
     @Parameter
     private Map<String, String> labels;
@@ -433,18 +439,21 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
             getLog().info("Prepared layer for main dependencies (" + toSize(mainDepSize.get()) + ")");
 
             // 4
-            final AtomicLong additionalFilesSize = new AtomicLong();
             if (additionalFile != null && !additionalFile.isEmpty()) {
+                final AtomicLong additionalFilesSize = new AtomicLong();
                 try {
-                    builder.addLayer(additionalFile.stream().map(File::new).filter(File::exists).map(f -> {
+                    builder.addLayer(additionalFile.stream().filter(File::exists).map(f -> {
                         additionalFilesSize.addAndGet(f.length());
                         return f.toPath();
-                    }).collect(toList()), AbsoluteUnixPath.fromPath(additionalFiles.toPath()));
+                    }).collect(toList()),
+                            AbsoluteUnixPath.get(additionalFiles.replace("${workingDirectory}", workingDirectory)));
                     getLog().info("Prepared layer for additional files (" + toSize(mainDepSize.get()) + ")");
                 } catch (final IOException e) {
                     getLog().error("Unable to add the additional files layer.", e);
                     throw new IllegalStateException(e);
                 }
+            } else {
+                getLog().debug("No additional file");
             }
 
             // 5
