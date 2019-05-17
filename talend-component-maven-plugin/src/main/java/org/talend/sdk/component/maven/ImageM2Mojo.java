@@ -100,6 +100,12 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
     @Parameter(property = "talend-image.mainDependenciesScope", defaultValue = "compile")
     private String mainDependenciesScope;
 
+    @Parameter(property = "talend-image.additionalFiles", defaultValue = "/opt/talend/addons")
+    private File additionalFiles;
+
+    @Parameter(property = "talend-image.additionalFile")
+    private List<File> additionalFile;
+
     @Parameter
     private Map<String, String> labels;
 
@@ -329,7 +335,8 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
     // 1. one layer per component stack (not including the component module code)
     // 2. one layer with all our components
     // 3. one layer for the main dependencies
-    // 4. one layer for the main
+    // 4. one layer for the additional files
+    // 5. one layer for the main
     private void addLayers(final JibContainerBuilder builder) {
         final Set<Artifact> components = getComponentArtifacts();
         final Set<Artifact> cars = getComponentsCar(components);
@@ -426,6 +433,20 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
             getLog().info("Prepared layer for main dependencies (" + toSize(mainDepSize.get()) + ")");
 
             // 4
+            final AtomicLong additionalFilesSize = new AtomicLong();
+            if (additionalFile != null && !additionalFile.isEmpty()) {
+                try {
+                    builder.addLayer(additionalFile.stream().filter(File::exists).map(f -> {
+                        additionalFilesSize.addAndGet(f.length());
+                        return f.toPath();
+                    }).collect(toList()), AbsoluteUnixPath.fromPath(additionalFiles.toPath()));
+                    getLog().info("Prepared layer for additional files (" + toSize(mainDepSize.get()) + ")");
+                } catch (IOException e) {
+                    getLog().error("Unable to add the additional files layer.", e);
+                }
+            }
+
+            // 5
             final AbsoluteUnixPath mainPath = mainLibs.resolve(path.getFileName());
             classpath.add(mainPath.toString());
             builder
