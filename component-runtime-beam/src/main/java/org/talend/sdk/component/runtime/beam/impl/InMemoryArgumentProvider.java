@@ -87,6 +87,10 @@ public class InMemoryArgumentProvider implements DoFnInvoker.ArgumentProvider {
         return element(doFn);
     }
 
+    public Object schemaElement(final int index) {
+        throw new UnsupportedOperationException("Schema are not supported");
+    }
+
     public Row asRow(final String id) {
         throw new UnsupportedOperationException("Schemas are not supported");
     }
