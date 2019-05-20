@@ -17,7 +17,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1419[TCOMP-1419^]: Upgrade build to groovy 2.5.7
 - link:https://jira.talendforge.org/browse/TCOMP-1420[TCOMP-1420^]: Upgrade maven compiler to 3.1.2
-- link:https://jira.talendforge.org/browse/TCOMP-1422[TCOMP-1422^]: Remove beam from component-server image
+- link:https://jira.talendforge.org/browse/TCOMP-1422[TCOMP-1422^]: Filter allowed beam classes in component-server image
 - link:https://jira.talendforge.org/browse/TCOMP-1423[TCOMP-1423^]: Enable to customize studio maven repository for deploy-studio maven and gradle goal/task
 - link:https://jira.talendforge.org/browse/TCOMP-1426[TCOMP-1426^]: Ensure Spark rule and @WithSpark uses a default version consistent with the runtime
 - link:https://jira.talendforge.org/browse/TCOMP-1430[TCOMP-1430^]: Deprecate built-in icons in favor of vendor specific icons
