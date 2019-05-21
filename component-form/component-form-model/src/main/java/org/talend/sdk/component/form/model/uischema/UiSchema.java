@@ -312,7 +312,8 @@ public class UiSchema {
                 if (this.parameters == null) {
                     this.parameters = new ArrayList<>();
                 }
-                this.parameters.add(new Parameter());
+                final Parameter parameter = parameter().withKey(key).withPath(path).build();
+                this.parameters.add(parameter);
                 return this;
             }
 
