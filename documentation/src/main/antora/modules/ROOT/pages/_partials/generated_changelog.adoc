@@ -10,6 +10,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1433[TCOMP-1433^]: [form-model] itemwidget ignored from uischema builder
 - link:https://jira.talendforge.org/browse/TCOMP-1438[TCOMP-1438^]: Index cache can lead to invalid index list of component
 - link:https://jira.talendforge.org/browse/TCOMP-1440[TCOMP-1440^]: Bulk components without @ElementListener when used with component-extension (default in the server)
+- link:https://jira.talendforge.org/browse/TCOMP-1441[TCOMP-1441^]: Missing parameter init in the UiSchema Trigger builder
 
 
 
