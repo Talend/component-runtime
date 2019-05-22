@@ -586,7 +586,7 @@
     </repository>
     <repository>
       <id>gradle-libs-releases-local</id>
-      <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
+      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
