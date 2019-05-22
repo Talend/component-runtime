@@ -31,7 +31,7 @@ import org.talend.sdk.component.server.front.model.Environment;
 public interface EnvironmentResource {
 
     @GET
-    @Operation(
+    @Operation(operationId = "getEnvironment",
             description = "Returns the environment of this instance. Useful to check the version or configure a healthcheck for the server.")
     @APIResponse(responseCode = "200", description = "Current environment representation.",
             content = @Content(mediaType = APPLICATION_JSON))

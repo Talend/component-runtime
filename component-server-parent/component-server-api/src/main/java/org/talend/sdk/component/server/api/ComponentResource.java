@@ -80,7 +80,7 @@ public interface ComponentResource {
 
     @GET
     @Path("index")
-    @Operation(description = "Returns the list of available components.")
+    @Operation(operationId = "getComponentIndex", description = "Returns the list of available components.")
     @APIResponse(responseCode = "200", description = "The index of available components.",
             content = @Content(mediaType = APPLICATION_OCTET_STREAM))
     ComponentIndices getIndex(
@@ -122,7 +122,8 @@ public interface ComponentResource {
 
     @POST
     @Path("migrate/{id}/{configurationVersion}")
-    @Operation(description = "Allows to migrate a component configuration without calling any component execution.")
+    @Operation(operationId = "migrateComponent",
+            description = "Allows to migrate a component configuration without calling any component execution.")
     @APIResponse(responseCode = "200",
             description = "the new configuration for that component (or the same if no migration was needed).",
             content = @Content(mediaType = APPLICATION_JSON))
@@ -139,7 +140,8 @@ public interface ComponentResource {
 
     @GET
     @Path("details") // bulk mode to avoid to fetch components one by one when reloading a pipeline/job
-    @Operation(description = "Returns the set of metadata about a few components identified by their 'id'.")
+    @Operation(operationId = "getComponentDetail",
+            description = "Returns the set of metadata about a few components identified by their 'id'.")
     @APIResponse(responseCode = "200", description = "the list of details for the requested components.",
             content = @Content(mediaType = APPLICATION_JSON))
     @APIResponse(responseCode = "400", description = "Some identifiers were not valid.",

@@ -84,7 +84,7 @@ public interface ActionResource {
 
     @GET
     @Path("index")
-    @Operation(
+    @Operation(operationId = "getActionIndex",
             description = "This endpoint returns the list of available actions for a certain family and potentially filters the "
                     + "output limiting it to some families and types of actions.")
     @APIResponse(responseCode = "200", description = "The action index.",

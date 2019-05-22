@@ -74,9 +74,10 @@ public interface ConfigurationTypeResource {
 
     @GET
     @Path("details")
-    @Operation(description = "Returns all available configuration type - storable models. "
-            + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
-            + " to create a client model for all configurations.")
+    @Operation(operationId = "getConfigurationDetail",
+            description = "Returns all available configuration type - storable models. "
+                    + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
+                    + " to create a client model for all configurations.")
     @APIResponse(responseCode = "200",
             description = "the list of available and storable configurations (datastore, dataset, ...).",
             content = @Content(mediaType = APPLICATION_JSON))
@@ -89,7 +90,8 @@ public interface ConfigurationTypeResource {
 
     @POST
     @Path("migrate/{id}/{configurationVersion}")
-    @Operation(description = "Allows to migrate a configuration without calling any component execution.")
+    @Operation(operationId = "migrateConfiguration",
+            description = "Allows to migrate a configuration without calling any component execution.")
     @APIResponse(responseCode = "200",
             description = "the new values for that configuration (or the same if no migration was needed).",
             content = @Content(mediaType = APPLICATION_JSON))
