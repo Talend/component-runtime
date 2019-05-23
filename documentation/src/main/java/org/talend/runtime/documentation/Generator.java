@@ -127,7 +127,6 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Config
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
-import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.runtime.server.vault.proxy.endpoint.security.SecurityFilter;
@@ -362,24 +361,6 @@ public class Generator {
     private static void generatedScanningExclusions(final File generatedDir) {
         final File file = new File(generatedDir, "generated_scanning-exclusions.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("= Jars Scanning");
-            stream.println();
-            stream.println("To find components the framework can scan the classpath but in this case,");
-            stream.println("to avoid to scan the whole classpath which can be really huge");
-            stream.println("an impacts a lot the startup time, several jars are excluded out of the box.");
-            stream.println();
-            stream.println("These jars use the following prefix:");
-            stream.println();
-            stream.println("[.talend-filterlist]");
-            new KnownJarsFilter()
-                    .getExcludes()
-                    .stream()
-                    .sorted()
-                    .distinct()
-                    .map(prefix -> "- " + prefix)
-                    .forEach(stream::println);
-            stream.println();
-            stream.println();
             stream.println("= Package Scanning");
             stream.println();
             stream.println("Since the framework can be used in the case of __fatjars__ or __shades__,");
