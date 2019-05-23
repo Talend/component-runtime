@@ -107,8 +107,8 @@ public abstract class ComponentDependenciesBase extends AbstractMojo {
 
     protected Artifact resolve(final Artifact dep, final String classifier, final String type) {
         final LocalRepositoryManager lrm = repositorySystemSession.getLocalRepositoryManager();
-        final Artifact artifact =
-                new DefaultArtifact(dep.getGroupId(), dep.getArtifactId(), classifier, type, dep.getVersion());
+        final Artifact artifact = new DefaultArtifact(dep.getGroupId(), dep.getArtifactId(), classifier, type,
+                ofNullable(dep.getBaseVersion()).orElseGet(dep::getVersion));
         final File location = new File(lrm.getRepository().getBasedir(), lrm.getPathForLocalArtifact(artifact));
         if (!location.exists()) {
             return resolve(artifact);

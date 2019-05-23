@@ -93,7 +93,8 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                     }
                     try (final InputStream stream = file.getInputStream(entry)) {
                         return new Item(new Artifact(artifact.getGroupId(), artifact.getArtifactId(),
-                                artifact.getExtension(), artifact.getClassifier(), artifact.getVersion(), "compile"),
+                                artifact.getExtension(), artifact.getClassifier(),
+                                ofNullable(artifact.getBaseVersion()).orElseGet(artifact::getVersion), "compile"),
                                 blacklist,
                                 resolver
                                         .resolveFromDescriptor(stream)
