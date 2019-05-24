@@ -224,13 +224,10 @@ public class ComponentValidator extends BaseTask {
 
         if (annotation.value() == Icon.IconType.CUSTOM) {
             final String icon = annotation.custom();
-            final File svgIcon = new File(classes[0], "icons/" + icon + ".svg");
-            if (!svgIcon.exists()) {
-                log
-                        .error("No '" + svgIcon.getAbsolutePath()
-                                + "' found, this will run in degraded mode in Talend Cloud");
+            if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + ".svg")).noneMatch(File::exists)) {
+                log.error("No 'icons/" + icon + ".svg' found, this will run in degraded mode in Talend Cloud");
             }
-            if (!new File(classes[0], "icons/" + icon + "_icon32.png").exists()) {
+            if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + "_icon32.png")).noneMatch(File::exists)) {
                 return "No icon: '" + icon + "' found, did you create - or generated with svg2png - 'icons/" + icon
                         + "_icon32.png' in resources?";
             }
