@@ -26,11 +26,10 @@ import java.net.URLClassLoader;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 
-public class TaCoKitTask extends DefaultTask {
+public class TaCoKitTask extends BaseTask {
 
     protected boolean needsWeb() {
         return false;

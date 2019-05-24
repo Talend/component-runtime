@@ -70,7 +70,7 @@ class ComponentGeneratorTest {
                         i -> new String(i.getContent(), StandardCharsets.UTF_8)));
         assertEquals(9, files.size());
 
-        assertTrue(files.keySet().stream().anyMatch(k -> k.contains(".png")));
+        assertTrue(files.keySet().stream().anyMatch(k -> k.contains(".svg")));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/package-info.java"),
                 files.get("src/main/java/com/foo/package-info.java").trim());

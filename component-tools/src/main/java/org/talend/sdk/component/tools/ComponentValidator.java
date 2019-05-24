@@ -218,10 +218,21 @@ public class ComponentValidator extends BaseTask {
     }
 
     private String validateIcon(final Icon annotation) {
+        if (classes.length == 0) {
+            return null;
+        }
+
         if (annotation.value() == Icon.IconType.CUSTOM) {
             final String icon = annotation.custom();
-            if (classes.length > 0 && !new File(classes[0], "icons/" + icon + "_icon32.png").exists()) {
-                return "No icon: '" + icon + "' found, did you create 'icons/" + icon + "_icon32.png' in resources?";
+            final File svgIcon = new File(classes[0], "icons/" + icon + ".svg");
+            if (!svgIcon.exists()) {
+                log
+                        .error("No '" + svgIcon.getAbsolutePath()
+                                + "' found, this will run in degraded mode in Talend Cloud");
+            }
+            if (!new File(classes[0], "icons/" + icon + "_icon32.png").exists()) {
+                return "No icon: '" + icon + "' found, did you create - or generated with svg2png - 'icons/" + icon
+                        + "_icon32.png' in resources?";
             }
         }
         return null;

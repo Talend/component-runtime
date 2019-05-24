@@ -1035,6 +1035,7 @@
             <exclude>**/antora/**/*</exclude>
             <exclude>**/.antora-cache/**/*</exclude>
             <exclude>**/dependency-reduced-pom.xml</exclude>
+            <exclude>**/resources/**/logo.svg</exclude>
           </excludes>
         </configuration>
       </plugin>

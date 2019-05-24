@@ -21,21 +21,16 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.tasks.TaskAction;
 
-public class DependenciesTask extends DefaultTask {
+public class DependenciesTask extends BaseTask {
 
     @TaskAction // based on maven dependency:list
     public void createTalendComponentDependenciesTxt() {
-        TaCoKitExtension extension =
-                TaCoKitExtension.class.cast(getProject().getExtensions().findByName("talendComponentKit"));
-        if (extension == null) {
-            extension = new TaCoKitExtension();
-        }
+        TaCoKitExtension extension = getKitExtension();
         if (extension.isSkipDependenciesFile()) {
             getLogger().warn("Skipping Talend Component Kit dependency file creation");
             return;

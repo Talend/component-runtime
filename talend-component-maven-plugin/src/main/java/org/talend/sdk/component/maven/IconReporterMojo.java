@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -97,7 +98,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                     if (missingIcon == null) {
                         final ClassLoader fallbackLoader = IconReporterMojo.class.getClassLoader();
                         try (final InputStream stream = fallbackLoader.getResourceAsStream("icon/missing.png")) {
-                            missingIcon = toDataUri(IO.readBytes(stream));
+                            missingIcon = toDataUri(new IconResolver.Icon("image/png", IO.readBytes(stream)));
                         } catch (final IOException e) {
                             throw new IllegalStateException(e);
                         }
@@ -181,18 +182,22 @@ public class IconReporterMojo extends ClasspathMojoBase {
                         return null;
                     }
                 })) {
-            return new IconResolver()
-                    .doLoad(loader, custom)
-                    .map(IconResolver.Icon::getBytes)
-                    .map(this::toDataUri)
-                    .orElse(missingIcon);
+            return new IconResolver() {
+
+                private final List<String> iconPattern = asList("icons/%s.svg", "icons/%s_icon32.png");
+
+                @Override
+                protected Collection<String> getExtensionPreferences() {
+                    return iconPattern;
+                }
+            }.doLoad(loader, custom).map(this::toDataUri).orElse(missingIcon);
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private String toDataUri(final byte[] icon) {
-        return "data:image/png;base64," + Base64.getEncoder().encodeToString(icon);
+    private String toDataUri(final IconResolver.Icon icon) {
+        return "data:" + icon.getType() + ";base64," + Base64.getEncoder().encodeToString(icon.getBytes());
     }
 
     private GlobalReporter getReporter() {

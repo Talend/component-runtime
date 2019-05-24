@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -81,7 +82,8 @@ public class ComponentGenerator {
 
     @PostConstruct
     private void init() {
-        defaultIconContent = new byte[0];
+        defaultIconContent = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><g></g></svg>"
+                .getBytes(StandardCharsets.UTF_8);
     }
 
     public Stream<FacetGenerator.InMemoryFile> create(final String packageBase, final Build build, final String family,
@@ -119,8 +121,7 @@ public class ComponentGenerator {
                         })));
         files
                 .add(new FacetGenerator.InMemoryFile(
-                        build.getMainResourcesDirectory() + "/icons/" + usedFamily + "_icon32.png",
-                        defaultIconContent));
+                        build.getMainResourcesDirectory() + "/icons/" + usedFamily + ".svg", defaultIconContent));
         files
                 .add(new FacetGenerator.InMemoryFile(mainJava + "/service/" + serviceName + ".java",
                         tpl.render("generator/component/Service.mustache", new HashMap<String, Object>() {

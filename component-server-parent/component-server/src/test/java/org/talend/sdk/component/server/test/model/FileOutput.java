@@ -24,10 +24,12 @@ import java.io.Writer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
+@Icon(custom = "myicon", value = Icon.IconType.CUSTOM)
 @Processor(family = "chain", name = "file")
 public class FileOutput implements Serializable {
 

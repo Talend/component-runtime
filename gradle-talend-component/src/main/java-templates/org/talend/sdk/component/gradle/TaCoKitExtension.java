@@ -127,4 +127,9 @@ public class TaCoKitExtension {
     private File carOutput;
 
     private Map<String, String> carMetadata;
+
+    //
+    // svg2png
+    //
+    private File icons;
 }

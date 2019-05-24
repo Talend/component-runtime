@@ -15,7 +15,8 @@
  */
 package org.talend.sdk.component.gradle;
 
-import static java.util.Collections.singleton;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import java.util.HashMap;
 
@@ -88,13 +89,6 @@ public class TaCoKitPlugin implements Plugin<Project> {
                         "Creates the Talend Component Kit dependencies file used by the runtime to build the component classloader");
             }
         }, "talendComponentKitDependencies");
-        project
-                .afterEvaluate(p -> p
-                        .getTasksByName("compileJava", false)
-                        .stream()
-                        .findFirst()
-                        .ifPresent(compileJava -> compileJava
-                                .setFinalizedBy(singleton("talendComponentKitDependencies"))));
 
         // validation
         project.task(new HashMap<String, Object>() {
@@ -106,13 +100,6 @@ public class TaCoKitPlugin implements Plugin<Project> {
                         "Validates that the module components are respecting the component standards.");
             }
         }, "talendComponentKitValidation");
-        project
-                .afterEvaluate(p -> p
-                        .getTasksByName("classes", false)
-                        .stream()
-                        .findFirst()
-                        .ifPresent(
-                                compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitValidation"))));
 
         // documentation
         project.task(new HashMap<String, Object>() {
@@ -123,13 +110,33 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put(Task.TASK_DESCRIPTION, "Generates an asciidoc file with the documentation of the components.");
             }
         }, "talendComponentKitDocumentation");
+
+        // convert SVG into PNG when needed
+        project.task(new HashMap<String, Object>() {
+
+            {
+                put(Task.TASK_TYPE, DeployInStudioTask.class);
+                put(Task.TASK_GROUP, group);
+                put(Task.TASK_DESCRIPTION, "Converts the SVG into PNG when needed (icons).");
+                put(Task.TASK_DEPENDS_ON, "jar");
+            }
+        }, "talendComponentKitSVG2PNG");
+
+        // define by default the plugins we want
         project
                 .afterEvaluate(p -> p
                         .getTasksByName("classes", false)
                         .stream()
                         .findFirst()
-                        .ifPresent(compileJava -> compileJava
-                                .setFinalizedBy(singleton("talendComponentKitDocumentation"))));
+                        .ifPresent(compile -> compile
+                                .setFinalizedBy(asList("talendComponentKitDependencies",
+                                        "talendComponentKitDocumentation", "talendComponentKitSVG2PNG"))));
+        project
+                .afterEvaluate(p -> p
+                        .getTasksByName("talendComponentKitSVG2PNG", false)
+                        .stream()
+                        .findFirst()
+                        .ifPresent(compile -> compile.setFinalizedBy(singletonList("talendComponentKitValidation"))));
 
         // web
         project.task(new HashMap<String, Object>() {

@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.service;
 
+import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 
@@ -22,23 +23,43 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 import lombok.Data;
 
 @ApplicationScoped
 public class IconResolver {
 
+    @Inject
+    private ComponentServerConfiguration componentServerConfiguration;
+
+    private boolean supportsSvg;
+
+    @PostConstruct
+    private void init() {
+        supportsSvg = getExtensionPreferences().stream().anyMatch(it -> it.endsWith(".svg"));
+    }
+
+    protected Collection<String> getExtensionPreferences() {
+        return componentServerConfiguration.getIconExtensions();
+    }
+
     /**
+     * IMPORTANT: the strategy moved to the configuration, high level we want something in this spirit:
+     *
      * The look up strategy of an icon is the following one:
-     * 1. Check in the server classpath in icons/override/${icon}_icon32.png,
+     * 1. Check in the server classpath in icons/override/${icon}_icon32.png
+     * (optionally icons/override/${icon}.svg if in the preferences),
      * 2. Check in the family classloader the following names ${icon}_icon32.png, icons/${icon}_icon32.png, ...
      * 3. Check in the server classloader the following names ${icon}_icon32.png, icons/${icon}_icon32.png, ...
      *
@@ -69,35 +90,46 @@ public class IconResolver {
         final ClassLoader appLoader = Thread.currentThread().getContextClassLoader();
         return cache.icons
                 .computeIfAbsent(icon,
-                        k -> ofNullable(doLoad(appLoader, "icons/override/" + icon + "_icon32.png")
-                                .orElseGet(() -> Stream
-                                        .of(container.getLoader(), appLoader)
-                                        .map(loader -> doLoad(loader, icon))
-                                        .filter(Optional::isPresent)
-                                        .findFirst()
-                                        .flatMap(identity())
-                                        .orElse(null))))
+                        k -> ofNullable(getOverridenIcon(icon, appLoader)
+                                .orElseGet(() -> doLoad(container.getLoader(), icon)
+                                        .orElseGet(() -> doLoad(appLoader, icon).orElse(null)))))
                 .orElse(null);
     }
 
-    private static class Cache {
-
-        private final ConcurrentMap<String, Optional<Icon>> icons = new ConcurrentHashMap<>();
+    private Optional<Icon> getOverridenIcon(final String icon, final ClassLoader appLoader) {
+        return ofNullable(loadIcon(appLoader, "icons/override/" + icon + "_icon32.png")
+                .orElseGet(() -> supportsSvg ? loadIcon(appLoader, "icons/override/" + icon + ".svg").orElse(null)
+                        : null));
     }
 
-    // todo: add support for svg if apps don't embed the Talend/ui/icon bundle
     public Optional<Icon> doLoad(final ClassLoader loader, final String icon) {
-        return Stream
-                .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png", "icons/svg/" + icon + "_icon32.png",
-                        "icons/svg-deprecated/" + icon + "_icon32.png", "icons/png/" + icon + "_icon32.png")
-                .map(path -> loadPng(loader, path))
+        return getExtensionPreferences()
+                .stream()
+                .map(ext -> String.format(ext, icon))
+                .map(path -> loadIcon(loader, path))
                 .filter(Optional::isPresent)
                 .findFirst()
                 .flatMap(identity());
     }
 
-    private Optional<Icon> loadPng(final ClassLoader loader, final String path) {
-        return ofNullable(loader.getResourceAsStream(path)).map(resource -> new Icon("image/png", toBytes(resource)));
+    private Optional<Icon> loadIcon(final ClassLoader loader, final String path) {
+        return ofNullable(loader.getResourceAsStream(path))
+                .map(resource -> new Icon(getType(path.toLowerCase(ROOT)), toBytes(resource)));
+    }
+
+    private String getType(final String path) {
+        if (path.endsWith(".png")) {
+            return "image/png";
+        }
+        if (path.endsWith(".svg")) {
+            return "image/svg+xml";
+        }
+        throw new IllegalArgumentException("Unsupported icon type: " + path);
+    }
+
+    private static class Cache {
+
+        private final ConcurrentMap<String, Optional<Icon>> icons = new ConcurrentHashMap<>();
     }
 
     @Data

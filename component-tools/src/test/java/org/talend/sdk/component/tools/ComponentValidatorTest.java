@@ -28,6 +28,8 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -74,19 +76,24 @@ class ComponentValidatorTest {
     @Slf4j
     public static class TestLog implements Log {
 
+        private final Collection<String> messages = new ArrayList<>();
+
         @Override
         public void debug(final String s) {
             log.info(s);
+            messages.add("[DEBUG] " + s);
         }
 
         @Override
         public void error(final String s) {
             log.error(s);
+            messages.add("[ERROR] " + s);
         }
 
         @Override
         public void info(final String s) {
             log.info(s);
+            messages.add("[INFO] " + s);
         }
     }
 
@@ -132,9 +139,9 @@ class ComponentValidatorTest {
             cfg.setValidateDocumentation(config.validateDocumentation());
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
-            store
-                    .put(ComponentValidator.class.getName(),
-                            new ComponentValidator(cfg, new File[] { pluginDir }, new TestLog()));
+            final TestLog log = new TestLog();
+            store.put(TestLog.class.getName(), log);
+            store.put(ComponentValidator.class.getName(), new ComponentValidator(cfg, new File[] { pluginDir }, log));
             store.put(ExceptionSpec.class.getName(), new ExceptionSpec());
         }
 
@@ -142,19 +149,23 @@ class ComponentValidatorTest {
         public void afterEach(final ExtensionContext context) {
             final ExtensionContext.Store store = context.getStore(NAMESPACE);
             final boolean fails = !ComponentPackage.class.cast(store.get(ComponentPackage.class.getName())).success();
+            final String expectedMessage = ExceptionSpec.class
+                    .cast(context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
+                    .getMessage();
             try {
                 ComponentValidator.class.cast(store.get(ComponentValidator.class.getName())).run();
                 if (fails) {
                     fail("should have failed");
                 }
+                if (expectedMessage != null) {
+                    final Collection<String> messages = TestLog.class.cast(store.get(TestLog.class.getName())).messages;
+                    assertTrue(messages.stream().anyMatch(it -> it.contains(expectedMessage)),
+                            expectedMessage + "\n\n> " + messages);
+                }
             } catch (final IllegalStateException ise) {
                 if (fails) {
-                    final String message = ExceptionSpec.class
-                            .cast(context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
-                            .getMessage();
-
                     final String exMsg = ise.getMessage();
-                    assertTrue(exMsg.contains(message), message + "\n\n> " + exMsg);
+                    assertTrue(exMsg.contains(expectedMessage), expectedMessage + "\n\n> " + exMsg);
                 } else {
                     fail(ise);
                 }
@@ -344,8 +355,9 @@ class ComponentValidatorTest {
 
     @Test
     @ComponentPackage(value = "org.talend.test.valid.customicon", success = true)
-    void testValidCustomIcon() {
-        // no-op
+    void testValidCustomIcon(final ExceptionSpec spec) {
+        // jus a warning so this test is semantically "valid" but we still assert this message
+        spec.expectMessage("icons/present.svg' found, this will run in degraded mode in Talend Cloud");
     }
 
     @Test

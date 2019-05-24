@@ -87,6 +87,9 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                 .setProperty("talend.component.server.component.documentation.translations",
                         createI18nDocRepo(builder.getTempDir()));
         System.setProperty("talend.component.server.user.extensions.location", createUserJars(builder.getTempDir()));
+        System
+                .setProperty("talend.component.server.icon.paths",
+                        "icons/%s.svg,icons/svg/%s.svg,%s.svg,%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png");
     }
 
     private String createUserJars(final String tempDir) {
@@ -231,6 +234,15 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     outputStream.putNextEntry(new JarEntry(packageName.replace('.', '/') + "/Messages.properties"));
                     outputStream
                             .write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
+
+                    outputStream.putNextEntry(new JarEntry("icons/myicon.svg"));
+                    outputStream
+                            .write(IO
+                                    .readBytes(Thread
+                                            .currentThread()
+                                            .getContextClassLoader()
+                                            .getResource("icons/logo.svg")));
+                    outputStream.closeEntry();
                 } catch (final IOException ioe) {
                     fail(ioe.getMessage());
                 }

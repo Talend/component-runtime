@@ -27,6 +27,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1435[TCOMP-1435^]: Dont use beam_sdks_java_core shaded libraries
 - link:https://jira.talendforge.org/browse/TCOMP-1437[TCOMP-1437^]: Add infinite metadata to ComponentDetail
 - link:https://jira.talendforge.org/browse/TCOMP-1444[TCOMP-1444^]: Remove KnownJarsFilter since it is no more used to discover components
+- link:https://jira.talendforge.org/browse/TCOMP-1445[TCOMP-1445^]: Icon must support SVG
 
 == Version 1.1.9
 

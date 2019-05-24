@@ -9,13 +9,18 @@ You can use one of the icons provided by the framework or you can use a custom i
 - For the component family the icon is defined in the `package-info.java` file.
 - For the component itself, you need to declare the icon in the component class.
 
-To use a custom icon, you need to have the icon file placed in the `resources/icons` folder of the project.
-The icon file needs to have a name following the convention `IconName_icon32.png`, where you can replace `IconName` by the name of your choice.
+To use a custom icon, you need to have the icon file placed in the `src/main/resources/icons` folder of the project.
+The icon file needs to have a name following the convention `IconName.svg` - or the convention `IconName_icon32.png` which will run in degraded mode in Talend Cloud.
+Indeed, you can replace `IconName` by the name of your choice.
 
 [source,java]
 ----
 @Icon(value = Icon.IconType.CUSTOM, custom = "IconName")
 ----
+
+IMPORTANT: even in SVG, the icon must be squared.
+
+TIP: the Maven (or Gradle) `svg2png` plugin takes care of converting the SVG into PNG, if you want a finer control over both images, you can provide both in your component.
 
 
 ifeval::["{backend}" == "html5"]

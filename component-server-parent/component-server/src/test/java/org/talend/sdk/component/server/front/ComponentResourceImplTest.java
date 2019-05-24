@@ -324,6 +324,12 @@ class ComponentResourceImplTest {
             assertNotNull(data.getIcon().getCustomIcon());
             assertEquals("image/png", data.getIcon().getCustomIconType());
             assertEquals(singletonList("DB/Std/Yes"), data.getCategories());
+        } else if ("chain".equals(data.getId().getFamily()) && "file".equals(data.getId().getName())) {
+            assertEquals("myicon", data.getIcon().getIcon());
+            assertTrue(new String(data.getIcon().getCustomIcon(), StandardCharsets.UTF_8)
+                    .startsWith("<svg xmlns=\"http://www.w3.org/2000/svg\""));
+            assertEquals("image/svg+xml", data.getIcon().getCustomIconType());
+            assertEquals(singletonList("Misc/" + data.getFamilyDisplayName()), data.getCategories());
         } else {
             assertEquals(singletonList("Misc/" + data.getFamilyDisplayName()), data.getCategories());
             assertEquals("default", data.getIcon().getIcon());

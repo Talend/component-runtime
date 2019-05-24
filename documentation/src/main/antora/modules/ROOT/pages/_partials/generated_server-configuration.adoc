@@ -11,6 +11,7 @@ talend.component.server.component.registry:: A property file (or multiple comma 
 talend.component.server.documentation.active:: Default value: `true`. Should the /documentation endpoint be activated. Note that when called on localhost the doc is always available.
 talend.component.server.environment.active:: Default value: `true`. Should the /api/v1/environment endpoint be activated. It shows some internal versions and git commit which are not always desirable over the wire.
 talend.component.server.filter.secured.tokens:: Default value: `-`. Accepted tokens in Authorization header for remote calls to secured endpoints (/api/v1/environment or /documentation).
+talend.component.server.icon.paths:: Default value: `%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png`. These patterns are used to find the icons in the classpath(s).
 talend.component.server.jaxrs.exceptionhandler.defaultMessage:: Default value: `false`. If set it will replace any message for exceptions. Set to `false` to use the actual exception message.
 talend.component.server.lastUpdated.useStartTime:: Default value: `false`. Should the lastUpdated timestamp value of `/environment` endpoint be updated with server start time.
 talend.component.server.maven.repository:: The local maven repository used to locate components and their dependencies

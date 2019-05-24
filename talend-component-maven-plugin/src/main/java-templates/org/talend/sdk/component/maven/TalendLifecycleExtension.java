@@ -50,6 +50,13 @@ public class TalendLifecycleExtension extends AbstractMavenLifecycleParticipant 
             executions = def.getExecutions();
         }
 
+        if (isExecutionMissing(executions, "svg2png")) {
+            final PluginExecution dependencies = new PluginExecution();
+            dependencies.setId("talend-svg2png");
+            dependencies.addGoal("svg2png");
+            dependencies.setPhase("process-classes");
+            executions.add(dependencies);
+        }
         if (isExecutionMissing(executions, "validate")) {
             final PluginExecution validate = new PluginExecution();
             validate.setId("talend-validate");
