@@ -24,7 +24,7 @@ import {
   FAMILY_RELOADED_ERROR,
 } from '../constants';
 
-function isInbundle(icon) {
+function isInBundle(icon) {
 	return !!Object.keys(talendIcons).find(elt => elt === `talend-${icon}`);
 }
 
@@ -56,8 +56,8 @@ function createComponentNode(familyNode, component) {
     $$parent: familyNode,
   };
   
-  if (isInbundle(icon)) {
-    node.icon = { name: icon };
+  if (isInBundle(icon)) {
+    node.icon = { name: `talend-${icon}` };
   } else {
     node.icon = { name: `src-/api/v1/component/icon/${component.id.id}`};
   }
@@ -96,9 +96,6 @@ function getOrCreateFamilyNode(categoryNode, component, dispatch) {
     familyNode = {
       id: familyId,
       name: familyDisplayName,
-      icon: iconFamily.customIconType ?
-        { name: `src-/api/v1/component/icon/family/${familyId}`} :
-        iconFamily.icon,
       isOpened: false,
       children: [],
       $$type: 'family',
@@ -116,6 +113,11 @@ function getOrCreateFamilyNode(categoryNode, component, dispatch) {
         }
       ]
     };
+    if (isInBundle(iconFamily.icon)) {
+      familyNode.icon = { name: `talend-${iconFamily.icon}` };
+    } else {
+      familyNode.icon = { name: `src-/api/v1/component/icon/family/${familyId}`};
+    }
     families.push(familyNode);
     families.sort(nameComparator());
   }
