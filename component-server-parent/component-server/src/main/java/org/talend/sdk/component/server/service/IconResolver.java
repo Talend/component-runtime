@@ -16,14 +16,17 @@
 package org.talend.sdk.component.server.service;
 
 import static java.util.Locale.ROOT;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -45,9 +48,18 @@ public class IconResolver {
 
     private boolean supportsSvg;
 
+    private List<String> patterns;
+
     @PostConstruct
-    private void init() {
-        supportsSvg = getExtensionPreferences().stream().anyMatch(it -> it.endsWith(".svg"));
+    protected void init() {
+        supportsSvg = System.getProperty("talend.studio.version") == null
+                && getExtensionPreferences().stream().anyMatch(it -> it.endsWith(".svg"));
+        patterns = supportsSvg ? componentServerConfiguration.getIconExtensions()
+                : componentServerConfiguration
+                        .getIconExtensions()
+                        .stream()
+                        .filter(it -> !it.endsWith(".svg"))
+                        .collect(toList());
     }
 
     protected Collection<String> getExtensionPreferences() {
@@ -97,13 +109,18 @@ public class IconResolver {
     }
 
     private Optional<Icon> getOverridenIcon(final String icon, final ClassLoader appLoader) {
-        return ofNullable(loadIcon(appLoader, "icons/override/" + icon + "_icon32.png")
-                .orElseGet(() -> supportsSvg ? loadIcon(appLoader, "icons/override/" + icon + ".svg").orElse(null)
-                        : null));
+        Icon result = null;
+        if (supportsSvg) {
+            result = loadIcon(appLoader, "icons/override/" + icon + ".svg").orElse(null);
+        }
+        if (result == null) {
+            return loadIcon(appLoader, "icons/override/" + icon + "_icon32.png");
+        }
+        return of(result);
     }
 
     public Optional<Icon> doLoad(final ClassLoader loader, final String icon) {
-        return getExtensionPreferences()
+        return patterns
                 .stream()
                 .map(ext -> String.format(ext, icon))
                 .map(path -> loadIcon(loader, path))

@@ -248,7 +248,6 @@
                   <jvmFlag>-Dlog4j.configurationFile=${imageWorkDir}/conf/log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
                   <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
                   <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
-                  <jvmFlag>-Dtalend.component.server.icon.paths=${TALEND_ICON_PATTERNS:-icons/%s.svg,icons/svg/%s.svg,%s.svg,%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png}</jvmFlag>
                 </jvmFlags>
                 <args>
                   <arg>--http=${boundPort}</arg>

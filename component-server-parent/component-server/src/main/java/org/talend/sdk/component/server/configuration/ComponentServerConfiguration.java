@@ -149,7 +149,7 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("These patterns are used to find the icons in the classpath(s).")
     @ConfigProperty(name = "talend.component.server.icon.paths",
-            defaultValue = "%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png")
+            defaultValue = "icons/%s.svg,icons/svg/%s.svg,icons/%s_icon32.png,icons/png/%s_icon32.png")
     private List<String> iconExtensions;
 
     @PostConstruct
