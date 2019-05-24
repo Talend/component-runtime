@@ -50,7 +50,7 @@ jobs:
     # PR profile
     - stage: pullrequest_build
       before_install: chmod +x ./.travis/install.sh && ./.travis/install.sh
-      script: mvn $BUILD_ARGS
+      script: travis_wait 50 mvn $BUILD_ARGS
       jdk: openjdk8
 
     # master profile
