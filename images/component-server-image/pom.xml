@@ -189,7 +189,7 @@
                 <artifactItem>
                   <groupId>com.github.rmannibucau</groupId>
                   <artifactId>filtering-agent</artifactId>
-                  <version>1.0.0</version>
+                  <version>1.0.1</version>
                   <classifier>shaded</classifier>
                   <type>jar</type>
                   <outputDirectory>${project.build.directory}/javaagent/opt/talend/component-kit/javaagent</outputDirectory>
@@ -239,7 +239,8 @@
                   <LD_LIBRARY_PATH>/opt/talend/component-kit/sigar</LD_LIBRARY_PATH>
                 </environment>
                 <jvmFlags>
-                  <jvmFlag>-javaagent:/opt/talend/component-kit/javaagent/filtering-agent-shaded.jar=include=regex:org.apache.beam.*ObjectInputStream</jvmFlag>
+                  <jvmFlag>-javaagent:/opt/talend/component-kit/javaagent/filtering-agent-shaded.jar=${TALEND_AGENT_FILTERING_ARGS:-include=regex:org.apache.beam.*ObjectInputStream}</jvmFlag>
+                  <jvmFlag>-Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER:-!*}</jvmFlag>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
