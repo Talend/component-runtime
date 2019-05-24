@@ -93,8 +93,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                     }
                     try (final InputStream stream = file.getInputStream(entry)) {
                         return new Item(new Artifact(artifact.getGroupId(), artifact.getArtifactId(),
-                                artifact.getExtension(), artifact.getClassifier(),
-                                ofNullable(artifact.getBaseVersion()).orElseGet(artifact::getVersion), "compile"),
+                                artifact.getExtension(), artifact.getClassifier(), getVersion(artifact), "compile"),
                                 blacklist,
                                 resolver
                                         .resolveFromDescriptor(stream)
@@ -215,6 +214,10 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
         } catch (final IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    private String getVersion(final org.eclipse.aether.artifact.Artifact artifact) {
+        return ofNullable(artifact.getBaseVersion()).orElseGet(artifact::getVersion);
     }
 
     private boolean isSnapshot(final Artifact it) {
