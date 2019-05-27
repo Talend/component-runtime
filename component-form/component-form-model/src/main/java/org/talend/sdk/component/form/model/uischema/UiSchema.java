@@ -43,6 +43,8 @@ public class UiSchema {
 
     private String description;
 
+    private String tooltip;
+
     private Collection<UiSchema> items;
 
     private Map<String, String> options;
@@ -353,6 +355,8 @@ public class UiSchema {
 
         private String description;
 
+        private String tooltip;
+
         private Collection<UiSchema> items;
 
         private Map<String, String> options;
@@ -395,6 +399,11 @@ public class UiSchema {
 
         public Builder withDescription(final String description) {
             this.description = description;
+            return this;
+        }
+
+        public Builder withTooltip(final String tooltip) {
+            this.tooltip = tooltip;
             return this;
         }
 
@@ -512,6 +521,7 @@ public class UiSchema {
             uiSchema.setTriggers(triggers);
             uiSchema.setTitleMap(titleMap);
             uiSchema.setDescription(description);
+            uiSchema.setTooltip(tooltip);
             uiSchema.setItemWidget(itemWidget);
             uiSchema.setCondition(condition);
             return uiSchema;

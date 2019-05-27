@@ -76,13 +76,14 @@ class UiTest {
                         .withRestricted(false)
                         .withTitle("Simple multiSelectTag")
                         .withDescription("This datalist accepts values that are not in the list of suggestions")
+                        .withTooltip("List of suggestions")
                         .withWidget("multiSelectTag")
                         .build())
                 .build();
         final String json = jsonb.toJson(form1);
-        assertEquals("{\"uiSchema\":[{\"description\":\"This datalist accepts values that are not in the list of "
-                + "suggestions\",\"key\":\"multiSelectTag\",\"restricted\":false,\"title\":\"Simple multiSelectTag\","
-                + "\"widget\":\"multiSelectTag\"}]}", json);
+        assertEquals("{\"uiSchema\":[{\"description\":\"This datalist accepts values that are not in the list "
+                + "of suggestions\",\"key\":\"multiSelectTag\",\"restricted\":false,\"title\":\"Simple multiSelectTag\","
+                + "\"tooltip\":\"List of suggestions\",\"widget\":\"multiSelectTag\"}]}", json);
     }
 
     @Test
