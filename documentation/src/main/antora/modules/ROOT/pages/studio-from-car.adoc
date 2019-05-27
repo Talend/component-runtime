@@ -1,4 +1,4 @@
-= Installing components from a CAR file
+= Installing components using a CAR file
 :page-partial:
 :description: How to build a component archive that you can easily share and how to install the shared .car file in Talend Studio.
 :keywords: deploy, install, car, .car, component archive
@@ -9,7 +9,9 @@ Component developers can generate .car files from their projects to share their 
 
 This document assumes that you have a component archive (.car) file and need to deploy it to Talend Studio.
 
-This CAR is executable and exposes the `studio-deploy` command which takes a Talend Studio home path as parameter. When executed, it installs the dependencies into the Studio and registers the component in your instance. For example:
+== Deploying from the CAR file to Talend Studio
+
+The component archive (.car) is executable and exposes the `studio-deploy` command which takes a Talend Studio home path as parameter. When executed, it installs the dependencies into the Studio and registers the component in your instance. For example:
 
 [source,bash]
 ----
@@ -37,3 +39,21 @@ In this command, Nexus URL and repository name are mandatory arguments. All othe
 ----
 --pass "Y0u will \ not G4iess i' ^"
 ----
+
+== Deploying a component archive to a remote project from Talend Studio
+
+Talend Studio allows you to share components you have created using Talend Component Kit to other users working on the same remote project.
+
+NOTE: Remote projects are available with Enterprise versions of Talend Studio only.
+
+Make sure you are connected to a remote project and the artifact repository for component sharing has been properly configured.
+
+. On the toolbar of the Studio main window, click  or click *File* > *Edit Project Properties* from the menu bar to open the Project Settings dialog box.
+. In the tree view of the dialog box, select *Repository Share* to open the corresponding view.
+. Select the *Propagate components update to Artifact Repository* check box.
+. In the Repository ID field, specify the artifact repository configured for component sharing, and then click *Check connection* to verify the connectivity.
+. Click *Apply and Close* to validate the settings and close the dialog box.
+. Create a folder named `patches` at the root of your Talend Studio installation directory, then copy the .car files of the components you want share to this folder.
+. Restart your Talend Studio and connect to the remote project.
+
+The components are deployed automatically to the repository and available in the Palette for other users when connected to a remote project with the same sharing repository configuration.
