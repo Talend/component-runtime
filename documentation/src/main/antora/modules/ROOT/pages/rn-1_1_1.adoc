@@ -1,0 +1,10 @@
+= Release Notes - 1.1.1 - Talend Component Kit
+:page-partial:
+:page-talend_skipindexation:
+
+To get the full list of changes and bug fixes included in this new version, check the xref:changelog.adoc[changelogs].
+
+
+NOTE: This version corresponds to Talend Sutdio 7.1.1.
+
+This version mainly contains bug fixes.
