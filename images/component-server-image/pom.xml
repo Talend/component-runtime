@@ -37,7 +37,18 @@
   </properties>
 
   <dependencies>
-    <!-- we don't want that out of the box
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-server</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- beam support -->
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-runtime-beam</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-core</artifactId>
@@ -53,18 +64,6 @@
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
       <version>${avro-jackson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-runtime-beam</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    -->
-
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-server</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <!-- for prod/monitoring -->
@@ -142,7 +141,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${additionalDockerFiles}</outputDirectory>
+              <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/conf</outputDirectory>
               <resources>
                 <resource>
                   <directory>${project.basedir}/src/main/resources</directory>
@@ -172,8 +171,28 @@
                   <version>1.6.4</version>
                   <classifier>native</classifier>
                   <type>jar</type>
-                  <outputDirectory>${additionalDockerFiles}</outputDirectory>
+                  <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/sigar</outputDirectory>
                   <includes>**/libsigar-amd64-linux-1.6.4.so</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-javaagent</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <stripVersion>true</stripVersion>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.github.rmannibucau</groupId>
+                  <artifactId>filtering-agent</artifactId>
+                  <version>1.0.1</version>
+                  <classifier>shaded</classifier>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}/javaagent/opt/talend/component-kit/javaagent</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -195,12 +214,12 @@
             <configuration>
               <extraDirectories>
                 <paths>
-                  <path>${additionalDockerFiles}
-                  </path>
+                  <path>${additionalDockerFiles}</path>
+                  <path>${project.build.directory}/javaagent</path>
                 </paths>
               </extraDirectories>
               <from>
-                <image>${baseImage}</image>
+                <image>openjdk:8-slim</image>
               </from>
               <to>
                 <image>${talend.server.image.name}</image>
@@ -217,14 +236,16 @@
                   <MEECROWAVE_PID>${imageWorkDir}/conf/server.pid</MEECROWAVE_PID>
                   <LANG>en_US.UTF-8</LANG>
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
-                  <LD_LIBRARY_PATH>/opt/talend/component-kit/work/sigar/sigar</LD_LIBRARY_PATH>
+                  <LD_LIBRARY_PATH>/opt/talend/component-kit/sigar</LD_LIBRARY_PATH>
                 </environment>
                 <jvmFlags>
+                  <jvmFlag>-javaagent:/opt/talend/component-kit/javaagent/filtering-agent-shaded.jar=${TALEND_AGENT_FILTERING_ARGS:-include=regex:org.apache.beam.*ObjectInputStream}</jvmFlag>
+                  <jvmFlag>-Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER:-!*}</jvmFlag>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
-                  <jvmFlag>-Dlog4j.configurationFile=log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
+                  <jvmFlag>-Dlog4j.configurationFile=${imageWorkDir}/conf/log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
                   <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
                   <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
                 </jvmFlags>

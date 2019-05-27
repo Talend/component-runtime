@@ -14,15 +14,19 @@
  *  limitations under the License.
  */
 
+import talendIcons from '@talend/icons/dist/react';
 import {
   GET_COMPONENT_LIST_LOADING,
   GET_COMPONENT_LIST_ERROR,
   GET_COMPONENT_LIST_OK,
-  GET_ICONS_LIST_OK,
   FAMILY_RELOADING,
   FAMILY_RELOADED,
   FAMILY_RELOADED_ERROR,
 } from '../constants';
+
+function isInBundle(icon) {
+	return !!Object.keys(talendIcons).find(elt => elt === `talend-${icon}`);
+}
 
 function nameComparator() {
   return (a, b) => {
@@ -39,20 +43,24 @@ function nameComparator() {
 }
 
 function createComponentNode(familyNode, component) {
-  const { customIconType, icon } = component.icon;
+  const { icon } = component.icon;
   const componentId = component.id.id;
 
   const node = {
     ...component,
     name: component.displayName,
     familyId: component.id.family,
-    icon: customIconType ? { name: `src-/api/v1/component/icon/${component.id.id}`} : icon,
     $$id: componentId,
     $$detail: component.links[0].path,
     $$type: 'component',
     $$parent: familyNode,
   };
-
+  
+  if (isInBundle(icon)) {
+    node.icon = { name: `talend-${icon}` };
+  } else {
+    node.icon = { name: `src-/api/v1/component/icon/${component.id.id}`};
+  }
   if (!node.categories || !node.categories.length) {
     node.categories = ['Others'];
   }
@@ -88,9 +96,6 @@ function getOrCreateFamilyNode(categoryNode, component, dispatch) {
     familyNode = {
       id: familyId,
       name: familyDisplayName,
-      icon: iconFamily.customIconType ?
-        { name: `src-/api/v1/component/icon/family/${familyId}`} :
-        iconFamily.icon,
       isOpened: false,
       children: [],
       $$type: 'family',
@@ -108,6 +113,11 @@ function getOrCreateFamilyNode(categoryNode, component, dispatch) {
         }
       ]
     };
+    if (isInBundle(iconFamily.icon)) {
+      familyNode.icon = { name: `talend-${iconFamily.icon}` };
+    } else {
+      familyNode.icon = { name: `src-/api/v1/component/icon/family/${familyId}`};
+    }
     families.push(familyNode);
     families.sort(nameComparator());
   }

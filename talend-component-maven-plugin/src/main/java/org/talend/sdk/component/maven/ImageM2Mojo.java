@@ -100,6 +100,18 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
     @Parameter(property = "talend-image.mainDependenciesScope", defaultValue = "compile")
     private String mainDependenciesScope;
 
+    /**
+     * Target folder in the docker image for additionalFile.
+     */
+    @Parameter(property = "talend-image.additionalFiles", defaultValue = "/opt/talend/addons")
+    private String additionalFiles;
+
+    /**
+     * Files to add in the docker image.
+     */
+    @Parameter(property = "talend-image.additionalFile")
+    private List<File> additionalFile;
+
     @Parameter
     private Map<String, String> labels;
 
@@ -329,7 +341,8 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
     // 1. one layer per component stack (not including the component module code)
     // 2. one layer with all our components
     // 3. one layer for the main dependencies
-    // 4. one layer for the main
+    // 4. one layer for the additional files
+    // 5. one layer for the main
     private void addLayers(final JibContainerBuilder builder) {
         final Set<Artifact> components = getComponentArtifacts();
         final Set<Artifact> cars = getComponentsCar(components);
@@ -426,6 +439,24 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
             getLog().info("Prepared layer for main dependencies (" + toSize(mainDepSize.get()) + ")");
 
             // 4
+            if (additionalFile != null && !additionalFile.isEmpty()) {
+                final AtomicLong additionalFilesSize = new AtomicLong();
+                try {
+                    builder.addLayer(additionalFile.stream().filter(File::exists).map(f -> {
+                        additionalFilesSize.addAndGet(f.length());
+                        return f.toPath();
+                    }).collect(toList()),
+                            AbsoluteUnixPath.get(additionalFiles.replace("${workingDirectory}", workingDirectory)));
+                    getLog().info("Prepared layer for additional files (" + toSize(mainDepSize.get()) + ")");
+                } catch (final IOException e) {
+                    getLog().error("Unable to add the additional files layer.", e);
+                    throw new IllegalStateException(e);
+                }
+            } else {
+                getLog().debug("No additional file");
+            }
+
+            // 5
             final AbsoluteUnixPath mainPath = mainLibs.resolve(path.getFileName());
             classpath.add(mainPath.toString());
             builder

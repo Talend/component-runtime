@@ -45,7 +45,7 @@ public abstract class DependencyAwareMojo extends AbstractMojo {
                                 ofNullable(a.getType()).orElse("jar"),
                                 a.getClassifier() == null || a.getClassifier().isEmpty() ? ""
                                         : (":" + a.getClassifier()),
-                                a.getVersion(), ofNullable(a.getScope()).orElse("compile")),
+                                getVersion(a), ofNullable(a.getScope()).orElse("compile")),
                         Artifact::getFile));
 
         final String mainGav = mainGav();
@@ -53,6 +53,10 @@ public abstract class DependencyAwareMojo extends AbstractMojo {
                 .putIfAbsent(mainGav, new File(project.getBuild().getDirectory(), project.getBuild().getFinalName()
                         + "." + ("bundle".equals(project.getPackaging()) ? "jar" : project.getPackaging())));
         return artifacts;
+    }
+
+    private String getVersion(final Artifact a) {
+        return ofNullable(a.getBaseVersion()).orElseGet(a::getVersion);
     }
 
     protected String mainGav() {

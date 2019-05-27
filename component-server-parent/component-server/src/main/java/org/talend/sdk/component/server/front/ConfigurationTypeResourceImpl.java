@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -60,6 +61,7 @@ import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 import org.talend.sdk.component.server.service.SimpleQueryLanguageCompiler;
+import org.talend.sdk.component.server.service.event.DeployedComponent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,6 +112,10 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
             }
             return Collections.emptyMap();
         });
+    }
+
+    void clearCache(@Observes final DeployedComponent deployedComponent) {
+        indicesPerRequest.clear();
     }
 
     @Override

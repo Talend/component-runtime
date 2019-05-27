@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.front.model;
 
 import java.util.Collection;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -51,4 +52,6 @@ public class ComponentDetail {
     private Collection<String> outputFlows;
 
     private Collection<Link> links;
+
+    private Map<String, String> metadata;
 }

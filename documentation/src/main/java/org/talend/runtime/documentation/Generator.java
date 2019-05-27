@@ -47,11 +47,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -131,7 +127,6 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Config
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
-import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.runtime.server.vault.proxy.endpoint.security.SecurityFilter;
@@ -184,7 +179,6 @@ public class Generator {
             tasks.register(() -> updateComponentServerVaultApi(generatedDir));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
-            tasks.register(() -> generatedIcons(generatedDir, iconOutput));
 
             final boolean offline = "offline=true".equals(args[4]);
             if (offline) {
@@ -367,24 +361,6 @@ public class Generator {
     private static void generatedScanningExclusions(final File generatedDir) {
         final File file = new File(generatedDir, "generated_scanning-exclusions.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("= Jars Scanning");
-            stream.println();
-            stream.println("To find components the framework can scan the classpath but in this case,");
-            stream.println("to avoid to scan the whole classpath which can be really huge");
-            stream.println("an impacts a lot the startup time, several jars are excluded out of the box.");
-            stream.println();
-            stream.println("These jars use the following prefix:");
-            stream.println();
-            stream.println("[.talend-filterlist]");
-            new KnownJarsFilter()
-                    .getExcludes()
-                    .stream()
-                    .sorted()
-                    .distinct()
-                    .map(prefix -> "- " + prefix)
-                    .forEach(stream::println);
-            stream.println();
-            stream.println();
             stream.println("= Package Scanning");
             stream.println();
             stream.println("Since the framework can be used in the case of __fatjars__ or __shades__,");
@@ -461,45 +437,6 @@ public class Generator {
         try (final Jsonb jsonb = newJsonb(); final OutputStream writer = new WriteIfDifferentStream(file)) {
             writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
             writer.write(jsonb.toJson(contributors).getBytes(StandardCharsets.UTF_8));
-            writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
-        }
-    }
-
-    private static void generatedIcons(final File generatedDir, final File source) throws Exception {
-        if (!source.exists()) {
-            log.warn("{} does not exist", source);
-            return;
-        }
-        final List<Icon> icons = new ArrayList<>();
-        final File file = new File(generatedDir, "generated_icons.adoc");
-        final Path iconBase = source.toPath();
-        Files.walkFileTree(iconBase, new SimpleFileVisitor<Path>() {
-
-            @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                if (file.getFileName().toString().endsWith(".svg")) {
-                    icons
-                            .add(new Icon(
-                                    file
-                                            .getFileName()
-                                            .toString()
-                                            .replace(".svg", "")
-                                            .replace('-', '_')
-                                            .toUpperCase(ENGLISH),
-                                    "_images/icons/" + iconBase.relativize(file).toString(),
-                                    file.toFile().getParentFile().getName().equals("svg-deprecated")));
-                }
-                return super.visitFile(file, attrs);
-            }
-        });
-        if (icons.isEmpty()) {
-            log.error("Can't collect icons in {}", source);
-            return;
-        }
-        icons.sort(comparing(Icon::getName));
-        try (final Jsonb jsonb = newJsonb(); final OutputStream writer = new WriteIfDifferentStream(file)) {
-            writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
-            writer.write(jsonb.toJson(icons).getBytes(StandardCharsets.UTF_8));
             writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
         }
     }

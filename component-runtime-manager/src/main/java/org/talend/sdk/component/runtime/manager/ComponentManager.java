@@ -136,7 +136,6 @@ import org.apache.xbean.propertyeditor.StringEditor;
 import org.apache.xbean.propertyeditor.URIEditor;
 import org.apache.xbean.propertyeditor.URLEditor;
 import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -177,6 +176,7 @@ import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFa
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
+import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
@@ -300,6 +300,8 @@ public class ComponentManager implements AutoCloseable {
     private final PropertyEditorRegistry propertyEditorRegistry;
 
     private final List<ContainerClasspathContributor> classpathContributors;
+
+    private final IconFinder iconFinder = new IconFinder();
 
     /**
      * @param m2 the maven repository location if on the file system.
@@ -1439,7 +1441,8 @@ public class ComponentManager implements AutoCloseable {
             });
 
             final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), allServices, components,
-                    componentDefaults.get(getAnnotatedElementCacheKey(type)), context, migrationHandlerFactory);
+                    componentDefaults.get(getAnnotatedElementCacheKey(type)), context, migrationHandlerFactory,
+                    iconFinder);
 
             final Thread thread = Thread.currentThread();
             final ClassLoader old = thread.getContextClassLoader();
@@ -1747,6 +1750,8 @@ public class ComponentManager implements AutoCloseable {
 
         private final MigrationHandlerFactory migrationHandlerFactory;
 
+        private final IconFinder iconFinder;
+
         private ComponentFamilyMeta component;
 
         @Override
@@ -1762,6 +1767,7 @@ public class ComponentManager implements AutoCloseable {
             final String name = of(partitionMapper.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(partitionMapper.family());
 
+            final boolean infinite = partitionMapper.infinite();
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
                             ? config -> executeInContainer(plugin,
@@ -1770,16 +1776,16 @@ public class ComponentManager implements AutoCloseable {
                                             .convert(new ComponentInstanceImpl(
                                                     doInvoke(constructor, parameterFactory.apply(config)), plugin,
                                                     component.getName(), name), Mapper.class))
-                            : config -> new PartitionMapperImpl(component.getName(), name, null, plugin,
-                                    partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
+                            : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
+                                    doInvoke(constructor, parameterFactory.apply(config)));
 
             component
                     .getPartitionMappers()
                     .put(name,
-                            new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type),
+                            new ComponentFamilyMeta.PartitionMapperMeta(component, name, iconFinder.findIcon(type),
                                     findVersion(type), type, parameterMetas, instantiator,
                                     migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
-                                    !context.isNoValidation()));
+                                    !context.isNoValidation(), infinite));
         }
 
         @Override
@@ -1807,10 +1813,10 @@ public class ComponentManager implements AutoCloseable {
             component
                     .getPartitionMappers()
                     .put(name,
-                            new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type),
+                            new ComponentFamilyMeta.PartitionMapperMeta(component, name, iconFinder.findIcon(type),
                                     findVersion(type), type, parameterMetas, instantiator,
                                     migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
-                                    !context.isNoValidation()));
+                                    !context.isNoValidation(), false));
         }
 
         @Override
@@ -1853,8 +1859,8 @@ public class ComponentManager implements AutoCloseable {
             component
                     .getProcessors()
                     .put(name,
-                            new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type),
-                                    type, parameterMetas, instantiator,
+                            new ComponentFamilyMeta.ProcessorMeta(component, name, iconFinder.findIcon(type),
+                                    findVersion(type), type, parameterMetas, instantiator,
                                     migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
                                     !context.isNoValidation()));
         }
@@ -1916,14 +1922,6 @@ public class ComponentManager implements AutoCloseable {
             return ofNullable(type.getAnnotation(Version.class)).map(Version::value).orElse(1);
         }
 
-        private String findIcon(final AnnotatedElement type) {
-            return ofNullable(type.getAnnotation(Icon.class))
-                    .map(i -> i.value() == Icon.IconType.CUSTOM
-                            ? of(i.custom()).filter(s -> !s.isEmpty()).orElse("default")
-                            : i.value().getKey())
-                    .orElse("default");
-        }
-
         // we keep the component (family) value since it is more user fiendly than
         // having a generated id and it makes the
         // component
@@ -1935,7 +1933,7 @@ public class ComponentManager implements AutoCloseable {
             }
             return this.component == null || !component.equals(this.component.getName())
                     ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
-                            findIcon(familyAnnotationElement), comp,
+                            iconFinder.findIcon(familyAnnotationElement), comp,
                             Class.class.isInstance(familyAnnotationElement)
                                     ? getPackage(Class.class.cast(familyAnnotationElement))
                                     : ""))

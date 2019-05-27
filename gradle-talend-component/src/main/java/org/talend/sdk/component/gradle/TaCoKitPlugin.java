@@ -15,9 +15,8 @@
  */
 package org.talend.sdk.component.gradle;
 
-import static java.util.Collections.singleton;
-
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -86,15 +85,9 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put(Task.TASK_GROUP, group);
                 put(Task.TASK_DESCRIPTION,
                         "Creates the Talend Component Kit dependencies file used by the runtime to build the component classloader");
+                put(Task.TASK_DEPENDS_ON, "classes");
             }
         }, "talendComponentKitDependencies");
-        project
-                .afterEvaluate(p -> p
-                        .getTasksByName("compileJava", false)
-                        .stream()
-                        .findFirst()
-                        .ifPresent(compileJava -> compileJava
-                                .setFinalizedBy(singleton("talendComponentKitDependencies"))));
 
         // validation
         project.task(new HashMap<String, Object>() {
@@ -104,15 +97,10 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put(Task.TASK_GROUP, group);
                 put(Task.TASK_DESCRIPTION,
                         "Validates that the module components are respecting the component standards.");
+                put(Task.TASK_DEPENDS_ON,
+                        "talendComponentKitDependencies,talendComponentKitDocumentation,talendComponentKitSVG2PNG");
             }
         }, "talendComponentKitValidation");
-        project
-                .afterEvaluate(p -> p
-                        .getTasksByName("classes", false)
-                        .stream()
-                        .findFirst()
-                        .ifPresent(
-                                compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitValidation"))));
 
         // documentation
         project.task(new HashMap<String, Object>() {
@@ -121,15 +109,20 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put(Task.TASK_TYPE, DocumentationTask.class);
                 put(Task.TASK_GROUP, group);
                 put(Task.TASK_DESCRIPTION, "Generates an asciidoc file with the documentation of the components.");
+                put(Task.TASK_DEPENDS_ON, "classes");
             }
         }, "talendComponentKitDocumentation");
-        project
-                .afterEvaluate(p -> p
-                        .getTasksByName("classes", false)
-                        .stream()
-                        .findFirst()
-                        .ifPresent(compileJava -> compileJava
-                                .setFinalizedBy(singleton("talendComponentKitDocumentation"))));
+
+        // convert SVG into PNG when needed
+        project.task(new HashMap<String, Object>() {
+
+            {
+                put(Task.TASK_TYPE, SVG2PngTask.class);
+                put(Task.TASK_GROUP, group);
+                put(Task.TASK_DESCRIPTION, "Converts the SVG into PNG when needed (icons).");
+                put(Task.TASK_DEPENDS_ON, "classes");
+            }
+        }, "talendComponentKitSVG2PNG");
 
         // web
         project.task(new HashMap<String, Object>() {
@@ -139,6 +132,7 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put(Task.TASK_GROUP, group);
                 put(Task.TASK_DESCRIPTION,
                         "Starts a web server allowing you to browse your components (requires the component to be installed before).");
+                put(Task.TASK_DEPENDS_ON, "jar");
             }
         }, "talendComponentKitWebServer");
 
@@ -149,6 +143,7 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put(Task.TASK_TYPE, CarTask.class);
                 put(Task.TASK_GROUP, group);
                 put(Task.TASK_DESCRIPTION, "Creates a Component ARchive (.car) based on current project.");
+                put(Task.TASK_DEPENDS_ON, "jar");
             }
         }, "talendComponentKitComponentArchive");
 
@@ -162,5 +157,29 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put(Task.TASK_DEPENDS_ON, "jar");
             }
         }, "talendComponentKitDeployInStudio");
+
+        project.afterEvaluate(p -> {
+            final Task car = getTask(p, "talendComponentKitComponentArchive").orElseThrow(IllegalStateException::new);
+            final Task dependencies =
+                    getTask(p, "talendComponentKitDependencies").orElseThrow(IllegalStateException::new);
+            final Task documentation =
+                    getTask(p, "talendComponentKitDocumentation").orElseThrow(IllegalStateException::new);
+            final Task svg2PNG = getTask(p, "talendComponentKitSVG2PNG").orElseThrow(IllegalStateException::new);
+            final Task validation = getTask(p, "talendComponentKitValidation").orElseThrow(IllegalStateException::new);
+
+            getTask(p, "classes").orElseThrow(IllegalStateException::new).doLast(task -> {
+                DependenciesTask.class.cast(dependencies).createTalendComponentDependenciesTxt();
+                DocumentationTask.class.cast(documentation).asciidoc();
+                SVG2PngTask.class.cast(svg2PNG).convertSVGIconsToPng();
+            });
+            getTask(p, "jar").orElseThrow(IllegalStateException::new).doLast(task -> {
+                ValidateTask.class.cast(validation).validateTalendComponents();
+                CarTask.class.cast(car).createCar();
+            });
+        });
+    }
+
+    private Optional<Task> getTask(final Project p, final String name) {
+        return p.getTasksByName(name, false).stream().findFirst();
     }
 }

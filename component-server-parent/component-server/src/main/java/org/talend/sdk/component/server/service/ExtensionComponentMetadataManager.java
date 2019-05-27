@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.service;
 
+import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.function.Function.identity;
@@ -118,7 +119,8 @@ public class ExtensionComponentMetadataManager {
                                             .concat(createBuiltInLinks(it),
                                                     it.getLinks() == null ? Stream.empty() : it.getLinks().stream())
                                             .distinct()
-                                            .collect(toList())))
+                                            .collect(toList()),
+                                    singletonMap("mapper::infinite", "false")))
                             .collect(toMap(it -> it.getId().getId(), identity(), (a, b) -> {
                                 throw new IllegalArgumentException(a + " and " + b + " are conflicting");
                             }, LinkedHashMap::new));

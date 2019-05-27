@@ -97,7 +97,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${additionalDockerFiles}</outputDirectory>
+              <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/conf</outputDirectory>
               <resources>
                 <resource>
                   <directory>${project.basedir}/src/main/resources</directory>
@@ -127,7 +127,7 @@
                   <version>1.6.4</version>
                   <classifier>native</classifier>
                   <type>jar</type>
-                  <outputDirectory>${additionalDockerFiles}</outputDirectory>
+                  <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/sigar</outputDirectory>
                   <includes>**/libsigar-amd64-linux-1.6.4.so</includes>
                 </artifactItem>
               </artifactItems>
@@ -172,7 +172,7 @@
                   <MEECROWAVE_PID>${imageWorkDir}/conf/server-vault-proxy.pid</MEECROWAVE_PID>
                   <LANG>en_US.UTF-8</LANG>
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
-                  <LD_LIBRARY_PATH>/opt/talend/component-kit-vault-proxy/work/sigar/sigar</LD_LIBRARY_PATH>
+                  <LD_LIBRARY_PATH>/opt/talend/component-kit/sigar</LD_LIBRARY_PATH>
                 </environment>
                 <args>
                   <arg>--http=${boundPort}</arg>

@@ -25,23 +25,18 @@ import org.gradle.api.tasks.TaskAction;
 public class CarTask extends TaCoKitTask {
 
     @TaskAction
-    public void deployInStudio() {
+    public void createCar() {
         executeInContext(() -> {
             try {
-                doDeployInStudio();
+                doCar();
             } catch (final Exception e) {
                 throw new IllegalStateException(e);
             }
         });
     }
 
-    private void doDeployInStudio() throws Exception {
-        final TaCoKitExtension extension =
-                TaCoKitExtension.class.cast(getProject().getExtensions().findByName("talendComponentKit"));
-        if (extension.getStudioHome() == null) {
-            getLogger().info("No studioHome, skipping");
-            return;
-        }
+    private void doCar() throws Exception {
+        final TaCoKitExtension extension = getKitExtension();
 
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 

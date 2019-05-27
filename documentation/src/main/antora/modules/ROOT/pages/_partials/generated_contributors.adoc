@@ -1,7 +1,7 @@
 ++++
 <jsonArray>[
   {
-    "commits":2253,
+    "commits":2280,
     "description":"Joined the Apache EE family (OpenWebBeans, Meecrowave, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -15,7 +15,7 @@
     "name":"Anas KHABALI"
   },
   {
-    "commits":198,
+    "commits":199,
     "description":"Technical Writer at @Talend",
     "gravatar":"https://avatars1.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",
@@ -29,7 +29,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":57,
+    "commits":58,
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
     "id":"jmfrancois",
@@ -71,6 +71,13 @@
   },
   {
     "commits":3,
+    "description":"Security architect at @Talend, security expert at @Apache.",
+    "gravatar":"https://avatars0.githubusercontent.com/u/472162?v=4",
+    "id":"coheigea",
+    "name":"Colm O hEigeartaigh"
+  },
+  {
+    "commits":3,
     "description":"",
     "gravatar":"https://avatars0.githubusercontent.com/u/7931535?v=4",
     "id":"amaumont",
@@ -78,17 +85,17 @@
   },
   {
     "commits":2,
-    "description":"Security architect at @Talend, security expert at @Apache.",
-    "gravatar":"https://avatars0.githubusercontent.com/u/472162?v=4",
-    "id":"coheigea",
-    "name":"Colm O hEigeartaigh"
-  },
-  {
-    "commits":2,
     "description":"\n\nBlog: https://www.linkedin.com/in/zoltantakacsdev/",
     "gravatar":"https://avatars0.githubusercontent.com/u/2045409?v=4",
     "id":"ZoltanTakacs",
     "name":"Zoltán Takács"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars1.githubusercontent.com/u/35097656?v=4",
+    "id":"aleboulanger",
+    "name":"Aurélien Leboulanger"
   },
   {
     "commits":1,
@@ -110,6 +117,13 @@
     "gravatar":"https://avatars3.githubusercontent.com/u/8821084?v=4",
     "id":"echauchot",
     "name":"Etienne Chauchot"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars3.githubusercontent.com/u/1133383?v=4",
+    "id":"rdubois",
+    "name":"Rémy DUBOIS"
   },
   {
     "commits":1,

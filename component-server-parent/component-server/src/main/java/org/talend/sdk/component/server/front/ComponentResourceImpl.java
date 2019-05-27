@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -47,6 +48,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -86,6 +88,7 @@ import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 import org.talend.sdk.component.server.service.SimpleQueryLanguageCompiler;
 import org.talend.sdk.component.server.service.VirtualDependenciesService;
+import org.talend.sdk.component.server.service.event.DeployedComponent;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 
 import lombok.extern.slf4j.Slf4j;
@@ -161,6 +164,10 @@ public class ComponentResourceImpl implements ComponentResource {
             }
             return Collections.emptyMap();
         });
+    }
+
+    void clearCache(@Observes final DeployedComponent deployedComponent) {
+        indicesPerRequest.clear();
     }
 
     @Override
@@ -398,6 +405,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 }
 
                 final Locale locale = localeMapper.mapLocale(language);
+                final boolean isProcessor = ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta);
 
                 final ComponentDetail componentDetail = new ComponentDetail();
                 componentDetail.setLinks(emptyList() /* todo ? */);
@@ -406,8 +414,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 componentDetail.setIcon(meta.getIcon());
                 componentDetail.setInputFlows(model.get().getInputFlows());
                 componentDetail.setOutputFlows(model.get().getOutputFlows());
-                componentDetail
-                        .setType(ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor" : "input");
+                componentDetail.setType(isProcessor ? "processor" : "input");
                 componentDetail
                         .setDisplayName(
                                 meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
@@ -419,6 +426,13 @@ public class ComponentResourceImpl implements ComponentResource {
                         .setActions(actionsService
                                 .findActions(meta.getParent().getName(), container, locale, meta,
                                         meta.getParent().findBundle(container.getLoader(), locale)));
+                if (isProcessor) {
+                    componentDetail.setMetadata(emptyMap());
+                } else {
+                    componentDetail
+                            .setMetadata(singletonMap("mapper::infinite", Boolean
+                                    .toString(ComponentFamilyMeta.PartitionMapperMeta.class.cast(meta).isInfinite())));
+                }
 
                 return componentDetail;
             }).orElseGet(() -> {

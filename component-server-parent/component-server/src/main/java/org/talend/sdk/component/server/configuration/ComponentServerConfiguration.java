@@ -146,6 +146,12 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.lastUpdated.useStartTime", defaultValue = "false")
     private Boolean changeLastUpdatedAtStartup;
 
+    @Inject
+    @Documentation("These patterns are used to find the icons in the classpath(s).")
+    @ConfigProperty(name = "talend.component.server.icon.paths",
+            defaultValue = "icons/%s.svg,icons/svg/%s.svg,icons/%s_icon32.png,icons/png/%s_icon32.png")
+    private List<String> iconExtensions;
+
     @PostConstruct
     private void init() {
         if (logRequests != null && logRequests) {

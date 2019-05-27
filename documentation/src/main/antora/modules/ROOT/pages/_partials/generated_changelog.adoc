@@ -5,6 +5,13 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1425[TCOMP-1425^]: Spark classes not excluded anymore in component-runtime-beam leading to classloading issues
+- link:https://jira.talendforge.org/browse/TCOMP-1427[TCOMP-1427^]: dependencies.txt mojo uses timestamped versions for snapshots instead of just -SNAPSHOT
+- link:https://jira.talendforge.org/browse/TCOMP-1431[TCOMP-1431^]: [maven] Asciidoctor files should be attached with adoc extension and not jar one
+- link:https://jira.talendforge.org/browse/TCOMP-1433[TCOMP-1433^]: [form-model] itemwidget ignored from uischema builder
+- link:https://jira.talendforge.org/browse/TCOMP-1438[TCOMP-1438^]: Index cache can lead to invalid index list of component
+- link:https://jira.talendforge.org/browse/TCOMP-1440[TCOMP-1440^]: Bulk components without @ElementListener when used with component-extension (default in the server)
+- link:https://jira.talendforge.org/browse/TCOMP-1441[TCOMP-1441^]: Missing parameter init in the UiSchema Trigger builder
+- link:https://jira.talendforge.org/browse/TCOMP-1446[TCOMP-1446^]: Rework gradle lifecycle
 
 
 
@@ -12,9 +19,16 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1419[TCOMP-1419^]: Upgrade build to groovy 2.5.7
 - link:https://jira.talendforge.org/browse/TCOMP-1420[TCOMP-1420^]: Upgrade maven compiler to 3.1.2
-- link:https://jira.talendforge.org/browse/TCOMP-1422[TCOMP-1422^]: Remove beam from component-server image
+- link:https://jira.talendforge.org/browse/TCOMP-1422[TCOMP-1422^]: Filter allowed beam classes in component-server image
 - link:https://jira.talendforge.org/browse/TCOMP-1423[TCOMP-1423^]: Enable to customize studio maven repository for deploy-studio maven and gradle goal/task
 - link:https://jira.talendforge.org/browse/TCOMP-1426[TCOMP-1426^]: Ensure Spark rule and @WithSpark uses a default version consistent with the runtime
+- link:https://jira.talendforge.org/browse/TCOMP-1430[TCOMP-1430^]: Deprecate built-in icons in favor of vendor specific icons
+- link:https://jira.talendforge.org/browse/TCOMP-1432[TCOMP-1432^]: basic dita generation for the component documentation
+- link:https://jira.talendforge.org/browse/TCOMP-1434[TCOMP-1434^]: [form-model] Add withCondition to UISchema builder
+- link:https://jira.talendforge.org/browse/TCOMP-1435[TCOMP-1435^]: Dont use beam_sdks_java_core shaded libraries
+- link:https://jira.talendforge.org/browse/TCOMP-1437[TCOMP-1437^]: Add infinite metadata to ComponentDetail
+- link:https://jira.talendforge.org/browse/TCOMP-1444[TCOMP-1444^]: Remove KnownJarsFilter since it is no more used to discover components
+- link:https://jira.talendforge.org/browse/TCOMP-1445[TCOMP-1445^]: Icon must support SVG
 
 == Version 1.1.9
 

@@ -312,7 +312,8 @@ public class UiSchema {
                 if (this.parameters == null) {
                     this.parameters = new ArrayList<>();
                 }
-                this.parameters.add(new Parameter());
+                final Parameter parameter = parameter().withKey(key).withPath(path).build();
+                this.parameters.add(parameter);
                 return this;
             }
 
@@ -371,6 +372,16 @@ public class UiSchema {
         private Collection<Trigger> triggers;
 
         private Collection<NameValue> titleMap;
+
+        private Map<String, Collection<Object>> condition;
+
+        public Builder withCondition(final Map<String, Collection<Object>> condition) {
+            if (this.condition != null) {
+                throw new IllegalStateException("conditions already set");
+            }
+            this.condition = condition;
+            return this;
+        }
 
         public Builder withKey(final String key) {
             this.key = key;
@@ -501,6 +512,8 @@ public class UiSchema {
             uiSchema.setTriggers(triggers);
             uiSchema.setTitleMap(titleMap);
             uiSchema.setDescription(description);
+            uiSchema.setItemWidget(itemWidget);
+            uiSchema.setCondition(condition);
             return uiSchema;
         }
     }

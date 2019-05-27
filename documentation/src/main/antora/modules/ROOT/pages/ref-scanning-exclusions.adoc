@@ -3,6 +3,8 @@
 :page-talend_skipindexation:
 :page-talend_filterlist: true
 
-The framework uses two kind of filterings when scanning your component. One based on the JAR name and one based on the package name. Make sure that your component definitions (including services) are in a scanned module if they are not registered manually using `ComponentManager.instance().addPlugin()`, and that the component package is not excluded.
+The framework uses two kind of filterings when scanning your component.
+One based on the JAR content - the presence of `TALEND-INF/dependencies.txt` and one based on the package name.
+Make sure that your component definitions (including services) are in a scanned module if they are not registered manually using `ComponentManager.instance().addPlugin()`, and that the component package is not excluded.
 
 include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+1]

@@ -30,6 +30,5 @@
 
   <modules>
     <module>component-server-extension-api</module>
-    <module>stitch</module>
   </modules>
 </project>

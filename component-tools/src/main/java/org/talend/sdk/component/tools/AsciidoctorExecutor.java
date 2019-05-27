@@ -72,7 +72,7 @@ public class AsciidoctorExecutor implements AutoCloseable {
                 .findFirst()
                 .map(it -> it.substring(1))
                 .orElse(args.length > 2 ? args[2] : "");
-        render(args.length > 3 ? new File(args[2]) : new File("target/pdf"), version, new Log() {
+        render(args.length > 3 ? new File(args[3]) : new File("target/pdf"), version, new Log() {
 
             @Override
             public void debug(final String s) {
