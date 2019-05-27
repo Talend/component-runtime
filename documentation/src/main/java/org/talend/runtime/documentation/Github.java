@@ -80,7 +80,7 @@ public class Github {
                     .of("component-api", "component-runtime")
                     .map(repo -> toStage(pool,
                             () -> contributors(client, token,
-                                    "https://api.github" + ".com/repos/talend" + "/" + repo + "/contributors")
+                                    "https://api.github.com/repos/talend/" + repo + "/contributors")
                                             .collect(toList()))));
 
             return allOf(contributorLookups)
