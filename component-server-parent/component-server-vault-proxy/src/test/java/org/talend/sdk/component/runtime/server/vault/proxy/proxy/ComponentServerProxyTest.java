@@ -15,11 +15,18 @@
  */
 package org.talend.sdk.component.runtime.server.vault.proxy.proxy;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.client.Entity.entity;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.runtime.server.vault.proxy.service.http.Http.Type.TALEND_COMPONENT_KIT;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +34,7 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
@@ -37,6 +45,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.runtime.server.vault.proxy.service.http.Http;
 import org.talend.sdk.component.server.front.model.ActionList;
+import org.talend.sdk.component.server.front.model.BulkRequests;
+import org.talend.sdk.component.server.front.model.BulkResponses;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.Environment;
 
@@ -155,6 +165,29 @@ class ComponentServerProxyTest {
                 put("lang", "testl");
             }
         }, decrypted);
+    }
+
+    @Test
+    void bulk() {
+        final BulkResponses results =
+                base()
+                        .path("api/v1/bulk")
+                        .request(APPLICATION_JSON_TYPE)
+                        .post(entity(
+                                new BulkRequests(asList(
+                                        new BulkRequests.Request(
+                                                singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)),
+                                                "/api/v1/component/index", emptyMap()),
+                                        new BulkRequests.Request(
+                                                singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)),
+                                                "/api/v1/documentation/component/mocked", emptyMap()))),
+                                APPLICATION_JSON_TYPE), BulkResponses.class);
+        assertEquals("200/ok\n400/bad",
+                results
+                        .getResponses()
+                        .stream()
+                        .map(it -> it.getStatus() + "/" + new String(it.getResponse(), StandardCharsets.UTF_8))
+                        .collect(joining("\n")));
     }
 
     private WebTarget base() {

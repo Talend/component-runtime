@@ -208,6 +208,7 @@
               <application>org.talend.sdk.component.server.front.TalendComponentApplication</application>
               <endpointClasses>
                 <endpointClass>org.talend.sdk.component.server.front.ActionResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.BulkReadResourceImpl</endpointClass>
                 <endpointClass>org.talend.sdk.component.server.front.ComponentResourceImpl</endpointClass>
                 <endpointClass>org.talend.sdk.component.server.front.ConfigurationTypeResourceImpl</endpointClass>
                 <endpointClass>org.talend.sdk.component.server.front.DocumentationResourceImpl</endpointClass>

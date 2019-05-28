@@ -20,12 +20,14 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -34,9 +36,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
+import org.talend.sdk.component.server.front.model.BulkRequests;
+import org.talend.sdk.component.server.front.model.BulkResponses;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -99,6 +104,19 @@ public class ComponentServerMock {
         out.put("action", action);
         out.put("lang", lang);
         return out;
+    }
+
+    @POST
+    @Path("bulk")
+    public BulkResponses execute(final BulkRequests requests) {
+        if (requests.getRequests().size() != 2) {
+            throw new BadRequestException();
+        }
+        return new BulkResponses(asList(
+                new BulkResponses.Result(Response.Status.OK.getStatusCode(), emptyMap(),
+                        "ok".getBytes(StandardCharsets.UTF_8)),
+                new BulkResponses.Result(Response.Status.BAD_REQUEST.getStatusCode(), emptyMap(),
+                        "bad".getBytes(StandardCharsets.UTF_8))));
     }
 
     private List<SimplePropertyDefinition> createProperties() {
