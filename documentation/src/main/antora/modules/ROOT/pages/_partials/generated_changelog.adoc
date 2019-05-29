@@ -29,8 +29,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1437[TCOMP-1437^]: Add infinite metadata to ComponentDetail
 - link:https://jira.talendforge.org/browse/TCOMP-1444[TCOMP-1444^]: Remove KnownJarsFilter since it is no more used to discover components
 - link:https://jira.talendforge.org/browse/TCOMP-1445[TCOMP-1445^]: Icon must support SVG
+- link:https://jira.talendforge.org/browse/TCOMP-1448[TCOMP-1448^]: [starter] provide a basic OpenAPI integration
 - link:https://jira.talendforge.org/browse/TCOMP-1449[TCOMP-1449^]: Upgrade XBean to v4.14
 - link:https://jira.talendforge.org/browse/TCOMP-1450[TCOMP-1450^]: Add a read-only bulk endpoint in component-server
+- link:https://jira.talendforge.org/browse/TCOMP-1451[TCOMP-1451^]: [upgrade] Johnzon 1.1.12
+- link:https://jira.talendforge.org/browse/TCOMP-1452[TCOMP-1452^]: [upgrade] Meecrowave 1.2.8
 
 == Version 1.1.9
 
