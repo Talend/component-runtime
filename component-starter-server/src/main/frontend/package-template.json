@@ -25,7 +25,8 @@
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
     "use-service": "^0.3.0",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "react-ace": "6.2.0"
   },
   "devDependencies": {
     "atob": "^2.1.2",

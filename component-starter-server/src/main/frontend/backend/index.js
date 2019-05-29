@@ -52,6 +52,7 @@ function setup(app) {
 	app.use(bodyParser.json());
 	app.get('/api/project/configuration', getConfiguration);
 	app.post('/api/project/zip/form', downloadZip);
+	app.post('/api/project/openapi/zip/form', downloadZip);
 	app.post('/api/project/github', createOnGithub);
 }
 

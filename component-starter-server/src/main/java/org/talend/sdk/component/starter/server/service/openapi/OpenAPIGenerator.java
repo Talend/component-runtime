@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -98,7 +97,8 @@ public class OpenAPIGenerator {
                         renderer
                                 .render("generator/openapi/dataset.mustache",
                                         new DataSetModel(options.stream().anyMatch(it -> it.getDefaultValue() != null),
-                                                basePackage, operations, options))));
+                                                basePackage, operations, options,
+                                                options.stream().anyMatch(it -> it.getType().startsWith("List<"))))));
         payloads
                 .add(new FacetGenerator.InMemoryFile(resourcesBaseFolder + "dataset/Messages.properties",
                         "APIDataSet.api._displayName = API\n" + "APIDataSet.connection._displayName = API connection\n"
@@ -159,7 +159,6 @@ public class OpenAPIGenerator {
     }
 
     private List<Operation> extractOperations(final JsonObject paths) {
-        final AtomicInteger id = new AtomicInteger();
         return paths
                 .entrySet()
                 .stream()
@@ -169,12 +168,14 @@ public class OpenAPIGenerator {
                         .asJsonObject()
                         .entrySet()
                         .stream()
+                        .filter(jsonValue -> jsonValue.getValue().getValueType() == JsonValue.ValueType.OBJECT)
                         .map(operation -> new Operation(
                                 getString(operation.getValue(), "operationId")
                                         .map(nameConventions::toJavaName)
                                         .map(Introspector::decapitalize)
-                                        .orElseGet(() -> operation.getKey() + id.incrementAndGet()),
-                                operation.getKey().toUpperCase(ROOT), path.getKey(),
+                                        .orElseGet(() -> nameConventions
+                                                .toJavaName(operation.getKey() + "_" + path.getKey())),
+                                ofNullable(operation.getKey()).orElse("GET").toUpperCase(ROOT), path.getKey(),
                                 getObjectList(operation.getValue(), "parameters").orElseGet(Stream::empty).map(it -> {
                                     final String type = getString(it, "in").orElse("query");
                                     final String name = it.getString("name");
@@ -197,7 +198,7 @@ public class OpenAPIGenerator {
                                                         }
                                                     })
                                                     .orElse(null));
-                                }).collect(toList()), operation.getValue().asJsonObject())))
+                                }).collect(toList()))))
                 .collect(toList());
     }
 
@@ -288,8 +289,6 @@ public class OpenAPIGenerator {
         private final String path;
 
         private final Collection<Parameter> parameters;
-
-        private final JsonObject raw;
     }
 
     @Data
@@ -348,6 +347,8 @@ public class OpenAPIGenerator {
         private final Collection<Operation> operations;
 
         private final Collection<Option> options;
+
+        private final boolean importList;
     }
 
     @Data

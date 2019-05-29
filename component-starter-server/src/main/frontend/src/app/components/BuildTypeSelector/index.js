@@ -13,26 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+import BuildTypeSelector from './BuildTypeSelector';
 
-$grey: #ccc;
-
-.ProjectMetadata {
-  width: 600px;
-  margin: 0 $padding-normal;
-
-  label[for="build-tools"],
-  label[for="facets"] {
-      display: none;
-  }
-
-  .main {
-    padding: $padding-small;
-    min-height:100%;
-    overflow-y: auto;
-  }
-
-  button.selected {
-    background-color: $brand-blue;
-    color: white;
-  }
-}
+export default BuildTypeSelector;

@@ -16,6 +16,7 @@
 export const SERVER_URL = '/api';
 export const CONFIGURATION_URL = `${SERVER_URL}/project/configuration`;
 export const GENERATOR_ZIP_URL = `${SERVER_URL}/project/zip/form`;
+export const GENERATOR_OPENAPI_ZIP_URL = `${SERVER_URL}/project/openapi/zip/form`;
 export const GENERATOR_GITHUB_URL = `${SERVER_URL}/project/github`;
 export const COMPONENT_TYPE_SOURCE = 'Input';
 export const COMPONENT_TYPE_PROCESSOR = 'Processor';

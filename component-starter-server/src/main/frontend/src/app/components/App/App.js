@@ -14,10 +14,13 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+import { translate } from 'react-i18next';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
 import HeaderBar from '@talend/react-components/lib/HeaderBar';
 import Generator from '../Generator';
+import OpenAPIWizard from '../OpenAPI';
 import DatastoreContext from '../../DatastoreContext';
 import DatasetContext from '../../DatasetContext';
 import ComponentsContext from '../../ComponentsContext';
@@ -25,7 +28,7 @@ import ProjectContext from '../../ProjectContext';
 
 import theme from './App.scss';
 
-export default function App() {
+function App (props) {
 	return (
 		<Router>
 			<div className={theme.App}>
@@ -33,8 +36,23 @@ export default function App() {
 
 				<div className={theme.header}>
 					<HeaderBar
+						id='heder-bar'
 						logo={{ isFull: true }}
-						brand={{ label: 'Starter Toolkit' }}
+						brand={{
+							label: 'Starter Toolkit',
+							items: [
+								{
+									id: 'mode_default',
+									icon: 'talend-cog',
+									label: (<Link to='/'>{props.t('headerbar_mode_default', { defaultValue: 'Standard Mode' })}</Link>),
+								},
+								{
+									id: 'mode_openapi',
+									icon: 'talend-cog',
+									label: (<Link to='/openapi/project'>{props.t('headerbar_mode_openapi', { defaultValue: 'OpenAPI Mode' })}</Link>),
+								},
+							],
+						}}
 						app="Starter Toolkit"
 					/>
 				</div>
@@ -44,7 +62,10 @@ export default function App() {
 						<DatastoreContext.Provider>
 							<DatasetContext.Provider>
 								<ComponentsContext.Provider>
-									<Generator />
+									<Switch>
+										<Route path="/openapi" component={OpenAPIWizard} />
+										<Route component={Generator} />
+									</Switch>
 								</ComponentsContext.Provider>
 							</DatasetContext.Provider>
 						</DatastoreContext.Provider>
@@ -54,3 +75,9 @@ export default function App() {
 		</Router>
 	);
 }
+
+export default translate()(App);
+
+App.propTypes = {
+	t: PropTypes.func,
+};

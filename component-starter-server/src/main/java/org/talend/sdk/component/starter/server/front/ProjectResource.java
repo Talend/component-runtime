@@ -214,8 +214,7 @@ public class ProjectResource {
         final MessageBodyReader<ProjectModel> jsonReader = providers
                 .getMessageBodyReader(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE);
         final ProjectModel model;
-        try (final InputStream gzipInputStream =
-                new ByteArrayInputStream(Base64.getUrlDecoder().decode(compressedModel))) {
+        try (final InputStream gzipInputStream = new ByteArrayInputStream(debase64(compressedModel))) {
             model = jsonReader
                     .readFrom(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE,
                             new MultivaluedHashMap<>(), gzipInputStream);
@@ -227,6 +226,14 @@ public class ProjectResource {
                     .build());
         }
         return model;
+    }
+
+    private byte[] debase64(final String compressedModel) {
+        try {
+            return Base64.getUrlDecoder().decode(compressedModel);
+        } catch (final IllegalArgumentException iae) {
+            return Base64.getDecoder().decode(compressedModel);
+        }
     }
 
     private void gitPush(final GithubProject project, final byte[] zip) {

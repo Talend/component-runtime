@@ -30,6 +30,8 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -52,13 +54,35 @@ public class StatisticService {
     public void save(final CreateProject event) {
         final String project = event.getRequest().getBuildConfiguration().getGroup() + ':'
                 + event.getRequest().getBuildConfiguration().getArtifact();
-        logger
-                .info(jsonb
-                        .toJson(new Representation(project,
-                                event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
-                                event.getRequest().getProcessors() == null ? 0
-                                        : event.getRequest().getProcessors().size(),
-                                ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
+        try {
+            logger
+                    .info(jsonb
+                            .toJson(new Representation(project,
+                                    event.getRequest().getSources() == null ? 0
+                                            : event.getRequest().getSources().size(),
+                                    event.getRequest().getProcessors() == null ? 0
+                                            : event.getRequest().getProcessors().size(),
+                                    event.getRequest().getOpenapi() != null
+                                            ? countEndpoints(event.getRequest().getOpenapi())
+                                            : null,
+                                    ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
+        } catch (final RuntimeException re) {
+            logger.error(re.getMessage(), re);
+        }
+    }
+
+    private long countEndpoints(final JsonObject openapi) {
+        return ofNullable(openapi.getJsonObject("paths"))
+                .filter(p -> p.getValueType() == JsonValue.ValueType.OBJECT)
+                .map(JsonObject::asJsonObject)
+                .map(paths -> paths
+                        .values()
+                        .stream()
+                        .filter(path -> path.getValueType() == JsonValue.ValueType.OBJECT)
+                        .flatMap(path -> path.asJsonObject().values().stream())
+                        .filter(endpoint -> endpoint.getValueType() == JsonValue.ValueType.OBJECT)
+                        .count())
+                .orElse(0L);
     }
 
     @Data
@@ -69,6 +93,8 @@ public class StatisticService {
         private final int sourcesCount;
 
         private final int processorsCount;
+
+        private final Long openapiEndpoints;
 
         private final Collection<String> facets;
     }

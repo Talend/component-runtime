@@ -24,10 +24,7 @@ import Input from '../Input';
 import Summary from '../Summary';
 import {
 	GENERATOR_GITHUB_URL,
-	GENERATOR_ZIP_URL,
-	COMPONENT_TYPE_PROCESSOR,
 	COMPONENT_TYPE_SOURCE,
-	COMPONENT_TYPE_SINK,
 } from '../../constants';
 import FinishContext from './FinishContext';
 
@@ -37,36 +34,71 @@ function isEmpty(str) {
 	return !str || str.trim().length === 0;
 }
 
-function createModel({ project, components, datastore, dataset }) {
+function createModel({ project, components, datastore, dataset, openapiMode }) {
 	// we copy the model to compute sources and processors attributes
-	const lightCopyModel = Object.assign(
-		{
-			datastores: datastore.datastores,
-			datasets: dataset.datasets,
-		},
-		project.project,
-	);
-	lightCopyModel.sources = components.components
-		.filter(c => c.type === COMPONENT_TYPE_SOURCE)
-		.map(c => {
-			const source = Object.assign({}, c.source);
-			source.name = c.configuration.name;
-			return source;
-		});
-	lightCopyModel.processors = components.components
-		.filter(
-			c => c.processor.outputStructures.length !== 0 || c.processor.inputStructures.length !== 0,
-		)
-		.map(c => {
-			const processor = Object.assign({}, c.processor);
-			processor.name = c.configuration.name;
-			return processor;
-		});
+	const lightCopyModel = Object.assign({}, project.project);
+	if (openapiMode) {
+		lightCopyModel.datastores = datastore.datastores;
+		lightCopyModel.datasets = dataset.datasets;
+		lightCopyModel.sources = components.components
+			.filter(c => c.type === COMPONENT_TYPE_SOURCE)
+			.map(c => {
+				const source = Object.assign({}, c.source);
+				source.name = c.configuration.name;
+				return source;
+			});
+		lightCopyModel.processors = components.components
+			.filter(
+				c => c.processor.outputStructures.length !== 0 || c.processor.inputStructures.length !== 0,
+			)
+			.map(c => {
+				const processor = Object.assign({}, c.processor);
+				processor.name = c.configuration.name;
+				return processor;
+			});
+	} else {
+		if (!project.$$openapi) {
+			lightCopyModel.openapi = { version: "3.0.0" }; // surely to replace with an error message?
+		} else {
+			try {
+				const model = JSON.parse(project.$$openapi.openapi.trim());
+				const paths = model.paths || {};
+				lightCopyModel.openapi = {
+					...model,
+					paths: Object.keys(paths)
+						.map(path => ({
+							key: path,
+							value: Object.keys(paths[path])
+								.filter(endpoint => project.$$openapi.selectedEndpoints
+									.filter(it => it.operationId == paths[path][endpoint].operationId)
+									.length == 1)
+								.reduce((agg, endpoint) => {
+									agg[endpoint] = paths[path][endpoint];
+									return agg;
+								}, {}),
+						}))
+						.reduce((agg, value) => {
+							if (Object.keys(value.value).length > 0) {
+								agg[value.key] = value.value;
+							}
+							return agg;
+						}, {}),
+				};
+			} catch (e) {
+				lightCopyModel.openapi = { version: "3.0.0" }; // todo: same as previous branch
+			}
+		}
+		lightCopyModel.category = 'Cloud';
+		lightCopyModel.datastores = [];
+		lightCopyModel.datasets = [];
+		lightCopyModel.sources = [];
+		lightCopyModel.processors = [];
+	}
 	return lightCopyModel;
 }
 
-function getDownloadValue(services) {
-	return btoa(JSON.stringify(createModel(services)));
+function getDownloadValue(model) {
+	return btoa(JSON.stringify(model));
 }
 
 export default class Finish extends React.Component {
@@ -168,13 +200,15 @@ export default class Finish extends React.Component {
 		return (
 			<FinishContext.Provider>
 				<FinishContext.Consumer>
-					{services => (
-						<div className={theme.Finish}>
+					{services => {
+						const projectModel = createModel(services, !!this.props.openapi);
+						return (
+							<div className={theme.Finish}>
 							<h2>Project Summary</h2>
-							<Summary project={createModel(services)} />
+							<Summary project={projectModel} openapi={services.project.$$openapi || { selectedEndpoints: [] }} />
 							<div className={theme.bigButton}>
-								<form id="download-zip-form" noValidate action={GENERATOR_ZIP_URL} method="POST">
-									<input type="hidden" name="project" value={getDownloadValue(services)} />
+								<form id="download-zip-form" noValidate action={this.props.actionUrl} method="POST">
+									<input type="hidden" name="project" value={getDownloadValue(projectModel)} />
 									<Action
 										label="Download as ZIP"
 										form="download-zip-form"
@@ -205,7 +239,7 @@ export default class Finish extends React.Component {
 								onHide={this.onHideGithub}
 								action={{
 									label: 'Create on Github',
-									onClick: this.onGithub(createModel(services)),
+									onClick: this.onGithub(projectModel),
 									bsStyle: 'primary',
 								}}
 							>
@@ -349,8 +383,8 @@ export default class Finish extends React.Component {
 									)}
 								</form>
 							</Dialog>
-						</div>
-					)}
+						</div>);
+					}}
 				</FinishContext.Consumer>
 			</FinishContext.Provider>
 		);
