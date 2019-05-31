@@ -15,33 +15,18 @@
  */
 package org.talend.sdk.component.server.test;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import org.apache.meecrowave.Meecrowave;
 
 @ApplicationScoped
 public class ClientProducer {
-
-    @Inject
-    private Bus bus;
-
-    @PostConstruct
-    private void enableLogging() {
-        if ("true".equalsIgnoreCase(System.getProperty("component.server.test.logging.skip", "true"))) {
-            return;
-        }
-        new LoggingFeature().initialize(bus);
-    }
 
     @Produces
     @ApplicationScoped

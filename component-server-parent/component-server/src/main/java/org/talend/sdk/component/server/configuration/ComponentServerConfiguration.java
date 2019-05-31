@@ -155,17 +155,26 @@ public class ComponentServerConfiguration {
     @PostConstruct
     private void init() {
         if (logRequests != null && logRequests) {
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             try {
-                final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                final Class<?> feature = loader.loadClass("org.apache.cxf.feature.LoggingFeature");
-                final Class<?> bus = loader.loadClass("org.apache.cxf.Bus");
-                final Object instance = feature.getConstructor().newInstance();
-                final Object busInstance = CDI.current().select(bus).get();
-                feature.getMethod("initialize", bus).invoke(instance, busInstance);
-                log.info("Activated debug mode - will log requests/responses");
+                doActivateDebugMode(loader, loader.loadClass("org.apache.cxf.ext.logging.LoggingFeature"));
             } catch (final Exception e) {
-                log.warn("Can't honor log request configuration, skipping ({})", e.getMessage());
+                try {
+                    doActivateDebugMode(loader, loader.loadClass("org.apache.cxf.feature.LoggingFeature"));
+                } catch (final Exception ex) {
+                    log.warn("Can't honor log request configuration, skipping ({})", e.getMessage());
+                }
             }
         }
+    }
+
+    private void doActivateDebugMode(final ClassLoader loader, final Class<?> feature)
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException,
+            java.lang.reflect.InvocationTargetException, NoSuchMethodException {
+        final Class<?> bus = loader.loadClass("org.apache.cxf.Bus");
+        final Object instance = feature.getConstructor().newInstance();
+        final Object busInstance = CDI.current().select(bus).get();
+        feature.getMethod("initialize", bus).invoke(instance, busInstance);
+        log.info("Activated debug mode - will log requests/responses");
     }
 }

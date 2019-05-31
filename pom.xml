@@ -157,7 +157,7 @@
     <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.1</geronimo-jsonb.version>
     <geronimo-json.version>1.2</geronimo-json.version>
-    <batik.version>1.9.1</batik.version>
+    <batik.version>1.11</batik.version>
     <beam.version>2.12.0</beam.version>
     <commons-codec.version>1.12</commons-codec.version>
     <commons-compress.version>1.18</commons-compress.version>
@@ -181,6 +181,7 @@
     <geronimo-config.version>1.2.2</geronimo-config.version>
     <junit5.version>5.4.2</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
+    <jackson.version>2.9.9</jackson.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
     <jsoup.version>1.11.2</jsoup.version>
@@ -226,6 +227,21 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
