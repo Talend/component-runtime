@@ -11,7 +11,7 @@ import org.talend.sdk.component.api.service.http.Response;
 public interface APIClient extends HttpClient {
 
     @Request(method = "POST", path = "/api/v1/component/migrate/{id}/{configurationVersion}")
-    Response<JsonObject> migrateComponent(@Path("id") String id, @Path("configurationVersion") int configurationVersion);
+    Response<JsonObject> migrateComponent(String body, @Path("id") String id, @Path("configurationVersion") int configurationVersion);
 
     @Request(method = "GET", path = "/api/v1/documentation/component/{id}")
     Response<JsonObject> getDocumentation(@Path("id") String id, @Query("language") String language, @Query("segment") String segment);

@@ -27,7 +27,8 @@ import com.test.openapi.client.APIClient;
     "configurationVersion",
     "segment",
     "language",
-    "id"
+    "id",
+    "body"
 })
 public class APIDataSet implements Serializable {
     @Option
@@ -54,10 +55,16 @@ public class APIDataSet implements Serializable {
     private String language;
 
     @Option
-@DefaultValue("id_1")
+    @DefaultValue("id_1")
     @ActiveIf(target = "api", value = { "migrateComponent", "getDocumentation" })
     @Documentation("id value.")
     private String id;
+
+    @Option
+    @DefaultValue("\"{}\"")
+    @ActiveIf(target = "api", value = { "migrateComponent" })
+    @Documentation("body value.")
+    private String body;
 
     public int getConfigurationVersion() {
         return configurationVersion;
@@ -75,6 +82,10 @@ public class APIDataSet implements Serializable {
         return id;
     }
 
+    public String getBody() {
+        return body;
+    }
+
     public APIConnection getConnection() {
         return connection;
     }
@@ -89,7 +100,7 @@ public class APIDataSet implements Serializable {
             public Response<JsonObject> call(final APIDataSet config, final APIClient client) {
                 validateUrl(config);
                 client.base(config.getConnection().getBaseUrl());
-                return client.migrateComponent(config.getId(), config.getConfigurationVersion());
+                return client.migrateComponent(config.getBody(), config.getId(), config.getConfigurationVersion());
             }
         },
         getDocumentation {

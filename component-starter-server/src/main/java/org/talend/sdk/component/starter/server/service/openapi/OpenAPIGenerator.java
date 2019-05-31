@@ -176,29 +176,42 @@ public class OpenAPIGenerator {
                                         .orElseGet(() -> nameConventions
                                                 .toJavaName(operation.getKey() + "_" + path.getKey())),
                                 ofNullable(operation.getKey()).orElse("GET").toUpperCase(ROOT), path.getKey(),
-                                getObjectList(operation.getValue(), "parameters").orElseGet(Stream::empty).map(it -> {
-                                    final String type = getString(it, "in").orElse("query");
-                                    final String name = it.getString("name");
-                                    return new Parameter(name, "get" + Strings.capitalize(name), type,
-                                            getJavaMarkerForParameter(name, type),
-                                            getMarkerImportForParameter(name, type),
-                                            getObject(it, "schema").map(this::mapJavaType).orElse("String"),
-                                            getObject(it, "schema")
-                                                    .map(schema -> schema.get("default"))
-                                                    .map(defaultValue -> {
-                                                        switch (defaultValue.getValueType()) {
-                                                        case TRUE:
-                                                        case FALSE:
-                                                        case NUMBER:
-                                                            return String.valueOf(defaultValue);
-                                                        case STRING:
-                                                            return JsonString.class.cast(defaultValue).getString();
-                                                        default:
-                                                            return null;
-                                                        }
-                                                    })
-                                                    .orElse(null));
-                                }).collect(toList()))))
+                                Stream
+                                        .concat(getObject(operation.getValue(), "requestBody")
+                                                .map(body -> Stream
+                                                        .of(new Parameter("body", "getBody", "string", "", null,
+                                                                "String", "\\\"{}\\\"")))
+                                                .orElseGet(Stream::empty),
+                                                getObjectList(operation.getValue(), "parameters")
+                                                        .orElseGet(Stream::empty)
+                                                        .map(it -> {
+                                                            final String type = getString(it, "in").orElse("query");
+                                                            final String name = it.getString("name");
+                                                            return new Parameter(name, "get" + Strings.capitalize(name),
+                                                                    type, getJavaMarkerForParameter(name, type),
+                                                                    getMarkerImportForParameter(name, type),
+                                                                    getObject(it, "schema")
+                                                                            .map(this::mapJavaType)
+                                                                            .orElse("String"),
+                                                                    getObject(it, "schema")
+                                                                            .map(schema -> schema.get("default"))
+                                                                            .map(defaultValue -> {
+                                                                                switch (defaultValue.getValueType()) {
+                                                                                case TRUE:
+                                                                                case FALSE:
+                                                                                case NUMBER:
+                                                                                    return String.valueOf(defaultValue);
+                                                                                case STRING:
+                                                                                    return JsonString.class
+                                                                                            .cast(defaultValue)
+                                                                                            .getString();
+                                                                                default:
+                                                                                    return null;
+                                                                                }
+                                                                            })
+                                                                            .orElse(null));
+                                                        }))
+                                        .collect(toList()))))
                 .collect(toList());
     }
 
@@ -210,6 +223,8 @@ public class OpenAPIGenerator {
             return "org.talend.sdk.component.api.service.http.Path";
         case "header":
             return "org.talend.sdk.component.api.service.http.Header";
+        case "body":
+            return null;
         default:
             throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
         }
@@ -218,11 +233,13 @@ public class OpenAPIGenerator {
     private String getJavaMarkerForParameter(final String name, final String type) {
         switch (type) {
         case "query":
-            return "@Query(\"" + name + "\")";
+            return "@Query(\"" + name + "\") ";
         case "path":
-            return "@Path(\"" + name + "\")";
+            return "@Path(\"" + name + "\") ";
         case "header":
-            return "@Header(\"" + name + "\")";
+            return "@Header(\"" + name + "\") ";
+        case "body":
+            return "";
         default:
             throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
         }

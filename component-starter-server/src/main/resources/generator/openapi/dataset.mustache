@@ -44,7 +44,7 @@ public class APIDataSet implements Serializable {
     {{#options}}
 
     @Option
-    {{#value.defaultValue}}@DefaultValue("{{value.defaultValue}}")
+    {{#value.defaultValue}}    @DefaultValue("{{value.defaultValue}}")
     {{/value.defaultValue}}
     @ActiveIf(target = "api", value = { {{#value.supportedAPI}}"{{value}}"{{^last}}, {{/last}}{{/value.supportedAPI}} })
     @Documentation("{{value.name}} value.")
