@@ -45,7 +45,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.talend.sdk.component.maven.MavenDecrypter;
 import org.talend.sdk.component.maven.Server;
@@ -70,8 +69,16 @@ public class Github {
         final String token =
                 "Basic " + Base64.getEncoder().encodeToString((user + ':' + password).getBytes(StandardCharsets.UTF_8));
 
-        final Client client =
-                ClientBuilder.newClient().register(new JsonbJaxrsProvider<>()).register(new GZIPFeature());
+        final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
+        try {
+            client
+                    .register(Thread
+                            .currentThread()
+                            .getContextClassLoader()
+                            .loadClass("org.apache.cxf.transport.common.gzip.GZIPFeature"));
+        } catch (final Exception e) {
+            // not critical
+        }
         final WebTarget gravatarBase = client.target(Gravatars.GRAVATAR_BASE);
         final ExecutorService pool =
                 Executors.newCachedThreadPool(r -> new Thread(r, Github.class.getName() + "-" + r.hashCode()));
