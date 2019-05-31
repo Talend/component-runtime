@@ -25,6 +25,7 @@ import static java.util.stream.Collectors.toSet;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -185,6 +186,7 @@ public class BulkReadResourceImpl implements BulkReadResource {
                 .collect(joining("&"));
 
         final int port = info.getBaseUri().getPort();
+        final Principal userPrincipal = request.getUserPrincipal(); // this is ap proxy so ready it early
         final InMemoryRequest request = new InMemoryRequest("GET", headers, path, appPrefix + path, appPrefix,
                 queryString, port < 0 ? 8080 : port, servletContext, new MemoryInputStream(null) {
 
@@ -192,7 +194,7 @@ public class BulkReadResourceImpl implements BulkReadResource {
                     public int read() {
                         return -1;
                     }
-                }, this.request::getUserPrincipal);
+                }, () -> userPrincipal);
         final BulkResponses.Result result = new BulkResponses.Result();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
