@@ -204,6 +204,8 @@ public class Github {
             switch (login.toLowerCase(ROOT)) {
             case "jso-technologies":
                 return "jsomsanith";
+            case "toutpt":
+                return "jmfrancois";
             default:
             }
         }
