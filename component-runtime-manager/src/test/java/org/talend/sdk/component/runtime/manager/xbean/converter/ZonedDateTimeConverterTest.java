@@ -20,8 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -117,6 +119,17 @@ class ZonedDateTimeConverterTest {
         final ZonedDateTime converted = ZonedDateTime.class.cast(converter.getValue());
         assertEquals(now.toLocalDate(), converted.toLocalDate());
         assertEquals(now.toLocalDateTime(), converted.toLocalDateTime());
+    }
+
+    @Test
+    void zonedDateTimeStringToObjectUTC() {
+        final ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC"));
+        Stream.of(now.toString(), now.toString().replaceFirst("\\[.+\\]", "")).forEach(text -> {
+            converter.setAsText(text);
+            final ZonedDateTime converted = ZonedDateTime.class.cast(converter.getValue());
+            assertEquals(now.toLocalDate(), converted.toLocalDate());
+            assertEquals(now.toLocalDateTime(), converted.toLocalDateTime());
+        });
     }
 
     @Test

@@ -63,9 +63,11 @@ public class ZonedDateTimeConverter extends AbstractConverter {
                     keepAsIt = text.indexOf('[');
                 }
                 // ensure we don't loose / in the []
-                return ZonedDateTime.parse(text.substring(0, keepAsIt) + data.substring(keepAsIt));
+                text = text.substring(0, keepAsIt) + data.substring(keepAsIt);
+                return ZonedDateTime.parse(text);
             }
-            final LocalDateTime dateTime = LocalDateTime.parse(text);
+            final LocalDateTime dateTime =
+                    LocalDateTime.parse(text.endsWith("Z") ? text.substring(0, text.length() - 1) : text);
             return ZonedDateTime.of(dateTime.toLocalDate(), dateTime.toLocalTime(), UTC);
         }
     }
