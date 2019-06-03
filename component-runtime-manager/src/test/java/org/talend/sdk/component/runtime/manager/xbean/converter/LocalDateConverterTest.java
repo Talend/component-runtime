@@ -15,22 +15,24 @@
  */
 package org.talend.sdk.component.runtime.manager.xbean.converter;
 
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.xbean.propertyeditor.AbstractConverter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-public class LocalTimeConverter extends AbstractConverter {
+import org.junit.jupiter.api.Test;
 
-    public LocalTimeConverter() {
-        super(LocalTime.class);
+class LocalDateConverterTest {
+
+    @Test
+    void ensureItToleratesAnotherFormat() {
+        final LocalDateTime localDateTime = LocalDateTime.now();
+        assertEquals(localDateTime.toLocalDate(), new LocalDateConverter().toObjectImpl(localDateTime.toString()));
     }
 
-    @Override
-    protected Object toObjectImpl(final String text) {
-        if (text.isEmpty()) {
-            return null;
-        }
-        return ZonedDateTime.class.cast(new ZonedDateTimeConverter().toObjectImpl(text)).toLocalTime();
+    @Test
+    void nativeFormat() {
+        final LocalDate localDate = LocalDate.now();
+        assertEquals(localDate, new LocalDateConverter().toObjectImpl(localDate.toString()));
     }
 }

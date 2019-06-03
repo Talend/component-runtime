@@ -37,6 +37,9 @@ public class ZonedDateTimeConverter extends AbstractConverter {
 
     @Override
     protected Object toObjectImpl(final String data) {
+        if (data.isEmpty()) {
+            return null;
+        }
         String text = data.replace('/', '-'); // sanitize date format
         switch (text.length()) {
         case 10: // YYYY-MM-dd

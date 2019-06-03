@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.xbean.converter;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.apache.xbean.propertyeditor.AbstractConverter;
 
@@ -27,6 +28,9 @@ public class LocalDateTimeConverter extends AbstractConverter {
 
     @Override
     protected Object toObjectImpl(final String text) {
-        return LocalDateTime.parse(text.replace('/', '-').replace(' ', 'T'));
+        if (text.isEmpty()) {
+            return null;
+        }
+        return ZonedDateTime.class.cast(new ZonedDateTimeConverter().toObjectImpl(text)).toLocalDateTime();
     }
 }
