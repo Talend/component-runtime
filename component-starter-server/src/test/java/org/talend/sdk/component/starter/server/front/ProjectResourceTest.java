@@ -120,17 +120,6 @@ class ProjectResourceTest {
                                 .replace('/', '_');
                     }
                     final String filePath = "generated/ProjectResourceTest/openapi/" + name;
-                    try {
-                        final FileWriter fileWriter = new FileWriter("src/test/resources/" + filePath);
-                        fileWriter
-                                .write(Objects
-                                        .requireNonNull(files.get(file))
-                                        .replace(snapshot.getKit(), "@runtime.version@")
-                                        .replace(snapshot.getSurefire(), "@surefire.version@"));
-                        fileWriter.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                     assertEquals(resourceFileToString(filePath)
                             .replace("@runtime.version@", snapshot.getKit())
                             .replace("@surefire.version@", snapshot.getSurefire()), files.get(file), file);

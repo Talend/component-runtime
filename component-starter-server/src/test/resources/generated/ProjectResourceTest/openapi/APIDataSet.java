@@ -11,6 +11,7 @@ import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+import org.talend.sdk.component.api.configuration.ui.widget.Code;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.meta.Documentation;
 
@@ -62,6 +63,7 @@ public class APIDataSet implements Serializable {
 
     @Option
     @DefaultValue("\"{}\"")
+    @Code("javascript")
     @ActiveIf(target = "api", value = { "migrateComponent" })
     @Documentation("body value.")
     private String body;

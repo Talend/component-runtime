@@ -17,6 +17,9 @@ import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 {{/importDefaultValue}}
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+{{#importCode}}
+import org.talend.sdk.component.api.configuration.ui.widget.Code;
+{{/importCode}}
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.meta.Documentation;
 
@@ -44,8 +47,12 @@ public class APIDataSet implements Serializable {
     {{#options}}
 
     @Option
-    {{#value.defaultValue}}    @DefaultValue("{{value.defaultValue}}")
+    {{#value.defaultValue}}
+    @DefaultValue("{{value.defaultValue}}")
     {{/value.defaultValue}}
+    {{#value.widget}}
+    {{value.widget}}
+    {{/value.widget}}
     @ActiveIf(target = "api", value = { {{#value.supportedAPI}}"{{value}}"{{^last}}, {{/last}}{{/value.supportedAPI}} })
     @Documentation("{{value.name}} value.")
     private {{value.type}} {{value.name}};

@@ -86,19 +86,21 @@ public class OpenAPIGenerator {
                         .stream()
                         .map(param -> new Option(param.getName(), "get" + Strings.capitalize(param.getName()),
                                 param.getJavaType(), param.getDefaultValue(),
-                                new ArrayList<>(singletonList(operation.getName())))))
+                                new ArrayList<>(singletonList(operation.getName())), param.getWidget())))
                 .collect(toMap(Option::getName, identity(), (a, b) -> {
                     a.getSupportedAPI().addAll(b.getSupportedAPI());
                     return a;
                 }))
                 .values();
         payloads
-                .add(new FacetGenerator.InMemoryFile(baseFolder + "dataset/APIDataSet.java",
-                        renderer
-                                .render("generator/openapi/dataset.mustache",
-                                        new DataSetModel(options.stream().anyMatch(it -> it.getDefaultValue() != null),
-                                                basePackage, operations, options,
-                                                options.stream().anyMatch(it -> it.getType().startsWith("List<"))))));
+                .add(new FacetGenerator.InMemoryFile(baseFolder + "dataset/APIDataSet.java", renderer
+                        .render("generator/openapi/dataset.mustache", new DataSetModel(
+                                options.stream().anyMatch(it -> it.getDefaultValue() != null), basePackage, operations,
+                                options, options.stream().anyMatch(it -> it.getType().startsWith("List<")),
+                                options
+                                        .stream()
+                                        .anyMatch(
+                                                it -> it.getWidget() != null && it.getWidget().startsWith("@Code"))))));
         payloads
                 .add(new FacetGenerator.InMemoryFile(resourcesBaseFolder + "dataset/Messages.properties",
                         "APIDataSet.api._displayName = API\n" + "APIDataSet.connection._displayName = API connection\n"
@@ -180,39 +182,35 @@ public class OpenAPIGenerator {
                                         .concat(getObject(operation.getValue(), "requestBody")
                                                 .map(body -> Stream
                                                         .of(new Parameter("body", "getBody", "string", "", null,
-                                                                "String", "\\\"{}\\\"")))
+                                                                "String", "\\\"{}\\\"", "@Code(\"javascript\")")))
                                                 .orElseGet(Stream::empty),
                                                 getObjectList(operation.getValue(), "parameters")
                                                         .orElseGet(Stream::empty)
                                                         .map(it -> {
                                                             final String type = getString(it, "in").orElse("query");
                                                             final String name = it.getString("name");
-                                                            return new Parameter(name, "get" + Strings.capitalize(name),
-                                                                    type, getJavaMarkerForParameter(name, type),
-                                                                    getMarkerImportForParameter(name, type),
-                                                                    getObject(it, "schema")
-                                                                            .map(this::mapJavaType)
-                                                                            .orElse("String"),
-                                                                    getObject(it, "schema")
-                                                                            .map(schema -> schema.get("default"))
-                                                                            .map(defaultValue -> {
-                                                                                switch (defaultValue.getValueType()) {
-                                                                                case TRUE:
-                                                                                case FALSE:
-                                                                                case NUMBER:
-                                                                                    return String.valueOf(defaultValue);
-                                                                                case STRING:
-                                                                                    return JsonString.class
-                                                                                            .cast(defaultValue)
-                                                                                            .getString();
-                                                                                default:
-                                                                                    return null;
-                                                                                }
-                                                                            })
-                                                                            .orElse(null));
+                                                            return mapParameter(it, type, name);
                                                         }))
                                         .collect(toList()))))
                 .collect(toList());
+    }
+
+    private Parameter mapParameter(final JsonObject it, final String type, final String name) {
+        return new Parameter(name, "get" + Strings.capitalize(name), type, getJavaMarkerForParameter(name, type),
+                getMarkerImportForParameter(name, type),
+                getObject(it, "schema").map(this::mapJavaType).orElse("String"),
+                getObject(it, "schema").map(schema -> schema.get("default")).map(defaultValue -> {
+                    switch (defaultValue.getValueType()) {
+                    case TRUE:
+                    case FALSE:
+                    case NUMBER:
+                        return String.valueOf(defaultValue);
+                    case STRING:
+                        return JsonString.class.cast(defaultValue).getString();
+                    default:
+                        return null;
+                    }
+                }).orElse(null), null);
     }
 
     private String getMarkerImportForParameter(final String name, final String type) {
@@ -324,6 +322,8 @@ public class OpenAPIGenerator {
         private final String javaType;
 
         private final String defaultValue;
+
+        private final String widget;
     }
 
     @Data
@@ -366,6 +366,8 @@ public class OpenAPIGenerator {
         private final Collection<Option> options;
 
         private final boolean importList;
+
+        private final boolean importCode;
     }
 
     @Data
@@ -380,6 +382,8 @@ public class OpenAPIGenerator {
         private final String defaultValue;
 
         private final Collection<String> supportedAPI;
+
+        private final String widget;
     }
 
     @Data
