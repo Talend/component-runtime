@@ -146,6 +146,70 @@ Sample:
 ----
 
 
+= @DateTime (time)
+
+Mark a field as being a date. It supports `java.time.ZonedDateTime`, `java.time.LocalDate` and `java.time.LocalDateTime` and is unspecified for other types.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.DateTime`
+
+Sample:
+
+[source,js]
+----
+{
+  "ui::datetime":"time"
+}
+----
+
+
+= @DateTime (date)
+
+Mark a field as being a date. It supports `java.time.ZonedDateTime`, `java.time.LocalDate` and `java.time.LocalDateTime` and is unspecified for other types.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.DateTime`
+
+Sample:
+
+[source,js]
+----
+{
+  "ui::datetime":"date"
+}
+----
+
+
+= @DateTime (datetime)
+
+Mark a field as being a date. It supports `java.time.ZonedDateTime`, `java.time.LocalDate` and `java.time.LocalDateTime` and is unspecified for other types.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.DateTime`
+
+Sample:
+
+[source,js]
+----
+{
+  "ui::datetime":"datetime"
+}
+----
+
+
+= @DateTime (zoneddatetime)
+
+Mark a field as being a date. It supports `java.time.ZonedDateTime`, `java.time.LocalDate` and `java.time.LocalDateTime` and is unspecified for other types.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.DateTime`
+
+Sample:
+
+[source,js]
+----
+{
+  "ui::datetime":"zoneddatetime"
+}
+----
+
+
 = @Structure
 
 Mark a List<String> or Map<String, String> field as being represented as the component data selector (field names generally or field names as key and type as value).

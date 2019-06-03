@@ -194,6 +194,10 @@ import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFact
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
+import org.talend.sdk.component.runtime.manager.xbean.converter.LocalDateConverter;
+import org.talend.sdk.component.runtime.manager.xbean.converter.LocalDateTimeConverter;
+import org.talend.sdk.component.runtime.manager.xbean.converter.LocalTimeConverter;
+import org.talend.sdk.component.runtime.manager.xbean.converter.ZonedDateTimeConverter;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
@@ -436,6 +440,8 @@ public class ComponentManager implements AutoCloseable {
                         return mapper.apply(Double.class.cast(o));
                     }
                 };
+
+        // built-in (was provided by xbean originally)
         registry.register(new BooleanEditor());
         registry.register(numberConverter.apply(Byte.class, Double::byteValue));
         registry.register(numberConverter.apply(Short.class, Double::shortValue));
@@ -465,6 +471,16 @@ public class ComponentManager implements AutoCloseable {
         registry.register(new URIEditor());
         registry.register(new URLEditor());
         registry.register(new PatternConverter());
+
+        // customs
+        registry.register(new ZonedDateTimeConverter());
+        registry.register(new LocalDateTimeConverter());
+        registry.register(new LocalDateConverter());
+        registry.register(new LocalTimeConverter());
+
+        // extensions
+        toStream(ServiceLoader.load(Converter.class).iterator()).forEach(registry::register);
+
         return registry;
     }
 

@@ -47,7 +47,7 @@ public class UiSchema {
 
     private Collection<UiSchema> items;
 
-    private Map<String, String> options;
+    private Map<String, Object> options;
 
     private Boolean autoFocus;
 
@@ -359,7 +359,7 @@ public class UiSchema {
 
         private Collection<UiSchema> items;
 
-        private Map<String, String> options;
+        private Map<String, Object> options;
 
         private Boolean autoFocus;
 
@@ -442,7 +442,7 @@ public class UiSchema {
             return this;
         }
 
-        public Builder withOptions(final Map<String, String> options) {
+        public Builder withOptions(final Map<String, ?> options) {
             if (this.options == null) {
                 this.options = new HashMap<>();
             }

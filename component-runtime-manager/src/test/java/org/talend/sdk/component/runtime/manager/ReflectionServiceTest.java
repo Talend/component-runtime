@@ -33,6 +33,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +67,7 @@ import org.talend.sdk.component.runtime.manager.service.LocalConfigurationServic
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
+import org.talend.sdk.component.runtime.manager.xbean.converter.ZonedDateTimeConverter;
 
 import lombok.Data;
 
@@ -81,12 +83,22 @@ class ReflectionServiceTest {
                     return Double.valueOf(text).intValue();
                 }
             });
+            register(new ZonedDateTimeConverter());
         }
     };
 
     private final ParameterModelService parameterModelService = new ParameterModelService(registry);
 
     private final ReflectionService reflectionService = new ReflectionService(parameterModelService, registry);
+
+    @Test
+    void date() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory =
+                getComponentFactory(ConfigWithDate.class, new HashMap<>());
+        final ZonedDateTime expected = ZonedDateTime.now();
+        final Object[] objects = factory.apply(singletonMap("root.date", expected.toString()));
+        assertEquals(expected, ConfigWithDate.class.cast(objects[0]).date);
+    }
 
     @Test
     void renamedOption() throws NoSuchMethodException {
@@ -762,6 +774,16 @@ class ReflectionServiceTest {
         public FakeComponent(@Option("root") final RequiredListObject root) {
             // no-op
         }
+
+        public FakeComponent(@Option("root") final ConfigWithDate root) {
+            // no-op
+        }
+    }
+
+    public static class ConfigWithDate {
+
+        @Option
+        private ZonedDateTime date;
     }
 
     public static class MyConfig {

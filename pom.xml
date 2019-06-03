@@ -186,7 +186,7 @@
     <avro.version>1.8.2</avro.version>
     <jsoup.version>1.11.2</jsoup.version>
 
-    <talend-ui.version>3.5.0</talend-ui.version>
+    <talend-ui.version>3.8.0</talend-ui.version>
 
     <!-- for the starter -->
     <gradle.version>5.0</gradle.version>

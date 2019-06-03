@@ -27,6 +27,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
@@ -35,6 +39,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
 import org.talend.sdk.component.api.configuration.ui.meta.Ui;
+import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 
 public class UiParameterEnricher extends BaseParameterEnricher {
 
@@ -51,6 +56,23 @@ public class UiParameterEnricher extends BaseParameterEnricher {
                         .of(GridLayouts.class.cast(annotation).value())
                         .flatMap(a -> toConfig(a, prefix.substring(0, prefix.length() - 3) + "::").entrySet().stream())
                         .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            }
+            if (DateTime.class == annotation.annotationType()) {
+                final String key = META_PREFIX + "datetime";
+                if (parameterType == LocalTime.class) {
+                    return singletonMap(key, "time");
+                }
+                if (parameterType == LocalDate.class) {
+                    return singletonMap(key, "date");
+                }
+                if (parameterType == LocalDateTime.class) {
+                    return singletonMap(key, "datetime");
+                }
+                if (parameterType == ZonedDateTime.class || parameterType == Object.class /* unsafe */) {
+                    return singletonMap(key, "zoneddatetime");
+                }
+                throw new IllegalArgumentException(
+                        "Unsupported type for @DateTime option: " + parameterType + " on " + parameterName);
             }
             return toConfig(annotation, prefix);
         }

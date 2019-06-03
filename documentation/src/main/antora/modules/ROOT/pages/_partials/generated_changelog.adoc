@@ -34,6 +34,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1450[TCOMP-1450^]: Add a read-only bulk endpoint in component-server
 - link:https://jira.talendforge.org/browse/TCOMP-1451[TCOMP-1451^]: [upgrade] Johnzon 1.1.12
 - link:https://jira.talendforge.org/browse/TCOMP-1452[TCOMP-1452^]: [upgrade] Meecrowave 1.2.8
+- link:https://jira.talendforge.org/browse/TCOMP-1453[TCOMP-1453^]: Upgrade to CXF 3.3.2
 
 == Version 1.1.9
 

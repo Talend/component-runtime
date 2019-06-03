@@ -17,14 +17,22 @@ package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonMap;
+import static java.util.Locale.ROOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Annotation;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
@@ -32,6 +40,7 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
 import org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Code;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
+import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 
@@ -201,6 +210,28 @@ class UiParameterEnricherTest {
                 return Type.IN;
             }
         }));
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = { ZonedDateTime.class, LocalDateTime.class, LocalDate.class })
+    void datetime(final Class<?> type) {
+        assertEquals(singletonMap("tcomp::ui::datetime", type.getSimpleName().replace("Local", "").toLowerCase(ROOT)),
+                enricher.onParameterAnnotation("testParam", type, new DateTime() {
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return DateTime.class;
+                    }
+                }));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> enricher.onParameterAnnotation("testParam", String.class, new DateTime() {
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return DateTime.class;
+                    }
+                }));
     }
 
     @Test
