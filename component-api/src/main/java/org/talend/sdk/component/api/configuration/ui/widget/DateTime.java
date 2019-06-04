@@ -27,7 +27,8 @@ import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
 @Documentation("Mark a field as being a date. "
-        + "It supports `java.time.ZonedDateTime`, `java.time.LocalDate` and `java.time.LocalDateTime` "
+        + "It supports and is *implicit* - which means you don't need to put that annotation on the option - "
+        + "for `java.time.ZonedDateTime`, `java.time.LocalDate` and `java.time.LocalDateTime` "
         + "and is unspecified for other types.")
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })

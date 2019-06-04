@@ -16,8 +16,10 @@
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.Locale.ENGLISH;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -44,6 +46,14 @@ import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 public class UiParameterEnricher extends BaseParameterEnricher {
 
     public static final String META_PREFIX = "tcomp::ui::";
+
+    @Override
+    public Map<Type, Collection<Annotation>> getImplicitAnnotationForTypes() {
+        final Collection<Annotation> annotations = singletonList(new DateTimeAnnotation());
+        return Stream
+                .<Type> of(ZonedDateTime.class, LocalDateTime.class, LocalDate.class, LocalTime.class)
+                .collect(toMap(identity(), it -> annotations));
+    }
 
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
@@ -159,6 +169,14 @@ public class UiParameterEnricher extends BaseParameterEnricher {
             return String.valueOf(invoke);
         } catch (final InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    private static class DateTimeAnnotation implements DateTime {
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return DateTime.class;
         }
     }
 }

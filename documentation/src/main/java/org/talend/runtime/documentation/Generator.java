@@ -19,7 +19,6 @@ import static java.lang.Math.min;
 import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
-import static java.util.Locale.ROOT;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -782,10 +781,7 @@ public class Generator {
                         .findAnnotatedClasses(Ui.class)
                         .stream()
                         .sorted(Comparator.comparing(Class::getName))
-                        .flatMap(type -> getDocUiTypes(type)
-                                .map(paramType -> (Runnable) () -> renderUiDoc(stream, enricher, jsonb, type,
-                                        paramType)))
-                        .forEach(Runnable::run);
+                        .forEach(type -> renderUiDoc(stream, enricher, jsonb, type));
             }
             stream.println();
 
@@ -793,32 +789,33 @@ public class Generator {
     }
 
     private static void renderUiDoc(final PrintStream stream, final ParameterExtensionEnricher enricher,
-            final Jsonb jsonb, final Class<?> type, final Class<?> paramType) {
-        final Map<String, String> meta = new TreeMap<>(enricher
-                .onParameterAnnotation("theparameter", paramType, generateAnnotation(type))
-                .entrySet()
-                .stream()
-                .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)));
+            final Jsonb jsonb, final Class<?> type) {
         stream.println();
         stream.print("= @" + type.getSimpleName());
-        if (DateTime.class == type) {
-            stream.print(" (");
-            stream.print(paramType.getSimpleName().replace("Local", "").toLowerCase(ROOT));
-            stream.print(")");
-        }
         stream.println();
         stream.println();
         stream.println(extractDoc(type));
         stream.println();
         stream.println("- API: `@" + type.getName() + "`");
         stream.println();
-        stream.println("Sample:");
+        stream.println("== Snippets");
         stream.println();
-        stream.println("[source,js]");
-        stream.println("----");
-        stream.println(jsonb.toJson(meta));
-        stream.println("----");
-        stream.println();
+        getDocUiTypes(type).forEach(paramType -> {
+            stream.println("[source,js]");
+            stream.println("----");
+            stream.println(jsonb.toJson(getMeta(enricher, type, paramType)));
+            stream.println("----");
+            stream.println();
+        });
+    }
+
+    private static Map<String, String> getMeta(final ParameterExtensionEnricher enricher, final Class<?> type,
+            final Class<?> paramType) {
+        return new TreeMap<>(enricher
+                .onParameterAnnotation("theparameter", paramType, generateAnnotation(type))
+                .entrySet()
+                .stream()
+                .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)));
     }
 
     private static Stream<? extends Class<? extends Object>> getDocUiTypes(final Class<?> type) {
