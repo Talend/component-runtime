@@ -3,7 +3,7 @@
 :keywords: Release notes, changelog, new, latest
 :description: Discover the latest features added to Talend Component Kit.
 
-Discover the latest features added to Talend Component Kit. You can also check the xref:changelog.adoc[detailed changelogs].
+Discover the latest features added to Talend Component Kit. You can also check the link:../../main/{page-component-version}/changelog.html[detailed changelogs].
 
 
 include::rn-1_1_9.adoc[leveloffset=+1]
