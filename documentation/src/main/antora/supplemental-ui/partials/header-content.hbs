@@ -38,18 +38,21 @@
         {{#if page.component}}
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {{#if page.component}}{{page.version}}{{~#if (eq page.origin.branch 'master')}} (dev){{/if}}{{else}}Versions{{/if}} <span class="caret"></span>
+              {{#if (eq page.component.name 'blog')}}
+                Blog
+              {{else}}
+                {{#if page.component}}{{page.version}}{{~#if (eq page.origin.branch 'master')}} (dev){{/if}}{{else}}Versions{{/if}}
+              {{/if}}
+              <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            {{#each site.components}}
-              {{#each ./versions}}
+              {{#each site.components.main.versions}}
                 <li class="navbar-item version
-                  {{~#if (and (eq ../this @root.page.component) (eq this @root.page.componentVersion))}} is-current{{/if~}}
-                  {{~#if (eq this ../latest)}} is-latest{{/if}}">
-                    <a href="{{{relativize @root.page.url ./url}}}">{{./version}}{{~#if (eq this ../latest)}} (dev){{/if}}</a>
+                  {{~#if (and (eq site.components @root.page.component) (eq this @root.page.componentVersion))}} is-current{{/if~}}
+                  {{~#if (eq this site.components.latest)}} is-latest{{/if}}">
+                    <a href="{{{relativize @root.page.url ./url}}}">{{./version}}{{~#if (eq this site.components.latest)}} (dev){{/if}}</a>
                 </li>
               {{/each}}
-            {{/each}}
           </ul>
         </div>
         {{/if}}
@@ -60,14 +63,12 @@
           <li><a class="navbar-item dropdown-toggle" href="index.html">Docs</a></li>
           {{/if}}
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">Runtime</a></li>
-            </ul>
+            <a href="https://talend.github.io/component-runtime/main/release-notes.html" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">Release Notes </a>
           </li>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
             <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
               <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
               <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
               <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>

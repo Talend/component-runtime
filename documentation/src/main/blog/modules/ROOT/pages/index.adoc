@@ -1,0 +1,7 @@
+= Blog
+:description: Talend Component Kit documentation for developers
+:keywords: Talend Component Kit, Talend Component, documentation
+
+Welcome to the Talend Component Kit blog, where you can learn about the latest news related to the framework.
+
+Read the xref:release-notes.adoc[Release Notes].
