@@ -1,0 +1,164 @@
+= Talend Component Kit Extension Points
+:page-talend_skipindexation:
+
+This pages lists most of the extension points the framework provides for integrators.
+
+== Customize the isolation
+
+This can be useful to customize which libraries are shared accross all components - to inject a new global service - or prevent some libraries to be laoded from components even if provided in the `dependencies.txt`.
+
+The entry point to do that is the `org.talend.sdk.component.runtime.manager.ComponentManager.Customizer` SPI:
+
+[source,java]
+----
+// don't forget the META-INF/services/org.talend.sdk.component.runtime.manager.ComponentManager$Customizer file containing the fully qualified name of this class
+public class MyCustomizer implements ComponentManager.Customizer {
+    @Override
+    public Stream<String> containerClassesAndPackages() {
+        return asList("com.company.shared", "com.othercompany.sharedtoo");
+    }
+}
+----
+
+== Handle the beam isolation in a custom fashion
+
+If you import `component-runtime-beam`, Apache Beam SDK will be isolated by default. However, in some cases or some environment,
+you will desire to handle it yourself in a more precise manner.
+
+If you want to prevent Talend Component Kit to isolate itself Apache Beam from components, you can implement a `Customizer` - see previous part,
+and the `ignoreBeamClassLoaderExclusions` method:
+
+[source,java]
+----
+// don't forget the META-INF/services/org.talend.sdk.component.runtime.manager.ComponentManager$Customizer file containing the fully qualified name of this class
+public class MyCustomizer implements ComponentManager.Customizer {
+    @Override
+    public Stream<String> containerClassesAndPackages() {
+        return singletonList("org.apache.beam."); // likely too wide since IO are generally isolated
+    }
+
+    @Override
+    public boolean ignoreBeamClassLoaderExclusions() {
+        return true;
+    }
+}
+----
+
+== ParameterExtensionEnricher
+
+The option model of the configuration of the component is pluggable to enable to add any custom metadata needed.
+It relies on `ParameterExtensionEnricher` SPI which can be seen as a visitor API for annotations on options.
+Each annotation is then converted in a map of properties.
+
+IMPORTANT: it is highly recommended to scope the entries in the map using a dedicated prefix.
+
+Some meta annotation - like `@Ui` - enable to add metadata without adding an enricher.
+Typically if you have an annotation with `@Ui` on it, then your annotation will be processed by the default ui enricher and will not need to register a custom one.
+
+Finally, this API enables to add implicitly annotation on options based on their type. For instance, for `ZonedDateTime` we add implicitly - no user action - the annotation `@DateTime`.
+
+== Handle component dependencies in a custom fashion
+
+If you want to read the dependencies of the component in a fully custom fashion, you can disable it through the `Customizer` returning `true` in `ignoreDefaultDependenciesDescriptor`.
+Then, you will need to implement `org.talend.sdk.component.runtime.manager.ComponentManager$ContainerClasspathContributor` (it is a SPI too).
+
+TIP: the contributor is used even if no customizer disabled dependencies, this means you can use it to *enrich* component classpath and not only redefine it.
+
+== Enrich the classpath of the server
+
+The component server is a plain link:http://openwebbeans.apache.org/meecrowave/[Apache Meecrowave] server and therefore a plain Java process.
+
+To add your custom extensions to it, you just have to add your `.jar` in its classpath.
+
+For the docker image, you can use the `/opt/talend/component-kit/custom` folder to host all the extensions (+ their dependencies if neeed).
+
+WARNING: if you add extensions which are required at rutime too - like modifying the way Apache Beam is handled or the isolation is defined, don't forget to also add your extension to your runtime.
+
+== Modify the way the UiSpec is generated
+
+`component-form` enables to generate to UiSpec for a component configuration. It has good defaults aligned on `@talend/ui`, however if you have some advanced needs, you can customize the way it computes the specification.
+
+First, the `org.talend.sdk.component.form.api.UiSpecService#withConverter` method of the service enables to add custom handlers for property mapping.
+A converter will be responsible to convert a component option to its rendering specification if it supports the property.
+It can also reuse existing converters if needed:
+
+[source,java]
+----
+pulic class MyConverter implements CustomPropertyConverter {
+    @Override
+    public boolean supports(final PropertyContext<?> context) {
+        return context.getProperty().getName().equals("entry");
+    }
+
+    @Override
+    public CompletionStage<PropertyContext<?>> convert(
+            final CompletionStage<PropertyContext<?>> context,
+            final ConverterContext converterContext) {
+        return new DataListWidgetConverter(converterContext.getSchemas(),
+                converterContext.getProperties(), converterContext.getActions(),
+                converterContext.getClient(), converterContext.getFamily(),
+                converterContext.getJsonSchema(), converterContext.getLang()) {
+
+            @Override
+            protected CompletionStage<PropertyContext<?>> fillProposalsAndReturn(
+                    final PropertyContext<?> context, final UiSchema schema,
+                    final JsonSchema jsonSchema) {
+                schema
+                        .setTitleMap(singletonList(new UiSchema.NameValue.Builder()
+                                .withName("a")
+                                .withValue("A")
+                                .build()));
+                jsonSchema.setEnumValues(singletonList("A"));
+                return completedFuture(context);
+            }
+        }.convert(context);
+    }
+}
+----
+
+The other extension point of `UiSpecService` which is often useful to combine with the previous one if the context available in the convertion process.
+Typically, the `PropertyContext` gives access to a `context` through `getContext()` getter and this is the instance passed to the `convert` method of the service.
+This is very useful to pass a context to the convertion and change the rendering depending it - potentially even the user and its permissions if you set it in the context.
+
+== Apache Beam Integration: Registry coder
+
+`SchemaRegistryCoder` provides a way to share seen Avro schemas accross the execution cluster (Big Data engine).
+It is based on two main concepts:
+
+1. Its protocol: it writes the schema identifier then the schema itself,
+2. A storage allowing to share the written schemas accross nodes.
+
+By default an in memory storage is used but you can plug you own implementation through the SPI `org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistry`.
+This class defines two hooks: where to store a schema and how to retrieve an existing schema.
+
+A trivial distributed implementation can rely on Hazelcast:
+
+[source,java]
+----
+@Slf4j
+public class InMemorySchemaRegistry implements SchemaRegistry {
+
+    private final Map<String, Schema> schemas = Hazelcast.getOrCreateHazelcastInstance().getMap(getClass().getName());
+
+    @Override
+    public void putIfAbsent(final String id, final Schema schema) {
+        schemas.putIfAbsent(id, schema);
+    }
+
+    @Override
+    public Schema get(final String id) {
+        return schemas.get(id);
+    }
+}
+----
+
+== Implement virtual components
+
+Sometimes it is possible to implement components on the fly without having to generate the code itself - for instance you can generate a family OpenAPI based just adding on the fly the openapi.json descriptor.
+
+For that case, the framework has multiple extension points:
+
+1. `org.talend.sdk.component.spi.component.GenericComponentExtension` (a SPI) which is responsible to instantiate components in a generic manner,
+2.  `org.talend.sdk.component.server.configuration.ComponentServerConfiguration` is a CDI event - use `void onSetup(@Observes ComponentServerConfiguration config)` to observe it - which will enable to register virtual components. It is available in `component-server-extension-api` module.
+
+A sample can be seen on github through link:https://github.com/Talend/component-runtime/tree/component-runtime-1.1.9/component-server-parent/extensions/stitch[stitch PoC] module.
