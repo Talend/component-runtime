@@ -181,6 +181,7 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 |validateOptionNames| Ensures that the option names are compliant with the framework. It is highly recommended and safer to keep it set to `true`. |`talend.validation.options`|true
 |validateLocalConfiguration| Ensures that if any `TALEND-INF/local-configuration.properties` exists then keys start with the family name.|`talend.validation.localConfiguration`|true
 |validateOutputConnection| Ensures that an output has only one input branch.|`talend.validation.validateOutputConnection`|true
+|validatePlaceholder| Ensures that string options have a placeholder. It is highly recommended to turn this property on.|`talend.validation.placeholder`|false
 |===
 
 === Generating the component documentation

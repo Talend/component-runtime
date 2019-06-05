@@ -21,8 +21,6 @@ import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.talend.sdk.component.maven.api.Audience;
@@ -36,6 +34,12 @@ import org.talend.sdk.component.tools.ComponentValidator;
 @Mojo(name = "validate", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
         threadSafe = true)
 public class ValidateComponentMojo extends ClasspathMojoBase {
+
+    /**
+     * Ensures string variables have a placeholder.
+     */
+    @Parameter(defaultValue = "false" /* backward compatibility */, property = "talend.validation.placeholder")
+    private boolean validatePlaceholder;
 
     /**
      * Ensures each family has an icon.
@@ -127,7 +131,11 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean validateLocalConfiguration;
 
     @Override
-    public void doExecute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() {
+        if (!validatePlaceholder) {
+            getLog()
+                    .warn("You don't validate placeholders are set, maybe think about setting validatePlaceholder=true");
+        }
         final ComponentValidator.Configuration configuration = new ComponentValidator.Configuration();
         configuration.setValidateFamily(validateFamily);
         configuration.setValidateSerializable(validateSerializable);
@@ -143,6 +151,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateOptionNames(validateOptionNames);
         configuration.setValidateLocalConfiguration(validateLocalConfiguration);
         configuration.setValidateOutputConnection(validateOutputConnection);
+        configuration.setValidatePlaceholder(validatePlaceholder);
         new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
 }

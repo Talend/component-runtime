@@ -37,6 +37,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1453[TCOMP-1453^]: Upgrade to CXF 3.3.2
 - link:https://jira.talendforge.org/browse/TCOMP-1455[TCOMP-1455^]: Prepare DateTime support in configurations
 - link:https://jira.talendforge.org/browse/TCOMP-1457[TCOMP-1457^]: Upgrade to Apache Beam 2.13.0
+- link:https://jira.talendforge.org/browse/TCOMP-1458[TCOMP-1458^]: Ensure _placeholder presence is encouraged and validated
 
 == Version 1.1.9
 

@@ -41,7 +41,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -53,6 +52,7 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Config
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.DocumentationParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
+import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -73,8 +73,7 @@ abstract class DocBaseGenerator extends BaseTask {
 
     private final ParameterModelService parameterModelService =
             new ParameterModelService(asList(new DocumentationParameterEnricher(), new ConditionParameterEnricher(),
-                    new ConfigurationTypeParameterEnricher()), new PropertyEditorRegistry()) {
-
+                    new ConfigurationTypeParameterEnricher()), new EnrichedPropertyEditorRegistry()) {
             };
 
     DocBaseGenerator(final File[] classes, final Locale locale, final Object log, final File output) {

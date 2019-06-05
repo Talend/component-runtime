@@ -31,6 +31,7 @@ import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ARRAY;
 import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ENUM;
 import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.OBJECT;
+import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.STRING;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.io.BufferedInputStream;
@@ -50,6 +51,7 @@ import java.lang.reflect.Type;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -65,7 +67,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -94,12 +95,14 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
+import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
+import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 
@@ -112,7 +115,10 @@ public class ComponentValidator extends BaseTask {
 
     private final Log log;
 
-    private final ParameterModelService parameterModelService = new ParameterModelService(new PropertyEditorRegistry());
+    private final ParameterModelService parameterModelService =
+            new ParameterModelService(new EnrichedPropertyEditorRegistry());
+
+    private final Map<Class<?>, List<ParameterMeta>> parametersCache = new HashMap<>();
 
     public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         super(classes);
@@ -206,6 +212,10 @@ public class ComponentValidator extends BaseTask {
             validateOutputConnection(components, errors);
         }
 
+        if (configuration.isValidatePlaceholder()) {
+            validatePlaceholders(components, errors);
+        }
+
         if (!errors.isEmpty()) {
             final List<String> preparedErrors =
                     errors.stream().map(it -> it.replace("java.lang.", "").replace("java.util.", "")).collect(toList());
@@ -215,6 +225,20 @@ public class ComponentValidator extends BaseTask {
         }
 
         log.info("Validated components: " + components.stream().map(Class::getSimpleName).collect(joining(", ")));
+    }
+
+    private void validatePlaceholders(final List<Class<?>> components, final Set<String> errors) {
+        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        errors
+                .addAll(components
+                        .stream()
+                        .map(this::buildOrGetParameters)
+                        .flatMap(this::flatten)
+                        .filter(this::isStringifiable)
+                        .filter(p -> !hasPlaceholder(loader, p, null))
+                        .map(p -> "No _placeholder set for " + p.getPath() + " in Messages.properties of packages: "
+                                + asList(p.getI18nPackages()))
+                        .collect(toSet()));
     }
 
     private String validateIcon(final Icon annotation) {
@@ -303,14 +327,10 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateLayout(final List<Class<?>> components, final Set<String> errors) {
-
         components
                 .stream()
-                .map(c -> parameterModelService
-                        .buildParameterMetas(findConstructor(c),
-                                ofNullable(c.getPackage()).map(Package::getName).orElse(""),
-                                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"))))
-                .flatMap(this::toFlatNonPrimitivConfig)
+                .map(this::buildOrGetParameters)
+                .flatMap(this::toFlatNonPrimitiveConfig)
                 .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue, (p1, p2) -> p1))
                 .entrySet()
                 .forEach(c -> visitLayout(c, errors));
@@ -398,19 +418,37 @@ public class ComponentValidator extends BaseTask {
 
     }
 
+    private boolean hasPlaceholder(final ClassLoader loader, final ParameterMeta parameterMeta,
+            final ParameterBundle parent) {
+        return parameterMeta.findBundle(loader, Locale.ROOT).placeholder(parent).isPresent();
+    }
+
+    private List<ParameterMeta> buildOrGetParameters(final Class<?> c) {
+        return parametersCache
+                .computeIfAbsent(c,
+                        k -> parameterModelService
+                                .buildParameterMetas(findConstructor(c),
+                                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
+                                        new BaseParameterEnricher.Context(
+                                                new LocalConfigurationService(emptyList(), "tools"))));
+    }
+
+    private boolean isStringifiable(final ParameterMeta meta) {
+        return STRING.equals(meta.getType()) || ENUM.equals(meta.getType());
+    }
+
     private Stream<AbstractMap.SimpleEntry<String, ParameterMeta>>
-            toFlatNonPrimitivConfig(final List<ParameterMeta> config) {
+            toFlatNonPrimitiveConfig(final List<ParameterMeta> config) {
         if (config == null || config.isEmpty()) {
             return empty();
         }
-
         return config
                 .stream()
                 .filter(Objects::nonNull)
                 .filter(p -> OBJECT.equals(p.getType()) || isArrayOfObject(p))
                 .filter(p -> p.getNestedParameters() != null)
                 .flatMap(p -> concat(of(new AbstractMap.SimpleEntry<>(toJavaType(p).getName(), p)),
-                        toFlatNonPrimitivConfig(p.getNestedParameters())));
+                        toFlatNonPrimitiveConfig(p.getNestedParameters())));
     }
 
     private Class<?> toJavaType(final ParameterMeta p) {
@@ -498,12 +536,7 @@ public class ComponentValidator extends BaseTask {
                         .flatMap(enumType -> Stream
                                 .of(enumType.getFields())
                                 .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers()))
-                                .filter(f -> {
-                                    final ResourceBundle bundle = ofNullable(findResourceBundle(enumType))
-                                            .orElseGet(() -> findResourceBundle(f.getDeclaringClass()));
-                                    final String key = enumType.getSimpleName() + "." + f.getName() + "._displayName";
-                                    return bundle == null || !bundle.containsKey(key);
-                                })
+                                .filter(f -> hasBundleEntry(enumType, f, "_displayName"))
                                 .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName()
                                         + "._displayName in " + enumType + " resource bundle"))
                         .sorted()
@@ -826,6 +859,17 @@ public class ComponentValidator extends BaseTask {
         }).filter(Objects::nonNull).sorted().collect(toSet()));
     }
 
+    private boolean hasBundleEntry(final Class<?> enumType, final Field f, final String keyName) {
+        final ResourceBundle bundle = findBundleFor(enumType, f);
+        final String key = enumType.getSimpleName() + "." + f.getName() + "." + keyName;
+        return bundle == null || !bundle.containsKey(key);
+    }
+
+    // todo: drop it to use parameter meta now we cache it?
+    private ResourceBundle findBundleFor(final Class<?> enumType, final Field f) {
+        return ofNullable(findResourceBundle(enumType)).orElseGet(() -> findResourceBundle(f.getDeclaringClass()));
+    }
+
     private boolean isRequired(final ParameterMeta parameterMeta) {
         return Boolean.parseBoolean(parameterMeta.getMetadata().getOrDefault("tcomp::validation::required", "false"));
     }
@@ -1082,5 +1126,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateLocalConfiguration;
 
         private boolean validateOutputConnection;
+
+        private boolean validatePlaceholder;
     }
 }

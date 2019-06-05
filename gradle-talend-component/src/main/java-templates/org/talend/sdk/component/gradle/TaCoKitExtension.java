@@ -112,6 +112,8 @@ public class TaCoKitExtension {
 
     private boolean validateOutputConnection = true;
 
+    private boolean validatePlaceholder = true;
+
     //
     // web
     //

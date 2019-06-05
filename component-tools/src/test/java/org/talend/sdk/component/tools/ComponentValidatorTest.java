@@ -136,6 +136,7 @@ class ComponentValidatorTest {
             cfg.setValidateOptionNames(true);
             cfg.setValidateLocalConfiguration(true);
             cfg.setValidateOutputConnection(true);
+            cfg.setValidatePlaceholder(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -392,6 +393,14 @@ class ComponentValidatorTest {
                         "- No source instantiable without adding parameters for @DataSet(\"dataset\") (org.talend.test"
                                 + ".failure.datasetrequiredinsource.MyComponent$MyDataSet), please ensure at least a source using this "
                                 + "dataset can be used just filling the dataset information.");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.missingplaceholder")
+    void testFailureMissingPlaceholder(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("No _placeholder set for foo.missingPlaceholder in Messages.properties of packages: "
+                        + "[org.talend.test.failure.missingplaceholder]");
     }
 
     @Test
