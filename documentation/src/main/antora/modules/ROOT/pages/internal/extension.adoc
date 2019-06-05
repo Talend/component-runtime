@@ -64,6 +64,19 @@ Then, you will need to implement `org.talend.sdk.component.runtime.manager.Compo
 
 TIP: the contributor is used even if no customizer disabled dependencies, this means you can use it to *enrich* component classpath and not only redefine it.
 
+== Change the way Component are mapped to a model
+
+This part is very useful for component using a potential other API - but not generic, i.e. 1 class == 1 component.
+
+The SPI is `org.talend.sdk.component.spi.component.ComponentExtension`.
+
+It enables to:
+
+1. Add specific dependencies (for instance beam for beam components),
+2. Add transformers (to modify the bytecode of the component + dependencies),
+3. Provide an alternative way to instantiate components,
+4. Disable the validation of components - if you know you used an incompatible programming model.
+
 == Enrich the classpath of the server
 
 The component server is a plain link:http://openwebbeans.apache.org/meecrowave/[Apache Meecrowave] server and therefore a plain Java process.
