@@ -90,6 +90,7 @@ def excludedPackages = [
     'org.aopalliance.',
     'org.fusesource.',
     'org.mortbay.',
+    'org.kohsuke.',
     // todo: check
     'org.apache.zookeeper.',
     'org.apache.hadoop.',

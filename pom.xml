@@ -158,7 +158,7 @@
     <geronimo-jsonb.version>1.1</geronimo-jsonb.version>
     <geronimo-json.version>1.2</geronimo-json.version>
     <batik.version>1.11</batik.version>
-    <beam.version>2.12.0</beam.version>
+    <beam.version>2.13.0</beam.version>
     <commons-codec.version>1.12</commons-codec.version>
     <commons-compress.version>1.18</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
