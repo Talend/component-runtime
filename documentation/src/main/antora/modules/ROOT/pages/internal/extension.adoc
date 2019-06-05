@@ -77,6 +77,11 @@ It enables to:
 3. Provide an alternative way to instantiate components,
 4. Disable the validation of components - if you know you used an incompatible programming model.
 
+== Activate component specific transformers to patch the dependencies code
+
+Use the SPI `org.talend.sdk.component.container.AutoClassFileTransformer` from the component itself
+and enable the component to depend on ASM - a shade is provided by the framework.
+
 == Enrich the classpath of the server
 
 The component server is a plain link:http://openwebbeans.apache.org/meecrowave/[Apache Meecrowave] server and therefore a plain Java process.
