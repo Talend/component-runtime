@@ -7,7 +7,6 @@ To get the full list of changes and bug fixes included in this new version, chec
 == Filtering on /index endpoints
 
 You can now define simple queries to add filtering parameters to requests made on the /index endpoint for components and component configurations.
-Find more information in the xref:documentation-rest.adoc#_defining_queries[documentation].
 
 == Deploy in Studio using Gradle
 
