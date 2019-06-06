@@ -218,7 +218,12 @@ public class ParameterModelService {
                 return bpe.withContext(context, () -> bpe.onParameterAnnotation(name, genericType, a));
             }
             return e.onParameterAnnotation(name, genericType, a);
-        })).flatMap(map -> map.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        })).flatMap(map -> map.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
+            if (a.equals(b)) {
+                return a;
+            }
+            throw new IllegalArgumentException("Ambiguous metadata: '" + a + "'/'" + b + "'");
+        }));
     }
 
     private Stream<Annotation> getAnnotations(final Type type, final Annotation[] annotations) {
