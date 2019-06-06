@@ -1,8 +1,8 @@
-= Release Notes - 1.1.3 - Talend Component Kit
+= xref:rn-1_1_3.adoc[Release Notes - 1.1.3 - Talend Component Kit]
 :page-partial:
 :page-talend_skipindexation:
 
-To get the full list of changes and bug fixes included in this new version, check the xref:changelog.adoc[changelogs].
+To get the full list of changes and bug fixes included in this new version, check the link:../main/1.1.3/changelog.html[changelogs].
 
 
 

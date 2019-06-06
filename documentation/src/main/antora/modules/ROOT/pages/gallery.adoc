@@ -97,6 +97,22 @@ Boolean config;
 |image::gallery/widgets/web/checkbox.png[Web Checkbox,40%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/checkbox.png"]
 |===
 
+=== Datetime
+
+Datetime fields rely on the Java Date Time API, including `LocalTime`, `LocalDate`, `LocalDateTime` and `ZonedDateTime` classes.
+
+[source,java]
+----
+@Option
+LocalDateTime starttime;
+----
+
+===
+|Studio Rendering | Web Rendering
+
+|image::gallery/widgets/studio/widget_calendar.png.png[Studio List,40%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/widget_calendar.png.png"]
+|image::gallery/widgets/web/widget_calendar.png.png[Web List,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/widget_calendar.png.png"]
+|===
 
 === List
 
