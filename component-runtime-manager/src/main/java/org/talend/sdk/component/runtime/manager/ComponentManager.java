@@ -286,8 +286,6 @@ public class ComponentManager implements AutoCloseable {
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
-        // todo: check -Djdk.serialFilter has some value
-
         customizers = toStream(loadServiceProviders(Customizer.class, tccl)).collect(toList()); // must stay first
         if (!customizers.isEmpty()) {
             customizers.forEach(c -> c.setCustomizers(customizers));
