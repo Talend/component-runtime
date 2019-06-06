@@ -33,6 +33,7 @@ import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.CodeWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.CredentialWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.DataListWidgetConverter;
+import org.talend.sdk.component.form.internal.converter.impl.widget.DateTimeConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.FieldSetWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.GridLayoutWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.MultiSelectWidgetConverter;
@@ -141,7 +142,12 @@ public class UiSchemaConverter implements PropertyConverter {
                                         && Boolean.valueOf(metadata.get("ui::textarea"))) {
                                     return new TextAreaWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                                             .convert(CompletableFuture.completedFuture(context));
+                                } else if (metadata.containsKey("ui::datetime")) {
+                                    return new DateTimeConverter(schemas, properties, actions, jsonSchema, lang,
+                                            metadata.get("ui::datetime"))
+                                                    .convert(CompletableFuture.completedFuture(context));
                                 }
+
                                 return new TextWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                                         .convert(CompletableFuture.completedFuture(context));
                             }

@@ -186,8 +186,9 @@ public class IconReporterMojo extends ClasspathMojoBase {
 
                 private final List<String> iconPattern = asList("icons/%s.svg", "icons/%s_icon32.png");
 
-                {
-                    init();
+                @Override
+                protected boolean isSupportsSvg() {
+                    return true;
                 }
 
                 @Override

@@ -16,8 +16,10 @@
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.Locale.ENGLISH;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -27,6 +29,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
@@ -35,10 +41,19 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
 import org.talend.sdk.component.api.configuration.ui.meta.Ui;
+import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 
 public class UiParameterEnricher extends BaseParameterEnricher {
 
     public static final String META_PREFIX = "tcomp::ui::";
+
+    @Override
+    public Map<Type, Collection<Annotation>> getImplicitAnnotationForTypes() {
+        final Collection<Annotation> annotations = singletonList(new DateTimeAnnotation());
+        return Stream
+                .<Type> of(ZonedDateTime.class, LocalDateTime.class, LocalDate.class, LocalTime.class)
+                .collect(toMap(identity(), it -> annotations));
+    }
 
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
@@ -51,6 +66,23 @@ public class UiParameterEnricher extends BaseParameterEnricher {
                         .of(GridLayouts.class.cast(annotation).value())
                         .flatMap(a -> toConfig(a, prefix.substring(0, prefix.length() - 3) + "::").entrySet().stream())
                         .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            }
+            if (DateTime.class == annotation.annotationType()) {
+                final String key = META_PREFIX + "datetime";
+                if (parameterType == LocalTime.class) {
+                    return singletonMap(key, "time");
+                }
+                if (parameterType == LocalDate.class) {
+                    return singletonMap(key, "date");
+                }
+                if (parameterType == LocalDateTime.class) {
+                    return singletonMap(key, "datetime");
+                }
+                if (parameterType == ZonedDateTime.class || parameterType == Object.class /* unsafe */) {
+                    return singletonMap(key, "zoneddatetime");
+                }
+                throw new IllegalArgumentException(
+                        "Unsupported type for @DateTime option: " + parameterType + " on " + parameterName);
             }
             return toConfig(annotation, prefix);
         }
@@ -137,6 +169,14 @@ public class UiParameterEnricher extends BaseParameterEnricher {
             return String.valueOf(invoke);
         } catch (final InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    private static class DateTimeAnnotation implements DateTime {
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return DateTime.class;
         }
     }
 }

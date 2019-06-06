@@ -17,8 +17,6 @@ package org.talend.sdk.component.tools;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
@@ -43,7 +41,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -52,9 +49,10 @@ import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.DocumentationParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
-import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
+import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -73,15 +71,10 @@ abstract class DocBaseGenerator extends BaseTask {
 
     protected final File output;
 
-    private final ParameterModelService parameterModelService = new ParameterModelService(
-            asList((ParameterExtensionEnricher) (parameterName, parameterType,
-                    annotation) -> annotation.annotationType() == Documentation.class
-                            ? singletonMap("documentation", Documentation.class.cast(annotation).value())
-                            : emptyMap(),
-                    new ConditionParameterEnricher(), new ConfigurationTypeParameterEnricher()),
-            new PropertyEditorRegistry()) {
-
-    };
+    private final ParameterModelService parameterModelService =
+            new ParameterModelService(asList(new DocumentationParameterEnricher(), new ConditionParameterEnricher(),
+                    new ConfigurationTypeParameterEnricher()), new EnrichedPropertyEditorRegistry()) {
+            };
 
     DocBaseGenerator(final File[] classes, final Locale locale, final Object log, final File output) {
         super(classes);
@@ -364,7 +357,7 @@ abstract class DocBaseGenerator extends BaseTask {
         }
 
         private String findDocumentation(final ParameterMeta p) {
-            final String inline = p.getMetadata().get("documentation");
+            final String inline = p.getMetadata().get("tcomp::documentation::value");
             if (inline != null) {
                 if (inline.startsWith("resource:")) {
                     final InputStream stream = Thread

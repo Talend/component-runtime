@@ -6,7 +6,7 @@ Provide a default value the UI can use - only for primitive fields.
 
 - API: `@org.talend.sdk.component.api.configuration.ui.DefaultValue`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -22,7 +22,7 @@ Allows to sort a class properties.
 
 - API: `@org.talend.sdk.component.api.configuration.ui.OptionsOrder`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -38,7 +38,7 @@ Request the rendered to do what it thinks is best.
 
 - API: `@org.talend.sdk.component.api.configuration.ui.layout.AutoLayout`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -54,7 +54,7 @@ Advanced layout to place properties by row, this is exclusive with `@OptionsOrde
 
 - API: `@org.talend.sdk.component.api.configuration.ui.layout.GridLayout`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -71,7 +71,7 @@ Allow to configure multiple grid layouts on the same class, qualified with a cla
 
 - API: `@org.talend.sdk.component.api.configuration.ui.layout.GridLayouts`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -88,7 +88,7 @@ Put on a configuration class it notifies the UI an horizontal layout is preferre
 
 - API: `@org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -104,7 +104,7 @@ Put on a configuration class it notifies the UI a vertical layout is preferred.
 
 - API: `@org.talend.sdk.component.api.configuration.ui.layout.VerticalLayout`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -120,7 +120,7 @@ Mark a field as being represented by some code widget (vs textarea for instance)
 
 - API: `@org.talend.sdk.component.api.configuration.ui.widget.Code`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -136,12 +136,49 @@ Mark a field as being a credential. It is typically used to hide the value in th
 
 - API: `@org.talend.sdk.component.api.configuration.ui.widget.Credential`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
 {
   "ui::credential":"true"
+}
+----
+
+
+= @DateTime
+
+Mark a field as being a date. It supports and is *implicit* - which means you don't need to put that annotation on the option - for `java.time.ZonedDateTime`, `java.time.LocalDate` and `java.time.LocalDateTime` and is unspecified for other types.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.DateTime`
+
+== Snippets
+
+[source,js]
+----
+{
+  "ui::datetime":"time"
+}
+----
+
+[source,js]
+----
+{
+  "ui::datetime":"date"
+}
+----
+
+[source,js]
+----
+{
+  "ui::datetime":"datetime"
+}
+----
+
+[source,js]
+----
+{
+  "ui::datetime":"zoneddatetime"
 }
 ----
 
@@ -152,7 +189,7 @@ Mark a List<String> or Map<String, String> field as being represented as the com
 
 - API: `@org.talend.sdk.component.api.configuration.ui.widget.Structure`
 
-Sample:
+== Snippets
 
 [source,js]
 ----
@@ -170,7 +207,7 @@ Mark a field as being represented by a textarea(multiline text input).
 
 - API: `@org.talend.sdk.component.api.configuration.ui.widget.TextArea`
 
-Sample:
+== Snippets
 
 [source,js]
 ----

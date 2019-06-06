@@ -31,6 +31,7 @@ import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ARRAY;
 import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ENUM;
 import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.OBJECT;
+import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.STRING;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.io.BufferedInputStream;
@@ -50,6 +51,7 @@ import java.lang.reflect.Type;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -58,14 +60,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -94,14 +97,17 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
+import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
+import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
+import org.talend.sdk.component.tools.spi.ValidationExtension;
 
 import lombok.Data;
 
@@ -112,7 +118,14 @@ public class ComponentValidator extends BaseTask {
 
     private final Log log;
 
-    private final ParameterModelService parameterModelService = new ParameterModelService(new PropertyEditorRegistry());
+    private final ParameterModelService parameterModelService =
+            new ParameterModelService(new EnrichedPropertyEditorRegistry());
+
+    private final SvgValidator validator = new SvgValidator();
+
+    private final Map<Class<?>, List<ParameterMeta>> parametersCache = new HashMap<>();
+
+    private final List<ValidationExtension> extensions;
 
     public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         super(classes);
@@ -122,6 +135,9 @@ public class ComponentValidator extends BaseTask {
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }
+        this.extensions = StreamSupport
+                .stream(ServiceLoader.load(ValidationExtension.class).spliterator(), false)
+                .collect(toList());
     }
 
     @Override
@@ -140,7 +156,7 @@ public class ComponentValidator extends BaseTask {
                 try {
                     final Icon icon =
                             findPackageOrFail(c, apiTester(Icon.class), Icon.class.getName()).getAnnotation(Icon.class);
-                    ofNullable(validateIcon(icon)).ifPresent(errors::add);
+                    ofNullable(validateIcon(icon, errors)).ifPresent(errors::add);
                 } catch (final IllegalArgumentException iae) {
                     final IconFinder iconFinder = new IconFinder();
                     try {
@@ -206,6 +222,38 @@ public class ComponentValidator extends BaseTask {
             validateOutputConnection(components, errors);
         }
 
+        if (configuration.isValidatePlaceholder()) {
+            validatePlaceholders(components, errors);
+        }
+
+        if (!extensions.isEmpty()) {
+            final ValidationExtension.ValidationContext context = new ValidationExtension.ValidationContext() {
+
+                @Override
+                public AnnotationFinder finder() {
+                    return finder;
+                }
+
+                @Override
+                public List<Class<?>> components() {
+                    return components;
+                }
+
+                @Override
+                public List<ParameterMeta> parameters(final Class<?> component) {
+                    return buildOrGetParameters(component);
+                }
+            };
+            errors
+                    .addAll(extensions
+                            .stream()
+                            .map(extension -> extension.validate(context))
+                            .filter(result -> result.getErrors() != null)
+                            .flatMap(result -> result.getErrors().stream())
+                            .filter(Objects::nonNull)
+                            .collect(toList()));
+        }
+
         if (!errors.isEmpty()) {
             final List<String> preparedErrors =
                     errors.stream().map(it -> it.replace("java.lang.", "").replace("java.util.", "")).collect(toList());
@@ -217,15 +265,33 @@ public class ComponentValidator extends BaseTask {
         log.info("Validated components: " + components.stream().map(Class::getSimpleName).collect(joining(", ")));
     }
 
-    private String validateIcon(final Icon annotation) {
+    private void validatePlaceholders(final List<Class<?>> components, final Set<String> errors) {
+        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        errors
+                .addAll(components
+                        .stream()
+                        .map(this::buildOrGetParameters)
+                        .flatMap(this::flatten)
+                        .filter(this::isStringifiable)
+                        .filter(p -> !hasPlaceholder(loader, p, null))
+                        .map(p -> "No _placeholder set for " + p.getPath() + " in Messages.properties of packages: "
+                                + asList(p.getI18nPackages()))
+                        .collect(toSet()));
+    }
+
+    private String validateIcon(final Icon annotation, final Collection<String> errors) {
         if (classes.length == 0) {
             return null;
         }
 
         if (annotation.value() == Icon.IconType.CUSTOM) {
             final String icon = annotation.custom();
-            if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + ".svg")).noneMatch(File::exists)) {
+            final Set<File> svgs =
+                    of(classes).map(it -> new File(it, "icons/" + icon + ".svg")).filter(File::exists).collect(toSet());
+            if (svgs.isEmpty()) {
                 log.error("No 'icons/" + icon + ".svg' found, this will run in degraded mode in Talend Cloud");
+            } else {
+                errors.addAll(svgs.stream().flatMap(this::validateSvg).collect(toSet()));
             }
             if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + "_icon32.png")).noneMatch(File::exists)) {
                 return "No icon: '" + icon + "' found, did you create - or generated with svg2png - 'icons/" + icon
@@ -233,6 +299,10 @@ public class ComponentValidator extends BaseTask {
             }
         }
         return null;
+    }
+
+    private Stream<String> validateSvg(final File file) {
+        return validator.validate(file.toPath());
     }
 
     private void validateOutputConnection(final List<Class<?>> components, final Set<String> errors) {
@@ -303,14 +373,10 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateLayout(final List<Class<?>> components, final Set<String> errors) {
-
         components
                 .stream()
-                .map(c -> parameterModelService
-                        .buildParameterMetas(findConstructor(c),
-                                ofNullable(c.getPackage()).map(Package::getName).orElse(""),
-                                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"))))
-                .flatMap(this::toFlatNonPrimitivConfig)
+                .map(this::buildOrGetParameters)
+                .flatMap(this::toFlatNonPrimitiveConfig)
                 .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue, (p1, p2) -> p1))
                 .entrySet()
                 .forEach(c -> visitLayout(c, errors));
@@ -398,19 +464,37 @@ public class ComponentValidator extends BaseTask {
 
     }
 
+    private boolean hasPlaceholder(final ClassLoader loader, final ParameterMeta parameterMeta,
+            final ParameterBundle parent) {
+        return parameterMeta.findBundle(loader, Locale.ROOT).placeholder(parent).isPresent();
+    }
+
+    private List<ParameterMeta> buildOrGetParameters(final Class<?> c) {
+        return parametersCache
+                .computeIfAbsent(c,
+                        k -> parameterModelService
+                                .buildParameterMetas(findConstructor(c),
+                                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
+                                        new BaseParameterEnricher.Context(
+                                                new LocalConfigurationService(emptyList(), "tools"))));
+    }
+
+    private boolean isStringifiable(final ParameterMeta meta) {
+        return STRING.equals(meta.getType()) || ENUM.equals(meta.getType());
+    }
+
     private Stream<AbstractMap.SimpleEntry<String, ParameterMeta>>
-            toFlatNonPrimitivConfig(final List<ParameterMeta> config) {
+            toFlatNonPrimitiveConfig(final List<ParameterMeta> config) {
         if (config == null || config.isEmpty()) {
             return empty();
         }
-
         return config
                 .stream()
                 .filter(Objects::nonNull)
                 .filter(p -> OBJECT.equals(p.getType()) || isArrayOfObject(p))
                 .filter(p -> p.getNestedParameters() != null)
                 .flatMap(p -> concat(of(new AbstractMap.SimpleEntry<>(toJavaType(p).getName(), p)),
-                        toFlatNonPrimitivConfig(p.getNestedParameters())));
+                        toFlatNonPrimitiveConfig(p.getNestedParameters())));
     }
 
     private Class<?> toJavaType(final ParameterMeta p) {
@@ -498,12 +582,7 @@ public class ComponentValidator extends BaseTask {
                         .flatMap(enumType -> Stream
                                 .of(enumType.getFields())
                                 .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers()))
-                                .filter(f -> {
-                                    final ResourceBundle bundle = ofNullable(findResourceBundle(enumType))
-                                            .orElseGet(() -> findResourceBundle(f.getDeclaringClass()));
-                                    final String key = enumType.getSimpleName() + "." + f.getName() + "._displayName";
-                                    return bundle == null || !bundle.containsKey(key);
-                                })
+                                .filter(f -> hasBundleEntry(enumType, f, "_displayName"))
                                 .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName()
                                         + "._displayName in " + enumType + " resource bundle"))
                         .sorted()
@@ -654,7 +733,7 @@ public class ComponentValidator extends BaseTask {
             if (iconFinder.findDirectIcon(component).isPresent()) {
                 final Icon icon = component.getAnnotation(Icon.class);
                 messages = new ArrayList<>();
-                messages.add(validateIcon(icon));
+                messages.add(validateIcon(icon, errors));
             } else if (!iconFinder.findIndirectIcon(component).isPresent()) {
                 messages = new ArrayList<>(singleton("No @Icon on " + component));
             }
@@ -824,6 +903,17 @@ public class ComponentValidator extends BaseTask {
             }
             return null;
         }).filter(Objects::nonNull).sorted().collect(toSet()));
+    }
+
+    private boolean hasBundleEntry(final Class<?> enumType, final Field f, final String keyName) {
+        final ResourceBundle bundle = findBundleFor(enumType, f);
+        final String key = enumType.getSimpleName() + "." + f.getName() + "." + keyName;
+        return bundle == null || !bundle.containsKey(key);
+    }
+
+    // todo: drop it to use parameter meta now we cache it?
+    private ResourceBundle findBundleFor(final Class<?> enumType, final Field f) {
+        return ofNullable(findResourceBundle(enumType)).orElseGet(() -> findResourceBundle(f.getDeclaringClass()));
     }
 
     private boolean isRequired(final ParameterMeta parameterMeta) {
@@ -1082,5 +1172,9 @@ public class ComponentValidator extends BaseTask {
         private boolean validateLocalConfiguration;
 
         private boolean validateOutputConnection;
+
+        private boolean validatePlaceholder;
+
+        private boolean validateSvg;
     }
 }

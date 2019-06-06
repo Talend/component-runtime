@@ -19,6 +19,7 @@ import static java.lang.reflect.Proxy.newProxyInstance;
 import static java.util.Collections.list;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.container.Container.State.CREATED;
 
@@ -33,7 +34,9 @@ import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -87,8 +90,6 @@ public class Container implements Lifecycle {
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
 
-    private final String[] jvmMarkers;
-
     public Container(final String id, final String rootModule, final Artifact[] dependencies,
             final ContainerManager.ClassLoaderConfiguration configuration,
             final Function<String, File> localDependencyRelativeResolver, final Consumer<Container> initializer,
@@ -98,11 +99,11 @@ public class Container implements Lifecycle {
         this.dependencies = dependencies;
         this.localDependencyRelativeResolver = localDependencyRelativeResolver;
         this.lastModifiedTimestamp.set(new Date(0));
-        this.jvmMarkers = jvmMarkers;
         ofNullable(initializer).ifPresent(i -> i.accept(this));
 
         this.classloaderProvider = () -> {
-            final URL[] urls = findExistingClasspathFiles().peek(this::visitLastModified).map(f -> {
+            final List<File> existingClasspathFiles = findExistingClasspathFiles().collect(toList());
+            final URL[] urls = existingClasspathFiles.stream().peek(this::visitLastModified).map(f -> {
                 try {
                     return f.toURI().toURL();
                 } catch (final MalformedURLException e) {
@@ -143,9 +144,21 @@ public class Container implements Lifecycle {
                     overrideClassLoaderConfig.getParent(), overrideClassLoaderConfig.getParentClassesFilter(),
                     overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers);
             transformers.forEach(loader::registerTransformer);
+            activeSpecificTransformers(loader);
             return loader;
         };
         reload();
+    }
+
+    private void activeSpecificTransformers(final ConfigurableClassLoader loader) {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader old = thread.getContextClassLoader();
+        thread.setContextClassLoader(loader);
+        try {
+            ServiceLoader.load(AutoClassFileTransformer.class, loader).forEach(this::registerTransformer);
+        } finally {
+            thread.setContextClassLoader(old);
+        }
     }
 
     private boolean findNestedDependency(final ContainerManager.ClassLoaderConfiguration overrideClassLoaderConfig,

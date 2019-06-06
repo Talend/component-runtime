@@ -90,6 +90,11 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         System
                 .setProperty("talend.component.server.icon.paths",
                         "icons/%s.svg,icons/svg/%s.svg,%s.svg,%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png");
+
+        final String skipLogs = System.getProperty("component.server.test.logging.skip", "true");
+        System
+                .setProperty("talend.component.server.request.log",
+                        Boolean.toString(skipLogs != null && !"false".equals(skipLogs)));
     }
 
     private String createUserJars(final String tempDir) {

@@ -148,7 +148,95 @@ public class ProjectResource {
         // create an in-memory zip of the project
         final ByteArrayOutputStream zip = new ByteArrayOutputStream();
         generator.generate(toRequest(project.getModel()), zip);
+        gitPush(project, zip.toByteArray());
+        return new Result(true);
+    }
 
+    @POST
+    @Path("openapi/github")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Result createOpenAPIOnGithub(final GithubProject project) {
+        final ByteArrayOutputStream zip = new ByteArrayOutputStream();
+        generator.generateFromOpenAPI(toRequest(project.getModel()), zip);
+        gitPush(project, zip.toByteArray());
+        return new Result(true);
+    }
+
+    @POST
+    @Path("zip/form")
+    @Produces("application/zip")
+    public Response createZip(@FormParam("project") final String compressedModel, @Context final Providers providers) {
+        final ProjectModel model = readProjectModel(compressedModel, providers);
+        final String filename = ofNullable(model.getArtifact()).orElse("zip") + ".zip";
+        return Response.ok().entity((StreamingOutput) out -> {
+            generator.generate(toRequest(model), out);
+            out.flush();
+        }).header("Content-Disposition", "inline; filename=" + filename).build();
+    }
+
+    @POST
+    @Path("openapi/zip/form")
+    @Produces("application/zip")
+    public Response createOpenAPIZip(@FormParam("project") final String compressedModel,
+            @Context final Providers providers) {
+        final ProjectModel model = readProjectModel(compressedModel, providers);
+        final String filename = ofNullable(model.getArtifact()).orElse("zip") + ".zip";
+        return Response.ok().entity((StreamingOutput) out -> {
+            generator.generateFromOpenAPI(toRequest(model), out);
+            out.flush();
+        }).header("Content-Disposition", "inline; filename=" + filename).build();
+    }
+
+    @POST
+    @Path("zip")
+    @Produces("application/zip")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public StreamingOutput createZip(final ProjectModel model) {
+        return out -> {
+            generator.generate(toRequest(model), out);
+            out.flush();
+        };
+    }
+
+    @POST
+    @Path("openapi/zip")
+    @Produces("application/zip")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public StreamingOutput createOpenAPIZip(final ProjectModel model) {
+        return out -> {
+            generator.generateFromOpenAPI(toRequest(model), out);
+            out.flush();
+        };
+    }
+
+    private ProjectModel readProjectModel(final String compressedModel, final Providers providers) {
+        final MessageBodyReader<ProjectModel> jsonReader = providers
+                .getMessageBodyReader(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE);
+        final ProjectModel model;
+        try (final InputStream gzipInputStream = new ByteArrayInputStream(debase64(compressedModel))) {
+            model = jsonReader
+                    .readFrom(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE,
+                            new MultivaluedHashMap<>(), gzipInputStream);
+        } catch (final IOException e) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorMessage(e.getMessage()))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build());
+        }
+        return model;
+    }
+
+    private byte[] debase64(final String compressedModel) {
+        try {
+            return Base64.getUrlDecoder().decode(compressedModel);
+        } catch (final IllegalArgumentException iae) {
+            return Base64.getDecoder().decode(compressedModel);
+        }
+    }
+
+    private void gitPush(final GithubProject project, final byte[] zip) {
         final GithubProject.Repository githubConfig = project.getRepository();
         final boolean useOrganization = githubConfig.isUseOrganization();
         final String organization = useOrganization ? githubConfig.getOrganization() : githubConfig.getUsername();
@@ -200,7 +288,7 @@ public class ProjectResource {
                 .setCredentialsProvider(credentialsProvider)
                 .call()) {
             { // copy the zip files into the project temporary folder
-                try (final ZipInputStream file = new ZipInputStream(new ByteArrayInputStream(zip.toByteArray()))) {
+                try (final ZipInputStream file = new ZipInputStream(new ByteArrayInputStream(zip))) {
                     ZipEntry entry;
                     while ((entry = file.getNextEntry()) != null) {
                         if (entry.isDirectory()) {
@@ -298,46 +386,6 @@ public class ProjectResource {
                 log.warn(e.getMessage(), e);
             }
         }
-
-        return new Result(true);
-    }
-
-    @POST
-    @Path("zip/form")
-    @Produces("application/zip")
-    public Response createZip(@FormParam("project") final String compressedModel, @Context final Providers providers) {
-        final MessageBodyReader<ProjectModel> jsonReader = providers
-                .getMessageBodyReader(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE);
-        final ProjectModel model;
-        try (final InputStream gzipInputStream =
-                new ByteArrayInputStream(Base64.getUrlDecoder().decode(compressedModel))) {
-            model = jsonReader
-                    .readFrom(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE,
-                            new MultivaluedHashMap<>(), gzipInputStream);
-        } catch (final IOException e) {
-            throw new WebApplicationException(Response
-                    .status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ErrorMessage(e.getMessage()))
-                    .type(APPLICATION_JSON_TYPE)
-                    .build());
-        }
-
-        final String filename = ofNullable(model.getArtifact()).orElse("zip") + ".zip";
-        return Response.ok().entity((StreamingOutput) out -> {
-            generator.generate(toRequest(model), out);
-            out.flush();
-        }).header("Content-Disposition", "inline; filename=" + filename).build();
-    }
-
-    @POST
-    @Path("zip")
-    @Produces("application/zip")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public StreamingOutput createZip(final ProjectModel model) {
-        return out -> {
-            generator.generate(toRequest(model), out);
-            out.flush();
-        };
     }
 
     private ProjectRequest toRequest(final ProjectModel model) {
@@ -393,7 +441,7 @@ public class ProjectResource {
                                         mapStructures(i.getOutputStructures(), reusableConfigs)))
                                 .collect(toList()))
                         .orElse(emptyList()),
-                reusableConfigs.values(), model.getFamily(), model.getCategory());
+                reusableConfigs.values(), model.getFamily(), model.getCategory(), model.getOpenapi());
     }
 
     private Stream<ProjectRequest.ReusableConfiguration> mapReusableConfig(

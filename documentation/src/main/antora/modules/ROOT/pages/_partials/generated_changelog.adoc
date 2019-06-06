@@ -29,6 +29,18 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1437[TCOMP-1437^]: Add infinite metadata to ComponentDetail
 - link:https://jira.talendforge.org/browse/TCOMP-1444[TCOMP-1444^]: Remove KnownJarsFilter since it is no more used to discover components
 - link:https://jira.talendforge.org/browse/TCOMP-1445[TCOMP-1445^]: Icon must support SVG
+- link:https://jira.talendforge.org/browse/TCOMP-1448[TCOMP-1448^]: [starter] provide a basic OpenAPI integration
+- link:https://jira.talendforge.org/browse/TCOMP-1449[TCOMP-1449^]: Upgrade XBean to v4.14
+- link:https://jira.talendforge.org/browse/TCOMP-1450[TCOMP-1450^]: Add a read-only bulk endpoint in component-server
+- link:https://jira.talendforge.org/browse/TCOMP-1451[TCOMP-1451^]: [upgrade] Johnzon 1.1.12
+- link:https://jira.talendforge.org/browse/TCOMP-1452[TCOMP-1452^]: [upgrade] Meecrowave 1.2.8
+- link:https://jira.talendforge.org/browse/TCOMP-1453[TCOMP-1453^]: Upgrade to CXF 3.3.2
+- link:https://jira.talendforge.org/browse/TCOMP-1455[TCOMP-1455^]: Prepare DateTime support in configurations
+- link:https://jira.talendforge.org/browse/TCOMP-1457[TCOMP-1457^]: Upgrade to Apache Beam 2.13.0
+- link:https://jira.talendforge.org/browse/TCOMP-1458[TCOMP-1458^]: Ensure _placeholder presence is encouraged and validated
+- link:https://jira.talendforge.org/browse/TCOMP-1459[TCOMP-1459^]: Experimental way to patch a component dependency
+- link:https://jira.talendforge.org/browse/TCOMP-1461[TCOMP-1461^]: Extension API for the validator plugin
+- link:https://jira.talendforge.org/browse/TCOMP-1462[TCOMP-1462^]: Validate through the corresponding build task provided SVG
 
 == Version 1.1.9
 

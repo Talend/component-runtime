@@ -15,11 +15,14 @@
  */
 package org.talend.sdk.component.runtime.server.vault.proxy.endpoint.jaxrs;
 
+import static javax.ws.rs.client.Entity.entity;
 import static org.talend.sdk.component.runtime.server.vault.proxy.endpoint.jaxrs.Responses.decorate;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -59,6 +62,10 @@ public class RequestForwarder {
     private HttpHeaders headers;
 
     public CompletionStage<Response> forward() {
+        return forward(null, null);
+    }
+
+    public CompletionStage<Response> forward(final InputStream payload, final Function<Response, Response> customizer) {
         WebTarget target = client.path(uriInfo.getPath());
         for (final Map.Entry<String, List<String>> query : uriInfo.getQueryParameters().entrySet()) {
             target = target.queryParam(query.getKey(), query.getValue().toArray(emptyObjectsArray));
@@ -67,6 +74,16 @@ public class RequestForwarder {
         final MediaType[] types = headers.getAcceptableMediaTypes().toArray(emptyMediaTypesArray);
         final CompletionStageRxInvoker invoker =
                 target.request(types).headers(MultivaluedMap.class.cast(requestHeaders)).rx();
-        return decorate(invoker.method(request.getMethod()));
+        final CompletionStage<Response> response;
+        if (payload != null) {
+            response = invoker.method(request.getMethod(), entity(payload, MediaType.APPLICATION_JSON_TYPE));
+        } else {
+            response = invoker.method(request.getMethod());
+        }
+        final CompletionStage<Response> decorated = decorate(response);
+        if (customizer != null) {
+            return decorated.thenApply(customizer);
+        }
+        return decorated;
     }
 }

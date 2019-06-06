@@ -53,8 +53,8 @@ public class IconResolver {
     @PostConstruct
     protected void init() {
         supportsSvg = System.getProperty("talend.studio.version") == null
-                && getExtensionPreferences().stream().anyMatch(it -> it.endsWith(".svg"));
-        patterns = supportsSvg ? componentServerConfiguration.getIconExtensions()
+                && componentServerConfiguration.getIconExtensions().stream().anyMatch(it -> it.endsWith(".svg"));
+        patterns = isSupportsSvg() ? componentServerConfiguration.getIconExtensions()
                 : componentServerConfiguration
                         .getIconExtensions()
                         .stream()
@@ -62,8 +62,12 @@ public class IconResolver {
                         .collect(toList());
     }
 
+    protected boolean isSupportsSvg() {
+        return supportsSvg;
+    }
+
     protected Collection<String> getExtensionPreferences() {
-        return componentServerConfiguration.getIconExtensions();
+        return patterns;
     }
 
     /**
@@ -110,7 +114,7 @@ public class IconResolver {
 
     private Optional<Icon> getOverridenIcon(final String icon, final ClassLoader appLoader) {
         Icon result = null;
-        if (supportsSvg) {
+        if (isSupportsSvg()) {
             result = loadIcon(appLoader, "icons/override/" + icon + ".svg").orElse(null);
         }
         if (result == null) {
@@ -120,7 +124,7 @@ public class IconResolver {
     }
 
     public Optional<Icon> doLoad(final ClassLoader loader, final String icon) {
-        return patterns
+        return getExtensionPreferences()
                 .stream()
                 .map(ext -> String.format(ext, icon))
                 .map(path -> loadIcon(loader, path))

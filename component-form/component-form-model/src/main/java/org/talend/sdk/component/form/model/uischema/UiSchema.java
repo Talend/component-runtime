@@ -43,9 +43,11 @@ public class UiSchema {
 
     private String description;
 
+    private String tooltip;
+
     private Collection<UiSchema> items;
 
-    private Map<String, String> options;
+    private Map<String, Object> options;
 
     private Boolean autoFocus;
 
@@ -353,9 +355,11 @@ public class UiSchema {
 
         private String description;
 
+        private String tooltip;
+
         private Collection<UiSchema> items;
 
-        private Map<String, String> options;
+        private Map<String, Object> options;
 
         private Boolean autoFocus;
 
@@ -398,6 +402,11 @@ public class UiSchema {
             return this;
         }
 
+        public Builder withTooltip(final String tooltip) {
+            this.tooltip = tooltip;
+            return this;
+        }
+
         public Builder withWidget(final String widget) {
             this.widget = widget;
             return this;
@@ -433,7 +442,7 @@ public class UiSchema {
             return this;
         }
 
-        public Builder withOptions(final Map<String, String> options) {
+        public Builder withOptions(final Map<String, ?> options) {
             if (this.options == null) {
                 this.options = new HashMap<>();
             }
@@ -512,6 +521,7 @@ public class UiSchema {
             uiSchema.setTriggers(triggers);
             uiSchema.setTitleMap(titleMap);
             uiSchema.setDescription(description);
+            uiSchema.setTooltip(tooltip);
             uiSchema.setItemWidget(itemWidget);
             uiSchema.setCondition(condition);
             return uiSchema;

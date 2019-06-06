@@ -1,7 +1,7 @@
 ++++
 <jsonArray>[
   {
-    "commits":2280,
+    "commits":2313,
     "description":"Joined the Apache EE family (OpenWebBeans, Meecrowave, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -15,7 +15,7 @@
     "name":"Anas KHABALI"
   },
   {
-    "commits":199,
+    "commits":200,
     "description":"Technical Writer at @Talend",
     "gravatar":"https://avatars1.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",
@@ -29,7 +29,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":58,
+    "commits":59,
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
     "id":"jmfrancois",
@@ -120,6 +120,13 @@
   },
   {
     "commits":1,
+    "description":"573PH4N3 D3M15 K3RM480N",
+    "gravatar":"https://avatars2.githubusercontent.com/u/24808585?v=4",
+    "id":"skermabon",
+    "name":"Stéphane Kermabon"
+  },
+  {
+    "commits":1,
     "description":"",
     "gravatar":"https://avatars3.githubusercontent.com/u/1133383?v=4",
     "id":"rdubois",
@@ -138,13 +145,6 @@
     "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
     "name":"Ismaël Mejía"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars0.githubusercontent.com/u/67528?v=4",
-    "id":"toutpt",
-    "name":"Jean-Michel"
   },
   {
     "commits":1,

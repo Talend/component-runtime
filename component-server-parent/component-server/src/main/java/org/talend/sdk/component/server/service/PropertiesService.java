@@ -27,14 +27,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.config.PropertyOrderStrategy;
 
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -42,6 +37,7 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Valida
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+import org.talend.sdk.component.server.service.qualifier.ComponentServer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,22 +50,9 @@ public class PropertiesService {
     @Inject
     private PropertyValidationService propertyValidationService;
 
+    @Inject
+    @ComponentServer
     private Jsonb defaultMapper;
-
-    @PostConstruct
-    private void init() {
-        defaultMapper =
-                JsonbBuilder.create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL));
-    }
-
-    @PreDestroy
-    private void destroy() {
-        try {
-            defaultMapper.close();
-        } catch (final Exception e) {
-            log.error(e.getMessage(), e);
-        }
-    }
 
     public Stream<SimplePropertyDefinition> buildProperties(final List<ParameterMeta> meta, final ClassLoader loader,
             final Locale locale, final DefaultValueInspector.Instance rootInstance) {

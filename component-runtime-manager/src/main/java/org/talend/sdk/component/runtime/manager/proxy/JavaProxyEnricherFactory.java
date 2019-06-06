@@ -42,10 +42,13 @@ public class JavaProxyEnricherFactory {
     public Object asSerializable(final ClassLoader loader, final String plugin, final String key,
             final Object instanceToWrap) {
         final Class<?>[] interfaces = instanceToWrap.getClass().getInterfaces();
-        if (Stream.of(interfaces).anyMatch(i -> i == Serializable.class || i == Externalizable.class)) {
+        final boolean isSerializable =
+                Stream.of(interfaces).anyMatch(i -> i == Serializable.class || i == Externalizable.class);
+        if (isSerializable && !instanceToWrap.getClass().getName().startsWith("org.apache.johnzon.core.")) {
             return instanceToWrap;
         }
-        final Class[] api = Stream.concat(Stream.of(Serializable.class), Stream.of(interfaces)).toArray(Class[]::new);
+        final Class[] api = isSerializable ? interfaces
+                : Stream.concat(Stream.of(Serializable.class), Stream.of(interfaces)).toArray(Class[]::new);
         return Proxy
                 .newProxyInstance(selectLoader(api, loader), api,
                         new DelegatingSerializableHandler(instanceToWrap, plugin, key));

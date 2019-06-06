@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.JsonObject;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -43,6 +45,8 @@ public class ProjectRequest {
     private final String family;
 
     private final String category;
+
+    private final JsonObject openapi;
 
     @Getter
     @RequiredArgsConstructor

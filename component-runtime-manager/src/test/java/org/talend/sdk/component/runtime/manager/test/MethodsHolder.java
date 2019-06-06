@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.test;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,10 @@ import org.talend.sdk.component.api.configuration.type.DataSet;
 import lombok.Getter;
 
 public class MethodsHolder {
+
+    public void date(@Option("date") final ZonedDateTime date) {
+        // no-op
+    }
 
     public void charOption(@Option("delimiter") final char delimiter,
             @Option("delimiter2") final Character delimiter2) {

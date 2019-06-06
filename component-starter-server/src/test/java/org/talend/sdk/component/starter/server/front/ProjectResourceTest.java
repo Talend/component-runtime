@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.starter.server.service.Resources.resourceFileToString;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,12 +36,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.inject.Inject;
+import javax.json.Json;
 import javax.json.bind.Jsonb;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -63,6 +66,65 @@ class ProjectResourceTest {
 
     @Inject
     private ServerInfo versions;
+
+    @Test
+    void openapi(final WebTarget target) throws IOException {
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setBuildType("maven");
+        projectModel.setPackageBase("com.test.openapi");
+        projectModel.setFamily("SimpleAPI");
+        try (final InputStream openapiJson =
+                Thread.currentThread().getContextClassLoader().getResourceAsStream("openapi/spec.json")) {
+            projectModel.setOpenapi(Json.createReader(openapiJson).readObject());
+        }
+        final Map<String, String> files = createZip(projectModel,
+                model -> target
+                        .path("project/openapi/zip")
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .accept("application/zip")
+                        .post(Entity.entity(model, MediaType.APPLICATION_JSON_TYPE), InputStream.class));
+
+        assertEquals(Stream
+                .of("application/src/main/resources/com/test/openapi/dataset/Messages.properties",
+                        "application/src/main/java/com/test/openapi/dataset/APIDataSet.java",
+                        "application/src/main/java/com/test/openapi/client/APIClient.java",
+                        "application/src/main/resources/com/test/openapi/Messages.properties",
+                        "application/src/main/resources/com/test/openapi/connection/Messages.properties",
+                        "application/src/main/java/com/test/openapi/package-info.java",
+                        "application/.mvn/wrapper/maven-wrapper.properties",
+                        "application/.mvn/wrapper/maven-wrapper.jar",
+                        "application/src/main/java/com/test/openapi/source/APIConfiguration.java",
+                        "application/src/main/resources/com/test/openapi/source/Messages.properties",
+                        "application/src/main/java/com/test/openapi/connection/APIConnection.java",
+                        "application/mvnw.cmd", "application/mvnw", "application/pom.xml", "application/README.adoc",
+                        "application/src/main/java/com/test/openapi/source/APISource.java")
+                .collect(toSet()), files.keySet().stream().filter(it -> !it.endsWith("/")).collect(toSet()));
+
+        final ServerInfo.Snapshot snapshot = versions.getSnapshot();
+        Stream
+                .of("application/src/main/resources/com/test/openapi/dataset/Messages.properties",
+                        "application/src/main/java/com/test/openapi/dataset/APIDataSet.java",
+                        "application/src/main/java/com/test/openapi/client/APIClient.java",
+                        "application/src/main/resources/com/test/openapi/Messages.properties",
+                        "application/src/main/resources/com/test/openapi/connection/Messages.properties",
+                        "application/src/main/java/com/test/openapi/package-info.java",
+                        "application/src/main/java/com/test/openapi/source/APIConfiguration.java",
+                        "application/src/main/resources/com/test/openapi/source/Messages.properties",
+                        "application/src/main/java/com/test/openapi/connection/APIConnection.java",
+                        "application/pom.xml", "application/src/main/java/com/test/openapi/source/APISource.java")
+                .forEach(file -> {
+                    String name = file.substring(file.lastIndexOf('/') + 1);
+                    if (name.equals("Messages.properties")) {
+                        name = file
+                                .substring("application/src/main/resources/com/test/openapi/".length())
+                                .replace('/', '_');
+                    }
+                    final String filePath = "generated/ProjectResourceTest/openapi/" + name;
+                    assertEquals(resourceFileToString(filePath)
+                            .replace("@runtime.version@", snapshot.getKit())
+                            .replace("@surefire.version@", snapshot.getSurefire()), files.get(file), file);
+                });
+    }
 
     @Test
     void configuration(final WebTarget target) {

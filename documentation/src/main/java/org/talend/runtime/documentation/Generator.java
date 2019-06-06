@@ -48,6 +48,10 @@ import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -112,6 +116,7 @@ import org.talend.sdk.component.api.configuration.type.meta.ConfigurationType;
 import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.meta.Ui;
+import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
@@ -776,31 +781,47 @@ public class Generator {
                         .findAnnotatedClasses(Ui.class)
                         .stream()
                         .sorted(Comparator.comparing(Class::getName))
-                        .forEach(type -> {
-                            final Map<String, String> meta = new TreeMap<>(enricher
-                                    .onParameterAnnotation("theparameter", Object.class, generateAnnotation(type))
-                                    .entrySet()
-                                    .stream()
-                                    .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)));
-                            stream.println();
-                            stream.println("= @" + type.getSimpleName());
-                            stream.println();
-                            stream.println(extractDoc(type));
-                            stream.println();
-                            stream.println("- API: `@" + type.getName() + "`");
-                            stream.println();
-                            stream.println("Sample:");
-                            stream.println();
-                            stream.println("[source,js]");
-                            stream.println("----");
-                            stream.println(jsonb.toJson(meta));
-                            stream.println("----");
-                            stream.println();
-                        });
+                        .forEach(type -> renderUiDoc(stream, enricher, jsonb, type));
             }
             stream.println();
 
         }
+    }
+
+    private static void renderUiDoc(final PrintStream stream, final ParameterExtensionEnricher enricher,
+            final Jsonb jsonb, final Class<?> type) {
+        stream.println();
+        stream.print("= @" + type.getSimpleName());
+        stream.println();
+        stream.println();
+        stream.println(extractDoc(type));
+        stream.println();
+        stream.println("- API: `@" + type.getName() + "`");
+        stream.println();
+        stream.println("== Snippets");
+        stream.println();
+        getDocUiTypes(type).forEach(paramType -> {
+            stream.println("[source,js]");
+            stream.println("----");
+            stream.println(jsonb.toJson(getMeta(enricher, type, paramType)));
+            stream.println("----");
+            stream.println();
+        });
+    }
+
+    private static Map<String, String> getMeta(final ParameterExtensionEnricher enricher, final Class<?> type,
+            final Class<?> paramType) {
+        return new TreeMap<>(enricher
+                .onParameterAnnotation("theparameter", paramType, generateAnnotation(type))
+                .entrySet()
+                .stream()
+                .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)));
+    }
+
+    private static Stream<? extends Class<? extends Object>> getDocUiTypes(final Class<?> type) {
+        return type == DateTime.class
+                ? Stream.of(LocalTime.class, LocalDate.class, LocalDateTime.class, ZonedDateTime.class)
+                : Stream.of(Object.class);
     }
 
     private static String sample(final Jsonb jsonb, final Class<?> returnedType) {

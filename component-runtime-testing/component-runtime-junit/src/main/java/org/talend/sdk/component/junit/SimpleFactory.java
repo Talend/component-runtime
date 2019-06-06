@@ -32,12 +32,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.configuration.ConfigurationMapper;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
+import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -60,7 +60,7 @@ public class SimpleFactory {
     private static class SimpleParameterModelService extends ParameterModelService {
 
         public SimpleParameterModelService() {
-            super(new PropertyEditorRegistry());
+            super(new EnrichedPropertyEditorRegistry());
         }
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,

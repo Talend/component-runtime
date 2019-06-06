@@ -104,6 +104,13 @@ public class ComponentManagerService {
 
     @PostConstruct
     private void init() {
+        if (log.isWarnEnabled()) {
+            final String filter = System.getProperty("jdk.serialFilter");
+            if (filter == null) {
+                log.warn("No system property 'jdk.serialFilter', ensure it is intended");
+            }
+        }
+
         configuration
                 .getMavenRepository()
                 .ifPresent(repo -> System.setProperty("talend.component.manager.m2.repository", repo));

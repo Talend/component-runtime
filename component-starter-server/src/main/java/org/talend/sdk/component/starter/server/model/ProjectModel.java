@@ -17,6 +17,7 @@ package org.talend.sdk.component.starter.server.model;
 
 import java.util.Collection;
 
+import javax.json.JsonObject;
 import javax.json.bind.annotation.JsonbProperty;
 
 import lombok.Data;
@@ -53,6 +54,8 @@ public class ProjectModel {
     private Collection<ReusableStructure> datasets;
 
     private Collection<ReusableStructure> datastores;
+
+    private JsonObject openapi;
 
     @Data
     public static class ReusableStructure {

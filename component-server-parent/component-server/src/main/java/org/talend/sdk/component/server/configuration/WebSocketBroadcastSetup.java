@@ -15,74 +15,44 @@
  */
 package org.talend.sdk.component.server.configuration;
 
-import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.enumeration;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Locale.ENGLISH;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeMap;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.servlet.AsyncContext;
-import javax.servlet.DispatcherType;
-import javax.servlet.ReadListener;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.WriteListener;
 import javax.servlet.annotation.WebListener;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpUpgradeHandler;
-import javax.servlet.http.Part;
 import javax.websocket.CloseReason;
 import javax.websocket.DeploymentException;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
-import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
@@ -92,7 +62,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.continuations.Continuation;
 import org.apache.cxf.continuations.ContinuationCallback;
@@ -105,20 +74,21 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.ContinuationProviderFactory;
 import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.cxf.transport.http.HTTPSession;
-import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.cxf.transport.servlet.ServletController;
 import org.apache.cxf.transport.servlet.ServletDestination;
 import org.apache.cxf.transport.servlet.servicelist.ServiceListGeneratorServlet;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.tomcat.util.http.FastHttpDateFormat;
-import org.talend.sdk.component.server.front.security.ConnectionSecurityProvider;
+import org.talend.sdk.component.server.front.cxf.CxfExtractor;
+import org.talend.sdk.component.server.front.memory.InMemoryRequest;
+import org.talend.sdk.component.server.front.memory.InMemoryResponse;
+import org.talend.sdk.component.server.front.memory.MemoryInputStream;
+import org.talend.sdk.component.server.front.memory.SimpleServletConfig;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -134,6 +104,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
     @Inject
     private Bus bus;
+
+    @Inject
+    private CxfExtractor cxf;
 
     @Inject
     private Instance<Application> applications;
@@ -162,42 +135,13 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 .orElse("/api/v1");
         final String version = appBase.replaceFirst("/api", "");
 
-        final DestinationRegistry registry;
-        try {
-            final HTTPTransportFactory transportFactory = HTTPTransportFactory.class
-                    .cast(bus
-                            .getExtension(DestinationFactoryManager.class)
-                            .getDestinationFactory("http://cxf.apache.org/transports/http" + "/configuration"));
-            registry = transportFactory.getRegistry();
-        } catch (final BusException e) {
-            throw new IllegalStateException(e);
-        }
-
+        final DestinationRegistry registry = cxf.getRegistry();
         final ServletContext servletContext = sce.getServletContext();
 
         final WebSocketRegistry webSocketRegistry = new WebSocketRegistry(registry);
-        final ServletController controller = new ServletController(webSocketRegistry, new ServletConfig() {
-
-            @Override
-            public String getServletName() {
-                return "Talend Component Kit Websocket Transport";
-            }
-
-            @Override
-            public ServletContext getServletContext() {
-                return servletContext;
-            }
-
-            @Override
-            public String getInitParameter(final String s) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getInitParameterNames() {
-                return emptyEnumeration();
-            }
-        }, new ServiceListGeneratorServlet(registry, bus));
+        final ServletController controller = new ServletController(webSocketRegistry,
+                new SimpleServletConfig(servletContext, "Talend Component Kit Websocket Transport"),
+                new ServiceListGeneratorServlet(registry, bus));
         webSocketRegistry.controller = controller;
 
         Stream
@@ -342,10 +286,38 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 }
 
                 try {
-                    final WebSocketRequest request =
-                            new WebSocketRequest(method.toUpperCase(ENGLISH), headers, path, appBase + path, appBase,
-                                    queryString, 8080, context, new WebSocketInputStream(message), session);
-                    controller.invoke(request, new WebSocketResponse(session));
+                    final InMemoryRequest request = new InMemoryRequest(method.toUpperCase(ENGLISH), headers, path,
+                            appBase + path, appBase, queryString, 8080, context, new WebSocketInputStream(message),
+                            session::getUserPrincipal);
+                    controller.invoke(request, new InMemoryResponse(session::isOpen, () -> {
+                        if (session.getBasicRemote().getBatchingAllowed()) {
+                            try {
+                                session.getBasicRemote().flushBatch();
+                            } catch (final IOException e) {
+                                throw new IllegalStateException(e);
+                            }
+                        }
+                    }, bytes -> {
+                        try {
+                            session.getBasicRemote().sendBinary(ByteBuffer.wrap(bytes));
+                        } catch (final IOException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    }, (status, responseHeaders) -> {
+                        final StringBuilder top = new StringBuilder("MESSAGE\r\n");
+                        top.append("status: ").append(status).append("\r\n");
+                        responseHeaders
+                                .forEach((k,
+                                        v) -> top.append(k).append(": ").append(String.join(",", v)).append("\r\n"));
+                        top.append("\r\n");// empty line, means the next bytes are the payload
+                        return top.toString();
+                    }) {
+
+                        @Override
+                        protected void onClose(final OutputStream stream) throws IOException {
+                            stream.write(EOM.getBytes(StandardCharsets.UTF_8));
+                        }
+                    });
                 } catch (final ServletException e) {
                     throw new IllegalArgumentException(e);
                 }
@@ -381,463 +353,12 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         }
     }
 
-    private static class WebSocketRequest implements HttpServletRequest {
-
-        private static final Cookie[] NO_COOKIE = new Cookie[0];
-
-        private static final SimpleDateFormat DATE_FORMATS[] =
-                { new SimpleDateFormat(FastHttpDateFormat.RFC1123_DATE, Locale.US),
-                        new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
-                        new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
-
-        private final Map<String, Object> attributes = new HashMap<>();
-
-        private final String method;
-
-        private final Map<String, List<String>> headers;
-
-        private final String requestUri;
-
-        private final String pathInfo;
-
-        private final String servletPath;
-
-        private final String query;
-
-        private final int port;
-
-        private final ServletContext servletContext;
-
-        private final ServletInputStream inputStream;
-
-        private final Session session;
-
-        private String encoding;
-
-        private long length;
-
-        private String type;
-
-        private Map<String, String[]> parameters = new HashMap<>();
-
-        private Locale locale = Locale.getDefault();
-
-        private BufferedReader reader;
-
-        private WebSocketRequest(final String method, final Map<String, List<String>> headers, final String requestUri,
-                final String pathInfo, final String servletPath, final String query, final int port,
-                final ServletContext servletContext, final ServletInputStream inputStream, final Session session) {
-            this.method = method;
-            this.headers = headers;
-            this.requestUri = requestUri;
-            this.pathInfo = pathInfo;
-            this.servletPath = servletPath;
-            this.query = query;
-            this.port = port;
-            this.servletContext = servletContext;
-            this.inputStream = inputStream;
-            this.session = session;
-        }
-
-        @Override
-        public String getAuthType() {
-            return null;
-        }
-
-        @Override
-        public Cookie[] getCookies() {
-            return NO_COOKIE;
-        }
-
-        @Override
-        public long getDateHeader(final String name) {
-            final String value = getHeader(name);
-            if (value == null) {
-                return -1L;
-            }
-
-            final SimpleDateFormat[] formats = new SimpleDateFormat[DATE_FORMATS.length];
-            for (int i = 0; i < formats.length; i++) {
-                formats[i] = SimpleDateFormat.class.cast(DATE_FORMATS[i].clone());
-            }
-
-            final long result = FastHttpDateFormat.parseDate(value, formats);
-            if (result != -1L) {
-                return result;
-            }
-            throw new IllegalArgumentException(value);
-        }
-
-        @Override
-        public String getHeader(final String s) {
-            final List<String> strings = headers.get(s);
-            return strings == null || strings.isEmpty() ? null : strings.iterator().next();
-        }
-
-        @Override
-        public Enumeration<String> getHeaders(final String s) {
-            final List<String> strings = headers.get(s);
-            return strings == null || strings.isEmpty() ? null : enumeration(strings);
-        }
-
-        @Override
-        public Enumeration<String> getHeaderNames() {
-            return enumeration(headers.keySet());
-        }
-
-        @Override
-        public int getIntHeader(final String s) {
-            final String value = getHeader(s);
-            if (value == null) {
-                return -1;
-            }
-
-            return Integer.parseInt(value);
-        }
-
-        @Override
-        public String getMethod() {
-            return method;
-        }
-
-        @Override
-        public String getPathInfo() {
-            return pathInfo;
-        }
-
-        @Override
-        public String getPathTranslated() {
-            return pathInfo;
-        }
-
-        @Override
-        public String getContextPath() {
-            return servletContext.getContextPath();
-        }
-
-        @Override
-        public String getQueryString() {
-            return query;
-        }
-
-        @Override
-        public String getRemoteUser() {
-            final Principal principal = getUserPrincipal();
-            return principal == null ? null : principal.getName();
-        }
-
-        @Override
-        public boolean isUserInRole(final String s) {
-            return false; // if needed do it with the original request
-        }
-
-        @Override
-        public Principal getUserPrincipal() {
-            return session.getUserPrincipal();
-        }
-
-        @Override
-        public String getRequestedSessionId() {
-            return null;
-        }
-
-        @Override
-        public String getRequestURI() {
-            return requestUri;
-        }
-
-        @Override
-        public StringBuffer getRequestURL() {
-            return new StringBuffer(requestUri);
-        }
-
-        @Override
-        public String getServletPath() {
-            return servletPath;
-        }
-
-        @Override
-        public HttpSession getSession(final boolean b) {
-            return null;
-        }
-
-        @Override
-        public HttpSession getSession() {
-            return null;
-        }
-
-        @Override
-        public String changeSessionId() {
-            return null;
-        }
-
-        @Override
-        public boolean isRequestedSessionIdValid() {
-            return false;
-        }
-
-        @Override
-        public boolean isRequestedSessionIdFromCookie() {
-            return false;
-        }
-
-        @Override
-        public boolean isRequestedSessionIdFromURL() {
-            return false;
-        }
-
-        @Override
-        public boolean isRequestedSessionIdFromUrl() {
-            return false;
-        }
-
-        @Override
-        public boolean authenticate(final HttpServletResponse httpServletResponse)
-                throws IOException, ServletException {
-            return false;
-        }
-
-        @Override
-        public void login(final String s, final String s1) throws ServletException {
-            // no-op
-        }
-
-        @Override
-        public void logout() throws ServletException {
-            // no-op
-        }
-
-        @Override
-        public Collection<Part> getParts() throws IOException, ServletException {
-            return emptySet();
-        }
-
-        @Override
-        public Part getPart(final String s) throws IOException, ServletException {
-            return null;
-        }
-
-        @Override
-        public <T extends HttpUpgradeHandler> T upgrade(final Class<T> aClass) throws IOException, ServletException {
-            return null;
-        }
-
-        @Override
-        public Object getAttribute(final String s) {
-            if (ConnectionSecurityProvider.SKIP.equalsIgnoreCase(s)) {
-                return Boolean.TRUE;
-            }
-            return attributes.get(s);
-        }
-
-        @Override
-        public Enumeration<String> getAttributeNames() {
-            return enumeration(attributes.keySet());
-        }
-
-        @Override
-        public String getCharacterEncoding() {
-            return encoding;
-        }
-
-        @Override
-        public void setCharacterEncoding(final String s) throws UnsupportedEncodingException {
-            encoding = s;
-        }
-
-        @Override
-        public int getContentLength() {
-            return (int) length;
-        }
-
-        @Override
-        public long getContentLengthLong() {
-            return length;
-        }
-
-        @Override
-        public String getContentType() {
-            return type;
-        }
-
-        @Override
-        public ServletInputStream getInputStream() throws IOException {
-            return inputStream;
-        }
-
-        @Override
-        public String getParameter(final String s) {
-            final String[] strings = parameters.get(s);
-            return strings == null || strings.length == 0 ? null : strings[0];
-        }
-
-        @Override
-        public Enumeration<String> getParameterNames() {
-            return enumeration(parameters.keySet());
-        }
-
-        @Override
-        public String[] getParameterValues(final String s) {
-            return parameters.get(s);
-        }
-
-        @Override
-        public Map<String, String[]> getParameterMap() {
-            return parameters;
-        }
-
-        @Override
-        public String getProtocol() {
-            return "HTTP/1.1";
-        }
-
-        @Override
-        public String getScheme() {
-            return "http";
-        }
-
-        @Override
-        public String getServerName() {
-            return servletContext.getVirtualServerName();
-        }
-
-        @Override
-        public int getServerPort() {
-            return port;
-        }
-
-        @Override
-        public BufferedReader getReader() throws IOException {
-            return reader == null ? (reader = new BufferedReader(new InputStreamReader(getInputStream()))) : reader;
-        }
-
-        @Override
-        public String getRemoteAddr() {
-            return null;
-        }
-
-        @Override
-        public String getRemoteHost() {
-            return null;
-        }
-
-        @Override
-        public void setAttribute(final String s, final Object o) {
-            attributes.put(s, o);
-        }
-
-        @Override
-        public void removeAttribute(final String s) {
-            attributes.remove(s);
-        }
-
-        @Override
-        public Locale getLocale() {
-            return locale;
-        }
-
-        @Override
-        public Enumeration<Locale> getLocales() {
-            return locale == null ? emptyEnumeration() : enumeration(singleton(locale));
-        }
-
-        @Override
-        public boolean isSecure() {
-            return false;
-        }
-
-        @Override
-        public String getRealPath(final String s) {
-            return null;
-        }
-
-        @Override
-        public int getRemotePort() {
-            return 0;
-        }
-
-        @Override
-        public String getLocalName() {
-            return null;
-        }
-
-        @Override
-        public String getLocalAddr() {
-            return null;
-        }
-
-        @Override
-        public int getLocalPort() {
-            return 0;
-        }
-
-        @Override
-        public ServletContext getServletContext() {
-            return servletContext;
-        }
-
-        @Override
-        public RequestDispatcher getRequestDispatcher(final String s) {
-            return servletContext.getRequestDispatcher(s);
-        }
-
-        @Override
-        public AsyncContext startAsync() throws IllegalStateException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public AsyncContext startAsync(final ServletRequest servletRequest, final ServletResponse servletResponse)
-                throws IllegalStateException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isAsyncStarted() {
-            return false;
-        }
-
-        @Override
-        public boolean isAsyncSupported() {
-            return false;
-        }
-
-        @Override
-        public AsyncContext getAsyncContext() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public DispatcherType getDispatcherType() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private static class WebSocketInputStream extends ServletInputStream {
-
-        private final InputStream delegate;
-
-        private boolean finished;
+    private static class WebSocketInputStream extends MemoryInputStream {
 
         private int previous = Integer.MAX_VALUE;
 
         private WebSocketInputStream(final InputStream delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public boolean isFinished() {
-            return finished;
-        }
-
-        @Override
-        public boolean isReady() {
-            return true;
-        }
-
-        @Override
-        public void setReadListener(final ReadListener readListener) {
-            // no-op
+            super(delegate);
         }
 
         @Override
@@ -861,357 +382,6 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 finished = true;
             }
             return read;
-        }
-    }
-
-    private static class WebSocketResponse implements HttpServletResponse {
-
-        private final Session session;
-
-        private int code = HttpServletResponse.SC_OK;
-
-        private final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-        private transient PrintWriter writer;
-
-        private transient ServletByteArrayOutputStream sosi;
-
-        private boolean commited = false;
-
-        private String encoding = "UTF-8";
-
-        private Locale locale = Locale.getDefault();
-
-        private WebSocketResponse(final Session session) {
-            this.session = session;
-        }
-
-        /**
-         * sets a header to be sent back to the browser
-         *
-         * @param name
-         * the name of the header
-         * @param value
-         * the value of the header
-         */
-        public void setHeader(final String name, final String value) {
-            headers.put(name, new ArrayList<>(singletonList(value)));
-        }
-
-        @Override
-        public void setIntHeader(final String s, final int i) {
-            setHeader(s, Integer.toString(i));
-        }
-
-        @Override
-        public void setStatus(final int i) {
-            setCode(i);
-        }
-
-        @Override
-        public void setStatus(final int i, final String s) {
-            setCode(i);
-        }
-
-        @Override
-        public void addCookie(final Cookie cookie) {
-            setHeader(cookie.getName(), cookie.getValue());
-        }
-
-        @Override
-        public void addDateHeader(final String s, final long l) {
-            setHeader(s, Long.toString(l));
-        }
-
-        @Override
-        public void addHeader(final String s, final String s1) {
-            Collection<String> list = headers.get(s);
-            if (list == null) {
-                setHeader(s, s1);
-            } else {
-                list.add(s1);
-            }
-        }
-
-        @Override
-        public void addIntHeader(final String s, final int i) {
-            setIntHeader(s, i);
-        }
-
-        @Override
-        public boolean containsHeader(final String s) {
-            return headers.containsKey(s);
-        }
-
-        @Override
-        public String encodeURL(final String s) {
-            return toEncoded(s);
-        }
-
-        @Override
-        public String encodeRedirectURL(final String s) {
-            return toEncoded(s);
-        }
-
-        @Override
-        public String encodeUrl(final String s) {
-            return toEncoded(s);
-        }
-
-        @Override
-        public String encodeRedirectUrl(final String s) {
-            return encodeRedirectURL(s);
-        }
-
-        public String getHeader(final String name) {
-            final Collection<String> strings = headers.get(name);
-            return strings == null ? null : strings.iterator().next();
-        }
-
-        @Override
-        public Collection<String> getHeaderNames() {
-            return headers.keySet();
-        }
-
-        @Override
-        public Collection<String> getHeaders(final String s) {
-            return headers.get(s);
-        }
-
-        @Override
-        public int getStatus() {
-            return getCode();
-        }
-
-        @Override
-        public void sendError(final int i) throws IOException {
-            setCode(i);
-        }
-
-        @Override
-        public void sendError(final int i, final String s) throws IOException {
-            setCode(i);
-        }
-
-        @Override
-        public void sendRedirect(final String path) throws IOException {
-            if (commited) {
-                throw new IllegalStateException("response already committed");
-            }
-            resetBuffer();
-
-            try {
-                setStatus(SC_FOUND);
-
-                setHeader("Location", toEncoded(path));
-            } catch (final IllegalArgumentException e) {
-                setStatus(SC_NOT_FOUND);
-            }
-        }
-
-        @Override
-        public void setDateHeader(final String s, final long l) {
-            addDateHeader(s, l);
-        }
-
-        @Override
-        public ServletOutputStream getOutputStream() {
-            return sosi == null ? (sosi = createOutputStream()) : sosi;
-        }
-
-        @Override
-        public PrintWriter getWriter() {
-            return writer == null ? (writer = new PrintWriter(getOutputStream())) : writer;
-        }
-
-        @Override
-        public boolean isCommitted() {
-            return commited;
-        }
-
-        @Override
-        public void reset() {
-            createOutputStream();
-        }
-
-        private ServletByteArrayOutputStream createOutputStream() {
-            return sosi = new ServletByteArrayOutputStream(session, () -> {
-                final StringBuilder top = new StringBuilder("MESSAGE\r\n");
-                top.append("status: ").append(getStatus()).append("\r\n");
-                headers
-                        .forEach((k, v) -> top
-                                .append(k)
-                                .append(": ")
-                                .append(v.stream().collect(Collectors.joining(",")))
-                                .append("\r\n"));
-                top.append("\r\n");// empty line, means the next bytes are the payload
-                return top.toString();
-            });
-        }
-
-        public void flushBuffer() throws IOException {
-            if (writer != null) {
-                writer.flush();
-            }
-        }
-
-        @Override
-        public int getBufferSize() {
-            return sosi.outputStream.size();
-        }
-
-        @Override
-        public String getCharacterEncoding() {
-            return encoding;
-        }
-
-        public void setCode(final int code) {
-            this.code = code;
-            commited = true;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setContentType(final String type) {
-            setHeader("Content-Type", type);
-        }
-
-        @Override
-        public void setLocale(final Locale loc) {
-            locale = loc;
-        }
-
-        public String getContentType() {
-            return getHeader("Content-Type");
-        }
-
-        @Override
-        public Locale getLocale() {
-            return locale;
-        }
-
-        @Override
-        public void resetBuffer() {
-            sosi.outputStream.reset();
-        }
-
-        @Override
-        public void setBufferSize(final int i) {
-            // no-op
-        }
-
-        @Override
-        public void setCharacterEncoding(final String s) {
-            encoding = s;
-        }
-
-        @Override
-        public void setContentLength(final int i) {
-            // no-op
-        }
-
-        @Override
-        public void setContentLengthLong(final long length) {
-            // no-op
-        }
-
-        private String toEncoded(final String url) {
-            return url;
-        }
-    }
-
-    private static class ServletByteArrayOutputStream extends ServletOutputStream {
-
-        private static final byte[] EOM_BYTES = EOM.getBytes(StandardCharsets.UTF_8);
-
-        private static final int BUFFER_SIZE = 1024 * 8;
-
-        private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        private final Session session;
-
-        private final Supplier<String> preWrite;
-
-        private boolean closed;
-
-        private boolean headerWritten;
-
-        private ServletByteArrayOutputStream(final Session session, final Supplier<String> preWrite) {
-            this.session = session;
-            this.preWrite = preWrite;
-        }
-
-        @Override
-        public boolean isReady() {
-            return true;
-        }
-
-        @Override
-        public void setWriteListener(final WriteListener listener) {
-            // no-op
-        }
-
-        @Override
-        public void write(final int b) throws IOException {
-            outputStream.write(b);
-        }
-
-        @Override
-        public void write(final byte[] b, final int off, final int len) {
-            outputStream.write(b, off, len);
-        }
-
-        public void writeTo(final OutputStream out) throws IOException {
-            outputStream.writeTo(out);
-        }
-
-        public void reset() {
-            outputStream.reset();
-        }
-
-        @Override
-        public void flush() throws IOException {
-            if (!session.isOpen()) {
-                return;
-            }
-            if (outputStream.size() >= BUFFER_SIZE) {
-                doFlush();
-            }
-        }
-
-        @Override
-        public void close() throws IOException {
-            if (closed) {
-                return;
-            }
-
-            outputStream.write(EOM_BYTES);
-            doFlush();
-            closed = true;
-        }
-
-        private void doFlush() throws IOException {
-            final RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
-
-            final byte[] array = outputStream.toByteArray();
-            final boolean written = array.length > 0 || !headerWritten;
-
-            if (!headerWritten) {
-                final String headers = preWrite.get();
-                basicRemote.sendBinary(ByteBuffer.wrap(headers.getBytes(StandardCharsets.UTF_8)));
-                headerWritten = true;
-            }
-
-            if (array.length > 0) {
-                outputStream.reset();
-                basicRemote.sendBinary(ByteBuffer.wrap(array));
-            }
-
-            if (written && basicRemote.getBatchingAllowed()) {
-                basicRemote.flushBatch();
-            }
         }
     }
 

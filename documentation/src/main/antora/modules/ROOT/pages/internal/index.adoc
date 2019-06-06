@@ -1,0 +1,6 @@
+= Talend Component Kit Internals
+:page-talend_skipindexation:
+
+Talend Component Kit has several extension points to enable *integrators* - not component developers - to extend the platform to meet their requirements.
+The link:extension.html[extension] page lists most of them.
+

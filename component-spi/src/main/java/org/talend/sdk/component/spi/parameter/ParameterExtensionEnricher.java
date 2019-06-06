@@ -15,8 +15,11 @@
  */
 package org.talend.sdk.component.spi.parameter;
 
+import static java.util.Collections.emptyMap;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -38,4 +41,14 @@ public interface ParameterExtensionEnricher {
      * @return the extensions to add for this parameter.
      */
     Map<String, String> onParameterAnnotation(String parameterName, Type parameterType, Annotation annotation);
+
+    /**
+     * This method enables to add implicit annotations and therefore metadata on parameters based on types.
+     * Note: this method is called only once before any processing and not for each parameter.
+     *
+     * @return a mapping for types. In other words it enables to add an annotation on a type even if not explicit.
+     */
+    default Map<Type, Collection<Annotation>> getImplicitAnnotationForTypes() {
+        return emptyMap();
+    }
 }

@@ -15,10 +15,12 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -58,10 +60,18 @@ public class ParameterModelService {
 
     private final PropertyEditorRegistry registry;
 
+    private final Map<Type, Collection<Annotation>> implicitAnnotationsMapping;
+
     protected ParameterModelService(final Collection<ParameterExtensionEnricher> enrichers,
             final PropertyEditorRegistry registry) {
         this.enrichers = enrichers;
         this.registry = registry;
+        this.implicitAnnotationsMapping = enrichers
+                .stream()
+                .flatMap(enricher -> enricher.getImplicitAnnotationForTypes().entrySet().stream())
+                .filter(e -> e.getValue() != null && !e.getValue().isEmpty())
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (l1, l2) -> Stream.concat(l1.stream(), l2.stream()).collect(toSet())));
     }
 
     public ParameterModelService(final PropertyEditorRegistry registry) {
@@ -208,39 +218,42 @@ public class ParameterModelService {
                 return bpe.withContext(context, () -> bpe.onParameterAnnotation(name, genericType, a));
             }
             return e.onParameterAnnotation(name, genericType, a);
-        })).flatMap(map -> map.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        })).flatMap(map -> map.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
+            if (a.equals(b)) {
+                return a;
+            }
+            throw new IllegalArgumentException("Ambiguous metadata: '" + a + "'/'" + b + "'");
+        }));
     }
 
-    private Stream<Annotation> getAnnotations(final Type genericType, final Annotation[] annotations) {
+    private Stream<Annotation> getAnnotations(final Type type, final Annotation[] annotations) {
+        return Stream
+                .concat(getReflectionAnnotations(type, annotations),
+                        implicitAnnotationsMapping.getOrDefault(type, emptyList()).stream());
+    }
+
+    private Stream<Annotation> getReflectionAnnotations(final Type genericType, final Annotation[] annotations) {
         return Stream
                 .concat(Stream.of(annotations),
                         // if a class concat its annotations
-                        Class.class.isInstance(genericType)
-                                ? Stream
-                                        .of(Class.class.cast(genericType).getAnnotations())
-                                        .filter(a -> Stream
-                                                .of(annotations)
-                                                .noneMatch(o -> o.annotationType() == a.annotationType()))
-                                : (ParameterizedType.class.isInstance(genericType) // if a list concat the item type
-                                                                                   // annotations
-                                        && ParameterizedType.class
-                                                .cast(genericType)
-                                                .getActualTypeArguments().length == 1
-                                        && Class.class
-                                                .isInstance(ParameterizedType.class
-                                                        .cast(genericType)
-                                                        .getActualTypeArguments()[0])
-                                                                ? Stream
-                                                                        .of(Class.class
-                                                                                .cast(ParameterizedType.class
-                                                                                        .cast(genericType)
-                                                                                        .getActualTypeArguments()[0])
-                                                                                .getAnnotations())
-                                                                        .filter(a -> Stream
-                                                                                .of(annotations)
-                                                                                .noneMatch(o -> o.annotationType() == a
-                                                                                        .annotationType()))
-                                                                : Stream.empty()));
+                        Class.class
+                                .isInstance(genericType)
+                                        ? getClassAnnotations(genericType, annotations)
+                                        : (hasAClassFirstParameter(genericType) ? getClassAnnotations(
+                                                ParameterizedType.class.cast(genericType).getActualTypeArguments()[0],
+                                                annotations) : Stream.empty()));
+    }
+
+    private boolean hasAClassFirstParameter(final Type genericType) {
+        return ParameterizedType.class.isInstance(genericType) // if a list concat the item type annotations
+                && ParameterizedType.class.cast(genericType).getActualTypeArguments().length == 1
+                && Class.class.isInstance(ParameterizedType.class.cast(genericType).getActualTypeArguments()[0]);
+    }
+
+    private Stream<Annotation> getClassAnnotations(final Type genericType, final Annotation[] annotations) {
+        return Stream
+                .of(Class.class.cast(genericType).getAnnotations())
+                .filter(a -> Stream.of(annotations).noneMatch(o -> o.annotationType() == a.annotationType()));
     }
 
     private List<ParameterMeta> buildParametersMetas(final String name, final String prefix, final Type type,

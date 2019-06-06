@@ -27,6 +27,8 @@ import SideMenu from '../SideMenu';
 import DatastoreList from '../DatastoreList';
 import DatasetList from '../DatasetList';
 
+import { GENERATOR_ZIP_URL } from '../../constants';
+
 export default function Generator() {
 	return (
 		<div className={theme.Generator}>
@@ -42,7 +44,7 @@ export default function Generator() {
 						<Route exact path="/dataset" component={DatasetList} />
 						<Route path="/component/:componentId" component={Component} />
 						<Route path="/add-component" component={ComponentAddForm} />
-						<Route path="/export" component={Finish} />
+						<Route path="/export" render={props => <Finish {...props} actionUrl={GENERATOR_ZIP_URL} />} />
 					</main>
 				</div>
 			</div>

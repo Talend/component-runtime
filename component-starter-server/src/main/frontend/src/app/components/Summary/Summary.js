@@ -40,19 +40,25 @@ export default function Summary(props) {
 	}
 	const outputLength = p.processors.filter(proc => proc.outputStructures.length === 0).length;
 	const processorsLength = p.processors.length - outputLength;
+	const endpointsLength = props.openapi ? props.openapi.selectedEndpoints.length : 0;
 	return (
 		<div className={theme.Summary}>
 			<Info name="Name" value={p.name} />
 			<Info name="Build Tool" value={p.buildType} />
 			<Info name="Coordinates" value={`${p.group}:${p.artifact}:${p.version}`} />
-			<Info
-				name="Datasets"
-				value={`${p.datasets.length} datasets and ${p.datastores.length} datastores`}
-			/>
-			<Info
-				name="Components"
-				value={`${p.sources.length} inputs, ${processorsLength} processors and ${outputLength} outputs`}
-			/>
+			{!props.openapi && (
+				<React.Fragment>
+					<Info
+						name="Datasets"
+						value={`${p.datasets.length} datasets and ${p.datastores.length} datastores`}
+					/>
+					<Info
+						name="Components"
+						value={`${p.sources.length} inputs, ${processorsLength} processors and ${outputLength} outputs`}
+					/>
+				</React.Fragment>
+			)}
+			{!!props.openapi && (<Info name="Endpoints" value={`${endpointsLength} endpoints selected`} />)}
 		</div>
 	);
 }

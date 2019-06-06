@@ -27,7 +27,7 @@ import lombok.AllArgsConstructor;
 // @formatter:off
 @AllArgsConstructor
 enum Indices {
-    BEAM_SDKS_JAVA_CORE(new String[] { // #6625
+    BEAM_SDKS_JAVA_CORE(new String[] { // #6636
             "avro.shaded.com.google.common.annotations",
             "avro.shaded.com.google.common.base",
             "avro.shaded.com.google.common.cache",
@@ -156,8 +156,10 @@ enum Indices {
             "org.apache.beam.sdk.function.ThrowingRunnable",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_Parse",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_ParseAll",
+            "org.apache.beam.sdk.io.AutoValue_AvroIO_ParseFiles",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_Read",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_ReadAll",
+            "org.apache.beam.sdk.io.AutoValue_AvroIO_ReadFiles",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_Sink",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_TypedWrite",
             "org.apache.beam.sdk.io.AutoValue_BoundedReadFromUnboundedSource_Shard",
@@ -352,6 +354,7 @@ enum Indices {
             "org.apache.beam.sdk.schemas.transforms.Convert",
             "org.apache.beam.sdk.schemas.transforms.Filter",
             "org.apache.beam.sdk.schemas.transforms.Group",
+            "org.apache.beam.sdk.schemas.transforms.Join",
             "org.apache.beam.sdk.schemas.transforms.SchemaAggregateFn",
             "org.apache.beam.sdk.schemas.transforms.Select",
             "org.apache.beam.sdk.schemas.transforms.Unnest",
@@ -360,6 +363,7 @@ enum Indices {
             "org.apache.beam.sdk.schemas.utils.AvroByteBuddyUtils",
             "org.apache.beam.sdk.schemas.utils.AvroUtils",
             "org.apache.beam.sdk.schemas.utils.ByteBuddyUtils",
+            "org.apache.beam.sdk.schemas.utils.ConvertHelpers",
             "org.apache.beam.sdk.schemas.utils.FieldValueTypeSupplier",
             "org.apache.beam.sdk.schemas.utils.JavaBeanUtils",
             "org.apache.beam.sdk.schemas.utils.POJOUtils",
@@ -419,6 +423,7 @@ enum Indices {
             "org.apache.beam.sdk.testing.UsesBoundedSplittableParDo",
             "org.apache.beam.sdk.testing.UsesCommittedMetrics",
             "org.apache.beam.sdk.testing.UsesCounterMetrics",
+            "org.apache.beam.sdk.testing.UsesCrossLanguageTransforms",
             "org.apache.beam.sdk.testing.UsesCustomWindowMerging",
             "org.apache.beam.sdk.testing.UsesDistributionMetrics",
             "org.apache.beam.sdk.testing.UsesFailureMessage",
@@ -433,6 +438,7 @@ enum Indices {
             "org.apache.beam.sdk.testing.UsesSplittableParDoWithWindowedSideInputs",
             "org.apache.beam.sdk.testing.UsesStatefulParDo",
             "org.apache.beam.sdk.testing.UsesTestStream",
+            "org.apache.beam.sdk.testing.UsesTestStreamWithProcessingTime",
             "org.apache.beam.sdk.testing.UsesTimersInParDo",
             "org.apache.beam.sdk.testing.UsesUnboundedPCollections",
             "org.apache.beam.sdk.testing.UsesUnboundedSplittableParDo",
@@ -444,6 +450,8 @@ enum Indices {
             "org.apache.beam.sdk.transforms.AutoValue_DoFnSchemaInformation",
             "org.apache.beam.sdk.transforms.AutoValue_DoFn_ProcessContinuation",
             "org.apache.beam.sdk.transforms.AutoValue_Watch_Growth",
+            "org.apache.beam.sdk.transforms.AutoValue_Watch_NonPollingGrowthState",
+            "org.apache.beam.sdk.transforms.AutoValue_Watch_PollingGrowthState",
             "org.apache.beam.sdk.transforms.AutoValue_WithFailures_ExceptionElement",
             "org.apache.beam.sdk.transforms.AutoValue_WithFailures_Result",
             "org.apache.beam.sdk.transforms.Combine",
@@ -486,6 +494,7 @@ enum Indices {
             "org.apache.beam.sdk.transforms.Requirements",
             "org.apache.beam.sdk.transforms.Reshuffle",
             "org.apache.beam.sdk.transforms.Sample",
+            "org.apache.beam.sdk.transforms.SerializableBiFunction",
             "org.apache.beam.sdk.transforms.SerializableComparator",
             "org.apache.beam.sdk.transforms.SerializableFunction",
             "org.apache.beam.sdk.transforms.SerializableFunctions",
@@ -765,6 +774,7 @@ enum Indices {
             "org.joda.time.ReadablePeriod",
             "org.joda.time.Seconds",
             "org.joda.time.TimeOfDay",
+            "org.joda.time.UTCDateTimeZone",
             "org.joda.time.Weeks",
             "org.joda.time.YearMonth",
             "org.joda.time.YearMonthDay",
@@ -1111,7 +1121,7 @@ enum Indices {
             return hasClass("org.apache.spark.SparkContext");
         }
     },
-    BEAM_RUNNERS_SPARK(new String[] { // #1424
+    BEAM_RUNNERS_SPARK(new String[] { // #1545
             "com.fasterxml.jackson.module.paranamer",
             "com.fasterxml.jackson.module.scala",
             "com.google.common.annotations",
@@ -1143,36 +1153,48 @@ enum Indices {
             "org.apache.beam.model.fnexecution.v1.ProvisionServiceGrpc",
             "org.apache.beam.repackaged.beam_runners_spark",
             "org.apache.beam.runners.core",
-            "org.apache.beam.runners.spark"
+            "org.apache.beam.runners.fnexecution",
+            "org.apache.beam.runners.spark",
+            "org.apache.beam.sdk.fn.IdGenerator",
+            "org.apache.beam.sdk.fn.IdGenerators",
+            "org.apache.beam.sdk.fn.channel.ManagedChannelFactory",
+            "org.apache.beam.sdk.fn.channel.SocketAddressFactory",
+            "org.apache.beam.sdk.fn.data.AutoValue_LogicalEndpoint",
+            "org.apache.beam.sdk.fn.data.AutoValue_RemoteGrpcPortRead",
+            "org.apache.beam.sdk.fn.data.AutoValue_RemoteGrpcPortWrite",
+            "org.apache.beam.sdk.fn.data.BeamFnDataBufferingOutboundObserver",
+            "org.apache.beam.sdk.fn.data.BeamFnDataGrpcMultiplexer",
+            "org.apache.beam.sdk.fn.data.BeamFnDataInboundObserver",
+            "org.apache.beam.sdk.fn.data.CloseableFnDataReceiver",
+            "org.apache.beam.sdk.fn.data.CompletableFutureInboundDataClient",
+            "org.apache.beam.sdk.fn.data.FnDataReceiver",
+            "org.apache.beam.sdk.fn.data.InboundDataClient",
+            "org.apache.beam.sdk.fn.data.LogicalEndpoint",
+            "org.apache.beam.sdk.fn.data.RemoteGrpcPortRead",
+            "org.apache.beam.sdk.fn.data.RemoteGrpcPortWrite",
+            "org.apache.beam.sdk.fn.splittabledofn.RestrictionTrackers",
+            "org.apache.beam.sdk.fn.stream.AdvancingPhaser",
+            "org.apache.beam.sdk.fn.stream.BufferingStreamObserver",
+            "org.apache.beam.sdk.fn.stream.DataStreams",
+            "org.apache.beam.sdk.fn.stream.DirectStreamObserver",
+            "org.apache.beam.sdk.fn.stream.ForwardingClientResponseObserver",
+            "org.apache.beam.sdk.fn.stream.OutboundObserverFactory",
+            "org.apache.beam.sdk.fn.stream.SynchronizedStreamObserver",
+            "org.apache.beam.sdk.fn.test.InProcessManagedChannelFactory",
+            "org.apache.beam.sdk.fn.test.TestExecutors",
+            "org.apache.beam.sdk.fn.test.TestStreams",
+            "org.apache.beam.sdk.fn.windowing.AutoValue_EncodedBoundedWindow",
+            "org.apache.beam.sdk.fn.windowing.EncodedBoundedWindow",
+            "org.apache.beam.vendor.sdk"
         }) {
         @Override
         protected boolean isAvailable() {
             return hasClass("org.apache.beam.runners.spark.SparkRunner");
         }
     },
-    BEAM_RUNNERS_DIRECT_JAVA(new String[] { // #512
+    BEAM_RUNNERS_DIRECT_JAVA(new String[] { // #458
             "org.apache.beam.repackaged.beam_runners_direct_java",
-            "org.apache.beam.runners.direct",
-            "org.kohsuke.args4j.Argument",
-            "org.kohsuke.args4j.ClassParser",
-            "org.kohsuke.args4j.CmdLineException",
-            "org.kohsuke.args4j.CmdLineParser",
-            "org.kohsuke.args4j.Config",
-            "org.kohsuke.args4j.ExampleMode",
-            "org.kohsuke.args4j.FieldParser",
-            "org.kohsuke.args4j.IllegalAnnotationError",
-            "org.kohsuke.args4j.Localizable",
-            "org.kohsuke.args4j.Messages",
-            "org.kohsuke.args4j.NamedOptionDef",
-            "org.kohsuke.args4j.Option",
-            "org.kohsuke.args4j.OptionDef",
-            "org.kohsuke.args4j.OptionHandlerFilter",
-            "org.kohsuke.args4j.OptionHandlerRegistry",
-            "org.kohsuke.args4j.ParserProperties",
-            "org.kohsuke.args4j.Starter",
-            "org.kohsuke.args4j.Utilities",
-            "org.kohsuke.args4j.XmlParser",
-            "org.kohsuke.args4j.spi"
+            "org.apache.beam.runners.direct"
         }) {
         @Override
         protected boolean isAvailable() {

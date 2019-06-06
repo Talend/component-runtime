@@ -16,10 +16,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Icon from '@talend/react-components/lib/Icon';
-import { Action, Actions } from '@talend/react-components/lib/Actions';
+import { Action } from '@talend/react-components/lib/Actions';
 
 import Help from '../Help';
 import FacetSelector from '../FacetSelector';
+import BuildTypeSelector from '../BuildTypeSelector';
 import CategorySelector from '../CategorySelector';
 import Input from '../Input';
 import ProjectContext from '../../ProjectContext';
@@ -35,6 +36,8 @@ function onCategoryUpdate(value, project) {
 export default class ProjectMetadata extends React.Component {
 	static propTypes = {
 		project: PropTypes.object,
+		hideFacets: PropTypes.bool,
+		hideCategory: PropTypes.bool,
 	};
 	constructor(props) {
 		super(props);
@@ -63,53 +66,18 @@ export default class ProjectMetadata extends React.Component {
 			<ProjectContext.Consumer>
 				{project => (
 					<div className={theme.ProjectMetadata}>
-						<h1>Create a Talend Component Family Project</h1>
+						<h1>{this.props.title || 'Create a Talend Component Family Project'}</h1>
 						<form className={theme.main} noValidate>
-							<div className="form-group">
-								<label htmlFor="build-tools">Build Tool</label>
-								<Actions
-									id="build-tools"
-									className={theme.buildactions}
-									actions={project.configuration.buildTypes.map(label => ({
-										label,
-										bsStyle: project.project.buildType === label ? 'info' : 'default',
-										className: project.project.buildType !== label ? 'btn-inverse' : '',
-										onClick: () => {
-											project.selectBuildTool(label);
-										},
-									}))}
-								/>
-								<Help
-									title="Build Tool"
-									i18nKey="project_build_tool"
-									content={
-										<div>
-											<p>
-												Maven is the most commonly used build tool and Talend Component Kit
-												integrates with it smoothly.
-											</p>
-											<p>
-												Gradle is less used but get more and more attraction because it is
-												communicated as being faster than Maven.
-											</p>
-											<p>
-												<Icon name="talend-warning" /> Talend Component Kit does not provide as much
-												features with Gradle than with Maven. The components validation is not yet
-												supported for instance.
-											</p>
-										</div>
-									}
-								/>
-							</div>
+							<BuildTypeSelector project={project} />
 
-							<div className="form-group">
+							{!this.props.hideFacets && <div className="form-group">
 								{!!project.configuration && (
 									<FacetSelector
 										facets={project.configuration.facets}
 										selected={project.project.facets}
 									/>
 								)}
-							</div>
+							</div>}
 
 							<div className="form-group">
 								<h2>Component Metadata</h2>
@@ -139,31 +107,34 @@ export default class ProjectMetadata extends React.Component {
 										accessor="family"
 									/>
 								</div>
-								<div className="form-group">
-									<label htmlFor="projectCategory">Category</label>
-									<Help
-										title="Category"
-										i18nKey="project_category"
-										content={
-											<span>
-												<p>
-													The category is a group used by the Studio to organize components of
-													different families in the same bucket into the <code>Palette</code>.
-												</p>
-												<p>
-													It is recommended to use a two level category. The first level is
-													generally very general and the second one is close to the family name.
-												</p>
-												<Icon name="talend-info-circle" /> The names must be valid java names (no
-												space, special characters, ...).
-											</span>
-										}
-									/>
-									<CategorySelector
-										initialValue={project.project.category}
-										onChange={value => onCategoryUpdate(value, project)}
-									/>
-								</div>
+								{!this.props.hideCategory &&
+									<div className="form-group">
+										<label htmlFor="projectCategory">Category</label>
+										<Help
+											title="Category"
+											i18nKey="project_category"
+											content={
+												<span>
+													<p>
+														The category is a group used by the Studio to organize components of
+														different families in the same bucket into the <code>Palette</code>.
+													</p>
+													<p>
+														It is recommended to use a two level category. The first level is
+														generally very general and the second one is close to the family name.
+													</p>
+													<Icon name="talend-info-circle" /> The names must be valid java names (no
+													space, special characters, ...).
+												</span>
+											}
+										/>
+									
+										<CategorySelector
+											initialValue={project.project.category}
+											onChange={value => onCategoryUpdate(value, project)}
+										/>
+									</div>
+								}
 							</div>
 
 							<h2>Project Metadata</h2>
