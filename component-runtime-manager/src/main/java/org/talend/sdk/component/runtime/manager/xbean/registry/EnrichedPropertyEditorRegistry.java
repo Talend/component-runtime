@@ -54,7 +54,6 @@ import org.talend.sdk.component.runtime.manager.xbean.converter.ZonedDateTimeCon
 public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
 
     public EnrichedPropertyEditorRegistry() {
-        final PropertyEditorRegistry registry = new PropertyEditorRegistry();
         final DoubleEditor doubleEditor = new DoubleEditor();
         // the front always sends us doubles so
         // if we don't map double to the native number we get number format exceptions
@@ -69,43 +68,43 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
                 };
 
         // built-in (was provided by xbean originally)
-        registry.register(new BooleanEditor());
-        registry.register(numberConverter.apply(Byte.class, Double::byteValue));
-        registry.register(numberConverter.apply(Short.class, Double::shortValue));
-        registry.register(numberConverter.apply(Integer.class, Double::intValue));
-        registry.register(numberConverter.apply(Long.class, Double::longValue));
-        registry.register(numberConverter.apply(Float.class, Double::floatValue));
-        registry.register(doubleEditor);
-        registry.register(new BigDecimalEditor());
-        registry.register(new BigIntegerEditor());
-        registry.register(new StringEditor());
-        registry.register(new CharacterEditor());
-        registry.register(new ClassEditor());
-        registry.register(new DateEditor());
-        registry.register(new FileEditor());
-        registry.register(new HashMapEditor());
-        registry.register(new HashtableEditor());
-        registry.register(new Inet4AddressEditor());
-        registry.register(new Inet6AddressEditor());
-        registry.register(new InetAddressEditor());
-        registry.register(new ListEditor());
-        registry.register(new SetEditor());
-        registry.register(new MapEditor());
-        registry.register(new SortedMapEditor());
-        registry.register(new SortedSetEditor());
-        registry.register(new ObjectNameEditor());
-        registry.register(new PropertiesEditor());
-        registry.register(new URIEditor());
-        registry.register(new URLEditor());
-        registry.register(new PatternConverter());
+        register(new BooleanEditor());
+        register(numberConverter.apply(Byte.class, Double::byteValue));
+        register(numberConverter.apply(Short.class, Double::shortValue));
+        register(numberConverter.apply(Integer.class, Double::intValue));
+        register(numberConverter.apply(Long.class, Double::longValue));
+        register(numberConverter.apply(Float.class, Double::floatValue));
+        register(doubleEditor);
+        register(new BigDecimalEditor());
+        register(new BigIntegerEditor());
+        register(new StringEditor());
+        register(new CharacterEditor());
+        register(new ClassEditor());
+        register(new DateEditor());
+        register(new FileEditor());
+        register(new HashMapEditor());
+        register(new HashtableEditor());
+        register(new Inet4AddressEditor());
+        register(new Inet6AddressEditor());
+        register(new InetAddressEditor());
+        register(new ListEditor());
+        register(new SetEditor());
+        register(new MapEditor());
+        register(new SortedMapEditor());
+        register(new SortedSetEditor());
+        register(new ObjectNameEditor());
+        register(new PropertiesEditor());
+        register(new URIEditor());
+        register(new URLEditor());
+        register(new PatternConverter());
 
         // customs
-        registry.register(new ZonedDateTimeConverter());
-        registry.register(new LocalDateTimeConverter());
-        registry.register(new LocalDateConverter());
-        registry.register(new LocalTimeConverter());
+        register(new ZonedDateTimeConverter());
+        register(new LocalDateTimeConverter());
+        register(new LocalDateConverter());
+        register(new LocalTimeConverter());
 
         // extensions
-        ServiceLoader.load(Converter.class).forEach(registry::register);
+        ServiceLoader.load(Converter.class).forEach(this::register);
     }
 }
