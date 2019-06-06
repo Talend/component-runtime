@@ -39,6 +39,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1457[TCOMP-1457^]: Upgrade to Apache Beam 2.13.0
 - link:https://jira.talendforge.org/browse/TCOMP-1458[TCOMP-1458^]: Ensure _placeholder presence is encouraged and validated
 - link:https://jira.talendforge.org/browse/TCOMP-1459[TCOMP-1459^]: Experimental way to patch a component dependency
+- link:https://jira.talendforge.org/browse/TCOMP-1461[TCOMP-1461^]: Extension API for the validator plugin
 
 == Version 1.1.9
 

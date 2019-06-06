@@ -60,11 +60,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Components;
@@ -105,6 +107,7 @@ import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryIm
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
+import org.talend.sdk.component.tools.spi.ValidationExtension;
 
 import lombok.Data;
 
@@ -120,6 +123,8 @@ public class ComponentValidator extends BaseTask {
 
     private final Map<Class<?>, List<ParameterMeta>> parametersCache = new HashMap<>();
 
+    private final List<ValidationExtension> extensions;
+
     public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         super(classes);
         this.configuration = configuration;
@@ -128,6 +133,9 @@ public class ComponentValidator extends BaseTask {
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }
+        this.extensions = StreamSupport
+                .stream(ServiceLoader.load(ValidationExtension.class).spliterator(), false)
+                .collect(toList());
     }
 
     @Override
@@ -214,6 +222,34 @@ public class ComponentValidator extends BaseTask {
 
         if (configuration.isValidatePlaceholder()) {
             validatePlaceholders(components, errors);
+        }
+
+        if (!extensions.isEmpty()) {
+            final ValidationExtension.ValidationContext context = new ValidationExtension.ValidationContext() {
+
+                @Override
+                public AnnotationFinder finder() {
+                    return finder;
+                }
+
+                @Override
+                public List<Class<?>> components() {
+                    return components;
+                }
+
+                @Override
+                public List<ParameterMeta> parameters(final Class<?> component) {
+                    return buildOrGetParameters(component);
+                }
+            };
+            errors
+                    .addAll(extensions
+                            .stream()
+                            .map(extension -> extension.validate(context))
+                            .filter(result -> result.getErrors() != null)
+                            .flatMap(result -> result.getErrors().stream())
+                            .filter(Objects::nonNull)
+                            .collect(toList()));
         }
 
         if (!errors.isEmpty()) {

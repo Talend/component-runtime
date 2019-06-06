@@ -180,3 +180,14 @@ For that case, the framework has multiple extension points:
 2.  `org.talend.sdk.component.server.configuration.ComponentServerConfiguration` is a CDI event - use `void onSetup(@Observes ComponentServerConfiguration config)` to observe it - which will enable to register virtual components. It is available in `component-server-extension-api` module.
 
 A sample can be seen on github through link:https://github.com/Talend/component-runtime/tree/component-runtime-1.1.9/component-server-parent/extensions/stitch[stitch PoC] module.
+
+== Build enrichment
+
+During the build of components, several phases are executed (dependencies, validation, documentation etc...).
+For now it is only possible to extend the validations - if you add custom API.
+
+It goes through the SPI `org.talend.sdk.component.tools.spi.ValidationExtension`.
+
+IMPORTANT: implementing this API you must add your validation implementation as a dependency of the `talend-component-maven-plugin` *plugin* and not module dependencies.
+
+
