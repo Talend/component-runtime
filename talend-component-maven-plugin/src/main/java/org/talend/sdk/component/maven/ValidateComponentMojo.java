@@ -42,6 +42,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean validatePlaceholder;
 
     /**
+     * Ensures SVG icons comply to recommended rules.
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.svg")
+    private boolean validateSvg;
+
+    /**
      * Ensures each family has an icon.
      */
     @Parameter(defaultValue = "true", property = "talend.validation.family")
@@ -152,6 +158,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateLocalConfiguration(validateLocalConfiguration);
         configuration.setValidateOutputConnection(validateOutputConnection);
         configuration.setValidatePlaceholder(validatePlaceholder);
+        configuration.setValidateSvg(validateSvg);
         new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
 }

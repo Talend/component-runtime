@@ -121,6 +121,8 @@ public class ComponentValidator extends BaseTask {
     private final ParameterModelService parameterModelService =
             new ParameterModelService(new EnrichedPropertyEditorRegistry());
 
+    private final SvgValidator validator = new SvgValidator();
+
     private final Map<Class<?>, List<ParameterMeta>> parametersCache = new HashMap<>();
 
     private final List<ValidationExtension> extensions;
@@ -154,7 +156,7 @@ public class ComponentValidator extends BaseTask {
                 try {
                     final Icon icon =
                             findPackageOrFail(c, apiTester(Icon.class), Icon.class.getName()).getAnnotation(Icon.class);
-                    ofNullable(validateIcon(icon)).ifPresent(errors::add);
+                    ofNullable(validateIcon(icon, errors)).ifPresent(errors::add);
                 } catch (final IllegalArgumentException iae) {
                     final IconFinder iconFinder = new IconFinder();
                     try {
@@ -277,15 +279,19 @@ public class ComponentValidator extends BaseTask {
                         .collect(toSet()));
     }
 
-    private String validateIcon(final Icon annotation) {
+    private String validateIcon(final Icon annotation, final Collection<String> errors) {
         if (classes.length == 0) {
             return null;
         }
 
         if (annotation.value() == Icon.IconType.CUSTOM) {
             final String icon = annotation.custom();
-            if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + ".svg")).noneMatch(File::exists)) {
+            final Set<File> svgs =
+                    of(classes).map(it -> new File(it, "icons/" + icon + ".svg")).filter(File::exists).collect(toSet());
+            if (svgs.isEmpty()) {
                 log.error("No 'icons/" + icon + ".svg' found, this will run in degraded mode in Talend Cloud");
+            } else {
+                errors.addAll(svgs.stream().flatMap(this::validateSvg).collect(toSet()));
             }
             if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + "_icon32.png")).noneMatch(File::exists)) {
                 return "No icon: '" + icon + "' found, did you create - or generated with svg2png - 'icons/" + icon
@@ -293,6 +299,10 @@ public class ComponentValidator extends BaseTask {
             }
         }
         return null;
+    }
+
+    private Stream<String> validateSvg(final File file) {
+        return validator.validate(file.toPath());
     }
 
     private void validateOutputConnection(final List<Class<?>> components, final Set<String> errors) {
@@ -723,7 +733,7 @@ public class ComponentValidator extends BaseTask {
             if (iconFinder.findDirectIcon(component).isPresent()) {
                 final Icon icon = component.getAnnotation(Icon.class);
                 messages = new ArrayList<>();
-                messages.add(validateIcon(icon));
+                messages.add(validateIcon(icon, errors));
             } else if (!iconFinder.findIndirectIcon(component).isPresent()) {
                 messages = new ArrayList<>(singleton("No @Icon on " + component));
             }
@@ -1164,5 +1174,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateOutputConnection;
 
         private boolean validatePlaceholder;
+
+        private boolean validateSvg;
     }
 }

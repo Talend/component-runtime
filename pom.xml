@@ -1016,6 +1016,7 @@
             <exclude>travis_wait*log</exclude>
             <exclude>**/target/**/*</exclude>
             <exclude>**/.cache/**/*</exclude>
+            <exclude>**/.vscode/**/*</exclude>
             <exclude>cobertura.ser</exclude>
             <exclude>.classpath</exclude>
             <exclude>.settings/**/*</exclude>
@@ -1051,7 +1052,8 @@
             <exclude>**/antora/**/*</exclude>
             <exclude>**/.antora-cache/**/*</exclude>
             <exclude>**/dependency-reduced-pom.xml</exclude>
-            <exclude>**/resources/**/logo.svg</exclude>
+            <exclude>**/*.svg</exclude>
+            <exclude>**/*.png</exclude>
           </excludes>
         </configuration>
       </plugin>

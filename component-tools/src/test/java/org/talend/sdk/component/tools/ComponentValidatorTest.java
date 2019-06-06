@@ -137,6 +137,7 @@ class ComponentValidatorTest {
             cfg.setValidateLocalConfiguration(true);
             cfg.setValidateOutputConnection(true);
             cfg.setValidatePlaceholder(true);
+            cfg.setValidateSvg(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -196,6 +197,12 @@ class ComponentValidatorTest {
                 .expectMessage(
                         "- Option name `$forbidden1` is invalid, you can't start an option name with a '$' and it can't contain a '.'. Please fix it on field `org.talend.test.failure.options.badname.BadConfig#forbidden1`\n"
                                 + "- Option name `forbidden1.name` is invalid, you can't start an option name with a '$' and it can't contain a '.'. Please fix it on field `org.talend.test.failure.options.badname.BadConfig#forbidden2`");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.svgerror")
+    void testFailureSvg(final ExceptionSpec expectedException) {
+        expectedException.expectMessage("[myicon.svg] viewBox must be '0 0 16 16' found '0 0 16 17'");
     }
 
     @Test
@@ -531,17 +538,13 @@ class ComponentValidatorTest {
         final File root = new File(jarLocation(ComponentValidatorTest.class), sourcePackage);
         final File classDir = new File(pluginDir, sourcePackage);
         classDir.mkdirs();
-        ofNullable(root.listFiles())
-                .map(Stream::of)
-                .orElseGet(Stream::empty)
-                .filter(c -> c.getName().endsWith(".class") || c.getName().endsWith(".properties"))
-                .forEach(c -> {
-                    try {
-                        Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
-                    } catch (final IOException e) {
-                        fail("cant create test plugin");
-                    }
-                });
+        files(root).filter(c -> c.getName().endsWith(".class") || c.getName().endsWith(".properties")).forEach(c -> {
+            try {
+                Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
+            } catch (final IOException e) {
+                fail("cant create test plugin");
+            }
+        });
         final String localConfRelativePath = "TALEND-INF/local-configuration.properties";
         final File localConfig = new File(root, localConfRelativePath);
         if (localConfig.exists()) {
@@ -556,17 +559,17 @@ class ComponentValidatorTest {
         final File icons = new File(root, "icons");
         if (icons.exists()) {
             new File(pluginDir, "icons").mkdirs();
-            ofNullable(icons.listFiles())
-                    .map(Stream::of)
-                    .orElseGet(Stream::empty)
-                    .filter(c -> c.getName().endsWith(".png"))
-                    .forEach(c -> {
-                        try {
-                            Files.copy(c.toPath(), new File(pluginDir, "icons/" + c.getName()).toPath());
-                        } catch (final IOException e) {
-                            fail("cant create test plugin: " + e.getMessage());
-                        }
-                    });
+            files(icons).filter(c -> c.getName().endsWith(".png") || c.getName().endsWith(".svg")).forEach(c -> {
+                try {
+                    Files.copy(c.toPath(), new File(pluginDir, "icons/" + c.getName()).toPath());
+                } catch (final IOException e) {
+                    fail("cant create test plugin: " + e.getMessage());
+                }
+            });
         }
+    }
+
+    private static Stream<File> files(File root) {
+        return ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty);
     }
 }

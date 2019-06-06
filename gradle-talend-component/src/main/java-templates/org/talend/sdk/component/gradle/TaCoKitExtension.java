@@ -114,6 +114,8 @@ public class TaCoKitExtension {
 
     private boolean validatePlaceholder = true;
 
+    private boolean validateSvg = true;
+
     //
     // web
     //
