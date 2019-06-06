@@ -8,8 +8,6 @@ To get the full list of changes and bug fixes included in this new version, chec
 
 The Component Kit Starter now allows to specify datasets and datastores. Since every input and output components must rely on a dataset and that each dataset requires a datastore, you need to make sure that your project complies with the applicable validation rules to build components properly.
 
-Find more information about datasets and datastores in the xref:creating-dataset-datastore.adoc[documentation].
-
 == Enriching families with custom JAR and configuration
 
 You can now enrich your component project with custom JAR and configuration without repackaging all applications.
