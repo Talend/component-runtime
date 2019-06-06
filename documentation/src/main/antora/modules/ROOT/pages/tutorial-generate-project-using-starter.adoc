@@ -175,7 +175,7 @@ image::starter_openapi_toggle.png[Open API toggle,window="_blank",link="https://
 . Paste the OpenAPI JSON descriptor in the right part of the screen. All the described endpoints are detected.
 . Unselect the endpoints that you do not want to use in the future components. By default, all detected endpoints are selected. +
 +
-image::starter_openapi_json.png[Open API toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/starter_openapi_json.png",80%]
+image::starter_openapi_json.png[Open API menu,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/starter_openapi_json.png",80%]
 . Go to the *Finish* menu.
 . Download the project.
 
