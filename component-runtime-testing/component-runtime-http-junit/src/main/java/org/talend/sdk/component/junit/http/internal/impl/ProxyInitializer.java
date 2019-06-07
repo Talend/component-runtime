@@ -17,7 +17,7 @@ package org.talend.sdk.component.junit.http.internal.impl;
 
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -26,7 +26,6 @@ import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http.HttpServerKeepAliveHandler;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -41,7 +40,7 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(final SocketChannel channel) {
         final ChannelPipeline pipeline = channel.pipeline();
-        final ChannelInboundHandlerAdapter handler;
+        final ChannelHandlerAdapter handler;
         final boolean degzip;
         if (Handlers.isActive("capture")) {
             degzip = true;
@@ -62,7 +61,6 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
         pipeline
                 .addLast("http-encoder", new HttpResponseEncoder())
                 .addLast("gzip-compressor", new HttpContentCompressor())
-                .addLast("http-keepalive", new HttpServerKeepAliveHandler())
                 .addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE))
                 .addLast("chunked-writer", new ChunkedWriteHandler())
                 .addLast("talend-junit-api-server", handler);

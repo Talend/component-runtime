@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.junit.http.internal.impl;
 
-import static io.netty.handler.codec.http.HttpUtil.setContentLength;
-import static io.netty.handler.codec.http.HttpUtil.setKeepAlive;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.BASE;
@@ -51,10 +49,10 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderUtil;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.Attribute;
@@ -69,12 +67,12 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
     protected final HttpApiHandler api;
 
     @Override
-    protected void channelRead0(final ChannelHandlerContext ctx, final FullHttpRequest request) {
+    protected void messageReceived(final ChannelHandlerContext ctx, final FullHttpRequest request) {
         if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {
             final FullHttpResponse response =
                     new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.EMPTY_BUFFER);
-            setKeepAlive(response, true);
-            setContentLength(response, 0);
+            HttpHeaderUtil.setKeepAlive(response, true);
+            HttpHeaderUtil.setContentLength(response, 0);
             if (api.getSslContext() != null) {
                 final SSLEngine sslEngine = api.getSslContext().createSSLEngine();
                 sslEngine.setUseClientMode(false);
@@ -115,9 +113,12 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     httpsURLConnection.setHostnameVerifier((h, s) -> true);
                     httpsURLConnection.setSSLSocketFactory(api.getSslContext().getSocketFactory());
                 }
-                request.headers().forEach(e -> connection.setRequestProperty(e.getKey(), e.getValue()));
+                request
+                        .headers()
+                        .entriesConverted()
+                        .forEach(e -> connection.setRequestProperty(e.getKey(), e.getValue()));
                 if (request.method() != null) {
-                    final String requestMethod = request.method().name();
+                    final String requestMethod = request.method().name().toString();
                     connection.setRequestMethod(requestMethod);
 
                     if (!"HEAD".equalsIgnoreCase(requestMethod) && request.content().readableBytes() > 0) {
@@ -156,7 +157,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
             final ByteBuf bytes = ofNullable(resp.payload()).map(Unpooled::copiedBuffer).orElse(Unpooled.EMPTY_BUFFER);
             final HttpResponse response =
                     new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);
-            HttpUtil.setContentLength(response, bytes.array().length);
+            HttpHeaderUtil.setContentLength(response, bytes.array().length);
 
             Stream
                     .of(resp.headers(), otherHeaders)

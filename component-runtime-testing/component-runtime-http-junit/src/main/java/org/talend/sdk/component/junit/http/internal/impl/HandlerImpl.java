@@ -23,6 +23,7 @@ import java.net.ServerSocket;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -63,11 +64,15 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
         }
 
         final CountDownLatch startingPistol = new CountDownLatch(1);
+        final int nProcessors = Math.max(1, Runtime.getRuntime().availableProcessors());
+        final ExecutorService boosExecutor =
+                Executors.newFixedThreadPool(1, new DefaultThreadFactory("talend-api-boss"));
+        final ExecutorService workerExecutor =
+                Executors.newFixedThreadPool(nProcessors, new DefaultThreadFactory("talend-api-worker"));
         instance = new Thread(() -> {
             // todo: config
-            final EventLoopGroup bossGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("talend-api-boss"));
-            final EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),
-                    new DefaultThreadFactory("talend-api-worker"));
+            final EventLoopGroup bossGroup = new NioEventLoopGroup(1, boosExecutor);
+            final EventLoopGroup workerGroup = new NioEventLoopGroup(nProcessors, workerExecutor);
             try {
                 final ServerBootstrap b = new ServerBootstrap();
                 b
