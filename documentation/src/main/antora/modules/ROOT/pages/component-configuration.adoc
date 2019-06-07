@@ -74,6 +74,9 @@ It includes all Java primitives, like the `String` type itself, but also all typ
 - `URI`
 - `URL`
 - `Pattern`
+- `LocalDateTime`
+- `ZonedDateTime`
+
 
 == Mapping complex objects
 
