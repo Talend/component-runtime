@@ -1,5 +1,11 @@
 
 
+== Version 1.1.11
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1469[TCOMP-1469^]: Studio maven repository not found OOTB
+
 == Version 1.1.10
 
 === Bug
