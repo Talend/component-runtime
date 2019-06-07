@@ -38,8 +38,11 @@ public class SVG2Png implements Runnable {
 
     private final Log log;
 
-    public SVG2Png(final Path iconsFolder, final Object log) {
+    private final boolean activeWorkarounds;
+
+    public SVG2Png(final Path iconsFolder, final boolean activeWorkarounds, final Object log) {
         this.iconsFolder = iconsFolder;
+        this.activeWorkarounds = activeWorkarounds;
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
@@ -77,7 +80,9 @@ public class SVG2Png implements Runnable {
 
             @Override
             public void writeImage(final BufferedImage img, final TranscoderOutput output) throws TranscoderException {
-                ensureAlphaDiff(img);
+                if (activeWorkarounds) {
+                    ensureAlphaDiff(img);
+                }
                 super.writeImage(img, output);
             }
 
