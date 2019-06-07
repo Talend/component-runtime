@@ -41,6 +41,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1459[TCOMP-1459^]: Experimental way to patch a component dependency
 - link:https://jira.talendforge.org/browse/TCOMP-1461[TCOMP-1461^]: Extension API for the validator plugin
 - link:https://jira.talendforge.org/browse/TCOMP-1462[TCOMP-1462^]: Validate through the corresponding build task provided SVG
+- link:https://jira.talendforge.org/browse/TCOMP-1464[TCOMP-1464^]: Upgrade to OpenWebBeans 2.0.11
+- link:https://jira.talendforge.org/browse/TCOMP-1465[TCOMP-1465^]: Upgrade to JUnit 5.5.0-RC1
+- link:https://jira.talendforge.org/browse/TCOMP-1466[TCOMP-1466^]: Upgrade to ziplock 8.0.0-M2
 
 == Version 1.1.9
 
