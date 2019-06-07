@@ -44,6 +44,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1464[TCOMP-1464^]: Upgrade to OpenWebBeans 2.0.11
 - link:https://jira.talendforge.org/browse/TCOMP-1465[TCOMP-1465^]: Upgrade to JUnit 5.5.0-RC1
 - link:https://jira.talendforge.org/browse/TCOMP-1466[TCOMP-1466^]: Upgrade to ziplock 8.0.0-M2
+- link:https://jira.talendforge.org/browse/TCOMP-1467[TCOMP-1467^]: Upgrade mock server (testing tool) to netty 5.0.0.Alpha2
+- link:https://jira.talendforge.org/browse/TCOMP-1468[TCOMP-1468^]: Support docker-compose >= 1.23 in vault-proxy
 
 == Version 1.1.9
 
