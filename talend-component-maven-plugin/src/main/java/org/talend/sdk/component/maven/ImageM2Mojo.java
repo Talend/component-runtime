@@ -486,8 +486,8 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
         }
     }
 
-    private long lastModified(final Path path) {
-        return Math.max(getInternalLastModified(path), new Date(1000).getTime());
+    private Instant lastModified(final Path path) {
+        return Instant.ofEpochMilli(Math.max(getInternalLastModified(path), new Date(1000).getTime()));
     }
 
     // for now using local timestamp

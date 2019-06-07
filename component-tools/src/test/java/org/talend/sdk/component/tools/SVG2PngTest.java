@@ -36,7 +36,7 @@ class SVG2PngTest {
         if (Files.exists(expected)) {
             Files.delete(expected);
         }
-        new SVG2Png(resolved, log).run();
+        new SVG2Png(resolved, true, log).run();
         assertTrue(Files.exists(expected));
     }
 }

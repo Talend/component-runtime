@@ -136,4 +136,6 @@ public class TaCoKitExtension {
     // svg2png
     //
     private File icons;
+
+    private boolean useIconWorkarounds;
 }

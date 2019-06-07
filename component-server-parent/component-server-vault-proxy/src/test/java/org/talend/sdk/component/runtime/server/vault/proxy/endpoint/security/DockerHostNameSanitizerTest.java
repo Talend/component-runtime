@@ -27,6 +27,7 @@ class DockerHostNameSanitizerTest {
             // valid
             "talend_remote-engine-client_1.talend_default,remote-engine-client",
             "talend_long_remote-engine-client_1.talend_long_default,remote-engine-client",
+            "talend_long_remote-engine-client_1_hash****dockercompose123.talend_long_default,remote-engine-client",
             // default to input
             "talend_remote-engine-client_1.talen-d_default,talend_remote-engine-client_1.talen-d_default" })
     void sanitizeDocker(final String input, final String output) {

@@ -46,9 +46,9 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 
+import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -76,11 +76,10 @@ public class CaptureJUnit4HttpsApiTest {
     @Test
     public void doCapture() throws Throwable {
         final SelfSignedCertificate certificate = new SelfSignedCertificate();
-        final SslContext nettyContext = SslContextBuilder
-                .forServer(certificate.certificate(), certificate.privateKey())
-                .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                .sslProvider(SslProvider.JDK)
-                .build();
+        final SslContext nettyContext = SslContext
+                .newServerContext(SslProvider.JDK, null, InsecureTrustManagerFactory.INSTANCE,
+                        certificate.certificate(), certificate.privateKey(), null, null, null,
+                        IdentityCipherSuiteFilter.INSTANCE, null, 0, 0);
 
         final HttpsServer server = HttpsServer.create(new InetSocketAddress(0), 0);
         server.setHttpsConfigurator(new HttpsConfigurator(JdkSslContext.class.cast(nettyContext).context()));

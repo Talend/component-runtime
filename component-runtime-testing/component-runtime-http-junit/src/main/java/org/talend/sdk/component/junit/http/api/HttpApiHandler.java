@@ -26,9 +26,9 @@ import javax.net.ssl.SSLException;
 import org.talend.sdk.component.junit.http.internal.impl.DefaultHeaderFilter;
 import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocator;
 
+import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -65,11 +65,10 @@ public class HttpApiHandler<T extends HttpApiHandler<?>> {
         if (sslContext == null) {
             try {
                 final SelfSignedCertificate certificate = new SelfSignedCertificate();
-                final SslContext nettyContext = SslContextBuilder
-                        .forServer(certificate.certificate(), certificate.privateKey())
-                        .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                        .sslProvider(SslProvider.JDK)
-                        .build();
+                final SslContext nettyContext = SslContext
+                        .newServerContext(SslProvider.JDK, null, InsecureTrustManagerFactory.INSTANCE,
+                                certificate.certificate(), certificate.privateKey(), null, null, null,
+                                IdentityCipherSuiteFilter.INSTANCE, null, 0, 0);
                 sslContext = JdkSslContext.class.cast(nettyContext).context();
             } catch (final SSLException | CertificateException e) {
                 throw new IllegalStateException(e);

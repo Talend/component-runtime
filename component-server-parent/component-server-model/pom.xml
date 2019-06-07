@@ -41,7 +41,7 @@
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <extensions>true</extensions>
-        <version>3.3.0</version>
+        <version>4.2.0</version>
         <executions>
           <execution>
             <id>lib-jar</id>

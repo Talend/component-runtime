@@ -36,6 +36,10 @@
     <module>component-runtime-beam-junit</module>
   </modules>
 
+  <properties>
+    <wagon.version>3.3.2</wagon.version>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -51,22 +55,22 @@
       <dependency>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-provider-api</artifactId>
-        <version>3.0.0</version>
+        <version>${wagon.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-file</artifactId>
-        <version>3.0.0</version>
+        <version>${wagon.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-http-lightweight</artifactId>
-        <version>3.0.0</version>
+        <version>${wagon.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
-        <version>3.0.24</version>
+        <version>3.2.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.tomee</groupId>

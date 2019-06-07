@@ -76,6 +76,10 @@ talendComponentKit {
 
     // deploy-in-studio
     studioHome = "C:\<pathToSutdio>"
+
+    // svg2png
+    icons = 'resources/main/icons'
+    useIconWorkarounds = true
 }
 ----
 

@@ -32,6 +32,16 @@ public class SVG2PngMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", property = "talend.skip")
     private boolean skip;
 
+    /**
+     * Some SVG can use alpha to draw the shape and not colors, here we force the shape to appear in PNG
+     * because Talend Studio - eclipse actually - caches using RGC channels and not alpha one.
+     */
+    @Parameter(defaultValue = "true", property = "talend.icons.workaround")
+    private boolean workarounds;
+
+    /**
+     * Folder to process.
+     */
     @Parameter(defaultValue = "${project.build.outputDirectory}/icons", property = "talend.icons.source")
     protected File icons;
 
@@ -42,6 +52,6 @@ public class SVG2PngMojo extends AbstractMojo {
             return;
         }
 
-        new SVG2Png(icons.toPath(), getLog()).run();
+        new SVG2Png(icons.toPath(), workarounds, getLog()).run();
     }
 }

@@ -16,7 +16,6 @@
 package org.talend.sdk.component.junit.http.internal.impl;
 
 import static java.util.Collections.emptyList;
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.ByteArrayInputStream;
@@ -26,7 +25,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
@@ -47,15 +45,20 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
     protected void beforeResponse(final String requestUri, final FullHttpRequest request, final Response resp,
             final Map<String, List<String>> responseHeaderFields) {
         final DefaultResponseLocator.RequestModel requestModel = new DefaultResponseLocator.RequestModel();
-        requestModel.setMethod(request.method().name());
+        requestModel.setMethod(request.method().name().toString());
         requestModel.setUri(requestUri);
-        requestModel.setHeaders(filterHeaders(request.headers()));
+        requestModel
+                .setHeaders(filterHeaders(request
+                        .headers()
+                        .entriesConverted()
+                        .stream()
+                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue))));
         final DefaultResponseLocator.Model model = new DefaultResponseLocator.Model();
         model.setRequest(requestModel);
 
         final DefaultResponseLocator.ResponseModel responseModel = new DefaultResponseLocator.ResponseModel();
         responseModel.setStatus(resp.status());
-        responseModel.setHeaders(filterHeaders(resp.headers().entrySet()));
+        responseModel.setHeaders(filterHeaders(resp.headers()));
         // todo: support as byte[] for not text responses
         if (resp.payload() != null) {
             if (responseHeaderFields
@@ -91,11 +94,11 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         return out.toByteArray();
     }
 
-    private Map<String, String> filterHeaders(final Iterable<Map.Entry<String, String>> headers) {
-        return StreamSupport
-                .stream(headers.spliterator(), false)
+    private Map<String, String> filterHeaders(final Map<String, String> headers) {
+        return headers
+                .entrySet()
+                .stream()
                 .filter(h -> !api.getHeaderFilter().test(h.getKey()))
-                .sorted(comparing(Map.Entry::getKey))
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

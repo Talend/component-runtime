@@ -30,18 +30,27 @@ public class DockerHostNameSanitizer {
         if (segments.length == 2) {
             final String[] firstSegments = segments[0].split("_");
             if (firstSegments.length >= 3) {
-                try {
-                    Integer.parseInt(firstSegments[firstSegments.length - 1]);
-                } catch (final NumberFormatException nfe) {
-                    return remoteHost; // not a docker name
+                int instanceNumberIndex = -1;
+                for (int i = 1; i <= 2; i++) { // docker-compose 1.23 changed the behavior adding a has as on swarm
+                    try {
+                        Integer.parseInt(firstSegments[firstSegments.length - i]);
+                        instanceNumberIndex = i;
+                        break;
+                    } catch (final NumberFormatException nfe) {
+                        // no-op
+                    }
                 }
+                if (instanceNumberIndex < 0) { // not found
+                    return remoteHost;
+                }
+
                 final String[] secondPathSegments = segments[1].split("_");
                 if (secondPathSegments.length >= 2 && secondPathSegments[0].equalsIgnoreCase(firstSegments[0])) {
                     final int commonSegments = countCommonSegments(firstSegments, secondPathSegments);
                     return Stream
                             .of(firstSegments)
                             .skip(commonSegments)
-                            .limit(firstSegments.length - commonSegments - 1)
+                            .limit(firstSegments.length - commonSegments - instanceNumberIndex)
                             .collect(joining("_"));
                 }
             }

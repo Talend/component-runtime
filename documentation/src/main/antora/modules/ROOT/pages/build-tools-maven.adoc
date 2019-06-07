@@ -131,12 +131,13 @@ The `svg2png` goal scans a directory - default to `target/classes/icons` - to fi
 </plugin>
 ----
 
-Configuration - excluding parameters used by default only:
+Configuration:
 
 [options="header,audowidth",role="table-striped table-hover table-ordered",width="100%",cols="1,2,1,1"]
 |===
 |Name |Description |User property |Default
 |icons|Where to scan for the SVG icons to convert in PNG.|talend.icons.source|`${project.build.outputDirectory}/icons`
+|workarounds|By default the shape of the icon will be enforce in the RGB channels (in white) using the alpha as reference. This is useful for black/white images using alpha to shape the picture because Eclipse - Talend Studio - caches icons using RGB but not alpha channel, pictures not using alpha channel to draw their shape should disable that workaround.|talend.icons.workaround|`true`
 |===
 
 IMPORTANT: if you use that plugin, ensure to set it before the validate mojo otherwise validation can miss some png files.

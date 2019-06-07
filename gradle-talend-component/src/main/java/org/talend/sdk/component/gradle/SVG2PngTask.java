@@ -30,10 +30,12 @@ public class SVG2PngTask extends TaCoKitTask {
             final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
             try {
                 final Class<?> impl = tccl.loadClass("org.talend.sdk.component.tools.SVG2Png");
+                final TaCoKitExtension kitExtension = getKitExtension();
                 final Runnable runnable = Runnable.class
                         .cast(impl
-                                .getConstructor(Path.class, Object.class)
-                                .newInstance(getIconsFolder(getKitExtension()), getLogger()));
+                                .getConstructor(Path.class, boolean.class, Object.class)
+                                .newInstance(getIconsFolder(kitExtension), kitExtension.isUseIconWorkarounds(),
+                                        getLogger()));
                 runnable.run();
             } catch (final Exception e) {
                 throw new IllegalStateException(e);
