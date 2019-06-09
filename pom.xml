@@ -148,7 +148,7 @@
     <johnzon.version>1.1.12</johnzon.version>
     <meecrowave.version>1.2.8</meecrowave.version>
     <owb.version>2.0.11</owb.version>
-    <tomcat.version>9.0.20</tomcat.version>
+    <tomcat.version>9.0.21</tomcat.version>
     <cxf.version>3.3.2</cxf.version>
     <log4j2.version>2.11.2</log4j2.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
@@ -175,7 +175,7 @@
     <microprofile-metrics-api.version>1.1.1</microprofile-metrics-api.version>
     <geronimo-microprofile.version>1.0.2</geronimo-microprofile.version>
     <opentracing.version>0.31.0</opentracing.version>
-    <geronimo-openapi.version>1.0.8</geronimo-openapi.version>
+    <geronimo-openapi.version>1.0.9</geronimo-openapi.version>
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-opentracing.version>1.0.2</geronimo-opentracing.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
@@ -399,6 +399,17 @@
           <exclusion>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-features-logging</artifactId>
+        <version>${cxf.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-core</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
