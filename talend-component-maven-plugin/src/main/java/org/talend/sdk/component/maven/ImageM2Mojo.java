@@ -59,6 +59,7 @@ import com.google.cloud.tools.jib.event.EventHandlers;
 import com.google.cloud.tools.jib.filesystem.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.image.ImageReference;
 import com.google.cloud.tools.jib.image.InvalidImageReferenceException;
+import com.google.cloud.tools.jib.image.LayerEntry;
 import com.google.cloud.tools.jib.registry.RegistryException;
 
 import org.apache.maven.execution.MavenSession;
@@ -356,9 +357,10 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                 final String depPath = entry.getName().substring("MAVEN-INF/repository/".length());
                 final File src = copyFile(entry, read, depPath);
                 size.addAndGet(src.length());
+                final AbsoluteUnixPath target = AbsoluteUnixPath.get(workingDirectory).resolve(depPath);
+                final Path srcPath = src.toPath().toAbsolutePath();
                 layerBuilder
-                        .addEntry(src.toPath().toAbsolutePath(),
-                                AbsoluteUnixPath.get(workingDirectory).resolve(depPath), null,
+                        .addEntry(srcPath, target, LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(srcPath, target),
                                 lastModified(src.toPath()));
             });
             return gav == null ? null : new Layer(layerBuilder.build(), size.get(), gav);
@@ -379,24 +381,25 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
         components.forEach(it -> {
             final Path from = it.getFile().toPath().toAbsolutePath();
             componentSize.addAndGet(it.getFile().length());
+            final AbsoluteUnixPath target = AbsoluteUnixPath
+                    .get(workingDirectory)
+                    .resolve(repositorySystemSession
+                            .getLocalRepository()
+                            .getBasedir()
+                            .toPath()
+                            .toAbsolutePath()
+                            .relativize(from));
             componentsLayerBuilder
-                    .addEntry(from,
-                            AbsoluteUnixPath
-                                    .get(workingDirectory)
-                                    .resolve(repositorySystemSession
-                                            .getLocalRepository()
-                                            .getBasedir()
-                                            .toPath()
-                                            .toAbsolutePath()
-                                            .relativize(from)),
-                            null, lastModified(from));
+                    .addEntry(from, target, LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(from, target),
+                            lastModified(from));
         });
         // the registry (only depends on components so belongs to this layer)
         writeRegistry(getNewComponentRegistry(coordinates));
         final File registryLocation = getRegistry();
+        final Path src = registryLocation.toPath().toAbsolutePath();
+        final AbsoluteUnixPath target = AbsoluteUnixPath.get(workingDirectory).resolve(registryLocation.getName());
         componentsLayerBuilder
-                .addEntry(registryLocation.toPath().toAbsolutePath(),
-                        AbsoluteUnixPath.get(workingDirectory).resolve(registryLocation.getName()), null,
+                .addEntry(src, target, LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(src, target),
                         lastModified(registryLocation.toPath()));
         builder.addLayer(componentsLayerBuilder.build());
         getLog()
@@ -430,8 +433,12 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                                 .relativize(dep)
                                 .toString();
                         mainDepSize.addAndGet(it.getFile().length());
-                        final AbsoluteUnixPath target = mainLibs.resolve(relativized.replace(File.separatorChar, '/'));
-                        dependenciesLayer.addEntry(dep, target, null, lastModified(dep));
+                        final AbsoluteUnixPath targetPath =
+                                mainLibs.resolve(relativized.replace(File.separatorChar, '/'));
+                        dependenciesLayer
+                                .addEntry(dep, targetPath,
+                                        LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(dep, targetPath),
+                                        lastModified(dep));
                         return target.toString();
                     })
                     .collect(toList());
@@ -463,7 +470,9 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                     .addLayer(LayerConfiguration
                             .builder()
                             .setName(project.getArtifactId() + " @" + project.getVersion())
-                            .addEntry(path, mainPath, null, lastModified(path))
+                            .addEntry(path, mainPath,
+                                    LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(path, mainPath),
+                                    lastModified(path))
                             .build());
             getLog().info("Prepared layer for main artifact (" + toSize(path.toFile().length()) + ")");
 

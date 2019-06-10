@@ -195,8 +195,6 @@
     <spark.version>2.4.3</spark.version>
     <spark-scala.version>2.11</spark-scala.version>
 
-    <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
-    <jaxrs-analyzer-extension.version>0.0.6</jaxrs-analyzer-extension.version>
     <groovy.version>2.5.7</groovy.version>
     <gmavenplus.version>1.7.1</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
