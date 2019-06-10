@@ -58,7 +58,7 @@ public class WebsocketClient {
             final String type) {
         final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<String> indexHolder = new AtomicReference<>();
+        final AtomicReference<String> responseHolder = new AtomicReference<>();
         final ClientEndpointConfig clientEndpointConfig = ClientEndpointConfig.Builder.create().build();
         clientEndpointConfig.getUserProperties().put("org.apache.tomcat.websocket.IO_TIMEOUT_MS", "60000");
 
@@ -77,7 +77,7 @@ public class WebsocketClient {
                                 builder.append(new String(part.array()));
                             } finally {
                                 if (builder.toString().endsWith("^@")) {
-                                    indexHolder.set(builder.toString());
+                                    responseHolder.set(builder.toString());
                                     doClose(session);
                                 }
                             }
@@ -112,19 +112,21 @@ public class WebsocketClient {
             throw new IllegalStateException(e);
         }
 
+        boolean awaited = true;
         try {
             final RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
             final String payload = "SEND\r\ndestination:" + uri + "\r\ndestinationMethod:" + method + "\r\nAccept: "
                     + type + "\r\nContent-Type: " + "application/json\r\n\r\n" + body + "^@";
             asyncRemote.sendBinary(ByteBuffer.wrap(payload.getBytes(StandardCharsets.UTF_8)));
 
-            latch.await(1, MINUTES);
+            awaited = !latch.await(1, MINUTES);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             fail(e.getMessage());
         }
         try {
-            final String index = indexHolder.get();
+            final String index = responseHolder.get();
+            assertNotNull(index, "No response to " + method + " " + uri + "(timeout? " + awaited + ")");
             assertTrue(index.startsWith("MESSAGE\r\n"), index);
             assertTrue(index.contains("Content-Type: " + type + "\r\n"), index);
             final int startJson = index.indexOf('{');

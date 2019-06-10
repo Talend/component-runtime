@@ -22,7 +22,12 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.apache.cxf.transport.common.gzip.GZIPFeature;
+import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.feature.Feature;
+import org.apache.cxf.interceptor.InterceptorProvider;
+import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
+import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.meecrowave.Meecrowave;
 
 @ApplicationScoped
@@ -31,7 +36,35 @@ public class ClientProducer {
     @Produces
     @ApplicationScoped
     public Client client() {
-        return ClientBuilder.newClient().register(new GZIPFeature());
+        return ClientBuilder.newClient().register(new Feature() { // gzip feature depends on jaxws API, fixed in 3.3.3
+
+            @Override
+            public void initialize(final Server server, final Bus bus) {
+                initializeProvider(server.getEndpoint(), bus);
+            }
+
+            @Override
+            public void initialize(final org.apache.cxf.endpoint.Client client, final Bus bus) {
+                initializeProvider(client.getEndpoint(), bus);
+            }
+
+            @Override
+            public void initialize(final InterceptorProvider interceptorProvider, final Bus bus) {
+                initializeProvider(interceptorProvider, bus);
+            }
+
+            @Override
+            public void initialize(final Bus bus) {
+                initializeProvider(bus, bus);
+            }
+
+            private void initializeProvider(final InterceptorProvider provider, final Bus bus1) {
+                provider.getInInterceptors().add(new GZIPInInterceptor());
+                final GZIPOutInterceptor gzipOutInterceptor = new GZIPOutInterceptor();
+                provider.getOutInterceptors().add(gzipOutInterceptor);
+                provider.getOutFaultInterceptors().add(gzipOutInterceptor);
+            }
+        });
     }
 
     @Produces

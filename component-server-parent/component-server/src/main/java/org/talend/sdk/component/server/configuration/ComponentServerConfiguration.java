@@ -158,10 +158,10 @@ public class ComponentServerConfiguration {
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             try {
                 doActivateDebugMode(loader, loader.loadClass("org.apache.cxf.ext.logging.LoggingFeature"));
-            } catch (final Exception e) {
+            } catch (final Exception | NoClassDefFoundError e) {
                 try {
                     doActivateDebugMode(loader, loader.loadClass("org.apache.cxf.feature.LoggingFeature"));
-                } catch (final Exception ex) {
+                } catch (final Exception | NoClassDefFoundError ex) {
                     log.warn("Can't honor log request configuration, skipping ({})", e.getMessage());
                 }
             }
