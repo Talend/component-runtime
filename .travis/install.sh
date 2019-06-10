@@ -16,6 +16,10 @@ source $HOME/.sdkman/bin/sdkman-init.sh
 sdk install java $java_version
 sdk install maven $maven_version
 
+# export for next processes (typically javadoc forks)
+echo "export JAVA_HOME=$JAVA_HOME" >> ~/.bashrc
+echo "export MAVEN_HOME=$MAVEN_HOME" >> ~/.bashrc
+
 # log mvn+java versions
 mvn -version
 
