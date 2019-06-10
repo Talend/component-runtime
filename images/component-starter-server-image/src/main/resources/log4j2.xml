@@ -23,12 +23,12 @@
   </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
+      <PatternLayout pattern="[%d{ISO8601}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
     </Console>
     <RollingFile name="File"
                  fileName="${base}/application.log"
                  filePattern="${base}/application-%d{yyyy-MM-dd}.log">
-      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
+      <PatternLayout pattern="[%d{ISO8601}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
       <Policies>
         <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
       </Policies>
@@ -36,7 +36,7 @@
     <RollingFile name="Stats"
                  fileName="${base}/statistics.log"
                  filePattern="${base}/statistics-%d{yyyy-MM-dd}.log">
-      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
+      <PatternLayout pattern="[%d{ISO8601}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
       <Policies>
         <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
       </Policies>
