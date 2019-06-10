@@ -5,6 +5,14 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1469[TCOMP-1469^]: Studio maven repository not found OOTB
+- link:https://jira.talendforge.org/browse/TCOMP-1472[TCOMP-1472^]: Connectors maven goal does not work in 1.1.10
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1470[TCOMP-1470^]: Upgrade Tomcat to v9.0.21
+- link:https://jira.talendforge.org/browse/TCOMP-1471[TCOMP-1471^]: Upgrade Geronimo OpenAPI to v1.0.9
 
 == Version 1.1.10
 
