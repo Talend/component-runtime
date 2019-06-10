@@ -10,14 +10,13 @@ env:
     - DEPLOY_OPTS="$SKIP_OPTS --batch-mode -Possrh -Prelease"
     - BUILD_ARGS="clean install -B -q -e -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true -Ptravis -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar"
 before_cache:
-  - rm -Rf $HOME/.m2/repository/org/talend/sdk/component
+  - rm -Rf $HOME/.m2/repository/org/talend/sdk/component ~/.sdkman
   - find $HOME/.m2/repository/ -name *SNAPSHOT | xargs rm -Rf
 cache:
   timeout: 1000
   directories:
   - "$HOME/.m2"
   - "$HOME/.cache/yarn"
-  - "$HOME/.sdkman"
   - "$HOME/build/Talend/component-runtime/component-starter-server/.node"
   - "$HOME/build/Talend/component-runtime/component-starter-server/.cache"
   - "$HOME/build/Talend/component-runtime/component-starter-server/src/main/frontend/node_modules"
