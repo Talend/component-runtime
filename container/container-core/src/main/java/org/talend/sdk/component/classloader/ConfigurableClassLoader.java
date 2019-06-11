@@ -50,6 +50,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -95,6 +97,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private final String[] fullPathJvmPrefixes;
 
     private final String[] nameJvmPrefixes;
+
+    private final ConcurrentMap<String, Class<?>> proxies = new ConcurrentHashMap<>();
 
     private volatile URLClassLoader temporaryCopy;
 
@@ -178,6 +182,13 @@ public class ConfigurableClassLoader extends URLClassLoader {
         });
     }
 
+    public Class<?> registerBytecode(final String name, final byte[] bytes) {
+        final Class<?> value = super.defineClass(name, bytes, 0, bytes.length);
+        resolveClass(value);
+        proxies.put(name, value);
+        return value;
+    }
+
     private void logUnexpectedDependency(final URL url, final String entry) {
         log.error("{} shouldn't be provided outside the JVM itself, origin={}", entry, url);
     }
@@ -240,6 +251,11 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
         if (name == null) { // some frameworks (hibernate to not cite it) do it
             throw new ClassNotFoundException();
+        }
+
+        final Class<?> aClass = proxies.get(name);
+        if (aClass != null) {
+            return aClass;
         }
 
         synchronized (getClassLoadingLock(name)) {
