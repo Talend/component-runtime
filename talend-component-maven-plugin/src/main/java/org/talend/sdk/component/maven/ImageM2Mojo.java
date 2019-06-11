@@ -439,7 +439,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                                 .addEntry(dep, targetPath,
                                         LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(dep, targetPath),
                                         lastModified(dep));
-                        return target.toString();
+                        return targetPath.toString();
                     })
                     .collect(toList());
             builder.addLayer(dependenciesLayer.build());
