@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1469[TCOMP-1469^]: Studio maven repository not found OOTB
 - link:https://jira.talendforge.org/browse/TCOMP-1472[TCOMP-1472^]: Connectors maven goal does not work in 1.1.10
+- link:https://jira.talendforge.org/browse/TCOMP-1473[TCOMP-1473^]: Docker image text log setup should use ISO8601 and not HH:mm:ss.SSS
 
 
 

@@ -78,8 +78,6 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class VirtualDependenciesService {
 
-    private final char[] hexCode = "0123456789ABCDEF".toCharArray();
-
     @Getter(PACKAGE)
     private final String virtualGroupId = "virtual.talend.component.server.generated.";
 
@@ -93,7 +91,7 @@ public class VirtualDependenciesService {
 
     private final Map<String, Enrichment> enrichmentsPerContainer = new HashMap<>();
 
-    @Getter(PACKAGE)
+    @Getter
     private final Map<Artifact, File> artifactMapping = new ConcurrentHashMap<>();
 
     private final Map<Artifact, Supplier<InputStream>> configurationArtifactMapping = new ConcurrentHashMap<>();
@@ -116,7 +114,7 @@ public class VirtualDependenciesService {
         log.debug("m2 provisioning base: {}", provisioningM2Base);
     }
 
-    void onDeploy(final String pluginId) {
+    public void onDeploy(final String pluginId) {
         if (!configuration.getUserExtensions().isPresent()) {
             enrichmentsPerContainer.put(pluginId, noCustomization);
             return;
@@ -189,7 +187,7 @@ public class VirtualDependenciesService {
         return gav.startsWith(virtualGroupId);
     }
 
-    Enrichment getEnrichmentFor(final String pluginId) {
+    public Enrichment getEnrichmentFor(final String pluginId) {
         return enrichmentsPerContainer.get(pluginId);
     }
 

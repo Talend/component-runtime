@@ -24,6 +24,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 
+import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+
 public class Unsafes {
 
     private static final Object UNSAFE;
@@ -84,6 +86,11 @@ public class Unsafes {
      */
     public static <T> Class<T> defineAndLoadClass(final ClassLoader classLoader, final String proxyName,
             final byte[] proxyBytes) {
+        if (ConfigurableClassLoader.class.isInstance(classLoader)) {
+            return (Class<T>) ConfigurableClassLoader.class
+                    .cast(classLoader)
+                    .registerBytecode(proxyName.replace('/', '.'), proxyBytes);
+        }
         Class<?> clazz = classLoader.getClass();
 
         Method defineClassMethod = null;
