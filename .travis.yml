@@ -8,7 +8,7 @@ env:
     - DEPLOY_OPTS="$SKIP_OPTS --batch-mode -Possrh -Prelease"
     - BUILD_ARGS="clean install -B -q -e -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true -Ptravis -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar"
 before_cache:
-  - rm -Rf $HOME/.m2/repository/org/talend/sdk/component ~/.sdkman
+  - rm -Rf $HOME/.m2/repository/org/talend/sdk/component
   - find $HOME/.m2/repository/ -name *SNAPSHOT | xargs rm -Rf
 cache:
   timeout: 1000
