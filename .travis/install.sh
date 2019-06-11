@@ -8,7 +8,7 @@ java_version=${JAVA_DISTRO:-$JAVA8_DISTRO}
 maven_version=3.6.0
 
 # ensure sdkman is install + up to date
-rm -Rf $HOME/.sdkman/
+[ "x$SDK_MAN_FORCE_CLEAN" == "x" ] || rm -Rf $HOME/.sdkman/
 curl -s https://get.sdkman.io | bash && mkdir -p ~/.sdkman/etc/
 source $HOME/.sdkman/bin/sdkman-init.sh
 echo sdkman_auto_answer=true > ~/.sdkman/etc/config

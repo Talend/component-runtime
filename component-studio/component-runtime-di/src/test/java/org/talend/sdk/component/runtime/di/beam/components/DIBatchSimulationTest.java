@@ -54,6 +54,7 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
@@ -367,13 +368,13 @@ class DIBatchSimulationTest {
     }
 
     @org.talend.sdk.component.api.processor.Processor(name = "to", family = "DIBatchSimulationTest")
-    public static class To extends PTransform<PCollection<JsonObject>, PDone> {
+    public static class To extends PTransform<PCollection<org.talend.sdk.component.api.record.Record>, PDone> {
 
-        static final Collection<JsonObject> RECORDS = new CopyOnWriteArrayList<>();
+        static final Collection<org.talend.sdk.component.api.record.Record> RECORDS = new CopyOnWriteArrayList<>();
 
         @Override
-        public PDone expand(final PCollection<JsonObject> input) {
-            input.apply(ParDo.of(new DoFn<JsonObject, Void>() {
+        public PDone expand(final PCollection<org.talend.sdk.component.api.record.Record> input) {
+            input.apply(ParDo.of(new DoFn<org.talend.sdk.component.api.record.Record, Void>() {
 
                 @ProcessElement
                 public void onElement(final ProcessContext context) {
