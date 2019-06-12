@@ -38,7 +38,7 @@ public class WADLFacet implements FacetGenerator {
 
     private String specification;
 
-    void register(@Observes final GeneratorRegistration init) {
+    public void register(@Observes final GeneratorRegistration init) {
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(Thread
                 .currentThread()
                 .getContextClassLoader()

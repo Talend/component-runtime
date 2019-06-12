@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class Startup {
 
-    void onStart(@Observes @Initialized(ApplicationScoped.class) final Object start) {
+    public void onStart(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         log.info("Starting...");
     }
 }

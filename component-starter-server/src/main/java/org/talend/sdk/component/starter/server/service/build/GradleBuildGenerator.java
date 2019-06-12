@@ -46,7 +46,7 @@ public class GradleBuildGenerator implements BuildGenerator {
     @Inject
     private TemplateRenderer tpl;
 
-    void register(@Observes final GeneratorRegistration init) {
+    public void register(@Observes final GeneratorRegistration init) {
         init.registerBuildType("Gradle", this);
     }
 

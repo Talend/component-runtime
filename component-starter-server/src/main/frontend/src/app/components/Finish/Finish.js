@@ -34,10 +34,10 @@ function isEmpty(str) {
 	return !str || str.trim().length === 0;
 }
 
-function createModel({ project, components, datastore, dataset, openapiMode }) {
+function createModel({ project, components, datastore, dataset }, openapi) {
 	// we copy the model to compute sources and processors attributes
 	const lightCopyModel = Object.assign({}, project.project);
-	if (openapiMode) {
+	if (!openapi) {
 		lightCopyModel.datastores = datastore.datastores;
 		lightCopyModel.datasets = dataset.datasets;
 		lightCopyModel.sources = components.components
@@ -58,12 +58,13 @@ function createModel({ project, components, datastore, dataset, openapiMode }) {
 			});
 	} else {
 		if (!project.$$openapi) {
-			lightCopyModel.openapi = { version: "3.0.0" }; // surely to replace with an error message?
+			lightCopyModel.openapi = { version: '3.0.0' }; // surely to replace with an error message?
 		} else {
 			try {
 				const model = JSON.parse(project.$$openapi.openapi.trim());
 				const paths = model.paths || {};
 				lightCopyModel.openapi = {
+				    ...{ version: '3.0.0' },
 					...model,
 					paths: Object.keys(paths)
 						.map(path => ({
@@ -85,7 +86,7 @@ function createModel({ project, components, datastore, dataset, openapiMode }) {
 						}, {}),
 				};
 			} catch (e) {
-				lightCopyModel.openapi = { version: "3.0.0" }; // todo: same as previous branch
+				lightCopyModel.openapi = { version: '3.1.0' }; // todo: same as previous branch
 			}
 		}
 		lightCopyModel.category = 'Cloud';
@@ -205,7 +206,7 @@ export default class Finish extends React.Component {
 						return (
 							<div className={theme.Finish}>
 							<h2>Project Summary</h2>
-							<Summary project={projectModel} openapi={services.project.$$openapi || { selectedEndpoints: [] }} />
+							<Summary project={projectModel} useOpenAPI={this.props.openapi} openapi={services.project.$$openapi || { selectedEndpoints: [] }} />
 							<div className={theme.bigButton}>
 								<form id="download-zip-form" noValidate action={this.props.actionUrl} method="POST">
 									<input type="hidden" name="project" value={getDownloadValue(projectModel)} />

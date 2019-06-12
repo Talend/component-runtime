@@ -51,7 +51,7 @@ public class MavenBuildGenerator implements BuildGenerator {
 
     private Map<String, Collection<Plugin>> plugins;
 
-    void register(@Observes final GeneratorRegistration init) {
+    public void register(@Observes final GeneratorRegistration init) {
         init.registerBuildType("Maven", this);
         plugins = new HashMap<>();
         plugins.put("jar", emptyList());

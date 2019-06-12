@@ -102,6 +102,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.rrd4j</groupId>
+      <artifactId>rrd4j</artifactId>
+      <version>3.5</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-junit</artifactId>
       <version>${meecrowave.version}</version>
@@ -161,8 +167,13 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <talend.component.starter.autorefresh.active>false</talend.component.starter.autorefresh.active>
             <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
+
+            <talend.component.starter.autorefresh.active>false</talend.component.starter.autorefresh.active>
+            <talend.component.starter.rrd.steps>1</talend.component.starter.rrd.steps>
+            <talend.component.starter.rrd.synchronization.period>3</talend.component.starter.rrd.synchronization.period>
+            <talend.component.starter.rrd.location>${project.build.directory}/test-workdir/rrd/stats.rrd</talend.component.starter.rrd.location>
+            <talend.component.starter.rrd.export>${project.build.directory}/test-workdir/rrd/stats.xml</talend.component.starter.rrd.export>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -191,6 +202,12 @@
           <properties>
             <!-- for dev with livereload
             <talend.component.starter.security.csp>default-src 'self' data: http://localhost:35729/livereload.js; frame-ancestors 'none'</talend.component.starter.security.csp>
+            -->
+            <!-- to test in "dev" mode rrd - otherwise you need to wait a full step (in s)
+            <talend.component.starter.rrd.steps>1</talend.component.starter.rrd.steps>
+            <talend.component.starter.rrd.synchronization.period>3</talend.component.starter.rrd.synchronization.period>
+            <talend.component.starter.rrd.location>${java.io.tmpdir}/starter-workdir/rrd/stats.rrd</talend.component.starter.rrd.location>
+            <talend.component.starter.rrd.export>${java.io.tmpdir}/starter-workdir/rrd/export/stats.xml</talend.component.starter.rrd.export>
             -->
           </properties>
         </configuration>

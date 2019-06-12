@@ -44,7 +44,7 @@ export default function Generator() {
 						<Route exact path="/dataset" component={DatasetList} />
 						<Route path="/component/:componentId" component={Component} />
 						<Route path="/add-component" component={ComponentAddForm} />
-						<Route path="/export" render={props => <Finish {...props} actionUrl={GENERATOR_ZIP_URL} />} />
+						<Route path="/export" render={props => <Finish {...props} actionUrl={GENERATOR_ZIP_URL} openapi={false} />} />
 					</main>
 				</div>
 			</div>

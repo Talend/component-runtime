@@ -141,6 +141,7 @@ class OpenAPI extends React.Component {
             ...project.$$openapi,
             openapi,
             endpoints,
+            selectedEndpoints: endpoints.filter(it => it.checked),
         };
         this.setState({
             endpoints,

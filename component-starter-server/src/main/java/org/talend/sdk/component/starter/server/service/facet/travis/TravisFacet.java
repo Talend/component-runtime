@@ -32,7 +32,7 @@ public class TravisFacet implements FacetGenerator {
 
     private InMemoryFile travisYml;
 
-    void register(@Observes final GeneratorRegistration init) {
+    public void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
         travisYml = new InMemoryFile(".travis.yml", "language: java\njdk:\n- oraclejdk8\nenv:\n" + "  global:\n"
                 + "    - MAVEN_OPTS=\"-Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn\"\n"

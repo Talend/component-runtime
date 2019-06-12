@@ -271,7 +271,7 @@ public class VaultService {
                 }).orElseThrow(() -> new WebApplicationException(Response.Status.FORBIDDEN)));
     }
 
-    void init(@Observes @Initialized(ApplicationScoped.class) final ServletContext init) {
+    public void init(@Observes @Initialized(ApplicationScoped.class) final ServletContext init) {
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 
             private final ThreadGroup group = ofNullable(System.getSecurityManager())

@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.json.JsonObject;
@@ -48,6 +49,9 @@ public class StatisticService {
     @Inject
     private Jsonb jsonb;
 
+    @Inject
+    private Event<Representation> representationEvent;
+
     private final Logger logger = LoggerFactory.getLogger("talend.component.starter.statistics");
 
     // TODO: move to an actual backend like elasticsearch
@@ -55,17 +59,13 @@ public class StatisticService {
         final String project = event.getRequest().getBuildConfiguration().getGroup() + ':'
                 + event.getRequest().getBuildConfiguration().getArtifact();
         try {
-            logger
-                    .info(jsonb
-                            .toJson(new Representation(project,
-                                    event.getRequest().getSources() == null ? 0
-                                            : event.getRequest().getSources().size(),
-                                    event.getRequest().getProcessors() == null ? 0
-                                            : event.getRequest().getProcessors().size(),
-                                    event.getRequest().getOpenapi() != null
-                                            ? countEndpoints(event.getRequest().getOpenapi())
-                                            : null,
-                                    ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
+            final Representation representation = new Representation(project,
+                    event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
+                    event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size(),
+                    event.getRequest().getOpenapi() != null ? countEndpoints(event.getRequest().getOpenapi()) : null,
+                    ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList));
+            representationEvent.fire(representation);
+            logger.info(jsonb.toJson(representation));
         } catch (final RuntimeException re) {
             logger.error(re.getMessage(), re);
         }
@@ -140,7 +140,7 @@ public class StatisticService {
 
         // don't block to return ASAP to the client, not very important if it fails for
         // the end user
-        void capture(@Observes final CreateProject createProject) {
+        public void capture(@Observes final CreateProject createProject) {
             if (skip) {
                 return;
             }

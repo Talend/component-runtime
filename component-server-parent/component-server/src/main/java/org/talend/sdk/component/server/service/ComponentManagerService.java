@@ -98,7 +98,7 @@ public class ComponentManagerService {
 
     private boolean started;
 
-    void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
+    public void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // no-op
     }
 

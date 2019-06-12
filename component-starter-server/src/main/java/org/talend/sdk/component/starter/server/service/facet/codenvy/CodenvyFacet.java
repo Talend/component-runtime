@@ -36,7 +36,7 @@ public class CodenvyFacet implements FacetGenerator {
     @Inject
     private TemplateRenderer tpl;
 
-    void register(@Observes final GeneratorRegistration init) {
+    public void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
     }
 

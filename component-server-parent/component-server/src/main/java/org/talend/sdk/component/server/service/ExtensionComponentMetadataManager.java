@@ -78,7 +78,7 @@ public class ExtensionComponentMetadataManager {
 
     private final Map<ActionKey, Action> actions = new LinkedHashMap<>();
 
-    void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start,
+    public void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start,
             final ComponentServerConfiguration configuration) {
         try {
             extensionsEvent.fireAsync(new ExtensionRegistrar() {

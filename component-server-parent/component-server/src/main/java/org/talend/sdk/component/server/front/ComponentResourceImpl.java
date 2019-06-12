@@ -166,7 +166,7 @@ public class ComponentResourceImpl implements ComponentResource {
         });
     }
 
-    void clearCache(@Observes final DeployedComponent deployedComponent) {
+    public void clearCache(@Observes final DeployedComponent deployedComponent) {
         indicesPerRequest.clear();
     }
 

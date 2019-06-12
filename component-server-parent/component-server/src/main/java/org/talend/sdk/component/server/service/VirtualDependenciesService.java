@@ -168,7 +168,7 @@ public class VirtualDependenciesService {
         artifactMapping.putAll(userJars);
     }
 
-    void onUnDeploy(final Container plugin) {
+    public void onUnDeploy(final Container plugin) {
         final Enrichment enrichment = enrichmentsPerContainer.remove(plugin.getId());
         if (enrichment == null || enrichment == noCustomization) {
             return;
@@ -215,7 +215,7 @@ public class VirtualDependenciesService {
         }).orElseGet(() -> configurationArtifactMapping.get(artifact));
     }
 
-    String groupIdFor(final String family) {
+    public String groupIdFor(final String family) {
         return virtualGroupId + sanitizedForGav(family);
     }
 

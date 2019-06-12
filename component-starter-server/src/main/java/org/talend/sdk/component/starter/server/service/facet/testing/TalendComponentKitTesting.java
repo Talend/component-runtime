@@ -48,7 +48,7 @@ public class TalendComponentKitTesting implements FacetGenerator {
     @Inject
     private NameConventions names;
 
-    void register(@Observes final GeneratorRegistration init) {
+    public void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
     }
 

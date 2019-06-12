@@ -40,13 +40,13 @@ export default function Summary(props) {
 	}
 	const outputLength = p.processors.filter(proc => proc.outputStructures.length === 0).length;
 	const processorsLength = p.processors.length - outputLength;
-	const endpointsLength = props.openapi ? props.openapi.selectedEndpoints.length : 0;
+	const endpointsLength = props.openapi && props.openapi.selectedEndpoints ? props.openapi.selectedEndpoints.length : 0;
 	return (
 		<div className={theme.Summary}>
 			<Info name="Name" value={p.name} />
 			<Info name="Build Tool" value={p.buildType} />
 			<Info name="Coordinates" value={`${p.group}:${p.artifact}:${p.version}`} />
-			{!props.openapi && (
+			{!props.useOpenAPI && (
 				<React.Fragment>
 					<Info
 						name="Datasets"
@@ -58,7 +58,7 @@ export default function Summary(props) {
 					/>
 				</React.Fragment>
 			)}
-			{!!props.openapi && (<Info name="Endpoints" value={`${endpointsLength} endpoints selected`} />)}
+			{!!props.useOpenAPI && (<Info name="Endpoints" value={`${endpointsLength} endpoints selected`} />)}
 		</div>
 	);
 }
