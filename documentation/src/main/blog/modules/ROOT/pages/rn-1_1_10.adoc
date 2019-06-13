@@ -8,7 +8,7 @@ IMPORTANT: This version brings major changes related to icons.
 
 == Icons
 
-It is now recommended to use SVG custom icons instead of PNG pr built-in icons.
+It is now recommended to use SVG custom icons instead of PNG or built-in icons.
 
 == Starter
 
