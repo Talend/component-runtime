@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
@@ -36,7 +37,8 @@ class JavaProxyEnricherFactoryTest {
         final Translator proxyBased = Translator.class
                 .cast(factory
                         .asSerializable(loader, getClass().getSimpleName(), Translator.class.getName(),
-                                new InternationalizationServiceFactory().create(Translator.class, loader)));
+                                new InternationalizationServiceFactory(Locale::getDefault)
+                                        .create(Translator.class, loader)));
         assertEquals("ok", proxyBased.message());
 
         DynamicContainerFinder.SERVICES.put(Translator.class, proxyBased);

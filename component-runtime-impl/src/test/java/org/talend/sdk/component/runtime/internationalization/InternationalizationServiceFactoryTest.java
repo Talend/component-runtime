@@ -26,8 +26,8 @@ import org.talend.sdk.component.api.internationalization.Language;
 
 class InternationalizationServiceFactoryTest {
 
-    private final Translate translate =
-            new InternationalizationServiceFactory().create(Translate.class, Translate.class.getClassLoader());
+    private final Translate translate = new InternationalizationServiceFactory(Locale::getDefault)
+            .create(Translate.class, Translate.class.getClassLoader());
 
     @Test
     void shortName() {
@@ -63,8 +63,8 @@ class InternationalizationServiceFactoryTest {
     void objectMethods() {
         assertEquals(translate, translate);
         assertEquals(translate.hashCode(), translate.hashCode());
-        final Translate other =
-                new InternationalizationServiceFactory().create(Translate.class, Translate.class.getClassLoader());
+        final Translate other = new InternationalizationServiceFactory(Locale::getDefault)
+                .create(Translate.class, Translate.class.getClassLoader());
         assertNotSame(translate, other);
     }
 

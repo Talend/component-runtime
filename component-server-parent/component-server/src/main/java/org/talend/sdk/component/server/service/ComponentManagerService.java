@@ -25,10 +25,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
@@ -39,6 +44,8 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -88,6 +95,13 @@ public class ComponentManagerService {
     @Inject
     private Event<DeployedComponent> deployedComponentEvent;
 
+    @Inject
+    @Context
+    private UriInfo uriInfo;
+
+    @Inject
+    private LocaleMapper localeMapper;
+
     private ComponentManager instance;
 
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
@@ -111,12 +125,21 @@ public class ComponentManagerService {
             }
         }
 
-        configuration
-                .getMavenRepository()
-                .ifPresent(repo -> System.setProperty("talend.component.manager.m2.repository", repo));
-
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
-        instance = ComponentManager.instance();
+        final File m2 = configuration
+                .getMavenRepository()
+                .map(Paths::get)
+                .filter(Files::exists)
+                .map(Path::toFile)
+                .orElseGet(ComponentManager::findM2);
+        log.info("Using maven repository: '{}'", m2);
+        instance = new ComponentManager(m2) {
+
+            @Override
+            protected Supplier<Locale> getLocalSupplier() {
+                return ComponentManagerService.this::readCurrentLocale;
+            }
+        };
         deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao, configurationDao,
                 virtualDependenciesService);
         instance.getContainer().registerListener(deploymentListener);
@@ -152,10 +175,22 @@ public class ComponentManagerService {
         started = true;
     }
 
+    private Locale readCurrentLocale() {
+        try {
+            return ofNullable(uriInfo.getQueryParameters().getFirst("lang"))
+                    .map(localeMapper::mapLocale)
+                    .orElseGet(Locale::getDefault);
+        } catch (final RuntimeException ex) {
+            log.debug("Can't get the locale from current request in thread '{}'", Thread.currentThread().getName(), ex);
+            return Locale.getDefault();
+        }
+    }
+
     @PreDestroy
     private void destroy() {
         started = false;
         instance.getContainer().unregisterListener(deploymentListener);
+        instance.close();
     }
 
     public String deploy(final String pluginGAV) {

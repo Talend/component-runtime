@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.Entity;
@@ -49,7 +50,7 @@ class ActionResourceImplTest {
     @Test
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(6, index.getItems().size());
+        assertEquals(7, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
@@ -103,6 +104,24 @@ class ActionResourceImplTest {
         assertEquals(200, error.getStatus());
         assertEquals("V1", error.readEntity(new GenericType<Map<String, String>>() {
         }).get("value"));
+    }
+
+    @Test
+    void i18n() {
+        final Function<String, String> call = lang -> {
+            final Response error = base
+                    .path("action/execute")
+                    .queryParam("type", "user")
+                    .queryParam("family", "jdbc")
+                    .queryParam("action", "i18n")
+                    .queryParam("lang", lang)
+                    .request(APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE));
+            return error.readEntity(new GenericType<Map<String, String>>() {
+            }).get("value");
+        };
+        assertEquals("God save the queen", call.apply("en"));
+        assertEquals("Liberté, égalité, fraternité", call.apply("fr"));
     }
 
     @Test

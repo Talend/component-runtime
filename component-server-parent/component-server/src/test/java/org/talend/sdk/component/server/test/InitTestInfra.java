@@ -267,6 +267,16 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                             put("Type.PRECISE._displayName", "Furious");
                             put("jdbc.Database/jdbc/Standard._category", "DB/Std/Yes");
                             put("jdbc.actions.user.custom._displayName", "My Custom Action");
+                            put("org.talend.test.generated.jdbc_component.JdbcService$I18n.read", "God save the queen");
+                        }
+                    }.store(out, "i18n for the config types");
+                    out.closeEntry();
+                    out.putNextEntry(new JarEntry("org/talend/test/generated/jdbc_component/Messages_fr.properties"));
+                    new Properties() {
+
+                        {
+                            put("org.talend.test.generated.jdbc_component.JdbcService$I18n.read",
+                                    "Liberté, égalité, fraternité");
                         }
                     }.store(out, "i18n for the config types");
                     out.closeEntry();

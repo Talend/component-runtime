@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
@@ -34,6 +35,9 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 
 @Service
 public class JdbcService {
+
+    @Service
+    private I18n i18n;
 
     public Connection createConnection(final String driver, final JdbcDataStore dataStore) {
         try {
@@ -46,6 +50,11 @@ public class JdbcService {
         } catch (SQLException e) {
             throw new IllegalStateException("Didn't manage to connect driver using " + dataStore, e);
         }
+    }
+
+    @Action("i18n")
+    public Map<String, String> i18n() {
+        return singletonMap("value", i18n.read());
     }
 
     @Action("custom")
@@ -69,5 +78,11 @@ public class JdbcService {
     public enum MyEnum {
         V1,
         V2
+    }
+
+    @Internationalized
+    public interface I18n {
+
+        String read();
     }
 }

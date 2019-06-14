@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -832,7 +833,7 @@ public class ReflectionService {
 
         private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService();
 
-        private static final Messages MESSAGES = new InternationalizationServiceFactory()
+        private static final Messages MESSAGES = new InternationalizationServiceFactory(Locale::getDefault)
                 .create(Messages.class, PayloadValidator.class.getClassLoader());
 
         private final boolean skip = Boolean.getBoolean("talend.component.configuration.validation.skip");

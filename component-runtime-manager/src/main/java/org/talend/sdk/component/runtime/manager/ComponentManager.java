@@ -60,6 +60,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -214,8 +215,7 @@ public class ComponentManager implements AutoCloseable {
 
     private final ParameterModelService parameterModelService;
 
-    private final InternationalizationServiceFactory internationalizationServiceFactory =
-            new InternationalizationServiceFactory();
+    private final InternationalizationServiceFactory internationalizationServiceFactory;
 
     @Getter
     private final JsonProvider jsonpProvider;
@@ -277,6 +277,10 @@ public class ComponentManager implements AutoCloseable {
 
     private final IconFinder iconFinder = new IconFinder();
 
+    public ComponentManager(final File m2) {
+        this(m2, "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
+    }
+
     /**
      * @param m2 the maven repository location if on the file system.
      * @param dependenciesResource the resource path containing dependencies.
@@ -286,6 +290,7 @@ public class ComponentManager implements AutoCloseable {
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
+        internationalizationServiceFactory = new InternationalizationServiceFactory(getLocalSupplier());
         customizers = toStream(loadServiceProviders(Customizer.class, tccl)).collect(toList()); // must stay first
         if (!customizers.isEmpty()) {
             customizers.forEach(c -> c.setCustomizers(customizers));
@@ -392,6 +397,10 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
+    protected Supplier<Locale> getLocalSupplier() {
+        return Locale::getDefault;
+    }
+
     private File resolve(final String artifact) {
         return container.resolve(artifact);
     }
@@ -433,8 +442,7 @@ public class ComponentManager implements AutoCloseable {
                                 }
                             };
 
-                    manager = new ComponentManager(findM2(), "TALEND-INF/dependencies.txt",
-                            "org.talend.sdk.component:type=component,value=%s") {
+                    manager = new ComponentManager(findM2()) {
 
                         private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -487,6 +495,28 @@ public class ComponentManager implements AutoCloseable {
         return manager;
     }
 
+    public static File findM2() {
+        return ofNullable(System.getProperty("talend.component.manager.m2.repository")).map(File::new).orElseGet(() -> {
+            // check if we are in the studio process if so just grab the the studio config
+            final String m2Repo = System.getProperty("maven.repository");
+            if (!"global".equals(m2Repo)) {
+                {
+                    final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2/repository");
+                    if (localM2.exists()) {
+                        return localM2;
+                    }
+                }
+                { // this shouldn't exist in recent studio
+                    final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2");
+                    if (localM2.exists()) {
+                        return localM2;
+                    }
+                }
+            }
+            return findDefaultM2();
+        });
+    }
+
     private static <T> Stream<T> parallelIf(final boolean condition, final Stream<T> stringStream) {
         return condition ? stringStream.parallel() : stringStream;
     }
@@ -510,28 +540,6 @@ public class ComponentManager implements AutoCloseable {
                                         .map(s -> s.split(","))
                                         .map(Stream::of)
                                         .orElseGet(Stream::empty));
-    }
-
-    protected static File findM2() {
-        return ofNullable(System.getProperty("talend.component.manager.m2.repository")).map(File::new).orElseGet(() -> {
-            // check if we are in the studio process if so just grab the the studio config
-            final String m2Repo = System.getProperty("maven.repository");
-            if (!"global".equals(m2Repo)) {
-                {
-                    final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2/repository");
-                    if (localM2.exists()) {
-                        return localM2;
-                    }
-                }
-                { // this shouldn't exist in recent studio
-                    final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2");
-                    if (localM2.exists()) {
-                        return localM2;
-                    }
-                }
-            }
-            return findDefaultM2();
-        });
     }
 
     private static File findDefaultM2() {

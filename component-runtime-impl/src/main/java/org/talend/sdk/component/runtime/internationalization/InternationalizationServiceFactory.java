@@ -31,6 +31,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.internationalization.Language;
@@ -38,7 +39,10 @@ import org.talend.sdk.component.runtime.reflect.Defaults;
 
 import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class InternationalizationServiceFactory {
+
+    private final Supplier<Locale> localeSupplier;
 
     public <T> T create(final Class<T> api, final ClassLoader loader) {
         if (!api.isInterface()) {
@@ -61,7 +65,8 @@ public class InternationalizationServiceFactory {
                 .cast(Proxy
                         .newProxyInstance(loader, new Class<?>[] { api },
                                 new InternationalizedHandler(api.getName() + '.', api.getSimpleName() + '.',
-                                        (pck == null || pck.isEmpty() ? "" : (pck + '.')) + "Messages")));
+                                        (pck == null || pck.isEmpty() ? "" : (pck + '.')) + "Messages",
+                                        localeSupplier)));
     }
 
     @RequiredArgsConstructor
@@ -74,6 +79,8 @@ public class InternationalizationServiceFactory {
         private final String shortPrefix;
 
         private final String messages;
+
+        private final Supplier<Locale> localeSupplier;
 
         private final ConcurrentMap<Locale, ResourceBundle> bundles = new ConcurrentHashMap<>();
 
@@ -152,7 +159,7 @@ public class InternationalizationServiceFactory {
                     return params -> Locale.class.cast(params[idx]);
                 }
             }
-            return p -> Locale.getDefault();
+            return p -> localeSupplier.get();
         }
 
         private String getTemplate(final Locale locale, final MethodMeta methodMeta) {

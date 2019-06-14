@@ -133,7 +133,9 @@ public class ActionResourceImpl implements ActionResource {
             } catch (final RuntimeException re) {
                 return onError(re);
             }
-        }, Runnable::run/* synchronous, if needed we can move to async with timeout later but currently we don't want */);
+            // synchronous, if needed we can move to async with timeout later but currently we don't want.
+            // check org.talend.sdk.component.server.service.ComponentManagerService.readCurrentLocale if you change it
+        }, Runnable::run);
     }
 
     private Response onError(final Throwable re) {
