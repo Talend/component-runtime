@@ -26,7 +26,7 @@ function installMaven {
 }
 # ensure env is set up
 BUILD_MAVEN_VERSION=${BUILD_MAVEN_VERSION:-3.6.1}
-[ "x$BUILD_ENV_RESET" == "x" ] && rm -Rf "$HOME/.cache/talend/build"
+[ "x$BUILD_ENV_RESET" == "x" ] || rm -Rf "$HOME/.cache/talend/build"
 if [ ! -d "$HOME/.cache/talend/build" ]; then
   mkdir -p "$HOME/.cache/talend/build"
   installJava "zulu8.36.0.1-ca-fx-jdk8.0.202" "8"
