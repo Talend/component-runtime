@@ -107,7 +107,8 @@ Datetime fields rely on the Java Date Time API, including `LocalTime`, `LocalDat
 LocalDateTime startTime;
 ----
 
-===
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth",width="100%"]
+|===
 |Studio Rendering | Web Rendering
 
 |image::gallery/widgets/studio/widget_calendar.png[Studio Calendar,40%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/widget_calendar.png"]
