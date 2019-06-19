@@ -27,7 +27,6 @@ import static lombok.AccessLevel.PRIVATE;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -54,7 +53,6 @@ import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyOrderStrategy;
 
 import crawlercommons.sitemaps.SiteMap;
-import crawlercommons.sitemaps.SiteMapIndex;
 import crawlercommons.sitemaps.SiteMapParser;
 
 import org.jsoup.Jsoup;
@@ -86,10 +84,8 @@ public class SearchIndexation {
         final File siteMapFile = new File(args[0]);
         final String urlMarker = "/component-runtime/";
         final SiteMap siteMap = SiteMap.class
-                .cast(SiteMapIndex.class
-                        .cast(new SiteMapParser(false /* we index a local file with remote urls */)
-                                .parseSiteMap(siteMapFile.toURI().toURL()))
-                        .getSitemap(new URL("https://talend.github.io/component-runtime/sitemap-main.xml")));
+                .cast(new SiteMapParser(false /* we index a local file with remote urls */)
+                        .parseSiteMap(siteMapFile.toURI().toURL()));
         final ExecutorService pool = Executors.newFixedThreadPool(Integer.getInteger("talend.algolia.indexation", 256));
         final List<Future<List<JsonObject>>> updates = siteMap.getSiteMapUrls().stream().filter(url -> {
             // filter not indexed pages

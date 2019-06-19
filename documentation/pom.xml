@@ -303,7 +303,7 @@
               <mainClass>org.talend.runtime.documentation.SearchIndexation</mainClass>
               <includePluginDependencies>true</includePluginDependencies>
               <arguments>
-                <argument>${project.build.directory}/${project.build.finalName}/sitemap.xml</argument>
+                <argument>${project.build.directory}/${project.build.finalName}/sitemap-main.xml</argument>
               </arguments>
             </configuration>
           </execution>
