@@ -35,6 +35,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.AbstractMap;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 
 import com.google.cloud.tools.jib.api.Containerizer;
 import com.google.cloud.tools.jib.api.DockerDaemonImage;
@@ -393,14 +395,24 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                     .addEntry(from, target, LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(from, target),
                             lastModified(from));
         });
+
         // the registry (only depends on components so belongs to this layer)
         writeRegistry(getNewComponentRegistry(coordinates));
-        final File registryLocation = getRegistry();
-        final Path src = registryLocation.toPath().toAbsolutePath();
-        final AbsoluteUnixPath target = AbsoluteUnixPath.get(workingDirectory).resolve(registryLocation.getName());
-        componentsLayerBuilder
-                .addEntry(src, target, LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(src, target),
-                        lastModified(registryLocation.toPath()));
+        writeDigest(getDigests());
+
+        final Path registryLocation = getRegistry().toPath().toAbsolutePath();
+        final Path digestRegistryLocation = getDigestRegistry().toPath().toAbsolutePath();
+        final AbsoluteUnixPath registryTarget =
+                AbsoluteUnixPath.get(workingDirectory).resolve(registryLocation.getFileName().toString());
+        final AbsoluteUnixPath digestRegistryTarget =
+                AbsoluteUnixPath.get(workingDirectory).resolve(digestRegistryLocation.getFileName().toString());
+        Stream
+                .of(new AbstractMap.SimpleEntry<>(registryLocation, registryTarget),
+                        new AbstractMap.SimpleEntry<>(digestRegistryLocation, digestRegistryTarget))
+                .forEach(it -> componentsLayerBuilder
+                        .addEntry(it.getKey(), it.getValue(),
+                                LayerEntry.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(it.getKey(), it.getValue()),
+                                lastModified(it.getKey())));
         builder.addLayer(componentsLayerBuilder.build());
         getLog()
                 .info("Prepared layer for components " + cars.toString().replace(":car", "") + " ("
