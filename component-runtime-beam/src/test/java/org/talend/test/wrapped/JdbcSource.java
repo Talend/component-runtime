@@ -48,6 +48,7 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 
 @Icon(Icon.IconType.DB_INPUT)
 @PartitionMapper(family = "Jdbc", name = "Input")
@@ -85,7 +86,7 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
         private Coder<JsonObject> delegate;
 
         private Coder<JsonObject> delegate() {
-            return delegate == null ? delegate = collection.getCoder() : delegate;
+            return delegate == null ? delegate = JsonpJsonObjectCoder.of("test-classes") : delegate;
         }
 
         @Override
