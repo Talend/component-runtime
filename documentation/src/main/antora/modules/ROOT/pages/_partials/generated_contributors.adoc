@@ -1,7 +1,7 @@
 ++++
 <jsonArray>[
   {
-    "commits":2354,
+    "commits":2356,
     "description":"Joined the Apache EE family (OpenWebBeans, Meecrowave, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -91,6 +91,13 @@
     "name":"Zoltán Takács"
   },
   {
+    "commits":2,
+    "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?).\n\nBlog: https://ismaelmejia.com/",
+    "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
+    "id":"iemejia",
+    "name":"Ismaël Mejía"
+  },
+  {
     "commits":1,
     "description":"",
     "gravatar":"https://avatars1.githubusercontent.com/u/35097656?v=4",
@@ -141,10 +148,9 @@
   },
   {
     "commits":1,
-    "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?).\n\nBlog: https://ismaelmejia.com/",
-    "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
-    "id":"iemejia",
-    "name":"Ismaël Mejía"
+    "description":"",
+    "gravatar":"https://avatars1.githubusercontent.com/u/783286?v=4",
+    "id":"sgandon"
   },
   {
     "commits":1,

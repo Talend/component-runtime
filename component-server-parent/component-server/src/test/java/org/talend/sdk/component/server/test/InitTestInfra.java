@@ -15,22 +15,21 @@
  */
 package org.talend.sdk.component.server.test;
 
-import org.apache.meecrowave.Meecrowave;
-import org.apache.xbean.asm7.AnnotationVisitor;
-import org.apache.xbean.asm7.ClassReader;
-import org.apache.xbean.asm7.ClassWriter;
-import org.apache.xbean.asm7.MethodVisitor;
-import org.apache.xbean.asm7.Type;
-import org.apache.xbean.asm7.commons.ClassRemapper;
-import org.apache.xbean.asm7.commons.Remapper;
-import org.apache.ziplock.Files;
-import org.apache.ziplock.IO;
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.service.Action;
-import org.talend.sdk.component.api.service.Service;
+import static java.util.Optional.ofNullable;
+import static org.apache.xbean.asm7.ClassReader.EXPAND_FRAMES;
+import static org.apache.xbean.asm7.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm7.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm7.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm7.Opcodes.ALOAD;
+import static org.apache.xbean.asm7.Opcodes.ARETURN;
+import static org.apache.xbean.asm7.Opcodes.DUP;
+import static org.apache.xbean.asm7.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm7.Opcodes.NEW;
+import static org.apache.xbean.asm7.Opcodes.RETURN;
+import static org.apache.xbean.asm7.Opcodes.V1_8;
+import static org.apache.ziplock.JarLocation.jarLocation;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import javax.json.bind.config.PropertyOrderStrategy;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -50,20 +49,22 @@ import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import static java.util.Optional.ofNullable;
-import static org.apache.xbean.asm7.ClassReader.EXPAND_FRAMES;
-import static org.apache.xbean.asm7.ClassWriter.COMPUTE_FRAMES;
-import static org.apache.xbean.asm7.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm7.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm7.Opcodes.ALOAD;
-import static org.apache.xbean.asm7.Opcodes.ARETURN;
-import static org.apache.xbean.asm7.Opcodes.DUP;
-import static org.apache.xbean.asm7.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm7.Opcodes.NEW;
-import static org.apache.xbean.asm7.Opcodes.RETURN;
-import static org.apache.xbean.asm7.Opcodes.V1_8;
-import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.jupiter.api.Assertions.fail;
+import javax.json.bind.config.PropertyOrderStrategy;
+
+import org.apache.meecrowave.Meecrowave;
+import org.apache.xbean.asm7.AnnotationVisitor;
+import org.apache.xbean.asm7.ClassReader;
+import org.apache.xbean.asm7.ClassWriter;
+import org.apache.xbean.asm7.MethodVisitor;
+import org.apache.xbean.asm7.Type;
+import org.apache.xbean.asm7.commons.ClassRemapper;
+import org.apache.xbean.asm7.commons.Remapper;
+import org.apache.ziplock.Files;
+import org.apache.ziplock.IO;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.service.Action;
+import org.talend.sdk.component.api.service.Service;
 
 // create a test m2 repo and setup the server configuration to ensure components are found
 public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
@@ -324,6 +325,14 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             return createRepackaging(target, "org/talend/sdk/component/server/test/custom", out -> {
                 try {
                     out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
+                    out.closeEntry();
+
+                    out.putNextEntry(new JarEntry("TALEND-INF/documentation.adoc"));
+                    out.write(("= Default").getBytes(StandardCharsets.UTF_8));
+                    out.closeEntry();
+
+                    out.putNextEntry(new JarEntry("TALEND-INF/documentation_fr.adoc"));
+                    out.write(("= Fr doc").getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
                 } catch (final IOException e) {
                     fail(e.getMessage());

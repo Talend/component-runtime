@@ -79,7 +79,7 @@ class BulkReadResourceImplTest {
         assertTrue(new String(results.get(0).getResponse(), StandardCharsets.UTF_8)
                 .contains("\"pluginLocation\":\"org.talend.comp:jdbc-component:jar:0.0.1:compile\""));
         assertEquals(
-                "{\n" + "  \"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\\n\",\n"
+                "{\n" + "  \"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\",\n"
                         + "  \"type\":\"asciidoc\"\n" + "}",
                 new String(results.get(1).getResponse(), StandardCharsets.UTF_8));
         assertEquals(

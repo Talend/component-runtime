@@ -18,6 +18,8 @@ package org.talend.sdk.component.server.front;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.function.Function;
+
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -57,7 +59,7 @@ class DocumentationResourceImplTest {
     void wsDoc() {
         final DocumentationContent content =
                 ws.read(DocumentationContent.class, "GET", "/documentation/component/" + client.getJdbcId(), null);
-        assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n", content.getSource());
+        assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1", content.getSource());
     }
 
     @Test
@@ -68,7 +70,7 @@ class DocumentationResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .get(DocumentationContent.class);
         assertEquals("asciidoc", content.getType());
-        assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n", content.getSource());
+        assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1", content.getSource());
     }
 
     @Test
@@ -119,7 +121,7 @@ class DocumentationResourceImplTest {
                     .request(APPLICATION_JSON_TYPE)
                     .get(DocumentationContent.class)
                     .getSource();
-            assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n", response);
+            assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1", response);
         }
         {
             final String id = client.getComponentId("jdbc", "output");
@@ -131,6 +133,21 @@ class DocumentationResourceImplTest {
                     .getSource();
             assertEquals("== output\n\n=== Configuration\n\nSomething else", response);
         }
+    }
+
+    @Test
+    void preferredLocaleDoc() {
+        final String componentId = client.getComponentId("custom", "noop");
+        final Function<String, String> get = lang -> base
+                .path("documentation/component/{id}")
+                .resolveTemplate("id", componentId)
+                .queryParam("language", lang)
+                .request(APPLICATION_JSON_TYPE)
+                .get(DocumentationContent.class)
+                .getSource()
+                .trim();
+        assertEquals("= Default", get.apply("en"));
+        assertEquals("= Fr doc", get.apply("fr"));
     }
 
     @Test

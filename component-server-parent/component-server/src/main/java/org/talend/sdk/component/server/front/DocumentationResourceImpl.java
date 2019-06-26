@@ -129,8 +129,6 @@ public class DocumentationResourceImpl implements DocumentationResource {
         }
 
         return cache.documentations.computeIfAbsent(new DocKey(id, language, segment), key -> {
-            // todo: handle i18n properly, for now just fallback on not suffixed version and assume the dev put it
-            // in the comp
             final String content = Stream
                     .of("documentation_" + locale.getLanguage() + ".adoc", "documentation_" + language + ".adoc",
                             "documentation.adoc")
@@ -158,10 +156,6 @@ public class DocumentationResourceImpl implements DocumentationResource {
                                     .build());
                         }
                     })
-                    .distinct()
-                    .sorted()
-                    // todo: handle exclusions? for now we assume nested components will rewrite the doc
-                    .reduce((s1, s2) -> String.join("\n\n", s1, ofNullable(s2).orElse("")))
                     .map(value -> ofNullable(container.get(ContainerComponentRegistry.class))
                             .flatMap(r -> r
                                     .getComponents()
@@ -174,6 +168,9 @@ public class DocumentationResourceImpl implements DocumentationResource {
                                     .findFirst()
                                     .map(c -> selectById(c.getName(), value, segment)))
                             .orElse(value))
+                    .map(String::trim)
+                    .filter(it -> !it.isEmpty())
+                    .findFirst()
                     .orElseThrow(() -> new WebApplicationException(Response
                             .status(NOT_FOUND)
                             .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component '" + id + "'"))

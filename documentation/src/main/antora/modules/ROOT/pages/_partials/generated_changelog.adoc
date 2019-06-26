@@ -1,5 +1,11 @@
 
 
+== Version 1.1.12
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1478[TCOMP-1478^]: /documentation/component/{id} internationalization does not work when embedded
+
 == Version 1.1.11
 
 === Bug
