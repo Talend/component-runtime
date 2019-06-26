@@ -5,7 +5,7 @@ This pages lists most of the extension points the framework provides for integra
 
 == Customize the isolation
 
-This can be useful to customize which libraries are shared accross all components - to inject a new global service - or prevent some libraries to be laoded from components even if provided in the `dependencies.txt`.
+This can be useful to customize which libraries are shared accross all components - to inject a new global service - or prevent some libraries to be loaded from components even if provided in the `dependencies.txt`.
 
 The entry point to do that is the `org.talend.sdk.component.runtime.manager.ComponentManager.Customizer` SPI:
 
