@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1478[TCOMP-1478^]: /documentation/component/{id} internationalization does not work when embedded
 - link:https://jira.talendforge.org/browse/TCOMP-1479[TCOMP-1479^]: When generating the documentation, it can happen the lang is wrong due to ResourceBundle usage
+- link:https://jira.talendforge.org/browse/TCOMP-1480[TCOMP-1480^]: Servers docker images don't have curl or wget available
 
 == Version 1.1.11
 

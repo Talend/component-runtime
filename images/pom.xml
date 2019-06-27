@@ -41,7 +41,7 @@
     <baseImageDir>/opt/talend</baseImageDir>
 
     <!-- ensure to use an image lib with glic -->
-    <baseImage>openjdk:8u212-jre-slim</baseImage>
+    <baseImage>tacokit/java8:8u212</baseImage>
   </properties>
 
   <build>
