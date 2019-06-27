@@ -62,7 +62,7 @@ public class AsciidocDocumentationGenerator extends DocBaseGenerator {
     }
 
     @Override
-    public void run() {
+    public void doRun() {
         final String doc = components()
                 .map(this::toAsciidoc)
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)

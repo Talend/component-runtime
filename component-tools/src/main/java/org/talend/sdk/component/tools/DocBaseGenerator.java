@@ -87,6 +87,25 @@ abstract class DocBaseGenerator extends BaseTask {
         }
     }
 
+    @Override
+    public final void run() {
+        final Locale oldLocale = Locale.getDefault();
+        final boolean shouldSwitchLocale =
+                oldLocale != Locale.ROOT && !ofNullable(oldLocale.getLanguage()).orElse("").equals("en");
+        if (shouldSwitchLocale) {
+            Locale.setDefault(Locale.ROOT);
+        }
+        try {
+            doRun();
+        } finally {
+            if (shouldSwitchLocale) {
+                Locale.setDefault(oldLocale);
+            }
+        }
+    }
+
+    protected abstract void doRun();
+
     protected Stream<ComponentDescription> components() {
         final AnnotationFinder finder = newFinder();
         return findComponents(finder).map(component -> {

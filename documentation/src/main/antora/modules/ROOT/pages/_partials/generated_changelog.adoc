@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1478[TCOMP-1478^]: /documentation/component/{id} internationalization does not work when embedded
+- link:https://jira.talendforge.org/browse/TCOMP-1479[TCOMP-1479^]: When generating the documentation, it can happen the lang is wrong due to ResourceBundle usage
 
 == Version 1.1.11
 

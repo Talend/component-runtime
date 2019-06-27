@@ -61,7 +61,7 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
     }
 
     @Override
-    public void run() {
+    public void doRun() {
         final TransformerFactory transformerFactory = TransformerFactory.newInstance();
         final DocumentBuilderFactory builderFactory = newDocFactory();
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream(); // dont write if it fails later
