@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { CircularProgress, TreeView, Toggle } from '@talend/react-components';
+import { CircularProgress, TreeView, Toggle, Modal } from '@talend/react-components';
 
 import theme from './Menu.scss';
 
@@ -68,6 +68,12 @@ class Menu extends React.Component {
 					onToggle={this.onToggle}
 					onToggleAllSiblings={this.noOp}
 				/>
+				<Modal show={this.props.displayDocumentation} onHide={this.props.onDocumentationModalClose} bsSize="lg">
+				    <Modal.Header closeButton>Documentation</Modal.Header>
+				    <Modal.Body>
+				        <div dangerouslySetInnerHTML={{__html: this.props.documentation}} />
+				    </Modal.Body>
+				</Modal>
 			</div>
 		);
 	}

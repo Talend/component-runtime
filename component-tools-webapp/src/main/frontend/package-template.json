@@ -35,7 +35,8 @@
     "redux": "3.7.2",
     "redux-thunk": "2.2.0",
     "uuid": "3.0.1",
-    "whatwg-fetch": "2.0.3"
+    "whatwg-fetch": "2.0.3",
+    "asciidoctor": "2.0.3"
   },
   "devDependencies": {
     "autoprefixer": "7.1.4",

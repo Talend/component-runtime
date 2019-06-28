@@ -17,7 +17,7 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getComponentsList, switchTree } from '../../store/componentsList/actions';
+import { getComponentsList, switchTree, closeDocumentationModal } from '../../store/componentsList/actions';
 import { selectComponent, toggleComponent } from '../../store/component/actions';
 import Menu from './Menu.component';
 
@@ -27,6 +27,7 @@ function mapDispatchToProps(dispatch) {
 		selectComponent: bindActionCreators(selectComponent, dispatch),
 		toggleComponent: bindActionCreators(toggleComponent, dispatch),
 		onSwitch: () => dispatch(switchTree()),
+		onDocumentationModalClose: () => dispatch(closeDocumentationModal()),
 	}
 }
 

@@ -21,6 +21,8 @@ import {
   GET_COMPONENT_LIST_OK,
   SELECT_COMPONENT_NODE,
   TOGGLE_COMPONENT_NODE,
+  DOCUMENTATION_LOADED,
+  CLOSE_DOCUMENTATION_MODAL,
 } from '../constants';
 
 function getCategory(node) {
@@ -105,6 +107,18 @@ export default (state = {}, action) => {
       return {
         ...state,
         categories: updateToggle(state.categories, action.node),
+      };
+    case DOCUMENTATION_LOADED:
+      return {
+        ...state,
+        documentation: action.documentation,
+        displayDocumentation: true,
+      };
+    case CLOSE_DOCUMENTATION_MODAL:
+      return {
+        ...state,
+        documentation: null,
+        displayDocumentation: false,
       };
     default:
       return state;

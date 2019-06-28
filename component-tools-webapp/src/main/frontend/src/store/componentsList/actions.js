@@ -22,7 +22,22 @@ import {
   FAMILY_RELOADING,
   FAMILY_RELOADED,
   FAMILY_RELOADED_ERROR,
+  DOCUMENTATION_LOADING,
+  DOCUMENTATION_LOADED,
+  DOCUMENTATION_LOADED_ERROR,
+  CLOSE_DOCUMENTATION_MODAL,
 } from '../constants';
+import asciidoctorFactory from 'asciidoctor';
+
+const asciidoctor = function () {
+    const cache = {};
+    return () => {
+        if (!cache.instance) {
+            cache.instance = asciidoctorFactory();
+        }
+        return cache.instance;
+    };
+}();
 
 function isInBundle(icon) {
 	return !!Object.keys(talendIcons).find(elt => elt === `talend-${icon}`);
@@ -42,7 +57,7 @@ function nameComparator() {
   };
 }
 
-function createComponentNode(familyNode, component) {
+function createComponentNode(familyNode, component, dispatch) {
   const { icon } = component.icon;
   const componentId = component.id.id;
 
@@ -54,12 +69,25 @@ function createComponentNode(familyNode, component) {
     $$detail: component.links[0].path,
     $$type: 'component',
     $$parent: familyNode,
+    actions: [
+      {
+        label: 'Documentation',
+        icon: 'talend-question-circle',
+        action: item => {
+          dispatch(documentationIsLoading());
+          fetch(`api/v1/documentation/component/${componentId}?language=${new URLSearchParams(window.location.search).get('language') || 'en'}`)
+            .then(response => response.json())
+            .then(response => dispatch(onDocumentation(component, response)))
+            .catch(error => dispatch(onDocumentationError(error, component)));
+        }
+      }
+    ]
   };
   
   if (isInBundle(icon)) {
     node.icon = { name: `talend-${icon}` };
   } else {
-    node.icon = { name: `src-/api/v1/component/icon/${component.id.id}`};
+    node.icon = { name: `src-/api/v1/component/icon/${component.id.id}` };
   }
   if (!node.categories || !node.categories.length) {
     node.categories = ['Others'];
@@ -140,7 +168,7 @@ function createTree(components, dispatch) {
       let categoryNode = getOrCreateCategoryNode(accu, categoryId);
       let familyNode = getOrCreateFamilyNode(categoryNode, component, dispatch);
 
-      const node = createComponentNode(familyNode, component);
+      const node = createComponentNode(familyNode, component, dispatch);
       familyNode.children.push(node);
       familyNode.children.sort(nameComparator());
     });
@@ -259,9 +287,41 @@ function onFamilyReloadError(family, error) {
   };
 }
 
+function onDocumentation(component, response) {
+  return {
+    type: DOCUMENTATION_LOADED,
+    documentation: asciidoctor().convert(response.source),
+  };
+}
+
+function onDocumentationError(error, component) {
+  return {
+    type: DOCUMENTATION_LOADED_ERROR,
+    notification: {
+      id: `component-documentation-error_${new Date().getTime()}`,
+      type: 'error',
+      title: `Error Loading documentation for ${component.displayName}`,
+      autoLeaveError: true,
+      message: JSON.stringify(error)
+    }
+  };
+}
+
 function familyIsReloading() {
   return {
-    type: FAMILY_RELOADING
+    type: FAMILY_RELOADING,
+  };
+}
+
+function documentationIsLoading() {
+  return {
+    type: DOCUMENTATION_LOADING,
+  };
+}
+
+export function closeDocumentationModal() {
+  return {
+    type: CLOSE_DOCUMENTATION_MODAL,
   };
 }
 

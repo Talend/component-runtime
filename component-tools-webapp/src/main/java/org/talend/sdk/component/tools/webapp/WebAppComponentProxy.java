@@ -73,9 +73,10 @@ public class WebAppComponentProxy {
     @POST
     @Path("action")
     public void action(@Suspended final AsyncResponse response, @QueryParam("family") final String family,
-            @QueryParam("type") final String type, @QueryParam("action") final String action,
-            final Map<String, Object> params, @Context final HttpServletRequest request) {
-        client.action(family, type, action, getLanguage(null, request), params, null).handle((r, e) -> {
+            @QueryParam("lang") final String language, @QueryParam("type") final String type,
+            @QueryParam("action") final String action, final Map<String, Object> params,
+            @Context final HttpServletRequest request) {
+        client.action(family, type, action, getLanguage(language, request), params, null).handle((r, e) -> {
             if (e != null) {
                 onException(response, e);
             } else {

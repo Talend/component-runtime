@@ -54,12 +54,15 @@ function Detail(props) {
     if (!props.definitionURL) {
         notSelected = (<NoSelectedComponent/>);
     }  else {
+        const lang = new URLSearchParams(window.location.search).get('language') || 'en';
         form = (
             <Inject
+                id="detail-form"
                 componentId="detail-form"
                 component="ComponentForm"
-                definitionURL={`/api/v1${props.definitionURL}`}
-                triggerURL="/api/v1/application/action"
+                definitionURL={`/api/v1${props.definitionURL}?language=${lang}`}
+                triggerURL={`/api/v1/application/action`}
+                lang={lang}
                 customTriggers={registry}
             />
         );

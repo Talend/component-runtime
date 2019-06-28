@@ -19,6 +19,9 @@ import {
  FAMILY_RELOADED_ERROR,
  ADD_NOTIFICATION,
  REMOVE_NOTIFICATION,
+ DOCUMENTATION_LOADING,
+ DOCUMENTATION_LOADED,
+ DOCUMENTATION_LOADED_ERROR,
 } from '../constants';
 
 function addNotification(notifications, notification) {
@@ -47,9 +50,12 @@ export default (state = { notifications: [] }, action) => {
    case FAMILY_RELOADING:
    case FAMILY_RELOADED:
    case FAMILY_RELOADED_ERROR:
+   case DOCUMENTATION_LOADING:
+   case DOCUMENTATION_LOADED:
+   case DOCUMENTATION_LOADED_ERROR:
      return {
        ...state,
-       isLoading: action.type === FAMILY_RELOADING,
+       isLoading: action.type === FAMILY_RELOADING || action.type === DOCUMENTATION_LOADING,
        notifications: addNotification(state.notifications, action.notification)
      };
    default:

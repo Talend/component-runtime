@@ -388,6 +388,9 @@ Two parameters are available with the plugin:
 
 IMPORTANT: Make sure to install the artifact before using this command because it reads the component JAR from the local Maven repository.
 
+Finally, you can switch the lang of the component UI (documentation, form) using `language` query parameter in the webapp.
+For instance `http://localhost:8080?language=fr`.
+
 ==== Changing the UI bundle
 
 If you built a custom UI (JS + CSS) bundle and want to test it in the web application, you can configure it in the `pom.xml` file as follows:
