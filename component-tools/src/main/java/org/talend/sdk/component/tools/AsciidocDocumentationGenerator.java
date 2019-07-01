@@ -74,15 +74,16 @@ public class AsciidocDocumentationGenerator extends DocBaseGenerator {
 
     private String toAsciidoc(final ComponentDescription desc) {
         final String partMarker = desc.getName();
-        return "//component_start:" + partMarker + "\n\n" +
-                levelPrefix + " " + desc.getName() + "\n\n" + desc.getDocumentation() +
-                (desc.getParameters().isEmpty() ? "" :
-                    ("//configuration_start\n\n" + levelPrefix + "= Configuration\n\n" + desc
-                        .parameters()
-                        .map(this::toAsciidoctor)
-                        .collect(joining("\n", "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n"
+        return "//component_start:" + partMarker + "\n\n" + levelPrefix + " " + desc.getName() + "\n\n"
+                + desc.getDocumentation()
+                + (desc.getParameters().isEmpty() ? ""
+                        : ("//configuration_start\n\n" + levelPrefix + "= Configuration\n\n" + desc
+                                .parameters()
+                                .map(this::toAsciidoctor)
+                                .collect(joining("\n", "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n"
                                         + "|===\n|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n",
-                                "\n|===\n\n//configuration_end\n\n")))) + "//component_end:" + partMarker + "\n\n";
+                                        "\n|===\n\n//configuration_end\n\n"))))
+                + "//component_end:" + partMarker + "\n\n";
     }
 
     private String toAsciidoctor(final Param p) {
