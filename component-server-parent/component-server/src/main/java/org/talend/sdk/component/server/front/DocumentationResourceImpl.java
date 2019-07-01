@@ -31,10 +31,14 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -244,6 +248,32 @@ public class DocumentationResourceImpl implements DocumentationResource {
             throw new IllegalArgumentException(e);
         }
 
+        return extractUsingComments(name, lines, segment)
+            .orElseGet(() -> noMarkingCommentFallbackExtraction(name, lines, segment, value));
+    }
+
+    private Optional<String> extractUsingComments(final String name, final List<String> lines, final DocumentationSegment segment) {
+        final Map<String, List<String>> linesPerComponents = new HashMap<>();
+        List<String> currentCapture = null;
+        for (final String line : lines) {
+            if (line.startsWith("//component_start:")) {
+                currentCapture = new ArrayList<>();
+                linesPerComponents.put(line.substring("//component_start:".length()), currentCapture);
+            } else if (line.startsWith("//component_end:")) {
+                currentCapture = null;
+            } else if (currentCapture != null && (!line.isEmpty() || !currentCapture.isEmpty())) {
+                currentCapture.add(line);
+            }
+        }
+        final List<String> componentDoc = linesPerComponents.get(name);
+        return ofNullable(componentDoc)
+                .filter(componentLines -> componentLines.stream().filter(it -> !it.isEmpty()).count() > 1)
+                .map(componentLines -> extractSegmentFromComments(segment, componentDoc))
+                .filter(it -> !it.trim().isEmpty());
+    }
+
+    private String noMarkingCommentFallbackExtraction(final String name, final List<String> lines, final DocumentationSegment segment,
+                                                      final String fallback) {
         // first try to find configuration level, default is 2 (==)
         final TreeMap<Integer, List<Integer>> configurationLevels = lines
                 .stream()
@@ -252,14 +282,14 @@ public class DocumentationResourceImpl implements DocumentationResource {
                 .collect(groupingBy(it -> it, TreeMap::new, toList()));
         if (configurationLevels.isEmpty()) {
             // no standard configuration, just return it all
-            return value;
+            return fallback;
         }
 
         final int titleLevels = Math.max(1, configurationLevels.lastKey() - 1);
         final String prefixTitle = IntStream.range(0, titleLevels).mapToObj(i -> "=").collect(joining()) + " ";
         final int titleIndex = lines.indexOf(prefixTitle + name);
         if (titleIndex < 0) {
-            return value;
+            return fallback;
         }
 
         List<String> endOfLines = lines.subList(titleIndex, lines.size());
@@ -272,34 +302,79 @@ public class DocumentationResourceImpl implements DocumentationResource {
             lineIdx++;
         }
         if (!endOfLines.isEmpty()) {
-            switch (segment) {
-            case DESCRIPTION: {
-                final String configTitle = getConfigTitle(prefixTitle);
-                final int configIndex = endOfLines.indexOf(configTitle);
-                final boolean skipFirst = endOfLines.get(0).startsWith(prefixTitle);
-                final int lastIndex = configIndex < 0 ? endOfLines.size() : configIndex;
-                final int firstIndex = skipFirst ? 1 : 0;
-                if (lastIndex - firstIndex <= 0) {
-                    return "";
-                }
-                return String.join("\n", endOfLines.subList(firstIndex, lastIndex));
-            }
-            case CONFIGURATION: {
-                final String configTitle = getConfigTitle(prefixTitle);
-                final int configIndex = endOfLines.indexOf(configTitle);
-                if (configIndex < 0 || configIndex + 1 >= endOfLines.size()) {
-                    return "";
-                }
-                return String.join("\n", endOfLines.subList(configIndex + 1, endOfLines.size()));
-            }
-            case ALL:
-            default:
-                return String.join("\n", endOfLines);
-            }
+            return extractSegmentFromTitles(segment, prefixTitle, endOfLines);
         }
 
         // if not found just return all the doc
-        return value;
+        return fallback;
+    }
+
+    private String extractSegmentFromTitles(final DocumentationSegment segment, final String prefixTitle,
+                                            final List<String> endOfLines) {
+        if (endOfLines.isEmpty()) {
+            return "";
+        }
+        switch (segment) {
+        case DESCRIPTION: {
+            final String configTitle = getConfigTitle(prefixTitle);
+            final int configIndex = endOfLines.indexOf(configTitle);
+            final boolean skipFirst = endOfLines.get(0).startsWith(prefixTitle);
+            final int lastIndex = configIndex < 0 ? endOfLines.size() : configIndex;
+            final int firstIndex = skipFirst ? 1 : 0;
+            if (lastIndex - firstIndex <= 0) {
+                return "";
+            }
+            return String.join("\n", endOfLines.subList(firstIndex, lastIndex));
+        }
+        case CONFIGURATION: {
+            final String configTitle = getConfigTitle(prefixTitle);
+            final int configIndex = endOfLines.indexOf(configTitle);
+            if (configIndex < 0 || configIndex + 1 >= endOfLines.size()) {
+                return "";
+            }
+            return String.join("\n", endOfLines.subList(configIndex + 1, endOfLines.size()));
+        }
+        default:
+            return String.join("\n", endOfLines);
+        }
+    }
+
+    private String extractSegmentFromComments(final DocumentationSegment segment, final List<String> lines) {
+        if (lines.isEmpty()) {
+            return "";
+        }
+        switch (segment) {
+        case DESCRIPTION: {
+            final int configStartIndex = lines.indexOf("//configuration_start");
+            final int start = lines.get(0).startsWith("=") ? 1 : 0;
+            if (configStartIndex > start) {
+                return String.join("\n", lines.subList(start, configStartIndex)).trim();
+            }
+            if (lines.get(0).startsWith("=")) {
+                return String.join("\n", lines.subList(1, lines.size()));
+            }
+            return String.join("\n", lines);
+        }
+        case CONFIGURATION: {
+            int configStartIndex = lines.indexOf("//configuration_start");
+            if (configStartIndex > 0) {
+                configStartIndex++;
+                int configEndIndex = lines.indexOf("//configuration_end");
+                if (configEndIndex > configStartIndex) {
+                    while (configStartIndex > 0 && configStartIndex < configEndIndex &&
+                            (lines.get(configStartIndex).isEmpty() || lines.get(configStartIndex).startsWith("="))) {
+                        configStartIndex++;
+                    }
+                    if (configStartIndex > 0 && configEndIndex > configStartIndex + 2) {
+                        return String.join("\n", lines.subList(configStartIndex, configEndIndex)).trim();
+                    }
+                }
+            }
+            return "";
+        }
+        default:
+            return String.join("\n", lines);
+        }
     }
 
     private String getConfigTitle(final String prefixTitle) {
