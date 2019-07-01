@@ -14,6 +14,14 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1482[TCOMP-1482^]: Enable web tester to switch the language
 - link:https://jira.talendforge.org/browse/TCOMP-1483[TCOMP-1483^]: Enable to expose the documentation through the web tester
+- link:https://jira.talendforge.org/browse/TCOMP-1485[TCOMP-1485^]: Asciidoctor documentation does not enable titles (component name and configuration ones) to be translated
+- link:https://jira.talendforge.org/browse/TCOMP-1486[TCOMP-1486^]: Ensure locale mapping is configurable in component-server
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1484[TCOMP-1484^]: Junit 5.5.0 upgrade
 
 == Version 1.1.11
 

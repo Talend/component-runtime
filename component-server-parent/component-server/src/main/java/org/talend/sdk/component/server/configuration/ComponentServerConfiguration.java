@@ -152,6 +152,15 @@ public class ComponentServerConfiguration {
             defaultValue = "icons/%s.svg,icons/svg/%s.svg,icons/%s_icon32.png,icons/png/%s_icon32.png")
     private List<String> iconExtensions;
 
+    @Inject
+    @Documentation("For caching reasons the goal is to reduce the locales to the minimum required numbers. "
+            + "For instance we avoid `fr` and `fr_FR` which would lead to the same entries but x2 in terms of memory. "
+            + "This mapping enables that by whitelisting allowed locales, default being `en`. "
+            + "If the key ends with `*` it means all string starting with the prefix will match. "
+            + "For instance `fr*` will match `fr_FR` but also `fr_CA`.")
+    @ConfigProperty(name = "talend.component.server.locale.mapping", defaultValue = "en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja")
+    private String localeMapping;
+
     @PostConstruct
     private void init() {
         if (logRequests != null && logRequests) {

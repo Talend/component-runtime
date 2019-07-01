@@ -33,7 +33,7 @@ import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.test.ComponentClient;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
-//@MonoMeecrowaveConfig
+@MonoMeecrowaveConfig
 class DocumentationResourceImplTest {
 
     @Inject
@@ -58,144 +58,79 @@ class DocumentationResourceImplTest {
 
     @Test
     void selectByIdUsingComments() {
-        final String content = "//component_start:my\n" +
-                "\n" +
-                "== my\n" +
-                "\n" +
-                "super my component\n" +
-                "\n" +
-                "//configuration_start\n" +
-                "\n" +
-                "=== Configuration\n" +
-                "\n" +
-                "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|configuration|configuration configuration|-|Always enabled|configuration|-\n" +
-                "|input|the input value|-|Always enabled|configuration.input|-\n" +
-                "|nested|it is nested|-|Always enabled|configuration.nested|dataset\n" +
-                "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n" +
-                "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" +
-                "|===\n" +
-                "\n" +
-                "//configuration_end\n" +
-                "\n" +
-                "//component_end:my\n" +
-                "\n" +
-                "//component_start:my2\n" +
-                "\n" +
-                "== my2\n" +
-                "\n" +
-                "super my component2\n" +
-                "\n" +
-                "//configuration_start\n" +
-                "\n" +
-                "=== Configuration\n" +
-                "\n" +
-                "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|ds|ds configuration|-|Always enabled|ds|dataset\n" +
-                "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" +
-                "|===\n" +
-                "\n" +
-                "//configuration_end\n" +
-                "\n" +
-                "//component_end:my2\n" +
-                "\n" +
-                "//component_start:my3\n" +
-                "\n" +
-                "== my2\n" +
-                "\n" +
-                "super my componentv3\n" +
-                "\n" +
-                "//configuration_start\n" +
-                "\n" +
-                "=== Configuration\n" +
-                "\n" +
-                "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" +
-                "|===\n" +
-                "\n" +
-                "//configuration_end\n" +
-                "\n" +
-                "//component_end:my3\n";
+        final String content = "//component_start:my\n" + "\n" + "== my\n" + "\n" + "super my component\n" + "\n"
+                + "//configuration_start\n" + "\n" + "=== Configuration\n" + "\n"
+                + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                + "|configuration|configuration configuration|-|Always enabled|configuration|-\n"
+                + "|input|the input value|-|Always enabled|configuration.input|-\n"
+                + "|nested|it is nested|-|Always enabled|configuration.nested|dataset\n"
+                + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n"
+                + "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" + "|===\n"
+                + "\n" + "//configuration_end\n" + "\n" + "//component_end:my\n" + "\n" + "//component_start:my2\n"
+                + "\n" + "== my2\n" + "\n" + "super my component2\n" + "\n" + "//configuration_start\n" + "\n"
+                + "=== Configuration\n" + "\n" + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                + "|ds|ds configuration|-|Always enabled|ds|dataset\n"
+                + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===\n" + "\n"
+                + "//configuration_end\n" + "\n" + "//component_end:my2\n" + "\n" + "//component_start:my3\n" + "\n"
+                + "== my2\n" + "\n" + "super my componentv3\n" + "\n" + "//configuration_start\n" + "\n"
+                + "=== Configuration\n" + "\n" + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===\n" + "\n"
+                + "//configuration_end\n" + "\n" + "//component_end:my3\n";
         final DocumentationResourceImpl impl = new DocumentationResourceImpl();
-        assertEquals("super my component", impl.selectById("my", content, DocumentationResourceImpl.DocumentationSegment.DESCRIPTION).trim());
-        assertEquals("[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|configuration|configuration configuration|-|Always enabled|configuration|-\n" +
-                "|input|the input value|-|Always enabled|configuration.input|-\n" +
-                "|nested|it is nested|-|Always enabled|configuration.nested|dataset\n" +
-                "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n" +
-                "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" +
-                "|===", impl.selectById("my", content, DocumentationResourceImpl.DocumentationSegment.CONFIGURATION).trim());
-        assertEquals("== my\n" +
-                "\n" +
-                "super my component\n" +
-                "\n" +
-                "//configuration_start\n" +
-                "\n" +
-                "=== Configuration\n" +
-                "\n" +
-                "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|configuration|configuration configuration|-|Always enabled|configuration|-\n" +
-                "|input|the input value|-|Always enabled|configuration.input|-\n" +
-                "|nested|it is nested|-|Always enabled|configuration.nested|dataset\n" +
-                "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n" +
-                "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" +
-                "|===\n" +
-                "\n" +
-                "//configuration_end", impl.selectById("my", content, DocumentationResourceImpl.DocumentationSegment.ALL).trim());
-        assertEquals("super my component2", impl.selectById("my2", content, DocumentationResourceImpl.DocumentationSegment.DESCRIPTION).trim());
-        assertEquals("[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|ds|ds configuration|-|Always enabled|ds|dataset\n" +
-                "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" +
-                "|===", impl.selectById("my2", content, DocumentationResourceImpl.DocumentationSegment.CONFIGURATION).trim());
-        assertEquals("== my2\n" +
-                "\n" +
-                "super my component2\n" +
-                "\n" +
-                "//configuration_start\n" +
-                "\n" +
-                "=== Configuration\n" +
-                "\n" +
-                "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|ds|ds configuration|-|Always enabled|ds|dataset\n" +
-                "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" +
-                "|===\n" +
-                "\n" +
-                "//configuration_end", impl.selectById("my2", content, DocumentationResourceImpl.DocumentationSegment.ALL).trim());
-        assertEquals("super my componentv3", impl.selectById("my3", content, DocumentationResourceImpl.DocumentationSegment.DESCRIPTION).trim());
-        assertEquals("[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" +
-                "|===", impl.selectById("my3", content, DocumentationResourceImpl.DocumentationSegment.CONFIGURATION).trim());
-        assertEquals("== my2\n" +
-                "\n" +
-                "super my componentv3\n" +
-                "\n" +
-                "//configuration_start\n" +
-                "\n" +
-                "=== Configuration\n" +
-                "\n" +
-                "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" +
-                "|===\n" +
-                "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n" +
-                "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" +
-                "|===\n" +
-                "\n" +
-                "//configuration_end", impl.selectById("my3", content, DocumentationResourceImpl.DocumentationSegment.ALL).trim());
+        assertEquals("super my component",
+                impl.selectById("my", content, DocumentationResourceImpl.DocumentationSegment.DESCRIPTION).trim());
+        assertEquals("[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                + "|configuration|configuration configuration|-|Always enabled|configuration|-\n"
+                + "|input|the input value|-|Always enabled|configuration.input|-\n"
+                + "|nested|it is nested|-|Always enabled|configuration.nested|dataset\n"
+                + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n"
+                + "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" + "|===",
+                impl.selectById("my", content, DocumentationResourceImpl.DocumentationSegment.CONFIGURATION).trim());
+        assertEquals(
+                "== my\n" + "\n" + "super my component\n" + "\n" + "//configuration_start\n" + "\n"
+                        + "=== Configuration\n" + "\n" + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                        + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                        + "|configuration|configuration configuration|-|Always enabled|configuration|-\n"
+                        + "|input|the input value|-|Always enabled|configuration.input|-\n"
+                        + "|nested|it is nested|-|Always enabled|configuration.nested|dataset\n"
+                        + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n"
+                        + "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n"
+                        + "|===\n" + "\n" + "//configuration_end",
+                impl.selectById("my", content, DocumentationResourceImpl.DocumentationSegment.ALL).trim());
+        assertEquals("super my component2",
+                impl.selectById("my2", content, DocumentationResourceImpl.DocumentationSegment.DESCRIPTION).trim());
+        assertEquals(
+                "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                        + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                        + "|ds|ds configuration|-|Always enabled|ds|dataset\n"
+                        + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===",
+                impl.selectById("my2", content, DocumentationResourceImpl.DocumentationSegment.CONFIGURATION).trim());
+        assertEquals(
+                "== my2\n" + "\n" + "super my component2\n" + "\n" + "//configuration_start\n" + "\n"
+                        + "=== Configuration\n" + "\n" + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                        + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                        + "|ds|ds configuration|-|Always enabled|ds|dataset\n"
+                        + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===\n" + "\n"
+                        + "//configuration_end",
+                impl.selectById("my2", content, DocumentationResourceImpl.DocumentationSegment.ALL).trim());
+        assertEquals("super my componentv3",
+                impl.selectById("my3", content, DocumentationResourceImpl.DocumentationSegment.DESCRIPTION).trim());
+        assertEquals(
+                "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                        + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                        + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===",
+                impl.selectById("my3", content, DocumentationResourceImpl.DocumentationSegment.CONFIGURATION).trim());
+        assertEquals(
+                "== my2\n" + "\n" + "super my componentv3\n" + "\n" + "//configuration_start\n" + "\n"
+                        + "=== Configuration\n" + "\n" + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
+                        + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
+                        + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===\n" + "\n"
+                        + "//configuration_end",
+                impl.selectById("my3", content, DocumentationResourceImpl.DocumentationSegment.ALL).trim());
     }
 
     @Test

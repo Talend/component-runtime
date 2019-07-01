@@ -249,10 +249,11 @@ public class DocumentationResourceImpl implements DocumentationResource {
         }
 
         return extractUsingComments(name, lines, segment)
-            .orElseGet(() -> noMarkingCommentFallbackExtraction(name, lines, segment, value));
+                .orElseGet(() -> noMarkingCommentFallbackExtraction(name, lines, segment, value));
     }
 
-    private Optional<String> extractUsingComments(final String name, final List<String> lines, final DocumentationSegment segment) {
+    private Optional<String> extractUsingComments(final String name, final List<String> lines,
+            final DocumentationSegment segment) {
         final Map<String, List<String>> linesPerComponents = new HashMap<>();
         List<String> currentCapture = null;
         for (final String line : lines) {
@@ -272,8 +273,8 @@ public class DocumentationResourceImpl implements DocumentationResource {
                 .filter(it -> !it.trim().isEmpty());
     }
 
-    private String noMarkingCommentFallbackExtraction(final String name, final List<String> lines, final DocumentationSegment segment,
-                                                      final String fallback) {
+    private String noMarkingCommentFallbackExtraction(final String name, final List<String> lines,
+            final DocumentationSegment segment, final String fallback) {
         // first try to find configuration level, default is 2 (==)
         final TreeMap<Integer, List<Integer>> configurationLevels = lines
                 .stream()
@@ -310,7 +311,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
     }
 
     private String extractSegmentFromTitles(final DocumentationSegment segment, final String prefixTitle,
-                                            final List<String> endOfLines) {
+            final List<String> endOfLines) {
         if (endOfLines.isEmpty()) {
             return "";
         }
@@ -361,8 +362,8 @@ public class DocumentationResourceImpl implements DocumentationResource {
                 configStartIndex++;
                 int configEndIndex = lines.indexOf("//configuration_end");
                 if (configEndIndex > configStartIndex) {
-                    while (configStartIndex > 0 && configStartIndex < configEndIndex &&
-                            (lines.get(configStartIndex).isEmpty() || lines.get(configStartIndex).startsWith("="))) {
+                    while (configStartIndex > 0 && configStartIndex < configEndIndex
+                            && (lines.get(configStartIndex).isEmpty() || lines.get(configStartIndex).startsWith("="))) {
                         configStartIndex++;
                     }
                     if (configStartIndex > 0 && configEndIndex > configStartIndex + 2) {

@@ -149,11 +149,11 @@ class ActionResourceImplTest {
                 .queryParam("type", "healthcheck")
                 .queryParam("family", "chain")
                 .queryParam("action", "langtest")
-                .queryParam("lang", "it")
+                .queryParam("lang", "fr")
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE));
         assertEquals(200, error.getStatus());
-        assertEquals("it", error.readEntity(HealthCheckStatus.class).getComment());
+        assertEquals("fr", error.readEntity(HealthCheckStatus.class).getComment());
     }
 
     private void assertAction(final String component, final String type, final String name, final int params,
