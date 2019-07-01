@@ -22,6 +22,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1484[TCOMP-1484^]: Junit 5.5.0 upgrade
+- link:https://jira.talendforge.org/browse/TCOMP-1487[TCOMP-1487^]: AsciidocMojo should only use ROOT locale by default
 
 == Version 1.1.11
 

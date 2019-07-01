@@ -120,7 +120,7 @@ public class AsciidocMojo extends ClasspathMojoBase {
     /**
      * Locales to generate a documentation for.
      */
-    @Parameter(property = "talend.documentation.locales", defaultValue = "<root>,en")
+    @Parameter(property = "talend.documentation.locales", defaultValue = "<root>")
     private Collection<String> locales;
 
     @Parameter(defaultValue = "${project.build.outputDirectory}",
