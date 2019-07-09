@@ -23,6 +23,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1484[TCOMP-1484^]: Junit 5.5.0 upgrade
 - link:https://jira.talendforge.org/browse/TCOMP-1487[TCOMP-1487^]: AsciidocMojo should only use ROOT locale by default
+- link:https://jira.talendforge.org/browse/TCOMP-1488[TCOMP-1488^]: Enable to translate gridlayout names
 
 == Version 1.1.11
 

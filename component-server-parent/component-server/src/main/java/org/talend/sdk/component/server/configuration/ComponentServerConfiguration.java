@@ -131,6 +131,12 @@ public class ComponentServerConfiguration {
     private Optional<String> extensionMavenRepository;
 
     @Inject
+    @Documentation("Should the components using a `@GridLayout` support tab translation. "
+            + "Studio does not suppot that feature yet so this is not enabled by default.")
+    @ConfigProperty(name = "talend.component.server.gridlayout.translation.support", defaultValue = "false")
+    private Boolean translateGridLayoutTabNames;
+
+    @Inject
     @Documentation("Should the all requests/responses be logged (debug purposes - only work when running with CXF).")
     @ConfigProperty(name = "talend.component.server.request.log", defaultValue = "false")
     private Boolean logRequests;

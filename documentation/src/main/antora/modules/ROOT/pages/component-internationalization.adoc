@@ -28,6 +28,7 @@ Out of the box components are internationalized using the same location logic fo
 |`${simple_class_name}.${property_name}._documentation`| See `${property_path}._documentation`.
 |`${simple_class_name}.${property_name}._placeholder`| See `${property_path}._placeholder`.
 |`${enum_simple_class_name}.${enum_name}._displayName`| Display name of the `enum_name` value of the `enum_simple_class_name` enumeration.
+|`${property_path or simple_class_name}._gridlayout.${layout_name}._displayName`| Display name of tab corresponding to the layout (tab). Note that this requires the server `talend.component.server.gridlayout.translation.support` option to be set to `true` and it is not yet supported by the Studio.
 |====
 
 Example of configuration for a component named `list` and belonging to the `memory` family (`@Emitter(family = "memory", name = "list")`):

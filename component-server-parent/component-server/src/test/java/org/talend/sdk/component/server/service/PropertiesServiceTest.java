@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
@@ -50,6 +52,10 @@ class PropertiesServiceTest {
     @Inject
     private PropertiesService propertiesService;
 
+    private static void gridLayout(@Option final WithLayout layout) {
+        // no-op
+    }
+
     private static void boolWrapper(@Option final BoolBool wrapper) {
         // no-op
     }
@@ -57,6 +63,22 @@ class PropertiesServiceTest {
     private static void multipleParams(@Option("aa") final String first, @Option("b") final BoolWrapper config,
             @Option("a") final String last) {
         // no-op
+    }
+
+    @Test
+    void gridLayoutTranslation() throws NoSuchMethodException {
+        final List<ParameterMeta> params = new ParameterModelService(new PropertyEditorRegistry())
+                .buildParameterMetas(getClass().getDeclaredMethod("gridLayout", WithLayout.class), null,
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final List<SimplePropertyDefinition> props = propertiesService
+                .buildProperties(params, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
+                .collect(toList());
+        assertEquals(3, props.size());
+
+        final Map<String, String> metadata = props.iterator().next().getMetadata();
+        assertEquals(3, metadata.size());
+        assertEquals("first", metadata.get("ui::gridlayout::NumeroUn::value"));
+        assertEquals("second", metadata.get("ui::gridlayout::NumeroDeux::value"));
     }
 
     @Test
@@ -161,6 +183,17 @@ class PropertiesServiceTest {
 
         private String password;
 
+    }
+
+    @GridLayout(names = "NumberOne", value = @GridLayout.Row("first"))
+    @GridLayout(names = "NumberTwo", value = @GridLayout.Row("second"))
+    public static class WithLayout {
+
+        @Option
+        private String first;
+
+        @Option
+        private String second;
     }
 
     @Data

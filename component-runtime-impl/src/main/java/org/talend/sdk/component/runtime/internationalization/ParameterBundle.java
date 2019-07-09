@@ -45,6 +45,10 @@ public class ParameterBundle extends InternalBundle {
         return get(parent, "_placeholder", false);
     }
 
+    public Optional<String> gridLayoutName(final ParameterBundle parent, final String tabName) {
+        return get(parent, "_gridlayout." + tabName + "._displayName", false);
+    }
+
     private Optional<String> get(final ParameterBundle parentBundle, final String suffix,
             final boolean stripLastSegment) {
         Optional<String> v = readValue(suffix);

@@ -17,14 +17,18 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.server.lang.CustomCollectors.toLinkedMap;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -35,6 +39,7 @@ import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.service.qualifier.ComponentServer;
@@ -49,6 +54,9 @@ public class PropertiesService {
 
     @Inject
     private PropertyValidationService propertyValidationService;
+
+    @Inject
+    private ComponentServerConfiguration componentServerConfiguration;
 
     @Inject
     @ComponentServer
@@ -113,6 +121,11 @@ public class PropertiesService {
 
     private Map<String, String> rewriteMetadataForLocale(final Map<String, String> metadata,
             final ParameterBundle parentBundle, final ParameterBundle bundle) {
+        return rewriteLayoutMetadata(rewriteDocMetadata(metadata, parentBundle, bundle), parentBundle, bundle);
+    }
+
+    private Map<String, String> rewriteDocMetadata(final Map<String, String> metadata,
+            final ParameterBundle parentBundle, final ParameterBundle bundle) {
         final String defaultDoc = metadata.get("documentation::value");
         final String bundleDoc = bundle.documentation(parentBundle).orElse(null);
         if (bundleDoc == null || bundleDoc.equals(defaultDoc)) {
@@ -121,6 +134,38 @@ public class PropertiesService {
         final Map<String, String> copy = new HashMap<>(metadata);
         copy.put("documentation::value", bundleDoc);
         return copy;
+    }
+
+    private Map<String, String> rewriteLayoutMetadata(final Map<String, String> metadata,
+            final ParameterBundle parentBundle, final ParameterBundle bundle) {
+        if (!componentServerConfiguration.getTranslateGridLayoutTabNames()) {
+            return metadata;
+        }
+
+        final Collection<String> keysToRewrite = metadata
+                .keySet()
+                .stream()
+                .filter(it -> it.startsWith("ui::gridlayout::") && it.endsWith("::value"))
+                .collect(toSet());
+        if (keysToRewrite.isEmpty()) {
+            return metadata;
+        }
+        final Predicate<Map.Entry<String, ?>> shouldBeRewritten = k -> keysToRewrite.contains(k.getKey());
+        return Stream
+                .concat(metadata.entrySet().stream().filter(shouldBeRewritten.negate()),
+                        metadata
+                                .entrySet()
+                                .stream()
+                                .filter(shouldBeRewritten)
+                                .map(it -> new AbstractMap.SimpleEntry<>(bundle
+                                        .gridLayoutName(parentBundle,
+                                                it
+                                                        .getKey()
+                                                        .substring("ui::gridlayout::".length(),
+                                                                it.getKey().length() - "::value".length()))
+                                        .map(t -> "ui::gridlayout::" + t + "::value")
+                                        .orElse(it.getKey()), it.getValue())))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private String toDefault(final DefaultValueInspector.Instance instance, final ParameterMeta p) {
