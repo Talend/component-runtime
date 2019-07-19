@@ -16,20 +16,76 @@
 package org.talend.sdk.component.runtime.base.lang.exception;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import lombok.Getter;
 
 public class InvocationExceptionWrapper {
 
     /**
      * Wrap the target exception in a Runtime exception
      *
-     * @param e
+     * @param e the exception to wrap in a way which will remove classloader specific exceptions.
      */
     public static RuntimeException toRuntimeException(final InvocationTargetException e) {
-        final Throwable targetException = e.getTargetException();
-        if (RuntimeException.class.isInstance(targetException)) {
-            return RuntimeException.class.cast(targetException);
-        }
-        return new IllegalStateException(targetException);
+        final Set<Throwable> visited = new HashSet<>();
+        visited.add(e.getTargetException());
+        return mapException(e.getTargetException(), visited);
     }
 
+    private static RuntimeException mapException(final Throwable targetException, final Collection<Throwable> visited) {
+        if (targetException == null) {
+            return null;
+        }
+        if (ComponentException.class.isInstance(targetException)) {
+            return ComponentException.class.cast(targetException);
+        }
+        if (RuntimeException.class.isInstance(targetException)
+                && targetException.getClass().getName().startsWith("java.")) {
+            final RuntimeException cast = RuntimeException.class.cast(targetException);
+            if (cast.getCause() == null
+                    || (cast.getCause() != null && cast.getCause().getClass().getName().startsWith("java."))) {
+                return cast;
+            } // else, let it be wrapped to ensure all the stack is serializable
+        }
+        final ComponentException exception = new ComponentException(targetException.getClass().getName(),
+                targetException.getMessage(), targetException.getStackTrace(), mapCause(targetException, visited));
+        if (exception.getSuppressed() != null && exception.getSuppressed().length > 0) {
+            Stream
+                    .of(exception.getSuppressed())
+                    .map(it -> mapCause(it, new HashSet<>()))
+                    .filter(Objects::nonNull)
+                    .forEach(exception::addSuppressed);
+        }
+        return exception;
+    }
+
+    private static Throwable mapCause(final Throwable targetException, final Collection<Throwable> visited) {
+        final Throwable cause = targetException.getCause();
+        if (cause == null || !visited.add(cause)) {
+            return null;
+        }
+        return mapException(cause, visited);
+    }
+
+    public static class ComponentException extends IllegalStateException {
+
+        @Getter
+        private final String originalType;
+
+        @Getter
+        private final String originalMessage;
+
+        public ComponentException(final String type, final String message, final StackTraceElement[] stackTrace,
+                final Throwable cause) {
+            super("(" + type + ") " + message, cause);
+            originalType = type;
+            originalMessage = message;
+            setStackTrace(stackTrace);
+        }
+    }
 }
