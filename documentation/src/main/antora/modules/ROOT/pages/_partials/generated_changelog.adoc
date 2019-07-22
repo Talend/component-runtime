@@ -28,6 +28,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1491[TCOMP-1491^]: Upgrade JIB to v1.4.0
 - link:https://jira.talendforge.org/browse/TCOMP-1492[TCOMP-1492^]: Upgrade jackson-databind to 2.9.9.1
 - link:https://jira.talendforge.org/browse/TCOMP-1493[TCOMP-1493^]: Rewrite component exception to ensure they can be loaded after a serialization
+- link:https://jira.talendforge.org/browse/TCOMP-1494[TCOMP-1494^]: Upgrade to junit jupiter 5.5.1
 
 == Version 1.1.11
 
