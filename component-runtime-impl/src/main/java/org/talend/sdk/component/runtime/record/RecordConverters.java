@@ -289,6 +289,9 @@ public class RecordConverters implements Serializable {
             }
             inputAsJson = asJson.toString();
         } else {
+            if (parameterType == Record.class) {
+                return toRecord(registry, data, jsonbProvider, recordBuilderProvider);
+            }
             inputAsJson = jsonbProvider.get().toJson(data);
         }
         return jsonbProvider.get().fromJson(inputAsJson, parameterType);

@@ -55,6 +55,20 @@ class RecordConvertersTest {
     private final RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
 
     @Test
+    void pojo2Record() throws Exception {
+        final Wrapper record = new Wrapper();
+        record.value = "hey";
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final Record json = Record.class
+                    .cast(converter
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, Record.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
+            assertEquals("hey", json.getString("value"));
+        }
+    }
+
+    @Test
     void nullSupport() throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withString("value", null).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
@@ -213,6 +227,11 @@ class RecordConvertersTest {
             final Collection<Record> list = record.getArray(Record.class, "list");
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }
+    }
+
+    public static class Wrapper {
+
+        public String value;
     }
 
     public static class BytesStruct {
