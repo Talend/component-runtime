@@ -17,7 +17,6 @@ package org.talend.sdk.component.junit;
 
 import static java.util.Collections.singletonMap;
 
-import java.io.Serializable;
 import java.util.Iterator;
 
 import lombok.Data;
@@ -29,7 +28,7 @@ import lombok.Data;
 @Data
 public class MainInputFactory implements ControllableInputFactory {
 
-    private final Iterator<Serializable> main;
+    private final Iterator<?> main;
 
     @Override
     public Object read(final String name) {
