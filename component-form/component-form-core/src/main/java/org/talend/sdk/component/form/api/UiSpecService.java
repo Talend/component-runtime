@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -157,8 +158,9 @@ public class UiSpecService<T> implements AutoCloseable {
                         .collect(toSet()));
 
         final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, ui.getJsonSchema(), props);
-        final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family.get(), ui.getUiSchema(),
-                new ArrayList<>(), client, ui.getJsonSchema(), props, actions.get(), lang, customPropertyConverters);
+        final UiSchemaConverter uiSchemaConverter =
+                new UiSchemaConverter(null, family.get(), ui.getUiSchema(), new ArrayList<>(), client,
+                        ui.getJsonSchema(), props, actions.get(), lang, customPropertyConverters, new AtomicInteger(1));
         final PropertiesConverter propertiesConverter =
                 new PropertiesConverter(jsonb, Map.class.cast(ui.getProperties()), props);
 

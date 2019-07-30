@@ -10,6 +10,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1497[TCOMP-1497^]: POJO to Record mapping is not supported in processors
 - link:https://jira.talendforge.org/browse/TCOMP-1498[TCOMP-1498^]: SVG2Mojo wrongly log the source file as being created
 - link:https://jira.talendforge.org/browse/TCOMP-1499[TCOMP-1499^]: component-form does not support array of object of object if 2 levels use the same field name
+- link:https://jira.talendforge.org/browse/TCOMP-1500[TCOMP-1500^]: Ensure component-form button have a key to have an id and propagate errors in the front
 
 
 

@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
@@ -48,12 +49,14 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
 
     private final UiSchema providedUiSchema;
 
+    // CHECKSTYLE:OFF
     public FieldSetWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Client client, final String family, final JsonSchema jsonSchema, final String order,
             final String lang, final Collection<CustomPropertyConverter> customPropertyConverters,
-            final UiSchema providedUiSchema) {
-        super(schemas, properties, actions, jsonSchema, lang);
+            final UiSchema providedUiSchema, final AtomicInteger idGenerator) {
+        // CHECKSTYLE:ON
+        super(schemas, properties, actions, jsonSchema, lang, idGenerator);
         this.client = client;
         this.family = family;
         this.customPropertyConverters = customPropertyConverters;
@@ -98,7 +101,7 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
                 final CompletableFuture<PropertyContext<?>> propContext = completedFuture(
                         new PropertyContext<>(definition, context.getRootContext(), context.getConfiguration()));
                 final UiSchemaConverter converter = new UiSchemaConverter(null, family, schemas, properties, client,
-                        jsonSchema, this.properties, actions, lang, customPropertyConverters);
+                        jsonSchema, this.properties, actions, lang, customPropertyConverters, idGenerator);
                 futures.add(converter.convert(propContext).thenApply(pc -> {
                     final ListItem item = new ListItem(index, new String[] { definition.getName() });
                     item.getUiSchemas().addAll(schemas);

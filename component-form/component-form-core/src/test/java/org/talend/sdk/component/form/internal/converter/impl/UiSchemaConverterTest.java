@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -65,7 +66,10 @@ class UiSchemaConverterTest {
                     .toCompletableFuture()
                     .get();
             new UiSchemaConverter(null, "test", schemas, properties, null, jsonSchema, properties, emptyList(), "en",
-                    emptyList()).convert(completedFuture(propertyContext)).toCompletableFuture().get();
+                    emptyList(), new AtomicInteger(1))
+                            .convert(completedFuture(propertyContext))
+                            .toCompletableFuture()
+                            .get();
         }
         assertEquals(1, schemas.size());
         final UiSchema configuration = schemas.iterator().next();
@@ -124,7 +128,7 @@ class UiSchemaConverterTest {
                                 }
                             }.convert(context);
                         }
-                    })).convert(completedFuture(propertyContext)).toCompletableFuture().get();
+                    }), new AtomicInteger(1)).convert(completedFuture(propertyContext)).toCompletableFuture().get();
         }
         assertEquals(1, schemas.size());
         final UiSchema entrySchema = schemas.iterator().next();

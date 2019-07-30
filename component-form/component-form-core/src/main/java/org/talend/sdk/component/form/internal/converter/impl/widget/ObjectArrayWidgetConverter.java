@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
@@ -41,17 +42,22 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
 
     private final Map<String, String> metaToPropagate;
 
+    private final AtomicInteger idGenerator;
+
+    // CHECKSTYLE:OFF
     public ObjectArrayWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final String family, final Client client, final String gridLayoutFilter, final JsonSchema jsonSchema,
             final String lang, final Collection<CustomPropertyConverter> customPropertyConverters,
-            final Map<String, String> metaToPropagate) {
+            final Map<String, String> metaToPropagate, final AtomicInteger idGenerator) {
+        // CHECKSTYLE:ON
         super(schemas, properties, actions, jsonSchema, lang);
         this.family = family;
         this.client = client;
         this.gridLayoutFilter = gridLayoutFilter;
         this.customPropertyConverters = customPropertyConverters;
         this.metaToPropagate = metaToPropagate;
+        this.idGenerator = idGenerator;
     }
 
     @Override
@@ -62,14 +68,16 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
             arraySchema.setTitle(original.getDisplayName());
             arraySchema.setItems(new ArrayList<>());
             arraySchema.setItemWidget("collapsibleFieldset");
-            final UiSchemaConverter converter = new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(),
-                    new ArrayList<>(), client, jsonSchema, properties, actions, lang, customPropertyConverters);
+            final UiSchemaConverter converter =
+                    new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(), new ArrayList<>(), client,
+                            jsonSchema, properties, actions, lang, customPropertyConverters, idGenerator);
             return converter
                     .convertObject(new PropertyContext<>(
                             new SimplePropertyDefinition(original.getPath() + "[]", original.getName(), null,
                                     original.getType(), original.getDefaultValue(), original.getValidation(),
                                     metaToPropagate, original.getPlaceholder(), original.getProposalDisplayNames()),
-                            context.getRootContext(), context.getConfiguration()), metaToPropagate, arraySchema);
+                            context.getRootContext(), context.getConfiguration()), metaToPropagate, arraySchema,
+                            idGenerator);
         });
     }
 }

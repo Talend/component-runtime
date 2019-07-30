@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
@@ -73,6 +74,8 @@ public class UiSchemaConverter implements PropertyConverter {
 
     private final Collection<CustomPropertyConverter> customConverters;
 
+    private final AtomicInteger idGenerator;
+
     @Override
     public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs
@@ -90,7 +93,7 @@ public class UiSchemaConverter implements PropertyConverter {
                             final Map<String, String> metadata = property.getMetadata();
                             switch (type) {
                             case "object":
-                                return convertObject(context, metadata, null);
+                                return convertObject(context, metadata, null, idGenerator);
                             case "boolean":
                                 includedProperties.add(property);
                                 return new ToggleWidgetConverter(schemas, properties, actions, jsonSchema, lang)
@@ -114,7 +117,7 @@ public class UiSchemaConverter implements PropertyConverter {
                                         .collect(toList());
                                 if (!nested.isEmpty()) {
                                     return new ObjectArrayWidgetConverter(schemas, properties, actions, family, client,
-                                            gridLayoutFilter, jsonSchema, lang, customConverters, metadata)
+                                            gridLayoutFilter, jsonSchema, lang, customConverters, metadata, idGenerator)
                                                     .convert(CompletableFuture.completedFuture(context));
                                 }
                                 return new MultiSelectWidgetConverter(schemas, properties, actions, client, family,
@@ -155,7 +158,7 @@ public class UiSchemaConverter implements PropertyConverter {
     }
 
     public CompletionStage<PropertyContext<?>> convertObject(final PropertyContext<?> outputContext,
-            final Map<String, String> metadata, final UiSchema parentUiSchema) {
+            final Map<String, String> metadata, final UiSchema parentUiSchema, final AtomicInteger idGenerator) {
         final Map<String, String> gridLayouts = metadata
                 .entrySet()
                 .stream()
@@ -175,10 +178,12 @@ public class UiSchemaConverter implements PropertyConverter {
                     gridLayoutFilter != null && gridLayouts.containsKey(gridLayoutFilter)
                             ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
                             : gridLayouts,
-                    jsonSchema, lang, customConverters).convert(CompletableFuture.completedFuture(outputContext));
+                    jsonSchema, lang, customConverters, idGenerator)
+                            .convert(CompletableFuture.completedFuture(outputContext));
         }
         final String forcedOrder = metadata.get("ui::optionsorder::value");
         return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema, forcedOrder, lang,
-                customConverters, parentUiSchema).convert(CompletableFuture.completedFuture(outputContext));
+                customConverters, parentUiSchema, idGenerator)
+                        .convert(CompletableFuture.completedFuture(outputContext));
     }
 }

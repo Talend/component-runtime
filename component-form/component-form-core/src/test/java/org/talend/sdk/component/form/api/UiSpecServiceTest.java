@@ -45,6 +45,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -373,6 +374,7 @@ class UiSpecServiceTest {
                 .map(it -> it.prefix)
                 .filter(it -> Stream.of("", "dataStore").noneMatch(ignored -> ignored.equals(it)))
                 .collect(toSet());
+        uiSchemaKeys.remove("dataStore_1"); // button
         assertEquals(uiSchemaKeys, jsonSchemaKeys);
     }
 
@@ -628,15 +630,16 @@ class UiSpecServiceTest {
                 final List<UiSchema> connectionItems = new ArrayList<>(connection.getItems());
                 connectionItems.sort(Comparator.comparing(UiSchema::getTitle));
                 final Iterator<UiSchema> connectionIt = connectionItems.iterator();
-                assertUiSchema(connectionIt.next(), "button", "Validate Connection", null, 0, validateDataStore -> {
-                    assertEquals(1, validateDataStore.getTriggers().size());
-                    final UiSchema.Trigger trigger = validateDataStore.getTriggers().iterator().next();
-                    assertEquals(1, trigger.getParameters().size());
-                    assertEquals(singleton("configuration.connection"),
-                            trigger.getParameters().stream().map(UiSchema.Parameter::getPath).collect(toSet()));
-                    assertEquals(singleton("datastore"),
-                            trigger.getParameters().stream().map(UiSchema.Parameter::getKey).collect(toSet()));
-                });
+                assertUiSchema(connectionIt.next(), "button", "Validate Connection", "configuration.connection_1", 0,
+                        validateDataStore -> {
+                            assertEquals(1, validateDataStore.getTriggers().size());
+                            final UiSchema.Trigger trigger = validateDataStore.getTriggers().iterator().next();
+                            assertEquals(1, trigger.getParameters().size());
+                            assertEquals(singleton("configuration.connection"),
+                                    trigger.getParameters().stream().map(UiSchema.Parameter::getPath).collect(toSet()));
+                            assertEquals(singleton("datastore"),
+                                    trigger.getParameters().stream().map(UiSchema.Parameter::getKey).collect(toSet()));
+                        });
                 assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0,
                         driver -> {
                             assertTrue(driver.getRestricted());
@@ -774,7 +777,10 @@ class UiSpecServiceTest {
                     .toCompletableFuture()
                     .get();
             new UiSchemaConverter(null, "test", schemas, properties, null, jsonSchema, properties, emptyList(), "en",
-                    emptyList()).convert(completedFuture(propertyContext)).toCompletableFuture().get();
+                    emptyList(), new AtomicInteger(1))
+                            .convert(completedFuture(propertyContext))
+                            .toCompletableFuture()
+                            .get();
         }
         return schemas;
     }

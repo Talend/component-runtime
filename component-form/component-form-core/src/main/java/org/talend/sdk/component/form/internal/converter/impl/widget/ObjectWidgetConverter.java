@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -40,9 +41,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
 
+    protected final AtomicInteger idGenerator;
+
     ObjectWidgetConverter(final Collection<UiSchema> schemas, final Collection<SimplePropertyDefinition> properties,
-            final Collection<ActionReference> actions, final JsonSchema jsonSchema, final String lang) {
+            final Collection<ActionReference> actions, final JsonSchema jsonSchema, final String lang,
+            final AtomicInteger idGenerator) {
         super(schemas, properties, actions, jsonSchema, lang);
+        this.idGenerator = idGenerator;
     }
 
     protected void addActions(final PropertyContext<?> root, final UiSchema uiSchema,
@@ -157,6 +162,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                                     .withType(property.getType().toLowerCase(ROOT))
                                     .build()));
                     final UiSchema button = new UiSchema();
+                    button.setKey(root.getProperty().getPath() + '_' + idGenerator.getAndIncrement());
                     button
                             .setTitle(action.getDisplayName() == null ? action.getName() + " (" + action.getType() + ')'
                                     : action.getDisplayName());
@@ -218,6 +224,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                     }
 
                     final UiSchema button = new UiSchema();
+                    button.setKey(root.getProperty().getPath() + '_' + idGenerator.getAndIncrement());
                     button
                             .setTitle(ref.getDisplayName() == null || ref.getName().equals(ref.getDisplayName())
                                     ? "Validate Connection"
@@ -280,6 +287,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                     }
 
                     final UiSchema button = new UiSchema();
+                    button.setKey(root.getProperty().getPath() + '_' + idGenerator.getAndIncrement());
                     button
                             .setTitle(ref.getDisplayName() == null || ref.getName().equals(ref.getDisplayName())
                                     ? "Guess Schema"
