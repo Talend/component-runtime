@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.schema;
 
-import static java.util.Collections.emptyList;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toList;
 
@@ -61,10 +60,12 @@ public class ArrayPropertyConverter implements PropertyConverter {
                 return CompletableFuture
                         .allOf(arrayElements
                                 .stream()
+                                .filter(prop -> prop.getPath().startsWith(prefix + '.')
+                                        && prop.getPath().indexOf('.', prefix.length() + 1) < 0)
                                 .map(it -> new PropertyContext(it, context.getRootContext(),
                                         context.getConfiguration()))
                                 .map(CompletionStages::toStage)
-                                .map(e -> new JsonSchemaConverter(jsonb, items, emptyList()).convert(e))
+                                .map(e -> new JsonSchemaConverter(jsonb, items, properties).convert(e))
                                 .toArray(CompletableFuture[]::new))
                         .thenApply(done -> context);
             } else if (!arrayElements.isEmpty()) { // primitive

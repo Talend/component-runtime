@@ -1,0 +1,814 @@
+{
+  "actions": [
+    {
+      "displayName": "Test Mail Connection",
+      "family": "Mail",
+      "name": "MailConnectionCheck",
+      "properties": [
+        {
+          "displayName": "connection",
+          "metadata": {
+            "ui::gridlayout::Advanced::value": "properties|timeout",
+            "ui::gridlayout::Main::value": "transport|host,port|tls,auth|username,password",
+            "documentation::value": "A connection to a data base",
+            "action::healthcheck": "MailConnectionCheck",
+            "configurationtype::name": "MailConnection",
+            "configurationtype::type": "datastore",
+            "definition::parameter::index": "0"
+          },
+          "name": "connection",
+          "path": "connection",
+          "placeholder": "connection",
+          "type": "OBJECT"
+        },
+        {
+          "defaultValue": "false",
+          "displayName": "Auth",
+          "metadata": {
+            "documentation::value": "Is authentication active."
+          },
+          "name": "auth",
+          "path": "connection.auth",
+          "placeholder": "auth",
+          "type": "BOOLEAN"
+        },
+        {
+          "displayName": "Host",
+          "metadata": {
+            "documentation::value": "The mail server host."
+          },
+          "name": "host",
+          "path": "connection.host",
+          "placeholder": "Host...",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Password",
+          "metadata": {
+            "condition::if::target": "auth",
+            "documentation::value": "Password for authentication.",
+            "ui::credential": "true",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "true"
+          },
+          "name": "password",
+          "path": "connection.password",
+          "placeholder": "Password...",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "0",
+          "displayName": "Port",
+          "metadata": {
+            "documentation::value": "The mail server port."
+          },
+          "name": "port",
+          "path": "connection.port",
+          "placeholder": "port",
+          "type": "NUMBER"
+        },
+        {
+          "displayName": "Other Properties",
+          "metadata": {
+            "documentation::value": "Other `Session` properties, see https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html for details."
+          },
+          "name": "properties",
+          "path": "connection.properties",
+          "placeholder": "properties",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "Key",
+          "metadata": {
+            "documentation::value": "Property name, generally it has the form of `mail.xxx.yyy`."
+          },
+          "name": "name",
+          "path": "connection.properties[].name",
+          "placeholder": "Key...",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Value",
+          "metadata": {
+            "documentation::value": "The property value."
+          },
+          "name": "value",
+          "path": "connection.properties[].value",
+          "placeholder": "Value...",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "0",
+          "displayName": "Timeout",
+          "metadata": {
+            "documentation::value": "The timeout for that connection, it is propagated for connect/read/write timeouts."
+          },
+          "name": "timeout",
+          "path": "connection.timeout",
+          "placeholder": "timeout",
+          "type": "NUMBER"
+        },
+        {
+          "defaultValue": "false",
+          "displayName": "TLS",
+          "metadata": {
+            "documentation::value": "Should TLS be actived."
+          },
+          "name": "tls",
+          "path": "connection.tls",
+          "placeholder": "tls",
+          "type": "BOOLEAN"
+        },
+        {
+          "defaultValue": "IMAP",
+          "displayName": "Transport",
+          "metadata": {
+            "documentation::value": "Transport for the current connection, it will likely be POP3(s), IMAP(s) or STMP(s) depending your mail provider."
+          },
+          "name": "transport",
+          "path": "connection.transport",
+          "placeholder": "Transport...",
+          "proposalDisplayNames": {
+            "SMTP": "Smtp",
+            "SMTPS": "Smtps",
+            "NNTP_POST": "NNTP POST",
+            "NNTP_POSTS": "NNTP POSTS",
+            "POP3": "Pop3",
+            "POP3S": "Pop3s",
+            "IMAP": "Imap",
+            "IMAPS": "Imaps"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "SMTP",
+              "SMTPS",
+              "NNTP_POST",
+              "NNTP_POSTS",
+              "POP3",
+              "POP3S",
+              "IMAP",
+              "IMAPS"
+            ]
+          }
+        },
+        {
+          "displayName": "Username",
+          "metadata": {
+            "condition::if::target": "auth",
+            "documentation::value": "Username for authentication.",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "true"
+          },
+          "name": "username",
+          "path": "connection.username",
+          "placeholder": "Username...",
+          "type": "STRING"
+        }
+      ],
+      "type": "healthcheck"
+    }
+  ],
+  "displayName": "Mail Reader",
+  "icon": "input",
+  "id": {
+    "family": "Mail",
+    "familyId": "bWFpbCNNYWls",
+    "id": "bWFpbCNNYWlsI01haWxFbWl0dGVy",
+    "name": "MailEmitter",
+    "plugin": "mail",
+    "pluginLocation": "org.talend.components:mail:1.3.0-SNAPSHOT"
+  },
+  "inputFlows": [],
+  "links": [],
+  "metadata": {
+    "mapper::infinite": "false"
+  },
+  "outputFlows": [
+    "__default__"
+  ],
+  "properties": [
+    {
+      "displayName": "configuration",
+      "metadata": {
+        "ui::gridlayout::Advanced::value": "debug|skipHeaders|flagToSetOnceProduced",
+        "ui::gridlayout::Main::value": "dataset|inbox|terms",
+        "definition::parameter::index": "0"
+      },
+      "name": "configuration",
+      "path": "configuration",
+      "placeholder": "configuration",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "Dataset",
+      "metadata": {
+        "ui::optionsorder::value": "connection",
+        "documentation::value": "The mail dataset.",
+        "configurationtype::name": "MailDataSet",
+        "configurationtype::type": "dataset"
+      },
+      "name": "dataset",
+      "path": "configuration.dataset",
+      "placeholder": "dataset",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "Connection",
+      "metadata": {
+        "ui::gridlayout::Advanced::value": "properties|timeout",
+        "ui::gridlayout::Main::value": "transport|host,port|tls,auth|username,password",
+        "documentation::value": "The mail connection.",
+        "action::healthcheck": "MailConnectionCheck",
+        "configurationtype::name": "MailConnection",
+        "configurationtype::type": "datastore"
+      },
+      "name": "connection",
+      "path": "configuration.dataset.connection",
+      "placeholder": "connection",
+      "type": "OBJECT"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "Auth",
+      "metadata": {
+        "documentation::value": "Is authentication active."
+      },
+      "name": "auth",
+      "path": "configuration.dataset.connection.auth",
+      "placeholder": "auth",
+      "type": "BOOLEAN"
+    },
+    {
+      "displayName": "Host",
+      "metadata": {
+        "documentation::value": "The mail server host."
+      },
+      "name": "host",
+      "path": "configuration.dataset.connection.host",
+      "placeholder": "Host...",
+      "type": "STRING",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "displayName": "Password",
+      "metadata": {
+        "condition::if::target": "auth",
+        "documentation::value": "Password for authentication.",
+        "ui::credential": "true",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "true"
+      },
+      "name": "password",
+      "path": "configuration.dataset.connection.password",
+      "placeholder": "Password...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "0",
+      "displayName": "Port",
+      "metadata": {
+        "documentation::value": "The mail server port."
+      },
+      "name": "port",
+      "path": "configuration.dataset.connection.port",
+      "placeholder": "port",
+      "type": "NUMBER"
+    },
+    {
+      "displayName": "Other Properties",
+      "metadata": {
+        "documentation::value": "Other `Session` properties, see https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html for details."
+      },
+      "name": "properties",
+      "path": "configuration.dataset.connection.properties",
+      "placeholder": "properties",
+      "type": "ARRAY"
+    },
+    {
+      "displayName": "Key",
+      "metadata": {
+        "documentation::value": "Property name, generally it has the form of `mail.xxx.yyy`."
+      },
+      "name": "name",
+      "path": "configuration.dataset.connection.properties[].name",
+      "placeholder": "Key...",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Value",
+      "metadata": {
+        "documentation::value": "The property value."
+      },
+      "name": "value",
+      "path": "configuration.dataset.connection.properties[].value",
+      "placeholder": "Value...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "0",
+      "displayName": "Timeout",
+      "metadata": {
+        "documentation::value": "The timeout for that connection, it is propagated for connect/read/write timeouts."
+      },
+      "name": "timeout",
+      "path": "configuration.dataset.connection.timeout",
+      "placeholder": "timeout",
+      "type": "NUMBER"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "TLS",
+      "metadata": {
+        "documentation::value": "Should TLS be actived."
+      },
+      "name": "tls",
+      "path": "configuration.dataset.connection.tls",
+      "placeholder": "tls",
+      "type": "BOOLEAN"
+    },
+    {
+      "defaultValue": "IMAP",
+      "displayName": "Transport",
+      "metadata": {
+        "documentation::value": "Transport for the current connection, it will likely be POP3(s), IMAP(s) or STMP(s) depending your mail provider."
+      },
+      "name": "transport",
+      "path": "configuration.dataset.connection.transport",
+      "placeholder": "Transport...",
+      "proposalDisplayNames": {
+        "SMTP": "Smtp",
+        "SMTPS": "Smtps",
+        "NNTP_POST": "NNTP POST",
+        "NNTP_POSTS": "NNTP POSTS",
+        "POP3": "Pop3",
+        "POP3S": "Pop3s",
+        "IMAP": "Imap",
+        "IMAPS": "Imaps"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "SMTP",
+          "SMTPS",
+          "NNTP_POST",
+          "NNTP_POSTS",
+          "POP3",
+          "POP3S",
+          "IMAP",
+          "IMAPS"
+        ]
+      }
+    },
+    {
+      "displayName": "Username",
+      "metadata": {
+        "condition::if::target": "auth",
+        "documentation::value": "Username for authentication.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "true"
+      },
+      "name": "username",
+      "path": "configuration.dataset.connection.username",
+      "placeholder": "Username...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "Debug",
+      "metadata": {
+        "documentation::value": "Should the session be set up in debug mode."
+      },
+      "name": "debug",
+      "path": "configuration.debug",
+      "placeholder": "debug",
+      "type": "BOOLEAN"
+    },
+    {
+      "displayName": "Flag to add after read",
+      "metadata": {
+        "ui::gridlayout::Main::value": "flag,customFlag,flagValue",
+        "documentation::value": "A list of flag to set on the message once read."
+      },
+      "name": "flagToSetOnceProduced",
+      "path": "configuration.flagToSetOnceProduced",
+      "placeholder": "flagToSetOnceProduced",
+      "type": "ARRAY"
+    },
+    {
+      "defaultValue": "X-My-Flag",
+      "displayName": "Custom Flag",
+      "metadata": {
+        "condition::if::target": "flag",
+        "documentation::value": "The custom flag value if `flag` is `CUSTOM`.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "CUSTOM"
+      },
+      "name": "customFlag",
+      "path": "configuration.flagToSetOnceProduced[].customFlag",
+      "placeholder": "Custom Flag...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "SEEN",
+      "displayName": "Flag",
+      "metadata": {
+        "documentation::value": "The flag to set, if set to `CUSTOM` it will use `customFlag` value."
+      },
+      "name": "flag",
+      "path": "configuration.flagToSetOnceProduced[].flag",
+      "placeholder": "Flag...",
+      "proposalDisplayNames": {
+        "SEEN": "Seen",
+        "FLAGGED": "Flagged",
+        "ANSWERED": "Answered",
+        "CUSTOM": "Custom"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "SEEN",
+          "FLAGGED",
+          "ANSWERED",
+          "CUSTOM"
+        ]
+      }
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "Flag Value",
+      "metadata": {
+        "documentation::value": "The flag value (`true` or `false`)."
+      },
+      "name": "flagValue",
+      "path": "configuration.flagToSetOnceProduced[].flagValue",
+      "placeholder": "flagValue",
+      "type": "BOOLEAN"
+    },
+    {
+      "defaultValue": "INBOX",
+      "displayName": "Inbox Folder",
+      "metadata": {
+        "documentation::value": "The folder to read."
+      },
+      "name": "inbox",
+      "path": "configuration.inbox",
+      "placeholder": "Inbox Folder...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "Skip Headers",
+      "metadata": {
+        "documentation::value": "Should headers be propagated in output records or not."
+      },
+      "name": "skipHeaders",
+      "path": "configuration.skipHeaders",
+      "placeholder": "skipHeaders",
+      "type": "BOOLEAN"
+    },
+    {
+      "displayName": "Search Terms",
+      "metadata": {
+        "ui::gridlayout::Main::value": "type,negate,operator|comparisonType,absoluteDate|date,relativeDate|recipientType,address|flag|header,pattern",
+        "documentation::value": "The filter to select the messages to read."
+      },
+      "name": "terms",
+      "path": "configuration.terms",
+      "placeholder": "terms",
+      "type": "ARRAY"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "Absolute Date",
+      "metadata": {
+        "condition::if::target": "type",
+        "documentation::value": "Should the date be absolute or relative to `now`.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "RECEIVED_DATE,SENT_DATE"
+      },
+      "name": "absoluteDate",
+      "path": "configuration.terms[].absoluteDate",
+      "placeholder": "absoluteDate",
+      "type": "BOOLEAN"
+    },
+    {
+      "defaultValue": "recipient@mail.com",
+      "displayName": "Address",
+      "metadata": {
+        "condition::if::target": "type",
+        "documentation::value": "Address to use to filter the messages in the selected folder.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "FROM,TO"
+      },
+      "name": "address",
+      "path": "configuration.terms[].address",
+      "placeholder": "Address...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "EQUALS",
+      "displayName": "Comparison Type",
+      "metadata": {
+        "condition::if::target": "type",
+        "documentation::value": "Comparison operator.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "RECEIVED_DATE,SENT_DATE"
+      },
+      "name": "comparisonType",
+      "path": "configuration.terms[].comparisonType",
+      "placeholder": "Comparison Type...",
+      "proposalDisplayNames": {
+        "EQUALS": "Equals",
+        "GREATER_OR_EQUAL": "Greater Or Equals",
+        "GREATER_THAN": "Greater Than",
+        "LESS_OR_EQUAL": "Less Or Equals",
+        "LESS_THAN": "Less Than",
+        "NOT_EQUAL": "Not Equals"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "EQUALS",
+          "GREATER_OR_EQUAL",
+          "GREATER_THAN",
+          "LESS_OR_EQUAL",
+          "LESS_THAN",
+          "NOT_EQUAL"
+        ]
+      }
+    },
+    {
+      "defaultValue": "2019-07-30T11:57:36.706+02:00[Europe/Paris]",
+      "displayName": "Date",
+      "metadata": {
+        "condition::if::target": "type",
+        "documentation::value": "Date to use in the query.",
+        "ui::datetime": "zoneddatetime",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "RECEIVED_DATE,SENT_DATE"
+      },
+      "name": "date",
+      "path": "configuration.terms[].date",
+      "placeholder": "Date...",
+      "type": "STRING"
+    },
+    {
+      "displayName": "Flag",
+      "metadata": {
+        "ui::gridlayout::Main::value": "flag,customFlag,flagValue",
+        "condition::if::target": "type",
+        "documentation::value": "Flag to filter on.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "FLAG"
+      },
+      "name": "flag",
+      "path": "configuration.terms[].flag",
+      "placeholder": "Flag...",
+      "type": "OBJECT"
+    },
+    {
+      "defaultValue": "X-My-Flag",
+      "displayName": "Custom Flag",
+      "metadata": {
+        "condition::if::target": "flag",
+        "documentation::value": "The custom flag value if `flag` is `CUSTOM`.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "CUSTOM"
+      },
+      "name": "customFlag",
+      "path": "configuration.terms[].flag.customFlag",
+      "placeholder": "Custom Flag...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "SEEN",
+      "displayName": "Flag",
+      "metadata": {
+        "documentation::value": "The flag to set, if set to `CUSTOM` it will use `customFlag` value."
+      },
+      "name": "flag",
+      "path": "configuration.terms[].flag.flag",
+      "placeholder": "Flag...",
+      "proposalDisplayNames": {
+        "SEEN": "Seen",
+        "FLAGGED": "Flagged",
+        "ANSWERED": "Answered",
+        "CUSTOM": "Custom"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "SEEN",
+          "FLAGGED",
+          "ANSWERED",
+          "CUSTOM"
+        ]
+      }
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "Flag Value",
+      "metadata": {
+        "documentation::value": "The flag value (`true` or `false`)."
+      },
+      "name": "flagValue",
+      "path": "configuration.terms[].flag.flagValue",
+      "placeholder": "flagValue",
+      "type": "BOOLEAN"
+    },
+    {
+      "defaultValue": "My-Header",
+      "displayName": "Header",
+      "metadata": {
+        "condition::if::target": "type",
+        "documentation::value": "Header name.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "HEADER"
+      },
+      "name": "header",
+      "path": "configuration.terms[].header",
+      "placeholder": "Header...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "false",
+      "displayName": "Negate",
+      "metadata": {
+        "documentation::value": "Should the term be negated."
+      },
+      "name": "negate",
+      "path": "configuration.terms[].negate",
+      "placeholder": "negate",
+      "type": "BOOLEAN"
+    },
+    {
+      "defaultValue": "AND",
+      "displayName": "Operator",
+      "metadata": {
+        "documentation::value": "How should this term be composed with next one (if any)."
+      },
+      "name": "operator",
+      "path": "configuration.terms[].operator",
+      "placeholder": "Operator...",
+      "proposalDisplayNames": {
+        "AND": "And",
+        "OR": "Or"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "AND",
+          "OR"
+        ]
+      }
+    },
+    {
+      "defaultValue": "My Pattern",
+      "displayName": "Pattern",
+      "metadata": {
+        "condition::if::target": "type",
+        "documentation::value": "Patter to filter on.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "BODY,HEADER,SUBJECT"
+      },
+      "name": "pattern",
+      "path": "configuration.terms[].pattern",
+      "placeholder": "Pattern...",
+      "type": "STRING"
+    },
+    {
+      "defaultValue": "TO",
+      "displayName": "Recipient Type",
+      "metadata": {
+        "condition::if::target": "type",
+        "documentation::value": "Recipient type.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "TO"
+      },
+      "name": "recipientType",
+      "path": "configuration.terms[].recipientType",
+      "placeholder": "Recipient Type...",
+      "proposalDisplayNames": {
+        "CC": "CC",
+        "BCC": "BCC",
+        "TO": "TO"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "CC",
+          "BCC",
+          "TO"
+        ]
+      }
+    },
+    {
+      "displayName": "Relative Time",
+      "metadata": {
+        "ui::gridlayout::Main::value": "value,unit",
+        "condition::if::target": "type",
+        "documentation::value": "Relative date (from now) to use in the query.",
+        "condition::if::evaluationStrategy": "DEFAULT",
+        "condition::if::negate": "false",
+        "condition::if::value": "RECEIVED_DATE,SENT_DATE"
+      },
+      "name": "relativeDate",
+      "path": "configuration.terms[].relativeDate",
+      "placeholder": "relativeDate",
+      "type": "OBJECT"
+    },
+    {
+      "defaultValue": "DAYS",
+      "displayName": "Unit",
+      "metadata": {
+        "documentation::value": "Unit of the value"
+      },
+      "name": "unit",
+      "path": "configuration.terms[].relativeDate.unit",
+      "placeholder": "Unit...",
+      "proposalDisplayNames": {
+        "DAYS": "Days",
+        "HOURS": "Hours",
+        "MINUTES": "Minutes",
+        "SECONDS": "Seconds",
+        "MILLISECONDS": "Milliseconds"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "DAYS",
+          "HOURS",
+          "MINUTES",
+          "SECONDS",
+          "MILLISECONDS"
+        ]
+      }
+    },
+    {
+      "defaultValue": "-1",
+      "displayName": "Value",
+      "metadata": {
+        "documentation::value": "Value of the relative date (respecting `unit`). This can be negative"
+      },
+      "name": "value",
+      "path": "configuration.terms[].relativeDate.value",
+      "placeholder": "Value...",
+      "type": "NUMBER"
+    },
+    {
+      "defaultValue": "FLAG",
+      "displayName": "Type",
+      "metadata": {
+        "documentation::value": "Type of search term to create."
+      },
+      "name": "type",
+      "path": "configuration.terms[].type",
+      "placeholder": "Type...",
+      "proposalDisplayNames": {
+        "HEADER": "Header",
+        "SUBJECT": "Subject",
+        "BODY": "Body",
+        "FLAG": "Flag",
+        "RECEIVED_DATE": "Received Date",
+        "SENT_DATE": "Sent Date",
+        "FROM": "From",
+        "RECIPIENT": "Recipient"
+      },
+      "type": "ENUM",
+      "validation": {
+        "enumValues": [
+          "HEADER",
+          "SUBJECT",
+          "BODY",
+          "FLAG",
+          "RECEIVED_DATE",
+          "SENT_DATE",
+          "FROM",
+          "RECIPIENT"
+        ]
+      }
+    }
+  ],
+  "type": "input",
+  "version": 1
+}

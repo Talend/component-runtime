@@ -112,7 +112,10 @@ public class JsonSchemaConverter implements PropertyConverter {
             if (rootJsonSchema.getProperties() == null) {
                 rootJsonSchema.setProperties(new HashMap<>());
             }
-            rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema);
+            if (rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema) != null) {
+                throw new IllegalStateException(
+                        "Conflicting attribute: " + context.getProperty() + ", in " + rootJsonSchema);
+            }
         }
 
         final Set<SimplePropertyDefinition> nestedProperties = context.findDirectChild(properties).collect(toSet());

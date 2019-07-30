@@ -20,7 +20,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -87,6 +89,53 @@ class UiSpecServiceTest {
             // no-op
         }
     });
+
+    @Test
+    void enumInArray() throws Exception {
+        final Collection<SimplePropertyDefinition> properties =
+                load("enumInArray.json", ComponentDetail.class).getProperties();
+        final List<UiSchema> schemas = createUiSchemas(properties);
+        assertEquals("configuration," + "configuration.dataset.connection," + "configuration.dataset.connection.auth,"
+                + "configuration.dataset.connection.host," + "configuration.dataset.connection.password,"
+                + "configuration.dataset.connection.port," + "configuration.dataset.connection.properties,"
+                + "configuration.dataset.connection.properties[].name,"
+                + "configuration.dataset.connection.properties[].value," + "configuration.dataset.connection.timeout,"
+                + "configuration.dataset.connection.tls," + "configuration.dataset.connection.transport,"
+                + "configuration.dataset.connection.username,"
+                + "configuration.debug,configuration.flagToSetOnceProduced," + "configuration.flagToSetOnceProduced[],"
+                + "configuration.flagToSetOnceProduced[].customFlag," + "configuration.flagToSetOnceProduced[].flag,"
+                + "configuration.flagToSetOnceProduced[].flagValue," + "configuration.inbox,configuration.skipHeaders,"
+                + "configuration.terms,configuration.terms[]," + "configuration.terms[].absoluteDate,"
+                + "configuration.terms[].address," + "configuration.terms[].comparisonType,"
+                + "configuration.terms[].date," + "configuration.terms[].flag,"
+                + "configuration.terms[].flag.customFlag," + "configuration.terms[].flag.flag,"
+                + "configuration.terms[].flag.flagValue," + "configuration.terms[].header,"
+                + "configuration.terms[].negate," + "configuration.terms[].operator," + "configuration.terms[].pattern,"
+                + "configuration.terms[].recipientType," + "configuration.terms[].relativeDate,"
+                + "configuration.terms[].relativeDate.unit," + "configuration.terms[].relativeDate.value,"
+                + "configuration.terms[].type",
+                schemas
+                        .stream()
+                        .flatMap(this::flatten)
+                        .map(UiSchema::getKey)
+                        .filter(Objects::nonNull)
+                        .sorted()
+                        .distinct()
+                        .collect(joining(",")));
+        assertEquals("Absolute Date," + "Address," + "Advanced," + "Auth," + "Comparison Type," + "Custom Flag,"
+                + "Dataset," + "Date," + "Debug," + "Flag," + "Flag Value," + "Flag to add after read," + "Header,"
+                + "Host," + "Inbox Folder," + "Key," + "Main," + "Negate," + "Operator," + "Other Properties,"
+                + "Password," + "Pattern," + "Port," + "Recipient Type," + "Relative Time," + "Search Terms,"
+                + "Skip Headers," + "TLS," + "Timeout," + "Transport," + "Type," + "Unit," + "Username," + "Value",
+                schemas
+                        .stream()
+                        .flatMap(this::flatten)
+                        .map(UiSchema::getTitle)
+                        .filter(Objects::nonNull)
+                        .sorted()
+                        .distinct()
+                        .collect(joining(",")));
+    }
 
     @Test
     void advancedWithoutMain() throws Exception {
@@ -728,6 +777,15 @@ class UiSpecServiceTest {
                     emptyList()).convert(completedFuture(propertyContext)).toCompletableFuture().get();
         }
         return schemas;
+    }
+
+    private Stream<UiSchema> flatten(final UiSchema it) {
+        return Stream
+                .concat(Stream.of(it),
+                        ofNullable(it.getItems())
+                                .map(Collection::stream)
+                                .orElseGet(Stream::empty)
+                                .flatMap(this::flatten));
     }
 
     @Data
