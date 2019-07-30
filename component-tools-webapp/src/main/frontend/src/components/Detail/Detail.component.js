@@ -60,7 +60,7 @@ function Detail(props) {
                 id="detail-form"
                 componentId="detail-form"
                 component="ComponentForm"
-                definitionURL={`/api/v1${props.definitionURL}?language=${lang}`}
+                definitionURL={`/api/v1${props.definitionURL}${props.definitionURL.indexOf('?') > 0 ? '&' : '?'}language=${lang}`}
                 triggerURL={`/api/v1/application/action`}
                 lang={lang}
                 customTriggers={registry}

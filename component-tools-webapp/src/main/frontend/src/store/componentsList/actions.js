@@ -66,7 +66,7 @@ function createComponentNode(familyNode, component, dispatch) {
     name: component.displayName,
     familyId: component.id.family,
     $$id: componentId,
-    $$detail: component.links[0].path,
+    $$detail: `${component.links[0].path}${component.links[0].path.indexOf('?') > 0 ? '&' : '?'}language=${new URLSearchParams(window.location.search).get('language') || 'en'}`,
     $$type: 'component',
     $$parent: familyNode,
     actions: [
@@ -227,7 +227,7 @@ function createConfigTree(wrapper, dispatch) {
 			const parent = getParentNode(accu, node.parentId);
 			treeNode.$$parent = parent;
 			treeNode.name = `${node.displayName} (${node.configurationType})`,
-			treeNode.$$detail = `/application/detail/${node.id}?configuration=true`;
+			treeNode.$$detail = `/application/detail/${node.id}?configuration=true&language=${new URLSearchParams(window.location.search).get('language') || 'en'}`;
 			parent.children = parent.children || [];
 			parent.children.push(treeNode);
 			parent.children.sort(nameComparator());
@@ -244,7 +244,7 @@ function createConfigTree(wrapper, dispatch) {
 function isLoadingComponentsList(configuration) {
   return {
     type: GET_COMPONENT_LIST_LOADING,
-		configuration,
+    configuration,
   };
 }
 

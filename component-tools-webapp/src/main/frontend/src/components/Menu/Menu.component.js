@@ -37,7 +37,7 @@ class Menu extends React.Component {
 	}
 
 	onSelect(event, node) {
-		if (node.$$type ==='component' && node.selected) {
+		if (node.$$type === 'component' && node.selected) {
 			return;
 		}
 		this.props.selectComponent(node);
@@ -56,11 +56,12 @@ class Menu extends React.Component {
 			    {this.props.error && <p>{this.props.error}</p>}
 				<div className={theme.TreeViewHeader}>
 					<div>Components</div>
-					<Toggle onChange={this.onSwitch} checked={this.props.configurationSelected} />
+					<Toggle id="index-switch" onChange={this.onSwitch} checked={this.props.configurationSelected} />
 					<div>Configurations</div>
 				</div>
 				<TreeView
-					noHeader="true"
+				    id="menu"
+					noHeader={true}
 					className={theme.menu}
 					structure={this.props.categories || []}
 					selectedId={this.props.selectedId}
