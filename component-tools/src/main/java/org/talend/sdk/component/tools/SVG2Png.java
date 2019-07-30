@@ -64,7 +64,7 @@ public class SVG2Png implements Runnable {
                                 .resolve(fileName.substring(0, fileName.length() - ".svg".length()) + "_icon32.png");
                         if (!Files.exists(svg)) {
                             createPng(file, svg);
-                            log.info("Created " + file);
+                            log.info("Created " + svg);
                         }
                     }
                     return super.visitFile(file, attrs);

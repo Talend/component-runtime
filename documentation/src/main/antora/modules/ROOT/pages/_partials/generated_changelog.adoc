@@ -8,6 +8,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1479[TCOMP-1479^]: When generating the documentation, it can happen the lang is wrong due to ResourceBundle usage
 - link:https://jira.talendforge.org/browse/TCOMP-1480[TCOMP-1480^]: Servers docker images don't have curl or wget available
 - link:https://jira.talendforge.org/browse/TCOMP-1497[TCOMP-1497^]: POJO to Record mapping is not supported in processors
+- link:https://jira.talendforge.org/browse/TCOMP-1498[TCOMP-1498^]: SVG2Mojo wrongly log the source file as being created
 
 
 
