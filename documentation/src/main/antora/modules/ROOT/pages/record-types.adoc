@@ -15,7 +15,7 @@ Any serialization concern should either be hidden in the framework runtime (outs
 [[record]]
 == Record
 
-`Record` is the default format. It offers many possibilities and can evolve depending on the Talend platform needs. Its structure is data-driven and exposes a schema that allows to browse it.
+`Record` is the default data format. It offers many possibilities and can evolve depending on the Talend platform needs. Its structure is data-driven and exposes a schema that allows to browse it.
 
 Projects generated from the xref:index-generating-project.adoc[Talend Component Kit Starter] are by default designed to handle this format of data.
 
@@ -51,7 +51,7 @@ public Record createRecord() {
 
 The example above uses a schema that was pre-built using `factory.newSchemaBuilder(Schema.Type.RECORD)`.
 
-When using a pre-built schema, the entries passed to the record builder are validated. It means that if you pass a null value null or an entry type that does not match the provided schema, the record creation fails.
+When using a pre-built schema, the entries passed to the record builder are validated. It means that if you pass a null value  or an entry type that does not match the provided schema, the record creation fails.
 It also fails if you try to add an entry which does not exist or if you did not set a not nullable entry.
 
 TIP: Using a dynamic schema can be useful on the backend but can lead users to more issues when creating a pipeline to process the data. Using a pre-built schema is more reliable for end-users.
