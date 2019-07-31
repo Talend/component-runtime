@@ -1132,6 +1132,7 @@
             <exclude>**/dependency-reduced-pom.xml</exclude>
             <exclude>**/*.svg</exclude>
             <exclude>**/*.png</exclude>
+            <exclude>**/src/main/resources/WebsiteBuilderMojo/*.mustache</exclude>
           </excludes>
         </configuration>
       </plugin>

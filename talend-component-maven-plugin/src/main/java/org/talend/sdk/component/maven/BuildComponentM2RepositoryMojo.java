@@ -15,9 +15,7 @@
  */
 package org.talend.sdk.component.maven;
 
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
 import static org.apache.maven.plugins.annotations.ResolutionScope.TEST;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
@@ -42,7 +40,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -56,7 +53,7 @@ import org.talend.sdk.component.maven.api.Audience;
 
 @Audience(TALEND_INTERNAL)
 @Mojo(name = "prepare-repository", defaultPhase = PACKAGE, threadSafe = true, requiresDependencyResolution = TEST)
-public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
+public class BuildComponentM2RepositoryMojo extends CarConsumer {
 
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
@@ -70,9 +67,6 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
     @Parameter(property = "talend-m2.clean", defaultValue = "true")
     private boolean cleanBeforeGeneration;
 
-    @Parameter(defaultValue = "component", property = "talend.repository.classifier")
-    private String classifier;
-
     @Parameter(defaultValue = "true", property = "talend.repository.createDigestRegistry")
     private boolean createDigestRegistry;
 
@@ -83,6 +77,10 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
     public void doExecute() throws MojoExecutionException {
         final Set<Artifact> componentArtifacts = getComponentsCar(getComponentArtifacts());
 
+        doGenerate(componentArtifacts);
+    }
+
+    private void doGenerate(final Set<Artifact> componentArtifacts) {
         if (cleanBeforeGeneration && m2Root.exists()) {
             Files.remove(m2Root);
         }
@@ -242,20 +240,6 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
             throw new IllegalArgumentException(e);
         }
         return gav;
-    }
-
-    protected Set<Artifact> getComponentsCar(final Set<Artifact> artifacts) {
-        return artifacts.stream().map(art -> resolve(art, classifier, "car")).collect(toSet());
-    }
-
-    protected Set<Artifact> getComponentArtifacts() {
-        return getArtifacts(it -> {
-            try (final JarFile file = new JarFile(it.getFile())) { // filter components with this marker
-                return ofNullable(file.getEntry("TALEND-INF/dependencies.txt")).map(ok -> it).orElse(null);
-            } catch (final IOException e) {
-                return null;
-            }
-        }).filter(Objects::nonNull).collect(toSet());
     }
 
     protected File getRegistry() {

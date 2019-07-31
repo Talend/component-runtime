@@ -26,7 +26,6 @@ import java.util.function.Function;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -44,7 +43,7 @@ import org.eclipse.aether.resolution.ArtifactResult;
 import org.talend.sdk.component.maven.api.Audience;
 
 @Audience(TALEND_INTERNAL)
-public abstract class ComponentDependenciesBase extends AbstractMojo {
+public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
@@ -75,9 +74,7 @@ public abstract class ComponentDependenciesBase extends AbstractMojo {
             getLog().info("Execution skipped");
             return;
         }
-        if (!project.getGroupId().startsWith("org.talend.")) {
-            getLog().warn("This is not a Talend's project, this mojo is intended to be only used by Talend");
-        }
+        super.execute();
         doExecute();
     }
 

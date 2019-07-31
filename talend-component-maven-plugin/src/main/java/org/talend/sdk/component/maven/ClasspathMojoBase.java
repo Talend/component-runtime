@@ -30,7 +30,6 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -38,7 +37,7 @@ import org.apache.maven.project.MavenProject;
 
 import lombok.Getter;
 
-public abstract class ClasspathMojoBase extends AbstractMojo {
+public abstract class ClasspathMojoBase extends AudienceAwareMojo {
 
     @Parameter(defaultValue = "false", property = "talend.skip")
     private boolean skip;
@@ -56,6 +55,7 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        super.execute();
         executeInLoader();
     }
 
