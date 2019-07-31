@@ -87,15 +87,27 @@
     </dependency>
 
     <dependency>
-      <groupId>org.freemarker</groupId>
-      <artifactId>freemarker</artifactId>
-      <version>2.3.28</version>
+      <groupId>com.github.spullara.mustache.java</groupId>
+      <artifactId>compiler</artifactId>
+      <version>0.9.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>${jgit.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-jdk14</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>com.google.cloud.tools</groupId>
       <artifactId>jib-core</artifactId>
-      <version>0.9.2</version>
+      <version>0.10.0</version>
     </dependency>
     <dependency><!-- upgrade for jib (to not get CVE) -->
       <groupId>org.apache.httpcomponents</groupId>
