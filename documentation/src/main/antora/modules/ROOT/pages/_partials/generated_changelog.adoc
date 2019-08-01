@@ -11,6 +11,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1498[TCOMP-1498^]: SVG2Mojo wrongly log the source file as being created
 - link:https://jira.talendforge.org/browse/TCOMP-1499[TCOMP-1499^]: component-form does not support array of object of object if 2 levels use the same field name
 - link:https://jira.talendforge.org/browse/TCOMP-1500[TCOMP-1500^]: Ensure component-form button have a key to have an id and propagate errors in the front
+- link:https://jira.talendforge.org/browse/TCOMP-1503[TCOMP-1503^]: EnvironmentSecuredFilter not working on /environment/
 
 
 
@@ -35,6 +36,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1494[TCOMP-1494^]: Upgrade to junit jupiter 5.5.1
 - link:https://jira.talendforge.org/browse/TCOMP-1495[TCOMP-1495^]: Upgrade to Geronimo OpenAPI 1.0.10
 - link:https://jira.talendforge.org/browse/TCOMP-1496[TCOMP-1496^]: [testing tool] MainInputFactory does not support Record
+- link:https://jira.talendforge.org/browse/TCOMP-1501[TCOMP-1501^]: Remove generate mojo
+- link:https://jira.talendforge.org/browse/TCOMP-1502[TCOMP-1502^]: [maven plugin] upgrade jib-core to 0.10.0
 
 == Version 1.1.11
 

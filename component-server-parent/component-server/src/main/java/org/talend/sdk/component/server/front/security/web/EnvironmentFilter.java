@@ -23,7 +23,7 @@ import javax.servlet.annotation.WebFilter;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 @Dependent
-@WebFilter(urlPatterns = "/api/v1/environment")
+@WebFilter(urlPatterns = { "/api/v1/environment", "/api/v1/environment/" })
 public class EnvironmentFilter extends SecuredFilter {
 
     @Inject

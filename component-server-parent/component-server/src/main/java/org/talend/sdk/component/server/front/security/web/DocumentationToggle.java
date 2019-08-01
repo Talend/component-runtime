@@ -23,7 +23,7 @@ import javax.servlet.annotation.WebFilter;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 @Dependent
-@WebFilter(urlPatterns = "/documentation/*")
+@WebFilter(urlPatterns = { "/documentation", "/documentation/*" })
 public class DocumentationToggle extends SecuredFilter {
 
     @Inject
