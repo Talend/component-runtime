@@ -1,5 +1,12 @@
 
 
+== Version 1.1.13
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1504[TCOMP-1504^]: Apache Beam 2.14.0 upgrade
+- link:https://jira.talendforge.org/browse/TCOMP-1505[TCOMP-1505^]: Upgrade jackson-databind to 2.9.9.2
+
 == Version 1.1.12
 
 === Bug

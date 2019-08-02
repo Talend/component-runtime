@@ -27,7 +27,7 @@ import lombok.AllArgsConstructor;
 // @formatter:off
 @AllArgsConstructor
 enum Indices {
-    BEAM_SDKS_JAVA_CORE(new String[] { // #6636
+    BEAM_SDKS_JAVA_CORE(new String[] { // #6131
             "avro.shaded.com.google.common.annotations",
             "avro.shaded.com.google.common.base",
             "avro.shaded.com.google.common.cache",
@@ -94,7 +94,7 @@ enum Indices {
             "org.apache.beam.model.pipeline.v1.MetricsApi",
             "org.apache.beam.model.pipeline.v1.RunnerApi",
             "org.apache.beam.model.pipeline.v1.StandardWindowFns",
-            "org.apache.beam.repackaged.beam_sdks_java_core",
+            "org.apache.beam.repackaged.core",
             "org.apache.beam.sdk.Pipeline",
             "org.apache.beam.sdk.PipelineResult",
             "org.apache.beam.sdk.PipelineRunner",
@@ -154,6 +154,7 @@ enum Indices {
             "org.apache.beam.sdk.function.ThrowingConsumer",
             "org.apache.beam.sdk.function.ThrowingFunction",
             "org.apache.beam.sdk.function.ThrowingRunnable",
+            "org.apache.beam.sdk.harness.JvmInitializer",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_Parse",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_ParseAll",
             "org.apache.beam.sdk.io.AutoValue_AvroIO_ParseFiles",
@@ -208,6 +209,7 @@ enum Indices {
             "org.apache.beam.sdk.io.ReadableFileCoder",
             "org.apache.beam.sdk.io.SerializableAvroCodecFactory",
             "org.apache.beam.sdk.io.ShardNameTemplate",
+            "org.apache.beam.sdk.io.ShardingFunction",
             "org.apache.beam.sdk.io.Source",
             "org.apache.beam.sdk.io.TFRecordIO",
             "org.apache.beam.sdk.io.TextIO",
@@ -344,17 +346,23 @@ enum Indices {
             "org.apache.beam.sdk.schemas.parser.generated.FieldSpecifierNotationListener",
             "org.apache.beam.sdk.schemas.parser.generated.FieldSpecifierNotationParser",
             "org.apache.beam.sdk.schemas.parser.generated.FieldSpecifierNotationVisitor",
+            "org.apache.beam.sdk.schemas.transforms.AddFields",
+            "org.apache.beam.sdk.schemas.transforms.AutoValue_AddFields_Inner_AddFieldsInformation",
+            "org.apache.beam.sdk.schemas.transforms.AutoValue_AddFields_Inner_NewField",
             "org.apache.beam.sdk.schemas.transforms.AutoValue_Cast",
             "org.apache.beam.sdk.schemas.transforms.AutoValue_Cast_CompatibilityError",
             "org.apache.beam.sdk.schemas.transforms.AutoValue_CoGroup_By",
+            "org.apache.beam.sdk.schemas.transforms.AutoValue_Filter_Inner_FilterDescription",
             "org.apache.beam.sdk.schemas.transforms.AutoValue_SchemaAggregateFn_Inner",
             "org.apache.beam.sdk.schemas.transforms.AutoValue_Unnest_Inner",
             "org.apache.beam.sdk.schemas.transforms.Cast",
             "org.apache.beam.sdk.schemas.transforms.CoGroup",
             "org.apache.beam.sdk.schemas.transforms.Convert",
+            "org.apache.beam.sdk.schemas.transforms.DropFields",
             "org.apache.beam.sdk.schemas.transforms.Filter",
             "org.apache.beam.sdk.schemas.transforms.Group",
             "org.apache.beam.sdk.schemas.transforms.Join",
+            "org.apache.beam.sdk.schemas.transforms.RenameFields",
             "org.apache.beam.sdk.schemas.transforms.SchemaAggregateFn",
             "org.apache.beam.sdk.schemas.transforms.Select",
             "org.apache.beam.sdk.schemas.transforms.Unnest",
@@ -429,6 +437,7 @@ enum Indices {
             "org.apache.beam.sdk.testing.UsesFailureMessage",
             "org.apache.beam.sdk.testing.UsesGaugeMetrics",
             "org.apache.beam.sdk.testing.UsesImpulse",
+            "org.apache.beam.sdk.testing.UsesKms",
             "org.apache.beam.sdk.testing.UsesMapState",
             "org.apache.beam.sdk.testing.UsesMetricsPusher",
             "org.apache.beam.sdk.testing.UsesParDoLifecycle",
@@ -1121,7 +1130,7 @@ enum Indices {
             return hasClass("org.apache.spark.SparkContext");
         }
     },
-    BEAM_RUNNERS_SPARK(new String[] { // #1545
+    BEAM_RUNNERS_SPARK(new String[] { // #1039
             "com.fasterxml.jackson.module.paranamer",
             "com.fasterxml.jackson.module.scala",
             "com.google.common.annotations",
@@ -1151,12 +1160,12 @@ enum Indices {
             "org.apache.beam.model.fnexecution.v1.BeamFnStateGrpc",
             "org.apache.beam.model.fnexecution.v1.ProvisionApi",
             "org.apache.beam.model.fnexecution.v1.ProvisionServiceGrpc",
-            "org.apache.beam.repackaged.beam_runners_spark",
             "org.apache.beam.runners.core",
             "org.apache.beam.runners.fnexecution",
             "org.apache.beam.runners.spark",
             "org.apache.beam.sdk.fn.IdGenerator",
             "org.apache.beam.sdk.fn.IdGenerators",
+            "org.apache.beam.sdk.fn.JvmInitializers",
             "org.apache.beam.sdk.fn.channel.ManagedChannelFactory",
             "org.apache.beam.sdk.fn.channel.SocketAddressFactory",
             "org.apache.beam.sdk.fn.data.AutoValue_LogicalEndpoint",
@@ -1192,8 +1201,8 @@ enum Indices {
             return hasClass("org.apache.beam.runners.spark.SparkRunner");
         }
     },
-    BEAM_RUNNERS_DIRECT_JAVA(new String[] { // #458
-            "org.apache.beam.repackaged.beam_runners_direct_java",
+    BEAM_RUNNERS_DIRECT_JAVA(new String[] { // #405
+            "org.apache.beam.repackaged.direct_java",
             "org.apache.beam.runners.direct"
         }) {
         @Override
