@@ -47,9 +47,14 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
+import org.apache.cxf.transport.servlet.ServletController;
 import org.apache.tomcat.util.http.FastHttpDateFormat;
 import org.talend.sdk.component.server.front.security.ConnectionSecurityProvider;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+@RequiredArgsConstructor
 public class InMemoryRequest implements HttpServletRequest {
 
     private static final Cookie[] NO_COOKIE = new Cookie[0];
@@ -81,6 +86,8 @@ public class InMemoryRequest implements HttpServletRequest {
 
     private final Supplier<Principal> principalSupplier;
 
+    private final ServletController controller;
+
     private String encoding;
 
     private long length;
@@ -93,21 +100,10 @@ public class InMemoryRequest implements HttpServletRequest {
 
     private BufferedReader reader;
 
-    public InMemoryRequest(final String method, final Map<String, List<String>> headers, final String requestUri,
-            final String pathInfo, final String servletPath, final String query, final int port,
-            final ServletContext servletContext, final ServletInputStream inputStream,
-            final Supplier<Principal> principalSupplier) {
-        this.method = method;
-        this.headers = headers;
-        this.requestUri = requestUri;
-        this.pathInfo = pathInfo;
-        this.servletPath = servletPath;
-        this.query = query;
-        this.port = port;
-        this.servletContext = servletContext;
-        this.inputStream = inputStream;
-        this.principalSupplier = principalSupplier;
-    }
+    @Setter
+    private InMemoryResponse response;
+
+    private AsyncContext asyncContext;
 
     @Override
     public String getAuthType() {
@@ -452,28 +448,32 @@ public class InMemoryRequest implements HttpServletRequest {
 
     @Override
     public AsyncContext startAsync() throws IllegalStateException {
-        throw new UnsupportedOperationException();
+        asyncContext = new AsyncContextImpl(this, response, true, controller).start();
+        return asyncContext;
     }
 
     @Override
     public AsyncContext startAsync(final ServletRequest servletRequest, final ServletResponse servletResponse)
             throws IllegalStateException {
-        throw new UnsupportedOperationException();
+        asyncContext =
+                new AsyncContextImpl(servletRequest, InMemoryResponse.class.cast(servletResponse), false, controller)
+                        .start();
+        return asyncContext;
     }
 
     @Override
     public boolean isAsyncStarted() {
-        return false;
+        return asyncContext != null;
     }
 
     @Override
     public boolean isAsyncSupported() {
-        return false;
+        return true;
     }
 
     @Override
     public AsyncContext getAsyncContext() {
-        throw new UnsupportedOperationException();
+        return asyncContext;
     }
 
     @Override

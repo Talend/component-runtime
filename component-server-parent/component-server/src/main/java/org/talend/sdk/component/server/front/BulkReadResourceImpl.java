@@ -22,8 +22,10 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Collection;
@@ -42,6 +44,7 @@ import javax.json.bind.Jsonb;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -187,32 +190,34 @@ public class BulkReadResourceImpl implements BulkReadResource {
 
         final int port = info.getBaseUri().getPort();
         final Principal userPrincipal = request.getUserPrincipal(); // this is ap proxy so ready it early
-        final InMemoryRequest request = new InMemoryRequest("GET", headers, path, appPrefix + path, appPrefix,
-                queryString, port < 0 ? 8080 : port, servletContext, new MemoryInputStream(null) {
-
-                    @Override
-                    public int read() {
-                        return -1;
-                    }
-                }, () -> userPrincipal);
+        final InMemoryRequest request = new InMemoryRequest(ofNullable(inputRequest.getVerb()).orElse(HttpMethod.GET),
+                headers, path, appPrefix + path, appPrefix, queryString, port < 0 ? 8080 : port, servletContext,
+                new MemoryInputStream(ofNullable(inputRequest.getPayload())
+                        .map(it -> it.getBytes(StandardCharsets.UTF_8))
+                        .map(ByteArrayInputStream::new)
+                        .map(InputStream.class::cast)
+                        .orElse(null)),
+                () -> userPrincipal, controller);
         final BulkResponses.Result result = new BulkResponses.Result();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
+        final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
+            result.setResponse(outputStream.toByteArray());
+            promise.complete(result);
+        }, bytes -> {
+            try {
+                outputStream.write(bytes);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }, (status, responseHeaders) -> {
+            result.setStatus(status);
+            result.setHeaders(headers);
+            return "";
+        });
+        request.setResponse(response);
         try {
-            controller.invoke(request, new InMemoryResponse(() -> true, () -> {
-                result.setResponse(outputStream.toByteArray());
-                promise.complete(result);
-            }, bytes -> {
-                try {
-                    outputStream.write(bytes);
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
-                }
-            }, (status, responseHeaders) -> {
-                result.setStatus(status);
-                result.setHeaders(headers);
-                return "";
-            }));
+            controller.invoke(request, response);
         } catch (final ServletException e) {
             result.setStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
             result

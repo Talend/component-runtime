@@ -288,7 +288,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 try {
                     final InMemoryRequest request = new InMemoryRequest(method.toUpperCase(ENGLISH), headers, path,
                             appBase + path, appBase, queryString, 8080, context, new WebSocketInputStream(message),
-                            session::getUserPrincipal);
+                            session::getUserPrincipal, controller);
                     controller.invoke(request, new InMemoryResponse(session::isOpen, () -> {
                         if (session.getBasicRemote().getBatchingAllowed()) {
                             try {

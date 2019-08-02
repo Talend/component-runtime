@@ -35,7 +35,10 @@ public class BulkRequests {
     @AllArgsConstructor
     public static class Request {
 
-        // private String verb; == GET!
+        private String verb;
+
+        private String payload;
+
         private Map<String, List<String>> headers;
 
         private String path;

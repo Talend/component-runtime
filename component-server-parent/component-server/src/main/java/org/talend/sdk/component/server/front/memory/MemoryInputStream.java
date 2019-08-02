@@ -15,18 +15,19 @@
  */
 package org.talend.sdk.component.server.front.memory;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
-public abstract class MemoryInputStream extends ServletInputStream {
+public class MemoryInputStream extends ServletInputStream {
 
     protected final InputStream delegate;
 
     protected boolean finished;
 
-    protected MemoryInputStream(final InputStream delegate) {
+    public MemoryInputStream(final InputStream delegate) {
         this.delegate = delegate;
     }
 
@@ -43,5 +44,10 @@ public abstract class MemoryInputStream extends ServletInputStream {
     @Override
     public void setReadListener(final ReadListener readListener) {
         // no-op
+    }
+
+    @Override
+    public int read() throws IOException {
+        return delegate == null ? -1 : delegate.read();
     }
 }

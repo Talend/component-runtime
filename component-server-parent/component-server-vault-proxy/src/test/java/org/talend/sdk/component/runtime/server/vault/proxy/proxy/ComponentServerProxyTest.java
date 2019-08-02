@@ -175,10 +175,10 @@ class ComponentServerProxyTest {
                         .request(APPLICATION_JSON_TYPE)
                         .post(entity(
                                 new BulkRequests(asList(
-                                        new BulkRequests.Request(
+                                        new BulkRequests.Request(null, null,
                                                 singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)),
                                                 "/api/v1/component/index", emptyMap()),
-                                        new BulkRequests.Request(
+                                        new BulkRequests.Request("GET", null,
                                                 singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)),
                                                 "/api/v1/documentation/component/mocked", emptyMap()))),
                                 APPLICATION_JSON_TYPE), BulkResponses.class);

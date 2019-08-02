@@ -26,10 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 
@@ -50,40 +54,72 @@ class BulkReadResourceImplTest {
 
     @Test
     void valid() {
+        final BulkRequests.Request okTrigger = new BulkRequests.Request(HttpMethod.POST, "{\"enum\":\"V1\"}",
+                singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)), "/api/v1/action/execute",
+                new HashMap<String, List<String>>() {
+
+                    {
+                        put("type", singletonList("user"));
+                        put("family", singletonList("jdbc"));
+                        put("action", singletonList("custom"));
+                    }
+                });
         final BulkResponses responses =
                 base
                         .path("bulk")
                         .request(APPLICATION_JSON_TYPE)
                         .post(entity(
                                 new BulkRequests(asList(
-                                        new BulkRequests.Request(
+                                        new BulkRequests.Request(HttpMethod.GET, null,
                                                 singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)),
                                                 "/api/v1/component/index", emptyMap()),
-                                        new BulkRequests.Request(
+                                        new BulkRequests.Request(HttpMethod.GET, null,
                                                 singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)),
                                                 "/api/v1/documentation/component/" + client.getJdbcId(), emptyMap()),
-                                        new BulkRequests.Request(
+                                        new BulkRequests.Request(HttpMethod.GET, null,
                                                 singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)),
                                                 "/api/v1/documentation/component/"
                                                         + client.getComponentId("chain", "list"),
-                                                emptyMap()))),
+                                                emptyMap()),
+                                        okTrigger,
+                                        new BulkRequests.Request(HttpMethod.POST, "{\"enum\":\"FAIL\"}",
+                                                singletonMap(HttpHeaders.CONTENT_TYPE, singletonList(APPLICATION_JSON)),
+                                                "/api/v1/action/execute", new HashMap<String, List<String>>() {
+
+                                                    {
+                                                        put("type", singletonList("user"));
+                                                        put("family", singletonList("jdbc"));
+                                                        put("action", singletonList("custom"));
+                                                    }
+                                                }),
+                                        okTrigger)),
                                 APPLICATION_JSON_TYPE), BulkResponses.class);
         final List<BulkResponses.Result> results = responses.getResponses();
 
-        assertEquals(3, results.size());
+        assertEquals(6, results.size());
 
-        results.stream().limit(2).forEach(it -> assertEquals(HttpServletResponse.SC_OK, it.getStatus()));
-        results.stream().skip(2).forEach(it -> assertEquals(HttpServletResponse.SC_NOT_FOUND, it.getStatus()));
+        IntStream
+                .of(0, 1, 3, 5)
+                .mapToObj(results::get)
+                .forEach(it -> assertEquals(HttpServletResponse.SC_OK, it.getStatus()));
+        assertEquals(HttpServletResponse.SC_NOT_FOUND, results.get(2).getStatus());
+        assertEquals(520, results.get(4).getStatus());
         results.forEach(it -> assertEquals(singletonList("application/json"), it.getHeaders().get("Content-Type")));
+        assertEquals("{\n  \"value\":\"V1\"\n}",
+                new String(results.get(3).getResponse(), StandardCharsets.UTF_8).trim());
+        assertEquals(
+                "{\n  \"code\":\"ACTION_ERROR\",\n"
+                        + "  \"description\":\"Action execution failed with: this action failed intentionally\"\n}",
+                new String(results.get(4).getResponse(), StandardCharsets.UTF_8).trim());
 
         assertTrue(new String(results.get(0).getResponse(), StandardCharsets.UTF_8)
                 .contains("\"pluginLocation\":\"org.talend.comp:jdbc-component:jar:0.0.1:compile\""));
         assertEquals(
-                "{\n" + "  \"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\",\n"
+                "{\n  \"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\",\n"
                         + "  \"type\":\"asciidoc\"\n" + "}",
                 new String(results.get(1).getResponse(), StandardCharsets.UTF_8));
         assertEquals(
-                "{\n" + "  \"code\":\"COMPONENT_MISSING\",\n"
+                "{\n  \"code\":\"COMPONENT_MISSING\",\n"
                         + "  \"description\":\"No component 'dGhlLXRlc3QtY29tcG9uZW50I2NoYWluI2xpc3Q'\"\n" + "}",
                 new String(results.get(2).getResponse(), StandardCharsets.UTF_8));
     }
@@ -94,8 +130,9 @@ class BulkReadResourceImplTest {
                 base
                         .path("bulk")
                         .request(APPLICATION_JSON_TYPE)
-                        .post(entity(new BulkRequests(singletonList(
-                                new BulkRequests.Request(emptyMap(), "/api/v1/component/icon/1234", emptyMap()))),
+                        .post(entity(
+                                new BulkRequests(singletonList(new BulkRequests.Request(HttpMethod.GET, null,
+                                        emptyMap(), "/api/v1/component/icon/1234", emptyMap()))),
                                 APPLICATION_JSON_TYPE), BulkResponses.class);
         assertEquals(1, responses.getResponses().size());
         responses.getResponses().forEach(it -> assertEquals(HttpServletResponse.SC_FORBIDDEN, it.getStatus()));
@@ -106,8 +143,9 @@ class BulkReadResourceImplTest {
         final BulkResponses responses = base
                 .path("bulk")
                 .request(APPLICATION_JSON_TYPE)
-                .post(entity(new BulkRequests(singletonList(new BulkRequests.Request(emptyMap(),
-                        "/api/v1/component/details", singletonMap("identifiers", singletonList("missing"))))),
+                .post(entity(
+                        new BulkRequests(singletonList(new BulkRequests.Request(HttpMethod.GET, null, emptyMap(),
+                                "/api/v1/component/details", singletonMap("identifiers", singletonList("missing"))))),
                         APPLICATION_JSON_TYPE), BulkResponses.class);
         assertEquals(1, responses.getResponses().size());
         responses.getResponses().forEach(it -> assertEquals(HttpServletResponse.SC_BAD_REQUEST, it.getStatus()));

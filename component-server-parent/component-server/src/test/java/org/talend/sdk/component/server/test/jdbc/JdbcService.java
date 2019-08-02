@@ -59,6 +59,9 @@ public class JdbcService {
 
     @Action("custom")
     public Map<String, String> test(@Option("enum") final MyEnum myEnum) {
+        if (myEnum == MyEnum.FAIL) {
+            throw new IllegalArgumentException("this action failed intentionally");
+        }
         return singletonMap("value", myEnum.name());
     }
 
@@ -77,7 +80,8 @@ public class JdbcService {
 
     public enum MyEnum {
         V1,
-        V2
+        V2,
+        FAIL
     }
 
     @Internationalized

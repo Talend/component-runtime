@@ -579,7 +579,9 @@ pre {
 .article-anchors ul {
   list-style: none;
   padding: 0;
-  overflow-y: scroll;
+}
+.article-anchors > ul {
+  overflow-y: auto;
   height: calc(100vh - 300px);
 }
 .article-anchors a {
