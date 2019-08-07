@@ -35,10 +35,11 @@
 
   <resource-bundle>messages</resource-bundle>
 
+  <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.java</depends>
+  <depends>com.intellij.properties</depends>
   <depends>org.jetbrains.idea.maven</depends>
   <depends>org.jetbrains.plugins.gradle</depends>
-  <depends>com.intellij.properties</depends>
-  <depends>com.intellij.modules.lang</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <moduleType id="TALEND_COMPONENT_MODULE"
