@@ -72,7 +72,9 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
         loadingPanel.getContentPanel().removeAll();
         loadingPanel.startLoading();
         getApplication().executeOnPooledThread(() -> loadingPanel.setLoadingText(getMessage("wizard.starter.loading")));
-        starterPanel = new StarterPanel();
+        if (starterPanel == null || starterPanel.panelLoaded.isCompletedExceptionally()) {
+            starterPanel = new StarterPanel();
+        }
         starterPanel.getPanelLoaded().handle((panel, ex) -> {
             getApplication().executeOnPooledThread(() -> {
                 if (ex != null) {
@@ -171,6 +173,11 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
     @Override
     public void updateDataModel() {
         builder.updateQuery(request);
+    }
+
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return starterPanel == null ? null : starterPanel.jfxPanel;
     }
 
     @Override
