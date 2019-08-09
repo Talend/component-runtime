@@ -90,21 +90,29 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
         log.info("Generated " + output.getAbsolutePath());
     }
 
+    @Override
+    protected String emptyDefaultValue() {
+        return null;
+    }
+
     private void addDita(final ComponentDescription componentDescription, final DocumentBuilderFactory factory,
             final TransformerFactory transformerFactory, final ZipOutputStream zip,
             final Collection<String> directories) throws ParserConfigurationException {
         final String family = componentDescription.getFamily();
         final String name = componentDescription.getName();
+        final String componentId = family + '-' + name;
 
         final DocumentBuilder builder = factory.newDocumentBuilder();
         final Document xml = builder.newDocument();
 
-        final Element topic = xml.createElement("topic");
-        topic.setAttribute("id", "connector-" + family + '-' + name);
+        final Element topic = xml.createElement("reference");
+        topic.setAttribute("id", "connector_" + componentId);
         topic.setAttribute("xml:lang", ofNullable(getLocale().getLanguage()).filter(it -> !it.isEmpty()).orElse("en"));
+        topic.setAttribute("xtrc", "standard_component");
         xml.appendChild(topic);
 
         final Element title = xml.createElement("title");
+        title.setAttribute("id", "component_title_" + componentId);
         title.setTextContent(name + " parameters");
         topic.appendChild(title);
 
@@ -114,6 +122,12 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
 
         final Element prolog = xml.createElement("prolog");
         final Element metadata = xml.createElement("metadata");
+
+        final Element pageId = xml.createElement("othermeta");
+        pageId.setAttribute("name", "pageid");
+        pageId.setAttribute("content", "component_" + componentId);
+        metadata.appendChild(pageId);
+
         final Element othermeta = xml.createElement("othermeta");
         othermeta.setAttribute("content", family);
         othermeta.setAttribute("name", "pageid");
@@ -121,11 +135,11 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
         prolog.appendChild(metadata);
         topic.appendChild(prolog);
 
-        final Element body = xml.createElement("body");
+        final Element body = xml.createElement("refbody");
         body.setAttribute("outputclass", "subscription");
 
         final Element section = xml.createElement("section");
-        section.setAttribute("id", "section_" + topic.getAttribute("id"));
+        section.setAttribute("id", "section_" + componentId);
         section.setAttribute("outputclass", "subscription");
         body.appendChild(section);
 
@@ -137,6 +151,7 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             final int columnNumber = 5 + 1 - Stream.of(ignoreType, ignoreFullPath).mapToInt(it -> it ? 1 : 0).sum();
 
             final Element table = xml.createElement("table");
+            table.setAttribute("id", "table_parameters_" + componentId);
             table.setAttribute("colsep", "1");
             table.setAttribute("frame", "all");
             table.setAttribute("rowsep", "1");
@@ -155,15 +170,15 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
 
             final Element configurationHead = xml.createElement("thead");
             final Element headRow = xml.createElement("row");
-            appendColumn(xml, headRow, "Display Name");
-            appendColumn(xml, headRow, "Description");
-            appendColumn(xml, headRow, "Default Value");
-            appendColumn(xml, headRow, "Enabled If");
+            appendColumn(xml, headRow, "Display Name", null);
+            appendColumn(xml, headRow, "Description", null);
+            appendColumn(xml, headRow, "Default Value", null);
+            appendColumn(xml, headRow, "Enabled If", null);
             if (!ignoreFullPath) {
-                appendColumn(xml, headRow, "Path");
+                appendColumn(xml, headRow, "Path", null);
             }
             if (!ignoreType) {
-                appendColumn(xml, headRow, "Type");
+                appendColumn(xml, headRow, "Type", null);
             }
             configurationHead.appendChild(headRow);
             tgroup.appendChild(configurationHead);
@@ -171,19 +186,19 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             final Element configurationBody = xml.createElement("tbody");
             componentDescription.parameters().forEach(param -> {
                 final Element row = xml.createElement("row");
-                appendColumn(xml, row, param.getDisplayName());
-                appendColumn(xml, row, param.getDocumentation());
-                appendColumn(xml, row, param.getDefaultValue());
+                appendColumn(xml, row, param.getDisplayName(), "uicontrol");
+                appendColumn(xml, row, param.getDocumentation(), null);
+                appendColumn(xml, row, param.getDefaultValue(), "userinput");
                 {
                     final Element column = xml.createElement("entry");
                     renderConditions(xml, column, param.getConditions());
                     row.appendChild(column);
                 }
                 if (!ignoreFullPath) {
-                    appendColumn(xml, row, param.getFullPath());
+                    appendColumn(xml, row, param.getFullPath(), null);
                 }
                 if (!ignoreType) {
-                    appendColumn(xml, row, param.getType());
+                    appendColumn(xml, row, param.getType(), null);
                 }
                 configurationBody.appendChild(row);
             });
@@ -216,10 +231,10 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             final String path = ditaFolder + '/' + name + ".dita";
             zip.putNextEntry(new ZipEntry(path));
             final String content = writer.toString();
-            final int topicIdx = content.indexOf("<topic");
+            final int topicIdx = content.indexOf("<reference");
             zip
-                    .write((content.substring(0, topicIdx)
-                            + "<!DOCTYPE topic PUBLIC \"-//OASIS//DTD DITA Topic//EN\" \"topic.dtd\">\n"
+                    .write((content.substring(0, topicIdx) + "<!DOCTYPE reference\n"
+                            + "  PUBLIC \"-//OASIS//DTD DITA Reference//EN\" \"reference.dtd\">\n"
                             + content.substring(topicIdx)).getBytes(StandardCharsets.UTF_8));
             zip.closeEntry();
         } catch (final IOException | TransformerException e) {
@@ -329,10 +344,16 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
         }
     }
 
-    private void appendColumn(final Document xml, final Element row, final String value) {
+    private void appendColumn(final Document xml, final Element row, final String value, final String surroundingTag) {
         final Element column = xml.createElement("entry");
         if (value != null) {
-            column.setTextContent(value.trim());
+            if (surroundingTag != null) {
+                final Element surrounding = xml.createElement(surroundingTag);
+                surrounding.setTextContent(value.trim());
+                column.appendChild(surrounding);
+            } else {
+                column.setTextContent(value.trim());
+            }
         }
         row.appendChild(column);
     }

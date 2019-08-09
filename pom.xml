@@ -1133,6 +1133,7 @@
             <exclude>**/*.svg</exclude>
             <exclude>**/*.png</exclude>
             <exclude>**/src/main/resources/WebsiteBuilderMojo/*.mustache</exclude>
+            <exclude>**/src/test/resources/DitaDocumentationGeneratorTest/**</exclude>
           </excludes>
         </configuration>
       </plugin>

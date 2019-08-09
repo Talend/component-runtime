@@ -58,7 +58,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 
-abstract class DocBaseGenerator extends BaseTask {
+public abstract class DocBaseGenerator extends BaseTask {
 
     private final DefaultValueInspector defaultValueInspector = new DefaultValueInspector();
 
@@ -126,7 +126,7 @@ abstract class DocBaseGenerator extends BaseTask {
                 // skip for doc
             }
             return new ComponentDescription(component, family, componentMeta.name(), getDoc(component),
-                    sort(parameterMetas), resolver, defaultValueInspector, locale);
+                    sort(parameterMetas), resolver, defaultValueInspector, locale, emptyDefaultValue());
         });
     }
 
@@ -180,6 +180,10 @@ abstract class DocBaseGenerator extends BaseTask {
         if (!output.getParentFile().isDirectory() && !output.getParentFile().mkdirs()) {
             throw new IllegalStateException("Can't create " + output.getParentFile());
         }
+    }
+
+    protected String emptyDefaultValue() {
+        return "-";
     }
 
     private static class AbsolutePathResolver {
@@ -287,6 +291,8 @@ abstract class DocBaseGenerator extends BaseTask {
 
         private final Locale locale;
 
+        private final String emptyDefaultValue;
+
         Stream<Param> parameters() {
             return mapParameters(parameters, null, null, new HashMap<>());
         }
@@ -311,8 +317,8 @@ abstract class DocBaseGenerator extends BaseTask {
             final String type = findEnclosingConfigurationType(p, types);
             return new Param(bundle.displayName(parent).orElse(p.getName()),
                     bundle.documentation(parent).orElseGet(() -> findDocumentation(p)),
-                    ofNullable(findDefault(p, instance)).orElse("-"), ofNullable(type).orElse("-"), p.getPath(),
-                    createConditions(p.getPath(), p.getMetadata()));
+                    ofNullable(findDefault(p, instance)).orElse(emptyDefaultValue), ofNullable(type).orElse("-"),
+                    p.getPath(), createConditions(p.getPath(), p.getMetadata()));
         }
 
         private ParameterBundle findBundle(final ParameterMeta p) {

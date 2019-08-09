@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="connector_test-my" xml:lang="en" xtrc="standard_component">
+  <title id="component_title_test-my">my parameters</title>
+  <shortdesc>super my component</shortdesc>
+  <prolog>
+    <metadata>
+      <othermeta content="component_test-my" name="pageid"/>
+      <othermeta content="test" name="pageid"/>
+    </metadata>
+  </prolog>
+  <refbody outputclass="subscription">
+    <section id="section_test-my" outputclass="subscription">
+      <title>Parameters for test my component.</title>
+      <table colsep="1" frame="all" id="table_parameters_test-my" rowsep="1">
+        <tgroup cols="4">
+          <colspec colname="c1" colnum="1" colwidth="1*"/>
+          <colspec colname="c2" colnum="2" colwidth="1*"/>
+          <colspec colname="c3" colnum="3" colwidth="1*"/>
+          <colspec colname="c4" colnum="4" colwidth="1*"/>
+          <thead>
+            <row>
+              <entry>Display Name</entry>
+              <entry>Description</entry>
+              <entry>Default Value</entry>
+              <entry>Enabled If</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <uicontrol>configuration</uicontrol>
+              </entry>
+              <entry>configuration configuration</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>input</uicontrol>
+              </entry>
+              <entry>the input value</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>nested</uicontrol>
+              </entry>
+              <entry>it is nested</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>datastore</uicontrol>
+              </entry>
+              <entry>the datastore</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>user</uicontrol>
+              </entry>
+              <entry>the user to log in</entry>
+              <entry>
+                <userinput>unknown</userinput>
+              </entry>
+              <entry>Always enabled</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+  </refbody>
+</reference>
