@@ -27,9 +27,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -99,6 +104,7 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
     private void addDita(final ComponentDescription componentDescription, final DocumentBuilderFactory factory,
             final TransformerFactory transformerFactory, final ZipOutputStream zip,
             final Collection<String> directories) throws ParserConfigurationException {
+
         final String family = componentDescription.getFamily();
         final String name = componentDescription.getName();
         final String componentId = family + '-' + name;
@@ -106,109 +112,46 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
         final DocumentBuilder builder = factory.newDocumentBuilder();
         final Document xml = builder.newDocument();
 
-        final Element topic = xml.createElement("reference");
-        topic.setAttribute("id", "connector_" + componentId);
-        topic.setAttribute("xml:lang", ofNullable(getLocale().getLanguage()).filter(it -> !it.isEmpty()).orElse("en"));
-        topic.setAttribute("xtrc", "standard_component");
-        xml.appendChild(topic);
+        final Element reference = xml.createElement("reference");
+        reference.setAttribute("id", "connector_" + componentId);
+        reference.setAttribute("id", "connector-" + family + '-' + name);
+        reference
+                .setAttribute("xml:lang",
+                        ofNullable(getLocale().getLanguage()).filter(it -> !it.isEmpty()).orElse("en-us"));
+        xml.appendChild(reference);
 
         final Element title = xml.createElement("title");
         title.setAttribute("id", "component_title_" + componentId);
         title.setTextContent(name + " parameters");
-        topic.appendChild(title);
+        reference.appendChild(title);
 
         final Element shortdesc = xml.createElement("shortdesc");
         shortdesc.setTextContent(componentDescription.getDocumentation().trim());
-        topic.appendChild(shortdesc);
+        reference.appendChild(shortdesc);
 
         final Element prolog = xml.createElement("prolog");
         final Element metadata = xml.createElement("metadata");
-
-        final Element pageId = xml.createElement("othermeta");
-        pageId.setAttribute("name", "pageid");
-        pageId.setAttribute("content", "component_" + componentId);
-        metadata.appendChild(pageId);
 
         final Element othermeta = xml.createElement("othermeta");
         othermeta.setAttribute("content", family);
         othermeta.setAttribute("name", "pageid");
         metadata.appendChild(othermeta);
         prolog.appendChild(metadata);
-        topic.appendChild(prolog);
+        reference.appendChild(prolog);
 
         final Element body = xml.createElement("refbody");
         body.setAttribute("outputclass", "subscription");
 
-        final Element section = xml.createElement("section");
-        section.setAttribute("id", "section_" + componentId);
-        section.setAttribute("outputclass", "subscription");
-        body.appendChild(section);
+        Map<String, Map<String, List<Param>>> parametersWithUInfo2 = componentDescription.getParametersWithUInfo();
 
-        final Element sectionTitle = xml.createElement("title");
-        sectionTitle.setTextContent("Parameters for " + family + " " + name + " component.");
-        section.appendChild(sectionTitle);
+        generateConfigurationSection(xml, body, family, name, reference.getAttribute("id"),
+                parametersWithUInfo2.get("datastore"), "connection");
+        generateConfigurationSection(xml, body, family, name, reference.getAttribute("id"),
+                parametersWithUInfo2.get("dataset"), "dataset");
+        generateConfigurationSection(xml, body, family, name, reference.getAttribute("id"),
+                parametersWithUInfo2.get(""), "other");
 
-        if (!componentDescription.getParameters().isEmpty()) {
-            final int columnNumber = 5 + 1 - Stream.of(ignoreType, ignoreFullPath).mapToInt(it -> it ? 1 : 0).sum();
-
-            final Element table = xml.createElement("table");
-            table.setAttribute("id", "table_parameters_" + componentId);
-            table.setAttribute("colsep", "1");
-            table.setAttribute("frame", "all");
-            table.setAttribute("rowsep", "1");
-
-            final Element tgroup = xml.createElement("tgroup");
-            tgroup.setAttribute("cols", Integer.toString(columnNumber));
-            table.appendChild(tgroup);
-
-            IntStream.rangeClosed(1, columnNumber).forEach(col -> {
-                final Element colspec = xml.createElement("colspec");
-                colspec.setAttribute("colname", "c" + col);
-                colspec.setAttribute("colnum", Integer.toString(col));
-                colspec.setAttribute("colwidth", "1*");
-                tgroup.appendChild(colspec);
-            });
-
-            final Element configurationHead = xml.createElement("thead");
-            final Element headRow = xml.createElement("row");
-            appendColumn(xml, headRow, "Display Name", null);
-            appendColumn(xml, headRow, "Description", null);
-            appendColumn(xml, headRow, "Default Value", null);
-            appendColumn(xml, headRow, "Enabled If", null);
-            if (!ignoreFullPath) {
-                appendColumn(xml, headRow, "Path", null);
-            }
-            if (!ignoreType) {
-                appendColumn(xml, headRow, "Type", null);
-            }
-            configurationHead.appendChild(headRow);
-            tgroup.appendChild(configurationHead);
-
-            final Element configurationBody = xml.createElement("tbody");
-            componentDescription.parameters().forEach(param -> {
-                final Element row = xml.createElement("row");
-                appendColumn(xml, row, param.getDisplayName(), "uicontrol");
-                appendColumn(xml, row, param.getDocumentation(), null);
-                appendColumn(xml, row, param.getDefaultValue(), "userinput");
-                {
-                    final Element column = xml.createElement("entry");
-                    renderConditions(xml, column, param.getConditions());
-                    row.appendChild(column);
-                }
-                if (!ignoreFullPath) {
-                    appendColumn(xml, row, param.getFullPath(), null);
-                }
-                if (!ignoreType) {
-                    appendColumn(xml, row, param.getType(), null);
-                }
-                configurationBody.appendChild(row);
-            });
-            tgroup.appendChild(configurationBody);
-
-            section.appendChild(table);
-        }
-
-        topic.appendChild(body);
+        reference.appendChild(body);
 
         final StringWriter writer = new StringWriter();
         final StreamResult result = new StreamResult(writer);
@@ -232,14 +175,132 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             final String path = ditaFolder + '/' + name + ".dita";
             zip.putNextEntry(new ZipEntry(path));
             final String content = writer.toString();
-            final int topicIdx = content.indexOf("<reference");
+            final int refIdx = content.indexOf("<reference");
             zip
-                    .write((content.substring(0, topicIdx) + "<!DOCTYPE reference\n"
-                            + "  PUBLIC \"-//OASIS//DTD DITA Reference//EN\" \"reference.dtd\">\n"
-                            + content.substring(topicIdx)).getBytes(StandardCharsets.UTF_8));
+                    .write((content.substring(0, refIdx)
+                            + "<!DOCTYPE reference PUBLIC \"-//Talend//DTD DITA Composite//EN\" \"TalendDitabase.dtd\">\n"
+                            + content.substring(refIdx)).getBytes(StandardCharsets.UTF_8));
             zip.closeEntry();
         } catch (final IOException | TransformerException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    private void generateConfigurationSection(final Document xml, final Element body, final String family,
+            final String name, final String id, final Map<String, List<Param>> parameters, final String sectionName) {
+        if (parameters == null) {
+            return;
+        }
+
+        final String sectionId = "section_" + id + "_" + sectionName;
+        final Element section = xml.createElement("section");
+        section.setAttribute("id", sectionId);
+        section.setAttribute("outputclass", "subscription");
+        body.appendChild(section);
+
+        final Element sectionTitle = xml.createElement("title");
+        sectionTitle
+                .setTextContent(sectionName.substring(0, 1).toUpperCase() + sectionName.substring(1)
+                        + " parameters for " + family + " " + name + " component.");
+        section.appendChild(sectionTitle);
+
+        generateConfigurationArray(xml, section, parameters.get("tcomp::ui::gridlayout::Main::value"), "", sectionId);
+        generateConfigurationArray(xml, section, parameters.get("tcomp::ui::gridlayout::Advanced::value"),
+                "Advanced parameters", sectionId);
+    }
+
+    private void generateConfigurationArray(final Document xml, final Element section, final List<Param> params,
+            final String caption, final String sectionId) {
+
+        if (params != null && params.size() > 0) {
+            // If only complex type that are not section, don't generate that node
+            boolean arrayIsNeeded = params
+                    .stream()
+                    .filter(p -> !p.isComplex() || p.isSection())
+                    .collect(Collectors.toList())
+                    .size() > 0;
+            if (!arrayIsNeeded) {
+                return;
+            }
+
+            final int columnNumber = 5 + 1 - Stream.of(ignoreType, ignoreFullPath).mapToInt(it -> it ? 1 : 0).sum();
+
+            final Element table = xml.createElement("table");
+            table.setAttribute("colsep", "1");
+            table.setAttribute("frame", "all");
+            table.setAttribute("rowsep", "1");
+
+            if (caption != null && !caption.trim().isEmpty()) {
+                final Element tCaption = xml.createElement("title");
+                tCaption.setTextContent(caption);
+                table.appendChild(tCaption);
+            }
+
+            final Element tgroup = xml.createElement("tgroup");
+            tgroup.setAttribute("cols", Integer.toString(columnNumber));
+            table.appendChild(tgroup);
+
+            IntStream.rangeClosed(1, columnNumber).forEach(col -> {
+                final Element colspec = xml.createElement("colspec");
+                colspec.setAttribute("colname", "c" + col);
+                colspec.setAttribute("colnum", Integer.toString(col));
+                colspec.setAttribute("colwidth", "1*");
+                tgroup.appendChild(colspec);
+            });
+
+            final Element configurationHead = xml.createElement("thead");
+            final Element headRow = xml.createElement("row");
+            appendColumn(xml, headRow, "Display Name");
+            appendColumn(xml, headRow, "Description");
+            appendColumn(xml, headRow, "Default Value");
+            appendColumn(xml, headRow, "Enabled If");
+            if (!ignoreFullPath) {
+                appendColumn(xml, headRow, "Path");
+            }
+            if (!ignoreType) {
+                appendColumn(xml, headRow, "Type");
+            }
+            configurationHead.appendChild(headRow);
+            tgroup.appendChild(configurationHead);
+
+            final Element configurationBody = xml.createElement("tbody");
+
+            params.forEach(param -> {
+                final Element row = xml.createElement("row");
+
+                String from = null;
+                String to = null;
+                if (!param.isSection() && param.isComplex()) {
+                    from = "c2";
+                    to = "c4";
+                }
+                appendColumn(xml, row, param.getDisplayName(), "uicontrol");
+
+                appendColumn(xml, row, param.getDocumentation(), null, from, to);
+                if (!param.isComplex()) {
+                    appendColumn(xml, row, param.getDefaultValue(), "userinput");
+                    final Element column = xml.createElement("entry");
+                    renderConditions(xml, column, param.getConditions());
+                    row.appendChild(column);
+                    if (!ignoreFullPath) {
+                        appendColumn(xml, row, param.getFullPath());
+                    }
+                    if (!ignoreType) {
+                        appendColumn(xml, row, param.getType());
+                    }
+                } else if (param.isSection()) {
+                    appendLink(xml, row,
+                            "#" + sectionId.substring(0, sectionId.lastIndexOf('_')) + "_"
+                                    + param.getSectionName(),
+                            "See section " + param.getSectionName(), "c3", "c4");
+                }
+
+                configurationBody.appendChild(row);
+            });
+
+            tgroup.appendChild(configurationBody);
+
+            section.appendChild(table);
         }
     }
 
@@ -348,17 +409,51 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
         }
     }
 
-    private void appendColumn(final Document xml, final Element row, final String value, final String surroundingTag) {
+    private void appendColumn(final Document xml, final Element row, final String value) {
+        appendColumn(xml, row, value, null);
+    }
+
+    private void appendColumn(final Document xml, final Element row, final String value, final String childNode) {
+        appendColumn(xml, row, value, childNode, null, null);
+    }
+
+    private void appendLink(final Document xml, final Element row, final String href, final String value,
+            final String spanFrom, final String spanTo) {
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("href", href);
+        appendColumn(xml, row, value, "link", attributes, spanFrom, spanTo);
+    }
+
+    private void appendColumn(final Document xml, final Element row, final String value, final String childNode,
+            final String spanFrom, final String spanTo) {
+        appendColumn(xml, row, value, childNode, Collections.emptyMap(), spanFrom, spanTo);
+    }
+
+    private void appendColumn(final Document xml, final Element row, final String value, final String childNode,
+            final Map<String, String> childAttributes, final String spanFrom, final String spanTo) {
         final Element column = xml.createElement("entry");
+
+        if (spanFrom != null && spanTo != null) {
+            column.setAttribute("namest", spanFrom);
+            column.setAttribute("nameend", spanTo);
+        }
+
         if (value != null) {
-            if (surroundingTag != null) {
-                final Element surrounding = xml.createElement(surroundingTag);
-                surrounding.setTextContent(value.trim());
-                column.appendChild(surrounding);
+            String content = value.trim();
+            content = (content == null) ? "" : content;
+
+            if (childNode != null && !childNode.trim().isEmpty()) {
+                Element control = xml.createElement(childNode);
+
+                childAttributes.forEach((k, v) -> control.setAttribute(k, v));
+
+                control.setTextContent(content);
+                column.appendChild(control);
             } else {
-                column.setTextContent(value.trim());
+                column.setTextContent(content);
             }
         }
+
         row.appendChild(column);
     }
 

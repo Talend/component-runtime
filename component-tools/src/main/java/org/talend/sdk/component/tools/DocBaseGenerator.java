@@ -33,11 +33,21 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -58,6 +68,7 @@ import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyE
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 public abstract class DocBaseGenerator extends BaseTask {
 
@@ -246,8 +257,25 @@ public abstract class DocBaseGenerator extends BaseTask {
     }
 
     @Data
-    @AllArgsConstructor(access = PRIVATE)
-    protected static class Param {
+    protected static class UIInfo {
+
+        private final String section;
+
+        private final Set<String> nestedLayout = new HashSet<>();
+
+        public UIInfo(final String section, final Collection<String> layouts) {
+            this.section = section;
+            nestedLayout.addAll(layouts);
+        }
+
+        public void addNestedLayouts(final Collection<String> layouts) {
+            nestedLayout.addAll(layouts);
+        }
+    }
+
+    @Data
+    @RequiredArgsConstructor(access = PRIVATE)
+    protected static class Param implements Comparable<Param> {
 
         private final String displayName;
 
@@ -260,6 +288,33 @@ public abstract class DocBaseGenerator extends BaseTask {
         private final String fullPath;
 
         private final Conditions conditions;
+
+        private final String section;
+
+        private UIInfo uiInfo;
+
+        private final SortedSet<Param> nested = new TreeSet<>();
+
+        public void addNested(final Param p) {
+            nested.add(p);
+        }
+
+        public int compareTo(final Param p) {
+            return this.getDisplayName().compareTo(p.getDisplayName());
+        }
+
+        public boolean isComplex() {
+            return this.nested.size() > 0;
+        }
+
+        public boolean isSection() {
+            return isComplex() && section != null && !section.isEmpty();
+        }
+
+        public String getSectionName() {
+            return "datastore".equals(section) ? "connection" : section;
+        }
+
     }
 
     @Data
@@ -295,6 +350,129 @@ public abstract class DocBaseGenerator extends BaseTask {
 
         private final String emptyDefaultValue;
 
+        private Map<String, UIInfo> getUIParamByPath(final Collection<ParameterMeta> parameters) {
+            Map<String, UIInfo> uiparams = new HashMap<>();
+            recurseUIParam(parameters, uiparams, "", null, null);
+
+            return uiparams;
+        }
+
+        private Set<String> recurseUIParam(final Collection<ParameterMeta> params, final Map<String, UIInfo> uiparams,
+                final String currentSectionName, final ParameterMeta parent, final Collection<String> parentLayouts) {
+            Set<String> layouts = new HashSet<>();
+            for (ParameterMeta param : params) {
+                String path = param.getPath();
+                String sectionType = param.getMetadata().get("tcomp::configurationtype::type");
+                if (sectionType == null) {
+                    sectionType = currentSectionName;
+                }
+                // String layout = getLayout(parent, layoutParent, param);
+                Collection<String> paramLayouts = getPropertiesByLayout(parent, param.getName(), parentLayouts);
+                layouts.addAll(paramLayouts);
+
+                UIInfo uiInfo = new UIInfo(currentSectionName, paramLayouts);
+                uiparams.put(path, uiInfo);
+                if (param.getNestedParameters().size() > 0) {
+                    Set<String> subLayouts =
+                            recurseUIParam(param.getNestedParameters(), uiparams, sectionType, param, paramLayouts);
+                    // uiInfo.addNestedLayouts(subLayouts);
+                }
+            }
+
+            return layouts;
+        }
+
+        private Collection<String> getPropertiesByLayout(final ParameterMeta parent, final String param,
+                final Collection<String> parentLayouts) {
+            final Collection<String> layouts = new TreeSet<>();
+
+            if (parent == null) {
+                return Arrays.asList("tcomp::ui::gridlayout::Main::value", "tcomp::ui::gridlayout::Advanced::value");
+            }
+
+            Collection<String> definedLayouts = parent
+                    .getMetadata()
+                    .keySet()
+                    .stream()
+                    .filter(k -> k.startsWith("tcomp::ui::gridlayout::"))
+                    .collect(Collectors.toList());
+            if (definedLayouts.isEmpty()) {
+                // If no layout defined, we take main if exists in parent
+                if (parentLayouts.contains("tcomp::ui::gridlayout::Main::value")) {
+                    return Arrays.asList("tcomp::ui::gridlayout::Main::value");
+                }
+            }
+
+            definedLayouts
+                    .stream()
+                    .filter(l -> parentLayouts.contains(l)) // A property is visible in a layout only if its parent is
+                                                            // also visible in this layout
+                    .forEach(k -> {
+                        String layoutConfig = parent.getMetadata().get(k);
+                        if (layoutConfig != null) {
+                            boolean isInThisLayout = Collections
+                                    .list(new StringTokenizer(layoutConfig, "|"))
+                                    .stream()
+                                    .flatMap(p -> Collections.list(new StringTokenizer(p.toString(), ",")).stream())
+                                    .collect(Collectors.toList())
+                                    .contains(param);
+
+                            if (isInThisLayout) {
+                                layouts.add(k);
+                            }
+                        }
+                    });
+
+            return layouts;
+        }
+
+        Map<String, Map<String, List<Param>>> getParametersWithUInfo() {
+            final Map<String, Map<String, List<Param>>> params = new HashMap<>();
+            final Map<String, UIInfo> uiInfos = getUIParamByPath(parameters);
+
+            for (Param p : toParams()) {
+                setParametersWithUInfoRecurs(p, uiInfos, params);
+            }
+
+            return params;
+        }
+
+        void setParametersWithUInfoRecurs(final Param p, final Map<String, UIInfo> uiInfos,
+                final Map<String, Map<String, List<Param>>> params) {
+            UIInfo info = uiInfos.get(p.fullPath);
+            p.setUiInfo(info);
+
+            Map<String, List<Param>> section = params.get(info.getSection());
+            if (section == null) {
+                section = new HashMap<>();
+                params.put(info.getSection(), section);
+            }
+
+            for (String l : info.getNestedLayout()) {
+                List<Param> layout = section.get(l);
+                if (layout == null) {
+                    layout = new ArrayList<>();
+                    section.put(l, layout);
+                }
+
+                layout.add(p);
+            }
+
+            for (Param n : p.getNested()) {
+                setParametersWithUInfoRecurs(n, uiInfos, params);
+            }
+        }
+
+        private Collection<Param> toParams() {
+            Collection<Param> params = new ArrayList<>();
+            for (ParameterMeta p : parameters) {
+                Param tp = toParamWithNested(p, null, null, new HashMap<>());
+                params.add(tp);
+            }
+
+            return params;
+        }
+
         Stream<Param> parameters() {
             return mapParameters(parameters, null, null, new HashMap<>());
         }
@@ -313,6 +491,29 @@ public abstract class DocBaseGenerator extends BaseTask {
             });
         }
 
+        private Param toParamWithNested(final ParameterMeta p, final DefaultValueInspector.Instance parentInstance,
+                final ParameterBundle parent, final Map<String, String> types) {
+            final ParameterBundle bundle = findBundle(p);
+            final String type = findEnclosingConfigurationType(p, types);
+
+            final DefaultValueInspector.Instance instance = defaultValueInspector
+                    .createDemoInstance(
+                            ofNullable(parentInstance).map(DefaultValueInspector.Instance::getValue).orElse(null), p);
+
+            Param param = new Param(bundle.displayName(parent).orElse(p.getName()),
+                    bundle.documentation(parent).orElseGet(() -> findDocumentation(p)),
+                    ofNullable(findDefault(p, instance)).orElse(emptyDefaultValue), ofNullable(type).orElse("-"),
+                    p.getPath(), createConditions(p.getPath(), p.getMetadata()),
+                    p.getMetadata().get("tcomp::configurationtype::type"));
+
+            for (ParameterMeta child : p.getNestedParameters()) {
+                Param np = toParamWithNested(child, instance, bundle, types);
+                param.addNested(np);
+            }
+
+            return param;
+        }
+
         private Param toParam(final ParameterMeta p, final DefaultValueInspector.Instance instance,
                 final ParameterBundle parent, final Map<String, String> types) {
             final ParameterBundle bundle = findBundle(p);
@@ -320,7 +521,7 @@ public abstract class DocBaseGenerator extends BaseTask {
             return new Param(bundle.displayName(parent).orElse(p.getName()),
                     bundle.documentation(parent).orElseGet(() -> findDocumentation(p)),
                     ofNullable(findDefault(p, instance)).orElse(emptyDefaultValue), ofNullable(type).orElse("-"),
-                    p.getPath(), createConditions(p.getPath(), p.getMetadata()));
+                    p.getPath(), createConditions(p.getPath(), p.getMetadata()), "Not computed");
         }
 
         private ParameterBundle findBundle(final ParameterMeta p) {

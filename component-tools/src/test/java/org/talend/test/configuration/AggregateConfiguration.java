@@ -24,7 +24,9 @@ import java.util.List;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Suggestable;
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.constraint.Required;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.meta.Documentation;
 
@@ -65,6 +67,7 @@ public class AggregateConfiguration implements Serializable {
 
         @Option
         @Required
+        @ActiveIf(target = "fieldPath", value = { "a value", "anaother value" })
         @Documentation("The resulting field name.")
         private String outputFieldPath = "";
 

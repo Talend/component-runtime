@@ -46,6 +46,10 @@ public class MySource implements Serializable {
 
     @DataStore("inputo")
     public static class Do {
+
+        @Option
+        @Documentation("an input")
+        private String input;
     }
 
     @DataSet("input")

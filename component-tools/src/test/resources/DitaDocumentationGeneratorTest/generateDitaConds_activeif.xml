@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE reference
-  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
-<reference id="connector_test-activeif" xml:lang="en" xtrc="standard_component">
+<!DOCTYPE reference PUBLIC "-//Talend//DTD DITA Composite//EN" "TalendDitabase.dtd">
+<reference id="connector-test-activeif" xml:lang="en-us">
   <title id="component_title_test-activeif">activeif parameters</title>
   <shortdesc/>
   <prolog>
     <metadata>
-      <othermeta content="component_test-activeif" name="pageid"/>
       <othermeta content="test" name="pageid"/>
     </metadata>
   </prolog>
   <refbody outputclass="subscription">
-    <section id="section_test-activeif" outputclass="subscription">
-      <title>Parameters for test activeif component.</title>
-      <table colsep="1" frame="all" id="table_parameters_test-activeif" rowsep="1">
+    <section id="section_connector-test-activeif_other" outputclass="subscription">
+      <title>Other parameters for test activeif component.</title>
+      <table colsep="1" frame="all" rowsep="1">
         <tgroup cols="4">
           <colspec colname="c1" colnum="1" colwidth="1*"/>
           <colspec colname="c2" colnum="2" colwidth="1*"/>
@@ -32,9 +30,7 @@
               <entry>
                 <uicontrol>configuration</uicontrol>
               </entry>
-              <entry>configuration configuration</entry>
-              <entry/>
-              <entry>Always enabled</entry>
+              <entry nameend="c4" namest="c2">configuration configuration</entry>
             </row>
             <row>
               <entry>

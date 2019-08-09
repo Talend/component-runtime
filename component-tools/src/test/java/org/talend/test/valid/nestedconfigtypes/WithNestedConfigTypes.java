@@ -20,6 +20,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -28,6 +29,7 @@ import org.talend.sdk.component.api.record.Record;
 import java.io.Serializable;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
+import static org.talend.sdk.component.api.configuration.ui.layout.GridLayout.FormType.ADVANCED;
 
 @Documentation("super my component")
 @Version
@@ -44,6 +46,7 @@ public class WithNestedConfigTypes implements Serializable {
         return null;
     }
 
+    @GridLayout({ @GridLayout.Row("input"), @GridLayout.Row("confWithDataset"), })
     public static class Conf implements Serializable {
 
         @Option
@@ -56,12 +59,14 @@ public class WithNestedConfigTypes implements Serializable {
 
     }
 
+    @GridLayout({ @GridLayout.Row("dataset") })
     private static class ConfWithDataset implements Serializable {
 
         @Option
         private MyDataSet dataset;
     }
 
+    @GridLayout({ @GridLayout.Row("datastore") })
     public static class ConfigWithDatastore implements Serializable {
 
         @Option
@@ -70,19 +75,31 @@ public class WithNestedConfigTypes implements Serializable {
     }
 
     @DataStore("MyDataStore")
+    @GridLayout({ @GridLayout.Row("user") })
+    @GridLayout(names = ADVANCED, value = { @GridLayout.Row("advanced_ds") })
     public static class MyDataStore implements Serializable {
 
         @Option
         @Documentation("the user to log in")
         private String user;
+
+        @Option
+        @Documentation("Advanced in datastore")
+        private String advanced_ds;
     }
 
     @DataSet("MyDataSet")
+    @GridLayout({ @GridLayout.Row("configWithDatastore") })
+    @GridLayout(names = ADVANCED, value = { @GridLayout.Row("advanced") })
     public static class MyDataSet implements Serializable {
 
         @Option
         @Documentation("config with datastore")
         private ConfigWithDatastore configWithDatastore;
+
+        @Option
+        @Documentation("Advanced parameter")
+        private String advanced;
 
     }
 }
