@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE reference PUBLIC "-//Talend//DTD DITA Composite//EN" "TalendDitabase.dtd">
+<reference id="connector-dita-NoDatasetDatastore" xml:lang="en-us">
+  <title id="component_title_dita-NoDatasetDatastore">NoDatasetDatastore parameters</title>
+  <shortdesc>Component without layout</shortdesc>
+  <prolog>
+    <metadata>
+      <othermeta content="dita" name="pageid"/>
+    </metadata>
+  </prolog>
+  <refbody outputclass="subscription">
+    <section id="section_connector-dita-NoDatasetDatastore_other" outputclass="subscription">
+      <title>Other parameters for dita NoDatasetDatastore component.</title>
+      <table colsep="1" frame="all" rowsep="1">
+        <tgroup cols="4">
+          <colspec colname="c1" colnum="1" colwidth="1*"/>
+          <colspec colname="c2" colnum="2" colwidth="1*"/>
+          <colspec colname="c3" colnum="3" colwidth="1*"/>
+          <colspec colname="c4" colnum="4" colwidth="1*"/>
+          <thead>
+            <row>
+              <entry>Display Name</entry>
+              <entry>Description</entry>
+              <entry>Default Value</entry>
+              <entry>Enabled If</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <uicontrol>configuration</uicontrol>
+              </entry>
+              <entry nameend="c4" namest="c2">Entry of documentation</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param1</uicontrol>
+              </entry>
+              <entry>Param 1 out of dataset</entry>
+              <entry>
+                <userinput>Hello</userinput>
+              </entry>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param2</uicontrol>
+              </entry>
+              <entry>Param 2 out of dataset</entry>
+              <entry>
+                <userinput>50</userinput>
+              </entry>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param3</uicontrol>
+              </entry>
+              <entry nameend="c4" namest="c2">Param 3 out of dataset</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param4</uicontrol>
+              </entry>
+              <entry>Param 4 in complex1</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param5</uicontrol>
+              </entry>
+              <entry>Param 5 in complex1</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param6</uicontrol>
+              </entry>
+              <entry nameend="c4" namest="c2">Param 6 is dataset</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param11</uicontrol>
+              </entry>
+              <entry nameend="c4" namest="c2">Param 11 in dataset</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param10</uicontrol>
+              </entry>
+              <entry>Param 10 in complex2</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param9</uicontrol>
+              </entry>
+              <entry>Param 9 in complex2</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param7</uicontrol>
+              </entry>
+              <entry nameend="c4" namest="c2">Param 7 is datastore in dataset</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param12</uicontrol>
+              </entry>
+              <entry>Params 12 in datastore</entry>
+              <entry>
+                <userinput>a value</userinput>
+              </entry>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param13</uicontrol>
+              </entry>
+              <entry>Params 13 in datastore</entry>
+              <entry/>
+              <entry>
+                <parmname>param12</parmname> is equal to <userinput>a value</userinput>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param14</uicontrol>
+              </entry>
+              <entry nameend="c4" namest="c2">Params 14 in datastore</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param15</uicontrol>
+              </entry>
+              <entry>Param 15 in complex3</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param16</uicontrol>
+              </entry>
+              <entry>Param 16 in complex3</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+            <row>
+              <entry>
+                <uicontrol>param8</uicontrol>
+              </entry>
+              <entry>Param 8 in dataset</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+  </refbody>
+</reference>

@@ -52,13 +52,15 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
                     + "|input|the input value|def|Always enabled|configuration.input|-\n"
                     + "|nested|it is nested|-|Always enabled|configuration.nested|dataset\n"
                     + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n"
+                    + "|url|The url|-|Always enabled|configuration.nested.datastore.url|datastore\n"
                     + "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" + "|===\n"
                     + "\n" + "//configuration_end\n" + "\n" + "//component_end:my\n" + "\n" + "//component_start:my2\n"
                     + "\n" + "== my2\n" + "\n" + "super my component2\n" + "\n" + "//configuration_start\n" + "\n"
                     + "=== Configuration\n" + "\n" + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|ds|ds configuration|-|Always enabled|ds|dataset\n"
-                    + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===\n" + "\n"
+                    + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n"
+                    + "|Input|an input|-|Always enabled|ds.datastore.input|datastore\n" + "|===\n" + "\n"
                     + "//configuration_end\n" + "\n" + "//component_end:my2\n", reader.lines().collect(joining("\n")));
         }
     }
@@ -79,8 +81,10 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
                     + "|configuration|configuration configuration|-|Always enabled|configuration|-\n"
                     + "|conf With Datase|config with dataset|-|Always enabled|configuration.confWithDataset|-\n"
                     + "|dataset|dataset configuration|-|Always enabled|configuration.confWithDataset.dataset|dataset\n"
+                    + "|Advanced parameter|Advanced parameter|-|Always enabled|configuration.confWithDataset.dataset.advanced|dataset\n"
                     + "|config With Datastore|config with datastore|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore|dataset\n"
                     + "|datastore|...|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore|datastore\n"
+                    + "|Advanced in datastore|Advanced in datastore|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore.advanced_ds|datastore\n"
                     + "|user|the user to log in|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore.user|datastore\n"
                     + "|input|the input value|-|Always enabled|configuration.input|-\n" + "|===\n" + "\n"
                     + "//configuration_end\n" + "\n" + "//component_end:WithNestedConfigTypes\n",
@@ -105,13 +109,15 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
                     + "|input|the input value|def|Always enabled|configuration.input|-\n"
                     + "|nested|it is nested|-|Always enabled|configuration.nested|dataset\n"
                     + "|datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore\n"
+                    + "|url|The url|-|Always enabled|configuration.nested.datastore.url|datastore\n"
                     + "|user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset\n" + "|===\n"
                     + "\n" + "//configuration_end\n" + "\n" + "//component_end:my\n" + "\n" + "//component_start:my2\n"
                     + "\n" + "== my2\n" + "\n" + "super my component2\n" + "\n" + "//configuration_start\n" + "\n"
                     + "=== Configuration\n" + "\n" + "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n" + "|===\n"
                     + "|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n"
                     + "|ds|ds configuration|-|Always enabled|ds|dataset\n"
-                    + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n" + "|===\n" + "\n"
+                    + "|datastore|the datastore|-|Always enabled|ds.datastore|datastore\n"
+                    + "|Input|an input|-|Always enabled|ds.datastore.input|datastore\n" + "|===\n" + "\n"
                     + "//configuration_end\n" + "\n" + "//component_end:my2\n", reader.lines().collect(joining("\n")));
         }
     }
@@ -135,7 +141,7 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
                     + "|operations|The list of operation that will be executed.|1|Always enabled|configuration.operations|-\n"
                     + "|fieldPath|The source field path.|<empty>|Always enabled|configuration.operations[${index}].fieldPath|-\n"
                     + "|operation|The operation to apply.|SUM|Always enabled|configuration.operations[${index}].operation|-\n"
-                    + "|outputFieldPath|The resulting field name.|<empty>|Always enabled|configuration.operations[${index}].outputFieldPath|-\n"
+                    + "|outputFieldPath|The resulting field name.|<empty>|`fieldPath` is equal to `a value` or `anaother value`|configuration.operations[${index}].outputFieldPath|-\n"
                     + "|===\n" + "\n" + "//configuration_end\n" + "\n"
                     + "//component_end:configurationWithArrayOfObject\n", reader.lines().collect(joining("\n")));
         }

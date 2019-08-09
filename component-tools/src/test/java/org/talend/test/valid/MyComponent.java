@@ -73,6 +73,10 @@ public class MyComponent implements Serializable {
 
     @DataStore
     public static class NestedNestedConfig implements Serializable {
+
+        @Option
+        @Documentation("The url")
+        private String url;
     }
 
     @DataSet

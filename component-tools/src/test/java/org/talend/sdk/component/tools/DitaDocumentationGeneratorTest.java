@@ -20,8 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -37,6 +39,8 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 @Slf4j
 class DitaDocumentationGeneratorTest extends GeneratorBase {
@@ -91,9 +95,40 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
                 .replace(" <", "<")
                 .trim();
         try (final BufferedReader reader = resource("generateDitaConds_activeif.xml")) {
-            assertEquals(trivialXmlProcessingToIgnoreSpacing.apply(reader.lines().collect(joining(""))),
+            assertEquals(reader.lines().collect(joining("\n")),
                     trivialXmlProcessingToIgnoreSpacing.apply(files.get("generateDitaConds/test/activeif.dita")));
         }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+            value = { "nolayout,NoLayout.dita", "nodatasetdatastore,NoDatasetDatastore.dita", "allbasic,AllBasic.dita",
+                    "alladvanced,AllAdvanced.dita", "simplemixed,SimpleMixed.dita", "hidden,Hidden.dita" })
+    void generateDitaAdvanced(final String _package, final String expectedFile, @TempDir final File temporaryFolder,
+            final TestInfo info) throws IOException {
+
+        final File output = new File(temporaryFolder, info.getTestMethod().get().getName() + ".zip");
+        new DitaDocumentationGenerator(new File[] { copyBinaries("org.talend.test.dita." + _package, temporaryFolder,
+                info.getTestMethod().get().getName()) }, Locale.ROOT, log, output, true, true).run();
+        assertTrue(output.exists());
+        final Map<String, String> files = new HashMap<>();
+        try (final ZipInputStream zip = new ZipInputStream(new FileInputStream(output))) {
+            ZipEntry nextEntry;
+            while ((nextEntry = zip.getNextEntry()) != null) {
+                files.put(nextEntry.getName(), IO.slurp(zip));
+            }
+        }
+
+        try (final BufferedReader reader = resource(expectedFile)) {
+            assertEquals(reader.lines().collect(joining("\n")),
+                    files.get("generateDitaAdvanced/dita/" + expectedFile).trim());
+        }
+
+        assertEquals(3, files.size());
+        // folders
+        assertEquals("", files.get("generateDitaAdvanced/dita/"));
+        assertEquals("", files.get("generateDitaAdvanced/"));
+
     }
 
     private BufferedReader resource(final String name) {

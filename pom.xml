@@ -1196,6 +1196,7 @@
             <exclude>**/dependency-reduced-pom.xml</exclude>
             <exclude>**/*.svg</exclude>
             <exclude>**/*.png</exclude>
+            <exclude>**/component-tools/src/test/resources/DitaDocumentationGeneratorTest/*.dita</exclude>
             <exclude>**/src/main/resources/WebsiteBuilderMojo/*.mustache</exclude>
             <exclude>**/src/test/resources/DitaDocumentationGeneratorTest/**</exclude>
           </excludes>

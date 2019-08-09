@@ -1,19 +1,76 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE reference
-  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
-<reference id="connector_test-my2" xml:lang="en" xtrc="standard_component">
+<!DOCTYPE reference PUBLIC "-//Talend//DTD DITA Composite//EN" "TalendDitabase.dtd">
+<reference id="connector-test-my2" xml:lang="en-us">
   <title id="component_title_test-my2">my2 parameters</title>
   <shortdesc>super my component2</shortdesc>
   <prolog>
     <metadata>
-      <othermeta content="component_test-my2" name="pageid"/>
       <othermeta content="test" name="pageid"/>
     </metadata>
   </prolog>
   <refbody outputclass="subscription">
-    <section id="section_test-my2" outputclass="subscription">
-      <title>Parameters for test my2 component.</title>
-      <table colsep="1" frame="all" id="table_parameters_test-my2" rowsep="1">
+    <section id="section_connector-test-my2_connection" outputclass="subscription">
+      <title>Connection parameters for test my2 component.</title>
+      <table colsep="1" frame="all" rowsep="1">
+        <tgroup cols="4">
+          <colspec colname="c1" colnum="1" colwidth="1*"/>
+          <colspec colname="c2" colnum="2" colwidth="1*"/>
+          <colspec colname="c3" colnum="3" colwidth="1*"/>
+          <colspec colname="c4" colnum="4" colwidth="1*"/>
+          <thead>
+            <row>
+              <entry>Display Name</entry>
+              <entry>Description</entry>
+              <entry>Default Value</entry>
+              <entry>Enabled If</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <uicontrol>Input</uicontrol>
+              </entry>
+              <entry>an input</entry>
+              <entry/>
+              <entry>Always enabled</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+    <section id="section_connector-test-my2_dataset" outputclass="subscription">
+      <title>Dataset parameters for test my2 component.</title>
+      <table colsep="1" frame="all" rowsep="1">
+        <tgroup cols="4">
+          <colspec colname="c1" colnum="1" colwidth="1*"/>
+          <colspec colname="c2" colnum="2" colwidth="1*"/>
+          <colspec colname="c3" colnum="3" colwidth="1*"/>
+          <colspec colname="c4" colnum="4" colwidth="1*"/>
+          <thead>
+            <row>
+              <entry>Display Name</entry>
+              <entry>Description</entry>
+              <entry>Default Value</entry>
+              <entry>Enabled If</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <uicontrol>datastore</uicontrol>
+              </entry>
+              <entry>the datastore</entry>
+              <entry nameend="c4" namest="c3">
+                <link href="#section_connector-test-my2_connection">See section connection</link>
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+    <section id="section_connector-test-my2_other" outputclass="subscription">
+      <title>Other parameters for test my2 component.</title>
+      <table colsep="1" frame="all" rowsep="1">
         <tgroup cols="4">
           <colspec colname="c1" colnum="1" colwidth="1*"/>
           <colspec colname="c2" colnum="2" colwidth="1*"/>
@@ -33,16 +90,37 @@
                 <uicontrol>ds</uicontrol>
               </entry>
               <entry>ds configuration</entry>
-              <entry/>
-              <entry>Always enabled</entry>
+              <entry nameend="c4" namest="c3">
+                <link href="#section_connector-test-my2_dataset">See section dataset</link>
+              </entry>
             </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table colsep="1" frame="all" rowsep="1">
+        <title>Advanced parameters</title>
+        <tgroup cols="4">
+          <colspec colname="c1" colnum="1" colwidth="1*"/>
+          <colspec colname="c2" colnum="2" colwidth="1*"/>
+          <colspec colname="c3" colnum="3" colwidth="1*"/>
+          <colspec colname="c4" colnum="4" colwidth="1*"/>
+          <thead>
+            <row>
+              <entry>Display Name</entry>
+              <entry>Description</entry>
+              <entry>Default Value</entry>
+              <entry>Enabled If</entry>
+            </row>
+          </thead>
+          <tbody>
             <row>
               <entry>
-                <uicontrol>datastore</uicontrol>
+                <uicontrol>ds</uicontrol>
               </entry>
-              <entry>the datastore</entry>
-              <entry/>
-              <entry>Always enabled</entry>
+              <entry>ds configuration</entry>
+              <entry nameend="c4" namest="c3">
+                <link href="#section_connector-test-my2_dataset">See section dataset</link>
+              </entry>
             </row>
           </tbody>
         </tgroup>
