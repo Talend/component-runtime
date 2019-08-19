@@ -2,11 +2,26 @@
 
 == Version 1.1.13
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1509[TCOMP-1509^]: Intellij plugin does not declare java module preventing the plugin to run under last versions
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1508[TCOMP-1508^]: Don't let Talend Starter Toolkit loose state on Enter in intellij
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1504[TCOMP-1504^]: Apache Beam 2.14.0 upgrade
-- link:https://jira.talendforge.org/browse/TCOMP-1505[TCOMP-1505^]: Upgrade jackson-databind to 2.9.9.2
+- link:https://jira.talendforge.org/browse/TCOMP-1505[TCOMP-1505^]: Upgrade jackson-databind to 2.9.9.3
 - link:https://jira.talendforge.org/browse/TCOMP-1506[TCOMP-1506^]: Enable actions in bulk endpoint
+- link:https://jira.talendforge.org/browse/TCOMP-1507[TCOMP-1507^]: Upgrade to johnzon 1.1.13
+- link:https://jira.talendforge.org/browse/TCOMP-1511[TCOMP-1511^]: Upgrade cxf to v3.3.3
+- link:https://jira.talendforge.org/browse/TCOMP-1513[TCOMP-1513^]: Upgrade to Tomcat 9.0.24
 
 == Version 1.1.12
 
