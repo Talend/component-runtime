@@ -25,10 +25,9 @@ import org.talend.sdk.component.runtime.beam.spi.record.AvroRecordBuilder;
 import org.talend.sdk.component.runtime.beam.spi.record.AvroSchemaBuilder;
 import org.talend.sdk.component.runtime.manager.service.DefaultServices;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
-
-import lombok.Data;
 
 public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryProvider {
 
@@ -37,10 +36,12 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
         return new AvroRecordBuilderFactory(containerId);
     }
 
-    @Data
-    private static class AvroRecordBuilderFactory implements RecordBuilderFactory, Serializable {
+    private static class AvroRecordBuilderFactory extends RecordBuilderFactoryImpl
+            implements RecordBuilderFactory, Serializable {
 
-        private final String plugin;
+        private AvroRecordBuilderFactory(final String plugin) {
+            super(plugin);
+        }
 
         @Override
         public Schema.Builder newSchemaBuilder(final Schema.Type type) {

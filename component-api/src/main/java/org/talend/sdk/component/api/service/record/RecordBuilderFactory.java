@@ -24,6 +24,15 @@ import org.talend.sdk.component.api.record.Schema;
 public interface RecordBuilderFactory {
 
     /**
+     * Enables to build a record from another one. It is typically useful to add a column and passthrough others.
+     *
+     * @param schema the schema if the output record.
+     * @param record the record to take as input.
+     * @return a new builder initialized with the input record for all matching entries (by name).
+     */
+    Record.Builder newRecordBuilder(Schema schema, Record record);
+
+    /**
      * @param schema the schema of the record to be built
      * @return a builder to create a new record and enforce the built record to respect
      * a static schema. If the entries don't match the schema the build call will fail.
@@ -40,6 +49,14 @@ public interface RecordBuilderFactory {
      * @return a builder to create a schema.
      */
     Schema.Builder newSchemaBuilder(Schema.Type type);
+
+    /**
+     * Build a schema from another one. Typically useful to add a column and letting others passthrough.
+     * 
+     * @param schema the input schema.
+     * @return a new schema builder intialized with the input schema.
+     */
+    Schema.Builder newSchemaBuilder(Schema schema);
 
     /**
      * @return a builder to create a schema entry.

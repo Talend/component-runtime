@@ -128,6 +128,7 @@ import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -161,6 +162,7 @@ import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.ObjectFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.RecordPointerFactoryImpl;
+import org.talend.sdk.component.runtime.manager.service.RecordServiceImpl;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
@@ -945,6 +947,7 @@ public class ComponentManager implements AutoCloseable {
                 containerConfigurations.add(new PropertiesConfiguration(aggregatedLocalConfigs));
             }
         }
+        final RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply(containerId);
         services.put(LocalConfiguration.class, new LocalConfigurationService(containerConfigurations, containerId));
         services
                 .put(HttpClientFactory.class,
@@ -954,8 +957,9 @@ public class ComponentManager implements AutoCloseable {
         services.put(Resolver.class, new ResolverImpl(containerId, container.getLocalDependencyRelativeResolver()));
         services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
         services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId, propertyEditorRegistry));
-        services.put(RecordBuilderFactory.class, recordBuilderFactoryProvider.apply(containerId));
+        services.put(RecordBuilderFactory.class, recordBuilderFactory);
         services.put(RecordPointerFactory.class, new RecordPointerFactoryImpl(containerId));
+        services.put(RecordService.class, new RecordServiceImpl(containerId, recordBuilderFactory));
         services.put(ContainerInfo.class, new ContainerInfo(containerId));
     }
 

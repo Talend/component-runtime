@@ -1,0 +1,111 @@
+/**
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.runtime.manager.service;
+
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.talend.sdk.component.api.record.Schema.Type.INT;
+import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
+import static org.talend.sdk.component.api.record.Schema.Type.STRING;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.record.RecordService;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+
+class RecordServiceImplTest {
+
+    private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl(null);
+
+    private final RecordService service = new RecordServiceImpl(null, factory);
+
+    private final Schema address = factory
+            .newSchemaBuilder(RECORD)
+            .withEntry(factory.newEntryBuilder().withName("street").withType(STRING).build())
+            .withEntry(factory.newEntryBuilder().withName("number").withType(INT).build())
+            .build();
+
+    private final Schema baseSchema = factory
+            .newSchemaBuilder(RECORD)
+            .withEntry(factory.newEntryBuilder().withName("name").withType(STRING).build())
+            .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
+            .withEntry(
+                    factory.newEntryBuilder().withName("address").withType(RECORD).withElementSchema(address).build())
+            .build();
+
+    private final Record baseRecord = factory
+            .newRecordBuilder(baseSchema)
+            .withString("name", "Test")
+            .withInt("age", 33)
+            .withRecord("address",
+                    factory.newRecordBuilder(address).withString("street", "here").withInt("number", 1).build())
+            .build();
+
+    @Test
+    void buildRecord() {
+        final Schema customSchema = factory
+                .newSchemaBuilder(baseSchema)
+                .withEntry(factory.newEntryBuilder().withName("custom").withType(STRING).withNullable(true).build())
+                .build();
+
+        final List<Collection<String>> spy = asList(new LinkedList<>(), new LinkedList<>());
+        final Record noCustomRecord = service.create(customSchema, baseRecord, (entry, builder) -> {
+            spy.get(0).add("visited=" + entry.getName());
+            if (entry.getName().equals("custom")) {
+                builder.withString("custom", "yes");
+                return true;
+            }
+            return false;
+        }, (builder, done) -> {
+            spy.get(0).add("done=" + done);
+            if (!done) {
+                builder.withString("custom", "yes");
+            }
+        });
+        final Record customRecord = service.create(customSchema, noCustomRecord, (entry, builder) -> {
+            spy.get(1).add("visited=" + entry.getName());
+            if ("custom".equals(entry.getName())) {
+                builder.withString("custom", "yes");
+                return true;
+            }
+            return false;
+        }, (builder, done) -> spy.get(1).add("done=" + done));
+        Stream
+                .of(noCustomRecord, customRecord)
+                .forEach(record -> assertEquals(
+                        "name=Test,age=33,address={\"street\":\"here\",\"number\":1},custom=yes", toString(record)));
+        assertEquals(asList("visited=name", "visited=age", "visited=address", "done=false"), spy.get(0));
+        assertEquals(asList("visited=name", "visited=age", "visited=address", "visited=custom", "done=true"),
+                spy.get(1));
+    }
+
+    private String toString(final Record record) {
+        return record
+                .getSchema()
+                .getEntries()
+                .stream()
+                .map(e -> e.getName() + '=' + record.get(Object.class, e.getName()))
+                .collect(joining(","));
+    }
+}

@@ -46,6 +46,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.annotation.JsonbTransient;
+import javax.json.bind.config.PropertyOrderStrategy;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
@@ -81,7 +82,10 @@ public final class RecordImpl implements Record {
     @Override // for debug purposes, don't use it for anything else
     public String toString() {
         try (final Jsonb jsonb = JsonbBuilder
-                .create(new JsonbConfig().withFormatting(true).setProperty("johnzon.cdi.activated", false))) {
+                .create(new JsonbConfig()
+                        .withFormatting(true)
+                        .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
+                        .setProperty("johnzon.cdi.activated", false))) {
             return new RecordConverters()
                     .toType(new RecordConverters.MappingMetaRegistry(), this, JsonObject.class,
                             () -> Json.createBuilderFactory(emptyMap()), JsonProvider::provider, () -> jsonb,
