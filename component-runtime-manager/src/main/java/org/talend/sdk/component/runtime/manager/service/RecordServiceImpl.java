@@ -22,6 +22,7 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.Collector;
@@ -30,6 +31,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
+import org.talend.sdk.component.api.service.record.RecordVisitor;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.Data;
@@ -69,6 +71,101 @@ public class RecordServiceImpl implements RecordService {
                 .getEntries()
                 .stream()
                 .collect(toRecord(schema, fallbackRecord, customHandler, beforeFinish));
+    }
+
+    @Override
+    public <T> T visit(final RecordVisitor<T> visitor, final Record record) {
+        final AtomicReference<T> out = new AtomicReference<>();
+        record.getSchema().getEntries().forEach(entry -> {
+            switch (entry.getType()) {
+            case INT:
+                visitor.onInt(record.getOptionalInt(entry.getName()));
+                break;
+            case LONG:
+                visitor.onLong(record.getOptionalLong(entry.getName()));
+                break;
+            case FLOAT:
+                visitor.onFloat(record.getOptionalFloat(entry.getName()));
+                break;
+            case DOUBLE:
+                visitor.onDouble(record.getOptionalDouble(entry.getName()));
+                break;
+            case BOOLEAN:
+                visitor.onBoolean(record.getOptionalBoolean(entry.getName()));
+                break;
+            case STRING:
+                visitor.onString(record.getOptionalString(entry.getName()));
+                break;
+            case DATETIME:
+                visitor.onDatetime(record.getOptionalDateTime(entry.getName()));
+                break;
+            case BYTES:
+                visitor.onBytes(record.getOptionalBytes(entry.getName()));
+                break;
+            case RECORD:
+                final Optional<Record> optionalRecord = record.getOptionalRecord(entry.getName());
+                final RecordVisitor<T> recordVisitor = visitor.onRecord(optionalRecord);
+                optionalRecord.ifPresent(r -> {
+                    final T visited = visit(recordVisitor, r);
+                    if (visited != null) {
+                        final T current = out.get();
+                        out.set(current == null ? visited : visitor.apply(current, visited));
+                    }
+                });
+                break;
+            case ARRAY:
+                final Schema schema = entry.getElementSchema();
+                switch (schema.getType()) {
+                case INT:
+                    visitor.onIntArray(record.getOptionalArray(int.class, entry.getName()));
+                    break;
+                case LONG:
+                    visitor.onLongArray(record.getOptionalArray(long.class, entry.getName()));
+                    break;
+                case FLOAT:
+                    visitor.onFloatArray(record.getOptionalArray(float.class, entry.getName()));
+                    break;
+                case DOUBLE:
+                    visitor.onDoubleArray(record.getOptionalArray(double.class, entry.getName()));
+                    break;
+                case BOOLEAN:
+                    visitor.onBooleanArray(record.getOptionalArray(boolean.class, entry.getName()));
+                    break;
+                case STRING:
+                    visitor.onStringArray(record.getOptionalArray(String.class, entry.getName()));
+                    break;
+                case DATETIME:
+                    visitor.onDatetimeArray(record.getOptionalArray(ZonedDateTime.class, entry.getName()));
+                    break;
+                case BYTES:
+                    visitor.onBytesArray(record.getOptionalArray(byte[].class, entry.getName()));
+                    break;
+                case RECORD:
+                    final Optional<Collection<Record>> array = record.getOptionalArray(Record.class, entry.getName());
+                    final RecordVisitor<T> recordArrayVisitor = visitor.onRecordArray(array);
+                    array.ifPresent(a -> a.forEach(r -> {
+                        final T visited = visit(recordArrayVisitor, r);
+                        if (visited != null) {
+                            final T current = out.get();
+                            out.set(current == null ? visited : visitor.apply(current, visited));
+                        }
+                    }));
+                    break;
+                // array of array is not yet supported!
+                default:
+                    throw new IllegalStateException("Unsupported entry type: " + entry);
+                }
+                break;
+            default:
+                throw new IllegalStateException("Unsupported entry type: " + entry);
+            }
+        });
+        final T value = out.get();
+        final T visited = visitor.get();
+        if (value != null) {
+            return visitor.apply(value, visited);
+        }
+        return visited;
     }
 
     @Override

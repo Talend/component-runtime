@@ -24,7 +24,7 @@ a| `org.talend.sdk.component.api.service.injector.Injector` a| Utility to inject
 a| `org.talend.sdk.component.api.service.factory.ObjectFactory` a| Allows to instantiate an object from its class name and properties.
 a| `org.talend.sdk.component.api.service.record.RecordBuilderFactory` a| Allows to instantiate a xref:record-types.adoc#record[record].
 a| `org.talend.sdk.component.api.service.record.RecordPointerFactory` a| Allows to instantiate a `RecordPointer` which enables to extract a data from a `Record` based on link:https://tools.ietf.org/html/rfc6901[jsonpointer] specification.
-a| `org.talend.sdk.component.api.service.record.RecordService` a| Some utilities to create records from another one. It is typically what is used when you want to add an entry in a record and passthrough the other ones.
+a| `org.talend.sdk.component.api.service.record.RecordService` a| Some utilities to create records from another one. It is typically what is used when you want to add an entry in a record and passthrough the other ones. It also provides a nice `RecordVisitor` API for advanced cases.
 a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Represents the local configuration that can be used during the design.
 
 It is not recommended to use it for the runtime because the local configuration is usually different and the instances are distinct.

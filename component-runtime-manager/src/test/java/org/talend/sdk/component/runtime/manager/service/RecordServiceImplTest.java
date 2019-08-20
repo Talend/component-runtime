@@ -22,9 +22,12 @@ import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -32,6 +35,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
+import org.talend.sdk.component.api.service.record.RecordVisitor;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 class RecordServiceImplTest {
@@ -61,6 +65,38 @@ class RecordServiceImplTest {
             .withRecord("address",
                     factory.newRecordBuilder(address).withString("street", "here").withInt("number", 1).build())
             .build();
+
+    @Test
+    void visit() {
+        final Collection<String> visited = new ArrayList<>();
+        final AtomicInteger out = new AtomicInteger();
+        assertEquals(3,
+                service
+                        .visit(RecordVisitor.class
+                                .cast(Proxy
+                                        .newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                                new Class<?>[] { RecordVisitor.class }, (proxy, method, args) -> {
+                                                    visited
+                                                            .add(method.getName() + "/"
+                                                                    + (args == null ? "null" : asList(args)));
+                                                    switch (method.getName()) {
+                                                    case "get":
+                                                        return out.incrementAndGet();
+                                                    case "apply":
+                                                        return asList(args)
+                                                                .stream()
+                                                                .mapToInt(Integer.class::cast)
+                                                                .sum();
+                                                    default:
+                                                        return method.getReturnType() == RecordVisitor.class ? proxy
+                                                                : null;
+                                                    }
+                                                })),
+                                baseRecord));
+        assertEquals(asList("onString/[Optional[Test]]", "onInt/[OptionalInt[33]]",
+                "onRecord/[Optional[{\"street\":\"here\",\"number\":1}]]", "onString/[Optional[here]]",
+                "onInt/[OptionalInt[1]]", "get/null", "get/null", "apply/[1, 2]"), visited);
+    }
 
     @Test
     void buildRecord() {

@@ -23,6 +23,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1511[TCOMP-1511^]: Upgrade cxf to v3.3.3
 - link:https://jira.talendforge.org/browse/TCOMP-1513[TCOMP-1513^]: Upgrade to Tomcat 9.0.24
 - link:https://jira.talendforge.org/browse/TCOMP-1514[TCOMP-1514^]: Provide a RecordService to simplify record enrichment coding in processors
+- link:https://jira.talendforge.org/browse/TCOMP-1515[TCOMP-1515^]: Record visitor API
 
 == Version 1.1.12
 

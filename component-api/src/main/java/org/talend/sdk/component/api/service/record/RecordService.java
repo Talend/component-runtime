@@ -62,4 +62,13 @@ public interface RecordService {
      */
     Record create(Schema schema, Record fallbackRecord, BiFunction<Schema.Entry, Record.Builder, Boolean> customHandler,
             BiConsumer<Record.Builder, Boolean> beforeFinish);
+
+    /**
+     * Visit a record with a custom visitor.
+     *
+     * @param visitor the visitor to use to browse the record.
+     * @param <T> the visitor returned type.
+     * @return the visitor value.
+     */
+    <T> T visit(RecordVisitor<T> visitor, Record record);
 }
