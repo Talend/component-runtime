@@ -48,11 +48,8 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         requestModel.setMethod(request.method().name().toString());
         requestModel.setUri(requestUri);
         requestModel
-                .setHeaders(filterHeaders(request
-                        .headers()
-                        .entriesConverted()
-                        .stream()
-                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue))));
+                .setHeaders(filterHeaders(
+                        request.headers().entries().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue))));
         final DefaultResponseLocator.Model model = new DefaultResponseLocator.Model();
         model.setRequest(requestModel);
 
