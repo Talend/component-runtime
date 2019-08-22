@@ -85,6 +85,11 @@ jobs:
       - STEP=Sonatype Audit
       script: travis_wait 50 mvn clean install -B -q -e $SKIP_OPTS && travis_wait 50 mvn ossindex:audit -B
 
+    - stage: master_build
+      env:
+      - STEP=SourceClear Audit
+      script: travis_wait 50 ./travis/source-clear.sh
+
 stages:
   - name: master_build
     if: branch = master AND type != pull_request

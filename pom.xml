@@ -99,6 +99,7 @@
     <module>component-tools-webapp</module>
     <module>component-studio</module>
     <module>images</module>
+    <module>documentation</module>
     <module>talend-component-kit-intellij-plugin</module>
   </modules>
 
@@ -1415,30 +1416,15 @@
 
   <profiles>
     <profile>
-      <id>default-profile</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <modules>
-        <module>documentation</module>
-      </modules>
-    </profile>
-    <profile>
       <id>travis</id>
       <properties>
         <org.slf4j.simpleLogger.showThreadName>true</org.slf4j.simpleLogger.showThreadName>
         <org.slf4j.simpleLogger.showDateTime>true</org.slf4j.simpleLogger.showDateTime>
         <org.slf4j.simpleLogger.dateTimeFormat>HH:mm:ss</org.slf4j.simpleLogger.dateTimeFormat>
       </properties>
-      <modules>
-        <module>documentation</module>
-      </modules>
     </profile>
     <profile>
       <id>release</id>
-      <modules>
-        <module>documentation</module>
-      </modules>
       <build>
         <plugins>
           <plugin>

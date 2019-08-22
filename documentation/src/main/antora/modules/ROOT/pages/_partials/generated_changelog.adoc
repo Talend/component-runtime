@@ -26,6 +26,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1514[TCOMP-1514^]: Provide a RecordService to simplify record enrichment coding in processors
 - link:https://jira.talendforge.org/browse/TCOMP-1515[TCOMP-1515^]: Record visitor API
 - link:https://jira.talendforge.org/browse/TCOMP-1517[TCOMP-1517^]: Use netty 4.1.39.Final in junit http tools
+- link:https://jira.talendforge.org/browse/TCOMP-1518[TCOMP-1518^]: Upgrade to slf4j 1.7.28
+- link:https://jira.talendforge.org/browse/TCOMP-1519[TCOMP-1519^]: Upgrade to jib-core 0.10.1
+- link:https://jira.talendforge.org/browse/TCOMP-1520[TCOMP-1520^]: Don't use JsonNode with Avro Fields anymore
 
 == Version 1.1.12
 
