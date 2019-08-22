@@ -35,7 +35,7 @@
     <dependency><!-- just to show a specific dependency usage, not that required for that sample by itself -->
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.6</version>
+      <version>3.9</version>
     </dependency>
 
     <dependency><!-- not for components, just for the Main sample, a real component would use scope test or not use it at all -->

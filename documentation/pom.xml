@@ -54,6 +54,7 @@
     <pdf.skip>false</pdf.skip>
     <swagger2markup.skip>false</swagger2markup.skip>
     <indexation.skip>false</indexation.skip>
+    <commons-io.version>2.6</commons-io.version>
   </properties>
 
   <dependencies>
@@ -196,6 +197,11 @@
       <artifactId>crawler-commons</artifactId>
       <version>${crawler-commons.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>
@@ -375,7 +381,7 @@
           <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>${commons-io.version}</version>
           </dependency>
           <dependency>
             <groupId>org.apache.commons</groupId>

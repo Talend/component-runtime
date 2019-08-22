@@ -39,7 +39,7 @@ public class SchemaIdGenerator {
                 .parsingFingerprint64(Schema
                         .createRecord(fields
                                 .stream()
-                                .map(it -> new Schema.Field(it.name(), it.schema(), it.doc(), it.defaultValue(),
+                                .map(it -> new Schema.Field(it.name(), it.schema(), it.doc(), it.defaultVal(),
                                         it.order()))
                                 .collect(toList())));
     }

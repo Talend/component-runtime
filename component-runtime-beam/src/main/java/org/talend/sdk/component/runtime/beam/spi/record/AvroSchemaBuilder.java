@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
-import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
 import java.util.ArrayList;
@@ -163,7 +162,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
                         entry.isNullable() && schema.getType() != org.apache.avro.Schema.Type.UNION
                                 ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
                                 : schema,
-                        entry.getComment(), toJsonNode(entry.getDefaultValue())));
+                        entry.getComment(), (Object) entry.getDefaultValue()));
         return this;
     }
 

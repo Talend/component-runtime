@@ -20,7 +20,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
-import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toObject;
 
 import java.util.List;
 
@@ -101,8 +100,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                         final AvroSchema elementSchema = new AvroSchema(
                                 type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
                         return new SchemaImpl.EntryImpl(field.name(), type, field.schema().getType() == UNION,
-                                field.defaultValue() != null ? toObject(field.defaultValue()) : null, elementSchema,
-                                field.doc());
+                                field.defaultVal(), elementSchema, field.doc());
                     }).collect(toList());
         }
         return entries;

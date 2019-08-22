@@ -22,7 +22,6 @@ import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
-import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
 import java.nio.ByteBuffer;
@@ -66,7 +65,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         final List<org.apache.avro.Schema.Field> fields = entries
                 .stream()
                 .map(entry -> new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry), entry.getComment(),
-                        toJsonNode(entry.getDefaultValue())))
+                        entry.getDefaultValue()))
                 .collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);

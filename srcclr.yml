@@ -1,2 +1,2 @@
 scan_collectors: maven, yarn
-scope: compile+runtime
+scope: runtime
