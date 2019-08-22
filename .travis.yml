@@ -27,7 +27,7 @@ cache:
   - "$HOME/build/Talend/component-runtime/documentation/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/talend-component-kit-intellij-plugin/.cache"
   - "$HOME/build/Talend/component-runtime/.ci-cache"
-  - "$HOME/build/Talend/component-runtime/.blackduck/tools"
+  - "$HOME/build/Talend/component-runtime/.sourceclear"
 notifications:
   email: false
   slack:
@@ -88,7 +88,7 @@ jobs:
     - stage: master_build
       env:
       - STEP=SourceClear Audit
-      script: travis_wait 50 ./travis/source-clear.sh
+      script: travis_wait 50 ./.travis/source-clear.sh
 
 stages:
   - name: master_build

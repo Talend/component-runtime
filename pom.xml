@@ -27,7 +27,7 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>https://github.com/Talend/component-runtime/blob/master/LICENSE</url>
+      <url>https://github.com/talend/component-runtime/blob/master/LICENSE</url>
       <distribution>may be downloaded from the Maven repository</distribution>
     </license>
   </licenses>
@@ -104,9 +104,9 @@
   </modules>
 
   <scm>
-    <connection>scm:git:https://github.com/Talend/component-runtime.git</connection>
-    <developerConnection>scm:git:https://github.com/Talend/component-runtime.git</developerConnection>
-    <url>https://github.com/Talend/component-runtime</url>
+    <connection>scm:git:https://github.com/talend/component-runtime.git</connection>
+    <developerConnection>scm:git:https://github.com/talend/component-runtime.git</developerConnection>
+    <url>https://github.com/talend/component-runtime</url>
     <tag>HEAD</tag>
   </scm>
   <distributionManagement>
@@ -214,6 +214,7 @@
     <spotless.version>1.23.0</spotless.version>
     <jib.version>1.4.0</jib.version>
     <bouncycastle.version>1.62</bouncycastle.version>
+    <commons-io.version>2.6</commons-io.version>
 
     <jruby.version>9.2.7.0</jruby.version>
     <node.version>v10.16.0</node.version>
@@ -227,6 +228,11 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk15on</artifactId>

@@ -54,7 +54,6 @@
     <pdf.skip>false</pdf.skip>
     <swagger2markup.skip>false</swagger2markup.skip>
     <indexation.skip>false</indexation.skip>
-    <commons-io.version>2.6</commons-io.version>
   </properties>
 
   <dependencies>

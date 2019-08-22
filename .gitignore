@@ -32,6 +32,7 @@ rebuild.bat
 .cache-loader
 .factorypath
 .vscode
+.sourceclear
 
 # generated from the filtered version
 component-starter-server/src/main/frontend/package.json
@@ -46,5 +47,4 @@ documentation/rebuild_newUI.bat
 documentation/rebuild_refresh_generated_pages.bat
 documentation/generate-index.bat
 documentation/rebuild_front.bat
-
 documentation/rebuildpdf.bat
