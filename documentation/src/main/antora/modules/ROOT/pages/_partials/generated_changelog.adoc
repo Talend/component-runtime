@@ -32,6 +32,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1521[TCOMP-1521^]: Upgrade to Beam 2.15.0
 - link:https://jira.talendforge.org/browse/TCOMP-1522[TCOMP-1522^]: Basic singer/tap/stitch integration with kit components
 - link:https://jira.talendforge.org/browse/TCOMP-1523[TCOMP-1523^]: Upgrade Apache Geronimo OpenAPI to v1.0.11
+- link:https://jira.talendforge.org/browse/TCOMP-1524[TCOMP-1524^]: Upgrade starter to gradle 5.6
 
 == Version 1.1.12
 
