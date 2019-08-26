@@ -27,7 +27,7 @@ import lombok.AllArgsConstructor;
 // @formatter:off
 @AllArgsConstructor
 enum Indices {
-    BEAM_SDKS_JAVA_CORE(new String[] { // #6131
+    BEAM_SDKS_JAVA_CORE(new String[] { // #6333
             "avro.shaded.com.google.common.annotations",
             "avro.shaded.com.google.common.base",
             "avro.shaded.com.google.common.cache",
@@ -93,6 +93,7 @@ enum Indices {
             "org.apache.beam.model.pipeline.v1.ExternalTransforms",
             "org.apache.beam.model.pipeline.v1.MetricsApi",
             "org.apache.beam.model.pipeline.v1.RunnerApi",
+            "org.apache.beam.model.pipeline.v1.SchemaApi",
             "org.apache.beam.model.pipeline.v1.StandardWindowFns",
             "org.apache.beam.repackaged.core",
             "org.apache.beam.sdk.Pipeline",
@@ -171,12 +172,14 @@ enum Indices {
             "org.apache.beam.sdk.io.AutoValue_FileIO_Write",
             "org.apache.beam.sdk.io.AutoValue_GenerateSequence",
             "org.apache.beam.sdk.io.AutoValue_TFRecordIO_Read",
+            "org.apache.beam.sdk.io.AutoValue_TFRecordIO_ReadFiles",
             "org.apache.beam.sdk.io.AutoValue_TFRecordIO_Write",
             "org.apache.beam.sdk.io.AutoValue_TextIO_Read",
             "org.apache.beam.sdk.io.AutoValue_TextIO_ReadAll",
             "org.apache.beam.sdk.io.AutoValue_TextIO_ReadFiles",
             "org.apache.beam.sdk.io.AutoValue_TextIO_Sink",
             "org.apache.beam.sdk.io.AutoValue_TextIO_TypedWrite",
+            "org.apache.beam.sdk.io.AutoValue_TextRowCountEstimator",
             "org.apache.beam.sdk.io.AutoValue_WriteFiles",
             "org.apache.beam.sdk.io.AvroIO",
             "org.apache.beam.sdk.io.AvroSink",
@@ -213,6 +216,7 @@ enum Indices {
             "org.apache.beam.sdk.io.Source",
             "org.apache.beam.sdk.io.TFRecordIO",
             "org.apache.beam.sdk.io.TextIO",
+            "org.apache.beam.sdk.io.TextRowCountEstimator",
             "org.apache.beam.sdk.io.TextSink",
             "org.apache.beam.sdk.io.TextSource",
             "org.apache.beam.sdk.io.UnboundedSource",
@@ -574,13 +578,11 @@ enum Indices {
             "org.apache.beam.sdk.transforms.reflect.OnTimerInvokers",
             "org.apache.beam.sdk.transforms.reflect.OnTimerMethodSpecifier",
             "org.apache.beam.sdk.transforms.reflect.StableInvokerNamingStrategy",
-            "org.apache.beam.sdk.transforms.splittabledofn.AutoValue_Backlog",
-            "org.apache.beam.sdk.transforms.splittabledofn.Backlog",
-            "org.apache.beam.sdk.transforms.splittabledofn.Backlogs",
             "org.apache.beam.sdk.transforms.splittabledofn.ByteKeyRangeTracker",
             "org.apache.beam.sdk.transforms.splittabledofn.HasDefaultTracker",
             "org.apache.beam.sdk.transforms.splittabledofn.OffsetRangeTracker",
             "org.apache.beam.sdk.transforms.splittabledofn.RestrictionTracker",
+            "org.apache.beam.sdk.transforms.splittabledofn.Sizes",
             "org.apache.beam.sdk.transforms.windowing.AfterAll",
             "org.apache.beam.sdk.transforms.windowing.AfterEach",
             "org.apache.beam.sdk.transforms.windowing.AfterFirst",
@@ -1130,9 +1132,7 @@ enum Indices {
             return hasClass("org.apache.spark.SparkContext");
         }
     },
-    BEAM_RUNNERS_SPARK(new String[] { // #1039
-            "com.fasterxml.jackson.module.paranamer",
-            "com.fasterxml.jackson.module.scala",
+    BEAM_RUNNERS_SPARK(new String[] { // #917
             "com.google.common.annotations",
             "com.google.common.base",
             "com.google.common.cache",

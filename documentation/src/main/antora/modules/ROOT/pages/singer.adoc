@@ -1,0 +1,95 @@
+= Singar Java
+:page-partial:
+:description: Write a custom singer tap/target in Java
+:keywords: singer, tap, target, stitch
+
+== singer-java
+
+`singer-java` module provide a Java API to write a custom singer.
+
+To import it, add the following dependency:
+
+[source,xml]
+----
+<dependency>
+  <artifactId>singer-java</artifactId>
+  <groupId>org.talend.sdk.component</groupId>
+  <version>${kit.version}</version>
+</dependency>
+----
+
+Then you have access to the `Singer` class and its companion which provides the primitives to output properly the data:
+
+[source,java]
+----
+// args are the standard singer arguments (--config, --state, --catalog)
+final SingerArgs args = new SingerArgs(cliArgs);
+
+// you can read the config, state, catalog from there
+// to init your tap before writing the output with singer
+
+final Singer = new Singer(new IO(), ZonedDateTime::now);
+singer.writeSchema("test_stream", schema, keys, bookmarks);
+singer.writeRecord("test_stream", json);
+singer.writeState(state);
+----
+
+To build `schema`, `keys`, `bookmarks`, `json` and `state` which are all either `JsonObject` or `JsonArray` you can rely on `JsonBuilderFactory` which can be instantiated with this snippet:
+
+[source,java]
+----
+final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
+----
+
+== component-kitap
+
+`component-kitap` is the name of the integration between `singer-java` and Talend Component Kit.
+It enables to run native Talend Component Kit components through a tap.
+
+=== Setup/Usage
+
+The module relies on a proper setup of the component and classpath:
+
+. Classpath is well setup - composed of `component-kitap` with a default SLF4J binding configured to log only errors on `stderr`.
+For convenience, you can use the all in one bundle provided by the module: `org.talend.sdk.component:component-kitapp:${kit.version}:fatjar`.
+. Component is "deployed" - i.e. its maven repository is set provisionned with its dependencies. If you downloaded a component as a `.car` then you can run the car to do it.
+You can enforce the maven location through the system property `talend.component.manager.m2.repository`.
+. Regarding SLF4J, the fatjar uses `slf4j-standard` of the framework which enables to set the logged level to error through a system property: `-Dorg.talend.sdk.component.slf4j.StdLogger.level=err`.
+. To automatically register a component plugin/family you must add to the classpath a `TALEND-INF/plugins.properties`:
+The file only need to contain the registration of the plugin jar:
+
+[source,properties]
+----
+# key is generally the artifactId and value the Maven GAV (GroupId:ArtifactId:Version)
+myplugin = org.superbiz:myplugin:1.2.3
+----
+
+Therefore the launch command can look like:
+
+[source,bash]
+----
+java \
+  -Dorg.talend.sdk.component.slf4j.StdLogger.level=error \
+  -Dtalend.component.manager.m2.repository=/path/to/m2 \
+  -cp component-kitap-$KIT_VERSION-fatjar.jar:/path/containing/TALEND_INF_folder \
+  org.talend.sdk.component.singer.kitap.Kitap \
+  --config config.json [--discover] [--catalog catalog.json] [--state state.json]
+----
+
+=== Configuration
+
+The `config.json` must respect this format:
+
+[source,json]
+----
+{
+  "component": {
+    "family": ".....family name....",
+    "name": ".....component name....",
+    "version": 1,
+    "configuration": {
+      // component configuration (key/values) as stored by dataset/catalog/pipeline-designer
+    }
+  }
+}
+----

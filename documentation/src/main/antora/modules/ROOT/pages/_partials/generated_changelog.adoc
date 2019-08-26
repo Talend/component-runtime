@@ -29,6 +29,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1518[TCOMP-1518^]: Upgrade to slf4j 1.7.28
 - link:https://jira.talendforge.org/browse/TCOMP-1519[TCOMP-1519^]: Upgrade to jib-core 0.10.1
 - link:https://jira.talendforge.org/browse/TCOMP-1520[TCOMP-1520^]: Don't use JsonNode with Avro Fields anymore
+- link:https://jira.talendforge.org/browse/TCOMP-1521[TCOMP-1521^]: Upgrade to Beam 2.15.0
+- link:https://jira.talendforge.org/browse/TCOMP-1522[TCOMP-1522^]: Basic singer/tap/stitch integration with kit components
+- link:https://jira.talendforge.org/browse/TCOMP-1523[TCOMP-1523^]: Upgrade Apache Geronimo OpenAPI to v1.0.11
 
 == Version 1.1.12
 

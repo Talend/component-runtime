@@ -25,6 +25,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 
 /**
  * Visitor enabling to browse a record. All methods are adapters - implementing a no-op by default.
@@ -56,75 +57,75 @@ public interface RecordVisitor<T> extends Supplier<T>, BinaryOperator<T> {
         return t1;
     }
 
-    default void onInt(final OptionalInt optionalInt) {
+    default void onInt(final Schema.Entry entry, final OptionalInt optionalInt) {
         // no-op
     }
 
-    default void onLong(final OptionalLong optionalLong) {
+    default void onLong(final Schema.Entry entry, final OptionalLong optionalLong) {
         // no-op
     }
 
-    default void onFloat(final OptionalDouble optionalFloat) {
+    default void onFloat(final Schema.Entry entry, final OptionalDouble optionalFloat) {
         // no-op
     }
 
-    default void onDouble(final OptionalDouble optionalFloat) {
+    default void onDouble(final Schema.Entry entry, final OptionalDouble optionalDouble) {
         // no-op
     }
 
-    default void onBoolean(final Optional<Boolean> optionalBoolean) {
+    default void onBoolean(final Schema.Entry entry, final Optional<Boolean> optionalBoolean) {
         // no-op
     }
 
-    default void onString(final Optional<String> string) {
+    default void onString(final Schema.Entry entry, final Optional<String> string) {
         // no-op
     }
 
-    default void onDatetime(final Optional<ZonedDateTime> dateTime) {
+    default void onDatetime(final Schema.Entry entry, final Optional<ZonedDateTime> dateTime) {
         // no-op
     }
 
-    default void onBytes(final Optional<byte[]> bytes) {
+    default void onBytes(final Schema.Entry entry, final Optional<byte[]> bytes) {
         // no-op
     }
 
-    default RecordVisitor<T> onRecord(final Optional<Record> record) {
+    default RecordVisitor<T> onRecord(final Schema.Entry entry, final Optional<Record> record) {
         return this;
     }
 
-    default void onIntArray(final Optional<Collection<Integer>> array) {
+    default void onIntArray(final Schema.Entry entry, final Optional<Collection<Integer>> array) {
         // no-op
     }
 
-    default void onLongArray(final Optional<Collection<Long>> array) {
+    default void onLongArray(final Schema.Entry entry, final Optional<Collection<Long>> array) {
         // no-op
     }
 
-    default void onFloatArray(final Optional<Collection<Float>> array) {
+    default void onFloatArray(final Schema.Entry entry, final Optional<Collection<Float>> array) {
         // no-op
     }
 
-    default void onDoubleArray(final Optional<Collection<Double>> array) {
+    default void onDoubleArray(final Schema.Entry entry, final Optional<Collection<Double>> array) {
         // no-op
     }
 
-    default void onBooleanArray(final Optional<Collection<Boolean>> array) {
+    default void onBooleanArray(final Schema.Entry entry, final Optional<Collection<Boolean>> array) {
         // no-op
     }
 
-    default void onStringArray(final Optional<Collection<String>> array) {
+    default void onStringArray(final Schema.Entry entry, final Optional<Collection<String>> array) {
         // no-op
     }
 
-    default void onDatetimeArray(final Optional<Collection<ZonedDateTime>> array) {
+    default void onDatetimeArray(final Schema.Entry entry, final Optional<Collection<ZonedDateTime>> array) {
         // no-op
     }
 
-    default void onBytesArray(final Optional<Collection<byte[]>> array) {
+    default void onBytesArray(final Schema.Entry entry, final Optional<Collection<byte[]>> array) {
         // no-op
     }
 
-    default RecordVisitor<T> onRecordArray(final Optional<Collection<Record>> array) {
+    default RecordVisitor<T> onRecordArray(final Schema.Entry entry, final Optional<Collection<Record>> array) {
         return this;
     }
 }

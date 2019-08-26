@@ -79,32 +79,32 @@ public class RecordServiceImpl implements RecordService {
         record.getSchema().getEntries().forEach(entry -> {
             switch (entry.getType()) {
             case INT:
-                visitor.onInt(record.getOptionalInt(entry.getName()));
+                visitor.onInt(entry, record.getOptionalInt(entry.getName()));
                 break;
             case LONG:
-                visitor.onLong(record.getOptionalLong(entry.getName()));
+                visitor.onLong(entry, record.getOptionalLong(entry.getName()));
                 break;
             case FLOAT:
-                visitor.onFloat(record.getOptionalFloat(entry.getName()));
+                visitor.onFloat(entry, record.getOptionalFloat(entry.getName()));
                 break;
             case DOUBLE:
-                visitor.onDouble(record.getOptionalDouble(entry.getName()));
+                visitor.onDouble(entry, record.getOptionalDouble(entry.getName()));
                 break;
             case BOOLEAN:
-                visitor.onBoolean(record.getOptionalBoolean(entry.getName()));
+                visitor.onBoolean(entry, record.getOptionalBoolean(entry.getName()));
                 break;
             case STRING:
-                visitor.onString(record.getOptionalString(entry.getName()));
+                visitor.onString(entry, record.getOptionalString(entry.getName()));
                 break;
             case DATETIME:
-                visitor.onDatetime(record.getOptionalDateTime(entry.getName()));
+                visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));
                 break;
             case BYTES:
-                visitor.onBytes(record.getOptionalBytes(entry.getName()));
+                visitor.onBytes(entry, record.getOptionalBytes(entry.getName()));
                 break;
             case RECORD:
                 final Optional<Record> optionalRecord = record.getOptionalRecord(entry.getName());
-                final RecordVisitor<T> recordVisitor = visitor.onRecord(optionalRecord);
+                final RecordVisitor<T> recordVisitor = visitor.onRecord(entry, optionalRecord);
                 optionalRecord.ifPresent(r -> {
                     final T visited = visit(recordVisitor, r);
                     if (visited != null) {
@@ -117,32 +117,32 @@ public class RecordServiceImpl implements RecordService {
                 final Schema schema = entry.getElementSchema();
                 switch (schema.getType()) {
                 case INT:
-                    visitor.onIntArray(record.getOptionalArray(int.class, entry.getName()));
+                    visitor.onIntArray(entry, record.getOptionalArray(int.class, entry.getName()));
                     break;
                 case LONG:
-                    visitor.onLongArray(record.getOptionalArray(long.class, entry.getName()));
+                    visitor.onLongArray(entry, record.getOptionalArray(long.class, entry.getName()));
                     break;
                 case FLOAT:
-                    visitor.onFloatArray(record.getOptionalArray(float.class, entry.getName()));
+                    visitor.onFloatArray(entry, record.getOptionalArray(float.class, entry.getName()));
                     break;
                 case DOUBLE:
-                    visitor.onDoubleArray(record.getOptionalArray(double.class, entry.getName()));
+                    visitor.onDoubleArray(entry, record.getOptionalArray(double.class, entry.getName()));
                     break;
                 case BOOLEAN:
-                    visitor.onBooleanArray(record.getOptionalArray(boolean.class, entry.getName()));
+                    visitor.onBooleanArray(entry, record.getOptionalArray(boolean.class, entry.getName()));
                     break;
                 case STRING:
-                    visitor.onStringArray(record.getOptionalArray(String.class, entry.getName()));
+                    visitor.onStringArray(entry, record.getOptionalArray(String.class, entry.getName()));
                     break;
                 case DATETIME:
-                    visitor.onDatetimeArray(record.getOptionalArray(ZonedDateTime.class, entry.getName()));
+                    visitor.onDatetimeArray(entry, record.getOptionalArray(ZonedDateTime.class, entry.getName()));
                     break;
                 case BYTES:
-                    visitor.onBytesArray(record.getOptionalArray(byte[].class, entry.getName()));
+                    visitor.onBytesArray(entry, record.getOptionalArray(byte[].class, entry.getName()));
                     break;
                 case RECORD:
                     final Optional<Collection<Record>> array = record.getOptionalArray(Record.class, entry.getName());
-                    final RecordVisitor<T> recordArrayVisitor = visitor.onRecordArray(array);
+                    final RecordVisitor<T> recordArrayVisitor = visitor.onRecordArray(entry, array);
                     array.ifPresent(a -> a.forEach(r -> {
                         final T visited = visit(recordArrayVisitor, r);
                         if (visited != null) {
