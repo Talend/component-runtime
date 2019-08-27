@@ -76,6 +76,28 @@ java \
   --config config.json [--discover] [--catalog catalog.json] [--state state.json]
 ----
 
+Alternatively you can use `org.talend.sdk.component.singer.kitap.Carpates` main to launch the application, it differs from `Kitap` in the sense it takes a `.car` as option and avoids to pre-build the m2 repository:
+
+[source,bash]
+----
+java \
+  -jar component-kitap-$KIT_VERSION-fatjar.jar \
+  --component-archive /path/to/my-component.car \
+  [--work-dir /path/to/work/dir/or/default/to/tmp] \
+  --config config.json [--discover] [--catalog catalog.json] [--state state.json]
+----
+
+Here is an example with a real component:
+
+[source,bash]
+----
+java -jar component-kitap-$KIT_VERSION-fatjar.jar \
+  --component-archive /opt/talend/components/mailio-1.0.0.car \
+  --work-dir /opt/talend/works/test \
+  --config config.json
+----
+
+
 === Configuration
 
 The `config.json` must respect this format:

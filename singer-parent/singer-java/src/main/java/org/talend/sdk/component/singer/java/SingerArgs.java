@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.json.Json;
@@ -45,11 +47,18 @@ public class SingerArgs {
     @Getter
     private final boolean discover;
 
+    private final String componentFamily;
+
+    @Getter
+    private final Map<String, String> otherArgs;
+
     public SingerArgs(final String... args) {
         String config = null;
         String state = null;
         String catalog = null;
+        String family = null;
         boolean discover = false;
+        Map<String, String> otherArgs = new HashMap<>();
 
         if (args == null || args.length == 0) {
             throw new IllegalArgumentException("No --config");
@@ -72,10 +81,18 @@ public class SingerArgs {
                 catalog = args[i + 1];
                 i++;
                 break;
+            case "--component-family":
+                family = args[i + 1];
+                i++;
+                break;
             case "--discover":
                 discover = true;
                 break;
-            default: // fail?
+            default:
+                if (arg.startsWith("--")) {
+                    otherArgs.put(arg, i + 1 < args.length ? args[i + 1] : "true");
+                    i++;
+                } // else fail?
             }
         }
         if (config == null) {
@@ -87,6 +104,8 @@ public class SingerArgs {
         this.state = ofNullable(state).map(it -> readObject(readerFactory, it)).orElse(null);
         this.catalog = ofNullable(catalog).map(it -> readObject(readerFactory, it)).orElse(null);
         this.discover = discover;
+        this.componentFamily = family;
+        this.otherArgs = otherArgs;
     }
 
     public Optional<JsonObject> getState() {
@@ -95,6 +114,10 @@ public class SingerArgs {
 
     public Optional<JsonObject> getCatalog() {
         return ofNullable(catalog);
+    }
+
+    public Optional<String> getComponentFamily() {
+        return ofNullable(componentFamily);
     }
 
     private JsonObject readObject(final JsonReaderFactory factory, final String path) {

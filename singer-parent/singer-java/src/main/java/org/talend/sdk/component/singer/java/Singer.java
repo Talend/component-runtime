@@ -42,6 +42,10 @@ public class Singer {
     private final DateTimeFormatter rfc339 =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("UTC"));
 
+    public Singer() {
+        this(new IO(), ZonedDateTime::now);
+    }
+
     public String formatDate(final ZonedDateTime dateTime) {
         return rfc339.format(dateTime);
     }

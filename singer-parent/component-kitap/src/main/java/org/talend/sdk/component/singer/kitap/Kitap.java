@@ -22,13 +22,13 @@ import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -42,10 +42,10 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
-import org.talend.sdk.component.singer.java.IO;
 import org.talend.sdk.component.singer.java.Singer;
 import org.talend.sdk.component.singer.java.SingerArgs;
 
@@ -61,7 +61,9 @@ public final class Kitap implements Runnable {
 
     private final RecordJsonMapper recordJsonMapper;
 
-    private boolean wroteSchema;
+    public Kitap(final String... args) {
+        this(new SingerArgs(args), new Singer());
+    }
 
     public Kitap(final SingerArgs args, final Singer singer) {
         this.args = args;
@@ -84,13 +86,15 @@ public final class Kitap implements Runnable {
             mgr.autoDiscoverPlugins(false, true);
         }
 
-        final List<String> missingConfigs =
-                Stream.of("family", "name").filter(key -> !componentConfig.containsKey(key)).collect(toList());
+        final List<String> missingConfigs = Stream
+                .concat(args.getComponentFamily().isPresent() ? Stream.of("family") : Stream.empty(), Stream.of("name"))
+                .filter(key -> !componentConfig.containsKey(key))
+                .collect(toList());
         if (!missingConfigs.isEmpty()) {
             throw new IllegalArgumentException("Missing component configuration entries: " + missingConfigs);
         }
 
-        final String family = componentConfig.getString("family");
+        final String family = args.getComponentFamily().orElseGet(() -> componentConfig.getString("family"));
         final String name = componentConfig.getString("name");
         final int version = componentConfig.getInt("version", 0);
         final Map<String, String> configuration = ofNullable(componentConfig.getJsonObject("configuration"))
@@ -105,7 +109,7 @@ public final class Kitap implements Runnable {
         if (args.isDiscover()) {
             discover(mapper);
         } else {
-            readAll(stream, streamName, mapper);
+            readAll(args.getConfig().getJsonObject("schemaCustomization"), stream, streamName, mapper);
         }
     }
 
@@ -148,16 +152,21 @@ public final class Kitap implements Runnable {
         singer.stdout(streams);
     }
 
-    private void readAll(final JsonObject stream, final String streamName, final Mapper mapper) {
+    private void readAll(final JsonObject config, final JsonObject stream, final String streamName,
+            final Mapper mapper) {
+        final AtomicReference<Schema> lastSchema = new AtomicReference<>();
         records(mapper).peek(record -> {
-            if (!wroteSchema) {
-                wroteSchema = true;
-                // todo: how to get keys and bookmarks?
-                final JsonArray emptyArray = jsonBuilderFactory.createArrayBuilder().build();
+            final Schema newSchema = record.getSchema();
+            if (!newSchema.equals(lastSchema.get())) {
+                final JsonArray keys = config != null && config.containsKey("keys") ? config.getJsonArray("keys")
+                        : jsonBuilderFactory.createArrayBuilder().build();
+                final JsonArray bookmarks =
+                        config != null && config.containsKey("bookmarks") ? config.getJsonArray("bookmarks")
+                                : jsonBuilderFactory.createArrayBuilder().build();
                 final JsonObject schema = ofNullable(stream.getJsonObject("schema"))
-                        .orElseGet(() -> new JsonSchemaGenerator(record.getSchema().getEntries(), jsonBuilderFactory)
-                                .get());
-                singer.writeSchema(streamName, schema, emptyArray, emptyArray);
+                        .orElseGet(() -> new JsonSchemaGenerator(newSchema.getEntries(), jsonBuilderFactory).get());
+                singer.writeSchema(streamName, schema, keys, bookmarks);
+                lastSchema.set(newSchema);
             }
         }).forEach(record -> singer.writeRecord(streamName, recordJsonMapper.apply(record)));
     }
@@ -227,10 +236,7 @@ public final class Kitap implements Runnable {
 
     public static void main(final String... args) {
         EnvironmentSetup.init();
-
-        final SingerArgs singerArgs = new SingerArgs(args);
-        // todo: disable loggers or redirect them on stderr
-        new Kitap(singerArgs, new Singer(new IO(), ZonedDateTime::now)).run();
+        new Kitap(args).run();
     }
 
     @RequiredArgsConstructor
