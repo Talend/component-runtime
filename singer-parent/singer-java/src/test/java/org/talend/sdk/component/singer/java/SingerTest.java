@@ -49,7 +49,7 @@ class SingerTest {
     @Test
     void writeState() throws UnsupportedEncodingException {
         write(s -> s.writeState(Json.createObjectBuilder().add("offset", 1).build()),
-                "{\"type\":\"STATE\",\"state\":{\"offset\":1}}");
+                "{\"type\":\"STATE\",\"value\":{\"offset\":1}}");
     }
 
     private void write(final Consumer<Singer> singerConsumer, final String expected)

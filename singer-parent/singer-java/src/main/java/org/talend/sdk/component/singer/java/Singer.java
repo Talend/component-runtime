@@ -51,7 +51,7 @@ public class Singer {
     }
 
     public synchronized void writeState(final JsonObject state) {
-        final JsonObject json = builderFactory.createObjectBuilder().add("type", "STATE").add("state", state).build();
+        final JsonObject json = builderFactory.createObjectBuilder().add("type", "STATE").add("value", state).build();
         runIo.getStdout().println(json);
     }
 
