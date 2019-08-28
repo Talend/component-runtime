@@ -163,7 +163,7 @@
     <batik.version>1.11</batik.version>
     <beam.version>2.15.0</beam.version>
     <commons-codec.version>1.12</commons-codec.version>
-    <commons-compress.version>1.18</commons-compress.version>
+    <commons-compress.version>1.19</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
     <commons-text.version>1.6</commons-text.version>
