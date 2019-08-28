@@ -48,13 +48,16 @@ public final class Carpates {
 
         final SingerArgs singerArgs = new SingerArgs(args);
         final Path archive = Paths
-                .get(requireNonNull(singerArgs.getOtherArgs().get("--component-archive"),
+                .get(requireNonNull(
+                        ofNullable(singerArgs.getOtherArgs().get("--component-archive"))
+                                .orElseGet(() -> System.getenv("TALEND_SINGER_COMPONENT_ARCHIVE")),
                         "--component-archive is required"));
         if (!Files.exists(archive)) {
             throw new IllegalArgumentException("--component-archive does not exist: '" + archive + "'");
         }
 
-        final String workDirPath = singerArgs.getOtherArgs().get("--work-dir");
+        final String workDirPath = ofNullable(singerArgs.getOtherArgs().get("--work-dir"))
+                .orElseGet(() -> System.getenv("TALEND_SINGER_WORK_DIR"));
         final Path workDir = ofNullable(workDirPath).map(Paths::get).orElseGet(() -> {
             try {
                 final ZonedDateTime now = ZonedDateTime.now();

@@ -15,8 +15,11 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.lang.Boolean.parseBoolean;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.execution.MavenSession;
@@ -49,7 +52,6 @@ public class TalendLifecycleExtension extends AbstractMavenLifecycleParticipant 
 
             executions = def.getExecutions();
         }
-
         if (isExecutionMissing(executions, "svg2png")) {
             final PluginExecution dependencies = new PluginExecution();
             dependencies.setId("talend-svg2png");
@@ -83,6 +85,23 @@ public class TalendLifecycleExtension extends AbstractMavenLifecycleParticipant 
             documentation.setId("talend-asciidoc");
             documentation.addGoal("asciidoc");
             documentation.setPhase("process-classes");
+            executions.add(documentation);
+        }
+        if (isExecutionMissing(executions, "car")) {
+            final PluginExecution documentation = new PluginExecution();
+            documentation.setId("talend-car");
+            documentation.addGoal("car");
+            documentation.setPhase("package");
+            executions.add(documentation);
+        }
+        final Properties properties = session.getCurrentProject().getProperties();
+        if (properties != null
+                && parseBoolean(properties.getProperty("talend.component.extension.singer.active", "false"))
+                && isExecutionMissing(executions, "singer")) {
+            final PluginExecution documentation = new PluginExecution();
+            documentation.setId("talend-singer");
+            documentation.addGoal("singer");
+            documentation.setPhase("package");
             executions.add(documentation);
         }
     }

@@ -20,20 +20,17 @@ import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
 import static org.apache.maven.plugins.annotations.ResolutionScope.TEST;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Date;
@@ -41,38 +38,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.CacheDirectoryCreationException;
-import com.google.cloud.tools.jib.api.Containerizer;
-import com.google.cloud.tools.jib.api.DockerDaemonImage;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
-import com.google.cloud.tools.jib.api.Jib;
 import com.google.cloud.tools.jib.api.JibContainerBuilder;
 import com.google.cloud.tools.jib.api.LayerConfiguration;
 import com.google.cloud.tools.jib.api.Port;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.api.RegistryImage;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.settings.Server;
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.eclipse.aether.artifact.Artifact;
 import org.talend.sdk.component.maven.api.Audience;
+import org.talend.sdk.component.maven.docker.JibHelper;
 
 import lombok.Data;
 
@@ -149,89 +133,33 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
+        try (final JibHelper jibHelper = new JibHelper(getLog(), project.getBuild().getDirectory(),
+                layersCacheDirectory, repository, dockerEnvironment, dockerExecutable, laggyPushWorkaround)) {
+            jibHelper
+                    .prepare(project.getArtifactId(), project.getVersion(), project.getProperties(), fromImage, toImage,
+                            creationTime, workingDirectory, this::createWorkingDirectory, environment, labels);
 
-            private final AtomicInteger id = new AtomicInteger(1);
-
-            @Override
-            public Thread newThread(final Runnable runnable) {
-                return new Thread(runnable, String.format("%s %d", getClass().getName() + "-", id.getAndIncrement()));
-            }
-        });
-        try {
-            final JibContainerBuilder builder = Jib.from(ImageReference.parse(fromImage));
-            builder
-                    .setCreationTime(creationTime == null || creationTime.trim().isEmpty() ? Instant.now()
-                            : Instant.parse(creationTime));
-            builder
-                    .setWorkingDirectory(AbsoluteUnixPath
-                            .get(workingDirectory == null ? createWorkingDirectory() : workingDirectory));
-            if (environment != null) {
-                builder.setEnvironment(environment);
-            }
-
-            final String projectVersion = project.getVersion();
-            final String tag = projectVersion.endsWith("-SNAPSHOT")
-                    ? projectVersion.replace("-SNAPSHOT", "") + "_"
-                            + ofNullable(project.getProperties().getProperty("git.branch"))
-                                    .map(it -> it.replace('/', '_') + '_')
-                                    .orElse("")
-                            + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
-                    : projectVersion;
-            final String image = toImage == null ? project.getArtifactId() : toImage;
-            final String imageName =
-                    ((repository == null || repository.trim().isEmpty()) ? "" : (repository + '/')) + image + ':' + tag;
-
-            if (labels != null) {
-                builder
-                        .setLabels(labels
-                                .entrySet()
-                                .stream()
-                                .peek(it -> it.setValue(it.getValue().replace("@imageName@", imageName)))
-                                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
-            }
-            addLayers(builder);
+            addLayers(jibHelper.getBuilder());
 
             if (ports != null) {
-                ports.stream().map(Port::tcp).forEach(builder::addExposedPort);
+                ports.stream().map(Port::tcp).forEach(jibHelper.getBuilder()::addExposedPort);
             }
 
             getLog().info("Creating the image (can be long)");
 
-            if (repository != null) { // push
-                if (laggyPushWorkaround > 0) {
-                    toLocalDocker(executor, builder, tag, imageName);
-
-                    hackyPush(tag, imageName);
-                } else {
-                    final RegistryImage registryImage = RegistryImage.named(imageName);
-                    Server credentials = session.getSettings().getServer(repository);
-                    if (credentials != null) {
-                        credentials =
-                                ofNullable(settingsDecrypter.decrypt(new DefaultSettingsDecryptionRequest(credentials)))
-                                        .map(SettingsDecryptionResult::getServer)
-                                        .orElse(credentials);
-                        registryImage.addCredential(credentials.getUsername(), credentials.getPassword());
-                    }
-                    builder.containerize(configureContainer(Containerizer.to(registryImage), executor));
-                    getLog().info("Pushed image='" + imageName + "', tag='" + tag + "'");
-                }
-            } else {
-                toLocalDocker(executor, builder, tag, imageName);
-            }
+            jibHelper
+                    .build("Talend Image Maven Plugin",
+                            () -> ofNullable(session.getSettings().getServer(repository))
+                                    .map(it -> settingsDecrypter.decrypt(new DefaultSettingsDecryptionRequest(it)))
+                                    .map(SettingsDecryptionResult::getServer)
+                                    .orElse(null));
 
             if (versionProperty != null) {
-                final String repo = repository == null ? "" : repository;
-                project.getProperties().put(versionProperty, imageName);
-                project.getProperties().put(versionProperty + ".repository", repo);
-                project.getProperties().put(versionProperty + ".repositoryPrefixed", repo.isEmpty() ? "" : repo + '/');
-                project.getProperties().put(versionProperty + ".image", image);
-                project.getProperties().put(versionProperty + ".version", tag);
+                jibHelper.setProperties(project, versionProperty);
             }
         } catch (final Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } finally {
-            executor.shutdownNow();
             if (m2Root.exists()) {
                 try {
                     Files.walkFileTree(m2Root.toPath(), new SimpleFileVisitor<Path>() {
@@ -255,80 +183,6 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
                 }
             }
         }
-    }
-
-    // until jib supports retries this is a CI workaround
-    private void hackyPush(final String tag, final String imageName)
-            throws IOException, InterruptedException, MojoExecutionException {
-        getLog()
-                .warn("Using push workaround for nasty registries (using exec directly on 'docker'), "
-                        + "it is highly recommended to not use laggyPushWorkaround configuration if you can");
-
-        Server credentials = session.getSettings().getServer(repository);
-        credentials = ofNullable(credentials)
-                .map(it -> settingsDecrypter.decrypt(new DefaultSettingsDecryptionRequest(it)))
-                .map(SettingsDecryptionResult::getServer)
-                .orElse(credentials);
-        if (credentials != null) {
-            final File credFile =
-                    new File(project.getBuild().getDirectory(), "talend-component-docker-credentials.temp");
-            credFile.getParentFile().mkdirs(); // should be useless but just in case
-            try (final FileWriter writer = new FileWriter(credFile)) {
-                writer.write(credentials.getPassword());
-            }
-            try {
-                final ProcessBuilder processBuilder = new ProcessBuilder("docker", "login", repository, "--username",
-                        credentials.getUsername(), "--password-stdin");
-                processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-                processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-                processBuilder.redirectInput(ProcessBuilder.Redirect.from(credFile));
-                final int exitCode = processBuilder.start().waitFor();
-                if (exitCode != 0) {
-                    getLog().warn("Can't login, got status: " + exitCode);
-                }
-            } finally {
-                if (!credFile.delete()) {
-                    credFile.deleteOnExit();
-                }
-            }
-        }
-
-        boolean ok = false;
-        for (int i = 0; i < laggyPushWorkaround; i++) {
-            final int exit = new ProcessBuilder("docker", "push", imageName).inheritIO().start().waitFor();
-            if (exit == 0) {
-                ok = true;
-                getLog().info("Pushed image='" + imageName + "', tag='" + tag + "'");
-                break;
-            } else {
-                getLog().warn("Push #" + (i + 1) + " got " + exit + " exit status");
-            }
-        }
-        if (!ok) {
-            throw new MojoExecutionException("Push didn't succeed");
-        }
-    }
-
-    private void toLocalDocker(final ExecutorService executor, final JibContainerBuilder builder, final String tag,
-            final String imageName) throws InvalidImageReferenceException, InterruptedException, ExecutionException,
-            IOException, CacheDirectoryCreationException, RegistryException {
-        final DockerDaemonImage docker = DockerDaemonImage.named(imageName);
-        if (dockerEnvironment != null) {
-            docker.setDockerEnvironment(dockerEnvironment);
-        }
-        if (dockerExecutable != null) {
-            docker.setDockerExecutable(dockerExecutable.toPath());
-        }
-        builder.containerize(configureContainer(Containerizer.to(docker), executor));
-        getLog().info("Built local image='" + imageName + "', tag='" + tag + "'");
-    }
-
-    private Containerizer configureContainer(final Containerizer to, final ExecutorService executor) {
-        return to
-                .setExecutorService(executor)
-                .setApplicationLayersCache(layersCacheDirectory.toPath())
-                .setBaseImageLayersCache(layersCacheDirectory.toPath())
-                .setToolName("Talend Image Maven Plugin");
     }
 
     private String createWorkingDirectory() {
