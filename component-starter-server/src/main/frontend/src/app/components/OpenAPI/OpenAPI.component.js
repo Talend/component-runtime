@@ -19,7 +19,7 @@ import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
 import 'brace/theme/chrome';
 import 'brace/ext/language_tools';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { GENERATOR_OPENAPI_ZIP_URL } from '../../constants';
 import Help from '../Help';
 import ProjectContext from '../../ProjectContext';
@@ -124,7 +124,7 @@ function EndpointsSelector(props) {
     );
 }
 
-const EndpointsSelectorTrans = translate()(EndpointsSelector);
+const EndpointsSelectorTrans = withTranslation('Help')(EndpointsSelector);
 
 class OpenAPI extends React.Component {
     constructor(props) {
@@ -204,7 +204,7 @@ class OpenAPI extends React.Component {
     }
 }
 
-const OpenAPITrans = translate()(OpenAPI);
+const OpenAPITrans = withTranslation('Help')(OpenAPI);
 
 export default class OpenAPIWizard extends React.Component {
     render() {

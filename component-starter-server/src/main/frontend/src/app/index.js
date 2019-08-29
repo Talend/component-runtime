@@ -16,7 +16,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import i18n from 'i18next';
-import { reactI18nextModule } from 'react-i18next';
+import { initReactI18next } from 'react-i18next';
 import App from './components/App';
 import helpTexts from './locales/en/Help.json';
 
@@ -25,15 +25,21 @@ import './index.scss';
 
 function logKeys(lang, ns, key, value) {
 	// eslint-disable-next-line no-console
-	console.log(`"${key}": "${value.replace(/"/g, '\\"')}"`);
+	console.log(`${key}: "${value.replace(/"/g, '\\"')}"`);
 }
 
 // eslint-disable-next-line import/no-named-as-default-member
-i18n.use(reactI18nextModule).init({
+i18n.use(initReactI18next).init({
 	lng: 'en',
 	resources: {
 		en: {
-			Help: helpTexts,
+            Help: helpTexts,
+			'tui-components': {
+			    HEADERBAR_GO_PORTAL: 'Go to Portal',
+			    NO_RESULT_FOUND: 'No result.',
+			    TYPEAHEAD_SEARCHING: 'Searching for matches...',
+			    TYPEAHEAD_LOADING: "Loading...",
+			}
 		},
 	},
 	/*

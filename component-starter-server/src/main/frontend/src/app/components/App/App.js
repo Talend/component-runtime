@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Route, Switch, withRouter } from 'react-router-dom';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
 import Icon from '@talend/react-components/lib/Icon';
 import Toggle from '@talend/react-components/lib/Toggle';
@@ -99,7 +99,7 @@ function App (props) {
 	);
 }
 
-export default translate()(App);
+export default withTranslation('Help')(App);
 
 App.propTypes = {
 	t: PropTypes.func,

@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ActionButton from '@talend/react-components/lib/Actions/ActionButton';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import DatastoreContext from '../../DatastoreContext';
 import DatasetContext from '../../DatasetContext';
 import ComponentsContext from '../../ComponentsContext';
@@ -61,7 +61,7 @@ DoDelete.propTypes = {
 	onClick: PropTypes.func,
 };
 
-const DoDeleteTrans = translate()(DoDelete);
+const DoDeleteTrans = withTranslation('Help')(DoDelete);
 
 
 export default class DatastoreDelete extends React.Component {
