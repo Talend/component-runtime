@@ -81,6 +81,7 @@ public final class Kitap implements Runnable {
                         return reader.readObject();
                     }
                 })
+                        .map(json -> json.containsKey("component") ? json.getJsonObject("component") : json)
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "No 'component' or 'component_config' entry in config.json")));
         final JsonObject stream = args

@@ -330,7 +330,7 @@
           <dependency>
             <groupId>org.talend.ui</groupId>
             <artifactId>talend-icon</artifactId>
-            <version>${talend-ui.version}</version>
+            <version>${talend-icon.version}</version>
           </dependency>
           <dependency>
             <groupId>org.jclarion</groupId>
