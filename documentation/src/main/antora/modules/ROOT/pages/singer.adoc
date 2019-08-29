@@ -115,3 +115,6 @@ The `config.json` must respect this format:
   }
 }
 ----
+
+TIP: in some environment, such a JSON is not desirable, it is possible to put `component_config` attribute as a string
+containing the full json (escaped indeed) too.

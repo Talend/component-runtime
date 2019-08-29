@@ -22,6 +22,7 @@ import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,7 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 
@@ -73,8 +75,14 @@ public final class Kitap implements Runnable {
 
     @Override
     public void run() {
-        final JsonObject componentConfig =
-                requireNonNull(args.getConfig().getJsonObject("component"), "No 'component' entry in config.json");
+        final JsonObject componentConfig = ofNullable(args.getConfig().getJsonObject("component"))
+                .orElseGet(() -> ofNullable(args.getConfig().getJsonString("component_config")).map(jsonString -> {
+                    try (final JsonReader reader = Json.createReader(new StringReader(jsonString.getString()))) {
+                        return reader.readObject();
+                    }
+                })
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "No 'component' or 'component_config' entry in config.json")));
         final JsonObject stream = args
                 .getCatalog()
                 .flatMap(this::extractSelectedStream)
