@@ -136,11 +136,11 @@ public final class Kitap implements Runnable {
                     a
                             .add(jsonBuilderFactory
                                     .createObjectBuilder()
-                                    .add("metadata", jsonBuilderFactory
-                                            .createObjectBuilder()
-                                            // todo: refine that setup
-                                            .add("inclusion", "automatic")
-                                            .add("selected", true))
+                                    .add("metadata",
+                                            jsonBuilderFactory
+                                                    .createObjectBuilder()
+                                                    .add("inclusion", "automatic")
+                                                    .add("selected-by-default", true))
                                     .add("breadcrumb",
                                             jsonBuilderFactory.createArrayBuilder().add("properties").add(p.getKey())));
                 }, JsonArrayBuilder::addAll)
