@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.Locale.ENGLISH;
@@ -35,6 +36,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +61,23 @@ public class AsciidoctorExecutor implements AutoCloseable {
     };
 
     public static void main(final String[] args) throws IOException {
-        new AsciidoctorExecutor().doMain(args);
+        final Collection<String> params = new ArrayList<>(asList(args));
+        final AsciidoctorExecutor executor = new AsciidoctorExecutor();
+        if (params.contains("--continue")) {
+            params.remove("--continue");
+            final String[] newArgs = params.toArray(new String[0]);
+            do {
+                executor.doMain(newArgs);
+
+                final String line = System.console().readLine();
+                if (line == null || "exit".equalsIgnoreCase(line.trim())) {
+                    return;
+                }
+                executor.doMain(newArgs);
+            } while (true);
+        } else {
+            executor.doMain(args);
+        }
     }
 
     public void doMain(final String[] args) throws IOException {
