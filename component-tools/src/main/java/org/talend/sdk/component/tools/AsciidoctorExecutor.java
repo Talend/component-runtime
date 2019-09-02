@@ -94,15 +94,31 @@ public class AsciidoctorExecutor implements AutoCloseable {
                         .filter(it -> it.startsWith("= "))
                         .findFirst()
                         .orElseGet(() -> args.length > 4 ? args[4] : "Document"),
-                new HashMap<>(), null, null);
+                new HashMap<>(), args.length > 6 ? new File(args[6]) : null, args.length > 7 ? args[7] : null,
+                args.length > 5 ? args[5] : null);
     }
 
     public void render(final File workDir, final String version, final Log log, final String backend, final File source,
             final File output, final String title, final Map<String, String> attributes, final File templateDir,
             final String templateEngine) {
+        render(workDir, version, log, backend, source, output, title, attributes, templateDir, templateEngine, null);
+    }
+
+    // CHECKSTYLE:OFF
+    private void render(final File workDir, final String version, final Log log, final String backend,
+            final File source, final File output, final String title, final Map<String, String> attributes,
+            final File templateDir, final String templateEngine, final String libraries) {
+        // CHECKSTYLE:ON
         log.info("Rendering '" + source.getName() + "' to '" + output + "'");
         if (asciidoctor == null) {
             asciidoctor = getAsciidoctor();
+            if (libraries != null) {
+                Stream
+                        .of(libraries.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .forEach(asciidoctor::requireLibrary);
+            }
         }
         final OptionsBuilder optionsBuilder = OptionsBuilder
                 .options()
