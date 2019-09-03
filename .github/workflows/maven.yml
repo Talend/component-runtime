@@ -1,0 +1,165 @@
+# todo:
+# - add javafx support when setup-java action supports it: https://github.com/actions/setup-java/pull/19
+# - think about simplying commands, maybe a global env to source with mvn aliases (mvnQuick mvnDeploy etc)?
+
+name: Github CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+  schedule:
+    - cron: 0 2 * * 1-5
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java_version: ["8", "11"]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Build
+        run: |
+            MAVEN_OPTS="-Dmaven.artifact.threads=256" mvn install \
+                -e -B \
+                -gs .travis/settings.xml \
+                -pl '!talend-component-kit-intellij-plugin'
+  deploy_artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        if: github.event_name != 'pull_request'
+      - name: Set up JDK
+        if: github.event_name != 'pull_request'
+        uses: actions/setup-java@v1
+        with:
+          java-version: "8"
+      - name: Deploy Artifacts On Nexus
+        if: github.event_name != 'pull_request'
+        run: |
+          chmod +x .travis/setup_keys.sh && GPG_IMPORT_PRIVATE_KEY=true  ./.travis/setup_keys.sh &&
+          MAVEN_OPTS="-Dmaven.artifact.threads=256" mvn deploy \
+                -pl '!talend-component-kit-intellij-plugin' \
+                -gs .travis/settings.xml \
+                -e -B \
+                -Possrh -Prelease -Ptravis -Pgpg2 \
+                -Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true
+        env:
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASS: ${{ secrets.OSSRH_PASS }}
+          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_DIR: "/home/runner/.gnupg"
+          encrypted_f13b410addf6_key: ${{ secrets.encrypted_f13b410addf6_key }}
+          encrypted_f13b410addf6_iv: ${{ secrets.encrypted_f13b410addf6_iv }}
+  deploy_documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        if: github.event_name != 'pull_request'
+      - name: Set up JDK
+        if: github.event_name != 'pull_request'
+        uses: actions/setup-java@v1
+        with:
+          java-version: "8"
+      - name: Deploy Documentation
+        if: github.event_name != 'pull_request'
+        run: |
+          MAVEN_OPTS="-Xverify:none -Dmaven.artifact.threads=256" \
+              mvn clean install \
+                  -pl '!talend-component-kit-intellij-plugin' \
+                  -gs .travis/settings.xml \
+                  -e -B \
+                  -Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dgpg.skip=true \
+                  -Dtalend.github.cache=true -Possrh -Prelease -Pgpg2 \
+                  -Pdoc-gen -Pgh-pages -Ptravis &&
+          cd documentation && MAVEN_OPTS="-Dmaven.artifact.threads=256" \
+          mvn clean verify pre-site \
+              -gs ../.travis/settings.xml \
+              -e \
+              -Dwebhost.ftphost=$WEBHOST_FTPPHOST \
+              -Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dgpg.skip=true \
+              -Pgh-pages -Ptravis
+        env:
+          TLND_GITHUB_USER: ${{ secrets.TLND_GITHUB_USER }}
+          TLND_GITHUB_PASS: ${{ secrets.TLND_GITHUB_PASS }}
+          TLND_JIRA_USER: ${{ secrets.TLND_JIRA_USER }}
+          TLND_JIRA_PASS: ${{ secrets.TLND_JIRA_PASS }}
+          WEBHOST_FTPPHOST: ${{ secrets.WEBHOST_FTPPHOST }}
+          WEBHOST_LOGIN: ${{ secrets.WEBHOST_LOGIN }}
+          WEBHOST_PASS: ${{ secrets.WEBHOST_PASS }}
+  deploy_docker_images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        if: github.event_name != 'pull_request'
+      - name: Set up JDK
+        if: github.event_name != 'pull_request'
+        uses: actions/setup-java@v1
+        with:
+          java-version: "8"
+      - name: Deploy Docker Images
+        if: github.event_name != 'pull_request'
+        run: |
+          chmod +x .travis/setup_keys.sh && GPG_IMPORT_PRIVATE_KEY=true  ./.travis/setup_keys.sh &&
+          MAVEN_OPTS="-Dmaven.artifact.threads=256" mvn clean install \
+              -e -B \
+              -gs .travis/settings.xml \
+              -pl images/component-server-image \
+              -pl images/component-server-vault-proxy-image \
+              -am &&
+          cd images/component-server-vault-proxy-image &&
+          mvn clean install jib:build@build \
+              -e -B \
+              -gs ../../.travis/settings.xml \
+              -Dtalend.server.image.registry=registry.hub.docker.com/ \
+              -Possrh -Prelease -Ptravis -Pgpg2 \
+              -Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true &&
+          cd - &&
+          cd images/component-server-image &&
+          mvn clean install jib:build@build \
+              -e -B \
+              -gs ../../.travis/settings.xml \
+              -Dtalend.server.image.registry=registry.hub.docker.com/ \
+              -Possrh -Prelease -Ptravis -Pgpg2 \
+              -Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true
+        env:
+          DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_DIR: "/home/runner/.gnupg"
+          encrypted_f13b410addf6_key: ${{ secrets.encrypted_f13b410addf6_key }}
+          encrypted_f13b410addf6_iv: ${{ secrets.encrypted_f13b410addf6_iv }}
+  auditing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        if: github.event_name != 'pull_request'
+      - name: Set up JDK
+        if: github.event_name != 'pull_request'
+        uses: actions/setup-java@v1
+        with:
+          java-version: "8"
+      - name: Audit
+        if: github.event_name != 'pull_request'
+        run: |
+          MAVEN_OPTS="-Dmaven.artifact.threads=256" mvn clean install \
+              -pl '!talend-component-kit-intellij-plugin' \
+              -gs .travis/settings.xml \
+              -B -e \
+              -Ptravis \
+              -Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true &&
+          mvn -gs .travis/settings.xml ossindex:audit -B -e &&
+          CACHE_DIR=.cache ./.travis/source-clear.sh
+        env:
+          SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
+
