@@ -30,7 +30,6 @@ import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.design.extension.flows.FlowsFactory;
@@ -39,8 +38,6 @@ import org.talend.sdk.component.runtime.beam.Versions;
 import org.talend.sdk.component.runtime.beam.design.BeamFlowFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory;
-import org.talend.sdk.component.runtime.beam.impl.BeamMapperImpl;
-import org.talend.sdk.component.runtime.beam.impl.BeamProcessorChainImpl;
 import org.talend.sdk.component.runtime.beam.transformer.BeamIOTransformer;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
@@ -49,7 +46,9 @@ import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BeamComponentExtension implements ComponentExtension {
 
     @Override
@@ -123,11 +122,13 @@ public class BeamComponentExtension implements ComponentExtension {
         if (!supports(component)) {
             throw new IllegalArgumentException("Unsupported component API: " + component);
         }
-        // lazy to not fail if unwrapped
+        log
+                .warn("Creating a '{}' instance for '{}#{}', this must be unwrapped before being used", component,
+                        instance.family(), instance.name());
         return (T) Proxy
                 .newProxyInstance(Thread.currentThread().getContextClassLoader(),
                         new Class<?>[] { component, Serializable.class, Delegated.class },
-                        new LazyComponentHandler(component, instance.plugin(), instance.family(), instance.name(),
+                        new LazyComponentHandler(instance.plugin(), instance.family(), instance.name(),
                                 Serializable.class.cast(instance.instance())));
     }
 
@@ -139,8 +140,6 @@ public class BeamComponentExtension implements ComponentExtension {
     @RequiredArgsConstructor
     private static class LazyComponentHandler implements InvocationHandler, Serializable {
 
-        private final Class<?> expectedType;
-
         private final String plugin;
 
         private final String family;
@@ -148,8 +147,6 @@ public class BeamComponentExtension implements ComponentExtension {
         private final String name;
 
         private final Serializable instance;
-
-        private final AtomicReference<Serializable> actualDelegate = new AtomicReference<>();
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -173,28 +170,7 @@ public class BeamComponentExtension implements ComponentExtension {
                 if ("rootName".equals(method.getName()) && method.getParameterCount() == 0) {
                     return family;
                 }
-                Serializable delegateInstance = actualDelegate.get();
-                if (delegateInstance == null) {
-                    synchronized (this) {
-                        delegateInstance = actualDelegate.get();
-                        if (delegateInstance == null) {
-                            if (Mapper.class == expectedType) {
-                                actualDelegate
-                                        .set(new BeamMapperImpl(
-                                                (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, ?>) instance,
-                                                plugin, family, name));
-                            }
-                            if (Processor.class == expectedType) {
-                                actualDelegate
-                                        .set(new BeamProcessorChainImpl(
-                                                (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PCollection<?>, org.apache.beam.sdk.values.PDone>) instance,
-                                                null, plugin, family, name));
-                            }
-                        }
-                        delegateInstance = actualDelegate.get();
-                    }
-                }
-                return method.invoke(delegateInstance, args);
+                throw new IllegalStateException("Native beam components don't support Talend Component Kit API");
             } catch (final InvocationTargetException ite) {
                 throw ite.getTargetException();
             } finally {

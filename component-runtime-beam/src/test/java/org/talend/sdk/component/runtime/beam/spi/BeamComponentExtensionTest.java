@@ -19,10 +19,13 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -43,6 +46,7 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.design.extension.flows.FlowsFactory;
+import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Serializer;
 import org.talend.sdk.component.runtime.beam.data.Sample;
 import org.talend.sdk.component.runtime.input.Input;
@@ -121,14 +125,14 @@ class BeamComponentExtensionTest {
 
     private void assertMapper(final Mapper mapper) {
         assertNotNull(mapper);
-        mapper.start();
-        final Input input = mapper.create();
-        input.start();
-        assertEquals(new Sample("a"), input.next());
-        assertEquals(new Sample("b"), input.next());
-        assertNull(input.next());
-        input.stop();
-        mapper.stop();
+        assertThat(mapper, instanceOf(Delegated.class));
+        assertNotNull(Delegated.class.cast(mapper).getDelegate());
+        try {
+            mapper.start();
+            fail();
+        } catch (final IllegalStateException ise) {
+            // ok
+        }
     }
 
     @PartitionMapper(family = "test", name = "extension")
