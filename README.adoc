@@ -5,6 +5,7 @@
 
 ifdef::env-github[]
 image:https://travis-ci.org/{gh-name}.svg?branch={gh-branch}["Build Status", link="https://travis-ci.org/{gh-name}"]
+image:https://github.com/{gh-name}/workflows/Github%20CI/badge.svg?branch={gh-branch}["Build Status", link="https://github.com/{gh-name}/actions"]
 image:https://www.openhub.net/p/{openhub-name}/widgets/project_thin_badge?format=gif&ref=Thin+badge["OpenHub", link="https://www.openhub.net/p/{openhub-name}"]
 endif::env-github[]
 

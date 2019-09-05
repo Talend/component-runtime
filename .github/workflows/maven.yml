@@ -158,8 +158,9 @@ jobs:
               -B -e \
               -Ptravis \
               -Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true &&
-          mvn -gs .travis/settings.xml ossindex:audit -B -e &&
-          CACHE_DIR=.cache ./.travis/source-clear.sh
+          mvn -gs .travis/settings.xml ossindex:audit -B -e
+          # source clear disabled while javafx is not there
+          # && CACHE_DIR=.cache ./.travis/source-clear.sh
         env:
           SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
 
