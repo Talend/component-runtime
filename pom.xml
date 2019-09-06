@@ -156,7 +156,7 @@
     <log4j.version>1.2.17</log4j.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
     <geronimo-atinject.version>1.1</geronimo-atinject.version>
-    <geronimo-annotation.version>1.1</geronimo-annotation.version>
+    <geronimo-annotation.version>1.2</geronimo-annotation.version>
     <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.1</geronimo-jsonb.version>
     <geronimo-json.version>1.2</geronimo-json.version>
@@ -1118,7 +1118,7 @@
           <consoleOutput>true</consoleOutput>
           <reportFile>${project.build.directory}/${project.build.finalName}.rat</reportFile>
           <excludes>
-            <exclude>.github/workflows/maven.yml</exclude>
+            <exclude>.github/workflows/*</exclude>
             <exclude>.build/**/*</exclude>
             <exclude>.build_source/**/*</exclude>
             <exclude>srcclr.yml</exclude>
