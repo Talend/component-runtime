@@ -67,6 +67,26 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
         assertEquals("", files.get("generateDita/"));
     }
 
+    @Test
+    void generateDitaConds(@TempDir final File temporaryFolder, final TestInfo info) throws IOException {
+        final File output = new File(temporaryFolder, info.getTestMethod().get().getName() + ".zip");
+        new DitaDocumentationGenerator(new File[] {
+                copyBinaries("org.talend.test.activeif", temporaryFolder, info.getTestMethod().get().getName()) },
+                Locale.ROOT, log, output, true, true).run();
+        assertTrue(output.exists());
+        final Map<String, String> files = new HashMap<>();
+        try (final ZipInputStream zip = new ZipInputStream(new FileInputStream(output))) {
+            ZipEntry nextEntry;
+            while ((nextEntry = zip.getNextEntry()) != null) {
+                files.put(nextEntry.getName(), IO.slurp(zip));
+            }
+        }
+        try (final BufferedReader reader = resource("generateDitaConds_activeif.xml")) {
+            assertEquals(reader.lines().collect(joining("\n")),
+                    files.get("generateDitaConds/test/activeif.dita").trim());
+        }
+    }
+
     private BufferedReader resource(final String name) {
         return new BufferedReader(new InputStreamReader(Thread
                 .currentThread()

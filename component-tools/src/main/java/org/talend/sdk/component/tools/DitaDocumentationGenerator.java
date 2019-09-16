@@ -29,6 +29,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -248,13 +249,13 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             container.setTextContent("Always enabled");
             break;
         case 1:
-            renderCondition(xml, container, conditions.getConditions().iterator().next());
+            renderCondition(xml, container, conditions.getConditions().iterator().next(), "or");
             break;
         default:
             final Element listWrapper = xml.createElement("ul");
             final Runnable conditionAppender = () -> conditions.getConditions().forEach(cond -> {
                 final Element li = xml.createElement("li");
-                renderCondition(xml, li, cond);
+                renderCondition(xml, li, cond, conditions.getOperator());
                 listWrapper.appendChild(li);
             });
             switch (conditions.getOperator().toUpperCase(ROOT)) {
@@ -272,18 +273,21 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
     }
 
     private void renderCondition(final Document xml, final Element container,
-            final DocBaseGenerator.Condition condition) {
-        final Runnable valuesAppender = () -> Stream.of(condition.getValue().split(",")).map(v -> {
-            final Element userinput = xml.createElement("userinput");
-            userinput.setTextContent(v);
-            return userinput;
-        }).reduce(container, (wrapper, child) -> {
-            if (wrapper.hasChildNodes()) {
-                wrapper.setTextContent(" or ");
-            }
-            wrapper.appendChild(child);
-            return wrapper;
-        });
+            final DocBaseGenerator.Condition condition, final String op) {
+        final Runnable valuesAppender = () -> {
+            final AtomicBoolean init = new AtomicBoolean();
+            Stream.of(condition.getValue().split(",")).map(v -> {
+                final Element userinput = xml.createElement("userinput");
+                userinput.setTextContent(v);
+                return userinput;
+            }).reduce(container, (wrapper, child) -> {
+                if (!init.compareAndSet(false, true)) {
+                    wrapper.appendChild(xml.createTextNode(" or "));
+                }
+                wrapper.appendChild(child);
+                return wrapper;
+            });
+        };
         final Runnable appendPath = () -> {
             final Element parmname = xml.createElement("parmname");
             parmname.setTextContent(condition.getPath());
@@ -294,40 +298,40 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             if (condition.isNegate()) {
                 if ("0".equals(condition.getValue())) {
                     appendPath.run();
-                    container.setTextContent(" is not empty");
+                    container.appendChild(xml.createTextNode(" is not empty"));
                 } else {
-                    container.setTextContent("the length of ");
+                    container.appendChild(xml.createTextNode("the length of "));
                     appendPath.run();
-                    container.setTextContent(" is not ");
+                    container.appendChild(xml.createTextNode(" is not "));
                     valuesAppender.run();
                 }
             } else if ("0".equals(condition.getValue())) {
                 appendPath.run();
-                container.setTextContent("is empty");
+                container.appendChild(xml.createTextNode(" is empty"));
             } else {
-                container.setTextContent("the length of ");
+                container.appendChild(xml.createTextNode("the length of "));
                 appendPath.run();
-                container.setTextContent(" is ");
+                container.appendChild(xml.createTextNode(" is "));
                 valuesAppender.run();
             }
             break;
         case "contains": {
             appendPath.run();
             if (condition.isNegate()) {
-                container.setTextContent(" does not contain ");
+                container.appendChild(xml.createTextNode(" does not contain "));
             } else {
-                container.setTextContent(" contains ");
+                container.appendChild(xml.createTextNode(" contains "));
             }
             valuesAppender.run();
             break;
         }
         case "contains(lowercase=true)": {
-            container.setTextContent("the lowercase value of ");
+            container.appendChild(xml.createTextNode("the lowercase value of "));
             appendPath.run();
             if (condition.isNegate()) {
-                container.setTextContent(" does not contain ");
+                container.appendChild(xml.createTextNode(" does not contain "));
             } else {
-                container.setTextContent(" contains ");
+                container.appendChild(xml.createTextNode(" contains "));
             }
             valuesAppender.run();
             break;
@@ -336,9 +340,9 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
         default:
             appendPath.run();
             if (condition.isNegate()) {
-                container.setTextContent(" is not equal to ");
+                container.appendChild(xml.createTextNode(" is not equal to "));
             } else {
-                container.setTextContent(" is equal to ");
+                container.appendChild(xml.createTextNode(" is equal to "));
             }
             valuesAppender.run();
         }
