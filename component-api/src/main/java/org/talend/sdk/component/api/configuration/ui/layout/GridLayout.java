@@ -27,7 +27,10 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
-@Documentation("Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.")
+@Documentation("Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.\n"
+        + "\nNOTE: the logic to handle forms (gridlayout names) is to use the only layout if there is only one defined, "
+        + "else to check if there are `Main` and `Advanced` and if at least `Main` exists, use them, else "
+        + "use all available layouts.")
 @Target(TYPE)
 @Retention(RUNTIME)
 @Repeatable(GridLayouts.class)

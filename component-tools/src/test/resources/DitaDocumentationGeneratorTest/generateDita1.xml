@@ -41,7 +41,9 @@
                 <uicontrol>input</uicontrol>
               </entry>
               <entry>the input value</entry>
-              <entry/>
+              <entry>
+                <userinput>def</userinput>
+              </entry>
               <entry>Always enabled</entry>
             </row>
             <row>

@@ -52,6 +52,8 @@ Request the rendered to do what it thinks is best.
 
 Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.
 
+NOTE: the logic to handle forms (gridlayout names) is to use the only layout if there is only one defined, else to check if there are `Main` and `Advanced` and if at least `Main` exists, use them, else use all available layouts.
+
 - API: `@org.talend.sdk.component.api.configuration.ui.layout.GridLayout`
 
 == Snippets

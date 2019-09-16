@@ -7,6 +7,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1509[TCOMP-1509^]: Intellij plugin does not declare java module preventing the plugin to run under last versions
 - link:https://jira.talendforge.org/browse/TCOMP-1526[TCOMP-1526^]: Upgrade talend UI bundle (js) to 4.6.0
 - link:https://jira.talendforge.org/browse/TCOMP-1533[TCOMP-1533^]: JSON-B API does not enable to combine multiple adapters or (de)serializers in JsonbConfig
+- link:https://jira.talendforge.org/browse/TCOMP-1536[TCOMP-1536^]: @DefaultValue ignored in documentation generation
 
 
 

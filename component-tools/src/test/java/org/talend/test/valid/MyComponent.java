@@ -24,6 +24,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
@@ -61,6 +62,7 @@ public class MyComponent implements Serializable {
     public static class MyConfig implements Serializable {
 
         @Option
+        @DefaultValue("def")
         @Documentation("the input value")
         private String input;
 

@@ -50,6 +50,7 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BasePa
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.DocumentationParameterEnricher;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
@@ -71,10 +72,11 @@ public abstract class DocBaseGenerator extends BaseTask {
 
     protected final File output;
 
-    private final ParameterModelService parameterModelService =
-            new ParameterModelService(asList(new DocumentationParameterEnricher(), new ConditionParameterEnricher(),
-                    new ConfigurationTypeParameterEnricher()), new EnrichedPropertyEditorRegistry()) {
-            };
+    private final ParameterModelService parameterModelService = new ParameterModelService(
+            asList(new DocumentationParameterEnricher(), new ConditionParameterEnricher(),
+                    new ConfigurationTypeParameterEnricher(), new UiParameterEnricher()),
+            new EnrichedPropertyEditorRegistry()) {
+    };
 
     DocBaseGenerator(final File[] classes, final Locale locale, final Object log, final File output) {
         super(classes);
@@ -344,6 +346,11 @@ public abstract class DocBaseGenerator extends BaseTask {
         }
 
         private String findDefault(final ParameterMeta p, final DefaultValueInspector.Instance instance) {
+            final String defVal = p.getMetadata().get("tcomp::ui::defaultvalue::value");
+            if (defVal != null) { // todo: revise if we need to know if it is a ui default or an instance default
+                return defVal;
+            }
+
             if (instance == null || instance.getValue() == null || instance.isCreated()) {
                 return null;
             }
