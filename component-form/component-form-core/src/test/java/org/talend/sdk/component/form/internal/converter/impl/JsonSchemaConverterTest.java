@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -172,7 +173,7 @@ class JsonSchemaConverterTest {
         assertTrue(Object[].class.isInstance(converted));
         final Object[] array = Object[].class.cast(converted);
         assertEquals(1, array.length);
-        assertEquals(1, Map.class.cast(array[0]).get("id"));
+        assertEquals(1, BigDecimal.class.cast(Map.class.cast(array[0]).get("id")).intValue());
     }
 
     @Test

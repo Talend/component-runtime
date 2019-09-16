@@ -52,7 +52,6 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
-import org.talend.sdk.component.runtime.jsonb.MultipleFormatDateAdapter;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.chain.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
@@ -720,10 +719,7 @@ public class JobImpl implements Job {
                 if (jsonb == null) {
                     synchronized (this) {
                         if (jsonb == null) {
-                            jsonb = JsonbBuilder
-                                    .create(new JsonbConfig()
-                                            .withAdapters(new MultipleFormatDateAdapter())
-                                            .setProperty("johnzon.cdi.activated", false));
+                            jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
                         }
                     }
                 }

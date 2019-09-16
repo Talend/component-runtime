@@ -142,7 +142,6 @@ import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
-import org.talend.sdk.component.runtime.jsonb.MultipleFormatDateAdapter;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamBuilder;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
@@ -268,7 +267,6 @@ public class ComponentManager implements AutoCloseable {
 
     @Getter
     private final JsonbConfig jsonbConfig = new JsonbConfig()
-            .withAdapters(new MultipleFormatDateAdapter())
             .withBinaryDataStrategy(BinaryDataStrategy.BASE_64)
             .setProperty("johnzon.cdi.activated", false)
             .setProperty("johnzon.accessModeDelegate", new TalendAccessMode());

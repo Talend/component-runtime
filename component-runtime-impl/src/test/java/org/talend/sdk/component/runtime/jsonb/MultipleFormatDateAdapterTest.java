@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.jsonb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 import java.time.ZoneId;
@@ -26,7 +25,6 @@ import java.util.Date;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.JsonbException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -34,35 +32,13 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(PER_CLASS)
 class MultipleFormatDateAdapterTest {
 
-    private final MultipleFormatDateAdapter adapter = new MultipleFormatDateAdapter();
-
-    @Test
-    void parseUtilDate() {
-        final Date date = new Date(0);
-        final String expectedStringRepresentation = "1970-01-01T00:00";
-        assertEquals(expectedStringRepresentation, adapter.adaptToJson(date));
-        assertEquals(date.getTime(), adapter.adaptFromJson(expectedStringRepresentation).getTime());
-    }
-
-    @Test
-    void parseZonedDateTime() {
-        final Date fromDate = new Date(0);
-        final ZonedDateTime date = ZonedDateTime.ofInstant(fromDate.toInstant(), ZoneId.of("UTC"));
-        assertEquals(fromDate.getTime(), adapter.adaptFromJson(date.toString()).getTime());
-    }
-
     @Test
     void withJsonb() throws Exception {
         final ZonedDateTime zdtString = ZonedDateTime.ofInstant(new Date(0).toInstant(), ZoneId.of("UTC"));
-        try (final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig().withAdapters(adapter))) {
+        try (final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
             final DateHolder holder = jsonb.fromJson("{\"date\":\"" + zdtString + "\"}", DateHolder.class);
             assertEquals(new Date(0).getTime(), holder.date.getTime());
         }
-        assertThrows(JsonbException.class, () -> {
-            try (final Jsonb jsonb = JsonbBuilder.create()) {
-                jsonb.fromJson("{\"date\":\"" + zdtString + "\"}", DateHolder.class);
-            }
-        });
     }
 
     public static class DateHolder {

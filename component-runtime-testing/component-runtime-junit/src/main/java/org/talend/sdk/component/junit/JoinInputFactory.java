@@ -25,7 +25,6 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.runtime.jsonb.MultipleFormatDateAdapter;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
@@ -90,10 +89,7 @@ public class JoinInputFactory implements ControllableInputFactory {
         if (jsonb == null) {
             synchronized (this) {
                 if (jsonb == null) {
-                    jsonb = JsonbBuilder
-                            .create(new JsonbConfig()
-                                    .withAdapters(new MultipleFormatDateAdapter())
-                                    .setProperty("johnzon.cdi.activated", false));
+                    jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
                     registry = new RecordConverters.MappingMetaRegistry();
                 }
             }

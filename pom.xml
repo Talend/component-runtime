@@ -146,7 +146,7 @@
     <junit.version>4.13-beta-3</junit.version>
     <ziplock.version>8.0.0-M3</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
-    <johnzon.version>1.1.13</johnzon.version>
+    <johnzon.version>1.2.0</johnzon.version>
     <meecrowave.version>1.2.8</meecrowave.version>
     <owb.version>2.0.11</owb.version>
     <tomcat.version>9.0.24</tomcat.version>
@@ -704,10 +704,26 @@
     <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
     </repository>
     <repository>
       <id>gradle-libs-releases-local</id>
       <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+    <repository>
+      <id>staging-johnzon</id>
+      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1035</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -720,6 +736,22 @@
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>staging-johnzon</id>
+      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1035</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
     </pluginRepository>
   </pluginRepositories>
 
