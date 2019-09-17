@@ -290,8 +290,7 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
                     }
                 } else if (param.isSection()) {
                     appendLink(xml, row,
-                            "#" + sectionId.substring(0, sectionId.lastIndexOf('_')) + "_"
-                                    + param.getSectionName(),
+                            "#" + sectionId.substring(0, sectionId.lastIndexOf('_')) + "_" + param.getSectionName(),
                             "See section " + param.getSectionName(), "c3", "c4");
                 }
 

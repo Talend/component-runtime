@@ -87,16 +87,9 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
             }
         }
 
-        final Function<String, String> trivialXmlProcessingToIgnoreSpacing = xml -> xml
-                .replace("\n", "")
-                .replaceAll(" +", " ")
-                .replace(": ", ":")
-                .replace("> ", ">")
-                .replace(" <", "<")
-                .trim();
         try (final BufferedReader reader = resource("generateDitaConds_activeif.xml")) {
-            assertEquals(reader.lines().collect(joining("\n")),
-                    trivialXmlProcessingToIgnoreSpacing.apply(files.get("generateDitaConds/test/activeif.dita")));
+            assertEquals(formatXml(reader.lines().collect(joining("\n"))),
+                    formatXml(files.get("generateDitaConds/test/activeif.dita")));
         }
     }
 
@@ -120,8 +113,8 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
         }
 
         try (final BufferedReader reader = resource(expectedFile)) {
-            assertEquals(reader.lines().collect(joining("\n")),
-                    files.get("generateDitaAdvanced/dita/" + expectedFile).trim());
+            assertEquals(formatXml(reader.lines().collect(joining("\n"))),
+                    formatXml(files.get("generateDitaAdvanced/dita/" + expectedFile).trim()));
         }
 
         assertEquals(3, files.size());
@@ -129,6 +122,16 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
         assertEquals("", files.get("generateDitaAdvanced/dita/"));
         assertEquals("", files.get("generateDitaAdvanced/"));
 
+    }
+
+    private String formatXml(String xml) {
+        return xml
+                .replace("\n", "")
+                .replaceAll(" +", " ")
+                .replace(": ", ":")
+                .replace("> ", ">")
+                .replace(" <", "<")
+                .trim();
     }
 
     private BufferedReader resource(final String name) {
