@@ -12,7 +12,7 @@
     <server>
       <id>github</id>
       <username>${env.TLND_GITHUB_USER}</username>
-      <password>${env.TLND_GITHUB_PASS}</password>
+      <password>${env.TLND_GITHUB_PASSWORD}</password>
     </server>
     <server>
       <id>jira</id>

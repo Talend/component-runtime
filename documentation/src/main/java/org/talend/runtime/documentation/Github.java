@@ -43,6 +43,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
@@ -219,7 +220,7 @@ public class Github {
                         .target(url)
                         .queryParam("per_page", 100)
                         .request(APPLICATION_JSON_TYPE)
-                        .header("Authorization", token)
+                        .header(HttpHeaders.AUTHORIZATION, token)
                         .get())
                 .flatMap(response -> {
                     final String link = response.getHeaderString("Link");

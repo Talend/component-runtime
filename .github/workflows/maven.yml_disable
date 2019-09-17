@@ -90,7 +90,7 @@ jobs:
               -Pgh-pages -Ptravis
         env:
           TLND_GITHUB_USER: ${{ secrets.TLND_GITHUB_USER }}
-          TLND_GITHUB_PASS: ${{ secrets.TLND_GITHUB_PASS }}
+          TLND_GITHUB_PASSWORD: ${{ secrets.TLND_GITHUB_PASSWORD }}
           TLND_JIRA_USER: ${{ secrets.TLND_JIRA_USER }}
           TLND_JIRA_PASS: ${{ secrets.TLND_JIRA_PASS }}
           WEBHOST_FTPPHOST: ${{ secrets.WEBHOST_FTPPHOST }}

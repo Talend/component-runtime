@@ -215,7 +215,7 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
         try {
             final Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "2");
             transformer.transform(new DOMSource(xml), result);
 
             final String rootDir = output.getName().replace(".zip", "");

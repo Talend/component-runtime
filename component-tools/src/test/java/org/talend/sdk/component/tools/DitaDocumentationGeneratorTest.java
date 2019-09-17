@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -81,9 +82,17 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
                 files.put(nextEntry.getName(), IO.slurp(zip));
             }
         }
+
+        final Function<String, String> trivialXmlProcessingToIgnoreSpacing = xml -> xml
+                .replace("\n", "")
+                .replaceAll(" +", " ")
+                .replace(": ", ":")
+                .replace("> ", ">")
+                .replace(" <", "<")
+                .trim();
         try (final BufferedReader reader = resource("generateDitaConds_activeif.xml")) {
-            assertEquals(reader.lines().collect(joining("\n")),
-                    files.get("generateDitaConds/test/activeif.dita").trim());
+            assertEquals(trivialXmlProcessingToIgnoreSpacing.apply(reader.lines().collect(joining(""))),
+                    trivialXmlProcessingToIgnoreSpacing.apply(files.get("generateDitaConds/test/activeif.dita")));
         }
     }
 
