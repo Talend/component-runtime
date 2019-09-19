@@ -181,7 +181,7 @@ NOTE: An old configuration may already be persisted by an application that integ
 +
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-@Version(value = 1, migrationHandler = MyOutputMigrationHandler.class)
+@Version(value = 2, migrationHandler = MyOutputMigrationHandler.class)
 ----
 
 [start="2"]
