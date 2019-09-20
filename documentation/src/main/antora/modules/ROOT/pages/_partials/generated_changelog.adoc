@@ -43,6 +43,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1530[TCOMP-1530^]: geronimo-annotation 1.2 upgrade
 - link:https://jira.talendforge.org/browse/TCOMP-1532[TCOMP-1532^]: Upgrade to Junit 5.5.2
 - link:https://jira.talendforge.org/browse/TCOMP-1535[TCOMP-1535^]: Upgrade to johnzon 1.2.0
+- link:https://jira.talendforge.org/browse/TCOMP-1537[TCOMP-1537^]: Upgrade to Tomcat 9.0.26
 
 == Version 1.1.12
 
