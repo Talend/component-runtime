@@ -95,7 +95,7 @@ enum Indices {
             "org.apache.beam.model.pipeline.v1.RunnerApi",
             "org.apache.beam.model.pipeline.v1.SchemaApi",
             "org.apache.beam.model.pipeline.v1.StandardWindowFns",
-            "org.apache.beam.repackaged.core",
+            "org.apache.beam.repackaged",
             "org.apache.beam.sdk.Pipeline",
             "org.apache.beam.sdk.PipelineResult",
             "org.apache.beam.sdk.PipelineRunner",
@@ -888,7 +888,7 @@ enum Indices {
             return true;
         }
     },
-    SPARK_CORE_2_11(new String[] { // #2992
+    SPARK_CORE_2_11(new String[] { // #2878
             "com.fasterxml.jackson.module.paranamer",
             "com.fasterxml.jackson.module.scala",
             "com.google.common.annotations",
@@ -909,10 +909,6 @@ enum Indices {
             "com.google.thirdparty.publicsuffix.PublicSuffixPatterns",
             "com.google.thirdparty.publicsuffix.PublicSuffixType",
             "com.google.thirdparty.publicsuffix.TrieParser",
-            "org.apache.avro.hadoop",
-            "org.apache.avro.ipc",
-            "org.apache.avro.mapred",
-            "org.apache.avro.mapreduce",
             "org.apache.spark.Accumulable",
             "org.apache.spark.AccumulableParam",
             "org.apache.spark.Accumulator",
@@ -1201,8 +1197,7 @@ enum Indices {
             return hasClass("org.apache.beam.runners.spark.SparkRunner");
         }
     },
-    BEAM_RUNNERS_DIRECT_JAVA(new String[] { // #405
-            "org.apache.beam.repackaged.direct_java",
+    BEAM_RUNNERS_DIRECT_JAVA(new String[] { // #88
             "org.apache.beam.runners.direct"
         }) {
         @Override

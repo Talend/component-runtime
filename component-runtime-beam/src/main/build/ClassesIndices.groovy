@@ -92,6 +92,10 @@ def excludedPackages = [
     'org.mortbay.',
     'org.kohsuke.',
     // todo: check
+    'org.apache.avro.hadoop.',
+    'org.apache.avro.ipc.',
+    'org.apache.avro.mapred.',
+    'org.apache.avro.mapreduce.',
     'org.apache.zookeeper.',
     'org.apache.hadoop.',
     'org.apache.directory.',
@@ -99,6 +103,7 @@ def excludedPackages = [
 ]
 
 def simplifiedPackages = [
+    'org.apache.beam.repackaged', // we want everything inside repackaged
     'org.apache.beam.repackaged.',
     'org.apache.beam.vendor.',
     'org.apache.beam.runners.',
