@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
@@ -41,6 +42,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
@@ -49,6 +51,7 @@ import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.AttributesBuilder;
 import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.SafeMode;
+import org.asciidoctor.jruby.internal.JRubyAsciidoctor;
 
 // indirection to not load asciidoctor if not in the classpath
 public class AsciidoctorExecutor implements AutoCloseable {
@@ -62,21 +65,22 @@ public class AsciidoctorExecutor implements AutoCloseable {
 
     public static void main(final String[] args) throws IOException {
         final Collection<String> params = new ArrayList<>(asList(args));
-        final AsciidoctorExecutor executor = new AsciidoctorExecutor();
-        if (params.contains("--continue")) {
-            params.remove("--continue");
-            final String[] newArgs = params.toArray(new String[0]);
-            do {
-                executor.doMain(newArgs);
+        try (final AsciidoctorExecutor executor = new AsciidoctorExecutor()) {
+            if (params.contains("--continue")) {
+                params.remove("--continue");
+                final String[] newArgs = params.toArray(new String[0]);
+                do {
+                    executor.doMain(newArgs);
 
-                final String line = System.console().readLine();
-                if (line == null || "exit".equalsIgnoreCase(line.trim())) {
-                    return;
-                }
-                executor.doMain(newArgs);
-            } while (true);
-        } else {
-            executor.doMain(args);
+                    final String line = System.console().readLine();
+                    if (line == null || "exit".equalsIgnoreCase(line.trim())) {
+                        return;
+                    }
+                    executor.doMain(newArgs);
+                } while (true);
+            } else {
+                executor.doMain(args);
+            }
         }
     }
 
@@ -285,5 +289,19 @@ public class AsciidoctorExecutor implements AutoCloseable {
     @Override
     public void close() {
         onClose.run();
+        if (asciidoctor != null && !Boolean.getBoolean("talend.component.tools.jruby.teardown.skip")) {
+            if (org.asciidoctor.jruby.internal.JRubyAsciidoctor.class.isInstance(asciidoctor)) { // nested for import
+                JRubyAsciidoctor.class.cast(asciidoctor).getRubyRuntime().tearDown();
+            }
+        }
+    }
+
+    private void stopNow(final ExecutorService executorService) {
+        executorService.shutdownNow();
+        try {
+            executorService.awaitTermination(2, SECONDS);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
