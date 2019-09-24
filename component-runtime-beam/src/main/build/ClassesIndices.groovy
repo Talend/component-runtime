@@ -23,30 +23,13 @@ import java.util.jar.JarFile
 
 import static java.util.Collections.list
 import static java.util.stream.Collectors.joining
-import static java.util.stream.Collectors.toSet
 
-def replaceClassesFor = { name, classes ->
-    def enumLocation = new File(project.basedir, 'src/main/java/org/talend/sdk/component/runtime/beam/customizer/Indices.java')
-    def content = enumLocation.text
-    def startMarker = name.replace('-', '_').replace('.', '_').toUpperCase(Locale.ROOT) + '('
-    def start = content.indexOf(startMarker)
-    if (start < 0) {
-        throw new IllegalArgumentException("No enum ${name}")
-    }
-    start += name.length() + 1
-    def end = content.indexOf(')', start)
-    if (end < 0) {
-        throw new IllegalArgumentException("Invalid enum ${name}")
-    }
-    if (content.substring(start, end) != classes) {
-        enumLocation.text = content.substring(0, start) + classes + content.substring(end)
-        log.info("Updated ${enumLocation} for ${name}")
-    } else {
-        log.debug("Enum ${name} already up to date")
-    }
+String findResourceName(artifactId) {
+    underscore = artifactId.indexOf('_')
+    "TALEND-INF/classloader/indices/${underscore > 0 ? artifactId.substring(0, underscore) : artifactId}"
 }
 
-def excludedPackages = [
+excludedPackages = [
     'org.w3c',
     'org.xml.sax',
     'org.jboss.netty.',
@@ -98,8 +81,16 @@ def excludedPackages = [
     'com.codahale.metrics.'
 ]
 
-def simplifiedPackages = [
+simplifiedPackages = [
     'org.apache.beam.repackaged.',
+    'org.apache.beam.sdk.coders.',
+    'org.apache.beam.sdk.metrics.',
+    'org.apache.beam.sdk.schemas.',
+    'org.apache.beam.sdk.state.',
+    'org.apache.beam.sdk.testing.',
+    'org.apache.beam.sdk.transforms.reflect.',
+    'org.apache.beam.sdk.transforms.windowing.',
+    'org.apache.beam.sdk.values.',
     'org.apache.beam.vendor.',
     'org.apache.beam.runners.',
     'com.fasterxml.jackson.module.',
@@ -120,61 +111,64 @@ def simplifiedPackages = [
     'org.apache.spark.'
 ]
 
-def doIndex = { dependency, excludes ->
-    def dependenciesResolver = session.container.lookup(LifecycleDependencyResolver)
+Collection<String> doIndex(dependency, excludes, simplifiedPackages, excludedPackages) {
+    dependenciesResolver = session.container.lookup(LifecycleDependencyResolver)
 
-    def resolutionProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom');
+    resolutionProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom');
     resolutionProject.artifact = new DefaultArtifact(project.groupId, project.artifactId, project.version, 'compile',
             'pom', null, new DefaultArtifactHandler())
     resolutionProject.dependencies = [dependency] as List
     resolutionProject.remoteArtifactRepositories = project.remoteArtifactRepositories
 
-    def scopes = ['compile', 'runtime']
+    scopes = ['compile', 'runtime']
     dependenciesResolver.resolveProjectDependencies(resolutionProject, scopes, scopes, session, false, [project.artifact] as Set)
 
-    def classes = []
+    classes = []
     resolutionProject.resolvedArtifacts.each { it ->
-        def jar = new JarFile(it.file)
+        jar = new JarFile(it.file)
         classes = (classes << list(jar.entries())
-                .findAll {
-                    !it.isDirectory() &&
-                    it.name.endsWith('.class') && // is a class
-                    !it.name.startsWith('META-INF') && // is not a java 9 mjar thing - aliases another class so useless
-                    !it.name.endsWith('package-info.class') &&
-                    !it.name.contains('$') // if nested the prefix test on the parent is enough, try to limit the number of classes we keep
-                }
-                .collect { it.name.substring(0, it.name.length() - '.class'.length()).replace('/', '.') }
-                .findAll { excludedPackages.stream().noneMatch { pref -> it.startsWith(pref) } }
-                .collect { // to limit the number of classes we replace some 100% sure classes by their package only
-                    simplifiedPackages.stream()
-                        .filter { pck -> it.startsWith(pck) }
-                        .findFirst()
-                        .map { pck ->
-                            def marker = it.indexOf('.', pck.length())
-                            if (marker > 0) {
-                                return it.substring(0, marker)
-                            }
-                            it
-                        }
-                        .orElse(it)
-                }
-                .collect { "\"$it\"" })
-                .flatten()
+            .collect { it.name.replace('/', '.') }
+            .findAll {
+                it.endsWith('.class') && // is a class
+                !it.startsWith('META-INF') && // is not a java 9 mjar thing - aliases another class so useless
+                !it.endsWith('module-info.class') &&
+                !it.endsWith('package-info.class') &&
+                !it.contains('$') // if nested the prefix test on the parent is enough, try to limit the number of classes we keep
+            }
+            .findAll { excludedPackages.stream().noneMatch { pref -> it.startsWith(pref) } }
+            .collect { it.substring(0, it.length() - '.class'.length()) }
+            .collect { // to limit the number of classes we replace some 100% sure classes by their package only
+                simplifiedPackages.stream()
+                    .filter { pck -> it.startsWith(pck) }
+                    .findFirst()
+                    .map { pck ->
+                        marker = it.indexOf('.', pck.length())
+                        marker > 0 ? it.substring(0, marker) : pck.substring(0, pck.length() - 1)
+                    }
+                    .orElse(it)
+            })
+            .flatten()
+        jar.close()
     }
     classes = classes - excludes
-    replaceClassesFor(dependency.artifactId,
-            "new String[] { // #${classes.size()}\n            ${classes.stream().distinct().sorted().collect(joining(',\n            '))}\n        }")
+
+    output = new File(project.build.outputDirectory, findResourceName(dependency.artifactId))
+    output.parentFile.mkdirs()
+    output.text = "# ${classes.size()} classes\n${classes.stream().distinct().sorted().collect(joining('\n'))}"
+    log.info("Wrote $output for ${dependency.artifactId} (${classes.size()} classes)")
+
     classes
 }
 
-def depFor = { artifactId ->
+Dependency beamDep(artifactId) {
     new Dependency(
         groupId: 'org.apache.beam', artifactId: artifactId, version: project.properties['beam.version'], scope: 'compile')
 }
 
-def sdkClasses = doIndex(depFor('beam-sdks-java-core'), [])
-[
-    depFor('beam-runners-direct-java'),
-    depFor('beam-runners-spark'),
-    new Dependency(groupId: 'org.apache.spark', artifactId:  "spark-core_${project.properties['spark-scala.version']}", version:  "${project.properties['spark.version']}", scope: 'compile')
-].each { doIndex(it, sdkClasses) }
+sdkClasses = doIndex(beamDep('beam-sdks-java-core'), [], simplifiedPackages, excludedPackages)
+doIndex(beamDep('beam-runners-direct-java'), sdkClasses, simplifiedPackages, excludedPackages)
+
+def sparkCore = new Dependency(groupId: 'org.apache.spark', artifactId: "spark-core_${project.properties['spark-scala.version']}", version: "${project.properties['spark.version']}", scope: 'compile')
+def sparkStreaming = new Dependency(groupId: 'org.apache.spark', artifactId: "spark-streaming_${project.properties['spark-scala.version']}", version: "${project.properties['spark.version']}", scope: 'compile')
+sparkCoreClasses = doIndex(sparkCore, sdkClasses, simplifiedPackages, excludedPackages)
+sparkStreamingClasses = doIndex(sparkStreaming, sdkClasses, simplifiedPackages, excludedPackages)

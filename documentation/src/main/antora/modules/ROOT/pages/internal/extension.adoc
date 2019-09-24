@@ -44,6 +44,12 @@ public class MyCustomizer implements ComponentManager.Customizer {
 }
 ----
 
+=== Override default packages/classes without a customizer
+
+`org.talend.sdk.component.runtime.beam.customizer.Indices` now reads the exclusions for the current environment (Direct Runner and Spark supported) from a resource file.
+It can be overriden adding into the classpath (beam one) the resource `TALEND-INF/classloader/indices/${artifactId}.overriden` file.
+Each line is a package/class belonging to the runner infrastructure (and skipped from component specific classloader).
+
 == ParameterExtensionEnricher
 
 The option model of the configuration of the component is pluggable to enable to add any custom metadata needed.

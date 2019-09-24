@@ -44,6 +44,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1532[TCOMP-1532^]: Upgrade to Junit 5.5.2
 - link:https://jira.talendforge.org/browse/TCOMP-1535[TCOMP-1535^]: Upgrade to johnzon 1.2.0
 - link:https://jira.talendforge.org/browse/TCOMP-1537[TCOMP-1537^]: Upgrade to Tomcat 9.0.26
+- link:https://jira.talendforge.org/browse/TCOMP-1538[TCOMP-1538^]: Upgrade to jackson 2.9.10
+- link:https://jira.talendforge.org/browse/TCOMP-1539[TCOMP-1539^]: Rework default direct runner/spark classloader rules
 
 == Version 1.1.12
 
