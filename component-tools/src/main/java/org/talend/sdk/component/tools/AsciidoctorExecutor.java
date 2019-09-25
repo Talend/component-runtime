@@ -20,7 +20,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
@@ -42,7 +41,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
@@ -290,18 +288,15 @@ public class AsciidoctorExecutor implements AutoCloseable {
     public void close() {
         onClose.run();
         if (asciidoctor != null && !Boolean.getBoolean("talend.component.tools.jruby.teardown.skip")) {
-            if (org.asciidoctor.jruby.internal.JRubyAsciidoctor.class.isInstance(asciidoctor)) { // nested for import
+            if (AutoCloseable.class.isInstance(asciidoctor)) {
+                try {
+                    AutoCloseable.class.cast(asciidoctor).close();
+                } catch (final Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            } else if (org.asciidoctor.jruby.internal.JRubyAsciidoctor.class.isInstance(asciidoctor)) {
                 JRubyAsciidoctor.class.cast(asciidoctor).getRubyRuntime().tearDown();
             }
-        }
-    }
-
-    private void stopNow(final ExecutorService executorService) {
-        executorService.shutdownNow();
-        try {
-            executorService.awaitTermination(2, SECONDS);
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 }
