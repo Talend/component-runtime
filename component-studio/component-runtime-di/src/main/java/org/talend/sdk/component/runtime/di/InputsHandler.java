@@ -43,17 +43,22 @@ public class InputsHandler extends BaseIOHandler {
             if (value instanceof Record) {
                 return value;
             }
-            final String jsonMapper;
-            if (value instanceof javax.json.JsonValue) {
-                if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
-                    return null;
-                }
-                jsonMapper = value.toString();
+            final Object convertedValue;
+            final RecordConverters.MappingMeta mappingMeta = registry.find(value.getClass(), () -> recordBuilderMapper);
+            if (mappingMeta.isLinearMapping()) {
+                convertedValue = value;
             } else {
-                jsonMapper = jsonb.toJson(value);
+                if (value instanceof javax.json.JsonValue) {
+                    if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
+                        return null;
+                    }
+                    convertedValue = value.toString();
+                } else {
+                    convertedValue = jsonb.toJson(value);
+                }
             }
 
-            return converters.toRecord(registry, jsonMapper, () -> jsonb, () -> recordBuilderMapper);
+            return converters.toRecord(registry, convertedValue, () -> jsonb, () -> recordBuilderMapper);
         };
     }
 
