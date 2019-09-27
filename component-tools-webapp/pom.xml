@@ -49,6 +49,12 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.apache.openwebbeans</groupId>
+      <artifactId>openwebbeans-se</artifactId>
+      <version>${owb.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -197,4 +203,18 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile> <!-- esier debugging from the IDE -->
+      <id>add-beam</id>
+      <dependencies>
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>component-runtime-beam</artifactId>
+          <version>${project.version}</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>

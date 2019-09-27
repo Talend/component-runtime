@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.internationalization.Language;
+import org.talend.sdk.component.runtime.impl.Mode;
 import org.talend.sdk.component.runtime.reflect.Defaults;
 
 import lombok.RequiredArgsConstructor;
@@ -45,20 +46,22 @@ public class InternationalizationServiceFactory {
     private final Supplier<Locale> localeSupplier;
 
     public <T> T create(final Class<T> api, final ClassLoader loader) {
-        if (!api.isInterface()) {
-            throw new IllegalArgumentException(api + " is not an interface");
-        }
-        if (Stream
-                .of(api.getMethods())
-                .filter(m -> m.getDeclaringClass() != Object.class)
-                .anyMatch(m -> m.getReturnType() != String.class)) {
-            throw new IllegalArgumentException(api + " methods must return a String");
-        }
-        if (Stream
-                .of(api.getMethods())
-                .flatMap(m -> Stream.of(m.getParameters()))
-                .anyMatch(p -> p.isAnnotationPresent(Language.class) && p.getType() != Locale.class)) {
-            throw new IllegalArgumentException("@Language can only be used with Locales");
+        if (Mode.mode != Mode.UNSAFE) {
+            if (!api.isInterface()) {
+                throw new IllegalArgumentException(api + " is not an interface");
+            }
+            if (Stream
+                    .of(api.getMethods())
+                    .filter(m -> m.getDeclaringClass() != Object.class)
+                    .anyMatch(m -> m.getReturnType() != String.class)) {
+                throw new IllegalArgumentException(api + " methods must return a String");
+            }
+            if (Stream
+                    .of(api.getMethods())
+                    .flatMap(m -> Stream.of(m.getParameters()))
+                    .anyMatch(p -> p.isAnnotationPresent(Language.class) && p.getType() != Locale.class)) {
+                throw new IllegalArgumentException("@Language can only be used with Locales");
+            }
         }
         final String pck = api.getPackage().getName();
         return api

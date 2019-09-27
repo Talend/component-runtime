@@ -8,6 +8,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1526[TCOMP-1526^]: Upgrade talend UI bundle (js) to 4.6.0
 - link:https://jira.talendforge.org/browse/TCOMP-1533[TCOMP-1533^]: JSON-B API does not enable to combine multiple adapters or (de)serializers in JsonbConfig
 - link:https://jira.talendforge.org/browse/TCOMP-1536[TCOMP-1536^]: @DefaultValue ignored in documentation generation
+- link:https://jira.talendforge.org/browse/TCOMP-1541[TCOMP-1541^]: Studio integration enforces JSON<->Record conversion instead of relying on rowStruct making number precision lost
+- link:https://jira.talendforge.org/browse/TCOMP-1542[TCOMP-1542^]: Validator plugin uses family instead of pluginId (artifactId) to validate local-configuration
 
 
 
@@ -46,6 +48,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1537[TCOMP-1537^]: Upgrade to Tomcat 9.0.26
 - link:https://jira.talendforge.org/browse/TCOMP-1538[TCOMP-1538^]: Upgrade to jackson 2.9.10
 - link:https://jira.talendforge.org/browse/TCOMP-1539[TCOMP-1539^]: Rework default direct runner/spark classloader rules
+- link:https://jira.talendforge.org/browse/TCOMP-1540[TCOMP-1540^]: Ensure Asciidoctor documentation rendering releases properly JRuby threads (main usage only)
 
 == Version 1.1.12
 

@@ -15,9 +15,13 @@
  */
 package org.talend.sdk.component.runtime.manager.xbean.registry;
 
+import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
+
+import java.util.Date;
 import java.util.ServiceLoader;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.apache.xbean.propertyeditor.BigDecimalEditor;
@@ -80,7 +84,7 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
         register(new StringEditor());
         register(new CharacterEditor());
         register(new ClassEditor());
-        register(new DateEditor());
+        register(new LazyDateEditor());
         register(new FileEditor());
         register(new HashMapEditor());
         register(new HashtableEditor());
@@ -99,12 +103,47 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
         register(new PatternConverter());
 
         // customs
-        register(new ZonedDateTimeConverter());
+        register(new LazyZonedDateTimeConverter());
         register(new LocalDateTimeConverter());
         register(new LocalDateConverter());
         register(new LocalTimeConverter());
 
         // extensions
         ServiceLoader.load(Converter.class).forEach(this::register);
+    }
+
+    // used when default init is slow
+    private static class LazyEditor<T extends AbstractConverter> extends AbstractConverter {
+
+        private final Supplier<T> delegate;
+
+        private LazyEditor(final Supplier<T> delegate, final Class<?> type) {
+            super(type);
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected String toStringImpl(final Object value) {
+            return delegate.get().toString(value);
+        }
+
+        @Override
+        protected Object toObjectImpl(final String text) {
+            return delegate.get().toObject(text);
+        }
+    }
+
+    private static class LazyDateEditor extends LazyEditor<DateEditor> {
+
+        private LazyDateEditor() {
+            super(lazy(DateEditor::new), Date.class);
+        }
+    }
+
+    private static class LazyZonedDateTimeConverter extends LazyEditor<ZonedDateTimeConverter> {
+
+        private LazyZonedDateTimeConverter() {
+            super(lazy(ZonedDateTimeConverter::new), Date.class);
+        }
     }
 }

@@ -138,6 +138,7 @@ import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.jmx.JmxManager;
 import org.talend.sdk.component.runtime.base.Delegated;
+import org.talend.sdk.component.runtime.impl.Mode;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
@@ -295,8 +296,12 @@ public class ComponentManager implements AutoCloseable {
         if (!customizers.isEmpty()) {
             customizers.forEach(c -> c.setCustomizers(customizers));
         }
-        classpathContributors =
-                toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).collect(toList());
+        if (!Boolean.getBoolean("talend.component.manager.classpathcontributor.skip")) {
+            classpathContributors =
+                    toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).collect(toList());
+        } else {
+            classpathContributors = emptyList();
+        }
         classesFilter = Filters
                 .prefixes(Stream
                         .concat(Stream
@@ -369,11 +374,14 @@ public class ComponentManager implements AutoCloseable {
             }
         };
         this.container.registerListener(new Updater());
-        ofNullable(jmxNamePattern)
-                .map(String::trim)
-                .filter(n -> !n.isEmpty())
-                .ifPresent(p -> this.container
-                        .registerListener(new JmxManager(container, p, ManagementFactory.getPlatformMBeanServer())));
+        if (!Boolean.getBoolean("talend.component.manager.jmx.skip")) {
+            ofNullable(jmxNamePattern)
+                    .map(String::trim)
+                    .filter(n -> !n.isEmpty())
+                    .ifPresent(p -> this.container
+                            .registerListener(
+                                    new JmxManager(container, p, ManagementFactory.getPlatformMBeanServer())));
+        }
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
                 .peek(e -> e.setComponentManager(ComponentManager.this))
                 .forEach(container::registerListener);
@@ -1003,10 +1011,12 @@ public class ComponentManager implements AutoCloseable {
 
     protected static Collection<LocalConfiguration> createRawLocalConfigurations() {
         final List<LocalConfiguration> configurations = new ArrayList<>(2);
-        configurations
-                .addAll(toStream(
-                        loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
-                                .collect(toList()));
+        if (!Boolean.getBoolean("talend.component.manager.localconfiguration.skip")) {
+            configurations
+                    .addAll(toStream(
+                            loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
+                                    .collect(toList()));
+        }
         configurations.addAll(asList(new LocalConfiguration() {
 
             @Override
@@ -1260,7 +1270,7 @@ public class ComponentManager implements AutoCloseable {
                 isGeneric = false;
             }
 
-            final Map<Class<?>, Object> services = new HashMap<>();
+            final Map<Class<?>, Object> services = new HashMap<>(24);
             final AllServices allServices = new AllServices(services);
             container.set(AllServices.class, allServices);
             // container services
@@ -1390,7 +1400,7 @@ public class ComponentManager implements AutoCloseable {
             final ClassLoader old = thread.getContextClassLoader();
             thread.setContextClassLoader(container.getLoader());
             try {
-                visitor.visit(type, builder, !context.isNoValidation());
+                visitor.visit(type, builder, Mode.mode != Mode.UNSAFE && !context.isNoValidation());
             } finally {
                 thread.setContextClassLoader(old);
             }
