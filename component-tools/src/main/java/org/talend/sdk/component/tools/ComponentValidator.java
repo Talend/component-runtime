@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
@@ -215,7 +216,8 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (configuration.isValidateLocalConfiguration()) {
-            validateLocalConfiguration(components, finder, errors);
+            validateLocalConfiguration(finder,
+                    Optional.of(configuration).map(Configuration::getPluginId).orElseGet(this::guessPluginId), errors);
         }
 
         if (configuration.isValidateOutputConnection()) {
@@ -263,6 +265,27 @@ public class ComponentValidator extends BaseTask {
         }
 
         log.info("Validated components: " + components.stream().map(Class::getSimpleName).collect(joining(", ")));
+    }
+
+    private String guessPluginId() { // assume folder name == module id
+        return ofNullable(classes).flatMap(c -> Stream.of(c).map(f -> {
+            if (!f.isDirectory()) {
+                return null;
+            }
+            File current = f;
+            int iteration = 5;
+            while (iteration-- > 0 && current != null) {
+                final File currentRef = current;
+                if (Stream
+                        .of("classes", "target", "main", "java", "build")
+                        .anyMatch(it -> it.equals(currentRef.getName()))) {
+                    current = current.getParentFile();
+                } else {
+                    return current.getName();
+                }
+            }
+            return null;
+        }).filter(Objects::nonNull).findFirst()).orElseThrow(() -> new IllegalArgumentException("No pluginId set"));
     }
 
     private void validatePlaceholders(final List<Class<?>> components, final Set<String> errors) {
@@ -322,14 +345,8 @@ public class ComponentValidator extends BaseTask {
                         .collect(toList()));
     }
 
-    private void validateLocalConfiguration(final Collection<Class<?>> components, final AnnotationFinder finder,
+    private void validateLocalConfiguration(final AnnotationFinder finder, final String pluginId,
             final Set<String> errors) {
-        final String family = components
-                .stream()
-                .map(c -> findFamily(components(c).orElse(null), c))
-                .findFirst()
-                .map(s -> s.toLowerCase(Locale.ROOT))
-                .orElse("");
 
         // first check TALEND-INF/local-configuration.properties
         errors
@@ -347,8 +364,8 @@ public class ComponentValidator extends BaseTask {
                             return properties
                                     .stringPropertyNames()
                                     .stream()
-                                    .filter(it -> !it.toLowerCase(Locale.ROOT).startsWith(family + "."))
-                                    .map(it -> "'" + it + "' does not start with '" + family + "', "
+                                    .filter(it -> !it.toLowerCase(Locale.ROOT).startsWith(pluginId + "."))
+                                    .map(it -> "'" + it + "' does not start with '" + pluginId + "', "
                                             + "it is recommended to prefix all keys by the family");
                         })
                         .collect(toSet()));
@@ -363,8 +380,8 @@ public class ComponentValidator extends BaseTask {
                             if (annotation.value().startsWith("local_configuration:") && !annotation
                                     .value()
                                     .toLowerCase(Locale.ROOT)
-                                    .startsWith("local_configuration:" + family + ".")) {
-                                return d + " does not start with family name (followed by a dot): '" + family + "'";
+                                    .startsWith("local_configuration:" + pluginId + ".")) {
+                                return d + " does not start with family name (followed by a dot): '" + pluginId + "'";
                             }
                             return null;
                         })
@@ -1176,5 +1193,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validatePlaceholder;
 
         private boolean validateSvg;
+
+        private String pluginId;
     }
 }

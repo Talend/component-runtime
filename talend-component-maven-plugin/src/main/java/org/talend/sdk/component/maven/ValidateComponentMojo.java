@@ -136,6 +136,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "true", property = "talend.validation.localConfiguration")
     private boolean validateLocalConfiguration;
 
+    /**
+     * Should the option names be validated.
+     */
+    @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.pluginId")
+    private String pluginId;
+
     @Override
     public void doExecute() {
         if (!validatePlaceholder) {
@@ -159,6 +165,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateOutputConnection(validateOutputConnection);
         configuration.setValidatePlaceholder(validatePlaceholder);
         configuration.setValidateSvg(validateSvg);
+        configuration.setPluginId(pluginId);
         new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
 }

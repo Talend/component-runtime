@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.gradle;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
@@ -57,6 +59,10 @@ public class ValidateTask extends TaCoKitTask {
         set(configuration, "setValidateOutputConnection", extension.isValidateOutputConnection());
         set(configuration, "setValidatePlaceholder", extension.isValidatePlaceholder());
         set(configuration, "setValidateSvg", extension.isValidateSvg());
+        configuration
+                .getClass()
+                .getMethod("setPluginId", String.class)
+                .invoke(configuration, ofNullable(extension.getPluginId()).orElseGet(getProject()::getName));
 
         final Class<?> validator = tccl.loadClass("org.talend.sdk.component.tools.ComponentValidator");
         final Runnable runnable = Runnable.class

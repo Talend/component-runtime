@@ -116,6 +116,8 @@ public class TaCoKitExtension {
 
     private boolean validateSvg = true;
 
+    private String pluginId;
+
     //
     // web
     //

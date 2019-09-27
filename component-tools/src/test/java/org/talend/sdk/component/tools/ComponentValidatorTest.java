@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -65,6 +66,8 @@ class ComponentValidatorTest {
     public @interface ComponentPackage {
 
         String value();
+
+        String pluginId() default "";
 
         boolean success() default false;
 
@@ -139,6 +142,7 @@ class ComponentValidatorTest {
             cfg.setValidatePlaceholder(true);
             cfg.setValidateSvg(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
+            Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
             final TestLog log = new TestLog();
@@ -476,7 +480,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage("org.talend.test.failure.localconfigurationwrongkey")
+    @ComponentPackage(value = "org.talend.test.failure.localconfigurationwrongkey", pluginId = "test")
     void testFailureLocalConfigurationKey(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage(
@@ -484,7 +488,8 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.valid.localconfiguration", success = true, validateDataSet = false)
+    @ComponentPackage(value = "org.talend.test.valid.localconfiguration", success = true, validateDataSet = false,
+            pluginId = "test")
     void testValidLocalConfigurationKey() {
         // no-op
     }
