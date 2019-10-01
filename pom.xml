@@ -218,6 +218,7 @@
     <gpg-plugin.version>1.6</gpg-plugin.version>
     <spotless.version>1.23.0</spotless.version>
     <jib.version>1.4.0</jib.version>
+    <jib-core.version>0.10.1</jib-core.version>
     <bouncycastle.version>1.62</bouncycastle.version>
     <commons-io.version>2.6</commons-io.version>
 
@@ -233,6 +234,16 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-core</artifactId>
+        <version>${jib-core.version}</version>
+      </dependency>
+      <dependency><!-- upgrade for jib (to not get CVE) -->
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5.9</version>
+      </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>

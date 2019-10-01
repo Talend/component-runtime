@@ -37,6 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -87,41 +88,53 @@ public class StaticResourceGenerator implements Runnable {
 
     private final OutputFormatter formatter;
 
+    private final boolean skipDependencies;
+
+    public StaticResourceGenerator(final String[] args) {
+        this(emptyMap(), Paths.get(args[0]).resolve("repository"), Paths.get(args[0]).resolve("routes.json"),
+                Stream.of(args[1].split(",")).collect(toList()), OutputFormatter.JSON,
+                args.length >= 3 && Boolean.parseBoolean(args[2]));
+    }
+
     @Override
     public void run() {
         validate();
-        final Collection<Route> routes;
-        final List<Runnable> cleanupTasks = prepareEnv();
-        try {
-            routes = collectResources();
-
-            if (!Files.exists(outputDescriptor.getParent())) {
-                Files.createDirectories(outputDescriptor.getParent());
-            }
-
-            if (formatter.needsFileIdMapping()) { // don't store the content
-                if (!Files.exists(outputRepository)) {
-                    Files.createDirectories(outputRepository);
+        generate(routes -> {
+            try {
+                if (!Files.exists(outputDescriptor.getParent())) {
+                    Files.createDirectories(outputDescriptor.getParent());
                 }
-                routes.forEach(r -> {
-                    try {
-                        Files
-                                .copy(new ByteArrayInputStream(r.getContent()), outputRepository.resolve(r.getId()),
-                                        StandardCopyOption.REPLACE_EXISTING);
-                    } catch (final IOException e) {
-                        throw new IllegalStateException(e);
-                    }
-                });
-                routes.forEach(r -> r.setContent(null));
-            }
 
-            try (final OutputStream stream = Files.newOutputStream(outputDescriptor)) {
-                formatter.format(routes, stream);
+                if (formatter.needsFileIdMapping()) { // don't store the content
+                    if (!Files.exists(outputRepository)) {
+                        Files.createDirectories(outputRepository);
+                    }
+                    routes.forEach(r -> {
+                        try {
+                            Files
+                                    .copy(new ByteArrayInputStream(r.getContent()), outputRepository.resolve(r.getId()),
+                                            StandardCopyOption.REPLACE_EXISTING);
+                        } catch (final IOException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    });
+                    routes.forEach(r -> r.setContent(null));
+                }
+
+                try (final OutputStream stream = Files.newOutputStream(outputDescriptor)) {
+                    formatter.format(routes, stream);
+                }
+            } catch (final IOException ioe) {
+                throw new IllegalStateException(ioe);
             }
-        } catch (final IOException e) {
+        });
+    }
+
+    public void generate(final Consumer<Collection<Route>> routesConsumer) {
+        try (final AutoCloseable autoClosed = prepareEnv()) {
+            routesConsumer.accept(collectResources());
+        } catch (final Exception e) {
             throw new IllegalStateException(e);
-        } finally {
-            cleanupTasks.forEach(Runnable::run);
         }
     }
 
@@ -148,7 +161,7 @@ public class StaticResourceGenerator implements Runnable {
      * Service URI: /api/v1/environment -> o.t.s.c.server.front.EnvironmentResourceImpl
      * GET /api/v1/environment -> Environment get()
      */
-    private Collection<Route> collectResources() {
+    public Collection<Route> collectResources() {
         final Collection<Route> routes = new ArrayList<>(languages.size() * 11);
         try (final SeContainer container = SeContainerInitializer
                 .newInstance()
@@ -228,24 +241,27 @@ public class StaticResourceGenerator implements Runnable {
                             .collect(toList()));
 
             // this can become huge, maybe we should directly go on the FS for the binary ones
-            routes
-                    .addAll(componentIds
-                            .stream()
-                            .flatMap(componentId -> components
-                                    .getDependencies(new String[] { componentId })
-                                    .getDependencies()
-                                    .values()
-                                    .stream())
-                            .flatMap(dep -> dep.getDependencies().stream())
-                            .distinct()
-                            .filter(it -> !it.startsWith("org.talend.sdk.component:"))
-                            .map(dep -> new Route(
-                                    "component_server_component_dependency_" + dep.replace(':', '_').replace('.', '_'),
-                                    Response.Status.OK.getStatusCode(), "/api/v1/component/dependency/" + dep,
-                                    MapBuilder.map().done(),
-                                    singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM),
-                                    emptyMap(), swallow(() -> components.getDependency(dep))))
-                            .collect(toList()));
+            if (!skipDependencies) {
+                routes
+                        .addAll(componentIds
+                                .stream()
+                                .flatMap(componentId -> components
+                                        .getDependencies(new String[] { componentId })
+                                        .getDependencies()
+                                        .values()
+                                        .stream())
+                                .flatMap(dep -> dep.getDependencies().stream())
+                                .distinct()
+                                .filter(it -> !it.startsWith("org.talend.sdk.component:"))
+                                .map(dep -> new Route(
+                                        "component_server_component_dependency_"
+                                                + dep.replace(':', '_').replace('.', '_'),
+                                        Response.Status.OK.getStatusCode(), "/api/v1/component/dependency/" + dep,
+                                        MapBuilder.map().done(),
+                                        singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM),
+                                        emptyMap(), swallow(() -> components.getDependency(dep))))
+                                .collect(toList()));
+            }
             routes.addAll(componentIds.stream().map(componentId -> {
                 final Response response = components.icon(componentId);
                 return route("component_server_component_icon_" + componentId, "/api/v1/component/icon/" + componentId,
@@ -330,7 +346,7 @@ public class StaticResourceGenerator implements Runnable {
         }
     }
 
-    private List<Runnable> prepareEnv() {
+    private AutoCloseable prepareEnv() {
         final List<Runnable> cleanupTasks =
                 ofNullable(systemPropertyVariables).orElseGet(Collections::emptyMap).entrySet().stream().map(e -> {
                     final String existing = System.getProperty(e.getKey());
@@ -346,7 +362,7 @@ public class StaticResourceGenerator implements Runnable {
 
         final Locale oldLocale = Locale.getDefault();
         cleanupTasks.add(() -> Locale.setDefault(oldLocale));
-        return cleanupTasks;
+        return () -> cleanupTasks.forEach(Runnable::run);
     }
 
     private byte[] swallow(final Supplier<StreamingOutput> dependency) {
@@ -380,13 +396,14 @@ public class StaticResourceGenerator implements Runnable {
     }
 
     public static void main(final String[] args) {
-        if (args.length != 2) {
-            System.err.println("Usage:\n  app output_root_dir lang1,lang2,...");
+        if (args.length < 2) {
+            System.err
+                    .println("Usage:\n"
+                            + "args: <where to output the dump> <which langs to use for the generation> <ignore dependency endpoint>"
+                            + "  ex:  app output_root_dir lang1,lang2,... [true|false]");
             return;
         }
-        final Path root = Paths.get(args[0]);
-        new StaticResourceGenerator(emptyMap(), root.resolve("repository"), root.resolve("routes.json"),
-                Stream.of(args[1].split(",")).collect(toList()), OutputFormatter.JSON).run();
+        new StaticResourceGenerator(args).run();
     }
 
     @Data
