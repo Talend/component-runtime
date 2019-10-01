@@ -224,7 +224,7 @@ public class StaticResourceGenerator implements Runnable {
                                                     .with("identifiers", componentId)
                                                     .done(),
                                             emptyMap(), emptyMap(),
-                                            jsonb.toJson(components.getDependencies(new String[] { componentId })))))
+                                            jsonb.toJson(components.getDetail(lang, new String[] { componentId })))))
                             .collect(toList()));
 
             // this can become huge, maybe we should directly go on the FS for the binary ones
