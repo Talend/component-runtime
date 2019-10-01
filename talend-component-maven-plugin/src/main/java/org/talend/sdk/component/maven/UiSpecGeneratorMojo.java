@@ -25,8 +25,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProjectHelper;
 import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.tools.webapp.standalone.generator.StaticUiSpecGenerator;
 
@@ -40,6 +42,9 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
     @Parameter(defaultValue = "${maven.multiModuleProjectDirectory}/target/talend-component-kit/uispec.zip")
     private File uiSpecZip;
 
+    @Component
+    private MavenProjectHelper helper;
+
     @Override
     public void doExecute() throws MojoExecutionException {
         super.doExecute();
@@ -48,5 +53,6 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
         setup.put("talend.component.server.component.registry", getRegistry().getAbsolutePath());
         setup.put("talend.component.server.component.extend.dependencies", "false");
         new StaticUiSpecGenerator(setup, languages, uiSpecZip.toPath()).run();
+        helper.attachArtifact(project, "zip", "uispec", uiSpecZip);
     }
 }
