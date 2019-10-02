@@ -31,5 +31,6 @@
   <modules>
     <module>component-form-model</module>
     <module>component-form-core</module>
+    <module>component-uispec-mapper</module>
   </modules>
 </project>

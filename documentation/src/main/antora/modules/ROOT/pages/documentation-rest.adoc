@@ -295,6 +295,105 @@ The model uses the JSON-B API to define the binding. Make sure to have an implem
 </dependency>
 ----
 
+=== Using the UiSpec for custom models
+
+The following module enables you to define through annotations a uispec on your own models:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-uispec-mapper</artifactId>
+  <version>${talend-component-kit.version}</version>
+</dependency>
+----
+
+WARNING: this can't be used in components and is only intended for web applications.
+
+`org.talend.sdk.component.form.uispec.mapper.api.service.UiSpecMapper` enables to create a `Ui` instance from a custom type annotated with
+`org.talend.sdk.component.form.uispec.mapper.api.model.View` and `org.talend.sdk.component.form.uispec.mapper.api.model.View.Schema`.
+
+Here is an example:
+
+[source,java]
+----
+@Data
+public abstract class BaseModel {
+    @View.Skip
+    private String id;
+
+    @View.Skip
+    private Date created;
+
+    @View.Skip
+    private Date updated;
+
+    @View.Schema(type = "hidden", readOnly = true)
+    private long version;
+}
+
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class ComponentModel extends BaseModel {
+    @View.Schema(length = 1024, required = true, position = 1, reference = "vendors")
+    private String vendor;
+
+    @View.Schema(length = 2048, required = true, position = 2)
+    private String name;
+
+    @View.Schema(length = 2048, required = true, position = 3)
+    private String license;
+
+    @View.Schema(length = 2048, required = true, position = 4)
+    private String sources;
+
+    @View.Schema(length = 2048, required = true, position = 5)
+    private String bugtracker;
+
+    @View.Schema(length = 2048, required = true, position = 6)
+    private String documentation;
+
+    @View.Schema(widget = "textarea", length = 8192, required = true, position = 7)
+    private String description;
+
+    @View.Schema(widget = "textarea", length = 8192, position = 8)
+    private String changelog;
+}
+----
+
+This API maps directly the UiSpec model (json schema and ui schema of Talend `UIForm).
+
+The default implementation of the mapper is available at `org.talend.sdk.component.form.uispec.mapper.impl.UiSpecMapperImpl`.
+
+Here is an example:
+
+[source,java]
+----
+
+private UiSpecMapper mapper = new UiSpecMapperImpl(new Configuration(getTitleMapProviders()));
+
+@GET
+public Ui getNewComponentModelForm() {
+    return mapper.createFormFor(ComponentModel.class);
+}
+
+@GET
+@Path("{id}")
+public Ui editComponentModelForm(final @PathParam("id") final String id) {
+    final ComponentModel component = findComponent(id);
+    final Ui spec = mapper.createFormFor(ComponentModel.class);
+    return Ui.ui()
+            .withJsonSchema(spec.getJsonSchema())
+            .withUiSchema(spec.getUiSchema())
+            .withProperties(component)
+            .build();
+}
+----
+
+The `getTitleMapProviders()` method will generally lookup a set of `TitleMapProvider` instances in your IoC context.
+This API is used to fill the `titleMap` of the form when a reference identifier is set on the `@Schema` annotation.
+
 === JavaScript integration
 
 IMPORTANT: `component-kit.js` is no more available (previous versions stay on NPM) and is replaced by `@talend/react-containers`.
