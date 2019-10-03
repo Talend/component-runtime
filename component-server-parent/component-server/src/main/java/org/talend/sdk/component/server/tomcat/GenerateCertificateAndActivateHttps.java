@@ -30,6 +30,7 @@ import java.util.StringTokenizer;
 import java.util.stream.Stream;
 
 import org.apache.meecrowave.Meecrowave;
+import org.apache.meecrowave.configuration.Configuration;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 
@@ -40,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GenerateCertificateAndActivateHttps implements Meecrowave.ConfigurationCustomizer {
 
     @Override
-    public void accept(final Meecrowave.Builder builder) {
+    public void accept(final Configuration builder) {
         final Config config = ConfigProvider.getConfig();
         if (!config.getOptionalValue("talend.component.server.ssl.active", Boolean.class).orElse(false)) {
             log.debug("Automatic ssl setup is not active, skipping");

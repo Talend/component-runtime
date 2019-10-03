@@ -18,11 +18,12 @@ package org.talend.sdk.component.server.configuration;
 import java.util.Properties;
 
 import org.apache.meecrowave.Meecrowave;
+import org.apache.meecrowave.configuration.Configuration;
 
 public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
 
     @Override
-    public void accept(final Meecrowave.Builder configuration) {
+    public void accept(final Configuration configuration) {
         configuration.loadFromProperties(System.getProperties());
         if (configuration.getProperties() == null) {
             configuration.setProperties(new Properties());

@@ -24,7 +24,7 @@
 
   <artifactId>component-server-extension-api</artifactId>
 
-  <name>Component Runtime :: Server Parent :: Extensions</name>
+  <name>Component Runtime :: Server Parent :: Extensions :: API</name>
   <description>Hosts extensions usable with component-server</description>
 
   <properties>
@@ -45,7 +45,7 @@
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-      <version>${jsonb-api.version}</version>
+      <version>${geronimo-jsonb.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>

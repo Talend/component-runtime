@@ -146,9 +146,9 @@
     <junit.version>4.13-beta-3</junit.version>
     <ziplock.version>8.0.0-M3</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
-    <johnzon.version>1.2.0</johnzon.version>
-    <meecrowave.version>1.2.8</meecrowave.version>
-    <owb.version>2.0.11</owb.version>
+    <johnzon.version>1.2.1</johnzon.version>
+    <meecrowave.version>1.2.9</meecrowave.version>
+    <owb.version>2.0.12</owb.version>
     <tomcat.version>9.0.26</tomcat.version>
     <cxf.version>3.3.3</cxf.version>
     <log4j2.version>2.12.1</log4j2.version>
@@ -159,7 +159,7 @@
     <geronimo-annotation.version>1.2</geronimo-annotation.version>
     <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.2</geronimo-jsonb.version>
-    <geronimo-json.version>1.2</geronimo-json.version>
+    <geronimo-json.version>1.3</geronimo-json.version>
     <batik.version>1.11</batik.version>
     <beam.version>2.15.0</beam.version>
     <commons-codec.version>1.12</commons-codec.version>
@@ -170,8 +170,6 @@
     <geronimo-jaxrs.version>1.1</geronimo-jaxrs.version>
     <asciidoctorj.version>2.1.0</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.0-alpha.17</asciidoctorj-pdf.version>
-    <jsonb-api.version>1.1</jsonb-api.version>
-    <jsonp-api.version>1.0</jsonp-api.version>
     <microprofile-config-api.version>1.3</microprofile-config-api.version>
     <microprofile-openapi-api.version>1.1.1</microprofile-openapi-api.version>
     <microprofile-opentracing.version>1.2.1</microprofile-opentracing.version>
@@ -184,7 +182,7 @@
     <geronimo-config.version>1.2.2</geronimo-config.version>
     <junit5.version>5.5.2</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <jackson.version>2.9.10</jackson.version>
+    <jackson.version>2.10.0</jackson.version>
     <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <avro-jackson.version>1.9.14-TALEND</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
