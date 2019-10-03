@@ -105,8 +105,8 @@
   </modules>
 
   <scm>
-    <connection>scm:git:https://github.com/talend/component-runtime.git</connection>
-    <developerConnection>scm:git:https://github.com/talend/component-runtime.git</developerConnection>
+    <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
+    <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
     <url>https://github.com/talend/component-runtime</url>
     <tag>HEAD</tag>
   </scm>
