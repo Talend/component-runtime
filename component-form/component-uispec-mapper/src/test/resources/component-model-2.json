@@ -1,23 +1,7 @@
 {
   "jsonSchema":{
     "properties":{
-      "license":{
-        "maxLength":2048,
-        "type":"string"
-      },
-      "sources":{
-        "maxLength":2048,
-        "type":"string"
-      },
-      "vendor":{
-        "maxLength":1024,
-        "type":"string"
-      },
-      "documentation":{
-        "maxLength":2048,
-        "type":"string"
-      },
-      "name":{
+      "bugtracker":{
         "maxLength":2048,
         "type":"string"
       },
@@ -29,8 +13,24 @@
         "maxLength":8192,
         "type":"string"
       },
-      "bugtracker":{
+      "documentation":{
         "maxLength":2048,
+        "type":"string"
+      },
+      "license":{
+        "maxLength":2048,
+        "type":"string"
+      },
+      "name":{
+        "maxLength":2048,
+        "type":"string"
+      },
+      "sources":{
+        "maxLength":2048,
+        "type":"string"
+      },
+      "vendor":{
+        "maxLength":1024,
         "type":"string"
       },
       "version":{
@@ -57,12 +57,12 @@
           "key":"vendor",
           "titleMap":[
             {
-              "name":"k1",
-              "value":"v1"
+              "name":"k3",
+              "value":"v3"
             },
             {
-              "name":"k2",
-              "value":"v2"
+              "name":"k4",
+              "value":"v4"
             }
           ],
           "widget":"datalist"

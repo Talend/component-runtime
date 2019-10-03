@@ -20,9 +20,9 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -144,7 +144,7 @@ public class UiSpecService<T> implements AutoCloseable {
 
         final Ui ui = new Ui();
         ui.setUiSchema(new ArrayList<>());
-        ui.setProperties(new HashMap<>());
+        ui.setProperties(new TreeMap<>());
         ui.setJsonSchema(new JsonSchema());
         ui.getJsonSchema().setTitle(displayName.get());
         ui.getJsonSchema().setType("object");

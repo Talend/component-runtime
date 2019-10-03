@@ -18,12 +18,16 @@ package org.talend.sdk.component.form.model.uischema;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+
+import javax.json.bind.annotation.JsonbTransient;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -66,6 +70,60 @@ public class UiSchema {
     private Collection<NameValue> titleMap;
 
     private Map<String, Collection<Object>> condition;
+
+    @JsonbTransient
+    private Consumer<UiSchema> onCopyCallback;
+
+    @JsonbTransient
+    private AtomicReference<Boolean> isStatic = new AtomicReference<>();
+
+    /**
+     * IMPORTANT: frozenStructure is propagated in items copy.
+     *
+     * @param frozenStructure this structure can be assumed immutable.
+     * @return a copy of current structure updated with related callback if it exists.
+     */
+    public UiSchema copy(final boolean frozenStructure) {
+        if (frozenStructure && hasNoCallback()) {
+            return this;
+        }
+
+        final UiSchema copy = UiSchema
+                .uiSchema()
+                .withKey(key)
+                .withTitle(title)
+                .withWidget(widget)
+                .withItemWidget(itemWidget)
+                .withType(type)
+                .withItems(items == null ? null : items.stream().map(it -> it.copy(frozenStructure)).collect(toList()))
+                .withOptions(options)
+                .withAutoFocus(autoFocus)
+                .withDisabled(disabled)
+                .withReadOnly(readOnly)
+                .withRequired(required)
+                .withRestricted(restricted)
+                .withPlaceholder(placeholder)
+                .withTriggers(triggers)
+                .withTitleMap(titleMap)
+                .withDescription(description)
+                .withTooltip(tooltip)
+                .withCondition(condition)
+                .build();
+        if (onCopyCallback != null) {
+            onCopyCallback.accept(copy);
+        }
+        return copy;
+    }
+
+    private boolean hasNoCallback() {
+        Boolean hasNoCallback = isStatic.get();
+        if (hasNoCallback == null) {
+            hasNoCallback =
+                    onCopyCallback == null && (items == null || items.stream().noneMatch(UiSchema::hasNoCallback));
+            isStatic.compareAndSet(null, hasNoCallback);
+        }
+        return hasNoCallback;
+    }
 
     public static Builder uiSchema() {
         return new Builder();
@@ -379,6 +437,8 @@ public class UiSchema {
 
         private Map<String, Collection<Object>> condition;
 
+        private Consumer<UiSchema> copyCallback;
+
         public Builder withCondition(final Map<String, Collection<Object>> condition) {
             if (this.condition != null) {
                 throw new IllegalStateException("conditions already set");
@@ -423,6 +483,9 @@ public class UiSchema {
         }
 
         public Builder withItems(final Collection<UiSchema> items) {
+            if (items == null) {
+                return this;
+            }
             if (this.items == null) {
                 this.items = new ArrayList<>();
             }
@@ -431,20 +494,29 @@ public class UiSchema {
         }
 
         public Builder withItems(final UiSchema... items) {
+            if (items == null) {
+                return this;
+            }
             return withItems(asList(items));
         }
 
         public Builder withOptions(final String name, final String value) {
+            if (options == null) {
+                return this;
+            }
             if (this.options == null) {
-                this.options = new HashMap<>();
+                this.options = new LinkedHashMap<>();
             }
             this.options.put(name, value);
             return this;
         }
 
         public Builder withOptions(final Map<String, ?> options) {
+            if (options == null) {
+                return this;
+            }
             if (this.options == null) {
-                this.options = new HashMap<>();
+                this.options = new LinkedHashMap<>();
             }
             this.options.putAll(options);
             return this;
@@ -481,10 +553,16 @@ public class UiSchema {
         }
 
         public Builder withTriggers(final Trigger... triggers) {
+            if (triggers == null) {
+                return this;
+            }
             return withTriggers(asList(triggers));
         }
 
         public Builder withTriggers(final Collection<Trigger> triggers) {
+            if (triggers == null) {
+                return this;
+            }
             if (this.triggers == null) {
                 this.triggers = new ArrayList<>();
             }
@@ -493,14 +571,25 @@ public class UiSchema {
         }
 
         public Builder withTitleMap(final NameValue... titleMap) {
+            if (titleMap == null) {
+                return this;
+            }
             return withTitleMap(asList(titleMap));
         }
 
         public Builder withTitleMap(final Collection<NameValue> titleMap) {
+            if (titleMap == null) {
+                return this;
+            }
             if (this.titleMap == null) {
                 this.titleMap = new ArrayList<>();
             }
             this.titleMap.addAll(titleMap);
+            return this;
+        }
+
+        public Builder withCopyCallback(final Consumer<UiSchema> copyCallback) {
+            this.copyCallback = copyCallback;
             return this;
         }
 
@@ -524,6 +613,7 @@ public class UiSchema {
             uiSchema.setTooltip(tooltip);
             uiSchema.setItemWidget(itemWidget);
             uiSchema.setCondition(condition);
+            uiSchema.setOnCopyCallback(copyCallback);
             return uiSchema;
         }
     }

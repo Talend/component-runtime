@@ -19,8 +19,8 @@ import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -55,7 +55,7 @@ public class ArrayPropertyConverter implements PropertyConverter {
             if (arrayElements.stream().anyMatch(e -> e.getPath().startsWith(prefix + '.'))) { // complex object
                 final JsonSchema items = new JsonSchema();
                 items.setType("object");
-                items.setProperties(new HashMap<>());
+                items.setProperties(new TreeMap<>());
                 jsonSchema.setItems(items);
                 return CompletableFuture
                         .allOf(arrayElements

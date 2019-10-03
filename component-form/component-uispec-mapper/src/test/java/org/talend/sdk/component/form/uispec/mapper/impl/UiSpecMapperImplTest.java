@@ -25,6 +25,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -44,30 +46,41 @@ import lombok.ToString;
 class UiSpecMapperImplTest {
 
     @Test
-    void createForm() throws Exception {
-        final Ui form = new UiSpecMapperImpl(new UiSpecMapperImpl.Configuration(singletonList(new TitleMapProvider() {
+    void createForm() {
+        final Supplier<Ui> form =
+                new UiSpecMapperImpl(new UiSpecMapperImpl.Configuration(singletonList(new TitleMapProvider() {
 
-            @Override
-            public String reference() {
-                return "vendors";
+                    private int it = 0;
+
+                    @Override
+                    public String reference() {
+                        return "vendors";
+                    }
+
+                    @Override
+                    public Collection<UiSchema.NameValue> get() {
+                        return asList(new UiSchema.NameValue.Builder().withName("k" + ++it).withValue("v" + it).build(),
+                                new UiSchema.NameValue.Builder().withName("k" + ++it).withValue("v" + it).build());
+                    }
+                }))).createFormFor(ComponentModel.class);
+
+        IntStream.of(1, 2).forEach(it -> {
+            try (final Jsonb jsonb = JsonbBuilder
+                    .create(new JsonbConfig()
+                            .withFormatting(true)
+                            .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL));
+                    final BufferedReader reader =
+                            new BufferedReader(new InputStreamReader(
+                                    Thread
+                                            .currentThread()
+                                            .getContextClassLoader()
+                                            .getResourceAsStream("component-model-" + it + ".json"),
+                                    StandardCharsets.UTF_8))) {
+                assertEquals(reader.lines().collect(joining("\n")), jsonb.toJson(form.get()));
+            } catch (final Exception e) {
+                throw new IllegalStateException(e);
             }
-
-            @Override
-            public Collection<UiSchema.NameValue> get() {
-                return asList(new UiSchema.NameValue.Builder().withName("k1").withValue("v1").build(),
-                        new UiSchema.NameValue.Builder().withName("k2").withValue("v2").build());
-            }
-        }))).createFormFor(ComponentModel.class);
-
-        try (final Jsonb jsonb = JsonbBuilder
-                .create(new JsonbConfig()
-                        .withFormatting(true)
-                        .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL));
-                final BufferedReader reader = new BufferedReader(new InputStreamReader(
-                        Thread.currentThread().getContextClassLoader().getResourceAsStream("component-model.json"),
-                        StandardCharsets.UTF_8))) {
-            assertEquals(jsonb.toJson(form), reader.lines().collect(joining("\n")));
-        }
+        });
     }
 
     @Data

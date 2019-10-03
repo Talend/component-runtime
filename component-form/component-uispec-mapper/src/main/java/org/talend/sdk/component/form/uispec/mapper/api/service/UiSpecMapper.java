@@ -15,9 +15,11 @@
  */
 package org.talend.sdk.component.form.uispec.mapper.api.service;
 
+import java.util.function.Supplier;
+
 import org.talend.sdk.component.form.model.Ui;
 
 public interface UiSpecMapper {
 
-    Ui createFormFor(Class<?> clazz);
+    Supplier<Ui> createFormFor(Class<?> clazz);
 }

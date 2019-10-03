@@ -16,6 +16,7 @@
 
 
 import java.lang.reflect.ParameterizedType
+import javax.json.bind.annotation.JsonbTransient
 
 import static java.util.Locale.ROOT
 import static java.util.Optional.ofNullable
@@ -67,19 +68,22 @@ GenerationAggregator createPropType(parent, clazz, aggregate) {
         aggregate.namespace = namespace
     }
 
-    def nested = clazz.declaredFields.findAll { isNotPrimitive(it.genericType) }.collect {
-        def type = it.genericType
-        if (ParameterizedType.class.isInstance(type)) {
-            if (Collection.class.isAssignableFrom(type.rawType)) {
-                return type.actualTypeArguments[0]
+    def nested = clazz.declaredFields
+        .findAll { !it.isAnnotationPresent(JsonbTransient.class) }
+        .findAll { isNotPrimitive(it.genericType) }
+        .collect {
+            def type = it.genericType
+            if (ParameterizedType.class.isInstance(type)) {
+                if (Collection.class.isAssignableFrom(type.rawType)) {
+                    return type.actualTypeArguments[0]
+                }
+                if (Map.class.isAssignableFrom(type.rawType)) { // no need to impl a custom validator for this case
+                    return type.actualTypeArguments[1]
+                }
+                throw new IllegalArgumentException("Unsupported: ${it}")
             }
-            if (Map.class.isAssignableFrom(type.rawType)) { // no need to impl a custom validator for this case
-                return type.actualTypeArguments[1]
-            }
-            throw new IllegalArgumentException("Unsupported: ${it}")
-        }
-        type
-    }.findAll { isNotPrimitive(it) }.unique()
+            type
+        }.findAll { isNotPrimitive(it) }.unique()
 
     output.withWriter('UTF-8') { writer ->
         def appendedAttributes = new StringBuilder()
@@ -90,7 +94,7 @@ GenerationAggregator createPropType(parent, clazz, aggregate) {
         }
         writer.write('\n')
         writer.write('const definition = {\n')
-        clazz.declaredFields.sort { it.name }.each {
+        clazz.declaredFields.findAll { !it.isAnnotationPresent(JsonbTransient.class) }.sort { it.name }.each {
             def type = it.genericType
             def name = ofNullable(it.getAnnotation(javax.json.bind.annotation.JsonbProperty.class))
                 .map { t -> t.value() }.orElse(it.name)

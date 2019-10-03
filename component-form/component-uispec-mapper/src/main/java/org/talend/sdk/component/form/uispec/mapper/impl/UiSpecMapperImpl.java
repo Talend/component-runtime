@@ -31,11 +31,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.model.Ui;
@@ -55,56 +59,65 @@ public class UiSpecMapperImpl implements UiSpecMapper {
 
     private final Configuration configuration;
 
-    private final ConcurrentMap<Key, Ui> forms = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Key, Supplier<Ui>> forms = new ConcurrentHashMap<>();
 
     @Override
-    public Ui createFormFor(final Class<?> clazz) {
-        final Ui model = doCreateForm(clazz);
-        return Ui
-                .ui()
-                .withJsonSchema(model.getJsonSchema())
-                .withUiSchema(model.getUiSchema())
-                .withProperties(emptyMap())
-                .build();
+    public Supplier<Ui> createFormFor(final Class<?> clazz) {
+        return doCreateForm(clazz);
     }
 
-    private Ui doCreateForm(final Class<?> clazz) {
+    private Supplier<Ui> doCreateForm(final Class<?> clazz) {
         return forms.computeIfAbsent(new Key(clazz), key -> {
+            final AtomicBoolean isDynamic = new AtomicBoolean(false);
+
+            final Ui ui;
             if (clazz.isAnnotationPresent(View.class)) {
-                return generateUi(clazz.getAnnotation(View.class).value());
+                ui = generateUi(clazz.getAnnotation(View.class).value(), isDynamic);
+            } else {
+                ui = generateUi(clazz, isDynamic);
             }
-            return generateUi(clazz);
+
+            if (isDynamic.get()) {
+                return () -> Ui
+                        .ui()
+                        .withJsonSchema(ui.getJsonSchema())
+                        .withUiSchema(ui.getUiSchema().stream().map(it -> it.copy(true)).collect(toList()))
+                        .withProperties(emptyMap())
+                        .build();
+            }
+            return () -> ui;
         });
     }
 
-    private Ui generateUi(final Class<?> clazz) {
+    private Ui generateUi(final Class<?> clazz, final AtomicBoolean isDynamic) {
         final Ui ui = new Ui();
         ui.setJsonSchema(generateJsonSchema(clazz, clazz, null, null));
-        ui.setUiSchema(singletonList(generateUiSchemas("", clazz, clazz)));
+        ui.setUiSchema(singletonList(generateUiSchemas("", clazz, clazz, isDynamic)));
         return ui;
     }
 
-    private UiSchema generateUiSchemas(final String keyPrefix, final AnnotatedElement element, final Class<?> clazz) {
+    private UiSchema generateUiSchemas(final String keyPrefix, final AnnotatedElement element, final Class<?> clazz,
+            final AtomicBoolean isDynamic) {
         if (clazz == boolean.class) {
-            final UiSchema.Builder builder = UiSchema.uiSchema();
+            final UiSchema.Builder builder = new UiSchema.Builder();
             builder.withKey(keyPrefix);
             builder.withWidget("checkbox");
-            applyConfig(element, builder);
+            applyConfig(element, builder, isDynamic);
             return builder.build();
         }
         if (isText(clazz) || hasReference(element)) {
-            final UiSchema.Builder builder = UiSchema.uiSchema();
+            final UiSchema.Builder builder = new UiSchema.Builder();
             builder.withKey(keyPrefix);
             builder.withWidget("text");
-            applyConfig(element, builder);
+            applyConfig(element, builder, isDynamic);
             return builder.build();
         }
         if (isNumber(clazz)) {
-            final UiSchema.Builder builder = UiSchema.uiSchema();
+            final UiSchema.Builder builder = new UiSchema.Builder();
             builder.withKey(keyPrefix);
             builder.withWidget("text");
             builder.withType("number");
-            applyConfig(element, builder);
+            applyConfig(element, builder, isDynamic);
             return builder.build();
         }
         if (clazz.isPrimitive()) {
@@ -113,8 +126,8 @@ public class UiSpecMapperImpl implements UiSpecMapper {
 
         final List<UiSchema> properties = new ArrayList<>();
         final Map<String, Integer> positions = new HashMap<>();
-        final UiSchema.Builder builder =
-                UiSchema.uiSchema().withKey(keyPrefix.isEmpty() ? null : keyPrefix).withWidget("fieldset");
+        final UiSchema.Builder builder = new UiSchema.Builder();
+        builder.withKey(keyPrefix.isEmpty() ? null : keyPrefix).withWidget("fieldset");
 
         Class<?> current = clazz;
         while (current != Object.class && current != null) {
@@ -122,11 +135,11 @@ public class UiSpecMapperImpl implements UiSpecMapper {
                 final String nextKey = keyPrefix + (keyPrefix.isEmpty() ? "" : ".") + it.getName();
                 final int pos = ofNullable(it.getAnnotation(View.Schema.class)).map(View.Schema::position).orElse(-1);
                 positions.put(it.getName(), pos < 0 ? Integer.MAX_VALUE : pos);
-                return generateUiSchemas(nextKey, it, it.getType());
+                return generateUiSchemas(nextKey, it, it.getType(), isDynamic);
             }).collect(toList()));
             current = current.getSuperclass();
         }
-        return applyConfig(element, builder)
+        return applyConfig(element, builder, isDynamic)
                 .withItems(ofNullable(element.getAnnotation(View.Schema.class))
                         .map(View.Schema::order)
                         .filter(order -> order.length > 0)
@@ -158,7 +171,8 @@ public class UiSpecMapperImpl implements UiSpecMapper {
         return key.substring(key.lastIndexOf('.') + 1);
     }
 
-    private UiSchema.Builder applyConfig(final AnnotatedElement element, final UiSchema.Builder builder) {
+    private UiSchema.Builder applyConfig(final AnnotatedElement element, final UiSchema.Builder builder,
+            final AtomicBoolean isDynamic) {
         ofNullable(element.getAnnotation(View.Schema.class)).ifPresent(config -> {
             final String type = config.type();
             if (!type.isEmpty()) {
@@ -184,7 +198,8 @@ public class UiSpecMapperImpl implements UiSpecMapper {
                 if (widget.isEmpty()) {
                     builder.withWidget("datalist");
                 }
-                builder.withTitleMap(findTitleMap(refModel));
+                isDynamic.set(true);
+                builder.withCopyCallback(schema -> schema.setTitleMap(findTitleMap(refModel)));
             }
         });
         return builder;
@@ -229,7 +244,7 @@ public class UiSpecMapperImpl implements UiSpecMapper {
             throw new IllegalArgumentException("Unsupported (yet) type: " + clazz);
         }
 
-        final JsonSchema.Builder builder = JsonSchema.jsonSchema().withProperties(new HashMap<>());
+        final JsonSchema.Builder builder = JsonSchema.jsonSchema().withProperties(new LinkedHashMap<>());
         ofNullable(element.getAnnotation(View.Schema.class))
                 .ifPresent(schema -> applyConfig(parent, name, builder, schema));
         final JsonSchema schema = builder.build();
@@ -237,12 +252,11 @@ public class UiSpecMapperImpl implements UiSpecMapper {
 
         Class<?> current = clazz;
         while (current != Object.class && current != null) {
-            properties
-                    .putAll(Stream
-                            .of(current.getDeclaredFields())
-                            .filter(this::isIncluded)
-                            .collect(toMap(Field::getName,
-                                    it -> generateJsonSchema(it, it.getType(), schema, it.getName()))));
+            final Map<String, JsonSchema> collected = new TreeMap<>(Stream
+                    .of(current.getDeclaredFields())
+                    .filter(this::isIncluded)
+                    .collect(toMap(Field::getName, it -> generateJsonSchema(it, it.getType(), schema, it.getName()))));
+            properties.putAll(collected);
             current = current.getSuperclass();
         }
         return schema;

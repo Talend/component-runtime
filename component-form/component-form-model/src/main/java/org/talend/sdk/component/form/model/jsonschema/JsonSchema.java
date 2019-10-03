@@ -18,7 +18,7 @@ package org.talend.sdk.component.form.model.jsonschema;
 import static java.util.Arrays.asList;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.json.bind.annotation.JsonbProperty;
@@ -213,7 +213,7 @@ public class JsonSchema {
 
         public Builder withProperty(final String name, final JsonSchema schema) {
             if (this.properties == null) {
-                this.properties = new HashMap<>();
+                this.properties = new LinkedHashMap<>();
             }
             this.properties.put(name, schema);
             return this;
@@ -221,7 +221,7 @@ public class JsonSchema {
 
         public Builder withProperties(final Map<String, JsonSchema> properties) {
             if (this.properties == null) {
-                this.properties = new HashMap<>();
+                this.properties = new LinkedHashMap<>();
             }
             this.properties.putAll(properties);
             return this;

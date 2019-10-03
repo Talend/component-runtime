@@ -24,7 +24,6 @@ import static java.util.stream.Collectors.toSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -110,7 +109,7 @@ public class JsonSchemaConverter implements PropertyConverter {
 
         synchronized (rootJsonSchema) {
             if (rootJsonSchema.getProperties() == null) {
-                rootJsonSchema.setProperties(new HashMap<>());
+                rootJsonSchema.setProperties(new TreeMap<>());
             }
             if (rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema) != null) {
                 throw new IllegalStateException(
@@ -133,7 +132,7 @@ public class JsonSchemaConverter implements PropertyConverter {
                     }
                 }));
             } else {
-                jsonSchema.setProperties(new HashMap<>());
+                jsonSchema.setProperties(new TreeMap<>());
             }
 
             final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, jsonSchema, properties);

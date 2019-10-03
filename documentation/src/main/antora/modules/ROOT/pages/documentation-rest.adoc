@@ -313,6 +313,9 @@ WARNING: this can't be used in components and is only intended for web applicati
 `org.talend.sdk.component.form.uispec.mapper.api.service.UiSpecMapper` enables to create a `Ui` instance from a custom type annotated with
 `org.talend.sdk.component.form.uispec.mapper.api.model.View` and `org.talend.sdk.component.form.uispec.mapper.api.model.View.Schema`.
 
+TIP: `UiSpecMapper` returns a `Supplier` and not directly an `Ui` because the ui-schema is re-evaluated when `get()̀  is called.
+This enables to update the title maps for example.
+
 Here is an example:
 
 [source,java]
@@ -362,7 +365,7 @@ public class ComponentModel extends BaseModel {
 }
 ----
 
-This API maps directly the UiSpec model (json schema and ui schema of Talend `UIForm).
+This API maps directly the UiSpec model (json schema and ui schema of Talend `UIForm`).
 
 The default implementation of the mapper is available at `org.talend.sdk.component.form.uispec.mapper.impl.UiSpecMapperImpl`.
 
@@ -375,19 +378,16 @@ private UiSpecMapper mapper = new UiSpecMapperImpl(new Configuration(getTitleMap
 
 @GET
 public Ui getNewComponentModelForm() {
-    return mapper.createFormFor(ComponentModel.class);
+    return mapper.createFormFor(ComponentModel.class).get();
 }
 
 @GET
 @Path("{id}")
 public Ui editComponentModelForm(final @PathParam("id") final String id) {
     final ComponentModel component = findComponent(id);
-    final Ui spec = mapper.createFormFor(ComponentModel.class);
-    return Ui.ui()
-            .withJsonSchema(spec.getJsonSchema())
-            .withUiSchema(spec.getUiSchema())
-            .withProperties(component)
-            .build();
+    final Ui spec = getNewComponentModelForm();
+    spec.setProperties(component);
+    return spec;
 }
 ----
 

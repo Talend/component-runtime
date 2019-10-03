@@ -63,9 +63,9 @@ class UiTest {
                         .build())
                 .build();
         final String json = jsonb.toJson(form1);
-        assertEquals("{\"jsonSchema\":{\"properties\":{\"firstname\":{\"type\":\"string\"},"
-                + "\"age\":{\"type\":\"number\"},\"lastname\":{\"type\":\"string\"}},\"title\":\"Comment\","
-                + "\"type\":\"object\"}}", json);
+        assertEquals("{\"jsonSchema\":{\"properties\":{\"lastname\":{\"type\":\"string\"},"
+                + "\"firstname\":{\"type\":\"string\"},\"age\":{\"type\":\"number\"}},"
+                + "\"title\":\"Comment\",\"type\":\"object\"}}", json);
     }
 
     @Test
