@@ -16,6 +16,11 @@
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1508[TCOMP-1508^]: Don't let Talend Starter Toolkit loose state on Enter in intellij
+- link:https://jira.talendforge.org/browse/TCOMP-1543[TCOMP-1543^]: Add a uispec mapper
+- link:https://jira.talendforge.org/browse/TCOMP-1544[TCOMP-1544^]: Update Geronimo JSON-P spec bundle to v1.3
+- link:https://jira.talendforge.org/browse/TCOMP-1545[TCOMP-1545^]: Update OpenWebBeans to version 2.0.12
+- link:https://jira.talendforge.org/browse/TCOMP-1546[TCOMP-1546^]: Update Meecrowave to 1.2.9
+- link:https://jira.talendforge.org/browse/TCOMP-1547[TCOMP-1547^]: Update Johnzon to 1.2.1
 
 
 
