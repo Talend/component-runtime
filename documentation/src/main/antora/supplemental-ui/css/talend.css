@@ -754,6 +754,7 @@ ul.tree > li > a {
 }
 .navbar-versions > ul.dropdown-menu {
   top: 33px;
+  max-height: 250px;
 }
 .navbar-versions > button {
   height: 1.6rem;
