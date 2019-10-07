@@ -51,7 +51,7 @@ def decryptedServer = session.container.lookup(SettingsDecrypter).decrypt(new De
 server = decryptedServer.server != null ? decryptedServer.server : server
 
 int pluginId = Integer.parseInt(project.properties['idea.plugin.id'].trim())
-def repositoryInstance = new PluginRepositoryInstance(project.properties['idea.intellij.public.url'], server.getUsername(), server.getPassword())
+def repositoryInstance = new PluginRepositoryInstance(project.properties['idea.intellij.public.url'], server.getPassword())
 project.properties['idea.intellij.channel'].trim().split(',').each { channel ->
     try {
         repositoryInstance

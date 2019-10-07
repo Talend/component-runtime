@@ -41,6 +41,7 @@
     <idea.intellij.channel>default</idea.intellij.channel>
     <idea.plugin.id>10558</idea.plugin.id>
     <retrofit.version>1.9.0</retrofit.version>
+    <plugin-repository-rest-client.version>0.5.2</plugin-repository-rest-client.version>
   </properties>
 
   <repositories>
@@ -114,7 +115,7 @@
           <dependency>
             <groupId>org.jetbrains.intellij</groupId>
             <artifactId>plugin-repository-rest-client</artifactId>
-            <version>0.4.27</version>
+            <version>${plugin-repository-rest-client.version}</version>
           </dependency>
           <dependency>
             <groupId>com.squareup.retrofit</groupId>
@@ -216,7 +217,7 @@
               <dependency>
                 <groupId>org.jetbrains.intellij</groupId>
                 <artifactId>plugin-repository-rest-client</artifactId>
-                <version>0.4.27</version>
+                <version>${plugin-repository-rest-client.version}</version>
               </dependency>
               <dependency>
                 <groupId>com.squareup.retrofit</groupId>
