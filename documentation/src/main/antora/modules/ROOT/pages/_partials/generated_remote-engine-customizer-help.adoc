@@ -1,0 +1,19 @@
+
+Usage: register-component-archive [options]
+
+Options: 
+  --base-image=<String>                           default: auto
+  --build-type=<BuildType>                        default: DOCKER
+                                                  (enum: DOCKER, REGISTRY)
+  --cache-dir=<String>                            default: ${remote.engine.dir}/.remote_engine_customizer/cache
+  --component-archive=<String[]>                  
+  --docker-configuration-environment=<String>     default: 
+  --docker-configuration-path=<String>            
+  --registry-configuration-baseUrl=<String>       
+  --registry-configuration-password=<String>      
+  --registry-configuration-username=<String>      
+  --remote-engine-dir=<String>                    
+  --target-image=<String>                         default: auto
+  --no-update-original-docker-compose             
+  --work-dir=<String>                             default: ${java.io.tmpdir}/remote-engine-customizer
+

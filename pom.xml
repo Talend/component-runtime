@@ -102,6 +102,7 @@
     <module>documentation</module>
     <module>talend-component-kit-intellij-plugin</module>
     <module>singer-parent</module>
+    <module>remote-engine-customizer</module>
   </modules>
 
   <scm>

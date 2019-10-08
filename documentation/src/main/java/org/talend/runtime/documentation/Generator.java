@@ -127,6 +127,7 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
 import org.talend.sdk.component.api.service.schema.Type;
 import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
+import org.talend.sdk.component.remoteengine.customizer.Cli;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
@@ -184,6 +185,7 @@ public class Generator {
             tasks.register(() -> updateComponentServerVaultApi(generatedDir));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
+            tasks.register(() -> generatedRemoteEngineCustomizerHelp(generatedDir));
 
             final boolean offline = "offline=true".equals(args[4]);
             if (offline) {
@@ -192,6 +194,13 @@ public class Generator {
                 tasks.register(() -> generatedContributors(generatedDir, args[5], args[6]));
                 tasks.register(() -> generatedJira(generatedDir, args[1], args[2], args[3]));
             }
+        }
+    }
+
+    private static void generatedRemoteEngineCustomizerHelp(final File generatedDir) throws Exception {
+        try (final PrintStream printStream = new PrintStream(new WriteIfDifferentStream(
+                generatedDir.toPath().resolve("generated_remote-engine-customizer-help.adoc").toFile()))) {
+            printStream.println(Cli.run(new String[] { "help", "register-component-archive" }));
         }
     }
 

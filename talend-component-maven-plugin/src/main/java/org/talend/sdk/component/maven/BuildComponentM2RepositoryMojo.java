@@ -204,10 +204,8 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
 
     private static String hex(final byte[] data) {
         final StringBuilder out = new StringBuilder(data.length * 2);
-        for (int i = 0; i < data.length; ++i) {
-            final byte b = data[i];
-            out.append(HEX_CHARS[b >> 4 & 15]);
-            out.append(HEX_CHARS[b & 15]);
+        for (final byte b : data) {
+            out.append(HEX_CHARS[b >> 4 & 15]).append(HEX_CHARS[b & 15]);
         }
         return out.toString();
     }

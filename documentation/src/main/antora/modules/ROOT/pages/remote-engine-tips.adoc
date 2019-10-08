@@ -1,0 +1,64 @@
+= Remote Engine Tips
+
+Remote Engine is a key piece to execute components with Data Inventory or Pipeline Designer.
+To customize it for testing purposes, we provide a helper tool.
+
+IMPORTANT: this is not a Talend Cloud feature, this is provided "as it" without any guarantee.
+
+== Remote Engine Customizer
+
+The `remote-engine-customizer` is a simple software reading Remote Engine `docker-compose.yml`,
+extracting the `connectors` image and rebuilding it adding configured connectors into the image.
+By default it will replace the original image with the newly built one but it saves the old file in `.remote_engine_customizer/backup/` in the Remote Engine directory.
+
+TIP: if you want to build a new image you must either revert the compose image change or force the base image through the command line.
+
+=== Download as a docker container
+
+The customizer is provided as a docker container:
+
+[source,sh]
+----
+docker run tacokit/remote-engine-customizer:${version} help
+----
+
+TIP: you can find out all the available version at https://hub.docker.com/r/tacokit/remote-engine-customizer/tags.
+
+The command to use is `register-component-archive`:
+
+[source,sh]
+----
+docker run tacokit/remote-engine-customizer:${version} \
+    register-component-archive [options]
+----
+
+
+=== Usage
+
+The command accepts the following parameters:
+
+[source,sh]
+----
+include::{partialsdir}/generated_remote-engine-customizer-help.adoc[]
+----
+
+When running using the docker container, you must ensure to mount several files/folders. Example:
+
+[source,sh]
+----
+docker run \
+    -v /opt/talend/pipeline-remote-engine/:/opt/talend/pipeline-remote-engine/ \ <1>
+    -v /opt/talend/downloads_exchange/:/opt/talend/downloads_exchange/ \ <2>
+    -v /var/run/docker.sock:/var/run/docker.sock \ <3>
+    tacokit/remote-engine-customizer:${version} \
+    register-component-archive \
+    --remote-engine-dir=/opt/talend/pipeline-remote-engine/
+    --component-archive=/opt/talend/downloads_exchange/mailio-1.0.0.car
+----
+
+<1> don't forget to mount the Remote Engine folder to let the docker image read and modify it
+<2> don't forget to mount the folder hosting your local component if you want to docker image to be able to use it
+<3> don't forget to mount the docker daemon to let the program create a new docker image on the host
+
+IMPORTANT: once you have built your new image, you must restart the Remote Engine.
+You can verify the new image is available running `docker run --entrypoint sh -it [newimage]` before if you want.

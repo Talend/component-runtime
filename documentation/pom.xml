@@ -114,6 +114,12 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
+      <artifactId>remote-engine-customizer</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-http-junit</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
@@ -501,6 +507,21 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
             <version>${geronimo-jaxrs.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>remote-engine-customizer</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.slf4j</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>slf4j-standard</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
         </dependencies>
       </plugin>
