@@ -11,4 +11,4 @@ Learn about the latest news or go deeper in the framework with the following art
 
 - xref:changelog.adoc[Changelog]
 - xref:creating-plugins.adoc[Creating plugins]
-- xref:remote-engine-tips.adoc[Remote Engine tips]
+- xref:running-on-remote-engine.adoc[Running Component Kit components on a Remote Engine]

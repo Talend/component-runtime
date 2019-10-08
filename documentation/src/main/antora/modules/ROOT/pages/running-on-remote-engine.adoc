@@ -1,0 +1,62 @@
+= Running Component Kit components on a Remote Engine
+
+The Remote Engine is a key piece for executing components with Talend Pipeline Designer.
+To customize it for testing purposes, a helper tool is available.
+
+IMPORTANT: The following content and the tool it describes are not officially supported as a Talend Cloud feature and are provided "as it" without any guarantee.
+
+== Remote Engine Customizer
+
+The `remote-engine-customizer` is a simple tool that reads the Remote Engine `docker-compose.yml` file, extracts the `connectors` image and rebuilds it adding configured connectors to the image.
+By default, it replaces the original image with the newly built one and saves the old file in the `.remote_engine_customizer/backup/` directory of the Remote Engine.
+
+TIP: If you want to build a new image, you must either revert the compose image change or force the base image through the command line.
+
+=== Using the tool
+
+The customizer is provided as a docker container.
+
+You can run the tool using the `register-component-archive` command:
+
+[source,sh]
+----
+docker run tacokit/remote-engine-customizer:${version} \
+    register-component-archive [options]
+----
+
+You can get more details about the tool with the following command:
+
+[source,sh]
+----
+docker run tacokit/remote-engine-customizer:${version} help
+----
+
+TIP: You can find out all the available versions at https://hub.docker.com/r/tacokit/remote-engine-customizer/tags.
+
+The command accepts the following parameters:
+
+[source,sh]
+----
+include::{partialsdir}/generated_remote-engine-customizer-help.adoc[]
+----
+
+When running using the docker container, you must mount several files/folders. For example:
+
+[source,sh]
+----
+docker run \
+    -v /opt/talend/pipeline-remote-engine/:/opt/talend/pipeline-remote-engine/ \ <1>
+    -v /opt/talend/downloads_exchange/:/opt/talend/downloads_exchange/ \ <2>
+    -v /var/run/docker.sock:/var/run/docker.sock \ <3>
+    tacokit/remote-engine-customizer:${version} \
+    register-component-archive \
+    --remote-engine-dir=/opt/talend/pipeline-remote-engine/
+    --component-archive=/opt/talend/downloads_exchange/mailio-1.0.0.car
+----
+
+<1> Mount the Remote Engine folder to let the docker image read and modify it.
+<2> Mount the folder hosting your local component if you want the Docker image to be able to use it.
+<3> Mount the docker daemon to let the program create a new docker image on the host.
+
+IMPORTANT: Once you have built the new image, you must restart the Remote Engine.
+You can verify that the new image is available by running `docker run --entrypoint sh -it [newimage]` before.
