@@ -204,7 +204,9 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
             try {
                 return new PartitionMapperImpl(component, name, input, plugin, stream, loadDelegate());
             } catch (final IOException | ClassNotFoundException e) {
-                throw new InvalidObjectException(e.getMessage());
+                final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
+                invalidObjectException.initCause(e);
+                throw invalidObjectException;
             }
         }
 

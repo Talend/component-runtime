@@ -115,7 +115,9 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
             try {
                 return new LocalPartitionMapper(component, name, plugin, loadDelegate());
             } catch (final IOException | ClassNotFoundException e) {
-                throw new InvalidObjectException(e.getMessage());
+                final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
+                invalidObjectException.initCause(e);
+                throw invalidObjectException;
             }
         }
 

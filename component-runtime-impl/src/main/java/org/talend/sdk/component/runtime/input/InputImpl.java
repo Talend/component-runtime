@@ -131,7 +131,9 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
             try {
                 return new InputImpl(component, name, plugin, loadDelegate());
             } catch (final IOException | ClassNotFoundException e) {
-                throw new InvalidObjectException(e.getMessage());
+                final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
+                invalidObjectException.initCause(e);
+                throw invalidObjectException;
             }
         }
 

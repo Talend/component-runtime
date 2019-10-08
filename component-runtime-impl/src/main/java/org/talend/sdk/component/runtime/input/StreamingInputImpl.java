@@ -153,7 +153,9 @@ public class StreamingInputImpl extends InputImpl {
             try {
                 return new StreamingInputImpl(component, name, plugin, loadDelegate(), retryConfiguration);
             } catch (final IOException | ClassNotFoundException e) {
-                throw new InvalidObjectException(e.getMessage());
+                final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
+                invalidObjectException.initCause(e);
+                throw invalidObjectException;
             }
         }
     }

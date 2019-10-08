@@ -304,7 +304,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             try {
                 return new ProcessorImpl(component, name, plugin, internalConfiguration, loadDelegate(value, plugin));
             } catch (final IOException | ClassNotFoundException e) {
-                throw new InvalidObjectException(e.getMessage());
+                final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
+                invalidObjectException.initCause(e);
+                throw invalidObjectException;
             }
         }
     }
