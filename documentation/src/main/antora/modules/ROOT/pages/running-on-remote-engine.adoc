@@ -10,7 +10,7 @@ IMPORTANT: The following content and the tool it describes are not officially su
 The `remote-engine-customizer` is a simple tool that reads the Remote Engine `docker-compose.yml` file, extracts the `connectors` image and rebuilds it adding configured connectors to the image.
 By default, it replaces the original image with the newly built one and saves the old file in the `.remote_engine_customizer/backup/` directory of the Remote Engine.
 
-=== Using the tool
+== Using the tool
 
 The customizer is provided as a docker container.
 
