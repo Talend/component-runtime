@@ -15,7 +15,8 @@
  */
 package org.talend.sdk.component.remoteengine.customizer.model;
 
-public enum BuildType {
+public enum ImageType {
+    AUTO,
     DOCKER,
     REGISTRY
 }

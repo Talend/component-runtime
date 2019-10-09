@@ -55,9 +55,11 @@ import com.google.cloud.tools.jib.api.Containerizer;
 import com.google.cloud.tools.jib.api.FilePermissions;
 import com.google.cloud.tools.jib.api.ImageFormat;
 import com.google.cloud.tools.jib.api.ImageReference;
+import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
 import com.google.cloud.tools.jib.api.Jib;
 import com.google.cloud.tools.jib.api.JibContainerBuilder;
 import com.google.cloud.tools.jib.api.LayerConfiguration;
+import com.google.cloud.tools.jib.api.LogEvent;
 import com.google.cloud.tools.jib.blob.Blobs;
 import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
 import com.google.cloud.tools.jib.builder.steps.StepsRunner;
@@ -74,8 +76,8 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.talend.sdk.component.remoteengine.customizer.Versions;
 import org.talend.sdk.component.remoteengine.customizer.lang.Hex;
 import org.talend.sdk.component.remoteengine.customizer.lang.IO;
-import org.talend.sdk.component.remoteengine.customizer.model.BuildType;
 import org.talend.sdk.component.remoteengine.customizer.model.DockerConfiguration;
+import org.talend.sdk.component.remoteengine.customizer.model.ImageType;
 import org.talend.sdk.component.remoteengine.customizer.model.RegistryConfiguration;
 import org.talend.sdk.component.remoteengine.customizer.service.ConnectorLoader;
 
@@ -88,9 +90,9 @@ public class RemoteEngineCustomizer {
     // CHECKSTYLE:OFF
     public void registerComponents(final String remoteEngineDirConf, final String workDirConf,
             final String cacheDirConf, final String baseImageConf, final String targetImageConf,
-            final Collection<String> carPaths, final BuildType buildType, final DockerConfiguration dockerConfiguration,
-            final RegistryConfiguration registryConfiguration, final ConnectorLoader connectorLoader,
-            final boolean updateOriginalFile) {
+            final Collection<String> carPaths, final ImageType fromImageType, final ImageType targetImageType,
+            final DockerConfiguration dockerConfiguration, final RegistryConfiguration registryConfiguration,
+            final ConnectorLoader connectorLoader, final boolean updateOriginalFile) {
         // CHECKSTYLE:ON
         final Path remoteEngineDir = Paths.get(requireNonNull(remoteEngineDirConf, "Missing remote engine folder"));
         final Path workDir = Paths.get(workDirConf);
@@ -114,10 +116,10 @@ public class RemoteEngineCustomizer {
             final String toConnectorsImage = ofNullable(targetImageConf)
                     .filter(it -> !"auto".equals(it))
                     .orElseGet(() -> timestampImage(fromConnectorsImage));
-            final Containerizer targetContainer =
-                    buildType == BuildType.DOCKER ? Containerizer.to(dockerConfiguration.toImage(toConnectorsImage))
-                            : Containerizer.to(registryConfiguration.toImage(toConnectorsImage));
-            log.info("Building image '{}' from '{}' adding '{}'", toConnectorsImage, fromConnectorsImage, cars);
+            final Containerizer targetContainer = targetImageType == ImageType.DOCKER
+                    ? Containerizer.to(dockerConfiguration.toImage(toConnectorsImage))
+                    : Containerizer.to(registryConfiguration.toImage(toConnectorsImage));
+            log.info("Building image '{}' from '{}' adding {}", toConnectorsImage, fromConnectorsImage, cars);
             final ExecutorService executor =
                     Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 4));
             try (final AutoCloseable ignored = IO.autoDir(workDir)) {
@@ -134,14 +136,15 @@ public class RemoteEngineCustomizer {
                 final Path baseCache = cacheDir.resolve("base");
                 final Path appCache = cacheDir.resolve("application");
 
-                log.info("Looking for component-registry.properties configuration");
+                log.info("Looking for component-registry.properties configuration, this can be a bit long...");
                 final Image image;
                 try {
-                    image = loadImage(fromConnectorsImage, toConnectorsImage, executor, baseCache, appCache);
+                    image = loadImage(fromConnectorsImage, toConnectorsImage, executor, baseCache, appCache,
+                            dockerConfiguration, fromImageType);
                 } catch (final ExecutionException ee) {
                     log
                             .error("Please validate the connectors container image is an official one, "
-                                    + "we don't support customizations on custom images");
+                                    + "we don't support customizations on custom images or set the from image type");
                     throw ee;
                 }
                 final Map<String, Properties> propertiesContents = image
@@ -175,7 +178,7 @@ public class RemoteEngineCustomizer {
                                         final byte[] digest = out.getMessageDigest().digest();
                                         if (digests.put(key, Hex.hex(digest)) != null) {
                                             log
-                                                    .info("'{}' digest will be overriding existing entry (component='{}')",
+                                                    .info("'{}' digest will be overriding existing entry (entry='{}')",
                                                             key, cl.getGav());
                                         }
                                     } catch (final NoSuchAlgorithmException | IOException e) {
@@ -194,7 +197,7 @@ public class RemoteEngineCustomizer {
                 }
 
                 log.info("Building image '{}'", toConnectorsImage);
-                final JibContainerBuilder from = Jib.from(fromConnectorsImage);
+                final JibContainerBuilder from = from(fromImageType, dockerConfiguration, fromConnectorsImage);
                 connectorsLayer.stream().map(ConnectorLoader.ConnectorLayer::getLayer).forEach(from::addLayer);
                 from
                         .addLayer(LayerConfiguration
@@ -214,6 +217,7 @@ public class RemoteEngineCustomizer {
 
                 if (updateOriginalFile) {
                     rewriteCompose(remoteEngineDir, compose, lines, connectorsImageRef, toConnectorsImage);
+                    log.info("Restart your remote engine to take into account the new connector image");
                 } else {
                     log.info("You can update '{}' connectors container with image '{}'", compose, toConnectorsImage);
                 }
@@ -254,11 +258,12 @@ public class RemoteEngineCustomizer {
     }
 
     private Image loadImage(final String from, final String to, final ExecutorService executor, final Path baseCache,
-            final Path appCache) throws Exception {
+            final Path appCache, final DockerConfiguration dockerConfiguration, final ImageType fromImageType)
+            throws Exception {
         final StepsRunner steps = StepsRunner
                 .begin(BuildConfiguration
                         .builder()
-                        .setBaseImageConfiguration(ImageConfiguration.builder(ImageReference.parse(from)).build())
+                        .setBaseImageConfiguration(createBaseImage(from, dockerConfiguration, fromImageType))
                         .setTargetFormat(ImageFormat.OCI)
                         .setTargetImageConfiguration(ImageConfiguration.builder(ImageReference.parse(to)).build())
                         .setToolName("Talend Component Kit Remote Engine Customizer " + Versions.VERSION)
@@ -272,25 +277,13 @@ public class RemoteEngineCustomizer {
         rootProgressDescription.set(steps, description);
         final List<Runnable> stepsInstance =
                 (List<Runnable>) asAccessible(StepsRunner.class.getDeclaredField("stepsToRun")).get(steps);
-        stepsInstance.add(() -> {
-            try {
-                asAccessible(StepsRunner.class.getDeclaredMethod("pullBaseImage")).invoke(steps);
-            } catch (final IllegalAccessException | NoSuchMethodException e) {
-                throw new IllegalStateException(e);
-            } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
-            }
-        });
-        stepsInstance.add(() -> {
-            try {
-                asAccessible(StepsRunner.class.getDeclaredMethod("obtainBaseImageLayers", boolean.class))
-                        .invoke(steps, true);
-            } catch (final IllegalAccessException | NoSuchMethodException e) {
-                throw new IllegalStateException(e);
-            } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
-            }
-        });
+        try {
+            asAccessible(StepsRunner.class.getDeclaredMethod("addRetrievalSteps", boolean.class)).invoke(steps, true);
+        } catch (final IllegalAccessException | NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        } catch (final InvocationTargetException e) {
+            throw new IllegalStateException(e.getTargetException());
+        }
         Stream.of("buildAndCacheApplicationLayers", "buildImage").forEach(method -> {
             stepsInstance.add(() -> {
                 try {
@@ -303,7 +296,25 @@ public class RemoteEngineCustomizer {
             });
         });
         try (final ProgressEventDispatcher progressEventDispatcher =
-                ProgressEventDispatcher.newRoot(EventHandlers.builder().build(), description, stepsInstance.size())) {
+                ProgressEventDispatcher.newRoot(EventHandlers.builder().add(LogEvent.class, le -> {
+                    switch (le.getLevel()) {
+                    case WARN:
+                        log.warn(le.getMessage());
+                        break;
+                    case DEBUG:
+                        log.debug(le.getMessage());
+                        break;
+                    case ERROR:
+                        log.error(le.getMessage());
+                        break;
+                    case INFO:
+                        log.error(le.getMessage());
+                        break;
+                    default:
+                        log.info("(" + le.getLevel() + ") " + le.getMessage());
+                        break;
+                    }
+                }).build(), description, stepsInstance.size())) {
             asAccessible(StepsRunner.class.getDeclaredField("rootProgressDispatcher"))
                     .set(steps, progressEventDispatcher);
             stepsInstance.forEach(Runnable::run);
@@ -311,6 +322,32 @@ public class RemoteEngineCustomizer {
         final Object stepResult = asAccessible(StepsRunner.class.getDeclaredField("results")).get(steps);
         return ((Future<Image>) asAccessible(stepResult.getClass().getDeclaredField("builtImage")).get(stepResult))
                 .get();
+    }
+
+    private JibContainerBuilder from(final ImageType fromImageType, final DockerConfiguration dockerConfiguration,
+            final String from) throws InvalidImageReferenceException {
+        if (isFromDockerDaemon(fromImageType, dockerConfiguration, from)) {
+            return Jib.from(dockerConfiguration.toImage(from));
+        }
+        return Jib.from(ImageReference.parse(from));
+    }
+
+    // timestamp, assume it is cached locally
+    private boolean isFromDockerDaemon(final ImageType fromImageType, final DockerConfiguration dockerConfiguration,
+            final String img) {
+        return dockerConfiguration != null && fromImageType != ImageType.REGISTRY && !img.contains(".")
+                && !img.startsWith("docker://");
+    }
+
+    private ImageConfiguration createBaseImage(final String from, final DockerConfiguration dockerConfiguration,
+            final ImageType fromImageType) throws InvalidImageReferenceException {
+        if (isFromDockerDaemon(fromImageType, dockerConfiguration, from)) {
+            return ImageConfiguration
+                    .builder(ImageReference.parse(from))
+                    .setDockerClient(dockerConfiguration.toClient())
+                    .build();
+        }
+        return ImageConfiguration.builder(ImageReference.parse(from)).build();
     }
 
     private Map<String, Properties> extractProperties(final Layer it, final Collection<String> paths) {

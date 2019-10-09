@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.talend.sdk.component.remoteengine.customizer.model.BuildType;
 import org.talend.sdk.component.remoteengine.customizer.model.DockerConfiguration;
+import org.talend.sdk.component.remoteengine.customizer.model.ImageType;
 import org.talend.sdk.component.remoteengine.customizer.model.RegistryConfiguration;
 import org.talend.sdk.component.remoteengine.customizer.service.ConnectorLoader;
 import org.talend.sdk.component.remoteengine.customizer.task.RemoteEngineCustomizer;
@@ -63,14 +63,15 @@ public final class Cli {
             @Option("base-image") @Default("auto") final String baseImageConf,
             @Option("target-image") @Default("auto") final String targetImageConf,
             @Option("component-archive") final Collection<String> carPaths,
-            @Option("build-type") @Default("DOCKER") final BuildType buildType,
+            @Option("from-image-type") @Default("AUTO") final ImageType fromImageType,
+            @Option("to-image-type") @Default("DOCKER") final ImageType targetImageType,
             @Option("docker-configuration-") final DockerConfiguration dockerConfiguration,
             @Option("registry-configuration-") final RegistryConfiguration registryConfiguration,
             @Option("update-original-docker-compose") @Default("true") final boolean updateOriginalFile,
             final ConnectorLoader connectorLoader, final RemoteEngineCustomizer remoteEngineCustomizer) {
         remoteEngineCustomizer
                 .registerComponents(remoteEngineDirConf, workDirConf, cacheDirConf, baseImageConf, targetImageConf,
-                        carPaths, buildType, dockerConfiguration, registryConfiguration, connectorLoader,
-                        updateOriginalFile);
+                        carPaths, fromImageType, targetImageType, dockerConfiguration, registryConfiguration,
+                        connectorLoader, updateOriginalFile);
     }
 }

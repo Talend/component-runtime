@@ -19,10 +19,15 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 import com.google.cloud.tools.jib.api.DockerDaemonImage;
 import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
+import com.google.cloud.tools.jib.docker.DockerClient;
 
 import org.talend.sdk.component.remoteengine.customizer.lang.IO;
 import org.tomitribe.crest.api.Default;
@@ -44,13 +49,21 @@ public class DockerConfiguration {
 
     public DockerDaemonImage toImage(final String toConnectorsImage) throws InvalidImageReferenceException {
         final DockerDaemonImage docker = DockerDaemonImage.named(toConnectorsImage);
-        ofNullable(environment)
-                .map(IO::loadProperties)
-                .filter(p -> !p.isEmpty())
-                .ifPresent(p -> docker
-                        .setDockerEnvironment(
-                                p.stringPropertyNames().stream().collect(toMap(identity(), p::getProperty))));
+        environment().ifPresent(docker::setDockerEnvironment);
         ofNullable(path).ifPresent(p -> docker.setDockerExecutable(Paths.get(p)));
         return docker;
+    }
+
+    private Optional<Map<String, String>> environment() {
+        return ofNullable(environment)
+                .map(IO::loadProperties)
+                .filter(p -> !p.isEmpty())
+                .map(p -> p.stringPropertyNames().stream().collect(toMap(identity(), p::getProperty)));
+    }
+
+    public DockerClient toClient() {
+        return new DockerClient(
+                ofNullable(path).map(Paths::get).filter(Files::exists).orElse(DockerClient.DEFAULT_DOCKER_CLIENT),
+                environment().orElseGet(Collections::emptyMap));
     }
 }

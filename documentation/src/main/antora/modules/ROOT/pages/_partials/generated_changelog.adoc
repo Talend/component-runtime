@@ -1,5 +1,11 @@
 
 
+== Version 1.1.14
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1548[TCOMP-1548^]: Basic Remote Engine Customizer
+
 == Version 1.1.13
 
 === Bug
