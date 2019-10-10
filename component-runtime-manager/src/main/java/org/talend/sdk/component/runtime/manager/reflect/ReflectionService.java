@@ -583,6 +583,9 @@ public class ReflectionService {
                 }
             }
             final String fieldName = normalizeName(nestedName, metas);
+            if (preparedObjects.containsKey(fieldName)) {
+                continue;
+            }
             final Field field = findField(fieldName, clazz);
             preparedObjects
                     .put(fieldName, createObject(loader, contextualSupplier, field.getType(),
