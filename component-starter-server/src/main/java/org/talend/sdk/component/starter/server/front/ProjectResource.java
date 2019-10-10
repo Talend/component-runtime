@@ -309,6 +309,9 @@ public class ProjectResource {
                                 .substring(ofNullable(project.getModel().getArtifact()).orElse("application").length()
                                         + 1);
                         final File out = new File(workDir, path);
+                        if (!out.getCanonicalPath().startsWith(workDir.getCanonicalPath())) {
+                            throw new IOException("The output file is not contained in the destination directory");
+                        }
                         out.getParentFile().mkdirs();
 
                         // we need to filter some files, we can filter more files later but for now it is not
