@@ -111,6 +111,7 @@ import org.apache.xbean.finder.filter.IncludeExcludeFilter;
 import org.apache.xbean.finder.util.Files;
 import org.apache.xbean.propertyeditor.Converter;
 import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -169,6 +170,7 @@ import org.talend.sdk.component.runtime.manager.service.configuration.Properties
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
+import org.talend.sdk.component.runtime.manager.util.Lazy;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
@@ -783,10 +785,13 @@ public class ComponentManager implements AutoCloseable {
                 .filter(Objects::nonNull)
                 .map(component -> componentType.findMeta(component).get(name))
                 .filter(Objects::nonNull)
-                .map(comp -> comp
-                        .getInstantiator()
-                        .apply(configuration == null ? null
-                                : comp.getMigrationHandler().migrate(version, configuration)));
+                .map(comp -> {
+                    if (configuration == null) {
+                        return comp.getInstantiator().apply(null);
+                    }
+                    final Supplier<MigrationHandler> migrationHandler = comp.getMigrationHandler();
+                    return comp.getInstantiator().apply(migrationHandler.get().migrate(version, configuration));
+                });
     }
 
     private Optional<Object> findGenericInstance(final String plugin, final String name,
@@ -1742,7 +1747,9 @@ public class ComponentManager implements AutoCloseable {
                                     findVersion(type), type, parameterMetas,
                                     args -> propertyEditorRegistry
                                             .withCache(xbeanConverterCache, () -> instantiator.apply(args)),
-                                    migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
+                                    Lazy
+                                            .lazy(() -> migrationHandlerFactory
+                                                    .findMigrationHandler(parameterMetas, type, services)),
                                     !context.isNoValidation(), infinite));
         }
 
@@ -1775,7 +1782,9 @@ public class ComponentManager implements AutoCloseable {
                                     findVersion(type), type, parameterMetas,
                                     args -> propertyEditorRegistry
                                             .withCache(xbeanConverterCache, () -> instantiator.apply(args)),
-                                    migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
+                                    Lazy
+                                            .lazy(() -> migrationHandlerFactory
+                                                    .findMigrationHandler(parameterMetas, type, services)),
                                     !context.isNoValidation(), false));
         }
 
@@ -1823,7 +1832,9 @@ public class ComponentManager implements AutoCloseable {
                                     findVersion(type), type, parameterMetas,
                                     args -> propertyEditorRegistry
                                             .withCache(xbeanConverterCache, () -> instantiator.apply(args)),
-                                    migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
+                                    Lazy
+                                            .lazy(() -> migrationHandlerFactory
+                                                    .findMigrationHandler(parameterMetas, type, services)),
                                     !context.isNoValidation()));
         }
 

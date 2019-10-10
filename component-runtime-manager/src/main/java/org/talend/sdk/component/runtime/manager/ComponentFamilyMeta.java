@@ -140,7 +140,7 @@ public class ComponentFamilyMeta {
 
         private final String packageName;
 
-        private final MigrationHandler migrationHandler;
+        private final Supplier<MigrationHandler> migrationHandler;
 
         private final Supplier<List<ParameterMeta>> parameterMetas;
 
@@ -162,7 +162,7 @@ public class ComponentFamilyMeta {
 
         BaseMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
                 final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
-                final MigrationHandler migrationHandler, final Function<Map<String, String>, T> instantiator,
+                final Supplier<MigrationHandler> migrationHandler, final Function<Map<String, String>, T> instantiator,
                 final boolean validated) {
             this.parent = parent;
             this.name = name;
@@ -231,8 +231,8 @@ public class ComponentFamilyMeta {
 
         protected PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon,
                 final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
-                final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
-                final boolean validated, final boolean infinite) {
+                final Function<Map<String, String>, Mapper> instantiator,
+                final Supplier<MigrationHandler> migrationHandler, final boolean validated, final boolean infinite) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
             this.infinite = infinite;
         }
@@ -244,8 +244,8 @@ public class ComponentFamilyMeta {
 
         protected ProcessorMeta(final ComponentFamilyMeta parent, final String name, final String icon,
                 final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
-                final Function<Map<String, String>, Processor> instantiator, final MigrationHandler migrationHandler,
-                final boolean validated) {
+                final Function<Map<String, String>, Processor> instantiator,
+                final Supplier<MigrationHandler> migrationHandler, final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
         }
 

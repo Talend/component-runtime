@@ -369,6 +369,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "Didn't find component " + id))
                         .build()))
                 .getMigrationHandler()
+                .get()
                 .migrate(version, config);
     }
 
