@@ -61,6 +61,12 @@ public class ObjectFactoryImpl implements ObjectFactory, Serializable {
         }
 
         @Override
+        public ObjectFactoryInstance withoutFieldInjection() {
+            recipe.disallow(Option.FIELD_INJECTION);
+            return this;
+        }
+
+        @Override
         public ObjectFactoryInstance ignoreUnknownProperties() {
             recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
             return this;
@@ -68,7 +74,12 @@ public class ObjectFactoryImpl implements ObjectFactory, Serializable {
 
         @Override
         public ObjectFactoryInstance withProperties(final Map<String, ?> map) {
-            recipe.setAllProperties(map);
+            if (recipe.getOptions().contains(Option.FIELD_INJECTION)
+                    && recipe.getOptions().contains(Option.PRIVATE_PROPERTIES)) {
+                map.forEach(recipe::setFieldProperty);
+            } else {
+                recipe.setAllProperties(map);
+            }
             return this;
         }
 

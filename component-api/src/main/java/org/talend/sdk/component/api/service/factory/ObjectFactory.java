@@ -42,11 +42,19 @@ public interface ObjectFactory {
     interface ObjectFactoryInstance {
 
         /**
-         * Set that the properties can be injected into fields directly, default uses setters.
+         * Set that the properties can be injected into fields directly, default uses fields
+         * but not private ones.
          * 
          * @return this.
          */
         ObjectFactoryInstance withFieldInjection();
+
+        /**
+         * Set that the properties can NOT be injected into fields directly.
+         *
+         * @return this.
+         */
+        ObjectFactoryInstance withoutFieldInjection();
 
         /**
          * If called the unsupported properties will be ignored otherwise {@link ObjectFactoryInstance#create(Class)}

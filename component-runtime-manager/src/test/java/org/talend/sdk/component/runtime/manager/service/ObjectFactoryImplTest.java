@@ -54,7 +54,7 @@ class ObjectFactoryImplTest {
 
     @Test
     void createDefaults() {
-        assertEquals("test/0", factory
+        assertEquals("test(setter)/0", factory
                 .createInstance("org.talend.sdk.component.runtime.manager.service.ObjectFactoryImplTest$Created")
                 .ignoreUnknownProperties()
                 .withProperties(new HashMap<String, String>() {
@@ -104,8 +104,8 @@ class ObjectFactoryImplTest {
 
         private int age;
 
-        public void setName(String name) {
-            this.name = name;
+        public void setName(final String name) {
+            this.name = name + "(setter)";
         }
 
         @Override

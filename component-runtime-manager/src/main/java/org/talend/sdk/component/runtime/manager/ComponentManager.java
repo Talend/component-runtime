@@ -69,6 +69,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -108,7 +109,7 @@ import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
 import org.apache.xbean.finder.filter.IncludeExcludeFilter;
 import org.apache.xbean.finder.util.Files;
-import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
+import org.apache.xbean.propertyeditor.Converter;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Emitter;
@@ -272,7 +273,7 @@ public class ComponentManager implements AutoCloseable {
             .setProperty("johnzon.cdi.activated", false)
             .setProperty("johnzon.accessModeDelegate", new TalendAccessMode());
 
-    private final PropertyEditorRegistry propertyEditorRegistry;
+    private final EnrichedPropertyEditorRegistry propertyEditorRegistry;
 
     private final List<ContainerClasspathContributor> classpathContributors;
 
@@ -413,7 +414,7 @@ public class ComponentManager implements AutoCloseable {
         return container.resolve(artifact);
     }
 
-    private PropertyEditorRegistry createPropertyEditorRegistry() {
+    private EnrichedPropertyEditorRegistry createPropertyEditorRegistry() {
         return new EnrichedPropertyEditorRegistry();
     }
 
@@ -1179,6 +1180,7 @@ public class ComponentManager implements AutoCloseable {
         public void onCreate(final Container container) {
             final ConfigurableClassLoader loader = container.getLoader();
             final OriginalId originalId = OriginalId.class.cast(container.get(OriginalId.class));
+            final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache = new ConcurrentHashMap<>();
 
             final AnnotationFinder finder;
             Archive archive = null;
@@ -1313,7 +1315,7 @@ public class ComponentManager implements AutoCloseable {
             final Map<Class<?>, Object> userServices = finder
                     .findAnnotatedClasses(Service.class)
                     .stream()
-                    .filter(s -> !services.keySet().contains(s))
+                    .filter(s -> !services.containsKey(s))
                     .collect(toMap(identity(), service -> {
                         try {
                             final Object instance;
@@ -1367,14 +1369,14 @@ public class ComponentManager implements AutoCloseable {
                         .flatMap(a -> finder.findAnnotatedClasses(a).stream())
                         .filter(t -> Modifier.isPublic(t.getModifiers()))
                         .forEach(type -> onComponent(container, registry, services, allServices, componentDefaults,
-                                componentContexts, type));
+                                componentContexts, type, xbeanConverterCache));
             }
         }
 
         private void onComponent(final Container container, final ContainerComponentRegistry registry,
                 final Map<Class<?>, Object> services, final AllServices allServices,
                 final Map<String, AnnotatedElement> componentDefaults, final ComponentContexts componentContexts,
-                final Class<?> type) {
+                final Class<?> type, final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache) {
             final Components components = findComponentsConfig(componentDefaults, type, container.getLoader(),
                     Components.class, DEFAULT_COMPONENT);
 
@@ -1394,7 +1396,7 @@ public class ComponentManager implements AutoCloseable {
 
             final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), allServices, components,
                     componentDefaults.get(getAnnotatedElementCacheKey(type)), context, migrationHandlerFactory,
-                    iconFinder);
+                    iconFinder, xbeanConverterCache);
 
             final Thread thread = Thread.currentThread();
             final ClassLoader old = thread.getContextClassLoader();
@@ -1417,14 +1419,14 @@ public class ComponentManager implements AutoCloseable {
                             .getProcessors()
                             .keySet()
                             .stream()
-                            .anyMatch(k -> c.getProcessors().keySet().contains(k))) {
+                            .anyMatch(k -> c.getProcessors().containsKey(k))) {
                         throw new IllegalArgumentException("Conflicting processors in " + c);
                     }
                     if (componentFamilyMeta
                             .getPartitionMappers()
                             .keySet()
                             .stream()
-                            .anyMatch(k -> c.getPartitionMappers().keySet().contains(k))) {
+                            .anyMatch(k -> c.getPartitionMappers().containsKey(k))) {
                         throw new IllegalArgumentException("Conflicting mappers in " + c);
                     }
 
@@ -1704,6 +1706,8 @@ public class ComponentManager implements AutoCloseable {
 
         private final IconFinder iconFinder;
 
+        private final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache;
+
         private ComponentFamilyMeta component;
 
         @Override
@@ -1735,7 +1739,9 @@ public class ComponentManager implements AutoCloseable {
                     .getPartitionMappers()
                     .put(name,
                             new ComponentFamilyMeta.PartitionMapperMeta(component, name, iconFinder.findIcon(type),
-                                    findVersion(type), type, parameterMetas, instantiator,
+                                    findVersion(type), type, parameterMetas,
+                                    args -> propertyEditorRegistry
+                                            .withCache(xbeanConverterCache, () -> instantiator.apply(args)),
                                     migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
                                     !context.isNoValidation(), infinite));
         }
@@ -1766,7 +1772,9 @@ public class ComponentManager implements AutoCloseable {
                     .getPartitionMappers()
                     .put(name,
                             new ComponentFamilyMeta.PartitionMapperMeta(component, name, iconFinder.findIcon(type),
-                                    findVersion(type), type, parameterMetas, instantiator,
+                                    findVersion(type), type, parameterMetas,
+                                    args -> propertyEditorRegistry
+                                            .withCache(xbeanConverterCache, () -> instantiator.apply(args)),
                                     migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
                                     !context.isNoValidation(), false));
         }
@@ -1812,7 +1820,9 @@ public class ComponentManager implements AutoCloseable {
                     .getProcessors()
                     .put(name,
                             new ComponentFamilyMeta.ProcessorMeta(component, name, iconFinder.findIcon(type),
-                                    findVersion(type), type, parameterMetas, instantiator,
+                                    findVersion(type), type, parameterMetas,
+                                    args -> propertyEditorRegistry
+                                            .withCache(xbeanConverterCache, () -> instantiator.apply(args)),
                                     migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
                                     !context.isNoValidation()));
         }

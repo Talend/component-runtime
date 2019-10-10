@@ -56,6 +56,7 @@ import org.apache.xbean.asm7.MethodVisitor;
 import org.apache.xbean.asm7.Type;
 import org.apache.xbean.asm7.commons.AdviceAdapter;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
@@ -91,14 +92,19 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
 
         final ConfigurableClassLoader classLoader = ConfigurableClassLoader.class.cast(loader);
+        final String javaClassName = toClassName(className);
+        if (!KnownClassesFilter.INSTANCE.accept(javaClassName) && !canBeABeamIO(classLoader, javaClassName)) {
+            return classfileBuffer;
+        }
+
         final URLClassLoader tmpLoader = classLoader.createTemporaryCopy(); // cache it: mem is the issue?
         final Thread thread = Thread.currentThread();
         final ClassLoader old = thread.getContextClassLoader();
         thread.setContextClassLoader(tmpLoader);
         try {
-            final Class<?> tmpClass = loadTempClass(tmpLoader, className);
+            final Class<?> tmpClass = loadTempClass(tmpLoader, javaClassName);
             if (tmpClass.getClassLoader() != tmpLoader.getParent() && doesHierarchyContain(tmpClass, typesToEnhance)) {
-                return rewrite(classLoader, className, classfileBuffer, tmpLoader, tmpClass);
+                return rewrite(classLoader, javaClassName, classfileBuffer, tmpLoader, tmpClass);
             }
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             if (DEBUG) {
@@ -110,25 +116,37 @@ public class BeamIOTransformer implements ClassFileTransformer {
         return classfileBuffer;
     }
 
+    // todo: this method could merit some configuration to optimize the transformer
+    protected boolean canBeABeamIO(final ConfigurableClassLoader loader, final String javaClassName) {
+        return javaClassName.startsWith("org.apache.beam.") && !loader.getParentFilter().test(javaClassName);
+    }
+
+    private String toClassName(final String className) {
+        return className.replace('/', '.');
+    }
+
     private byte[] rewrite(final ConfigurableClassLoader loader, final String className, final byte[] classfileBuffer,
             final ClassLoader tmpLoader, final Class<?> tmpClass) {
         final String plugin = loader.getId();
 
         final ClassReader reader = new ClassReader(classfileBuffer);
         final ComponentClassWriter writer =
-                new ComponentClassWriter(className.replace('/', '.'), tmpLoader, reader, ClassWriter.COMPUTE_FRAMES);
+                new ComponentClassWriter(className, tmpLoader, reader, ClassWriter.COMPUTE_FRAMES);
         final SerializableCoderReplacement serializableCoderReplacement =
                 new SerializableCoderReplacement(writer, plugin, tmpClass);
         final ComponentClassVisitor visitor = new ComponentClassVisitor(serializableCoderReplacement, plugin);
         reader.accept(visitor, ClassReader.SKIP_FRAMES);
 
         unsupportedLog(className);
+        if (DEBUG) {
+            log.error("Transformed: " + className);
+        }
 
         return writer.toByteArray();
     }
 
     private Class<?> loadTempClass(final ClassLoader tmpLoader, final String className) throws ClassNotFoundException {
-        return tmpLoader.loadClass(className.replace('/', '.'));
+        return tmpLoader.loadClass(className);
     }
 
     private boolean doesHierarchyContain(final Class<?> clazz, final Collection<String> types) {

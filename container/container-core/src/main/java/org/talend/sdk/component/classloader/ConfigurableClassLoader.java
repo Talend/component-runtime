@@ -84,8 +84,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private final URL[] creationUrls;
 
+    @Getter
     private final Predicate<String> parentFilter;
 
+    @Getter
     private final Predicate<String> childFirstFilter;
 
     private final Map<String, Collection<Resource>> resources = new HashMap<>();

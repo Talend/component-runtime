@@ -612,15 +612,15 @@ public class ReflectionService {
                 }, Map.Entry::getValue));
 
         // now bind it all to the recipe and builder the instance
-        preparedMaps.forEach(recipe::setProperty);
-        preparedLists.forEach(recipe::setProperty);
-        preparedObjects.forEach(recipe::setProperty);
+        preparedMaps.forEach(recipe::setFieldProperty);
+        preparedLists.forEach(recipe::setFieldProperty);
+        preparedObjects.forEach(recipe::setFieldProperty);
         if (!normalizedConfig.isEmpty()) {
             normalizedConfig
                     .entrySet()
                     .stream()
                     .map(it -> normalize(it, metas))
-                    .forEach(e -> recipe.setProperty(e.getKey(), e.getValue()));
+                    .forEach(e -> recipe.setFieldProperty(e.getKey(), e.getValue()));
         }
         return recipe.create(loader);
     }

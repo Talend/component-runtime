@@ -15,13 +15,19 @@
  */
 package org.talend.sdk.component.runtime.manager.xbean.registry;
 
+import static java.util.Optional.ofNullable;
 import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
 
+import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.apache.xbean.propertyeditor.BigDecimalEditor;
@@ -57,6 +63,8 @@ import org.talend.sdk.component.runtime.manager.xbean.converter.ZonedDateTimeCon
 
 public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
 
+    private final ThreadLocal<Map<Type, Optional<Converter>>> converterCache = new ThreadLocal<>();
+
     public EnrichedPropertyEditorRegistry() {
         final DoubleEditor doubleEditor = new DoubleEditor();
         // the front always sends us doubles so
@@ -72,44 +80,87 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
                 };
 
         // built-in (was provided by xbean originally)
-        register(new BooleanEditor());
-        register(numberConverter.apply(Byte.class, Double::byteValue));
-        register(numberConverter.apply(Short.class, Double::shortValue));
-        register(numberConverter.apply(Integer.class, Double::intValue));
-        register(numberConverter.apply(Long.class, Double::longValue));
-        register(numberConverter.apply(Float.class, Double::floatValue));
-        register(doubleEditor);
-        register(new BigDecimalEditor());
-        register(new BigIntegerEditor());
-        register(new StringEditor());
-        register(new CharacterEditor());
-        register(new ClassEditor());
-        register(new LazyDateEditor());
-        register(new FileEditor());
-        register(new HashMapEditor());
-        register(new HashtableEditor());
-        register(new Inet4AddressEditor());
-        register(new Inet6AddressEditor());
-        register(new InetAddressEditor());
-        register(new ListEditor());
-        register(new SetEditor());
-        register(new MapEditor());
-        register(new SortedMapEditor());
-        register(new SortedSetEditor());
-        register(new ObjectNameEditor());
-        register(new PropertiesEditor());
-        register(new URIEditor());
-        register(new URLEditor());
-        register(new PatternConverter());
+        super.register(new BooleanEditor());
+        super.register(numberConverter.apply(Byte.class, Double::byteValue));
+        super.register(numberConverter.apply(Short.class, Double::shortValue));
+        super.register(numberConverter.apply(Integer.class, Double::intValue));
+        super.register(numberConverter.apply(Long.class, Double::longValue));
+        super.register(numberConverter.apply(Float.class, Double::floatValue));
+        super.register(doubleEditor);
+        super.register(new BigDecimalEditor());
+        super.register(new BigIntegerEditor());
+        super.register(new StringEditor());
+        super.register(new CharacterEditor());
+        super.register(new ClassEditor());
+        super.register(new LazyDateEditor());
+        super.register(new FileEditor());
+        super.register(new HashMapEditor());
+        super.register(new HashtableEditor());
+        super.register(new Inet4AddressEditor());
+        super.register(new Inet6AddressEditor());
+        super.register(new InetAddressEditor());
+        super.register(new ListEditor());
+        super.register(new SetEditor());
+        super.register(new MapEditor());
+        super.register(new SortedMapEditor());
+        super.register(new SortedSetEditor());
+        super.register(new ObjectNameEditor());
+        super.register(new PropertiesEditor());
+        super.register(new URIEditor());
+        super.register(new URLEditor());
+        super.register(new PatternConverter());
 
         // customs
-        register(new LazyZonedDateTimeConverter());
-        register(new LocalDateTimeConverter());
-        register(new LocalDateConverter());
-        register(new LocalTimeConverter());
+        super.register(new LazyZonedDateTimeConverter());
+        super.register(new LocalDateTimeConverter());
+        super.register(new LocalDateConverter());
+        super.register(new LocalTimeConverter());
 
         // extensions
         ServiceLoader.load(Converter.class).forEach(this::register);
+    }
+
+    @Override
+    public Converter findConverter(final Type type) {
+        final Map<Type, Optional<Converter>> cache = converterCache.get();
+        if (cache == null) {
+            converterCache.remove();
+            return doFindConverter(type);
+        }
+        return ofNullable(cache.get(type)).flatMap(c -> c).orElseGet(() -> {
+            final Converter converter = doFindConverter(type);
+            cache.put(type, ofNullable(converter));
+            return converter;
+        });
+    }
+
+    public <T> T withCache(final Map<Type, Optional<Converter>> cache, final Supplier<T> task) {
+        converterCache.set(cache);
+        try {
+            return task.get();
+        } finally {
+            converterCache.remove();
+        }
+    }
+
+    private Converter doFindConverter(final Type type) {
+        return Stream
+                .<Supplier<Converter>> of(() -> findInternalConverter(type), () -> findStructuralConverter(type))
+                .map(Supplier::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public Converter register(final Converter converter) {
+        final Map<Type, Optional<Converter>> cache = converterCache.get();
+        if (cache != null) {
+            cache.putIfAbsent(converter.getType(), ofNullable(converter));
+        } else {
+            converterCache.remove();
+        }
+        return converter; // avoid unexpected caching (would leak)
     }
 
     // used when default init is slow
