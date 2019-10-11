@@ -95,6 +95,42 @@ class RecordConvertersTest {
     }
 
     @Test
+    void studioTypes2() throws Exception {
+        final RowStruct rowStruct = new RowStruct();
+        rowStruct.col1int = 10;
+        rowStruct.col2string = "stringy";
+        rowStruct.col3char = 'a';
+        rowStruct.col4bool = Boolean.TRUE;
+        rowStruct.col5byte = 100;
+        rowStruct.col6short = Short.MAX_VALUE;
+        rowStruct.col7long = 1971L;
+        rowStruct.col8float = 19.71f;
+        rowStruct.col9double = 19.234;
+        rowStruct.col10bigdec = java.math.BigDecimal.TEN;
+        rowStruct.col11date = new java.util.Date();
+        try (final Jsonb jsonb = JsonbBuilder
+                .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
+            final Record record = Record.class
+                    .cast(converter
+                            .toType(new RecordConverters.MappingMetaRegistry(), rowStruct, Record.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
+            final RowStruct deserialized = RowStruct.class
+                    .cast(converter
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, RowStruct.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
+            if (rowStruct.col10bigdec.doubleValue() == deserialized.col10bigdec.doubleValue()) {
+                deserialized.col10bigdec = rowStruct.col10bigdec;
+            }
+            if (rowStruct.col11date.equals(deserialized.col11date)) {
+                deserialized.col11date = rowStruct.col11date;
+            }
+            assertEquals(rowStruct, deserialized);
+        }
+    }
+
+    @Test
     void pojo2Record() throws Exception {
         final Wrapper record = new Wrapper();
         record.value = "hey";
@@ -309,5 +345,32 @@ class RecordConvertersTest {
     public static class BoolStruct implements IPersistableRow {
 
         public boolean value;
+    }
+
+    @ToString
+    @EqualsAndHashCode
+    public static class RowStruct implements routines.system.IPersistableRow {
+
+        public Integer col1int;
+
+        public String col2string;
+
+        public Character col3char;
+
+        public Boolean col4bool;
+
+        public Byte col5byte;
+
+        public Short col6short;
+
+        public Long col7long;
+
+        public Float col8float;
+
+        public Double col9double;
+
+        public java.math.BigDecimal col10bigdec;
+
+        public java.util.Date col11date;
     }
 }
