@@ -13,6 +13,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1550[TCOMP-1550^]: Component configuration instantiation can be slow for complex configurations
 - link:https://jira.talendforge.org/browse/TCOMP-1551[TCOMP-1551^]: ObjectFactory should default to fieldproperties when field injection is activated
 - link:https://jira.talendforge.org/browse/TCOMP-1553[TCOMP-1553^]: Simplify and widden excluded classes for with transformer support
+- link:https://jira.talendforge.org/browse/TCOMP-1555[TCOMP-1555^]: Upgrade to Tomcat 9.0.27
 
 == Version 1.1.13
 
