@@ -24,10 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -36,11 +38,15 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.BinaryDataStrategy;
+import javax.json.bind.config.PropertyOrderStrategy;
 import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import routines.system.IPersistableRow;
 
@@ -53,6 +59,40 @@ class RecordConvertersTest {
     private final JsonBuilderFactory jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
 
     private final RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+
+    @Test
+    void studioTypes() throws Exception {
+        final SimpleRowStruct record = new SimpleRowStruct();
+        record.character = 'a';
+        record.character2 = 'a';
+        record.notLong = 100;
+        record.notLong2 = 100;
+        record.binary = 100;
+        record.binary2 = 100;
+        record.bd = BigDecimal.TEN;
+        record.today = new Date(0);
+        try (final Jsonb jsonb = JsonbBuilder
+                .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
+            final Record recordModel = Record.class
+                    .cast(converter
+                            .toType(new RecordConverters.MappingMetaRegistry(), record, Record.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
+            assertEquals(
+                    "{\"bd\":10.0,\"binary\":100.0,\"binary2\":100.0," + "\"character\":\"a\",\"character2\":\"a\","
+                            + "\"notLong\":100.0,\"notLong2\":100.0," + "\"today\":\"1970-01-01T00:00:00Z[UTC]\"}",
+                    recordModel.toString());
+            final SimpleRowStruct deserialized = SimpleRowStruct.class
+                    .cast(converter
+                            .toType(new RecordConverters.MappingMetaRegistry(), recordModel, SimpleRowStruct.class,
+                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                                    () -> recordBuilderFactory));
+            if (record.bd.doubleValue() == deserialized.bd.doubleValue()) { // equals fails on this one
+                deserialized.bd = record.bd;
+            }
+            assertEquals(record, deserialized);
+        }
+    }
 
     @Test
     void pojo2Record() throws Exception {
@@ -237,6 +277,28 @@ class RecordConvertersTest {
     public static class BytesStruct {
 
         public byte[] value;
+    }
+
+    // not @Data, we don't want getters here
+    @ToString
+    @EqualsAndHashCode
+    public static class SimpleRowStruct {
+
+        public char character;
+
+        public Character character2;
+
+        public short notLong;
+
+        public Short notLong2;
+
+        public byte binary;
+
+        public Byte binary2;
+
+        public BigDecimal bd;
+
+        public Date today;
     }
 
     public static class IntStruct implements IPersistableRow {
