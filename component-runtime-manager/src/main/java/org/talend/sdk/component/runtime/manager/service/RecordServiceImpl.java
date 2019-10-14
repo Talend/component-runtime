@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -37,7 +38,7 @@ import org.talend.sdk.component.runtime.serialization.SerializableService;
 import lombok.Data;
 
 @Data
-public class RecordServiceImpl implements RecordService {
+public class RecordServiceImpl implements RecordService, Serializable {
 
     private final String plugin;
 
