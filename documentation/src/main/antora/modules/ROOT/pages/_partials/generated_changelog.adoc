@@ -2,6 +2,12 @@
 
 == Version 1.1.14
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1558[TCOMP-1558^]: org.talend.sdk.component.api.service.record.RecordService must be serializable
+
+
+
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1548[TCOMP-1548^]: Basic Remote Engine Customizer
@@ -14,6 +20,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1551[TCOMP-1551^]: ObjectFactory should default to fieldproperties when field injection is activated
 - link:https://jira.talendforge.org/browse/TCOMP-1553[TCOMP-1553^]: Simplify and widden excluded classes for with transformer support
 - link:https://jira.talendforge.org/browse/TCOMP-1555[TCOMP-1555^]: Upgrade to Tomcat 9.0.27
+- link:https://jira.talendforge.org/browse/TCOMP-1556[TCOMP-1556^]: Studio short, byte, BigDecimal and char types are wrong handled
+- link:https://jira.talendforge.org/browse/TCOMP-1557[TCOMP-1557^]: Upgrade to Beam 2.16.0
 
 == Version 1.1.13
 
