@@ -1,5 +1,17 @@
 
 
+== Version 1.1.15
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1560[TCOMP-1560^]: Min and Max error message during configuration validation are reversed
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1559[TCOMP-1559^]: Support configuration of the maxBatchSize enablement
+
 == Version 1.1.14
 
 === Bug

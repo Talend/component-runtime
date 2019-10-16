@@ -55,7 +55,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
     protected Processor processor;
 
     @Setter
-    protected int maxBatchSize = 1000;
+    protected int maxBatchSize = -1; // ui enforces it so we set it to -1 to enable to deactivate it
 
     protected int currentCount = 0;
 

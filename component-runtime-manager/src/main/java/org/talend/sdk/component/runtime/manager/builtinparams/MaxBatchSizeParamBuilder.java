@@ -40,9 +40,17 @@ public class MaxBatchSizeParamBuilder {
             final LocalConfiguration configuration) {
         this.root = root;
         this.layoutType = getLayoutType(root);
-        this.defaultValue = Integer
-                .parseInt(ofNullable(configuration.get(componentSimpleClassName + "._maxBatchSize.value"))
-                        .orElseGet(() -> ofNullable(configuration.get("_maxBatchSize.value")).orElse("1000"))
+        this.defaultValue = !isActive(componentSimpleClassName, configuration) ? -1
+                : Integer
+                        .parseInt(ofNullable(configuration.get(componentSimpleClassName + "._maxBatchSize.value"))
+                                .orElseGet(() -> ofNullable(configuration.get("_maxBatchSize.value")).orElse("1000"))
+                                .trim());
+    }
+
+    private boolean isActive(final String componentSimpleClassName, final LocalConfiguration configuration) {
+        return Boolean
+                .parseBoolean(ofNullable(configuration.get(componentSimpleClassName + "._maxBatchSize.active"))
+                        .orElseGet(() -> ofNullable(configuration.get("_maxBatchSize.active")).orElse("true"))
                         .trim());
     }
 

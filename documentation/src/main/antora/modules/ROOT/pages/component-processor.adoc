@@ -73,7 +73,7 @@ public void endBatch() {
 }
 ----
 
-You can optimize the data batch processing by using the `maxBatchSize` parameter. This parameter is automatically implemented on the component when it is deployed to a Talend application. Only the logic needs to be implemented. You can however customize its value setting in your `LocalConfiguration` the property `_maxBatchSize.value` - for the family - or `${component simple class name}._maxBatchSize.value` - for a particular component, otherwise its default will be `1000`. Learn how to implement chunking/bulking in xref:concept-processor-and-batch-processing.adoc[this document].
+You can optimize the data batch processing by using the `maxBatchSize` parameter. This parameter is automatically implemented on the component when it is deployed to a Talend application. Only the logic needs to be implemented. You can however customize its value setting in your `LocalConfiguration` the property `_maxBatchSize.value` - for the family - or `${component simple class name}._maxBatchSize.value` - for a particular component, otherwise its default will be `1000`. If you replace `value` by `active`, you can also configure if this feature is enabled or not. This is useful when you don't want to use it at all. Learn how to implement chunking/bulking in xref:concept-processor-and-batch-processing.adoc[this document].
 
 == Defining output connections
 

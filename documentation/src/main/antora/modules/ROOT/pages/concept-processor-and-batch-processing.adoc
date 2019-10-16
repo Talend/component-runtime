@@ -81,7 +81,7 @@ public class BulkProcessor implements Serializable {
 }
 ----
 
-NOTE: When writing tests for your components, you can force the `maxBatchSize` parameter value by setting it with the following syntax: `$configuration.$maxBatchSize=10`.
+NOTE: When writing tests for your components, you can force the `maxBatchSize` parameter value by setting it with the following syntax: `<configuration prefix>.$maxBatchSize=10`.
 
 You can learn more about processors in xref:component-define-processor-output.adoc[this document].
 
