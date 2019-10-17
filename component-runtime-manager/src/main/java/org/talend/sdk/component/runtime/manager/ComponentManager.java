@@ -1465,20 +1465,23 @@ public class ComponentManager implements AutoCloseable {
                                 + actionType.expectedReturnedType() + ", actual one: " + serviceMethod.getReturnType());
             }
 
-            final String component;
+            String component = "";
             try {
                 component = ofNullable(String.class.cast(marker.annotationType().getMethod("family").invoke(marker)))
                         .filter(c -> !c.isEmpty())
                         .orElseGet(components::family);
-                if (component.isEmpty()) {
-                    throw new IllegalArgumentException("No component for " + serviceMethod
-                            + ", maybe add a @Components on your package " + service.getPackage());
-                }
-            } catch (final NoSuchMethodException | IllegalAccessException e) {
+            } catch (final NoSuchMethodException e) {
+                component = components.family();
+            } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
                 throw toRuntimeException(e);
             }
+            if (component.isEmpty()) {
+                throw new IllegalArgumentException("No component for " + serviceMethod
+                        + ", maybe add a @Components on your package " + service.getPackage());
+            }
+
             final String name = Stream.of("name", "value").map(mName -> {
                 try {
                     return String.class.cast(marker.annotationType().getMethod(mName).invoke(marker));
