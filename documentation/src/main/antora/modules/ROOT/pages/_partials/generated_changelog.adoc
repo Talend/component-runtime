@@ -11,6 +11,8 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1559[TCOMP-1559^]: Support configuration of the maxBatchSize enablement
+- link:https://jira.talendforge.org/browse/TCOMP-1561[TCOMP-1561^]: Custom action type shouldn't need to be enforced to define a family method
+- link:https://jira.talendforge.org/browse/TCOMP-1562[TCOMP-1562^]: Support JsonObject type in actions
 
 == Version 1.1.14
 

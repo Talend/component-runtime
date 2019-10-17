@@ -43,6 +43,8 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.bind.JsonbBuilder;
 
 import org.apache.xbean.propertyeditor.AbstractConverter;
@@ -90,6 +92,13 @@ class ReflectionServiceTest {
     private final ParameterModelService parameterModelService = new ParameterModelService(registry);
 
     private final ReflectionService reflectionService = new ReflectionService(parameterModelService, registry);
+
+    @Test
+    void jsonObject() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(JsonObject.class, new HashMap<>());
+        final Object[] objects = factory.apply(singletonMap("root", "{\"set\":true}"));
+        assertEquals(Json.createObjectBuilder().add("set", true).build(), JsonObject.class.cast(objects[0]));
+    }
 
     @Test
     void date() throws NoSuchMethodException {
@@ -776,6 +785,10 @@ class ReflectionServiceTest {
         }
 
         public FakeComponent(@Option("root") final ConfigWithDate root) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final JsonObject root) {
             // no-op
         }
     }
