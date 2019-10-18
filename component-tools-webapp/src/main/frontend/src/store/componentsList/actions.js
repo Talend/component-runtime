@@ -63,6 +63,7 @@ function createComponentNode(familyNode, component, dispatch) {
 
   const node = {
     ...component,
+    id: componentId,
     name: component.displayName,
     familyId: component.id.family,
     $$id: componentId,

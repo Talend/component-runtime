@@ -15,14 +15,18 @@
  */
 
 import React from 'react';
+
+import { withTranslation, I18nextProvider } from 'react-i18next';
 import { IconsProvider, HeaderBar, Layout, Notification, CircularProgress } from '@talend/react-components';
 
 import Menu from '../Menu';
 import Detail from '../Detail';
 
+import i18n from '../../i18n';
+
 import theme from './App.scss';
 
-export default class App extends React.Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.notificationLeaveFn = this.notificationLeaveFn.bind(this);
@@ -43,12 +47,16 @@ export default class App extends React.Component {
 
     return (
       <div className={theme.App}>
-        <IconsProvider/>
-        <Layout mode={'TwoColumns'} header={header} one={menu}>
-          <Detail saga="Detail::start" />
-        </Layout>
-        <Notification notifications={this.props.notifications} leaveFn={this.notificationLeaveFn} />
+        <I18nextProvider i18n={i18n}>
+          <IconsProvider/>
+          <Layout mode={'TwoColumns'} header={header} one={menu}>
+            <Detail saga="Detail::start" />
+          </Layout>
+          <Notification notifications={this.props.notifications} leaveFn={this.notificationLeaveFn} />
+        </I18nextProvider>
       </div>
     );
   }
 }
+
+export default withTranslation('app')(App);

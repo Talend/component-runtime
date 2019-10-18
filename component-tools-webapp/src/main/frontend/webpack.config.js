@@ -15,10 +15,13 @@
  */
 'use strict';
 
+const path = require('path')
+const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const icons = require.resolve('@talend/icons/dist/info');
 
 const extractCSS = new ExtractTextPlugin({ filename: '[name]-[hash].css' });
 
@@ -92,6 +95,10 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       { from: 'src/assets' },
+      { from: path.join(path.dirname(icons), 'svg-bundle') },
     ]),
+    new webpack.DefinePlugin({
+    	'process.env.ICON_BUNDLE': 'true',
+    }),
 ],
 };

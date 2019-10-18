@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+import React from 'react';
 import cmf from '@talend/react-cmf';
 import '@talend/bootstrap-theme/src/theme/theme.scss';
 
@@ -29,6 +30,8 @@ import 'brace/snippets/java';
 import 'brace/snippets/sql';
 import 'brace/snippets/python';
 import 'brace/snippets/xml';
+
+import i18n from './i18n';
 
 import components from './components';
 import ComponentForm from '@talend/react-containers/lib/ComponentForm';

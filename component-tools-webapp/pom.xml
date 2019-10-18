@@ -151,6 +151,7 @@
               <arguments>run build</arguments>
               <environmentVariables>
                 <NODE_ENV>${yarn.environment}</NODE_ENV>
+                <ICON_BUNDLE>true</ICON_BUNDLE>
               </environmentVariables>
             </configuration>
           </execution>
@@ -164,6 +165,7 @@
               <arguments>run watch</arguments>
               <environmentVariables>
                 <NODE_ENV>development</NODE_ENV>
+                <ICON_BUNDLE>true</ICON_BUNDLE>
               </environmentVariables>
             </configuration>
           </execution>
