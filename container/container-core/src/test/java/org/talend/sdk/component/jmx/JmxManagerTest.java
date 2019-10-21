@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.logging.Level;
 
@@ -46,7 +47,7 @@ class JmxManagerTest {
                                 .builder()
                                 .resolver(new MvnDependencyListLocalRepositoryResolver(
                                         Constants.DEPENDENCIES_LIST_RESOURCE_PATH, d -> null))
-                                .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
+                                .rootRepositoryLocation(Paths.get(Constants.DEPENDENCIES_LOCATION))
                                 .create(),
                         ContainerManager.ClassLoaderConfiguration.builder().create(), null, Level.INFO);
         containerManager.registerListener(jmxManager);

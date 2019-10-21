@@ -21,7 +21,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,6 +28,8 @@ import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -56,13 +57,13 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
     private final String dependenciesListFile;
 
-    private final Function<String, File> artifactMapper;
+    private final Function<String, Path> artifactMapper;
 
     @Override
     public Stream<Artifact> resolve(final ClassLoader rootLoader, final String artifact) {
         return Stream
                 .of(readDependencies(ofNullable(getJar(artifact))
-                        .filter(File::exists)
+                        .filter(Files::exists)
                         .map(this::findDependenciesFile)
                         .orElseGet(() -> {
                             final boolean isNested;
@@ -100,8 +101,8 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
                         })));
     }
 
-    private File getJar(final String artifact) {
-        return of(new File(artifact)).filter(File::exists).orElseGet(() -> artifactMapper.apply(artifact));
+    private Path getJar(final String artifact) {
+        return of(Paths.get(artifact)).filter(Files::exists).orElseGet(() -> artifactMapper.apply(artifact));
     }
 
     public Stream<Artifact> resolveFromDescriptor(final InputStream descriptor) throws IOException {
@@ -143,9 +144,9 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
      * the component module currently loaded.
      * @return the dependencies.list (dependenciesPath) content.
      */
-    private String findDependenciesFile(final File module) {
-        if (module.getName().endsWith(".jar")) {
-            try (final JarFile jar = new JarFile(module)) {
+    private String findDependenciesFile(final Path module) {
+        if (module.getFileName().toString().endsWith(".jar")) {
+            try (final JarFile jar = new JarFile(module.toFile())) {
                 final ZipEntry entry = jar.getEntry(dependenciesListFile);
                 if (entry != null) {
                     return slurp(jar.getInputStream(entry));
@@ -155,11 +156,11 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
                 throw new IllegalArgumentException(e);
             }
         }
-        if (module.isDirectory()) {
-            final File file = new File(module, dependenciesListFile);
-            if (file.exists()) {
+        if (Files.isDirectory(module)) {
+            final Path file = module.resolve(dependenciesListFile);
+            if (Files.exists(file)) {
                 try {
-                    return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+                    return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
                 } catch (final IOException e) {
                     throw new IllegalArgumentException(e);
                 }

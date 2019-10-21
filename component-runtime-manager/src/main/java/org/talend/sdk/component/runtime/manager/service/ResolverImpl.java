@@ -25,6 +25,8 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
@@ -42,7 +44,7 @@ public class ResolverImpl implements Resolver, Serializable {
 
     private final String plugin;
 
-    private final Function<String, File> fileResolver;
+    private final Function<String, Path> fileResolver;
 
     @Override
     public ClassLoaderDescriptor mapDescriptorToClassLoader(final InputStream descriptor) {
@@ -57,10 +59,10 @@ public class ResolverImpl implements Resolver, Serializable {
                     .resolveFromDescriptor(descriptor)
                     .forEach(artifact -> {
                         final String path = artifact.toPath();
-                        final File file = fileResolver.apply(path);
-                        if (file.exists()) {
+                        final Path file = fileResolver.apply(path);
+                        if (Files.exists(file)) {
                             try {
-                                urls.add(file.toURI().toURL());
+                                urls.add(file.toUri().toURL());
                                 resolved.add(artifact.toCoordinate());
                             } catch (final MalformedURLException e) {
                                 throw new IllegalStateException(e);
@@ -88,6 +90,7 @@ public class ResolverImpl implements Resolver, Serializable {
                     .resolveFromDescriptor(descriptor)
                     .map(Artifact::toPath)
                     .map(fileResolver)
+                    .map(Path::toFile)
                     .collect(toList());
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);

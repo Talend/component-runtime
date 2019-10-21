@@ -31,12 +31,8 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -45,7 +41,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -92,7 +87,7 @@ public class VirtualDependenciesService {
     private final Map<String, Enrichment> enrichmentsPerContainer = new HashMap<>();
 
     @Getter
-    private final Map<Artifact, File> artifactMapping = new ConcurrentHashMap<>();
+    private final Map<Artifact, Path> artifactMapping = new ConcurrentHashMap<>();
 
     private final Map<Artifact, Supplier<InputStream>> configurationArtifactMapping = new ConcurrentHashMap<>();
 
@@ -119,16 +114,17 @@ public class VirtualDependenciesService {
             enrichmentsPerContainer.put(pluginId, noCustomization);
             return;
         }
-        final File extensions =
-                new File(configuration.getUserExtensions().orElseThrow(IllegalArgumentException::new), pluginId);
-        if (!extensions.isDirectory()) {
+        final Path extensions = Paths
+                .get(configuration.getUserExtensions().orElseThrow(IllegalArgumentException::new))
+                .resolve(pluginId);
+        if (!Files.exists(extensions)) {
             log.debug("'{}' does not exist so no extension will be added to family '{}'", extensions, pluginId);
             enrichmentsPerContainer.put(pluginId, noCustomization);
             return;
         }
 
-        final File userConfig = new File(extensions, "user-configuration.properties");
-        final Map<Artifact, File> userJars = findJars(extensions, pluginId);
+        final Path userConfig = extensions.resolve("user-configuration.properties");
+        final Map<Artifact, Path> userJars = findJars(extensions, pluginId);
         final Properties userConfiguration = loadUserConfiguration(pluginId, userConfig, userJars);
         if (userConfiguration.isEmpty() && userJars.isEmpty()) {
             log.debug("No customization for container '{}'", pluginId);
@@ -148,9 +144,13 @@ public class VirtualDependenciesService {
             enrichmentsPerContainer.put(pluginId, new Enrichment(true, customConfigAsMap, null, userJars.keySet()));
         } else {
             final byte[] localConfigurationJar = generateConfigurationJar(pluginId, userConfiguration);
-            final Artifact configurationArtifact =
-                    new Artifact(groupIdFor(pluginId), configurationArtifactIdPrefix + pluginId, "jar", "",
-                            Long.toString(userConfig.lastModified()), "compile");
+            final Artifact configurationArtifact;
+            try {
+                configurationArtifact = new Artifact(groupIdFor(pluginId), configurationArtifactIdPrefix + pluginId,
+                        "jar", "", Long.toString(Files.getLastModifiedTime(userConfig).toMillis()), "compile");
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
             doProvision(configurationArtifact, () -> new ByteArrayInputStream(localConfigurationJar));
             enrichmentsPerContainer
                     .put(pluginId, new Enrichment(true, customConfigAsMap, configurationArtifact, userJars.keySet()));
@@ -159,7 +159,7 @@ public class VirtualDependenciesService {
         }
         userJars.forEach((artifact, file) -> doProvision(artifact, () -> {
             try {
-                return Files.newInputStream(file.toPath(), StandardOpenOption.READ);
+                return Files.newInputStream(file, StandardOpenOption.READ);
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -208,8 +208,8 @@ public class VirtualDependenciesService {
     public Supplier<InputStream> retrieveArtifact(final Artifact artifact) {
         return ofNullable(artifactMapping.get(artifact)).map(it -> (Supplier<InputStream>) () -> {
             try {
-                return new FileInputStream(it);
-            } catch (FileNotFoundException e) {
+                return Files.newInputStream(it);
+            } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
         }).orElseGet(() -> configurationArtifactMapping.get(artifact));
@@ -237,14 +237,14 @@ public class VirtualDependenciesService {
         return outputStream.toByteArray();
     }
 
-    private Properties loadUserConfiguration(final String plugin, final File userConfig,
-            final Map<Artifact, File> userJars) {
+    private Properties loadUserConfiguration(final String plugin, final Path userConfig,
+            final Map<Artifact, Path> userJars) {
         final Properties properties = new Properties();
-        if (!userConfig.exists()) {
+        if (!Files.exists(userConfig)) {
             return properties;
         }
         final String content;
-        try (final BufferedReader stream = new BufferedReader(new InputStreamReader(new FileInputStream(userConfig)))) {
+        try (final BufferedReader stream = Files.newBufferedReader(userConfig)) {
             content = stream.lines().collect(joining("\n"));
         } catch (final IOException e) {
             throw new IllegalStateException(e);
@@ -259,7 +259,7 @@ public class VirtualDependenciesService {
 
     // handle "userJar(name)" function in the config, normally not needed since jars are in the context already
     // note: if we make it more complex, switch to a real parser or StrSubstitutor
-    String replaceByGav(final String plugin, final String content, final Map<Artifact, File> userJars) {
+    String replaceByGav(final String plugin, final String content, final Map<Artifact, Path> userJars) {
         final StringBuilder output = new StringBuilder();
         final String prefixFn = "userJar(";
         int fnIdx = content.indexOf(prefixFn);
@@ -285,7 +285,7 @@ public class VirtualDependenciesService {
     }
 
     private String toGav(final String plugin, final String jarNameWithoutExtension,
-            final Map<Artifact, File> userJars) {
+            final Map<Artifact, Path> userJars) {
         return groupIdFor(plugin) + ':' + jarNameWithoutExtension + ":jar:"
                 + userJars
                         .keySet()
@@ -296,20 +296,30 @@ public class VirtualDependenciesService {
                         .orElse("unknown");
     }
 
-    private Map<Artifact, File> findJars(final File familyFolder, final String family) {
-        if (!familyFolder.isDirectory()) {
+    private Map<Artifact, Path> findJars(final Path familyFolder, final String family) {
+        if (!Files.isDirectory(familyFolder)) {
             return emptyMap();
         }
-        return ofNullable(familyFolder.listFiles((dir, name) -> name.endsWith(".jar")))
-                .map(files -> Stream
-                        .of(files)
-                        .collect(toMap(it -> new Artifact(groupIdFor(family), toArtifact(it), "jar", "",
-                                Long.toString(it.lastModified()), "compile"), identity())))
-                .orElseGet(Collections::emptyMap);
+        try {
+            return Files
+                    .list(familyFolder)
+                    .filter(file -> file.getFileName().toString().endsWith(".jar"))
+                    .collect(toMap(it -> {
+                        try {
+                            return new Artifact(groupIdFor(family), toArtifact(it), "jar", "",
+                                    Long.toString(Files.getLastModifiedTime(it).toMillis()), "compile");
+                        } catch (final IOException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    }, identity()));
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
-    private String toArtifact(final File file) {
-        return file.getName().substring(0, file.getName().length() - ".jar".length());
+    private String toArtifact(final Path file) {
+        final String name = file.getFileName().toString();
+        return name.substring(0, name.length() - ".jar".length());
     }
 
     private String sanitizedForGav(final String name) {
@@ -319,9 +329,9 @@ public class VirtualDependenciesService {
     // note: we don't want to provision based on our real m2, only studio one for now
     private Path findStudioM2() {
         if (System.getProperty("talend.studio.version") != null && System.getProperty("osgi.bundles") != null) {
-            final File localM2 = new File(System.getProperty("talend.component.server.maven.repository", ""));
-            if (localM2.isDirectory()) {
-                return localM2.toPath();
+            final Path localM2 = Paths.get(System.getProperty("talend.component.server.maven.repository", ""));
+            if (Files.isDirectory(localM2)) {
+                return localM2;
             }
         }
         return null;
@@ -337,9 +347,13 @@ public class VirtualDependenciesService {
             log.debug("{} already exists, skipping", target);
             return;
         }
-        final File parentFile = target.getParent().toFile();
-        if (!parentFile.exists() && !parentFile.mkdirs()) {
-            throw new IllegalArgumentException("Can't create " + parentFile);
+        final Path parentFile = target.getParent();
+        if (!Files.exists(parentFile)) {
+            try {
+                Files.createDirectories(parentFile);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Can't create " + parentFile, e);
+            }
         }
         try (final InputStream stream = new BufferedInputStream(newInputStream.get())) {
             Files.copy(stream, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
@@ -416,7 +430,7 @@ public class VirtualDependenciesService {
         }
 
         @Override
-        public File resolve(final String path) {
+        public Path resolve(final String path) {
             if (path.contains('/' + delegate.getConfigurationArtifactIdPrefix())) {
                 return null; // not needed, will be enriched on the fly, see LocalConfigurationImpl
             }

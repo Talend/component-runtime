@@ -27,10 +27,10 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -194,7 +194,7 @@ public class ComponentResourceImpl implements ComponentResource {
         final ComponentFamilyMeta.BaseMeta<?> component = componentDao.findById(id);
         final Supplier<InputStream> streamProvider;
         if (component != null) { // local dep
-            final File file = componentManagerService
+            final Path file = componentManagerService
                     .manager()
                     .findPlugin(component.getParent().getPlugin())
                     .orElseThrow(() -> new WebApplicationException(Response
@@ -208,13 +208,13 @@ public class ComponentResourceImpl implements ComponentResource {
                             .type(APPLICATION_JSON_TYPE)
                             .entity(new ErrorPayload(PLUGIN_MISSING, "No dependency matching the id: " + id))
                             .build()));
-            if (!file.exists()) {
+            if (!Files.exists(file)) {
                 return onMissingJar(id);
             }
             streamProvider = () -> {
                 try {
-                    return new FileInputStream(file);
-                } catch (final FileNotFoundException e) {
+                    return Files.newInputStream(file);
+                } catch (final IOException e) {
                     throw new IllegalStateException(e);
                 }
             };
@@ -226,14 +226,14 @@ public class ComponentResourceImpl implements ComponentResource {
                     return onMissingJar(id);
                 }
             } else {
-                final File file = componentManagerService.manager().getContainer().resolve(artifact.toPath());
-                if (!file.exists()) {
+                final Path file = componentManagerService.manager().getContainer().resolve(artifact.toPath());
+                if (!Files.exists(file)) {
                     return onMissingJar(id);
                 }
                 streamProvider = () -> {
                     try {
-                        return new FileInputStream(file);
-                    } catch (final FileNotFoundException e) {
+                        return Files.newInputStream(file);
+                    } catch (final IOException e) {
                         throw new IllegalStateException(e);
                     }
                 };

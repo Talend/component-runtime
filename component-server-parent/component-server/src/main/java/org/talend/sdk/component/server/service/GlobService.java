@@ -15,9 +15,11 @@
  */
 package org.talend.sdk.component.server.service;
 
-import static java.util.Optional.ofNullable;
-
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,7 +27,7 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class GlobService {
 
-    public Stream<File> toFiles(final String path) {
+    public Stream<Path> toFiles(final String path) {
         if (path.endsWith("*") || path.endsWith("*.properties")) {
             final String prefix = path.substring(0, path.lastIndexOf('*'));
             final int lastSlash = prefix.replace(File.separatorChar, '/').lastIndexOf('/');
@@ -38,14 +40,17 @@ public class GlobService {
                 folder = prefix;
                 filePrefix = "";
             }
-            return Stream
-                    .of(folder)
-                    .map(File::new)
-                    .flatMap(it -> ofNullable(
-                            it.listFiles((dir, name) -> name.startsWith(filePrefix) && name.endsWith(".properties")))
-                                    .map(Stream::of)
-                                    .orElseGet(Stream::empty));
+            return Stream.of(Paths.get(folder)).filter(Files::exists).flatMap(it -> {
+                try {
+                    return Files.list(it).filter(file -> {
+                        final String name = file.getFileName().toString();
+                        return name.startsWith(filePrefix) && name.endsWith(".properties");
+                    });
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }).filter(Files::exists);
         }
-        return Stream.of(path).map(File::new);
+        return Stream.of(Paths.get(path));
     }
 }

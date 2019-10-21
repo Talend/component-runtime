@@ -24,13 +24,15 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -90,13 +92,14 @@ public class DocumentationResourceImpl implements DocumentationResource {
     @Inject
     private ExtensionComponentMetadataManager virtualComponents;
 
-    private File i18nBase;
+    private Path i18nBase;
 
     @PostConstruct
     private void init() {
-        i18nBase = new File(configuration
-                .getDocumentationI18nTranslations()
-                .replace("${home}", System.getProperty("meecrowave.home", "")));
+        i18nBase = Paths
+                .get(configuration
+                        .getDocumentationI18nTranslations()
+                        .replace("${home}", System.getProperty("meecrowave.home", "")));
     }
 
     @Override
@@ -184,14 +187,13 @@ public class DocumentationResourceImpl implements DocumentationResource {
     }
 
     private URL findLocalI18n(final Locale locale, final Container container) {
-        if (!i18nBase.exists()) {
+        if (!Files.exists(i18nBase)) {
             return null;
         }
-        final File file =
-                new File(i18nBase, "documentation_" + container.getId() + "_" + locale.getLanguage() + ".adoc");
-        if (file.exists()) {
+        final Path file = i18nBase.resolve("documentation_" + container.getId() + "_" + locale.getLanguage() + ".adoc");
+        if (Files.exists(file)) {
             try {
-                return file.toURI().toURL();
+                return file.toUri().toURL();
             } catch (final MalformedURLException e) {
                 throw new IllegalStateException(e);
             }

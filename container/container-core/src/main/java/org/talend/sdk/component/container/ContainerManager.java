@@ -29,6 +29,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,8 +75,7 @@ public class ContainerManager implements Lifecycle {
     @Getter
     private final Resolver resolver;
 
-    @Getter
-    private final File rootRepositoryLocation;
+    private final Path rootRepositoryLocation;
 
     private final Consumer<Container> containerInitializer;
 
@@ -95,11 +97,11 @@ public class ContainerManager implements Lifecycle {
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
         this.rootRepositoryLocation = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
-                .filter(File::exists)
-                .orElseGet(() -> new File(System.getProperty("user.home"), ".m2/repository"));
+                .filter(Files::exists)
+                .orElseGet(() -> Paths.get(System.getProperty("user.home", ""), ".m2/repository"));
 
         if (log.isDebugEnabled()) {
-            log.debug("Using root repository: " + this.rootRepositoryLocation.getAbsolutePath());
+            log.debug("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
         }
 
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
@@ -135,6 +137,14 @@ public class ContainerManager implements Lifecycle {
         } else {
             info("Container " + containerId + " not supporting nested plugin loading, skipping");
         }
+    }
+
+    public File getRootRepositoryLocation() {
+        return rootRepositoryLocation.toFile();
+    }
+
+    public Path getRootRepositoryLocationPath() {
+        return rootRepositoryLocation;
     }
 
     private void info(final String msg) {
@@ -186,9 +196,9 @@ public class ContainerManager implements Lifecycle {
         return new ContainerBuilder(id, module, null, emptySet());
     }
 
-    public File resolve(final String path) {
-        final File direct = new File(path);
-        if (direct.exists()) {
+    public Path resolve(final String path) {
+        final Path direct = Paths.get(path);
+        if (Files.exists(direct)) {
             return direct;
         }
 
@@ -197,19 +207,20 @@ public class ContainerManager implements Lifecycle {
             final String relativePath = String
                     .format("%s/%s/%s/%s-%s%s.%s", coords[0].replace('.', '/'), coords[1], coords[2], coords[1],
                             coords[2], coords.length == 5 ? coords[4] : "", coords.length >= 4 ? coords[3] : "jar");
-            final File file = new File(rootRepositoryLocation, relativePath);
-            if (file.exists()) {
+            final Path file = rootRepositoryLocation.resolve(relativePath);
+            if (Files.exists(file)) {
                 return file;
             }
         }
 
-        final File file = new File(rootRepositoryLocation, path);
-        if (file.exists()) {
+        final Path file = rootRepositoryLocation.resolve(path);
+        if (Files.exists(file)) {
             return file;
         }
+
         // from job lib folder
-        final File libFile = new File(rootRepositoryLocation, path.substring(path.lastIndexOf('/') + 1));
-        if (libFile.exists()) {
+        final Path libFile = rootRepositoryLocation.resolve(path.substring(path.lastIndexOf('/') + 1));
+        if (Files.exists(libFile)) {
             return libFile;
         }
 
@@ -304,7 +315,7 @@ public class ContainerManager implements Lifecycle {
 
         private final Resolver resolver;
 
-        private final File rootRepositoryLocation;
+        private final Path rootRepositoryLocation;
     }
 
     @Getter
@@ -367,9 +378,9 @@ public class ContainerManager implements Lifecycle {
             final String moduleLocation = classLoaderConfiguration.isSupportsResourceDependencies()
                     ? nestedContainerMapping.getOrDefault(module, module)
                     : module;
-            final File resolved = resolve(moduleLocation);
+            final Path resolved = resolve(moduleLocation);
             info("Creating module " + moduleLocation + " (from " + module
-                    + (resolved.exists() ? ", location=" + resolved.getAbsolutePath() : "") + ")");
+                    + (Files.exists(resolved) ? ", location=" + resolved.toAbsolutePath().toString() : "") + ")");
             final Stream<Artifact> classpath =
                     Stream.concat(getBuiltInClasspath(moduleLocation), additionalClasspath.stream());
 
@@ -481,10 +492,10 @@ public class ContainerManager implements Lifecycle {
         }
 
         private String getJre() {
-            return of(new File(System.getProperty("java.home")))
-                    .map(it -> it.getName().equals("jre") && it.getParentFile() != null
-                            && new File(it.getParentFile(), "lib/tools.jar").exists() ? it.getParentFile() : it)
-                    .map(it -> it.getAbsoluteFile().toPath().toString())
+            return of(Paths.get(System.getProperty("java.home", "")))
+                    .map(it -> it.getFileName().toString().equals("jre") && it.getParent() != null
+                            && Files.exists(it.getParent().resolve("lib/tools.jar")) ? it.getParent() : it)
+                    .map(it -> it.toAbsolutePath().toString())
                     .orElseThrow(IllegalArgumentException::new);
         }
     }

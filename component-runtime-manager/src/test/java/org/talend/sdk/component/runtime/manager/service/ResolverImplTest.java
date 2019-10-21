@@ -30,6 +30,7 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.UUID;
@@ -62,8 +63,9 @@ class ResolverImplTest {
         final ConfigurableClassLoader componentLoader = new ConfigurableClassLoader("test", new URL[0], appLoader,
                 it -> true, it -> false, new String[0], new String[0]);
         thread.setContextClassLoader(componentLoader);
-        try (final Resolver.ClassLoaderDescriptor desc = new ResolverImpl(null, coord -> new File("maven2", coord))
-                .mapDescriptorToClassLoader(singletonList(dep))) {
+        try (final Resolver.ClassLoaderDescriptor desc =
+                new ResolverImpl(null, coord -> Paths.get("maven2").resolve(coord))
+                        .mapDescriptorToClassLoader(singletonList(dep))) {
             assertNotNull(desc);
             assertNotNull(desc.asClassLoader());
             assertEquals(singletonList(dep), desc.resolvedDependencies());
@@ -88,7 +90,7 @@ class ResolverImplTest {
                 new ByteArrayInputStream("The following files have been resolved:\njunit:junit:jar:4.12:compile"
                         .getBytes(StandardCharsets.UTF_8))) {
             final Collection<File> deps =
-                    new ResolverImpl(null, coord -> new File("maven2", coord)).resolveFromDescriptor(stream);
+                    new ResolverImpl(null, coord -> Paths.get("maven2").resolve(coord)).resolveFromDescriptor(stream);
             assertEquals(1, deps.size());
             assertEquals("maven2" + File.separator + "junit" + File.separator + "junit" + File.separator + "4.12"
                     + File.separator + "junit-4.12.jar", deps.iterator().next().getPath());

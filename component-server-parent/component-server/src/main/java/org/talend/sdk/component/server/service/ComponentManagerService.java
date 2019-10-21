@@ -21,8 +21,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -126,11 +124,10 @@ public class ComponentManagerService {
         }
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
-        final File m2 = configuration
+        final Path m2 = configuration
                 .getMavenRepository()
                 .map(Paths::get)
                 .filter(Files::exists)
-                .map(Path::toFile)
                 .orElseGet(ComponentManager::findM2);
         log.info("Using maven repository: '{}'", m2);
         instance = new ComponentManager(m2) {
@@ -157,10 +154,9 @@ public class ComponentManagerService {
                 .map(Collection::stream)
                 .orElseGet(Stream::empty)
                 .flatMap(globService::toFiles)
-                .filter(File::exists)
                 .forEach(registry -> {
                     final Properties properties = new Properties();
-                    try (final InputStream is = new FileInputStream(registry)) {
+                    try (final InputStream is = Files.newInputStream(registry)) {
                         properties.load(is);
                     } catch (final IOException e) {
                         throw new IllegalArgumentException(e);
@@ -199,8 +195,9 @@ public class ComponentManagerService {
                 .map(Artifact::toPath)
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
 
-        final File m2 = instance.getContainer().getRootRepositoryLocation();
-        final String plugin = instance.addWithLocationPlugin(pluginGAV, new File(m2, pluginPath).getAbsolutePath());
+        final Path m2 = instance.getContainer().getRootRepositoryLocationPath();
+        final String plugin =
+                instance.addWithLocationPlugin(pluginGAV, m2.resolve(pluginPath).toAbsolutePath().toString());
         lastUpdated = new Date();
         if (started) {
             deployedComponentEvent.fire(new DeployedComponent());

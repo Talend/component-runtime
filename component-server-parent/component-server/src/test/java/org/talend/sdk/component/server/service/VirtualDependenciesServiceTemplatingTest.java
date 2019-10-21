@@ -18,7 +18,7 @@ package org.talend.sdk.component.server.service;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,9 +36,9 @@ class VirtualDependenciesServiceTemplatingTest {
         assertEquals(config.expected,
                 new VirtualDependenciesService()
                         .replaceByGav("Foo Plugin", config.input,
-                                singletonMap(new Artifact("foo", "bar", "jar", "", "any", "test"),
-                                        new File(System.getProperty("talend.component.server.user.extensions.location"),
-                                                "component-with-user-jars/bar.ajr"))));
+                                singletonMap(new Artifact("foo", "bar", "jar", "", "any", "test"), Paths
+                                        .get(System.getProperty("talend.component.server.user.extensions.location"))
+                                        .resolve("component-with-user-jars/bar.ajr"))));
     }
 
     private static Stream<Pair> replaceGavConfigurationSource() {

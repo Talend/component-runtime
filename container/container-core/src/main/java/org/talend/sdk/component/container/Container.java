@@ -24,12 +24,13 @@ import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.container.Container.State.CREATED;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,7 +81,7 @@ public class Container implements Lifecycle {
     private final Supplier<ConfigurableClassLoader> classloaderProvider;
 
     @Getter
-    private final Function<String, File> localDependencyRelativeResolver;
+    private final Function<String, Path> localDependencyRelativeResolver;
 
     private final LifecycleSupport lifecycle = new LifecycleSupport();
 
@@ -92,7 +93,7 @@ public class Container implements Lifecycle {
 
     public Container(final String id, final String rootModule, final Artifact[] dependencies,
             final ContainerManager.ClassLoaderConfiguration configuration,
-            final Function<String, File> localDependencyRelativeResolver, final Consumer<Container> initializer,
+            final Function<String, Path> localDependencyRelativeResolver, final Consumer<Container> initializer,
             final String[] jvmMarkers) {
         this.id = id;
         this.rootModule = rootModule;
@@ -102,10 +103,10 @@ public class Container implements Lifecycle {
         ofNullable(initializer).ifPresent(i -> i.accept(this));
 
         this.classloaderProvider = () -> {
-            final List<File> existingClasspathFiles = findExistingClasspathFiles().collect(toList());
+            final List<Path> existingClasspathFiles = findExistingClasspathFiles().collect(toList());
             final URL[] urls = existingClasspathFiles.stream().peek(this::visitLastModified).map(f -> {
                 try {
-                    return f.toURI().toURL();
+                    return f.toUri().toURL();
                 } catch (final MalformedURLException e) {
                     throw new IllegalStateException(e);
                 }
@@ -119,16 +120,16 @@ public class Container implements Lifecycle {
             // - if the nested file exists using the module as path in nested maven repo,
             // we use it
             // - if the nested path is in the global plugin.properties index, we use it
-            final File rootFile = of(rootModule)
-                    .map(File::new)
-                    .filter(File::exists)
+            final Path rootFile = of(rootModule)
+                    .map(Paths::get)
+                    .filter(Files::exists)
                     .orElseGet(() -> localDependencyRelativeResolver.apply(rootModule));
             final Predicate<String> resourceExists = of(rootFile)
-                    .filter(File::exists)
-                    .filter(it -> it.getName().endsWith(".jar"))
+                    .filter(Files::exists)
+                    .filter(it -> it.getFileName().toString().endsWith(".jar"))
                     .map(this::jarIndex)
-                    .orElseGet(() -> s -> of(new File(rootFile, ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + s))
-                            .map(File::exists)
+                    .orElseGet(() -> s -> of(rootFile.resolve(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + s))
+                            .map(Files::exists)
                             .filter(it -> it)
                             .orElseGet(() -> findNestedDependency(overrideClassLoaderConfig, s)));
             final String[] rawNestedDependencies =
@@ -169,15 +170,13 @@ public class Container implements Lifecycle {
         return url != null;
     }
 
-    private void visitLastModified(final File f) {
-        long lastModified = f.lastModified();
-        if (lastModified <= 0) { // generally does the same but some OS don't
-            try {
-                final FileTime lastModifiedTime = Files.getLastModifiedTime(f.toPath());
-                lastModified = lastModifiedTime.toMillis();
-            } catch (final IOException e) {
-                // no-op
-            }
+    private void visitLastModified(final Path f) {
+        long lastModified;
+        try {
+            final FileTime lastModifiedTime = Files.getLastModifiedTime(f);
+            lastModified = lastModifiedTime.toMillis();
+        } catch (final IOException e) {
+            lastModified = f.toFile().lastModified();
         }
         if (lastModified > 0 && new Date(lastModified).compareTo(lastModifiedTimestamp.get()) > 0) {
             lastModifiedTimestamp.set(new Date(lastModified));
@@ -186,8 +185,8 @@ public class Container implements Lifecycle {
 
     // we use that to prefilter the dependencies we keep, in some env we don't nest them
     // so we don't care much testing the nested jars
-    private Predicate<String> jarIndex(final File rootFile) {
-        try (final JarFile jarFile = new JarFile(rootFile)) {
+    private Predicate<String> jarIndex(final Path rootFile) {
+        try (final JarFile jarFile = new JarFile(rootFile.toFile())) {
             final Set<String> entries = list(jarFile.entries())
                     .stream()
                     .map(JarEntry::getName)
@@ -212,18 +211,18 @@ public class Container implements Lifecycle {
         return (T) data.remove(key);
     }
 
-    public Stream<File> findExistingClasspathFiles() {
+    public Stream<Path> findExistingClasspathFiles() {
         return Stream
                 .concat(getContainerFile().map(Stream::of).orElseGet(Stream::empty),
                         Stream.of(dependencies).map(Artifact::toPath).map(localDependencyRelativeResolver))
-                .filter(File::exists);
+                .filter(Files::exists);
     }
 
-    public Optional<File> getContainerFile() {
+    public Optional<Path> getContainerFile() {
         return Optional
                 .of(rootModule)
-                .map(m -> of(new File(m))
-                        .filter(File::exists)
+                .map(m -> of(Paths.get(m))
+                        .filter(Files::exists)
                         .orElseGet(() -> localDependencyRelativeResolver.apply(m)));
     }
 

@@ -53,6 +53,8 @@ import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -282,6 +284,14 @@ public class ComponentManager implements AutoCloseable {
     private final IconFinder iconFinder = new IconFinder();
 
     public ComponentManager(final File m2) {
+        this(m2.toPath());
+    }
+
+    public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
+        this(m2.toPath(), dependenciesResource, jmxNamePattern);
+    }
+
+    public ComponentManager(final Path m2) {
         this(m2, "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
     }
 
@@ -291,7 +301,7 @@ public class ComponentManager implements AutoCloseable {
      * @param jmxNamePattern a pattern to register the plugins (containers) in JMX, null
      * otherwise.
      */
-    public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
+    public ComponentManager(final Path m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
         internationalizationServiceFactory = new InternationalizationServiceFactory(getLocalSupplier());
@@ -366,7 +376,7 @@ public class ComponentManager implements AutoCloseable {
                 }, logInfoLevelMapping) {
 
             @Override
-            public File resolve(final String path) {
+            public Path resolve(final String path) {
                 return classpathContributors
                         .stream()
                         .filter(it -> it.canResolve(path))
@@ -412,7 +422,7 @@ public class ComponentManager implements AutoCloseable {
         return Locale::getDefault;
     }
 
-    private File resolve(final String artifact) {
+    private Path resolve(final String artifact) {
         return container.resolve(artifact);
     }
 
@@ -506,26 +516,21 @@ public class ComponentManager implements AutoCloseable {
         return manager;
     }
 
-    public static File findM2() {
-        return ofNullable(System.getProperty("talend.component.manager.m2.repository")).map(File::new).orElseGet(() -> {
-            // check if we are in the studio process if so just grab the the studio config
-            final String m2Repo = System.getProperty("maven.repository");
-            if (!"global".equals(m2Repo)) {
-                {
-                    final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2/repository");
-                    if (localM2.exists()) {
-                        return localM2;
+    public static Path findM2() {
+        return ofNullable(System.getProperty("talend.component.manager.m2.repository"))
+                .map(Paths::get)
+                .orElseGet(() -> {
+                    // check if we are in the studio process if so just grab the the studio config
+                    final String m2Repo = System.getProperty("maven.repository");
+                    if (!"global".equals(m2Repo)) {
+                        final Path localM2 =
+                                Paths.get(System.getProperty("osgi.configuration.area", "")).resolve(".m2/repository");
+                        if (java.nio.file.Files.exists(localM2)) {
+                            return localM2;
+                        }
                     }
-                }
-                { // this shouldn't exist in recent studio
-                    final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2");
-                    if (localM2.exists()) {
-                        return localM2;
-                    }
-                }
-            }
-            return findDefaultM2();
-        });
+                    return findDefaultM2();
+                });
     }
 
     private static <T> Stream<T> parallelIf(final boolean condition, final Stream<T> stringStream) {
@@ -553,16 +558,16 @@ public class ComponentManager implements AutoCloseable {
                                         .orElseGet(Stream::empty));
     }
 
-    private static File findDefaultM2() {
+    private static Path findDefaultM2() {
         // check out settings.xml first
-        final File settings = new File(System
-                .getProperty("talend.component.manager.m2.settings",
-                        System.getProperty("user.home") + "/.m2/settings.xml"));
-        if (settings.exists()) {
+        final Path settings = Paths
+                .get(System
+                        .getProperty("talend.component.manager.m2.settings",
+                                System.getProperty("user.home") + "/.m2/settings.xml"));
+        if (java.nio.file.Files.exists(settings)) {
             try {
                 // faster to do that than previous code (commented after)
-                final String content =
-                        new String(java.nio.file.Files.readAllBytes(settings.toPath()), StandardCharsets.UTF_8);
+                final String content = new String(java.nio.file.Files.readAllBytes(settings), StandardCharsets.UTF_8);
                 final int start = content.indexOf("<localRepository>");
                 String localM2RepositoryFromSettings = null;
                 if (start > 0) {
@@ -571,28 +576,15 @@ public class ComponentManager implements AutoCloseable {
                         localM2RepositoryFromSettings = content.substring(start + "<localRepository>".length(), end);
                     }
                 }
-
-                /*
-                 * final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                 * factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                 * factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                 * final DocumentBuilder builder = factory.newDocumentBuilder();
-                 *
-                 * final Document document = builder.parse(settings);
-                 * final XPathFactory xpf = XPathFactory.newInstance();
-                 * final XPath xp = xpf.newXPath();
-                 * final String localM2RepositoryFromSettings =
-                 * xp.evaluate("//settings/localRepository/text()", document.getDocumentElement());
-                 */
                 if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
-                    return new File(localM2RepositoryFromSettings);
+                    return Paths.get(localM2RepositoryFromSettings);
                 }
             } catch (final Exception ignore) {
                 // fallback on default local path
             }
         }
 
-        return new File(System.getProperty("user.home"), ".m2/repository");
+        return Paths.get(System.getProperty("user.home", "")).resolve(".m2/repository");
     }
 
     private static String getIdentifiers() {
@@ -608,10 +600,10 @@ public class ComponentManager implements AutoCloseable {
         return ServiceLoader.load(service, classLoader).iterator();
     }
 
-    private static File toFile(final String classFileName, final URL url) {
+    private static Path toFile(final String classFileName, final URL url) {
         String path = url.getFile();
         path = path.substring(0, path.length() - classFileName.length());
-        return new File(decode(path));
+        return Paths.get(decode(path));
     }
 
     public void addCallerAsPlugin() {
@@ -649,7 +641,7 @@ public class ComponentManager implements AutoCloseable {
     protected List<String> addJarContaining(final ClassLoader loader, final String resource) {
         final URL url = loader.getResource(resource);
         if (url != null) {
-            File plugin = null;
+            Path plugin = null;
             switch (url.getProtocol()) {
             case "bundleresource": // studio on equinox, this is the definition part so we don't register it
                 break;
@@ -665,7 +657,7 @@ public class ComponentManager implements AutoCloseable {
                 final int separator = spec.indexOf('!');
                 if (separator > 0) {
                     try {
-                        plugin = new File(decode(new URL(spec.substring(0, separator)).getFile()));
+                        plugin = Paths.get(decode(new URL(spec.substring(0, separator)).getFile()));
                     } catch (final MalformedURLException e) {
                         // no-op
                     }
@@ -681,9 +673,9 @@ public class ComponentManager implements AutoCloseable {
                     .of(plugin)
                     // just a small workaround for maven/gradle
                     .flatMap(this::toPluginLocations)
-                    .filter(path -> !container.find(path.getName()).isPresent())
+                    .filter(path -> !container.find(path.getFileName().toString()).isPresent())
                     .map(file -> {
-                        final String id = addPlugin(file.getAbsolutePath());
+                        final String id = addPlugin(file.toAbsolutePath().toString());
                         if (container.find(id).get().get(ContainerComponentRegistry.class).getComponents().isEmpty()) {
                             removePlugin(id);
                             return null;
@@ -696,22 +688,24 @@ public class ComponentManager implements AutoCloseable {
         return emptyList();
     }
 
-    private Stream<File> toPluginLocations(final File src) {
-        if ("test-classes".equals(src.getName()) && src.getParentFile() != null) { // maven
-            return Stream.of(new File(src.getParentFile(), "classes"), src);
+    private Stream<Path> toPluginLocations(final Path src) {
+        final String filename = src.getFileName().toString();
+        if ("test-classes".equals(filename) && src.getParent() != null) { // maven
+            return Stream.of(src.getParent().resolve("classes"), src);
         }
 
         // gradle (v3 & v4)
-        if ("classes".equals(src.getName()) && src.getParentFile() != null
-                && "test".equals(src.getParentFile().getName()) && src.getParentFile().getParentFile() != null) {
+        if ("classes".equals(filename) && src.getParent() != null
+                && "test".equals(src.getParent().getFileName().toString()) && src.getParent().getParent() != null) {
             return Stream
-                    .of(new File(src.getParentFile().getParentFile(), "production/classes"), src)
-                    .filter(File::exists);
+                    .of(src.getParent().getParent().resolve("production/classes"), src)
+                    .filter(java.nio.file.Files::exists);
         }
-        if ("test".equals(src.getName()) && src.getParentFile() != null
-                && "java".equals(src.getParentFile().getName())) {
-            return Stream.of(new File(src.getParentFile(), "main"), src).filter(File::exists);
+        if ("test".equals(filename) && src.getParent() != null
+                && "java".equals(src.getParent().getFileName().toString())) {
+            return Stream.of(src.getParent().resolve("main"), src).filter(java.nio.file.Files::exists);
         }
+
         return Stream.of(src);
     }
 
@@ -1566,8 +1560,10 @@ public class ComponentManager implements AutoCloseable {
                     final String marker = "!/" + NESTED_MAVEN_REPOSITORY;
                     if (path != null && path.contains(marker) && !mainPath.contains(marker)) {
                         final String mvnPath = path.substring(path.lastIndexOf(marker) + marker.length());
-                        final File asFile = new File(container.getRootRepositoryLocation(), mvnPath);
-                        return !Objects.equals(Files.toFile(mainUrl), asFile);
+                        final Path asFile = ofNullable(container.getRootRepositoryLocationPath())
+                                .orElseGet(() -> Paths.get("."))
+                                .resolve(mvnPath);
+                        return !Objects.equals(Files.toFile(mainUrl).toPath(), asFile);
                     }
                     return true;
                 }).map(nested -> {
@@ -1617,10 +1613,12 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private Archive toArchive(final String module, final String moduleId, final ConfigurableClassLoader loader) {
-            final File file = of(new File(module)).filter(File::exists).orElseGet(() -> container.resolve(module));
-            if (file.exists()) {
+            final Path file = of(Paths.get(module))
+                    .filter(java.nio.file.Files::exists)
+                    .orElseGet(() -> container.resolve(module));
+            if (java.nio.file.Files.exists(file)) {
                 try {
-                    return ClasspathArchive.archive(loader, file.toURI().toURL());
+                    return ClasspathArchive.archive(loader, file.toUri().toURL());
                 } catch (final MalformedURLException e) {
                     throw new IllegalArgumentException(e);
                 }
@@ -1983,6 +1981,6 @@ public class ComponentManager implements AutoCloseable {
 
         boolean canResolve(String path);
 
-        File resolve(String path);
+        Path resolve(String path);
     }
 }

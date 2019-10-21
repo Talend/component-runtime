@@ -18,7 +18,7 @@ package org.talend.sdk.component.server.service;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
+import java.nio.file.Files;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -32,7 +32,7 @@ class GlobServiceTest {
                 new GlobService()
                         .toFiles(jarLocation(GlobServiceTest.class).toPath().resolve("GlobServiceTest").toString() + '/'
                                 + source)
-                        .filter(File::exists)
+                        .filter(Files::exists)
                         .count());
     }
 }

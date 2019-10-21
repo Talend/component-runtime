@@ -18,10 +18,11 @@ package org.talend.sdk.component.test.rule;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -91,7 +92,7 @@ public class ContainerProviderRule extends TempJars implements BeforeAllCallback
                         .builder()
                         .resolver(new MvnDependencyListLocalRepositoryResolver(
                                 Constants.DEPENDENCIES_LIST_RESOURCE_PATH, this::resolve))
-                        .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
+                        .rootRepositoryLocation(Paths.get(Constants.DEPENDENCIES_LOCATION))
                         .create(),
                 ContainerManager.ClassLoaderConfiguration
                         .builder()
@@ -100,7 +101,7 @@ public class ContainerProviderRule extends TempJars implements BeforeAllCallback
                 null, Level.INFO);
     }
 
-    private File resolve(final String artifact) {
+    private Path resolve(final String artifact) {
         return current().resolve(artifact);
     }
 
