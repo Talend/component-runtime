@@ -1,2 +1,2 @@
-scan_collectors: maven, yarn
+scan_collectors: maven, npm
 scope: runtime

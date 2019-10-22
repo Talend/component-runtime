@@ -16,7 +16,7 @@ cache:
   directories:
   - "$HOME/.m2"
   - "$HOME/.cache/talend"
-  - "$HOME/.cache/yarn"
+  - "$HOME/.cache/npm"
   - "$HOME/build/Talend/component-runtime/component-starter-server/.node"
   - "$HOME/build/Talend/component-runtime/component-starter-server/.cache"
   - "$HOME/build/Talend/component-runtime/component-starter-server/src/main/frontend/node_modules"

@@ -139,7 +139,7 @@ class Npm {
         def tarGz = new TarArchiveOutputStream(new GZIPOutputStream(buffer))
         def exclusions = [
                 '.node', 'node_modules', 'target', 'component-kit.js.iml',
-                'package-template.json', 'package-lock.json', 'pom.xml', 'yarn.lock'
+                'package-template.json', 'package-lock.json', 'pom.xml', 'npm.lock', 'yarn.lock'
         ]
         try {
             tarGz.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)

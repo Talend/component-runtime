@@ -157,21 +157,21 @@
         <version>${frontend.version}</version>
         <executions>
           <execution>
-            <id>install-node-and-yarn</id>
+            <id>install-node-and-npm</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>install-node-and-yarn</goal>
+              <goal>install-node-and-npm</goal>
             </goals>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
-              <yarnVersion>${yarn.version}</yarnVersion>
+              <npmVersion>${npm.version}</npmVersion>
             </configuration>
           </execution>
           <execution>
-            <id>yarn-install</id>
+            <id>npm-install</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <arguments>install</arguments>

@@ -16,8 +16,7 @@ diag-*.png
 generated-*.png
 work
 .node
-package-lock.json
-yarn.lock
+#package-lock.json
 node_modules
 dist
 .p2localrepository
@@ -25,6 +24,9 @@ dist
 travis_wait_*.log
 .blackduck
 yarn-error.log
+npm-error.log
+yarn-debug.log
+npm-debug.log
 component-form/component-form-demo/src/main/frontend/build/
 documentation/src/main/frontend/.antora-cache
 dependency-reduced-pom.xml
@@ -33,6 +35,14 @@ rebuild.bat
 .factorypath
 .vscode
 .sourceclear
+coverage
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # generated from the filtered version
 component-starter-server/src/main/frontend/package.json

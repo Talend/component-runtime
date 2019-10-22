@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-// if you use yarn directly instead of mvn frontend:yarn@watch
+// if you use npm directly instead of mvn frontend:npm@watch
 
 const config = require('./webpack.config');
 const webpack = require('webpack');

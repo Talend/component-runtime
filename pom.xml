@@ -129,7 +129,7 @@
     <org.slf4j.simpleLogger.showThreadName>${simpleLogger.showThreadName}</org.slf4j.simpleLogger.showThreadName>
 
     <!-- for the CI which splits dependencies download and build -->
-    <component.front.build.skip>${skip.yarn}</component.front.build.skip>
+    <component.front.build.skip>${skip.npm}</component.front.build.skip>
 
     <!-- this is a bad default but each module should override it -->
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
@@ -222,8 +222,8 @@
     <commons-io.version>2.6</commons-io.version>
 
     <jruby.version>9.2.8.0</jruby.version>
-    <node.version>v10.16.0</node.version>
-    <yarn.version>v1.16.0</yarn.version>
+    <node.version>v12.13.0</node.version>
+    <npm.version>6.12.0</npm.version>
     <frontend.version>1.8.0</frontend.version>
 
     <!-- for manual testing only, not required -->

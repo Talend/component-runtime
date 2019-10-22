@@ -28,7 +28,7 @@
   <description>Light web application allowing to provide a light HTTP server to test components locally.</description>
 
   <properties>
-    <yarn.environment>production</yarn.environment>
+    <npm.environment>production</npm.environment>
     <talend.build.name>${talend.build.name.base}.tools.webapp</talend.build.name>
   </properties>
 
@@ -120,37 +120,37 @@
         <version>${frontend.version}</version>
         <executions>
           <execution>
-            <id>install-node-and-yarn</id>
+            <id>install-node-and-npm</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>install-node-and-yarn</goal>
+              <goal>install-node-and-npm</goal>
             </goals>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
-              <yarnVersion>${yarn.version}</yarnVersion>
+              <npmVersion>${npm.version}</npmVersion>
             </configuration>
           </execution>
           <execution>
-            <id>yarn-install</id>
+            <id>npm-install</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <arguments>install</arguments>
             </configuration>
           </execution>
           <execution>
-            <id>yarn-build</id>
+            <id>npm-build</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <skip>${component.front.build.skip}</skip>
               <arguments>run build</arguments>
               <environmentVariables>
-                <NODE_ENV>${yarn.environment}</NODE_ENV>
+                <NODE_ENV>${npm.environment}</NODE_ENV>
                 <ICON_BUNDLE>true</ICON_BUNDLE>
               </environmentVariables>
             </configuration>
@@ -159,7 +159,7 @@
             <id>watch</id>
             <phase />
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <arguments>run watch</arguments>

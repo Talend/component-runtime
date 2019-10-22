@@ -28,7 +28,7 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>2.0.0</antora.version>
+    <antora.version>2.1.2</antora.version>
 
     <antora.dev.site.mode>dev</antora.dev.site.mode> <!-- -Dantora.site.mode=dev-poc to test new theme -->
     <project_version>${project.version}</project_version>
@@ -565,48 +565,48 @@
           </execution>
         </executions>
       </plugin>
-      <plugin><!-- mvn package -Pgen-doc [once] && mvn frontend:yarn@yarn-dev -Pgen-doc -->
+      <plugin><!-- mvn package -Pgen-doc [once] && mvn frontend:npm@npm-dev -Pgen-doc -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
         <executions>
           <execution>
-            <id>install-node-and-yarn</id>
+            <id>install-node-and-npm</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>install-node-and-yarn</goal>
+              <goal>install-node-and-npm</goal>
             </goals>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
-              <yarnVersion>${yarn.version}</yarnVersion>
+              <npmVersion>${npm.version}</npmVersion>
             </configuration>
           </execution>
           <execution>
-            <id>yarn-install</id>
+            <id>npm-install</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <arguments>install</arguments>
             </configuration>
           </execution>
           <execution>
-            <id>yarn-build</id>
+            <id>npm-build</id>
             <phase>prepare-package</phase>
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <skip>${component.front.build.skip}</skip>
               <arguments>run antora:build</arguments>
             </configuration>
           </execution>
-          <execution> <!-- mvn initialize git-commit-id:revision@get-the-git-infos-in-m2-properties gplus:execute@groovy-scripts frontend:yarn@yarn-dev -->
-            <id>yarn-dev</id>
+          <execution> <!-- mvn initialize git-commit-id:revision@get-the-git-infos-in-m2-properties gplus:execute@groovy-scripts frontend:npm@npm-dev -->
+            <id>npm-dev</id>
             <phase />
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <skip>${component.front.build.skip}</skip>

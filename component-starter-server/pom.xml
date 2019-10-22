@@ -258,31 +258,31 @@
         <version>${frontend.version}</version>
         <executions>
           <execution>
-            <id>install-node-and-yarn</id>
+            <id>install-node-and-npm</id>
             <phase>prepare-package</phase>
             <goals>
-              <goal>install-node-and-yarn</goal>
+              <goal>install-node-and-npm</goal>
             </goals>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
-              <yarnVersion>${yarn.version}</yarnVersion>
+              <npmVersion>${npm.version}</npmVersion>
             </configuration>
           </execution>
           <execution>
-            <id>yarn-install</id>
+            <id>npm-install</id>
             <phase>prepare-package</phase>
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <arguments>install</arguments>
             </configuration>
           </execution>
           <execution>
-            <id>yarn-build</id>
+            <id>npm-build</id>
             <phase>prepare-package</phase>
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <arguments>run build</arguments>
@@ -294,11 +294,11 @@
               </environmentVariables>
             </configuration>
           </execution>
-          <execution> <!-- mvn frontend:yarn@watch -->
+          <execution> <!-- mvn frontend:npm@watch -->
             <id>watch</id>
             <phase />
             <goals>
-              <goal>yarn</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
               <arguments>start</arguments>

@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1561[TCOMP-1561^]: Custom action type shouldn't need to be enforced to define a family method
 - link:https://jira.talendforge.org/browse/TCOMP-1562[TCOMP-1562^]: Support JsonObject type in actions
 - link:https://jira.talendforge.org/browse/TCOMP-1564[TCOMP-1564^]: Move to java.nio.Path instead of java.io.File in component-runtime-manager stack where possible
+- link:https://jira.talendforge.org/browse/TCOMP-1565[TCOMP-1565^]: Upgade to Junit Jupiter 5.6.0-M1
 
 == Version 1.1.14
 
