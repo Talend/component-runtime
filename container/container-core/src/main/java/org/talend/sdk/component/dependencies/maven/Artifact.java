@@ -34,6 +34,8 @@ public class Artifact {
 
     private final String scope;
 
+    private volatile String pathCache;
+
     public Artifact(final String group, final String artifact, final String type, final String classifier,
             final String version, final String scope) {
         this.group = group;
@@ -45,9 +47,18 @@ public class Artifact {
     }
 
     public String toPath() {
-        return String
-                .format("%s/%s/%s/%s-%s%s.%s", group.replace(".", "/"), artifact, version, artifact, version,
-                        ofNullable(classifier).filter(it -> !it.isEmpty()).map(c -> '-' + c).orElse(""), type);
+        if (pathCache == null) {
+            synchronized (this) {
+                if (pathCache == null) {
+                    pathCache = String
+                            .format("%s/%s/%s/%s-%s%s.%s", group.replace(".", "/"), artifact, version, artifact,
+                                    version,
+                                    ofNullable(classifier).filter(it -> !it.isEmpty()).map(c -> '-' + c).orElse(""),
+                                    type);
+                }
+            }
+        }
+        return pathCache;
     }
 
     public String toCoordinate() {

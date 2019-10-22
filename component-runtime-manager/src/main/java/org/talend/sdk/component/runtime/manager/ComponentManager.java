@@ -108,8 +108,10 @@ import org.apache.xbean.finder.archive.FilteredArchive;
 import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
+import org.apache.xbean.finder.filter.FilterList;
 import org.apache.xbean.finder.filter.Filters;
 import org.apache.xbean.finder.filter.IncludeExcludeFilter;
+import org.apache.xbean.finder.filter.PrefixFilter;
 import org.apache.xbean.finder.util.Files;
 import org.apache.xbean.propertyeditor.Converter;
 import org.talend.sdk.component.api.component.Components;
@@ -173,6 +175,7 @@ import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryIm
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.util.Lazy;
+import org.talend.sdk.component.runtime.manager.util.LazyMap;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
@@ -315,18 +318,18 @@ public class ComponentManager implements AutoCloseable {
         } else {
             classpathContributors = emptyList();
         }
-        classesFilter = Filters
-                .prefixes(Stream
-                        .concat(Stream
-                                .of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.",
-                                        "javax.annotation.", "javax.json.", "org.talend.sdk.component.classloader.",
-                                        "org.talend.sdk.component.runtime.", "org.slf4j.", "org.apache.johnzon."),
-                                additionalContainerClasses())
-                        .distinct()
-                        .toArray(String[]::new));
+        classesFilter = new FilterList(Stream
+                .concat(Stream
+                        .of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
+                                "javax.json.", "org.talend.sdk.component.classloader.",
+                                "org.talend.sdk.component.runtime.", "org.slf4j.", "org.apache.johnzon."),
+                        additionalContainerClasses())
+                .distinct()
+                .map(PrefixFilter::new)
+                .toArray(Filter[]::new));
 
-        jsonpProvider = JsonProvider.provider();
-        jsonbProvider = JsonbProvider.provider();
+        jsonpProvider = loadJsonProvider();
+        jsonbProvider = loadJsonbProvider();
         // these factories have memory caches so ensure we reuse them properly
         jsonpGeneratorFactory = JsonGeneratorFactory.class
                 .cast(javaProxyEnricherFactory
@@ -415,6 +418,22 @@ public class ComponentManager implements AutoCloseable {
             }
         } else {
             recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
+        }
+    }
+
+    private JsonbProvider loadJsonbProvider() {
+        try {
+            return new org.apache.johnzon.jsonb.JohnzonProvider();
+        } catch (final RuntimeException re) {
+            return JsonbProvider.provider();
+        }
+    }
+
+    private JsonProvider loadJsonProvider() {
+        try {
+            return new org.apache.johnzon.core.JsonProviderImpl();
+        } catch (final RuntimeException re) {
+            return JsonProvider.provider();
         }
     }
 
@@ -900,73 +919,100 @@ public class ComponentManager implements AutoCloseable {
         return container.findAll().stream().map(Container::getId).collect(toList());
     }
 
-    protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
-        final String containerId = container.getId();
-
-        // JSON services
-        final JsonProvider jsonpProvider = new PreComputedJsonpProvider(containerId, this.jsonpProvider,
-                jsonpParserFactory, jsonpWriterFactory, jsonpBuilderFactory, jsonpGeneratorFactory, jsonpReaderFactory);
-        services.put(JsonProvider.class, jsonpProvider);
-        services
-                .put(JsonBuilderFactory.class,
-                        javaProxyEnricherFactory
-                                .asSerializable(container.getLoader(), containerId, JsonBuilderFactory.class.getName(),
-                                        jsonpBuilderFactory));
-        services
-                .put(JsonParserFactory.class,
-                        javaProxyEnricherFactory
-                                .asSerializable(container.getLoader(), containerId, JsonParserFactory.class.getName(),
-                                        jsonpParserFactory));
-        services
-                .put(JsonReaderFactory.class,
-                        javaProxyEnricherFactory
-                                .asSerializable(container.getLoader(), containerId, JsonReaderFactory.class.getName(),
-                                        jsonpReaderFactory));
-        services
-                .put(JsonWriterFactory.class,
-                        javaProxyEnricherFactory
-                                .asSerializable(container.getLoader(), containerId, JsonWriterFactory.class.getName(),
-                                        jsonpWriterFactory));
-        services
-                .put(JsonGeneratorFactory.class,
-                        javaProxyEnricherFactory
-                                .asSerializable(container.getLoader(), containerId,
-                                        JsonGeneratorFactory.class.getName(), jsonpGeneratorFactory));
-
-        final Jsonb jsonb = jsonbProvider
-                .create()
-                .withProvider(jsonpProvider) // reuses the same memory buffering
-                .withConfig(jsonbConfig)
-                .build();
-        final Jsonb serializableJsonb = Jsonb.class
-                .cast(javaProxyEnricherFactory
-                        .asSerializable(container.getLoader(), containerId, Jsonb.class.getName(), jsonb));
-        services.put(Jsonb.class, serializableJsonb);
-
-        // not JSON services
-        final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
-        if (!Boolean.getBoolean("talend.component.configuration." + containerId + ".ignoreLocalConfiguration")) {
-            final Stream<InputStream> localConfigs =
-                    container.getLoader().findContainedResources("TALEND-INF/local-configuration.properties").stream();
-            final Properties aggregatedLocalConfigs = aggregateConfigurations(localConfigs);
-            if (!aggregatedLocalConfigs.isEmpty()) {
-                containerConfigurations.add(new PropertiesConfiguration(aggregatedLocalConfigs));
-            }
+    // don't back it by a map, it is too slow to create them all, all the time, for sampling etc
+    protected Object builtInServiceFactories(final Container container, final Class<?> api,
+            final AtomicReference<Map<Class<?>, Object>> services) {
+        if (JsonProvider.class == api) {
+            return new PreComputedJsonpProvider(container.getId(), jsonpProvider, jsonpParserFactory,
+                    jsonpWriterFactory, jsonpBuilderFactory, jsonpGeneratorFactory, jsonpReaderFactory);
         }
-        final RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply(containerId);
-        services.put(LocalConfiguration.class, new LocalConfigurationService(containerConfigurations, containerId));
-        services
-                .put(HttpClientFactory.class,
-                        new HttpClientFactoryImpl(containerId, reflections, serializableJsonb, services));
-        services.put(LocalCache.class, new LocalCacheService(containerId));
-        services.put(ProxyGenerator.class, proxyGenerator);
-        services.put(Resolver.class, new ResolverImpl(containerId, container.getLocalDependencyRelativeResolver()));
-        services.put(Injector.class, new InjectorImpl(containerId, reflections, services));
-        services.put(ObjectFactory.class, new ObjectFactoryImpl(containerId, propertyEditorRegistry));
-        services.put(RecordBuilderFactory.class, recordBuilderFactory);
-        services.put(RecordPointerFactory.class, new RecordPointerFactoryImpl(containerId));
-        services.put(RecordService.class, new RecordServiceImpl(containerId, recordBuilderFactory));
-        services.put(ContainerInfo.class, new ContainerInfo(containerId));
+        if (JsonBuilderFactory.class == api) {
+            return javaProxyEnricherFactory
+                    .asSerializable(container.getLoader(), container.getId(), JsonBuilderFactory.class.getName(),
+                            jsonpBuilderFactory);
+        }
+        if (JsonParserFactory.class == api) {
+            return javaProxyEnricherFactory
+                    .asSerializable(container.getLoader(), container.getId(), JsonParserFactory.class.getName(),
+                            jsonpParserFactory);
+        }
+        if (JsonReaderFactory.class == api) {
+            return javaProxyEnricherFactory
+                    .asSerializable(container.getLoader(), container.getId(), JsonReaderFactory.class.getName(),
+                            jsonpReaderFactory);
+        }
+        if (JsonWriterFactory.class == api) {
+            return javaProxyEnricherFactory
+                    .asSerializable(container.getLoader(), container.getId(), JsonWriterFactory.class.getName(),
+                            jsonpWriterFactory);
+        }
+        if (JsonGeneratorFactory.class == api) {
+            return javaProxyEnricherFactory
+                    .asSerializable(container.getLoader(), container.getId(), JsonGeneratorFactory.class.getName(),
+                            jsonpGeneratorFactory);
+        }
+        if (Jsonb.class == api) {
+            return Jsonb.class
+                    .cast(javaProxyEnricherFactory
+                            .asSerializable(container.getLoader(), container.getId(), Jsonb.class.getName(),
+                                    jsonbProvider
+                                            .create()
+                                            .withProvider(jsonpProvider) // reuses the same memory buffering
+                                            .withConfig(jsonbConfig)
+                                            .build()));
+        }
+        if (LocalConfiguration.class == api) {
+            final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
+            if (!Boolean
+                    .getBoolean("talend.component.configuration." + container.getId() + ".ignoreLocalConfiguration")) {
+                final Stream<InputStream> localConfigs = container
+                        .getLoader()
+                        .findContainedResources("TALEND-INF/local-configuration.properties")
+                        .stream();
+                final Properties aggregatedLocalConfigs = aggregateConfigurations(localConfigs);
+                if (!aggregatedLocalConfigs.isEmpty()) {
+                    containerConfigurations.add(new PropertiesConfiguration(aggregatedLocalConfigs));
+                }
+            }
+            return new LocalConfigurationService(containerConfigurations, container.getId());
+        }
+        if (RecordBuilderFactory.class == api) {
+            return recordBuilderFactoryProvider.apply(container.getId());
+        }
+        if (ProxyGenerator.class == api) {
+            return proxyGenerator;
+        }
+        if (LocalCache.class == api) {
+            return new LocalCacheService(container.getId());
+        }
+        if (Injector.class == api) {
+            return new InjectorImpl(container.getId(), reflections, services.get());
+        }
+        if (HttpClientFactory.class == api) {
+            return new HttpClientFactoryImpl(container.getId(), reflections,
+                    Jsonb.class.cast(services.get().get(Jsonb.class)), services.get());
+        }
+        if (Resolver.class == api) {
+            return new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver());
+        }
+        if (ObjectFactory.class == api) {
+            return new ObjectFactoryImpl(container.getId(), propertyEditorRegistry);
+        }
+        if (RecordPointerFactory.class == api) {
+            return new RecordPointerFactoryImpl(container.getId());
+        }
+        if (ContainerInfo.class == api) {
+            return new ContainerInfo(container.getId());
+        }
+        if (RecordService.class == api) {
+            return new RecordServiceImpl(container.getId(),
+                    RecordBuilderFactory.class.cast(services.get().get(RecordBuilderFactory.class)));
+        }
+        return null;
+    }
+
+    protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
+        // no-op
     }
 
     private Properties aggregateConfigurations(final Stream<InputStream> localConfigs) {
@@ -1201,16 +1247,43 @@ public class ComponentManager implements AutoCloseable {
                     log.debug(e.getMessage(), e);
                 }
 
+                AnnotationFinder optimizedFinder = null;
                 if (alreadyScannedClasses != null
                         && !(alreadyScannedClasses = alreadyScannedClasses.trim()).isEmpty()) {
-                    archive =
-                            new ClassesArchive(Stream.of(alreadyScannedClasses.split(",")).map(String::trim).map(it -> {
+                    final List<? extends Class<?>> classes =
+                            Stream.of(alreadyScannedClasses.split(",")).map(String::trim).map(it -> {
                                 try {
                                     return loader.loadClass(it);
                                 } catch (final ClassNotFoundException e) {
                                     throw new IllegalArgumentException(e);
                                 }
-                            }).toArray(Class<?>[]::new));
+                            }).collect(toList());
+                    if (KnownClassesFilter.INSTANCE == filter) {
+                        archive = new ClassesArchive(/* empty */);
+                        optimizedFinder = new AnnotationFinder(archive) {
+
+                            @Override
+                            public List<Class<?>> findAnnotatedClasses(final Class<? extends Annotation> marker) {
+                                return classes.stream().filter(c -> c.isAnnotationPresent(marker)).collect(toList());
+                            }
+
+                            @Override
+                            public List<Method> findAnnotatedMethods(final Class<? extends Annotation> annotation) {
+                                if (Request.class == annotation) { // optimized
+                                    return classes
+                                            .stream()
+                                            .filter(HttpClient.class::isAssignableFrom)
+                                            .flatMap(client -> Stream
+                                                    .of(client.getMethods())
+                                                    .filter(m -> m.isAnnotationPresent(annotation)))
+                                            .collect(toList());
+                                }
+                                return super.findAnnotatedMethods(annotation);
+                            }
+
+                            // finder.findAnnotatedMethods(Request.class)
+                        };
+                    }
                 } else {
                     /*
                      * container.findExistingClasspathFiles() - we just scan the root module for
@@ -1218,9 +1291,7 @@ public class ComponentManager implements AutoCloseable {
                      */
                     archive = toArchive(container.getRootModule(), originalId, loader);
                 }
-                finder = new AnnotationFinder(
-                        ClassesArchive.class.isInstance(archive) && KnownClassesFilter.INSTANCE == filter ? archive
-                                : new FilteredArchive(archive, filter)) {
+                finder = optimizedFinder == null ? new AnnotationFinder(new FilteredArchive(archive, filter)) {
 
                     @Override
                     protected boolean cleanOnNaked() {
@@ -1231,7 +1302,7 @@ public class ComponentManager implements AutoCloseable {
                     protected boolean isTracked(final String annotationType) {
                         return supportedAnnotations.contains(annotationType);
                     }
-                };
+                } : optimizedFinder;
             } finally {
                 if (AutoCloseable.class.isInstance(archive)) {
                     try {
@@ -1259,7 +1330,11 @@ public class ComponentManager implements AutoCloseable {
                 isGeneric = false;
             }
 
-            final Map<Class<?>, Object> services = new HashMap<>(24);
+            final AtomicReference<Map<Class<?>, Object>> seviceLookupRef = new AtomicReference<>();
+            final Map<Class<?>, Object> services =
+                    new LazyMap<>(24, type -> builtInServiceFactories(container, type, seviceLookupRef));
+            seviceLookupRef.set(services);
+
             final AllServices allServices = new AllServices(services);
             container.set(AllServices.class, allServices);
             // container services

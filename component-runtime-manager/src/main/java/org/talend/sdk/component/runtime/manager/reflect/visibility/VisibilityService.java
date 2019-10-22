@@ -29,21 +29,24 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.Json;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonPointer;
 import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class VisibilityService {
 
     private final AbsolutePathResolver pathResolver = new AbsolutePathResolver();
+
+    private final JsonProvider jsonProvider;
 
     public ConditionGroup build(final ParameterMeta param) {
         final boolean and =
@@ -69,7 +72,7 @@ public class VisibilityService {
     }
 
     private JsonPointer toPointer(final String absoluteTargetPath) {
-        return Json.createPointer('/' + absoluteTargetPath.replace('.', '/'));
+        return jsonProvider.createPointer('/' + absoluteTargetPath.replace('.', '/'));
     }
 
     // check org.talend.sdk.component.form.internal.converter.impl.widget.path.AbsolutePathResolver,

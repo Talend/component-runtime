@@ -62,6 +62,7 @@ import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.spi.JsonProvider;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -84,8 +85,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class ReflectionService {
-
-    private static final Object[] EMPTY_ARGS = new Object[0];
 
     private final ParameterModelService parameterModelService;
 
@@ -156,6 +155,16 @@ public class ReflectionService {
                                         .filter(e -> itemClass.isAssignableFrom(e.getKey()))
                                         .map(Map.Entry::getValue)
                                         .collect(toList());
+
+                                // let's try to catch up built-in service
+                                // here we have 1 entry per type and it is lazily created on get()
+                                if (services.isEmpty()) {
+                                    final Object o = precomputed.get(itemClass);
+                                    if (o != null) {
+                                        services.add(o);
+                                    }
+                                }
+
                                 if (!services.isEmpty()) {
                                     return (Function<Map<String, String>, Object>) config -> services;
                                 }
@@ -877,7 +886,7 @@ public class ReflectionService {
     @RequiredArgsConstructor
     private static class PayloadValidator implements PayloadMapper.OnParameter {
 
-        private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService();
+        private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
 
         private static final Messages MESSAGES = new InternationalizationServiceFactory(Locale::getDefault)
                 .create(Messages.class, PayloadValidator.class.getClassLoader());

@@ -314,7 +314,7 @@ public class ParameterModelService {
         throw new IllegalArgumentException("Unsupported parameter type: " + type);
     }
 
-    private List<ParameterMeta> buildObjectParameters(final String prefix, final Class type,
+    private List<ParameterMeta> buildObjectParameters(final String prefix, final Class<?> type,
             final Collection<String> i18nPackages, final boolean ignoreI18n,
             final BaseParameterEnricher.Context context) {
         final Map<String, Field> fields = new HashMap<>();

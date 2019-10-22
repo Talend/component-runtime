@@ -72,6 +72,7 @@ import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
 import org.apache.johnzon.core.JsonLongImpl;
+import org.apache.johnzon.jsonb.extension.JsonValueReader;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -270,12 +271,12 @@ public class RecordConverters implements Serializable {
             return data;
         }
 
-        final String inputAsJson;
+        final JsonObject inputAsJson;
         if (JsonObject.class.isInstance(data)) {
             if (JsonObject.class == parameterType) {
                 return data;
             }
-            inputAsJson = JsonObject.class.cast(data).toString();
+            inputAsJson = JsonObject.class.cast(data);
         } else if (Record.class.isInstance(data)) {
             final Record record = Record.class.cast(data);
             if (!JsonObject.class.isAssignableFrom(parameterType)) {
@@ -288,14 +289,15 @@ public class RecordConverters implements Serializable {
             if (JsonObject.class == parameterType) {
                 return asJson;
             }
-            inputAsJson = asJson.toString();
+            inputAsJson = asJson;
         } else {
             if (parameterType == Record.class) {
                 return toRecord(registry, data, jsonbProvider, recordBuilderProvider);
             }
-            inputAsJson = jsonbProvider.get().toJson(data);
+            final Jsonb jsonb = jsonbProvider.get();
+            inputAsJson = jsonb.fromJson(jsonb.toJson(data), JsonObject.class);
         }
-        return jsonbProvider.get().fromJson(inputAsJson, parameterType);
+        return jsonbProvider.get().fromJson(new JsonValueReader<>(inputAsJson), parameterType);
     }
 
     private JsonObject toJson(final Supplier<JsonBuilderFactory> factorySupplier,

@@ -46,7 +46,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -327,9 +327,16 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     @Override
     public Enumeration<URL> getResources(final String name) throws IOException {
-        final Collection<URL> urls = new LinkedList<>(list(findResources(name)));
-        urls.addAll(list(getParent().getResources(name)).stream().filter(this::isInJvm).collect(toList()));
-        return enumeration(urls);
+        final Enumeration<URL> selfResources = findResources(name);
+        final Enumeration<URL> parentResources = getParent().getResources(name);
+        if (!parentResources.hasMoreElements()) {
+            return selfResources;
+        }
+        if (!selfResources.hasMoreElements()) {
+            return new FilteringUrlEnum(parentResources, this::isInJvm);
+        }
+        return new ChainedEnumerations(
+                asList(selfResources, new FilteringUrlEnum(parentResources, this::isInJvm)).iterator());
     }
 
     @Override
@@ -854,6 +861,56 @@ public class ConfigurableClassLoader extends URLClassLoader {
         @Override
         public InputStream getInputStream() {
             return new ByteArrayInputStream(resource.resource);
+        }
+    }
+
+    @RequiredArgsConstructor(access = PRIVATE)
+    private static class FilteringUrlEnum implements Enumeration<URL> {
+
+        private final Enumeration<URL> delegate;
+
+        private final Predicate<URL> filter;
+
+        private URL next;
+
+        @Override
+        public boolean hasMoreElements() {
+            while (delegate.hasMoreElements()) {
+                next = delegate.nextElement();
+                if (filter.test(next)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public URL nextElement() {
+            return next;
+        }
+    }
+
+    @RequiredArgsConstructor(access = PRIVATE)
+    private static class ChainedEnumerations implements Enumeration<URL> {
+
+        private final Iterator<Enumeration<URL>> enumerations;
+
+        private Enumeration<URL> current;
+
+        @Override
+        public boolean hasMoreElements() {
+            if (current == null || !current.hasMoreElements()) {
+                if (!enumerations.hasNext()) {
+                    return false;
+                }
+                current = enumerations.next();
+            }
+            return current.hasMoreElements();
+        }
+
+        @Override
+        public URL nextElement() {
+            return current.nextElement();
         }
     }
 }

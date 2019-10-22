@@ -92,6 +92,8 @@ public class ContainerManager implements Lifecycle {
 
     private final String[] jvmMarkers;
 
+    private final boolean hasNestedRepository;
+
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
             final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
             final Level logInfoLevelMapping) {
@@ -143,6 +145,10 @@ public class ContainerManager implements Lifecycle {
         this.jvmMarkers = Stream
                 .concat(Stream.concat(Stream.of(getJre()), getComponentModules()), getCustomJvmMarkers())
                 .toArray(String[]::new);
+        this.hasNestedRepository =
+                this.classLoaderConfiguration.isSupportsResourceDependencies() && this.classLoaderConfiguration
+                        .getParent()
+                        .getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY) != null;
     }
 
     public File getRootRepositoryLocation() {
@@ -439,7 +445,7 @@ public class ContainerManager implements Lifecycle {
                     ofNullable(containerInitializer)
                             .orElse(NOOP_CUSTOMIZER)
                             .andThen(ofNullable(customizer).orElse(NOOP_CUSTOMIZER)),
-                    jvmMarkers) {
+                    jvmMarkers, hasNestedRepository) {
 
                 @Override
                 public void close() {

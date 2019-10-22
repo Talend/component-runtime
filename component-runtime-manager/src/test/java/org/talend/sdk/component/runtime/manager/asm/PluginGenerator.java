@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.manager.asm;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
 import static org.apache.xbean.asm7.ClassReader.EXPAND_FRAMES;
 import static org.apache.xbean.asm7.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.xbean.asm7.Opcodes.ACC_PUBLIC;
@@ -40,7 +39,6 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
-import java.util.jar.JarException;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -223,7 +221,7 @@ public class PluginGenerator {
         // start by writing the dependencies file
         outputStream.putNextEntry(new ZipEntry("META-INF/test/dependencies"));
         outputStream.write("The following files have been resolved:\n".getBytes(StandardCharsets.UTF_8));
-        outputStream.write(Stream.of(deps).collect(joining("\n")).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(String.join("\n", deps).getBytes(StandardCharsets.UTF_8));
     }
 
     private void addConstructor(final ClassWriter writer) {

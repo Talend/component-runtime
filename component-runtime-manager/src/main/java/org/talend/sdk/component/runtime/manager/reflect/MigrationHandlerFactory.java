@@ -121,6 +121,9 @@ public class MigrationHandlerFactory {
     }
 
     private Stream<ParameterMeta> getNestedConfigType(final ParameterMeta parameterMeta) {
+        if (parameterMeta.getNestedParameters().isEmpty() && parameterMeta.getType() != ParameterMeta.Type.OBJECT) {
+            return Stream.empty();
+        }
         return concat(
                 (parameterMeta.getJavaType() instanceof Class && parameterMeta
                         .getMetadata()

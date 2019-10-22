@@ -23,7 +23,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.container.Container.State.CREATED;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.net.MalformedURLException;
@@ -91,15 +90,18 @@ public class Container implements Lifecycle {
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
 
+    private final boolean hasNestedRepository;
+
     public Container(final String id, final String rootModule, final Artifact[] dependencies,
             final ContainerManager.ClassLoaderConfiguration configuration,
             final Function<String, Path> localDependencyRelativeResolver, final Consumer<Container> initializer,
-            final String[] jvmMarkers) {
+            final String[] jvmMarkers, final boolean hasNestedRepository) {
         this.id = id;
         this.rootModule = rootModule;
         this.dependencies = dependencies;
         this.localDependencyRelativeResolver = localDependencyRelativeResolver;
         this.lastModifiedTimestamp.set(new Date(0));
+        this.hasNestedRepository = hasNestedRepository;
         ofNullable(initializer).ifPresent(i -> i.accept(this));
 
         this.classloaderProvider = () -> {
@@ -133,7 +135,7 @@ public class Container implements Lifecycle {
                             .filter(it -> it)
                             .orElseGet(() -> findNestedDependency(overrideClassLoaderConfig, s)));
             final String[] rawNestedDependencies =
-                    overrideClassLoaderConfig.isSupportsResourceDependencies()
+                    this.hasNestedRepository
                             ? Stream
                                     .concat(Stream.of(rootModule), Stream.of(dependencies).map(Artifact::toPath))
                                     .filter(it -> resourceExists.test(it)
@@ -164,6 +166,9 @@ public class Container implements Lifecycle {
 
     private boolean findNestedDependency(final ContainerManager.ClassLoaderConfiguration overrideClassLoaderConfig,
             final String depPath) {
+        if (!hasNestedRepository) {
+            return false;
+        }
         final URL url = overrideClassLoaderConfig
                 .getParent()
                 .getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + depPath);
@@ -186,6 +191,9 @@ public class Container implements Lifecycle {
     // we use that to prefilter the dependencies we keep, in some env we don't nest them
     // so we don't care much testing the nested jars
     private Predicate<String> jarIndex(final Path rootFile) {
+        if (!hasNestedRepository) {
+            return n -> false;
+        }
         try (final JarFile jarFile = new JarFile(rootFile.toFile())) {
             final Set<String> entries = list(jarFile.entries())
                     .stream()
@@ -310,7 +318,7 @@ public class Container implements Lifecycle {
     }
 
     private void doClose() {
-        ofNullable(loaderRef.get()).filter(Closeable.class::isInstance).map(Closeable.class::cast).ifPresent(c -> {
+        ofNullable(loaderRef.get()).ifPresent(c -> {
             try {
                 c.close();
             } catch (final IOException e) {

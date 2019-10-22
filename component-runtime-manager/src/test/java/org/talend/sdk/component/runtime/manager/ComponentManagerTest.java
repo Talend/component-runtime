@@ -207,6 +207,9 @@ class ComponentManagerTest {
         final File fatJar = new File(pluginFolder, "fatjar.jar");
         try (final JarOutputStream jar = new JarOutputStream(new FileOutputStream(fatJar))) {
             try {
+                jar.putNextEntry(new JarEntry("MAVEN-INF/repository/"));
+                jar.closeEntry();
+
                 jar
                         .putNextEntry(new JarEntry(
                                 "MAVEN-INF/repository/org/talend/test/transitive/1.0.0/transitive-1.0.0.jar"));
