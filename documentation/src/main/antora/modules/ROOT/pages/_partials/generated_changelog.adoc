@@ -16,6 +16,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1562[TCOMP-1562^]: Support JsonObject type in actions
 - link:https://jira.talendforge.org/browse/TCOMP-1564[TCOMP-1564^]: Move to java.nio.Path instead of java.io.File in component-runtime-manager stack where possible
 - link:https://jira.talendforge.org/browse/TCOMP-1565[TCOMP-1565^]: Upgade to Junit Jupiter 5.6.0-M1
+- link:https://jira.talendforge.org/browse/TCOMP-1566[TCOMP-1566^]: Don't compute jvmMarkers per component module but once for all
 
 == Version 1.1.14
 

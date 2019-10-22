@@ -90,6 +90,8 @@ public class ContainerManager implements Lifecycle {
 
     private final Level logInfoLevelMapping;
 
+    private final String[] jvmMarkers;
+
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
             final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
             final Level logInfoLevelMapping) {
@@ -137,6 +139,10 @@ public class ContainerManager implements Lifecycle {
         } else {
             info("Container " + containerId + " not supporting nested plugin loading, skipping");
         }
+
+        this.jvmMarkers =  Stream
+                .concat(Stream.concat(Stream.of(getJre()), getComponentModules()), getCustomJvmMarkers())
+                .toArray(String[]::new);
     }
 
     public File getRootRepositoryLocation() {
@@ -152,14 +158,14 @@ public class ContainerManager implements Lifecycle {
         case 500: // FINE
             log.debug(msg);
             break;
-        case 800: // INFo
+        case 800: // INFO
         default:
             log.info(msg);
         }
     }
 
     /**
-     * @param task
+     * @param task task to run avoiding it to stop the calling execution due to an exception.
      * @return false if no error occurred during invocation of the task, true otherwise
      */
     private static RuntimeException safeInvoke(final Runnable task) {
@@ -296,6 +302,49 @@ public class ContainerManager implements Lifecycle {
         return containers.values();
     }
 
+    private Stream<String> getComponentModules() {
+        try {
+            return list(classLoaderConfiguration.getParent().getResources("META-INF/maven/org.talend.sdk.component/"))
+                    .stream()
+                    .map(Jars::toPath)
+                    .filter(Objects::nonNull)
+                    .map(it -> it.toAbsolutePath().toString());
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private Stream<String> getCustomJvmMarkers() {
+        try {
+            return list(classLoaderConfiguration
+                    .getParent()
+                    .getResources("TALEND-INF/org.talend.sdk.component.container.ContainerManager.jvmMarkers.txt"))
+                            .stream()
+                            .flatMap(it -> {
+                                try (final BufferedReader reader =
+                                        new BufferedReader(new InputStreamReader(it.openStream()))) {
+                                    // tolist to materialize it before closing the resource
+                                    return reader.lines().collect(toList()).stream();
+                                } catch (final IOException e) {
+                                    throw new IllegalStateException(e);
+                                }
+                            })
+                            .map(String::trim)
+                            .filter(it -> !it.isEmpty())
+                            .filter(it -> !it.startsWith("#"));
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private String getJre() {
+        return of(Paths.get(System.getProperty("java.home", "")))
+                .map(it -> it.getFileName().toString().equals("jre") && it.getParent() != null
+                        && Files.exists(it.getParent().resolve("lib/tools.jar")) ? it.getParent() : it)
+                .map(it -> it.toAbsolutePath().toString())
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
     @Override
     public void close() {
         lifecycle.closeIfNeeded(() -> {
@@ -358,7 +407,7 @@ public class ContainerManager implements Lifecycle {
 
         private Consumer<Container> customizer;
 
-        private Collection<Artifact> additionalClasspath = new ArrayList<>();
+        private Collection<Artifact> additionalClasspath;
 
         public ContainerBuilder withAdditionalClasspath(final Collection<Artifact> additionalClasspath) {
             this.additionalClasspath = ofNullable(additionalClasspath).orElseGet(Collections::emptySet);
@@ -381,15 +430,16 @@ public class ContainerManager implements Lifecycle {
             final Path resolved = resolve(moduleLocation);
             info("Creating module " + moduleLocation + " (from " + module
                     + (Files.exists(resolved) ? ", location=" + resolved.toAbsolutePath().toString() : "") + ")");
-            final Stream<Artifact> classpath =
-                    Stream.concat(getBuiltInClasspath(moduleLocation), additionalClasspath.stream());
+            final Stream<Artifact> classpath = Stream
+                    .concat(getBuiltInClasspath(moduleLocation),
+                            additionalClasspath == null ? Stream.empty() : additionalClasspath.stream());
 
             final Container container = new Container(id, moduleLocation, classpath.toArray(Artifact[]::new),
                     classLoaderConfiguration, ContainerManager.this::resolve,
                     ofNullable(containerInitializer)
                             .orElse(NOOP_CUSTOMIZER)
                             .andThen(ofNullable(customizer).orElse(NOOP_CUSTOMIZER)),
-                    getJvmMarkers().toArray(String[]::new)) {
+                    jvmMarkers) {
 
                 @Override
                 public void close() {
@@ -445,58 +495,6 @@ public class ContainerManager implements Lifecycle {
 
         private Stream<Artifact> getBuiltInClasspath(final String moduleLocation) {
             return resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation);
-        }
-
-        private Stream<String> getJvmMarkers() {
-            return Stream.concat(getBuiltInJvmMarkers(), getCustomJvmMarkers());
-        }
-
-        private Stream<String> getBuiltInJvmMarkers() {
-            return Stream.concat(Stream.of(getJre()), getComponentModules());
-        }
-
-        private Stream<String> getComponentModules() {
-            try {
-                return list(
-                        classLoaderConfiguration.getParent().getResources("META-INF/maven/org.talend.sdk.component/"))
-                                .stream()
-                                .map(Jars::toPath)
-                                .filter(Objects::nonNull)
-                                .map(it -> it.toAbsolutePath().toString());
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        private Stream<String> getCustomJvmMarkers() {
-            try {
-                return list(classLoaderConfiguration
-                        .getParent()
-                        .getResources("TALEND-INF/org.talend.sdk.component.container.ContainerManager.jvmMarkers.txt"))
-                                .stream()
-                                .flatMap(it -> {
-                                    try (final BufferedReader reader =
-                                            new BufferedReader(new InputStreamReader(it.openStream()))) {
-                                        // tolist to materialize it before closing the resource
-                                        return reader.lines().collect(toList()).stream();
-                                    } catch (final IOException e) {
-                                        throw new IllegalStateException(e);
-                                    }
-                                })
-                                .map(String::trim)
-                                .filter(it -> !it.isEmpty())
-                                .filter(it -> !it.startsWith("#"));
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        private String getJre() {
-            return of(Paths.get(System.getProperty("java.home", "")))
-                    .map(it -> it.getFileName().toString().equals("jre") && it.getParent() != null
-                            && Files.exists(it.getParent().resolve("lib/tools.jar")) ? it.getParent() : it)
-                    .map(it -> it.toAbsolutePath().toString())
-                    .orElseThrow(IllegalArgumentException::new);
         }
     }
 }
