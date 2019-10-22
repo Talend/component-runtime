@@ -18,8 +18,10 @@ package org.talend.sdk.component.dependencies.maven;
 import static java.util.Optional.ofNullable;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(exclude = "pathCache")
 public class Artifact {
 
     private final String group;
