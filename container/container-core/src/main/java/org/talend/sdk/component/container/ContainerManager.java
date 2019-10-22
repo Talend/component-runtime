@@ -140,7 +140,7 @@ public class ContainerManager implements Lifecycle {
             info("Container " + containerId + " not supporting nested plugin loading, skipping");
         }
 
-        this.jvmMarkers =  Stream
+        this.jvmMarkers = Stream
                 .concat(Stream.concat(Stream.of(getJre()), getComponentModules()), getCustomJvmMarkers())
                 .toArray(String[]::new);
     }

@@ -180,6 +180,8 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
     @RequiredArgsConstructor
     public static class MvnDependenciesTxtArtifactConverter {
 
+        private static final Artifact[] EMPTY_ARTIFACTS = new Artifact[0];
+
         private String content;
 
         private Predicate<Artifact> filter = DefaultFilter.INSTANCE;
@@ -236,7 +238,7 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
                     }
                 } while (true);
 
-                return artifacts.toArray(new Artifact[artifacts.size()]);
+                return artifacts.toArray(EMPTY_ARTIFACTS);
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }

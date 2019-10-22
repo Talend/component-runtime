@@ -386,7 +386,7 @@ public class ComponentManager implements AutoCloseable {
                         .orElseGet(() -> super.resolve(path));
             }
         };
-        this.container.registerListener(new Updater());
+        this.container.registerListener(new Updater(dependenciesResource));
         if (!Boolean.getBoolean("talend.component.manager.jmx.skip")) {
             ofNullable(jmxNamePattern)
                     .map(String::trim)
@@ -1165,7 +1165,10 @@ public class ComponentManager implements AutoCloseable {
         private final String value;
     }
 
+    @RequiredArgsConstructor
     private class Updater implements ContainerListener {
+
+        private final String dependenciesResource;
 
         private final ModelVisitor visitor = new ModelVisitor();
 
@@ -1191,24 +1194,7 @@ public class ComponentManager implements AutoCloseable {
                     if (containerFilterConfig != null) {
                         final Properties config = new Properties();
                         config.load(containerFilterConfig);
-                        final Filter accept = ofNullable(config.getProperty("classloader.includes"))
-                                .map(String::trim)
-                                .filter(v -> !v.isEmpty())
-                                .map(s -> s.split(","))
-                                .map(Filters::patterns)
-                                .orElseGet(() -> name -> true);
-                        final Filter reject = ofNullable(config.getProperty("classloader.excludes"))
-                                .map(String::trim)
-                                .filter(v -> !v.isEmpty())
-                                .map(s -> s.split(","))
-                                .map(Filters::patterns)
-                                .orElseGet(() -> name -> false);
-                        if ("include-exclude".equals(config.getProperty("classloader.filter.strategy"))) {
-                            filter = new IncludeExcludeFilter(accept, reject);
-                        } else {
-                            filter = new ExcludeIncludeFilter(accept, reject);
-                        }
-
+                        filter = createScanningFilter(config);
                         alreadyScannedClasses = config.getProperty("classes.list");
                     }
                 } catch (final IOException e) {
@@ -1232,7 +1218,9 @@ public class ComponentManager implements AutoCloseable {
                      */
                     archive = toArchive(container.getRootModule(), originalId, loader);
                 }
-                finder = new AnnotationFinder(new FilteredArchive(archive, filter)) {
+                finder = new AnnotationFinder(
+                        ClassesArchive.class.isInstance(archive) && KnownClassesFilter.INSTANCE == filter ? archive
+                                : new FilteredArchive(archive, filter)) {
 
                     @Override
                     protected boolean cleanOnNaked() {
@@ -1370,6 +1358,30 @@ public class ComponentManager implements AutoCloseable {
                         .forEach(type -> onComponent(container, registry, services, allServices, componentDefaults,
                                 componentContexts, type, xbeanConverterCache));
             }
+        }
+
+        private Filter createScanningFilter(final Properties config) {
+            final String includes = config.getProperty("classloader.includes");
+            final String excludes = config.getProperty("classloader.excludes");
+            if (includes == null && excludes == null) {
+                return KnownClassesFilter.INSTANCE;
+            }
+            final Filter accept = ofNullable(includes)
+                    .map(String::trim)
+                    .filter(v -> !v.isEmpty())
+                    .map(s -> s.split(","))
+                    .map(Filters::patterns)
+                    .orElseGet(() -> name -> true);
+            final Filter reject = ofNullable(excludes)
+                    .map(String::trim)
+                    .filter(v -> !v.isEmpty())
+                    .map(s -> s.split(","))
+                    .map(Filters::patterns)
+                    .orElseGet(() -> name -> false);
+            if ("include-exclude".equals(config.getProperty("classloader.filter.strategy"))) {
+                return new IncludeExcludeFilter(accept, reject);
+            }
+            return new ExcludeIncludeFilter(accept, reject);
         }
 
         private void onComponent(final Container container, final ContainerComponentRegistry registry,
@@ -1530,9 +1542,6 @@ public class ComponentManager implements AutoCloseable {
             archives.add(mainArchive);
             final URL mainUrl = archiveToUrl(mainArchive);
             try {
-                final String dependenciesResource = MvnDependencyListLocalRepositoryResolver.class
-                        .cast(container.getResolver())
-                        .getDependenciesListFile();
                 archives.addAll(list(loader.getResources(dependenciesResource)).stream().map(url -> { // strip resource
                     final String rawUrl = url.toExternalForm();
                     try {
