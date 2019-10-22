@@ -39,23 +39,32 @@ enum Indices {
     },
     SPARK_CORE("TALEND-INF/classloader/indices/spark-core") {
 
+        private volatile Boolean isThere;
+
         @Override
         protected boolean isAvailable() {
-            return hasClass("org.apache.spark.SparkContext");
+            if (isThere == null) {
+                synchronized (this) {
+                    if (isThere == null) {
+                        isThere = hasClass("org.apache.beam.runners.spark.SparkRunner");
+                    }
+                }
+            }
+            return isThere;
         }
     },
     SPARK_STREAMING("TALEND-INF/classloader/indices/spark-streaming") {
 
         @Override
         protected boolean isAvailable() {
-            return hasClass("org.apache.spark.SparkContext");
+            return SPARK_CORE.isAvailable();
         }
     },
     BEAM_RUNNERS_SPARK("TALEND-INF/classloader/indices/beam-runners-spark") {
 
         @Override
         protected boolean isAvailable() {
-            return hasClass("org.apache.beam.runners.spark.SparkRunner");
+            return SPARK_CORE.isAvailable();
         }
     },
     BEAM_RUNNERS_DIRECT_JAVA("TALEND-INF/classloader/indices/beam-runners-direct-java") {
