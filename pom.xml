@@ -199,8 +199,8 @@
     <spark.version>2.4.3</spark.version>
     <spark-scala.version>2.11</spark-scala.version>
 
-    <groovy.version>2.5.8</groovy.version>
-    <gmavenplus.version>1.7.1</gmavenplus.version>
+    <groovy.version>3.0.0-beta-3</groovy.version>
+    <gmavenplus.version>1.8.0</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <javadoc-plugin.version>3.1.0</javadoc-plugin.version>
     <deploy-plugin.version>2.8.2</deploy-plugin.version>
@@ -731,31 +731,11 @@
         <enabled>true</enabled>
       </releases>
     </repository>
-    <repository>
-      <id>staging-johnzon</id>
-      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1035</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>staging-johnzon</id>
-      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1035</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -1354,7 +1334,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.4</version>
+        <version>0.8.5</version>
         <executions>
           <execution>
             <id>prepare-agent</id>
