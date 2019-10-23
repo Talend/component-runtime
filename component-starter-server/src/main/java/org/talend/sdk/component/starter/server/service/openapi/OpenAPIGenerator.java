@@ -77,7 +77,8 @@ public class OpenAPIGenerator {
                         renderer.render("generator/openapi/connection.mustache", new ConnectionModel(basePackage))));
         payloads
                 .add(new FacetGenerator.InMemoryFile(resourcesBaseFolder + "connection/Messages.properties",
-                        "APIConnection.baseUrl._displayName = Base URL\n"));
+                        "APIConnection.baseUrl._displayName = Base URL\n"
+                                + "APIConnection.baseUrl._placeholder = Base URL...\n"));
 
         final Collection<Option> options = operations
                 .stream()
@@ -106,17 +107,26 @@ public class OpenAPIGenerator {
                         "APIDataSet.api._displayName = API\n" + "APIDataSet.connection._displayName = API connection\n"
                                 +
                                 // options
-                                options
-                                        .stream()
-                                        .map(opt -> "APIDataSet." + opt.getName() + "._displayName = <" + opt.getName()
-                                                + ">")
-                                        .sorted()
-                                        .collect(joining("\n", "", "\n\n"))
-                                +
+                                options.stream().flatMap(opt -> {
+                                    final Stream<String> displayName = Stream
+                                            .of("APIDataSet." + opt.getName() + "._displayName = <" + opt.getName()
+                                                    + ">");
+                                    if ("string".equalsIgnoreCase(opt.type)) {
+                                        return Stream
+                                                .concat(displayName,
+                                                        Stream
+                                                                .of("APIDataSet." + opt.getName() + "._placeholder = "
+                                                                        + opt.getName() + "..."));
+                                    }
+                                    return displayName;
+                                }).sorted().collect(joining("\n", "", "\n\n")) +
                                 // enum values/labels
                                 operations
                                         .stream()
-                                        .map(op -> "APIType." + op.getName() + "._displayName = " + op.getName())
+                                        .flatMap(op -> Stream
+                                                .of("APIType." + op.getName() + "._displayName = " + op.getName(),
+                                                        "APIType." + op.getName() + "._placeholder = " + op.getName()
+                                                                + "..."))
                                         .sorted()
                                         .collect(joining("\n", "", "\n"))));
 

@@ -35,9 +35,8 @@ public class TaCoKitPlugin implements Plugin<Project> {
         // ensure we can find our dependencies
         project.afterEvaluate(actionProject -> actionProject.getRepositories().mavenCentral());
 
-        // create the configuration for our task execution
-        final Configuration configuration = project.getConfigurations().maybeCreate("talendComponentKit");
-        configuration.getIncoming().beforeResolve(resolvableDependencies -> {
+        { // create the configuration for our task execution
+            final Configuration configuration = project.getConfigurations().maybeCreate("talendComponentKit");
             TaCoKitExtension extension =
                     TaCoKitExtension.class.cast(project.getExtensions().findByName("talendComponentKit"));
             if (extension == null) {
@@ -56,11 +55,10 @@ public class TaCoKitPlugin implements Plugin<Project> {
                     .add(dependencyHandler
                             .create("org.talend.sdk.component:component-runtime-design-extension:"
                                     + extension.getSdkVersion()));
-        });
+        }
 
-        // create the web configuration for our web task
-        final Configuration webConfiguration = project.getConfigurations().maybeCreate("talendComponentKitWeb");
-        webConfiguration.getIncoming().beforeResolve(resolvableDependencies -> {
+        { // create the web configuration for our web task
+            final Configuration webConfiguration = project.getConfigurations().maybeCreate("talendComponentKitWeb");
             TaCoKitExtension extension =
                     TaCoKitExtension.class.cast(project.getExtensions().findByName("talendComponentKitWeb"));
             if (extension == null) {
@@ -68,11 +66,11 @@ public class TaCoKitPlugin implements Plugin<Project> {
             }
 
             final DependencyHandler dependencyHandler = project.getDependencies();
-            final DependencySet dependencies = configuration.getDependencies();
+            final DependencySet dependencies = webConfiguration.getDependencies();
             dependencies
                     .add(dependencyHandler
                             .create("org.talend.sdk.component:component-tools-webapp:" + extension.getSdkVersion()));
-        });
+        }
 
         // tasks
         final String group = "Talend Component Kit";

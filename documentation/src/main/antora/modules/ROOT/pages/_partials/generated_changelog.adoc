@@ -17,6 +17,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1564[TCOMP-1564^]: Move to java.nio.Path instead of java.io.File in component-runtime-manager stack where possible
 - link:https://jira.talendforge.org/browse/TCOMP-1565[TCOMP-1565^]: Upgade to Junit Jupiter 5.6.0-M1
 - link:https://jira.talendforge.org/browse/TCOMP-1566[TCOMP-1566^]: Don't compute jvmMarkers per component module but once for all
+- link:https://jira.talendforge.org/browse/TCOMP-1567[TCOMP-1567^]: Cache Artifact path in case of reuse
+- link:https://jira.talendforge.org/browse/TCOMP-1568[TCOMP-1568^]: Lazily create the container services
+- link:https://jira.talendforge.org/browse/TCOMP-1569[TCOMP-1569^]: Upgrade starter to gradle 6.0-rc1
+- link:https://jira.talendforge.org/browse/TCOMP-1570[TCOMP-1570^]: Ensure starter adds _placeholder entries in Messages.properties
 
 == Version 1.1.14
 

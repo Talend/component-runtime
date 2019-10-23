@@ -86,16 +86,16 @@ public class ComponentGenerator {
                 .getBytes(StandardCharsets.UTF_8);
     }
 
-    public Stream<FacetGenerator.InMemoryFile> create(final String packageBase, final Build build, final String family,
+    public Stream<FacetGenerator.InMemoryFile> create(final String tuple, final Build build, final String family,
             final String category, final Collection<ProjectRequest.SourceConfiguration> sources,
             final Collection<ProjectRequest.ProcessorConfiguration> processors,
             final Collection<ProjectRequest.ReusableConfiguration> configurations) {
-        final String mainJava = build.getMainJavaDirectory() + '/' + packageBase.replace('.', '/');
-        final Map<String, Map<String, String>> messageProperties = new HashMap<>();// Package , list of configuration
+        final String mainJava = build.getMainJavaDirectory() + '/' + tuple.replace('.', '/');
+        final Map<String, Map<String, String>> messageProperties = new HashMap<>(); // Package , list of configuration
         // path for that package
-        messageProperties.put(packageBase, new TreeMap<>());
+        messageProperties.put(tuple, new TreeMap<>());
         if (family != null && !family.isEmpty()) {
-            messageProperties.get(packageBase).put(family, family);
+            messageProperties.get(tuple).put(family + "._displayName", family);
         }
 
         final boolean hasService =
@@ -114,7 +114,7 @@ public class ComponentGenerator {
                         tpl.render("generator/component/package-info.mustache", new HashMap<String, Object>() {
 
                             {
-                                put("package", packageBase);
+                                put("package", tuple);
                                 put("family", usedFamily);
                                 put("category", ofNullable(category).orElse(build.getArtifact()));
                             }
@@ -128,34 +128,37 @@ public class ComponentGenerator {
 
                             {
                                 put("className", serviceName);
-                                put("package", packageBase + ".service");
+                                put("package", tuple + ".service");
                             }
                         })));
 
         configurations.stream().filter(it -> it.getType() != null && !it.getType().isEmpty()).forEach(it -> {
             final String lowerType = it.getType().toLowerCase(ENGLISH);
-            final String configPck = packageBase + '.' + lowerType;
+            final String configPck = tuple + '.' + lowerType;
             final String name = it.getName().substring(it.getName().lastIndexOf('.') + 1);
             generateConfiguration(configPck + '.' + name, configPck, mainJava, it.getStructure(), name, files,
                     lowerType);
             messageProperties
-                    .computeIfAbsent(packageBase, k -> new TreeMap<>())
-                    .put(family + "." + lowerType + "." + name, name);
+                    .computeIfAbsent(tuple, k -> new TreeMap<>())
+                    .put(family + "." + lowerType + "." + name + "._displayName", name);
             if (it.getStructure() != null) {
                 final Map<String, String> i18n = messageProperties.computeIfAbsent(configPck, k -> new TreeMap<>());
-                toProperties(name, it.getStructure().getEntries()).forEach(t -> i18n.put(t.key, t.value));
+                toProperties(name, it.getStructure().getEntries())
+                        .flatMap(this::toProperties)
+                        .forEach(t -> i18n.put(t.key, t.value));
             }
         });
 
         if (sources != null && !sources.isEmpty()) {
-            files.addAll(createSourceFiles(packageBase, sources, mainJava, serviceName).collect(toList()));
+            files.addAll(createSourceFiles(tuple, sources, mainJava, serviceName).collect(toList()));
 
-            messageProperties.put(packageBase + ".source", new TreeMap<String, String>() {
+            messageProperties.put(tuple + ".source", new TreeMap<String, String>() {
 
                 {
                     putAll(sources
                             .stream()
-                            .map(source -> new StringTuple2(family + "." + source.getName(), source.getName()))
+                            .map(source -> new StringTuple2(family + "." + source.getName() + "._displayName",
+                                    source.getName()))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue)));
                     putAll(sources
                             .stream()
@@ -164,20 +167,22 @@ public class ComponentGenerator {
                             .flatMap(source -> toProperties(
                                     names.toConfigurationName(names.toMapperName(source.getName())),
                                     source.getConfiguration().getEntries()))
+                            .flatMap(tuple3 -> toProperties(tuple3))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
             });
         }
 
         if (processors != null && !processors.isEmpty()) {
-            files.addAll(createProcessorFiles(packageBase, processors, mainJava, serviceName).collect(toList()));
-            messageProperties.put(packageBase + ".output", new TreeMap<String, String>() {
+            files.addAll(createProcessorFiles(tuple, processors, mainJava, serviceName).collect(toList()));
+            messageProperties.put(tuple + ".output", new TreeMap<String, String>() {
 
                 {
                     putAll(processors
                             .stream()
                             .filter(ComponentGenerator::isOutput)
-                            .map(processor -> new StringTuple2(family + "." + processor.getName(), processor.getName()))
+                            .map(processor -> new StringTuple2(family + "." + processor.getName() + "._displayName",
+                                    processor.getName()))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue)));
                     putAll(processors
                             .stream()
@@ -186,17 +191,19 @@ public class ComponentGenerator {
                             .filter(ComponentGenerator::isOutput)
                             .flatMap(p -> toProperties(names.toConfigurationName(names.toProcessorName(p)),
                                     p.getConfiguration().getEntries()))
+                            .flatMap(tuple3 -> toProperties(tuple3))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
             });
 
-            messageProperties.put(packageBase + ".processor", new TreeMap<String, String>() {
+            messageProperties.put(tuple + ".processor", new TreeMap<String, String>() {
 
                 {
                     putAll(processors
                             .stream()
                             .filter(ComponentGenerator::isProcessor)
-                            .map(processor -> new StringTuple2(family + "." + processor.getName(), processor.getName()))
+                            .map(processor -> new StringTuple2(family + "." + processor.getName() + "._displayName",
+                                    processor.getName()))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue)));
                     putAll(processors
                             .stream()
@@ -205,6 +212,7 @@ public class ComponentGenerator {
                             .filter(ComponentGenerator::isProcessor)
                             .flatMap(p -> toProperties(names.toConfigurationName(names.toProcessorName(p)),
                                     p.getConfiguration().getEntries()))
+                            .flatMap(tuple3 -> toProperties(tuple3))
                             .collect(toMap(StringTuple2::getKey, StringTuple2::getValue, (k1, k2) -> k1)));
                 }
             });
@@ -213,17 +221,31 @@ public class ComponentGenerator {
         return files.stream();
     }
 
-    private Stream<StringTuple2> toProperties(final String prefix, final Collection<ProjectRequest.Entry> structure) {
+    private Stream<StringTuple2> toProperties(final StringTuple3 entry) {
+        return Stream
+                .concat(Stream.of(new StringTuple2(entry.key + "._displayName", entry.value)),
+                        isStringable(entry)
+                                ? Stream.of(new StringTuple2(entry.key + "._placeholder", entry.value + "..."))
+                                : Stream.empty());
+    }
+
+    // see Node.js, current types: 'object', 'boolean', 'double', 'integer', 'uri', 'url', 'string'
+    private boolean isStringable(final StringTuple3 entry) {
+        return "string".equalsIgnoreCase(entry.type) || "uri".equalsIgnoreCase(entry.type)
+                || "url".equalsIgnoreCase(entry.type);
+    }
+
+    private Stream<StringTuple3> toProperties(final String prefix, final Collection<ProjectRequest.Entry> structure) {
         return structure.stream().flatMap(e -> {
             final String prop = prefix + "." + e.getName();
 
-            final StringTuple2 pair = new StringTuple2(prop, e.getName());
+            final StringTuple3 tuple3 = new StringTuple3(prop, e.getName(), e.getType());
             if (e.getNestedType() != null) {
                 return Stream
-                        .concat(Stream.of(pair),
+                        .concat(Stream.of(tuple3),
                                 toProperties(names.toConfigurationName(e.getName()), e.getNestedType().getEntries()));
             }
-            return Stream.of(pair);
+            return Stream.of(tuple3);
         });
     }
 
@@ -500,5 +522,15 @@ public class ComponentGenerator {
         private final String key;
 
         private final String value;
+    }
+
+    @Data
+    public static class StringTuple3 {
+
+        private final String key;
+
+        private final String value;
+
+        private final String type;
     }
 }
