@@ -122,19 +122,14 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.record.RecordPointerFactory;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
-import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
-import org.talend.sdk.component.api.service.dependency.Resolver;
-import org.talend.sdk.component.api.service.factory.ObjectFactory;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -154,7 +149,6 @@ import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamB
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
-import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
@@ -162,16 +156,7 @@ import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
-import org.talend.sdk.component.runtime.manager.service.ContainerInfo;
-import org.talend.sdk.component.runtime.manager.service.InjectorImpl;
-import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
-import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
-import org.talend.sdk.component.runtime.manager.service.ObjectFactoryImpl;
-import org.talend.sdk.component.runtime.manager.service.RecordPointerFactoryImpl;
-import org.talend.sdk.component.runtime.manager.service.RecordServiceImpl;
-import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
-import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
-import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
+import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.util.Lazy;
@@ -285,6 +270,8 @@ public class ComponentManager implements AutoCloseable {
     private final List<ContainerClasspathContributor> classpathContributors;
 
     private final IconFinder iconFinder = new IconFinder();
+
+    private final DefaultServiceProvider defaultServiceProvider;
 
     public ComponentManager(final File m2) {
         this(m2.toPath());
@@ -419,6 +406,11 @@ public class ComponentManager implements AutoCloseable {
         } else {
             recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
         }
+
+        this.defaultServiceProvider = new DefaultServiceProvider(reflections, jsonpProvider, jsonpGeneratorFactory,
+                jsonpReaderFactory, jsonpBuilderFactory, jsonpParserFactory, jsonpWriterFactory, jsonbConfig,
+                jsonbProvider, proxyGenerator, javaProxyEnricherFactory, localConfigurations,
+                recordBuilderFactoryProvider, propertyEditorRegistry);
     }
 
     private JsonbProvider loadJsonbProvider() {
@@ -919,140 +911,8 @@ public class ComponentManager implements AutoCloseable {
         return container.findAll().stream().map(Container::getId).collect(toList());
     }
 
-    // don't back it by a map, it is too slow to create them all, all the time, for sampling etc
-    protected Object builtInServiceFactories(final Container container, final Class<?> api,
-            final AtomicReference<Map<Class<?>, Object>> services) {
-        if (JsonProvider.class == api) {
-            return new PreComputedJsonpProvider(container.getId(), jsonpProvider, jsonpParserFactory,
-                    jsonpWriterFactory, jsonpBuilderFactory, jsonpGeneratorFactory, jsonpReaderFactory);
-        }
-        if (JsonBuilderFactory.class == api) {
-            return javaProxyEnricherFactory
-                    .asSerializable(container.getLoader(), container.getId(), JsonBuilderFactory.class.getName(),
-                            jsonpBuilderFactory);
-        }
-        if (JsonParserFactory.class == api) {
-            return javaProxyEnricherFactory
-                    .asSerializable(container.getLoader(), container.getId(), JsonParserFactory.class.getName(),
-                            jsonpParserFactory);
-        }
-        if (JsonReaderFactory.class == api) {
-            return javaProxyEnricherFactory
-                    .asSerializable(container.getLoader(), container.getId(), JsonReaderFactory.class.getName(),
-                            jsonpReaderFactory);
-        }
-        if (JsonWriterFactory.class == api) {
-            return javaProxyEnricherFactory
-                    .asSerializable(container.getLoader(), container.getId(), JsonWriterFactory.class.getName(),
-                            jsonpWriterFactory);
-        }
-        if (JsonGeneratorFactory.class == api) {
-            return javaProxyEnricherFactory
-                    .asSerializable(container.getLoader(), container.getId(), JsonGeneratorFactory.class.getName(),
-                            jsonpGeneratorFactory);
-        }
-        if (Jsonb.class == api) {
-            return Jsonb.class
-                    .cast(javaProxyEnricherFactory
-                            .asSerializable(container.getLoader(), container.getId(), Jsonb.class.getName(),
-                                    jsonbProvider
-                                            .create()
-                                            .withProvider(jsonpProvider) // reuses the same memory buffering
-                                            .withConfig(jsonbConfig)
-                                            .build()));
-        }
-        if (LocalConfiguration.class == api) {
-            final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
-            if (!Boolean
-                    .getBoolean("talend.component.configuration." + container.getId() + ".ignoreLocalConfiguration")) {
-                final Stream<InputStream> localConfigs = container
-                        .getLoader()
-                        .findContainedResources("TALEND-INF/local-configuration.properties")
-                        .stream();
-                final Properties aggregatedLocalConfigs = aggregateConfigurations(localConfigs);
-                if (!aggregatedLocalConfigs.isEmpty()) {
-                    containerConfigurations.add(new PropertiesConfiguration(aggregatedLocalConfigs));
-                }
-            }
-            return new LocalConfigurationService(containerConfigurations, container.getId());
-        }
-        if (RecordBuilderFactory.class == api) {
-            return recordBuilderFactoryProvider.apply(container.getId());
-        }
-        if (ProxyGenerator.class == api) {
-            return proxyGenerator;
-        }
-        if (LocalCache.class == api) {
-            return new LocalCacheService(container.getId());
-        }
-        if (Injector.class == api) {
-            return new InjectorImpl(container.getId(), reflections, services.get());
-        }
-        if (HttpClientFactory.class == api) {
-            return new HttpClientFactoryImpl(container.getId(), reflections,
-                    Jsonb.class.cast(services.get().get(Jsonb.class)), services.get());
-        }
-        if (Resolver.class == api) {
-            return new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver());
-        }
-        if (ObjectFactory.class == api) {
-            return new ObjectFactoryImpl(container.getId(), propertyEditorRegistry);
-        }
-        if (RecordPointerFactory.class == api) {
-            return new RecordPointerFactoryImpl(container.getId());
-        }
-        if (ContainerInfo.class == api) {
-            return new ContainerInfo(container.getId());
-        }
-        if (RecordService.class == api) {
-            return new RecordServiceImpl(container.getId(),
-                    RecordBuilderFactory.class.cast(services.get().get(RecordBuilderFactory.class)));
-        }
-        return null;
-    }
-
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
         // no-op
-    }
-
-    private Properties aggregateConfigurations(final Stream<InputStream> localConfigs) {
-        final AtomicReference<RuntimeException> re = new AtomicReference<>();
-        final Properties result = localConfigs.map(stream -> {
-            final Properties properties = new Properties();
-            try {
-                if (stream != null) {
-                    properties.load(stream);
-                }
-                return properties;
-            } catch (final IOException e) {
-                log.error(e.getMessage(), e);
-                RuntimeException runtimeException = re.get();
-                if (runtimeException == null) {
-                    runtimeException = new IllegalStateException("Can't read all local configurations");
-                    re.set(runtimeException);
-                }
-                runtimeException.addSuppressed(e);
-                return properties;
-            } finally {
-                if (stream != null) {
-                    try {
-                        stream.close();
-                    } catch (final IOException e) {
-                        // no-op
-                    }
-                }
-            }
-        })
-                .sorted(comparing(it -> Integer.parseInt(it.getProperty("_ordinal", "0"))))
-                .reduce(new Properties(), (p1, p2) -> {
-                    p1.putAll(p2);
-                    return p1;
-                });
-        final RuntimeException error = re.get();
-        if (error != null) {
-            throw error;
-        }
-        return result;
     }
 
     protected static Collection<LocalConfiguration> createRawLocalConfigurations() {
@@ -1331,8 +1191,13 @@ public class ComponentManager implements AutoCloseable {
             }
 
             final AtomicReference<Map<Class<?>, Object>> seviceLookupRef = new AtomicReference<>();
-            final Map<Class<?>, Object> services =
-                    new LazyMap<>(24, type -> builtInServiceFactories(container, type, seviceLookupRef));
+            final Map<Class<?>, Object> services = new LazyMap<>(24,
+                    type -> defaultServiceProvider
+                            .lookup(container.getId(), container.getLoader(),
+                                    () -> container
+                                            .getLoader()
+                                            .findContainedResources("TALEND-INF/local-configuration.properties"),
+                                    container.getLocalDependencyRelativeResolver(), type, seviceLookupRef));
             seviceLookupRef.set(services);
 
             final AllServices allServices = new AllServices(services);
