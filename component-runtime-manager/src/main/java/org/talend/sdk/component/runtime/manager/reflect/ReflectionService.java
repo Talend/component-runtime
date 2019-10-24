@@ -800,21 +800,6 @@ public class ReflectionService {
         throw new IllegalArgumentException("Can't convert '" + value + "' to " + type);
     }
 
-    private Object tryToGetNumber(final Object it) {
-        final Object value;
-        if (String.class.isInstance(it)) {
-            final String str = String.valueOf(it);
-            if (!str.isEmpty()) {
-                value = Double.parseDouble(String.valueOf(it));
-            } else {
-                value = null;
-            }
-        } else {
-            value = it;
-        }
-        return value;
-    }
-
     private Object getPrimitiveDefault(final Class<?> type) {
         final Type convergedType = Primitives.unwrap(type);
         if (char.class == convergedType || short.class == convergedType || byte.class == convergedType
