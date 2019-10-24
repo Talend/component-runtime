@@ -469,6 +469,23 @@ class ReflectionServiceTest {
     }
 
     @Test
+    void truncatedArray() throws NoSuchMethodException {
+        final Object[] params = reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), emptyMap(), null)
+                .apply(new HashMap<String, String>() {
+
+                    {
+                        put("value.urls[0]", "http://foo");
+                        put("value.urls[1]", "https://bar");
+                        put("value.urls[length]", "1");
+                    }
+                });
+        assertEquals(1, params.length);
+        assertTrue(MethodsHolder.Array.class.isInstance(params[0]));
+        assertArrayEquals(new String[] { "http://foo" }, MethodsHolder.Array.class.cast(params[0]).getUrls());
+    }
+
+    @Test
     void object() throws NoSuchMethodException {
         final Object[] params =
                 reflectionService
@@ -587,6 +604,38 @@ class ReflectionServiceTest {
             assertEquals("test1v", tableOwner.map.get("test1k").value1);
             assertEquals("test2v", tableOwner.map.get("test2k").value1);
         }
+    }
+
+    @Test
+    void truncatedObjectArray() throws NoSuchMethodException {
+        final Method factory = TableOwner.class.getMethod("factory", TableOwner.class);
+        final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
+        final Object[] tests =
+                new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry)
+                        .parameterFactory(factory, emptyMap(), null)
+                        .apply(new HashMap<String, String>() {
+
+                            {
+                                put("root.table[0].value1", "test1");
+                                put("root.table[0].value2", "12");
+                                put("root.table[1].value1", "test2");
+                                put("root.table[1].value2", "22");
+                                put("root.table[0].nestedList[0].value1", "nested");
+                                put("root.table[0].nestedList[0].value2", "1");
+                                put("root.table[0].nestedList[length]", "0");
+                                put("root.table[length]", "1");
+                            }
+                        });
+        assertEquals(1, tests.length);
+        assertTrue(TableOwner.class.isInstance(tests[0]));
+
+        final TableOwner tableOwner = TableOwner.class.cast(tests[0]);
+        assertNotNull(tableOwner.table);
+        assertEquals(1, tableOwner.table.size());
+        assertEquals(singletonList("test1"), tableOwner.table.stream().map(Column::getValue1).collect(toList()));
+        assertArrayEquals(new int[] { 12 }, tableOwner.table.stream().mapToInt(Column::getValue2).toArray());
+        assertNotNull(tableOwner.table.get(0).nestedList);
+        assertTrue(tableOwner.table.get(0).nestedList.isEmpty());
     }
 
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,

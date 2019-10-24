@@ -21,6 +21,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1568[TCOMP-1568^]: Lazily create the container services
 - link:https://jira.talendforge.org/browse/TCOMP-1569[TCOMP-1569^]: Upgrade starter to gradle 6.0-rc1
 - link:https://jira.talendforge.org/browse/TCOMP-1570[TCOMP-1570^]: Ensure starter adds _placeholder entries in Messages.properties
+- link:https://jira.talendforge.org/browse/TCOMP-1571[TCOMP-1571^]: Support [length] syntax to change array configuration
 
 == Version 1.1.14
 

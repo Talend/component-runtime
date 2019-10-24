@@ -309,10 +309,11 @@ public class ReflectionService {
         // try to build it from the properties
         // <value>[<index>] = xxxxx
         // <value>[<index>].<property> = xxxxx
-        final Collection collection = List.class.isAssignableFrom(collectionType) ? new ArrayList() : new HashSet();
+        final Collection collection = List.class.isAssignableFrom(collectionType) ? new ArrayList<>() : new HashSet<>();
+        final int maxLength = getArrayMaxLength(name, config);
         int paramIdx = 0;
         String[] args = null;
-        do {
+        while (paramIdx < maxLength) {
             final String configName = String.format("%s[%d]", name, paramIdx);
             if (!config.containsKey(configName)) {
                 if (config.keySet().stream().anyMatch(k -> k.startsWith(configName + "."))) { // object
@@ -330,9 +331,16 @@ public class ReflectionService {
                 collection.add(itemFactory.apply(configName, config));
             }
             paramIdx++;
-        } while (true);
+        }
 
         return collection;
+    }
+
+    private Integer getArrayMaxLength(final String prefix, final Map<String, Object> config) {
+        return ofNullable(config.get(prefix + "[length]"))
+                .map(String::valueOf)
+                .map(Integer::parseInt)
+                .orElse(Integer.MAX_VALUE);
     }
 
     private Object createMap(final String name, final Class<?> mapType,
@@ -554,8 +562,8 @@ public class ReflectionService {
             final int idxStart2 = nestedName2.indexOf('[');
             if (idxStart1 > 0 && idxStart2 > 0
                     && nestedName1.substring(0, idxStart1).equals(nestedName2.substring(0, idxStart2))) {
-                final int idx1 = Integer.parseInt(nestedName1.substring(idxStart1 + 1, nestedName1.length() - 1));
-                final int idx2 = Integer.parseInt(nestedName2.substring(idxStart2 + 1, nestedName2.length() - 1));
+                final int idx1 = parseIndex(nestedName1.substring(idxStart1 + 1, nestedName1.length() - 1));
+                final int idx2 = parseIndex(nestedName2.substring(idxStart2 + 1, nestedName2.length() - 1));
                 return idx1 - idx2;
             }
             return key1.compareTo(key2);
@@ -728,8 +736,9 @@ public class ReflectionService {
         final Collection<Object> aggregator =
                 Collection.class.cast(preparedObjects.computeIfAbsent(listName, k -> init.get()));
         final Class<?> itemType = Class.class.cast(pt.getActualTypeArguments()[0]);
-        final int index = Integer.parseInt(nestedName.substring(listName.length() + 1, nestedName.length() - 1));
-        if (aggregator.size() <= index) {
+        final int index = parseIndex(nestedName.substring(listName.length() + 1, nestedName.length() - 1));
+        final int maxSize = getArrayMaxLength(prefix + listName, config);
+        if (aggregator.size() <= index && index < maxSize) {
             aggregator
                     .add(createObject(loader, contextualSupplier, itemType, findArgsName(itemType), prefix + nestedName,
                             config, metas, precomputed));
@@ -762,10 +771,17 @@ public class ReflectionService {
             if (end1 > index1 && end2 > index2) {
                 final String idx1 = name1.substring(index1 + 1, end1);
                 final String idx2 = name2.substring(index2 + 1, end2);
-                return Integer.parseInt(idx1) - Integer.parseInt(idx2);
+                return parseIndex(idx1) - parseIndex(idx2);
             } // else not matching so use default sorting
         }
         return name1.compareTo(name2);
+    }
+
+    private int parseIndex(final String name) {
+        if ("length".equals(name)) {
+            return -1; // not important, skipped anyway
+        }
+        return Integer.parseInt(name);
     }
 
     private Object doConvert(final Class<?> type, final Object value, final Map<Class<?>, Object> precomputed) {

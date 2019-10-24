@@ -117,6 +117,13 @@ files[1].path = /home/user/input2.xml
 files[1].format = EXCEL
 ----
 
+TIP: if you desire to override a config to truncate an array, use the index `length`, for example to truncate previous example to only CSV, you can set:
+
+[source,properties]
+----
+files[length] = 1
+----
+
 === Map case
 
 Similarly to the list case, the map uses `.key[index]` and `.value[index]` to represent its keys and values:
