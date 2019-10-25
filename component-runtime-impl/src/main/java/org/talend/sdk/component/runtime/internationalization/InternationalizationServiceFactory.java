@@ -91,13 +91,8 @@ public class InternationalizationServiceFactory {
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            if (method.isDefault()) {
-                final Class<?> declaringClass = method.getDeclaringClass();
-                return Defaults
-                        .of(declaringClass)
-                        .unreflectSpecial(method, declaringClass)
-                        .bindTo(proxy)
-                        .invokeWithArguments(args);
+            if (Defaults.isDefaultAndShouldHandle(method)) {
+                return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
             }
 
             if (Object.class == method.getDeclaringClass()) {

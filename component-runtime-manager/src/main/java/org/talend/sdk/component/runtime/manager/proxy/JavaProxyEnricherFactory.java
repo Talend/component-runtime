@@ -95,7 +95,7 @@ public class JavaProxyEnricherFactory {
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            if (method.isDefault() && defaultMethods.computeIfAbsent(method, m -> {
+            if (Defaults.isDefaultAndShouldHandle(method) && defaultMethods.computeIfAbsent(method, m -> {
                 try {
                     delegate.getClass().getMethod(method.getName(), method.getParameterTypes());
                     return false;
@@ -103,12 +103,7 @@ public class JavaProxyEnricherFactory {
                     return true;
                 }
             })) {
-                final Class<?> declaringClass = method.getDeclaringClass();
-                return Defaults
-                        .of(declaringClass)
-                        .unreflectSpecial(method, declaringClass)
-                        .bindTo(proxy)
-                        .invokeWithArguments(args);
+                return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
             }
 
             if (Object.class == method.getDeclaringClass()) {

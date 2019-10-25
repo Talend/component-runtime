@@ -133,13 +133,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         .newProxyInstance(proxy.getClass().getClassLoader(), proxy.getClass().getInterfaces(),
                                 httpHandler);
             }
-            if (method.isDefault()) {
-                final Class<?> declaringClass = method.getDeclaringClass();
-                return Defaults
-                        .of(declaringClass)
-                        .unreflectSpecial(method, declaringClass)
-                        .bindTo(proxy)
-                        .invokeWithArguments(args);
+            if (Defaults.isDefaultAndShouldHandle(method)) {
+                return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
             }
 
             final String methodName = method.getName();

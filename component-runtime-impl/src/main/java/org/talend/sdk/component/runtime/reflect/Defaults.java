@@ -24,7 +24,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = PRIVATE)
 public class Defaults {
 
@@ -36,19 +38,24 @@ public class Defaults {
         Constructor<MethodHandles.Lookup> lookup = null;
         Method privateLookup = null;
         try { // java 9
-            privateLookup = MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+            lookup = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
+            if (!lookup.isAccessible()) {
+                lookup.setAccessible(true);
+            }
         } catch (final NoSuchMethodException e) { // java 8
             try {
-                lookup = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
-                if (!lookup.isAccessible()) {
-                    lookup.setAccessible(true);
-                }
+                privateLookup =
+                        MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
             } catch (final NoSuchMethodException ex) {
                 throw new IllegalStateException("Incompatible JVM", e);
             }
         }
         PRIVATE_LOOKUP = privateLookup;
         LOOKUP = lookup;
+    }
+
+    public static boolean isDefaultAndShouldHandle(final Method method) {
+        return method.isDefault();
     }
 
     public static MethodHandles.Lookup of(final Class<?> declaringClass) {
@@ -63,5 +70,14 @@ public class Defaults {
         } catch (final InvocationTargetException e) {
             throw toRuntimeException(e);
         }
+    }
+
+    public static Object handleDefault(final Class<?> declaringClass, final Method method, final Object proxy,
+            final Object[] args) throws Throwable {
+        return Defaults
+                .of(declaringClass)
+                .unreflectSpecial(method, declaringClass)
+                .bindTo(proxy)
+                .invokeWithArguments(args);
     }
 }

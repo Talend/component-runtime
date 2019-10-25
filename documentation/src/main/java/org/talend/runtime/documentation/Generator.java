@@ -163,10 +163,8 @@ public class Generator {
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
 
-        final File iconOutput = new File(generatedDir.getParentFile().getParentFile(), "assets/images/icons");
-
         try (final Tasks tasks = new Tasks()) {
-            tasks.register((ThrowingSupplier<Asciidoctor>) Asciidoctor.Factory::create).thenApply(adoc -> {
+            tasks.register(Asciidoctor.Factory::create).thenApply(adoc -> {
                 generatedDocumentationIndex(generatedDir, adoc);
                 return null;
             })
@@ -1086,12 +1084,8 @@ public class Generator {
                                     && Annotation.class == method.getDeclaringClass()) {
                                 return type;
                             }
-                            if (method.isDefault()) {
-                                return Defaults
-                                        .of(method.getDeclaringClass())
-                                        .unreflectSpecial(method, method.getDeclaringClass())
-                                        .bindTo(proxy)
-                                        .invokeWithArguments(args);
+                            if (Defaults.isDefaultAndShouldHandle(method)) {
+                                return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
                             }
                             final Class<?> returnType = method.getReturnType();
                             if (int.class == returnType) {
