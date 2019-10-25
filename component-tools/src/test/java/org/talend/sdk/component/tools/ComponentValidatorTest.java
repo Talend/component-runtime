@@ -141,6 +141,7 @@ class ComponentValidatorTest {
             cfg.setValidateOutputConnection(true);
             cfg.setValidatePlaceholder(true);
             cfg.setValidateSvg(true);
+            cfg.setValidateNoFinalOption(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
@@ -485,6 +486,14 @@ class ComponentValidatorTest {
         expectedException
                 .expectMessage(
                         "- 'demo.conf.key' does not start with 'test', it is recommended to prefix all keys by the family");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.finaloption", pluginId = "test")
+    void testFailureFinalOption(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("@Option fields must not be final, found one field violating this rule: "
+                        + "private final String org.talend.test.failure.finaloption.MyComponent$MyConfig.input");
     }
 
     @Test

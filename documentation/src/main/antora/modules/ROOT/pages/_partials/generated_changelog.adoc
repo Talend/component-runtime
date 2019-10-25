@@ -22,6 +22,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1569[TCOMP-1569^]: Upgrade starter to gradle 6.0-rc1
 - link:https://jira.talendforge.org/browse/TCOMP-1570[TCOMP-1570^]: Ensure starter adds _placeholder entries in Messages.properties
 - link:https://jira.talendforge.org/browse/TCOMP-1571[TCOMP-1571^]: Support [length] syntax to change array configuration
+- link:https://jira.talendforge.org/browse/TCOMP-1572[TCOMP-1572^]: Validate that @Option is not used on final fields
 
 == Version 1.1.14
 

@@ -228,6 +228,10 @@ public class ComponentValidator extends BaseTask {
             validatePlaceholders(components, errors);
         }
 
+        if (configuration.isValidateNoFinalOption()) {
+            validateNoFinalOption(finder, errors);
+        }
+
         if (!extensions.isEmpty()) {
             final ValidationExtension.ValidationContext context = new ValidationExtension.ValidationContext() {
 
@@ -547,7 +551,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateOptionNames(final AnnotationFinder finder, final Set<String> errors) {
-        errors.addAll(finder.findAnnotatedFields(Option.class).stream().filter(field -> {
+        errors.addAll(findOptions(finder).filter(field -> {
             final String name = field.getAnnotation(Option.class).value();
             return name.contains(".") || name.startsWith("$");
         }).distinct().map(field -> {
@@ -556,6 +560,16 @@ public class ComponentValidator extends BaseTask {
                     + "` is invalid, you can't start an option name with a '$' and it can't contain a '.'. "
                     + "Please fix it on field `" + field.getDeclaringClass().getName() + "#" + field.getName() + "`";
         }).sorted().collect(toSet()));
+    }
+
+    private void validateNoFinalOption(final AnnotationFinder finder, final Set<String> errors) {
+        errors
+                .addAll(findOptions(finder)
+                        .filter(field -> Modifier.isFinal(field.getModifiers()))
+                        .distinct()
+                        .map(field -> "@Option fields must not be final, found one field violating this rule: " + field)
+                        .sorted()
+                        .collect(toSet()));
     }
 
     private void validateDocumentation(final AnnotationFinder finder, final List<Class<?>> components,
@@ -568,9 +582,7 @@ public class ComponentValidator extends BaseTask {
                         .sorted()
                         .collect(toSet()));
         errors
-                .addAll(finder
-                        .findAnnotatedFields(Option.class)
-                        .stream()
+                .addAll(findOptions(finder)
                         .filter(field -> !field.isAnnotationPresent(Documentation.class)
                                 && !field.getType().isAnnotationPresent(Documentation.class))
                         .map(field -> "No @Documentation on '" + field + "'")
@@ -590,9 +602,7 @@ public class ComponentValidator extends BaseTask {
 
         // enum
         errors
-                .addAll(finder
-                        .findAnnotatedFields(Option.class)
-                        .stream()
+                .addAll(findOptions(finder)
                         .map(Field::getType)
                         .filter(Class::isEnum)
                         .distinct()
@@ -606,18 +616,16 @@ public class ComponentValidator extends BaseTask {
                         .collect(toSet()));
 
         // others - just logged for now, we can add it to errors if we encounter it too often
-        final List<String> missingOptionTranslations =
-                finder.findAnnotatedFields(Option.class).stream().distinct().filter(field -> {
-                    final ResourceBundle bundle = ofNullable(findResourceBundle(field.getDeclaringClass()))
-                            .orElseGet(() -> findResourceBundle(field.getType()));
-                    final String key =
-                            field.getDeclaringClass().getSimpleName() + "." + field.getName() + "._displayName";
-                    return bundle == null || !bundle.containsKey(key);
-                })
-                        .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
-                                + f.getName() + ">")
-                        .sorted()
-                        .collect(toList());
+        final List<String> missingOptionTranslations = findOptions(finder).distinct().filter(field -> {
+            final ResourceBundle bundle = ofNullable(findResourceBundle(field.getDeclaringClass()))
+                    .orElseGet(() -> findResourceBundle(field.getType()));
+            final String key = field.getDeclaringClass().getSimpleName() + "." + field.getName() + "._displayName";
+            return bundle == null || !bundle.containsKey(key);
+        })
+                .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
+                        + f.getName() + ">")
+                .sorted()
+                .collect(toList());
         if (!missingOptionTranslations.isEmpty()) {
             // represent it as a single entry to enable "copy/paste fixed" pattern
             errors
@@ -729,6 +737,10 @@ public class ComponentValidator extends BaseTask {
                                 + " uses @Structure but is not a List<String> nor a Map<String, String>")
                         .sorted()
                         .collect(toSet()));
+    }
+
+    private Stream<Field> findOptions(final AnnotationFinder finder) {
+        return finder.findAnnotatedFields(Option.class).stream();
     }
 
     private boolean isMapString(final Field f) {
@@ -1193,6 +1205,8 @@ public class ComponentValidator extends BaseTask {
         private boolean validatePlaceholder;
 
         private boolean validateSvg;
+
+        private boolean validateNoFinalOption;
 
         private String pluginId;
     }

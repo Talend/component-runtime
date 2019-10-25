@@ -59,6 +59,7 @@ public class ValidateTask extends TaCoKitTask {
         set(configuration, "setValidateOutputConnection", extension.isValidateOutputConnection());
         set(configuration, "setValidatePlaceholder", extension.isValidatePlaceholder());
         set(configuration, "setValidateSvg", extension.isValidateSvg());
+        set(configuration, "setValidateNoFinalOption", extension.isValidateNoFinalOption());
         configuration
                 .getClass()
                 .getMethod("setPluginId", String.class)

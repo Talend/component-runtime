@@ -139,6 +139,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     /**
      * Should the option names be validated.
      */
+    @Parameter(defaultValue = "true", property = "talend.validation.noFinalOption")
+    private boolean validateNoFinalOption;
+
+    /**
+     * Should the option names be validated.
+     */
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.pluginId")
     private String pluginId;
 
@@ -165,6 +171,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateOutputConnection(validateOutputConnection);
         configuration.setValidatePlaceholder(validatePlaceholder);
         configuration.setValidateSvg(validateSvg);
+        configuration.setValidateNoFinalOption(validateNoFinalOption);
         configuration.setPluginId(pluginId);
         new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
