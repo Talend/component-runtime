@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.talend.sdk.component.dependencies.maven.Artifact;
@@ -28,6 +29,7 @@ import org.talend.sdk.component.dependencies.maven.Artifact;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+@MonoMeecrowaveConfig
 class VirtualDependenciesServiceTemplatingTest {
 
     @ParameterizedTest
