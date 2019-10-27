@@ -49,7 +49,7 @@ public class HttpRequestCreator implements BiFunction<String, Object[], HttpRequ
     public HttpRequest apply(final String base, final Object[] params) {
         return new HttpRequest(buildUrl(base, params), httpMethodProvider.apply(params),
                 queryParamsProvider.apply(params), headersProvider.apply(params), configurer, configurerOptions,
-                payloadProvider, params);
+                payloadProvider, params, null);
     }
 
     private String buildUrl(final String base, final Object[] params) {

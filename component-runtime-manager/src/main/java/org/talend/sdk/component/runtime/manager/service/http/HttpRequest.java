@@ -26,9 +26,11 @@ import org.talend.sdk.component.api.service.http.Configurer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-@AllArgsConstructor
+@AllArgsConstructor()
+@EqualsAndHashCode(exclude = "bodyCache")
 public class HttpRequest {
 
     private static final Object[] EMPTY_ARRAY = new Object[0];
@@ -63,12 +65,26 @@ public class HttpRequest {
 
     private final Object[] params;
 
+    private volatile Optional<byte[]> bodyCache;
+
     /**
      * encode payload only when requested
      *
      * @return bytes encoded payload
      */
     public Optional<byte[]> getBody() {
+        if (bodyCache != null) {
+            return bodyCache;
+        }
+        synchronized (this) {
+            if (bodyCache != null) {
+                return bodyCache;
+            }
+            return bodyCache = doGetBody();
+        }
+    }
+
+    private Optional<byte[]> doGetBody() {
         if (payloadProvider == null) {
             return Optional.empty();
         }

@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
@@ -69,20 +70,20 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
             urlConnection.setRequestMethod(request.getMethodType());
             request.getHeaders().forEach(urlConnection::setRequestProperty);
 
-            final boolean hasBody = request.getBody().isPresent();
-            final byte[] body = hasBody ? request.getBody().get() : null;
+            final Optional<byte[]> requestBody = request.getBody();
 
             if (request.getConfigurer() != null) {
                 request
                         .getConfigurer()
-                        .configure(new DefaultConnection(urlConnection, body), request.getConfigurationOptions());
+                        .configure(new DefaultConnection(urlConnection, requestBody.orElse(null)),
+                                request.getConfigurationOptions());
             }
 
-            if (hasBody) {
+            if (requestBody.isPresent()) {
                 urlConnection.setDoOutput(true);
                 try (final BufferedOutputStream outputStream =
                         new BufferedOutputStream(urlConnection.getOutputStream())) {
-                    outputStream.write(body);
+                    outputStream.write(requestBody.orElse(null));
                     outputStream.flush();
                 }
             }
@@ -272,6 +273,8 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
 
         private final Type responseType;
 
+        private volatile T bodyCache;
+
         private ResponseImpl(final int status, final Decoder decoder, final Map<String, List<String>> headers,
                 final byte[] error, final byte[] responseBody, final Type responseType) {
             super(status, decoder, headers, error);
@@ -281,11 +284,18 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
 
         @Override
         public T body() {
-            if (responseBody == null) {
-                return null;
+            if (responseBody == null || byte[].class == responseType) {
+                return (T) responseBody;
             }
 
-            return byte[].class == responseType ? (T) responseBody : (T) decoder.decode(responseBody, responseType);
+            if (bodyCache == null) {
+                synchronized (this) {
+                    if (bodyCache == null) {
+                        bodyCache = (T) decoder.decode(responseBody, responseType);
+                    }
+                }
+            }
+            return bodyCache;
         }
     }
 }
