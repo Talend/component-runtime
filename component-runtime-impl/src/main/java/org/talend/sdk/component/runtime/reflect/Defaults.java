@@ -16,11 +16,9 @@
 package org.talend.sdk.component.runtime.reflect;
 
 import static lombok.AccessLevel.PRIVATE;
-import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import lombok.NoArgsConstructor;
@@ -30,54 +28,60 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = PRIVATE)
 public class Defaults {
 
-    private static final Constructor<MethodHandles.Lookup> LOOKUP;
-
-    private static final Method PRIVATE_LOOKUP;
+    private static final Handler HANDLER;
 
     static {
-        Constructor<MethodHandles.Lookup> lookup = null;
-        Method privateLookup = null;
-        try { // java 9
-            lookup = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
-            if (!lookup.isAccessible()) {
-                lookup.setAccessible(true);
-            }
-        } catch (final NoSuchMethodException e) { // java 8
-            try {
-                privateLookup =
-                        MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
-            } catch (final NoSuchMethodException ex) {
-                throw new IllegalStateException("Incompatible JVM", e);
-            }
+        final String version = System.getProperty("java.version", "1.8");
+        final Constructor<MethodHandles.Lookup> constructor = findLookupConstructor();
+        if (version.startsWith("1.8.") || version.startsWith("8.")) { // j8
+            HANDLER = (clazz, method, proxy, args) -> constructor
+                    .newInstance(clazz, MethodHandles.Lookup.PRIVATE)
+                    .unreflectSpecial(method, clazz)
+                    .bindTo(proxy)
+                    .invokeWithArguments(args);
+        } else { // j > 8 - can need some --add-opens, we will add a module-info later to be clean when dropping j8
+            final Method privateLookup = findPrivateLookup();
+            final int mode = MethodHandles.Lookup.PRIVATE | (MethodHandles.Lookup.PACKAGE << 1 /* module */);
+            HANDLER = (clazz, method, proxy, args) -> MethodHandles.Lookup.class
+                    .cast(privateLookup.invoke(null, clazz, constructor.newInstance(clazz, mode)))
+                    .unreflectSpecial(method, clazz)
+                    .bindTo(proxy)
+                    .invokeWithArguments(args);
         }
-        PRIVATE_LOOKUP = privateLookup;
-        LOOKUP = lookup;
     }
 
     public static boolean isDefaultAndShouldHandle(final Method method) {
         return method.isDefault();
     }
 
-    public static MethodHandles.Lookup of(final Class<?> declaringClass) {
+    public static Object handleDefault(final Class<?> declaringClass, final Method method, final Object proxy,
+            final Object[] args) throws Throwable {
+        return HANDLER.handle(declaringClass, method, proxy, args);
+    }
+
+    private interface Handler {
+
+        Object handle(Class<?> clazz, Method method, Object proxy, Object[] args) throws Throwable;
+    }
+
+    private static Method findPrivateLookup() {
         try {
-            if (PRIVATE_LOOKUP != null) {
-                return MethodHandles.Lookup.class
-                        .cast(PRIVATE_LOOKUP.invoke(null, declaringClass, MethodHandles.lookup()));
-            }
-            return LOOKUP.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE).in(declaringClass);
-        } catch (final IllegalAccessException | InstantiationException e) {
-            throw new IllegalArgumentException(e);
-        } catch (final InvocationTargetException e) {
-            throw toRuntimeException(e);
+            return MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    public static Object handleDefault(final Class<?> declaringClass, final Method method, final Object proxy,
-            final Object[] args) throws Throwable {
-        return Defaults
-                .of(declaringClass)
-                .unreflectSpecial(method, declaringClass)
-                .bindTo(proxy)
-                .invokeWithArguments(args);
+    private static Constructor<MethodHandles.Lookup> findLookupConstructor() {
+        try {
+            final Constructor<MethodHandles.Lookup> constructor =
+                    MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+            if (!constructor.isAccessible()) {
+                constructor.setAccessible(true);
+            }
+            return constructor;
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
