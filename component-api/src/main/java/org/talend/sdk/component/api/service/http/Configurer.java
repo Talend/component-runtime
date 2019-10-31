@@ -78,6 +78,11 @@ public interface Configurer {
          * @return current connection.
          */
         Connection withConnectionTimeout(int timeout);
+
+        /**
+         * Prevents the client to follow redirections.
+         */
+        Connection withoutFollowRedirects();
     }
 
     /**

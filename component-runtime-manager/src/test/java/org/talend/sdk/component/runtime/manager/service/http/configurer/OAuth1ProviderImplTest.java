@@ -78,6 +78,11 @@ class OAuth1ProviderImplTest {
             public Configurer.Connection withConnectionTimeout(final int timeout) {
                 return this;
             }
+
+            @Override
+            public Configurer.Connection withoutFollowRedirects() {
+                throw new UnsupportedOperationException();
+            }
         }, new Configurer.ConfigurerConfiguration() {
 
             @Override

@@ -6,6 +6,13 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1560[TCOMP-1560^]: Min and Max error message during configuration validation are reversed
 - link:https://jira.talendforge.org/browse/TCOMP-1563[TCOMP-1563^]: Web Tester does not work anymore (maven/gradle goal/task)
+- link:https://jira.talendforge.org/browse/TCOMP-1573[TCOMP-1573^]: Body encoder is called twice for each query
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1576[TCOMP-1576^]: Add the possibility to desactivate http client redirection in HTTP Configurer
 
 
 
@@ -23,6 +30,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1570[TCOMP-1570^]: Ensure starter adds _placeholder entries in Messages.properties
 - link:https://jira.talendforge.org/browse/TCOMP-1571[TCOMP-1571^]: Support [length] syntax to change array configuration
 - link:https://jira.talendforge.org/browse/TCOMP-1572[TCOMP-1572^]: Validate that @Option is not used on final fields
+- link:https://jira.talendforge.org/browse/TCOMP-1574[TCOMP-1574^]: Upgrade to CXF 3.3.4
+- link:https://jira.talendforge.org/browse/TCOMP-1575[TCOMP-1575^]: Upgrade to Spark 2.4.4
 
 == Version 1.1.14
 

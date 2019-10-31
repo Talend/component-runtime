@@ -419,6 +419,42 @@ class HttpClientFactoryImplTest {
         }
     }
 
+    @Test
+    void noRedirect() throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/").setHandler(httpExchange -> {
+            if ("/redirect-me".equals(httpExchange.getRequestURI().getPath())) {
+                httpExchange
+                        .getResponseHeaders()
+                        .set("Location", "http://localhost:" + server.getAddress().getPort() + "/done");
+                httpExchange.getResponseHeaders().set("From", "redirect");
+                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_MOVED_TEMP, 0);
+                httpExchange.close();
+            } else {
+                httpExchange.getResponseHeaders().set("Req", '>' + httpExchange.getRequestURI().getPath() + '<');
+                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 0);
+                httpExchange.close();
+            }
+        });
+        try {
+            server.start();
+            final GenericClient httpClient = newDefaultFactory().create(GenericClient.class, null);
+            httpClient.base("http://localhost:" + server.getAddress().getPort());
+            {
+                final Response<byte[]> response = httpClient.execute(true);
+                assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, response.status());
+                assertEquals("redirect", String.join(",", response.headers().get("from")));
+            }
+            {
+                final Response<byte[]> response = httpClient.execute(false);
+                assertEquals(HttpURLConnection.HTTP_OK, response.status());
+                assertEquals(">/done<", String.join(",", response.headers().get("req")));
+            }
+        } finally {
+            server.stop(0);
+        }
+    }
+
     private HttpClientFactoryImpl newDefaultFactory() {
         final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
         return new HttpClientFactoryImpl("test",
@@ -474,6 +510,10 @@ class HttpClientFactoryImplTest {
 
     private interface GenericClient extends HttpClient {
 
+        @Request(path = "/redirect-me")
+        @UseConfigurer(NoRedirectConfigurer.class)
+        Response<byte[]> execute(@ConfigurerOption("disableRedirect") boolean disableRedirect);
+
         @Request
         @UseConfigurer(value = MonConfigurer.class)
         Response<byte[]> execute(@ConfigurerOption("readTimeout") Integer readTimeout,
@@ -485,6 +525,16 @@ class HttpClientFactoryImplTest {
         @Request(method = "PUT", path = "/ignored")
         Response<byte[]> doNotEncodeQueryParams(@Url String url,
                 @QueryParams(encode = false) Map<String, String> queryParams);
+
+        class NoRedirectConfigurer implements Configurer {
+
+            @Override
+            public void configure(final Connection connection, final ConfigurerConfiguration configuration) {
+                if (Boolean.class.cast(configuration.get("disableRedirect", Boolean.class))) {
+                    connection.withoutFollowRedirects();
+                }
+            }
+        }
 
         class MonConfigurer implements Configurer {
 

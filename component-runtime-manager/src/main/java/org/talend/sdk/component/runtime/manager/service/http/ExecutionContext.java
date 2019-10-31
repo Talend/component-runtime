@@ -72,12 +72,11 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
 
             final Optional<byte[]> requestBody = request.getBody();
 
+            final DefaultConnection connection = new DefaultConnection(urlConnection, requestBody.orElse(null), true);
             if (request.getConfigurer() != null) {
-                request
-                        .getConfigurer()
-                        .configure(new DefaultConnection(urlConnection, requestBody.orElse(null)),
-                                request.getConfigurationOptions());
+                request.getConfigurer().configure(connection, request.getConfigurationOptions());
             }
+            connection.postConfigure();
 
             if (requestBody.isPresent()) {
                 urlConnection.setDoOutput(true);
@@ -168,6 +167,8 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
 
         private final byte[] payload;
 
+        private boolean followRedirects;
+
         @Override
         public String getMethod() {
             return urlConnection.getRequestMethod();
@@ -204,6 +205,16 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
         public Configurer.Connection withConnectionTimeout(final int timeout) {
             urlConnection.setConnectTimeout(timeout);
             return this;
+        }
+
+        @Override
+        public Configurer.Connection withoutFollowRedirects() {
+            followRedirects = false;
+            return this;
+        }
+
+        private void postConfigure() {
+            urlConnection.setInstanceFollowRedirects(followRedirects);
         }
     }
 
