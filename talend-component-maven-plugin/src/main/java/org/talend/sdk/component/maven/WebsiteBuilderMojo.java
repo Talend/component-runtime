@@ -110,14 +110,23 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
     @Component
     private SettingsDecrypter settingsDecrypter;
 
+    @Parameter
+    private boolean skip;
+
     private Asciidoctor asciidoctor;
 
     @Override
     protected void doExecute() throws MojoFailureException {
         final List<Project> components = findProjectsWithCar();
+        final String doneMarker = getClass().getName() + ".done";
+        if (skip || Boolean.parseBoolean(project.getProperties().getProperty(doneMarker))) {
+            return;
+        }
+
         if (components.isEmpty()) {
             throw new MojoFailureException("No component found in: " + reactorProjects);
         }
+        project.getProperties().setProperty(doneMarker, "true");
 
         final DefaultMustacheFactory mustacheFactory = new DefaultMustacheFactory() {
 
