@@ -13,7 +13,7 @@ you to define what is the `Shared` classloader and to create children:
 try (final ContainerManager manager = new ContainerManager( <1>
     ContainerManager.DependenciesResolutionConfiguration.builder() <2>
         .resolver(new MvnDependencyListLocalRepositoryResolver("META-INF/talend/dependencies.list"))
-        .rootRepositoryLocation(new File(System.getProperty("user.home", ".m2/repository"))
+        .rootRepositoryLocation(new File(System.getProperty("user.home", ".") + "/.m2/repository"))
         .create(),
     ContainerManager.ClassLoaderConfiguration.builder() <3>
         .parent(getClass().getClassLoader())
