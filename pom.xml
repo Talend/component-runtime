@@ -140,7 +140,7 @@
     <blackduck.trust.all.cert>false</blackduck.trust.all.cert>
     <blackduck.parallelism>64</blackduck.parallelism>
 
-    <xbean.version>4.14</xbean.version>
+    <xbean.version>4.15</xbean.version>
     <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
     <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.28</slf4j.version>
