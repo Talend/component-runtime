@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.beam.spi;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
@@ -29,11 +31,24 @@ import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryProvider {
 
     @Override
     public RecordBuilderFactory apply(final String containerId) {
-        return new AvroRecordBuilderFactory(containerId);
+        try {
+            ofNullable(Thread.currentThread().getContextClassLoader())
+                    .orElseGet(ClassLoader::getSystemClassLoader)
+                    .loadClass("org.codehaus.jackson.node.TextNode");
+            return new AvroRecordBuilderFactory(containerId);
+        } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
+            log
+                    .info("jackson-mapper-asl is not available, skipping AvroRecordBuilderFactory ({})",
+                            getClass().getName());
+            return new RecordBuilderFactoryImpl(containerId);
+        }
     }
 
     private static class AvroRecordBuilderFactory extends RecordBuilderFactoryImpl

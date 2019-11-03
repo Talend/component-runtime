@@ -58,12 +58,11 @@
           <groupId>com.google.errorprone</groupId>
           <artifactId>error_prone_annotations</artifactId>
         </exclusion>
+        <exclusion> <!-- too much CVE for now and no version with a fix -->
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-mapper-asl</artifactId>
+        </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>${avro-jackson.version}</version>
     </dependency>
 
     <!-- for prod/monitoring -->

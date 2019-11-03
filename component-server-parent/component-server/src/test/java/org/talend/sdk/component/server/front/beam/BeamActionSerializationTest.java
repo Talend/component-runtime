@@ -42,9 +42,13 @@ class BeamActionSerializationTest {
                 .queryParam("lang", "it")
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE), String.class);
-        assertEquals("{\n" + "  \"entries\":[\n" + "    {\n" + "      \"elementSchema\":{\n" + "        \"entries\":[\n"
-                + "        ],\n" + "        \"type\":\"STRING\"\n" + "      },\n" + "      \"name\":\"array\",\n"
-                + "      \"nullable\":false,\n" + "      \"type\":\"ARRAY\"\n" + "    }\n" + "  ],\n"
-                + "  \"type\":\"RECORD\"\n" + "}", schema);
+        assertEquals(
+                "{\n" + "  \"entries\":[\n" + "    {\n" + "      \"elementSchema\":{\n" + "        \"entries\":[\n"
+                        + "        ],\n" + "        \"type\":\"STRING\"\n" + "      },\n"
+                        + "      \"name\":\"array\",\n" + "      \"nullable\":false,\n" + "      \"type\":\"ARRAY\"\n"
+                        + "    }\n" + "  ],\n" + "  \"type\":\"RECORD\"\n" + "}",
+                schema
+                        .replace("        \"declaringClass\":\"org.talend.sdk.component.runtime.record.Schemas\",\n",
+                                ""));
     }
 }

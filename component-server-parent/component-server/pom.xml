@@ -442,13 +442,6 @@
                   <type>jar</type>
                   <outputDirectory>${sample.beam.location}/deps</outputDirectory>
                 </artifact>
-                <artifact>
-                  <groupId>org.codehaus.jackson</groupId>
-                  <artifactId>jackson-mapper-asl</artifactId>
-                  <version>${avro-jackson.version}</version>
-                  <type>jar</type>
-                  <outputDirectory>${sample.beam.location}/deps</outputDirectory>
-                </artifact>
               </artifactItems>
             </configuration>
           </execution>
@@ -535,7 +528,6 @@
                   ${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-core.jar,
                   ${sample.beam.location}${file.separator}deps${file.separator}component-runtime-beam.jar,
                   ${sample.beam.location}${file.separator}deps${file.separator}jackson-core-asl.jar,
-                  ${sample.beam.location}${file.separator}deps${file.separator}jackson-mapper-asl.jar,
                   ${sample.beam.location}${file.separator}deps${file.separator}avro.jar
                 </additionalClasspathElement>
               </additionalClasspathElements>
