@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.commons.util.AnnotationUtils;
 import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.internal.TemporaryFolderExtension;
@@ -52,7 +53,7 @@ public class SparkExtension extends BaseSpark<SparkExtension>
 
         final ExtensionContext.Store store = extensionContext.getStore(NAMESPACE);
         store.put(BaseSpark.class.getName(), this);
-        extensionContext.getElement().map(e -> e.getAnnotation(WithSpark.class)).ifPresent(ws -> {
+        AnnotationUtils.findAnnotation(extensionContext.getElement(), WithSpark.class).ifPresent(ws -> {
             withSlaves(ws.slaves());
             withHadoopBase(ws.hadoopBase());
             withHadoopVersion(ws.hadoopVersion());

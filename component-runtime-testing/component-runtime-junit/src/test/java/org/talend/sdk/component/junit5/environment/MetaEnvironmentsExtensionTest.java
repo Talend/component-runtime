@@ -13,45 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.junit.environment;
+package org.talend.sdk.component.junit5.environment;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.internal.builders.AllDefaultPossibilitiesBuilder;
-import org.junit.runner.RunWith;
-import org.junit.runner.notification.RunNotifier;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.talend.sdk.component.junit.environment.Environment;
+import org.talend.sdk.component.junit.environment.EnvironmentProvider;
 
-class MultiEnvironmentsRunnerTest {
+@Environment(MetaEnvironmentsExtensionTest.E1.class)
+@Environment(MetaEnvironmentsExtensionTest.E2.class)
+@Retention(RUNTIME)
+@interface MyEnvs {
+}
+
+@MyEnvs
+class MetaEnvironmentsExtensionTest {
 
     private static final List<String> STEPS = new ArrayList<>();
 
-    @org.junit.jupiter.api.Test
-    void run() throws Throwable {
+    @BeforeAll
+    static void init() {
         STEPS.clear();
-        new AllDefaultPossibilitiesBuilder().runnerForClass(TheTestModel.class).run(new RunNotifier());
-        assertEquals(asList("start>E1", "test1", "test2", "stop>E1", "start>E2", "test1", "test2", "stop>E2"), STEPS);
     }
 
-    @RunWith(MultiEnvironmentsRunner.class)
-    @Environment(E1.class)
-    @Environment(E2.class)
-    public static class TheTestModel {
+    @AfterAll
+    static void asserts() {
+        assertEquals(asList("start>E1", "beforeEach", "test1", "afterEach", "stop>E1", "start>E2", "beforeEach",
+                "test1", "afterEach", "stop>E2", "start>E1", "beforeEach", "test2", "afterEach", "stop>E1", "start>E2",
+                "beforeEach", "test2", "afterEach", "stop>E2"), STEPS);
+    }
 
-        @Test
-        public void test1() {
-            STEPS.add("test1");
-        }
+    @BeforeEach
+    void beforeEach() {
+        STEPS.add("beforeEach");
+    }
 
-        @Test
-        public void test2() {
-            STEPS.add("test2");
-        }
+    @AfterEach
+    void afterEach() {
+        STEPS.add("afterEach");
+    }
+
+    @EnvironmentalTest
+    void test1() {
+        STEPS.add("test1");
+    }
+
+    @EnvironmentalTest
+    void test2() {
+        STEPS.add("test2");
     }
 
     public static class E1 implements EnvironmentProvider {

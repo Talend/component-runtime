@@ -15,13 +15,15 @@
  */
 package org.talend.sdk.component.junit.environment;
 
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.platform.commons.util.AnnotationUtils;
 
 public class EnvironmentsConfigurationParser {
 
@@ -29,11 +31,19 @@ public class EnvironmentsConfigurationParser {
 
     private final boolean parallel;
 
-    public EnvironmentsConfigurationParser(final Class<?> testClass) {
-        final Optional<Environments> config = ofNullable(testClass.getAnnotation(Environments.class));
+    public EnvironmentsConfigurationParser(final Class<?> clazz) { // backward compatibility
+        this((AnnotatedElement) clazz);
+    }
+
+    public EnvironmentsConfigurationParser(final AnnotatedElement context) {
+        final Optional<Environments> config = AnnotationUtils.findAnnotation(context, Environments.class);
         environments = Stream
                 .concat(config.map(Environments::value).map(Stream::of).orElseGet(Stream::empty),
-                        ofNullable(testClass.getAnnotation(Environment.class)).map(Stream::of).orElseGet(Stream::empty))
+                        AnnotationUtils
+                                .findAnnotation(context, Environment.class)
+                                .map(Stream::of)
+                                .orElseGet(Stream::empty))
+                .distinct()
                 .map(e -> {
                     try {
                         return e.value().getConstructor().newInstance();

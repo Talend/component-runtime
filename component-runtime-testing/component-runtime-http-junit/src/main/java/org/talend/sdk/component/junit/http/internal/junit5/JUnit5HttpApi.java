@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.junit.http.internal.junit5;
 
-import static java.util.Optional.ofNullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
@@ -31,6 +29,7 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.commons.util.AnnotationUtils;
 import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.api.ResponseLocator;
@@ -49,7 +48,8 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
 
     @Override
     public void beforeAll(final ExtensionContext extensionContext) {
-        final HttpApi config = extensionContext.getElement().map(c -> c.getAnnotation(HttpApi.class)).orElse(null);
+        final HttpApi config =
+                AnnotationUtils.findAnnotation(extensionContext.getElement(), HttpApi.class).orElse(null);
         if (config != null) {
             setGlobalProxyConfiguration(config.globalProxyConfiguration());
             setLogLevel(config.logLevel());
@@ -90,7 +90,8 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
         }
         final String test = extensionContext.getTestMethod().map(m -> {
             final String displayName = sanitizeDisplayName(extensionContext.getDisplayName());
-            return ofNullable(m.getAnnotation(HttpApiName.class))
+            return AnnotationUtils
+                    .findAnnotation(m, HttpApiName.class)
                     .map(HttpApiName::value)
                     .map(it -> it.replace("${class}", m.getDeclaringClass().getName()))
                     .map(it -> it.replace("${method}", m.getName()))

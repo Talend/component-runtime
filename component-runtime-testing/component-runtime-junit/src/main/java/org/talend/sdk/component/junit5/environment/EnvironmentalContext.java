@@ -16,9 +16,12 @@
 package org.talend.sdk.component.junit5.environment;
 
 import static java.util.Collections.singletonList;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -31,7 +34,10 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
+import org.junit.platform.commons.util.AnnotationUtils;
 import org.talend.sdk.component.junit.environment.DecoratingEnvironmentProvider;
+import org.talend.sdk.component.junit.environment.EnvironmentConfiguration;
+import org.talend.sdk.component.junit.environment.EnvironmentConfigurations;
 import org.talend.sdk.component.junit.environment.EnvironmentProvider;
 import org.talend.sdk.component.junit5.ComponentExtension;
 
@@ -68,7 +74,34 @@ public class EnvironmentalContext implements TestTemplateInvocationContext {
 
         @Override
         public void beforeEach(final ExtensionContext context) {
-            closeable = provider.start(context.getRequiredTestClass(), context.getRequiredTestClass().getAnnotations());
+            closeable = provider
+                    .start(context.getRequiredTestClass(),
+                            Stream
+                                    .concat(Stream.of(context.getRequiredTestClass().getAnnotations()),
+                                            Stream
+                                                    .of(of(AnnotationUtils
+                                                            .findRepeatableAnnotations(context.getRequiredTestClass(),
+                                                                    EnvironmentConfiguration.class))
+                                                                            .filter(it -> !it.isEmpty())
+                                                                            .map(l -> new Annotation[] {
+                                                                                    new EnvironmentConfigurations() {
+
+                                                                                        @Override
+                                                                                        public Class<? extends Annotation>
+                                                                                                annotationType() {
+                                                                                            return EnvironmentConfigurations.class;
+                                                                                        }
+
+                                                                                        @Override
+                                                                                        public EnvironmentConfiguration[]
+                                                                                                value() {
+                                                                                            return l
+                                                                                                    .toArray(
+                                                                                                            new EnvironmentConfiguration[0]);
+                                                                                        }
+                                                                                    } })
+                                                                            .orElseGet(() -> new Annotation[0])))
+                                    .toArray(Annotation[]::new));
             ofNullable(componentExtension).ifPresent(c -> {
                 c.doStart(context);
                 c.doInject(context);

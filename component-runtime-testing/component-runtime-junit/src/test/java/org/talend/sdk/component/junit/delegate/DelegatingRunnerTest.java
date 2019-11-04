@@ -33,7 +33,7 @@ class DelegatingRunnerTest {
     @Test
     void run() throws Throwable {
         MyRunner.STEPS.clear();
-        new AllDefaultPossibilitiesBuilder(true).runnerForClass(TheTestModel.class).run(new RunNotifier());
+        new AllDefaultPossibilitiesBuilder().runnerForClass(TheTestModel.class).run(new RunNotifier());
         assertEquals(asList("constructor>" + TheTestModel.class.getName(), "description", "run"), MyRunner.STEPS);
     }
 

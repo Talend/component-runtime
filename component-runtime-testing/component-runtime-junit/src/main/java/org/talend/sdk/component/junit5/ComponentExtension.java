@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.commons.util.AnnotationUtils;
 import org.talend.sdk.component.junit.BaseComponentsHandler;
 import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.junit.environment.Environment;
@@ -46,9 +47,8 @@ public class ComponentExtension extends BaseComponentsHandler
 
     @Override
     public void beforeAll(final ExtensionContext extensionContext) {
-        final WithComponents element = extensionContext
-                .getElement()
-                .map(e -> e.getAnnotation(WithComponents.class))
+        final WithComponents element = AnnotationUtils
+                .findAnnotation(extensionContext.getElement(), WithComponents.class)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No annotation @WithComponents on " + extensionContext.getRequiredTestClass()));
         this.packageName = element.value();
@@ -126,6 +126,6 @@ public class ComponentExtension extends BaseComponentsHandler
     }
 
     private boolean shouldIgnore(final Optional<AnnotatedElement> element) {
-        return element.map(e -> e.getDeclaredAnnotationsByType(Environment.class).length > 0).orElse(false);
+        return !AnnotationUtils.findRepeatableAnnotations(element, Environment.class).isEmpty();
     }
 }
