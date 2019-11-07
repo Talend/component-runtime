@@ -7,6 +7,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1560[TCOMP-1560^]: Min and Max error message during configuration validation are reversed
 - link:https://jira.talendforge.org/browse/TCOMP-1563[TCOMP-1563^]: Web Tester does not work anymore (maven/gradle goal/task)
 - link:https://jira.talendforge.org/browse/TCOMP-1573[TCOMP-1573^]: Body encoder is called twice for each query
+- link:https://jira.talendforge.org/browse/TCOMP-1582[TCOMP-1582^]: Deploy to Nexus 3.15 caused "Provided url doesn't respond neither to Nexus 2 nor to Nexus 3 endpoints"
 
 
 

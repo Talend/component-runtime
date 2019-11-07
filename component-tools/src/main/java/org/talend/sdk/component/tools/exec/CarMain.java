@@ -430,7 +430,7 @@ public class CarMain {
     private static void deployToNexus(final String serverUrl, final String repositoryName, final String username,
             final String password, final int parallelThreads, final String tempDirLocation) {
         String mainGav = null;
-        List<JarEntry> entriesToProcess = new ArrayList<>();
+        final List<JarEntry> entriesToProcess = new ArrayList<>();
         try (JarFile jar = new JarFile(jarLocation(CarMain.class))) {
             Enumeration<JarEntry> entries = jar.entries();
             JarEntry entry;
@@ -472,34 +472,34 @@ public class CarMain {
             System.out.println("No temporary directory is set. Creating a new one...");
             try {
                 tempDirectory = Files.createTempDirectory("car-deploy-to-nexus").toFile();
-            } catch (IOException e1) {
+            } catch (final IOException e1) {
                 String message = "Could not create temp directory: " + e1.getMessage();
                 throw new UnsupportedOperationException(message, e1);
             }
         } else {
             tempDirectory = new File(tempDirLocation, "car-deploy-to-nexus-" + UUID.randomUUID().toString());
-            tempDirectory.mkdir();
+            tempDirectory.mkdirs();
             if (!tempDirectory.exists() || !(tempDirectory.canWrite() && tempDirectory.canRead())) {
                 throw new IllegalArgumentException("Cannot access temporary directory " + tempDirLocation);
             }
         }
         System.out.println(tempDirectory.getPath() + " will be used as temporary directory.");
-        final String nexusVersion = getNexusVersion(serverUrl, username, password);
+        final String basicAuth = getAuthHeader(username, password);
+        final String nexusVersion = getNexusVersion(serverUrl, username, password, basicAuth);
         final ExecutorService executor =
                 Executors.newFixedThreadPool(Math.min(entriesToProcess.size(), parallelThreads));
         try {
-            final String basicAuth = getAuthHeader(username, password);
             final CountDownLatch latch = new CountDownLatch(entriesToProcess.size());
             for (final JarEntry entry : entriesToProcess) {
                 final String path = entry.getName().substring("MAVEN-INF/repository/".length());
                 executor.execute(() -> {
                     try {
                         if (!artifactExists(nexusVersion, serverUrl, basicAuth, repositoryName, path)) {
-                            File extracted = extractJar(tempDirectory, jar, entry);
+                            final File extracted = extractJar(tempDirectory, jar, entry);
                             sendJar(nexusVersion, serverUrl, basicAuth, repositoryName, path, extracted);
                             sendPom(nexusVersion, serverUrl, basicAuth, repositoryName, path, extracted);
                         }
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         System.err.println("A problem occured while uploading artifact: " + e.getMessage());
                     } finally {
                         latch.countDown();
@@ -515,13 +515,15 @@ public class CarMain {
             executor.shutdown();
             try {
                 executor.awaitTermination(1, TimeUnit.DAYS);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 System.err.println("Interrupted while awaiting for executor to shutdown.");
                 Thread.currentThread().interrupt();
             }
             try {
                 System.out.println("Removing " + tempDirectory.getPath());
-                removeTempDirectoryRecursively(tempDirectory);
+                if (tempDirectory.exists()) {
+                    removeTempDirectoryRecursively(tempDirectory);
+                }
             } catch (Exception e) {
                 System.err.println("Couldn't remove " + tempDirectory.getPath() + ": " + e.getMessage());
             }
@@ -532,9 +534,11 @@ public class CarMain {
         if (file.exists() && file.isFile()) {
             file.delete();
         } else if (file.isDirectory()) {
-            String[] files = file.list();
-            for (String filename : files) {
-                removeTempDirectoryRecursively(new File(file, filename));
+            final File[] files = file.listFiles();
+            if (files != null) {
+                for (final File child : files) {
+                    removeTempDirectoryRecursively(child);
+                }
             }
             file.delete();
         }
@@ -542,9 +546,9 @@ public class CarMain {
 
     private static File extractJar(final File destDirectory, final JarFile jar, final JarEntry entry)
             throws IOException {
-        File extracted = null;
-        try (InputStream is = jar.getInputStream(entry)) {
-            String fileName = entry.getName().substring(entry.getName().lastIndexOf("/") + 1);
+        File extracted;
+        try (final InputStream is = jar.getInputStream(entry)) {
+            final String fileName = entry.getName().substring(entry.getName().lastIndexOf("/") + 1);
             extracted = File.createTempFile("temp-", fileName, destDirectory);
             Files.copy(is, extracted.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
@@ -564,8 +568,8 @@ public class CarMain {
             final String repositoryName, final String path) throws IOException {
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(getNexusUploadUrl(nexusVersion, serverUrl, repositoryName, path));
-            conn = (HttpURLConnection) url.openConnection();
+            final URL url = new URL(getNexusUploadUrl(nexusVersion, serverUrl, repositoryName, path));
+            conn = HttpURLConnection.class.cast(url.openConnection());
             conn.setDoOutput(true);
             conn.setRequestMethod("GET");
             if (basicAuth != null) {
@@ -576,8 +580,11 @@ public class CarMain {
                 return false;
             } else if (conn.getResponseCode() == 401) {
                 throw new IllegalArgumentException("Authentication failed!");
+            } else if (conn.getResponseCode() == 400) {
+                System.out.println("Ignoring " + path + ", it is likely not deployed on the right repository.");
+            } else {
+                System.out.println("Artifact " + path + " already exists on " + serverUrl + ". Skipping.");
             }
-            System.out.println("Artifact " + path + " already exists on " + serverUrl + ". Skipping.");
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -588,7 +595,6 @@ public class CarMain {
 
     private static void sendPom(final String nexusVersion, final String serverUrl, final String basicAuth,
             final String repositoryName, final String path, final File jarFile) throws IOException {
-        HttpURLConnection conn = null;
         final String pomPath = getPomPathFromPath(path);
         System.out.println("Path of pom file resolved: " + pomPath);
         try (final JarFile jar = new JarFile(jarFile)) {
@@ -600,27 +606,25 @@ public class CarMain {
                 final String serverPomPath = path.substring(0, path.lastIndexOf(".")) + ".pom";
                 sendData(nexusVersion, serverUrl, basicAuth, repositoryName, serverPomPath, jarIs);
             }
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
         }
     }
 
     private static String getPomPathFromPath(final String path) {
-        String parentPath = path.substring(0, path.lastIndexOf("/"));
-        String version = parentPath.substring(parentPath.lastIndexOf("/") + 1);
-        String fileName = path.substring(path.lastIndexOf("/") + 1);
-        int versionIndex = fileName.indexOf(version);
-        String artifactName = fileName;
+        final String parentPath = path.substring(0, path.lastIndexOf("/"));
+        final String version = parentPath.substring(parentPath.lastIndexOf("/") + 1);
+        final String fileName = path.substring(path.lastIndexOf("/") + 1);
+        final int versionIndex = fileName.indexOf(version);
+        final String artifactName;
         if (versionIndex > 0) {
             artifactName = fileName.substring(0, versionIndex - 1);
         } else if (fileName.endsWith(".jar")) {
             artifactName = fileName.substring(0, fileName.length() - 4);
+        } else {
+            artifactName = fileName;
         }
         String group = parentPath.substring(0, parentPath.lastIndexOf(artifactName));
         if (group.startsWith("/")) {
-            group = group.substring(1, group.length());
+            group = group.substring(1);
         }
         if (group.endsWith("/")) {
             group = group.substring(0, group.length() - 1);
@@ -670,29 +674,33 @@ public class CarMain {
         }
     }
 
+    // note: maybe move to restapi. see
+    // https://support.sonatype.com/hc/en-us/articles/115006744008-How-can-I-programmatically-upload-files-into-Nexus-3-
     private static String getNexusUploadUrl(final String nexusVersion, final String serverUrl,
             final String repositoryName, final String path) {
         if (nexusVersion.equals("V2")) {
             return getUploadUrl(serverUrl, "content/repositories", repositoryName, path);
-        } else if (nexusVersion.equals("V3")) {
+        } else if (nexusVersion.startsWith("V3")) {
             return getUploadUrl(serverUrl, "repository", repositoryName, path);
         }
         throw new IllegalArgumentException("Unknown Nexus version: " + nexusVersion);
     }
 
-    private static String getUploadUrl(final String serverUrl, final String repositoriesLocation,
-            final String repositoryName, final String path) {
-        return serverUrl + (serverUrl.endsWith("/") ? "" : "/") + repositoriesLocation + "/" + repositoryName + "/"
-                + path;
+    private static String getUploadUrl(final String serverUrl, final String repositoriesLocation, final String repo,
+            final String path) {
+        return serverUrl + (serverUrl.endsWith("/") ? "" : "/") + repositoriesLocation + "/" + repo + "/" + path;
     }
 
-    private static String getNexusVersion(final String serverUrl, final String username, final String password) {
+    private static String getNexusVersion(final String serverUrl, final String username, final String password,
+            final String auth) {
         System.out.println("Checking " + serverUrl + " API version.");
-        String version = null;
-        if (isV2(serverUrl, username, password)) {
+        final String version;
+        if (isV2(serverUrl, username, password, auth)) {
             version = "V2";
-        } else if (isV3(serverUrl, username, password)) {
+        } else if (isStableV3(serverUrl, username, password, auth)) {
             version = "V3";
+        } else if (isBetaV3(serverUrl, username, password, auth)) {
+            version = "V3Beta";
         } else {
             throw new UnsupportedOperationException(
                     "Provided url doesn't respond neither to Nexus 2 nor to Nexus 3 endpoints.");
@@ -701,33 +709,23 @@ public class CarMain {
         return version;
     }
 
-    private static boolean isV2(final String serverUrl, final String username, final String password) {
+    private static boolean isV2(final String serverUrl, final String username, final String password,
+            final String auth) {
         System.out.println("Checking for V2 version...");
-        boolean v2 = false;
         HttpURLConnection conn = null;
         try {
-            final URL url = new URL(serverUrl + (serverUrl.endsWith("/") ? "" : "/") + "service/local/status");
-            System.out.println("Sending GET request to " + url.getPath());
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoInput(true);
-            final String userpass = username + ":" + password;
-            final String basicAuth = "Basic " + Base64.getEncoder().encodeToString(userpass.getBytes());
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Authorization", basicAuth);
-            conn.setRequestProperty("Accept", "application/json");
-            conn.connect();
+            conn = prepareGet(serverUrl, username, password, "service/local/status", "*/*", auth);
             if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 299) {
                 try (InputStream is = conn.getInputStream()) {
-                    byte[] b = new byte[1024];
+                    final byte[] b = new byte[1024];
                     final StringBuilder out = new StringBuilder();
-                    int read = 0;
+                    int read;
                     while ((read = is.read(b, 0, b.length)) > 0) {
-                        out.append(new String(b), 0, read);
-                        b = new byte[1024];
+                        out.append(new String(b, 0, read));
                     }
                     if (out.toString().contains("\"apiVersion\":\"2.")) {
                         System.out.println("version is v2");
-                        v2 = true;
+                        return true;
                     }
                 }
             }
@@ -738,27 +736,29 @@ public class CarMain {
                 conn.disconnect();
             }
         }
-        return v2;
+        return false;
     }
 
-    private static boolean isV3(final String serverUrl, final String username, final String password) {
+    private static boolean isBetaV3(final String serverUrl, final String username, final String password,
+            final String auth) {
+        System.out.println("Checking for V3Beta version...");
+        return get(serverUrl, username, password, "service/rest/beta/repositories", auth);
+    }
+
+    private static boolean isStableV3(final String serverUrl, final String username, final String password,
+            final String auth) {
         System.out.println("Checking for V3 version...");
-        boolean v3 = false;
+        return get(serverUrl, username, password, "service/rest/v1/repositories", auth);
+    }
+
+    private static boolean get(final String serverUrl, final String username, final String password, final String path,
+            final String auth) {
+        boolean passed = false;
         HttpURLConnection conn = null;
         try {
-            final URL url =
-                    new URL(serverUrl + (serverUrl.endsWith("/") ? "" : "/") + "service/rest/beta/repositories");
-            System.out.println("Sending GET request to " + url.getPath());
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoInput(true);
-            final String userpass = username + ":" + password;
-            final String basicAuth = "Basic " + Base64.getEncoder().encodeToString(userpass.getBytes());
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Authorization", basicAuth);
-            conn.setRequestProperty("Accept", "*/*");
-            conn.connect();
+            conn = prepareGet(serverUrl, username, password, path, "application/json", auth);
             if (conn.getResponseCode() == 200) {
-                v3 = true;
+                passed = true;
             }
         } catch (final IOException e) {
             // no-op
@@ -767,13 +767,30 @@ public class CarMain {
                 conn.disconnect();
             }
         }
-        return v3;
+        return passed;
+    }
+
+    private static HttpURLConnection prepareGet(final String serverUrl, final String username, final String password,
+            final String path, final String accept, final String auth) throws IOException {
+        final URL url = new URL(serverUrl + (serverUrl.endsWith("/") ? "" : "/") + path);
+        System.out.println("Sending GET request to " + url.getPath());
+        final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setDoInput(true);
+        final String userpass = username + ":" + password;
+        final String basicAuth = "Basic " + Base64.getEncoder().encodeToString(userpass.getBytes());
+        conn.setRequestMethod("GET");
+        if (auth != null) {
+            conn.setRequestProperty("Authorization", auth);
+        }
+        conn.setRequestProperty("Accept", accept);
+        conn.connect();
+        return conn;
     }
 
     private static String getRequestMethod(final String nexusVersion) {
         if ("V2".equals(nexusVersion)) {
             return "POST";
-        } else if ("V3".equals(nexusVersion)) {
+        } else if (nexusVersion.startsWith("V3")) {
             return "PUT";
         }
         throw new IllegalArgumentException("Unknown Nexus version: " + nexusVersion);
