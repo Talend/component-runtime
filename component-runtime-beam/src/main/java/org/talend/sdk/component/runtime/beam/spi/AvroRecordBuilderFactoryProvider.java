@@ -38,16 +38,24 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
 
     @Override
     public RecordBuilderFactory apply(final String containerId) {
-        try {
-            ofNullable(Thread.currentThread().getContextClassLoader())
-                    .orElseGet(ClassLoader::getSystemClassLoader)
-                    .loadClass("org.codehaus.jackson.node.TextNode");
-            return new AvroRecordBuilderFactory(containerId);
-        } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
-            log
-                    .info("jackson-mapper-asl is not available, skipping AvroRecordBuilderFactory ({})",
-                            getClass().getName());
+        switch (System.getProperty("talend.component.beam.record.factory.impl", "auto")) {
+        case "memory":
+        case "default":
             return new RecordBuilderFactoryImpl(containerId);
+        case "avro":
+            return new AvroRecordBuilderFactory(containerId);
+        default:
+            try {
+                ofNullable(Thread.currentThread().getContextClassLoader())
+                        .orElseGet(ClassLoader::getSystemClassLoader)
+                        .loadClass("org.codehaus.jackson.node.TextNode");
+                return new AvroRecordBuilderFactory(containerId);
+            } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
+                log
+                        .info("jackson-mapper-asl is not available, skipping AvroRecordBuilderFactory ({})",
+                                getClass().getName());
+                return new RecordBuilderFactoryImpl(containerId);
+            }
         }
     }
 
