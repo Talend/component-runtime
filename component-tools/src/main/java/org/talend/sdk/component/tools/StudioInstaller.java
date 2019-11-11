@@ -159,7 +159,7 @@ public class StudioInstaller implements Runnable {
         if (registry == null) {
             final File registryLocation = new File(configIni.getParentFile(), "components-registration.properties");
             registryLocation.getParentFile().mkdirs();
-            registry = registryLocation.getAbsolutePath();
+            registry = registryLocation.getAbsolutePath().replace('\\', '/');
 
             config.setProperty("component.java.registry", registry);
             try {
