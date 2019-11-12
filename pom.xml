@@ -145,7 +145,7 @@
     <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.28</slf4j.version>
     <junit.version>4.13-beta-3</junit.version>
-    <ziplock.version>8.0.0-M3</ziplock.version>
+    <ziplock.version>8.0.0</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.2.1</johnzon.version>
     <meecrowave.version>1.2.9</meecrowave.version>
@@ -211,17 +211,17 @@
     <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
     <git-commit-id-plugin.version>3.0.0</git-commit-id-plugin.version>
     <common-plugin.version>1.0.7</common-plugin.version>
-    <jgit.version>5.4.0.201906121030-r</jgit.version>
+    <jgit.version>5.5.1.201910021850-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <surefire-plugin.version>3.0.0-M3</surefire-plugin.version>
     <gpg-plugin.version>1.6</gpg-plugin.version>
     <spotless.version>1.23.0</spotless.version>
     <jib.version>1.4.0</jib.version>
-    <jib-core.version>0.11.0</jib-core.version>
+    <jib-core.version>0.12.0</jib-core.version>
     <bouncycastle.version>1.62</bouncycastle.version>
     <commons-io.version>2.6</commons-io.version>
 
-    <jruby.version>9.2.8.0</jruby.version>
+    <jruby.version>9.2.9.0</jruby.version>
     <node.version>v12.13.0</node.version>
     <npm.version>6.12.0</npm.version>
     <frontend.version>1.8.0</frontend.version>

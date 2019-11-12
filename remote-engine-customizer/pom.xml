@@ -57,11 +57,11 @@
     <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest</artifactId>
-      <version>0.10</version>
+      <version>0.11</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.xbean</groupId>
-          <artifactId>xbean-asm5-shaded</artifactId>
+          <artifactId>xbean-asm7-shaded</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.apache.xbean</groupId>
