@@ -1,5 +1,15 @@
 
 
+== Version 1.1.16
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1585[TCOMP-1585^]: Upgrade netty to 4.1.43.Final
+- link:https://jira.talendforge.org/browse/TCOMP-1586[TCOMP-1586^]: Upgrade ziplock to v8.0.0
+- link:https://jira.talendforge.org/browse/TCOMP-1587[TCOMP-1587^]: Upgrade jib to v0.12.0
+- link:https://jira.talendforge.org/browse/TCOMP-1588[TCOMP-1588^]: Upgrade JRuby to v9.2.9.0
+- link:https://jira.talendforge.org/browse/TCOMP-1589[TCOMP-1589^]: Upgrade crest to v0.11.0
+
 == Version 1.1.15
 
 === Bug
