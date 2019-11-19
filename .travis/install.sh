@@ -43,7 +43,7 @@ mvn -version
 
 # travis helper
 mkdir -p /tmp/dep && cd /tmp/dep &&
-  travis_wait 50 mvn -Ptravis dependency:copy -Dartifact=com.github.rmannibucau:maven-travis-output:1.0.0 -DoutputDirectory=/tmp &&
+  travis_wait 50 mvn -Ptravis dependency:copy -Dartifact=com.github.rmannibucau:maven-travis-output:1.0.1 -DoutputDirectory=/tmp &&
 cd -
 
 # ensure default settings.xml works contextually without specifying it
