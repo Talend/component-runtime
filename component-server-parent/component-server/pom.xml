@@ -28,6 +28,7 @@
   <description>The Web server of the framework. Mainly provides UI interaction hooks.</description>
 
   <properties>
+    <talend.component.server.enableDumps>false</talend.component.server.enableDumps>
     <talend.build.name>${talend.build.name.base}.server</talend.build.name>
     <sample.beam.groupId>org.talend.sdk.components</sample.beam.groupId>
     <sample.beam.artifactId>sample-beam</sample.beam.artifactId>
@@ -493,6 +494,7 @@
               </excludes>
               <systemPropertyVariables>
                 <org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>false</org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>
+                <talend.component.server.enableDumps>${talend.component.server.enableDumps}</talend.component.server.enableDumps>
               </systemPropertyVariables>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
@@ -517,6 +519,7 @@
                 <components.sample.beam.artifactId>${sample.beam.artifactId}</components.sample.beam.artifactId>
                 <components.sample.beam.version>${project.version}</components.sample.beam.version>
                 <components.sample.beam.location>${sample.beam.location}</components.sample.beam.location>
+                <talend.component.server.enableDumps>${talend.component.server.enableDumps}</talend.component.server.enableDumps>
               </systemPropertyVariables>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
