@@ -29,6 +29,7 @@
 
   <properties>
     <talend.component.server.enableDumps>false</talend.component.server.enableDumps>
+    <org.apache.tomcat.Logger>org.apache.meecrowave.logging.tomcat.Log4j2Log</org.apache.tomcat.Logger>
     <talend.build.name>${talend.build.name.base}.server</talend.build.name>
     <sample.beam.groupId>org.talend.sdk.components</sample.beam.groupId>
     <sample.beam.artifactId>sample-beam</sample.beam.artifactId>
@@ -495,6 +496,7 @@
               <systemPropertyVariables>
                 <org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>false</org.apache.geronimo.config.configsource.SystemPropertyConfigSource.copy>
                 <talend.component.server.enableDumps>${talend.component.server.enableDumps}</talend.component.server.enableDumps>
+                <org.apache.tomcat.Logger>${org.apache.tomcat.Logger}</org.apache.tomcat.Logger>
               </systemPropertyVariables>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
@@ -520,6 +522,7 @@
                 <components.sample.beam.version>${project.version}</components.sample.beam.version>
                 <components.sample.beam.location>${sample.beam.location}</components.sample.beam.location>
                 <talend.component.server.enableDumps>${talend.component.server.enableDumps}</talend.component.server.enableDumps>
+                <org.apache.tomcat.Logger>${org.apache.tomcat.Logger}</org.apache.tomcat.Logger>
               </systemPropertyVariables>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
@@ -549,8 +552,9 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <systemPropertyVariables>
-                <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
                 <component.server.test.logging.skip>true</component.server.test.logging.skip>
+                <talend.component.server.enableDumps>${talend.component.server.enableDumps}</talend.component.server.enableDumps>
+                <org.apache.tomcat.Logger>${org.apache.tomcat.Logger}</org.apache.tomcat.Logger>
               </systemPropertyVariables>
             </configuration>
           </plugin>

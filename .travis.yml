@@ -54,7 +54,7 @@ jobs:
       env:
       - STEP=Build OpenJDK 11 JVM
       - BUILD_JAVA_VERSION=11
-      script: mvn $BUILD_ARGS -Drmannibucau.travis.dumpOnLog=false -Drmannibucau.travis.logExecutionEvents=false -Dtalend.component.server.enableDumps=true
+      script: mvn $BUILD_ARGS -Drmannibucau.travis.dumpOnLog=false -Drmannibucau.travis.logExecutionEvents=false -Dtalend.component.server.enableDumps=false
 
     - stage: master_build
       env:
