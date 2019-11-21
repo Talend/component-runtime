@@ -9,6 +9,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1587[TCOMP-1587^]: Upgrade jib to v0.12.0
 - link:https://jira.talendforge.org/browse/TCOMP-1588[TCOMP-1588^]: Upgrade JRuby to v9.2.9.0
 - link:https://jira.talendforge.org/browse/TCOMP-1589[TCOMP-1589^]: Upgrade crest to v0.11.0
+- link:https://jira.talendforge.org/browse/TCOMP-1591[TCOMP-1591^]: Update to Tomcat 9.0.29
 
 == Version 1.1.15
 
