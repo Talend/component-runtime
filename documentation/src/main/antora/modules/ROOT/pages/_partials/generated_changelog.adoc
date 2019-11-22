@@ -10,6 +10,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1588[TCOMP-1588^]: Upgrade JRuby to v9.2.9.0
 - link:https://jira.talendforge.org/browse/TCOMP-1589[TCOMP-1589^]: Upgrade crest to v0.11.0
 - link:https://jira.talendforge.org/browse/TCOMP-1591[TCOMP-1591^]: Update to Tomcat 9.0.29
+- link:https://jira.talendforge.org/browse/TCOMP-1592[TCOMP-1592^]: Update to Johnzon 1.2.2
+- link:https://jira.talendforge.org/browse/TCOMP-1593[TCOMP-1593^]: Update to OpenWebBeans 2.0.13
 
 == Version 1.1.15
 

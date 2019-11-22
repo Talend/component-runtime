@@ -21,70 +21,104 @@ import java.util.List;
 
 import org.talend.sdk.component.api.record.Schema;
 
-public enum Schemas implements Schema, Schema.Builder {
-    STRING {
+public abstract class Schemas implements Schema, Schema.Builder {
+
+    public static final Schemas STRING = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.STRING;
         }
-    },
-    BYTES {
+    };
+
+    public static final Schemas BYTES = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.BYTES;
         }
-    },
-    INT {
+    };
+
+    public static final Schemas INT = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.INT;
         }
-    },
-    LONG {
+    };
+
+    public static final Schemas LONG = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.LONG;
         }
-    },
-    FLOAT {
+    };
+
+    public static final Schemas FLOAT = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.FLOAT;
         }
-    },
-    DOUBLE {
+    };
+
+    public static final Schemas DOUBLE = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.DOUBLE;
         }
-    },
-    BOOLEAN {
+    };
+
+    public static final Schemas BOOLEAN = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.BOOLEAN;
         }
-    },
-    DATETIME {
+    };
+
+    public static final Schemas DATETIME = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.DATETIME;
         }
-    },
-    EMPTY_RECORD {
+    };
+
+    public static final Schemas EMPTY_RECORD = new Schemas() {
 
         @Override
         public Type getType() {
             return Type.RECORD;
         }
     };
+
+    public static Builder valueOf(final String name) {
+        switch (name) {
+        case "STRING":
+            return STRING;
+        case "BYTES":
+            return BYTES;
+        case "INT":
+            return INT;
+        case "LONG":
+            return LONG;
+        case "FLOAT":
+            return FLOAT;
+        case "DOUBLE":
+            return DOUBLE;
+        case "BOOLEAN":
+            return BOOLEAN;
+        case "DATETIME":
+            return DATETIME;
+        case "EMPTY_RECORD":
+            return EMPTY_RECORD;
+        default:
+            throw new IllegalArgumentException(name);
+        }
+    }
 
     @Override
     public Schema build() {
