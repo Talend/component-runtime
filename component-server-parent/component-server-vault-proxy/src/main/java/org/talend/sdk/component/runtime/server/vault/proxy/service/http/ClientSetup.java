@@ -321,7 +321,7 @@ public class ClientSetup {
             }
         } };
         try {
-            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            final SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustManagers, new java.security.SecureRandom());
             return sslContext;
         } catch (final NoSuchAlgorithmException | KeyManagementException e) {
