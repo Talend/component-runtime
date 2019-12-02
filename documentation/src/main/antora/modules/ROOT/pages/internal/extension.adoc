@@ -108,7 +108,7 @@ It can also reuse existing converters if needed:
 
 [source,java]
 ----
-pulic class MyConverter implements CustomPropertyConverter {
+public class MyConverter implements CustomPropertyConverter {
     @Override
     public boolean supports(final PropertyContext<?> context) {
         return context.getProperty().getName().equals("entry");
