@@ -69,25 +69,29 @@ public class ModelVisitor {
     }
 
     private void validatePartitionMapper(final Class<?> type) {
-        if (Stream
+        final boolean infinite = type.getAnnotation(PartitionMapper.class).infinite();
+        final long count = Stream
                 .of(type.getMethods())
-                .filter(m -> getPartitionMapperMethods().anyMatch(m::isAnnotationPresent))
-                .flatMap(m -> getPartitionMapperMethods().filter(m::isAnnotationPresent))
+                .filter(m -> getPartitionMapperMethods(infinite).anyMatch(m::isAnnotationPresent))
+                .flatMap(m -> getPartitionMapperMethods(infinite).filter(m::isAnnotationPresent))
                 .distinct()
-                .count() != 3) {
+                .count();
+        if (count != (infinite ? 2 : 3)) {
             throw new IllegalArgumentException(
-                    type + " partition mapper must have exactly one @Assessor, one @Split and one @Emitter methods");
+                    type + " partition mapper must have exactly one @Assessor (if not infinite), "
+                            + "one @Split and one @Emitter methods");
         }
 
         //
         // now validate the 2 methods of the mapper
         //
-
-        Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Assessor.class)).forEach(m -> {
-            if (m.getParameterCount() > 0) {
-                throw new IllegalArgumentException(m + " must not have any parameter");
-            }
-        });
+        if (!infinite) {
+            Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Assessor.class)).forEach(m -> {
+                if (m.getParameterCount() > 0) {
+                    throw new IllegalArgumentException(m + " must not have any parameter");
+                }
+            });
+        }
         Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Split.class)).forEach(m -> {
             // for now we could inject it by default but to ensure we can inject more later
             // we must do that validation
@@ -193,8 +197,8 @@ public class ModelVisitor {
         return OutputEmitter.class == pt.getRawType();
     }
 
-    private Stream<Class<? extends Annotation>> getPartitionMapperMethods() {
-        return Stream.of(Assessor.class, Split.class, Emitter.class);
+    private Stream<Class<? extends Annotation>> getPartitionMapperMethods(final boolean infinite) {
+        return infinite ? Stream.of(Split.class, Emitter.class) : Stream.of(Assessor.class, Split.class, Emitter.class);
     }
 
     private Stream<Class<? extends Annotation>> getSupportedComponentTypes() {

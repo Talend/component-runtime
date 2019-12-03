@@ -23,7 +23,8 @@ import java.lang.annotation.Target;
 
 /**
  * Decorates a {@link Number} parameter of {@link Assessor} method in a {@link PartitionMapper}
- * which will hold the number of desired partitions.
+ * which will hold the number of desired partitions for infinite connectors and the estimated size of
+ * each parition for not infinite connectors.
  */
 @Target(PARAMETER)
 @Retention(RUNTIME)

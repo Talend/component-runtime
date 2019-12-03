@@ -73,7 +73,10 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     @Override
     public long assess() {
         lazyInit();
-        return Number.class.cast(doInvoke(assessor)).longValue();
+        if (assessor != null) {
+            return Number.class.cast(doInvoke(assessor)).longValue();
+        }
+        return 1;
     }
 
     @Override
@@ -158,9 +161,9 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     }
 
     private void lazyInit() {
-        if (assessor == null || split == null || inputFactory == null) {
+        if (split == null || inputFactory == null) {
             inputName = inputName == null || inputName.isEmpty() ? name() : inputName;
-            assessor = findMethods(Assessor.class).findFirst().get();
+            assessor = findMethods(Assessor.class).findFirst().orElse(null);
             split = findMethods(Split.class).findFirst().get();
             inputFactory = findMethods(Emitter.class).findFirst().get();
 

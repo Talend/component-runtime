@@ -12,6 +12,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1591[TCOMP-1591^]: Update to Tomcat 9.0.29
 - link:https://jira.talendforge.org/browse/TCOMP-1592[TCOMP-1592^]: Update to Johnzon 1.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-1593[TCOMP-1593^]: Update to OpenWebBeans 2.0.13
+- link:https://jira.talendforge.org/browse/TCOMP-1595[TCOMP-1595^]: Infinite partitionmapper shouldn't require assesor
 
 == Version 1.1.15
 

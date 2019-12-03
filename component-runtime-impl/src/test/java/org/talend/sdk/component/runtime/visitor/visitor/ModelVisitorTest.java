@@ -79,6 +79,11 @@ class ModelVisitorTest {
     }
 
     @Test
+    void mapperInfiniteNoAssessor() {
+        visit(InfiniteMapperNoAssessor.class);
+    }
+
+    @Test
     void mapperNoSplit() {
         assertThrows(IllegalArgumentException.class, () -> visit(MapperNoSplit.class));
     }
@@ -185,6 +190,23 @@ class ModelVisitorTest {
             @ElementListener
             public void onNext(final In in) {
                 // no-op
+            }
+        }
+    }
+
+    public static class InfiniteMapperNoAssessor {
+
+        @PartitionMapper(family = "comp", name = "Mapper", infinite = true)
+        public static class Mapper {
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public ValidIn emit() {
+                return null;
             }
         }
     }
