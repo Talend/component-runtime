@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.service.http;
 
 import static java.util.stream.Collectors.toMap;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -53,7 +54,7 @@ public class HttpRequest {
 
     private final String methodType;
 
-    private final Map<String, String> queryParams;
+    private final Collection<String> queryParams;
 
     private final Map<String, String> headers;
 

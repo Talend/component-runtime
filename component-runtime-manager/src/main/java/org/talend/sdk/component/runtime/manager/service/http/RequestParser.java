@@ -19,6 +19,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptyMap;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Stream.empty;
 import static java.util.stream.Stream.of;
@@ -35,6 +36,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,6 +45,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
 
@@ -57,6 +60,7 @@ import org.talend.sdk.component.api.service.http.Headers;
 import org.talend.sdk.component.api.service.http.HttpMethod;
 import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
+import org.talend.sdk.component.api.service.http.QueryFormat;
 import org.talend.sdk.component.api.service.http.QueryParams;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
@@ -149,11 +153,11 @@ public class RequestParser {
                     return url;
                 };
             } else if (parameters[i].isAnnotationPresent(QueryParams.class)) {
-                queryParamsProvider.queries
-                        .put(i, new Encodable("", parameters[i].getAnnotation(QueryParams.class).encode()));
+                final QueryParams params = parameters[i].getAnnotation(QueryParams.class);
+                queryParamsProvider.queries.put(i, new QueryEncodable("", params.encode(), params.format()));
             } else if (parameters[i].isAnnotationPresent(Query.class)) {
                 final Query query = parameters[i].getAnnotation(Query.class);
-                queryParamsProvider.queries.put(i, new Encodable(query.value(), query.encode()));
+                queryParamsProvider.queries.put(i, new QueryEncodable(query.value(), query.encode(), query.format()));
             } else if (parameters[i].isAnnotationPresent(Headers.class)) {
                 headersProvider.headers.put(i, "");
             } else if (parameters[i].isAnnotationPresent(Header.class)) {
@@ -366,18 +370,28 @@ public class RequestParser {
         private final boolean encode;
     }
 
-    private static class QueryParamsProvider implements Function<Object[], Map<String, String>> {
+    private static class QueryEncodable extends Encodable {
 
-        private final Map<Integer, Encodable> queries = new LinkedHashMap<>();
+        private final QueryFormat format;
+
+        private QueryEncodable(final String name, final boolean encode, final QueryFormat format) {
+            super(name, encode);
+            this.format = format;
+        }
+    }
+
+    private static class QueryParamsProvider implements Function<Object[], Collection<String>> {
+
+        private final Map<Integer, QueryEncodable> queries = new LinkedHashMap<>();
 
         @Override
-        public Map<String, String> apply(final Object[] args) {
+        public Collection<String> apply(final Object[] args) {
 
             return queries.entrySet().stream().flatMap(entry -> {
-                if (entry.getValue().name.isEmpty()) {
+                if (entry.getValue().getName().isEmpty()) {
                     final Map<String, String> queryParams =
                             args[entry.getKey()] == null ? emptyMap() : (Map) args[entry.getKey()];
-                    if (entry.getValue().encode) {
+                    if (entry.getValue().isEncode()) {
                         return queryParams
                                 .entrySet()
                                 .stream()
@@ -387,18 +401,30 @@ public class RequestParser {
                     return queryParams.entrySet().stream();
                 }
                 return ofNullable(args[entry.getKey()]).map(v -> {
+                    if (Collection.class.isInstance(v)) {
+                        final Stream<String> collection = ((Collection<?>) v)
+                                .stream()
+                                .filter(Objects::nonNull)
+                                .map(String::valueOf)
+                                .map(q -> entry.getValue().isEncode() ? queryEncode(q) : q);
+                        switch (entry.getValue().format) {
+                        case MULTI:
+                            return collection.map(q -> new AbstractMap.SimpleEntry<>(entry.getValue().getName(), q));
+                        case CSV:
+                            return of(new AbstractMap.SimpleEntry<>(entry.getValue().getName(),
+                                    String.join(",", collection.collect(toList()))));
+                        default:
+                            throw new IllegalArgumentException("Unsupported formatting: " + entry.getValue());
+                        }
+                    }
+
                     String value = String.valueOf(v);
-                    if (entry.getValue().encode) {
+                    if (entry.getValue().isEncode()) {
                         value = queryEncode(value);
                     }
-                    return of(new AbstractMap.SimpleEntry<>(entry.getValue().name, value));
+                    return of(new AbstractMap.SimpleEntry<>(entry.getValue().getName(), value));
                 }).orElse(null);
-            })
-                    .filter(Objects::nonNull)
-                    .filter(e -> e.getValue() != null) // ignore null values
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
-                        throw new IllegalArgumentException("conflictings keys: " + a + '/' + b);
-                    }, LinkedHashMap::new));
+            }).filter(Objects::nonNull).map(kv -> kv.getKey() + "=" + kv.getValue()).collect(toList());
         }
     }
 

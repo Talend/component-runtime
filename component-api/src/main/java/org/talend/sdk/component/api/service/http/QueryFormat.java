@@ -15,27 +15,17 @@
  */
 package org.talend.sdk.component.api.service.http;
 
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
 /**
- * Mark the parameter as the http request query parameters
+ * How to serialize the query parameter when there are more then one value.
  */
-@Target(PARAMETER)
-@Retention(RUNTIME)
-public @interface QueryParams {
+public enum QueryFormat {
+    /**
+     * Separate the values by a comma but keep a single query parameter.
+     */
+    CSV,
 
     /**
-     * @return should the value be encoded.
+     * Create one query parameter per value.
      */
-    boolean encode() default true;
-
-    /**
-     * @return the format when the query parameter has multiple values.
-     */
-    QueryFormat format() default QueryFormat.CSV;
-
+    MULTI
 }

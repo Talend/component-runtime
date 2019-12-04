@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service.http;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +32,7 @@ class HttpRequestTest {
     void getBodyIsCalledOnce() {
         final AtomicInteger counter = new AtomicInteger();
         final HttpRequest httpRequest =
-                new HttpRequest("foo", "GET", emptyMap(), emptyMap(), null, emptyMap(), (a, b) -> {
+                new HttpRequest("foo", "GET", emptyList(), emptyMap(), null, emptyMap(), (a, b) -> {
                     assertEquals(0, counter.getAndIncrement());
                     return Optional.of(new byte[0]);
                 }, new Object[0], null);

@@ -34,6 +34,11 @@ public @interface Query {
     String value();
 
     /**
+     * @return the format when the query parameter has multiple values.
+     */
+    QueryFormat format() default QueryFormat.CSV;
+
+    /**
      * @return should the value be encoded.
      */
     boolean encode() default true;

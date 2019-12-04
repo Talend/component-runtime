@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.api.service.http.QueryFormat.MULTI;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -73,6 +75,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 class HttpClientFactoryImplTest {
+
+    @Test
+    void multiQueryParam() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
+        try {
+            server.start();
+            final MultiQueryParams client = newDefaultFactory()
+                    .create(MultiQueryParams.class, "http://localhost:" + server.getAddress().getPort());
+            final List<String> values = asList("0", "a b", "c/d");
+            {
+                final String result = client.csv(values);
+                assertTrue(result.contains("@/?multip=0,a+b,c/d@"), result);
+            }
+            {
+                final String result = client.multi(values);
+                assertTrue(result.contains("@/?multip=0&multip=a+b&multip=c/d@"), result);
+            }
+        } finally {
+            server.stop(0);
+        }
+    }
 
     @Test
     void oauth1() throws IOException {
@@ -490,6 +513,15 @@ class HttpClientFactoryImplTest {
         });
 
         return server;
+    }
+
+    public interface MultiQueryParams extends HttpClient {
+
+        @Request
+        String csv(@Query("multip") final List<String> values);
+
+        @Request
+        String multi(@Query(value = "multip", format = MULTI) final List<String> values);
     }
 
     public interface OAuth1Client extends HttpClient {

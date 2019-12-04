@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.manager.service.http;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.BufferedOutputStream;
@@ -59,12 +58,7 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
         HttpURLConnection urlConnection = null;
         try {
             final HttpRequest request = requestCreator.apply(base, params);
-            String queryParams = request
-                    .getQueryParams()
-                    .entrySet()
-                    .stream()
-                    .map(kv -> kv.getKey() + "=" + kv.getValue())
-                    .collect(joining("&"));
+            final String queryParams = String.join("&", request.getQueryParams());
             final URL url = new URL(request.getUrl() + (queryParams.isEmpty() ? "" : "?" + queryParams));
             urlConnection = HttpURLConnection.class.cast(url.openConnection());
             urlConnection.setRequestMethod(request.getMethodType());

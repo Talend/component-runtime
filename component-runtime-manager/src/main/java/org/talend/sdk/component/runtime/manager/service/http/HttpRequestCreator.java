@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service.http;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -35,7 +36,7 @@ public class HttpRequestCreator implements BiFunction<String, Object[], HttpRequ
 
     private final BiFunction<String, Object[], String> pathProvider;
 
-    private final Function<Object[], Map<String, String>> queryParamsProvider;
+    private final Function<Object[], Collection<String>> queryParamsProvider;
 
     private final Function<Object[], Map<String, String>> headersProvider;
 
