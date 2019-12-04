@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1596[TCOMP-1596^]: Windows URI are broken
 - link:https://jira.talendforge.org/browse/TCOMP-1597[TCOMP-1597^]: Httpclient does not support multi query parameters
+- link:https://jira.talendforge.org/browse/TCOMP-1598[TCOMP-1598^]: validator task uses ENGLISH locale to validate instead of root one
 
 
 

@@ -20,6 +20,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
 import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
+import java.util.Locale;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -148,6 +149,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.pluginId")
     private String pluginId;
 
+    /**
+     * Which locale to use to validate internationalization.
+     */
+    @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.locale")
+    private String locale;
+
     @Override
     public void doExecute() {
         if (!validatePlaceholder) {
@@ -173,6 +180,14 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateSvg(validateSvg);
         configuration.setValidateNoFinalOption(validateNoFinalOption);
         configuration.setPluginId(pluginId);
-        new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
+
+        final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
+        new ComponentValidator(configuration, new File[] { classes }, getLog()) {
+
+            @Override
+            protected Locale getLocale() {
+                return locale;
+            }
+        }.run();
     }
 }

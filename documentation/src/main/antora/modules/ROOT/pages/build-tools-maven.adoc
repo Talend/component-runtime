@@ -183,6 +183,7 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 |validateLocalConfiguration| Ensures that if any `TALEND-INF/local-configuration.properties` exists then keys start with the family name.|`talend.validation.localConfiguration`|true
 |validateOutputConnection| Ensures that an output has only one input branch.|`talend.validation.validateOutputConnection`|true
 |validatePlaceholder| Ensures that string options have a placeholder. It is highly recommended to turn this property on.|`talend.validation.placeholder`|false
+|locale| The locale used to validate internationalization.|`talend.validation.locale`|root
 |===
 
 === Generating the component documentation

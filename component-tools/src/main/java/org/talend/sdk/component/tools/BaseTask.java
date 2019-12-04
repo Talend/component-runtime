@@ -146,7 +146,7 @@ abstract class BaseTask implements Runnable {
     }
 
     protected Locale getLocale() {
-        return Locale.ENGLISH;
+        return Locale.ROOT;
     }
 
     public interface Component {
