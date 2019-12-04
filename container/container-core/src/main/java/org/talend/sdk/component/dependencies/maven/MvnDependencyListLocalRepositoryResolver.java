@@ -29,7 +29,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -41,6 +40,7 @@ import java.util.zip.ZipEntry;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.dependencies.Resolver;
+import org.talend.sdk.component.path.PathFactory;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -102,7 +102,7 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
     }
 
     private Path getJar(final String artifact) {
-        return of(Paths.get(artifact)).filter(Files::exists).orElseGet(() -> artifactMapper.apply(artifact));
+        return of(PathFactory.get(artifact)).filter(Files::exists).orElseGet(() -> artifactMapper.apply(artifact));
     }
 
     public Stream<Artifact> resolveFromDescriptor(final InputStream descriptor) throws IOException {

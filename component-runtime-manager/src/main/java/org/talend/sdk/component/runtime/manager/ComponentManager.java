@@ -54,7 +54,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -138,6 +137,7 @@ import org.talend.sdk.component.dependencies.EmptyResolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.jmx.JmxManager;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.impl.Mode;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
@@ -529,13 +529,14 @@ public class ComponentManager implements AutoCloseable {
 
     public static Path findM2() {
         return ofNullable(System.getProperty("talend.component.manager.m2.repository"))
-                .map(Paths::get)
+                .map(PathFactory::get)
                 .orElseGet(() -> {
                     // check if we are in the studio process if so just grab the the studio config
                     final String m2Repo = System.getProperty("maven.repository");
                     if (!"global".equals(m2Repo)) {
-                        final Path localM2 =
-                                Paths.get(System.getProperty("osgi.configuration.area", "")).resolve(".m2/repository");
+                        final Path localM2 = PathFactory
+                                .get(System.getProperty("osgi.configuration.area", ""))
+                                .resolve(".m2/repository");
                         if (java.nio.file.Files.exists(localM2)) {
                             return localM2;
                         }
@@ -571,7 +572,7 @@ public class ComponentManager implements AutoCloseable {
 
     private static Path findDefaultM2() {
         // check out settings.xml first
-        final Path settings = Paths
+        final Path settings = PathFactory
                 .get(System
                         .getProperty("talend.component.manager.m2.settings",
                                 System.getProperty("user.home") + "/.m2/settings.xml"));
@@ -588,14 +589,14 @@ public class ComponentManager implements AutoCloseable {
                     }
                 }
                 if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
-                    return Paths.get(localM2RepositoryFromSettings);
+                    return PathFactory.get(localM2RepositoryFromSettings);
                 }
             } catch (final Exception ignore) {
                 // fallback on default local path
             }
         }
 
-        return Paths.get(System.getProperty("user.home", "")).resolve(".m2/repository");
+        return PathFactory.get(System.getProperty("user.home", "")).resolve(".m2/repository");
     }
 
     private static String getIdentifiers() {
@@ -614,7 +615,7 @@ public class ComponentManager implements AutoCloseable {
     private static Path toFile(final String classFileName, final URL url) {
         String path = url.getFile();
         path = path.substring(0, path.length() - classFileName.length());
-        return Paths.get(decode(path));
+        return PathFactory.get(decode(path));
     }
 
     public void addCallerAsPlugin() {
@@ -668,7 +669,7 @@ public class ComponentManager implements AutoCloseable {
                 final int separator = spec.indexOf('!');
                 if (separator > 0) {
                     try {
-                        plugin = Paths.get(decode(new URL(spec.substring(0, separator)).getFile()));
+                        plugin = PathFactory.get(decode(new URL(spec.substring(0, separator)).getFile()));
                     } catch (final MalformedURLException e) {
                         // no-op
                     }
@@ -1510,7 +1511,7 @@ public class ComponentManager implements AutoCloseable {
                     if (path != null && path.contains(marker) && !mainPath.contains(marker)) {
                         final String mvnPath = path.substring(path.lastIndexOf(marker) + marker.length());
                         final Path asFile = ofNullable(container.getRootRepositoryLocationPath())
-                                .orElseGet(() -> Paths.get("."))
+                                .orElseGet(() -> PathFactory.get("."))
                                 .resolve(mvnPath);
                         return !Objects.equals(Files.toFile(mainUrl).toPath(), asFile);
                     }
@@ -1562,7 +1563,7 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private Archive toArchive(final String module, final String moduleId, final ConfigurableClassLoader loader) {
-            final Path file = of(Paths.get(module))
+            final Path file = of(PathFactory.get(module))
                     .filter(java.nio.file.Files::exists)
                     .orElseGet(() -> container.resolve(module));
             if (java.nio.file.Files.exists(file)) {

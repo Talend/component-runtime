@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,6 +55,7 @@ import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.jar.Jars;
 import org.talend.sdk.component.lifecycle.Lifecycle;
 import org.talend.sdk.component.lifecycle.LifecycleSupport;
+import org.talend.sdk.component.path.PathFactory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -102,7 +102,7 @@ public class ContainerManager implements Lifecycle {
         this.resolver = dependenciesResolutionConfiguration.getResolver();
         this.rootRepositoryLocation = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
                 .filter(Files::exists)
-                .orElseGet(() -> Paths.get(System.getProperty("user.home", ""), ".m2/repository"));
+                .orElseGet(() -> PathFactory.get(System.getProperty("user.home", "")).resolve(".m2/repository"));
 
         if (log.isDebugEnabled()) {
             log.debug("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
@@ -209,7 +209,7 @@ public class ContainerManager implements Lifecycle {
     }
 
     public Path resolve(final String path) {
-        final Path direct = Paths.get(path);
+        final Path direct = PathFactory.get(path);
         if (Files.exists(direct)) {
             return direct;
         }
@@ -344,7 +344,7 @@ public class ContainerManager implements Lifecycle {
     }
 
     private String getJre() {
-        return of(Paths.get(System.getProperty("java.home", "")))
+        return of(PathFactory.get(System.getProperty("java.home", "")))
                 .map(it -> it.getFileName().toString().equals("jre") && it.getParent() != null
                         && Files.exists(it.getParent().resolve("lib/tools.jar")) ? it.getParent() : it)
                 .map(it -> it.toAbsolutePath().toString())

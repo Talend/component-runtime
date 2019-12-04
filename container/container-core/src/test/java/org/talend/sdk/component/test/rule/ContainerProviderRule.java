@@ -22,7 +22,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -34,6 +33,7 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.test.Constants;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 
@@ -92,7 +92,7 @@ public class ContainerProviderRule extends TempJars implements BeforeAllCallback
                         .builder()
                         .resolver(new MvnDependencyListLocalRepositoryResolver(
                                 Constants.DEPENDENCIES_LIST_RESOURCE_PATH, this::resolve))
-                        .rootRepositoryLocation(Paths.get(Constants.DEPENDENCIES_LOCATION))
+                        .rootRepositoryLocation(PathFactory.get(Constants.DEPENDENCIES_LOCATION))
                         .create(),
                 ContainerManager.ClassLoaderConfiguration
                         .builder()

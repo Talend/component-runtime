@@ -32,7 +32,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -55,6 +54,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.server.api.DocumentationResource;
@@ -96,7 +96,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
 
     @PostConstruct
     private void init() {
-        i18nBase = Paths
+        i18nBase = PathFactory
                 .get(configuration
                         .getDocumentationI18nTranslations()
                         .replace("${home}", System.getProperty("meecrowave.home", "")));

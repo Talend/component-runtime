@@ -2,6 +2,12 @@
 
 == Version 1.1.16
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1596[TCOMP-1596^]: Windows URI are broken
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1585[TCOMP-1585^]: Upgrade netty to 4.1.43.Final

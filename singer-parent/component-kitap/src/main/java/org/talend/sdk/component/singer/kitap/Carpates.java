@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.ZonedDateTime;
@@ -32,6 +31,7 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.singer.java.SingerArgs;
 
@@ -47,7 +47,7 @@ public final class Carpates {
         EnvironmentSetup.init();
 
         final SingerArgs singerArgs = new SingerArgs(args);
-        final Path archive = Paths
+        final Path archive = PathFactory
                 .get(requireNonNull(
                         ofNullable(singerArgs.getOtherArgs().get("--component-archive"))
                                 .orElseGet(() -> System.getenv("TALEND_SINGER_COMPONENT_ARCHIVE")),
@@ -58,7 +58,7 @@ public final class Carpates {
 
         final String workDirPath = ofNullable(singerArgs.getOtherArgs().get("--work-dir"))
                 .orElseGet(() -> System.getenv("TALEND_SINGER_WORK_DIR"));
-        final Path workDir = ofNullable(workDirPath).map(Paths::get).orElseGet(() -> {
+        final Path workDir = ofNullable(workDirPath).map(PathFactory::get).orElseGet(() -> {
             try {
                 final ZonedDateTime now = ZonedDateTime.now();
                 return Files
@@ -78,7 +78,7 @@ public final class Carpates {
                 throw new IllegalStateException(e);
             }
         }
-        final Path javaBin = Paths.get(System.getProperty("java.home")).resolve("bin");
+        final Path javaBin = PathFactory.get(System.getProperty("java.home")).resolve("bin");
         final String java = Stream
                 .of("java", "java.cmd", "java.exe")
                 .map(javaBin::resolve)

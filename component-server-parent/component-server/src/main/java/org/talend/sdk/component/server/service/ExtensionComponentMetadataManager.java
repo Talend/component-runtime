@@ -26,7 +26,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,6 +47,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.extension.api.ExtensionRegistrar;
 import org.talend.sdk.component.server.extension.api.action.Action;
@@ -154,7 +154,7 @@ public class ExtensionComponentMetadataManager {
                             .getExtensionMavenRepository()
                             .orElseThrow(
                                     () -> new IllegalArgumentException("No extension maven repository configured"));
-                    final Path path = Paths.get(m2);
+                    final Path path = PathFactory.get(m2);
                     final Path jar = path
                             .resolve(groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/' + artifactId
                                     + '-' + version + ".jar");

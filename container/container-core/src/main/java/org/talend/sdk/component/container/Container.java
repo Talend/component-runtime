@@ -29,7 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +53,7 @@ import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.lang.UnsafeSupplier;
 import org.talend.sdk.component.lifecycle.Lifecycle;
 import org.talend.sdk.component.lifecycle.LifecycleSupport;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.proxy.ApiHandler;
 
 import lombok.Getter;
@@ -123,7 +123,7 @@ public class Container implements Lifecycle {
             // we use it
             // - if the nested path is in the global plugin.properties index, we use it
             final Path rootFile = of(rootModule)
-                    .map(Paths::get)
+                    .map(PathFactory::get)
                     .filter(Files::exists)
                     .orElseGet(() -> localDependencyRelativeResolver.apply(rootModule));
             final Predicate<String> resourceExists = of(rootFile)
@@ -229,7 +229,7 @@ public class Container implements Lifecycle {
     public Optional<Path> getContainerFile() {
         return Optional
                 .of(rootModule)
-                .map(m -> of(Paths.get(m))
+                .map(m -> of(PathFactory.get(m))
                         .filter(Files::exists)
                         .orElseGet(() -> localDependencyRelativeResolver.apply(m)));
     }

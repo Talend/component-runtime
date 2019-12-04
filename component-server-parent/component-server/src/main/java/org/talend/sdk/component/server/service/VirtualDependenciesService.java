@@ -37,7 +37,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
@@ -62,6 +61,7 @@ import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
@@ -104,7 +104,7 @@ public class VirtualDependenciesService {
             provisioningM2Base = findStudioM2();
             break;
         default:
-            provisioningM2Base = Paths.get(m2);
+            provisioningM2Base = PathFactory.get(m2);
         }
         log.debug("m2 provisioning base: {}", provisioningM2Base);
     }
@@ -114,7 +114,7 @@ public class VirtualDependenciesService {
             enrichmentsPerContainer.put(pluginId, noCustomization);
             return;
         }
-        final Path extensions = Paths
+        final Path extensions = PathFactory
                 .get(configuration.getUserExtensions().orElseThrow(IllegalArgumentException::new))
                 .resolve(pluginId);
         if (!Files.exists(extensions)) {
@@ -329,7 +329,7 @@ public class VirtualDependenciesService {
     // note: we don't want to provision based on our real m2, only studio one for now
     private Path findStudioM2() {
         if (System.getProperty("talend.studio.version") != null && System.getProperty("osgi.bundles") != null) {
-            final Path localM2 = Paths.get(System.getProperty("talend.component.server.maven.repository", ""));
+            final Path localM2 = PathFactory.get(System.getProperty("talend.component.server.maven.repository", ""));
             if (Files.isDirectory(localM2)) {
                 return localM2;
             }

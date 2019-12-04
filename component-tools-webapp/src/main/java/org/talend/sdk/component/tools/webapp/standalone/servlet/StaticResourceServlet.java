@@ -25,7 +25,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -45,6 +44,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.tools.webapp.standalone.Route;
 
 // just a plain servlet + jsonb, enables to use graalvm to native-compile it easily or
@@ -86,13 +86,13 @@ public class StaticResourceServlet extends HttpServlet {
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }
-        repository = Paths
+        repository = PathFactory
                 .get(requireNonNull(System.getProperty("talend.component.server.static.repository"),
                         "missing -Dtalend.component.server.static.repository value"));
     }
 
     private InputStream findRoutes() {
-        return ofNullable(System.getProperty("talend.component.server.static.routes")).map(Paths::get).map(it -> {
+        return ofNullable(System.getProperty("talend.component.server.static.routes")).map(PathFactory::get).map(it -> {
             try {
                 return Files.newInputStream(it);
             } catch (final IOException e) {

@@ -35,7 +35,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,6 +49,7 @@ import org.asciidoctor.AttributesBuilder;
 import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.SafeMode;
 import org.asciidoctor.jruby.internal.JRubyAsciidoctor;
+import org.talend.sdk.component.path.PathFactory;
 
 // indirection to not load asciidoctor if not in the classpath
 public class AsciidoctorExecutor implements AutoCloseable {
@@ -83,7 +83,7 @@ public class AsciidoctorExecutor implements AutoCloseable {
     }
 
     public void doMain(final String[] args) throws IOException {
-        final Path adoc = Paths.get(args[0]).toAbsolutePath();
+        final Path adoc = PathFactory.get(args[0]).toAbsolutePath();
         final File output =
                 adoc.getParent().resolve(args.length > 1 ? args[1] : args[0].replace(".adoc", ".pdf")).toFile();
         final List<String> lines = Files.lines(adoc).collect(toList());

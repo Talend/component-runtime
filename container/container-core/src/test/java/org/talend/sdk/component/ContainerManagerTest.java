@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -35,6 +34,7 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.test.Constants;
 import org.talend.sdk.component.test.rule.TempJars;
 
@@ -138,7 +138,7 @@ class ContainerManagerTest {
                 .builder()
                 .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH,
                         d -> null))
-                .rootRepositoryLocation(Paths.get(Constants.DEPENDENCIES_LOCATION))
+                .rootRepositoryLocation(PathFactory.get(Constants.DEPENDENCIES_LOCATION))
                 .create(), ContainerManager.ClassLoaderConfiguration.builder().create(), null, Level.INFO);
     }
 }

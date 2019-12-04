@@ -33,7 +33,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -69,6 +68,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.talend.sdk.component.maven.api.Audience;
+import org.talend.sdk.component.path.PathFactory;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -165,7 +165,7 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
             }
         };
 
-        final Path root = mkdirs(Paths.get(output));
+        final Path root = mkdirs(PathFactory.get(output));
         if (cleanBeforeGeneration) {
             try {
                 deleteFolder(root);
@@ -201,7 +201,7 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
                 .orElse(server);
 
         final Path gitCloneBase =
-                mkdirs(Paths.get(project.getBuild().getDirectory()).resolve(UUID.randomUUID().toString()));
+                mkdirs(PathFactory.get(project.getBuild().getDirectory()).resolve(UUID.randomUUID().toString()));
         final UsernamePasswordCredentialsProvider credentialsProvider =
                 new UsernamePasswordCredentialsProvider(decryptedServer.getUsername(), decryptedServer.getPassword());
         try (final Git git = Git
@@ -287,8 +287,9 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
             }, mustacheFactory, "default-index");
         }
         if (!Files.exists(dir.resolve("documentation.html"))) {
-            final Path doc =
-                    Paths.get(project.project.getBuild().getOutputDirectory()).resolve("TALEND-INF/documentation.adoc");
+            final Path doc = PathFactory
+                    .get(project.project.getBuild().getOutputDirectory())
+                    .resolve("TALEND-INF/documentation.adoc");
             if (Files.exists(doc)) {
                 asciidoc2Html(doc, dir.resolve("documentation.html"), mustacheFactory);
             } else {
@@ -424,7 +425,7 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
 
     private static Path toCarPath(final MavenProject project) {
         // default, see CarMojo
-        return Paths.get(project.getBuild().getDirectory()).resolve(project.getBuild().getFinalName() + ".car");
+        return PathFactory.get(project.getBuild().getDirectory()).resolve(project.getBuild().getFinalName() + ".car");
     }
 
     @Getter

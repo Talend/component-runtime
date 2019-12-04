@@ -20,7 +20,6 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +29,7 @@ import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
 import com.google.cloud.tools.jib.docker.DockerClient;
 
 import org.talend.sdk.component.remoteengine.customizer.lang.IO;
+import org.talend.sdk.component.remoteengine.customizer.lang.PathFactory;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
@@ -50,7 +50,7 @@ public class DockerConfiguration {
     public DockerDaemonImage toImage(final String toConnectorsImage) throws InvalidImageReferenceException {
         final DockerDaemonImage docker = DockerDaemonImage.named(toConnectorsImage);
         environment().ifPresent(docker::setDockerEnvironment);
-        ofNullable(path).ifPresent(p -> docker.setDockerExecutable(Paths.get(p)));
+        ofNullable(path).ifPresent(p -> docker.setDockerExecutable(PathFactory.get(p)));
         return docker;
     }
 
@@ -63,7 +63,7 @@ public class DockerConfiguration {
 
     public DockerClient toClient() {
         return new DockerClient(
-                ofNullable(path).map(Paths::get).filter(Files::exists).orElse(DockerClient.DEFAULT_DOCKER_CLIENT),
+                ofNullable(path).map(PathFactory::get).filter(Files::exists).orElse(DockerClient.DEFAULT_DOCKER_CLIENT),
                 environment().orElseGet(Collections::emptyMap));
     }
 }

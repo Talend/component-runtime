@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +54,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.talend.sdk.component.maven.api.Audience;
 import org.talend.sdk.component.maven.docker.JibHelper;
+import org.talend.sdk.component.path.PathFactory;
 
 @Audience(TALEND_INTERNAL)
 @Mojo(name = "singer", defaultPhase = PACKAGE, threadSafe = true, requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
@@ -164,7 +164,8 @@ public class SingerMojo extends AudienceAwareMojo {
 
         // 1. add the kitapp "main" + workdir (1 layer)
         final Path main = findMain();
-        final Path fakeWorkDir = Paths.get(project.getBuild().getDirectory()).resolve("component_mojo_singer_work");
+        final Path fakeWorkDir =
+                PathFactory.get(project.getBuild().getDirectory()).resolve("component_mojo_singer_work");
         if (!Files.exists(fakeWorkDir)) {
             try {
                 Files.createDirectories(fakeWorkDir);

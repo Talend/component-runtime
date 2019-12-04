@@ -30,7 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
@@ -76,6 +75,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.talend.sdk.component.remoteengine.customizer.Versions;
 import org.talend.sdk.component.remoteengine.customizer.lang.Hex;
 import org.talend.sdk.component.remoteengine.customizer.lang.IO;
+import org.talend.sdk.component.remoteengine.customizer.lang.PathFactory;
 import org.talend.sdk.component.remoteengine.customizer.model.DockerConfiguration;
 import org.talend.sdk.component.remoteengine.customizer.model.ImageType;
 import org.talend.sdk.component.remoteengine.customizer.model.RegistryConfiguration;
@@ -94,12 +94,13 @@ public class RemoteEngineCustomizer {
             final DockerConfiguration dockerConfiguration, final RegistryConfiguration registryConfiguration,
             final ConnectorLoader connectorLoader, final boolean updateOriginalFile) {
         // CHECKSTYLE:ON
-        final Path remoteEngineDir = Paths.get(requireNonNull(remoteEngineDirConf, "Missing remote engine folder"));
-        final Path workDir = Paths.get(workDirConf);
+        final Path remoteEngineDir =
+                PathFactory.get(requireNonNull(remoteEngineDirConf, "Missing remote engine folder"));
+        final Path workDir = PathFactory.get(workDirConf);
         final Path cacheDir = cacheDirConf.startsWith("${remote.engine.dir}/")
                 ? remoteEngineDir.resolve(cacheDirConf.substring("${remote.engine.dir}/".length()))
-                : Paths.get(cacheDirConf);
-        final Collection<Path> cars = carPaths.stream().map(Paths::get).collect(toList());
+                : PathFactory.get(cacheDirConf);
+        final Collection<Path> cars = carPaths.stream().map(PathFactory::get).collect(toList());
         final List<Path> missingCars = cars.stream().filter(it -> !Files.exists(it)).collect(toList());
         if (!missingCars.isEmpty()) {
             throw new IllegalArgumentException("Missing component archives: " + missingCars);

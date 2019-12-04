@@ -27,7 +27,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,6 +55,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.meecrowave.openwebbeans.MeecrowaveLoaderService;
 import org.apache.webbeans.spi.LoaderService;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.server.api.ActionResource;
 import org.talend.sdk.component.server.api.ComponentResource;
 import org.talend.sdk.component.server.api.ConfigurationTypeResource;
@@ -91,9 +91,9 @@ public class StaticResourceGenerator implements Runnable {
     private final boolean skipDependencies;
 
     public StaticResourceGenerator(final String[] args) {
-        this(emptyMap(), Paths.get(args[0]).resolve("repository"), Paths.get(args[0]).resolve("routes.json"),
-                Stream.of(args[1].split(",")).collect(toList()), OutputFormatter.JSON,
-                args.length >= 3 && Boolean.parseBoolean(args[2]));
+        this(emptyMap(), PathFactory.get(args[0]).resolve("repository"),
+                PathFactory.get(args[0]).resolve("routes.json"), Stream.of(args[1].split(",")).collect(toList()),
+                OutputFormatter.JSON, args.length >= 3 && Boolean.parseBoolean(args[2]));
     }
 
     @Override

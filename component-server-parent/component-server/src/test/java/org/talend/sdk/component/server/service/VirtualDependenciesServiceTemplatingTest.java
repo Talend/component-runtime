@@ -18,13 +18,13 @@ package org.talend.sdk.component.server.service;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.talend.sdk.component.dependencies.maven.Artifact;
+import org.talend.sdk.component.path.PathFactory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -38,7 +38,7 @@ class VirtualDependenciesServiceTemplatingTest {
         assertEquals(config.expected,
                 new VirtualDependenciesService()
                         .replaceByGav("Foo Plugin", config.input,
-                                singletonMap(new Artifact("foo", "bar", "jar", "", "any", "test"), Paths
+                                singletonMap(new Artifact("foo", "bar", "jar", "", "any", "test"), PathFactory
                                         .get(System.getProperty("talend.component.server.user.extensions.location"))
                                         .resolve("component-with-user-jars/bar.ajr"))));
     }

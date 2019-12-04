@@ -19,10 +19,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
+
+import org.talend.sdk.component.path.PathFactory;
 
 @ApplicationScoped
 public class GlobService {
@@ -40,7 +41,7 @@ public class GlobService {
                 folder = prefix;
                 filePrefix = "";
             }
-            return Stream.of(Paths.get(folder)).filter(Files::exists).flatMap(it -> {
+            return Stream.of(PathFactory.get(folder)).filter(Files::exists).flatMap(it -> {
                 try {
                     return Files.list(it).filter(file -> {
                         final String name = file.getFileName().toString();
@@ -51,6 +52,6 @@ public class GlobService {
                 }
             }).filter(Files::exists);
         }
-        return Stream.of(Paths.get(path));
+        return Stream.of(PathFactory.get(path));
     }
 }

@@ -121,7 +121,7 @@ public class SingerArgs {
     }
 
     private JsonObject readObject(final JsonReaderFactory factory, final String path) {
-        final Path source = Paths.get(path);
+        final Path source = get(path);
         if (!Files.exists(source)) {
             throw new IllegalArgumentException("No file available at '" + source + "'");
         }
@@ -130,5 +130,13 @@ public class SingerArgs {
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private static Path get(final String path) {
+        String p = path;
+        if (p.startsWith("/") && p.indexOf(':') == 2) { // windows
+            p = p.substring(1);
+        }
+        return Paths.get(p);
     }
 }

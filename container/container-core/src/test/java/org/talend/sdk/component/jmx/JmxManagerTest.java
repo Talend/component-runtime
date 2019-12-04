@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.logging.Level;
 
@@ -32,6 +31,7 @@ import javax.management.ObjectName;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.test.Constants;
 
 class JmxManagerTest {
@@ -47,7 +47,7 @@ class JmxManagerTest {
                                 .builder()
                                 .resolver(new MvnDependencyListLocalRepositoryResolver(
                                         Constants.DEPENDENCIES_LIST_RESOURCE_PATH, d -> null))
-                                .rootRepositoryLocation(Paths.get(Constants.DEPENDENCIES_LOCATION))
+                                .rootRepositoryLocation(PathFactory.get(Constants.DEPENDENCIES_LOCATION))
                                 .create(),
                         ContainerManager.ClassLoaderConfiguration.builder().create(), null, Level.INFO);
         containerManager.registerListener(jmxManager);

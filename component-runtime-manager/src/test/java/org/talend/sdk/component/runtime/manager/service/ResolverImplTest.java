@@ -30,7 +30,6 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.UUID;
@@ -41,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.path.PathFactory;
 
 class ResolverImplTest {
 
@@ -64,7 +64,7 @@ class ResolverImplTest {
                 it -> true, it -> false, new String[0], new String[0]);
         thread.setContextClassLoader(componentLoader);
         try (final Resolver.ClassLoaderDescriptor desc =
-                new ResolverImpl(null, coord -> Paths.get("maven2").resolve(coord))
+                new ResolverImpl(null, coord -> PathFactory.get("maven2").resolve(coord))
                         .mapDescriptorToClassLoader(singletonList(dep))) {
             assertNotNull(desc);
             assertNotNull(desc.asClassLoader());
@@ -89,8 +89,8 @@ class ResolverImplTest {
         try (final InputStream stream =
                 new ByteArrayInputStream("The following files have been resolved:\njunit:junit:jar:4.12:compile"
                         .getBytes(StandardCharsets.UTF_8))) {
-            final Collection<File> deps =
-                    new ResolverImpl(null, coord -> Paths.get("maven2").resolve(coord)).resolveFromDescriptor(stream);
+            final Collection<File> deps = new ResolverImpl(null, coord -> PathFactory.get("maven2").resolve(coord))
+                    .resolveFromDescriptor(stream);
             assertEquals(1, deps.size());
             assertEquals("maven2" + File.separator + "junit" + File.separator + "junit" + File.separator + "4.12"
                     + File.separator + "junit-4.12.jar", deps.iterator().next().getPath());

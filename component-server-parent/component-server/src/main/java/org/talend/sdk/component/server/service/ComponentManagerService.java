@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +50,7 @@ import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.design.extension.repository.Config;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -126,7 +126,7 @@ public class ComponentManagerService {
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         final Path m2 = configuration
                 .getMavenRepository()
-                .map(Paths::get)
+                .map(PathFactory::get)
                 .filter(Files::exists)
                 .orElseGet(ComponentManager::findM2);
         log.info("Using maven repository: '{}'", m2);

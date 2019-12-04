@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +44,7 @@ import javax.json.bind.JsonbBuilder;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.tools.webapp.standalone.Route;
@@ -69,7 +69,7 @@ public class StaticUiSpecGenerator implements Runnable {
     private final Path output;
 
     public StaticUiSpecGenerator(final String[] args) {
-        this(emptyMap(), Stream.of(args[1].split(",")).collect(toList()), Paths.get(args[0]));
+        this(emptyMap(), Stream.of(args[1].split(",")).collect(toList()), PathFactory.get(args[0]));
     }
 
     @Override
