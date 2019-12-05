@@ -74,6 +74,7 @@ import org.talend.sdk.component.runtime.manager.service.http.codec.JsonpDecoder;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JsonpEncoder;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 public class RequestParser {
@@ -370,6 +371,8 @@ public class RequestParser {
         private final boolean encode;
     }
 
+    @Data
+    @EqualsAndHashCode(callSuper = true)
     private static class QueryEncodable extends Encodable {
 
         private final QueryFormat format;
@@ -389,42 +392,46 @@ public class RequestParser {
 
             return queries.entrySet().stream().flatMap(entry -> {
                 if (entry.getValue().getName().isEmpty()) {
-                    final Map<String, String> queryParams =
-                            args[entry.getKey()] == null ? emptyMap() : (Map) args[entry.getKey()];
+                    final Map<String, ?> queryParams =
+                            args[entry.getKey()] == null ? emptyMap() : Map.class.cast(args[entry.getKey()]);
                     if (entry.getValue().isEncode()) {
                         return queryParams
                                 .entrySet()
                                 .stream()
                                 .filter(q -> q.getValue() != null)
-                                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), queryEncode(e.getValue())));
+                                .flatMap(it -> mapValues(entry.getValue(), it.getKey(), it.getValue()));
                     }
                     return queryParams.entrySet().stream();
                 }
-                return ofNullable(args[entry.getKey()]).map(v -> {
-                    if (Collection.class.isInstance(v)) {
-                        final Stream<String> collection = ((Collection<?>) v)
-                                .stream()
-                                .filter(Objects::nonNull)
-                                .map(String::valueOf)
-                                .map(q -> entry.getValue().isEncode() ? queryEncode(q) : q);
-                        switch (entry.getValue().format) {
-                        case MULTI:
-                            return collection.map(q -> new AbstractMap.SimpleEntry<>(entry.getValue().getName(), q));
-                        case CSV:
-                            return of(new AbstractMap.SimpleEntry<>(entry.getValue().getName(),
-                                    String.join(",", collection.collect(toList()))));
-                        default:
-                            throw new IllegalArgumentException("Unsupported formatting: " + entry.getValue());
-                        }
-                    }
-
-                    String value = String.valueOf(v);
-                    if (entry.getValue().isEncode()) {
-                        value = queryEncode(value);
-                    }
-                    return of(new AbstractMap.SimpleEntry<>(entry.getValue().getName(), value));
-                }).orElse(null);
+                return ofNullable(args[entry.getKey()])
+                        .map(v -> mapValues(entry.getValue(), entry.getValue().getName(), v))
+                        .orElse(null);
             }).filter(Objects::nonNull).map(kv -> kv.getKey() + "=" + kv.getValue()).collect(toList());
+        }
+
+        private Stream<AbstractMap.SimpleEntry<String, String>> mapValues(final QueryEncodable config, final String key,
+                final Object v) {
+            if (Collection.class.isInstance(v)) {
+                final Stream<String> collection = ((Collection<?>) v)
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .map(String::valueOf)
+                        .map(q -> config.isEncode() ? queryEncode(q) : q);
+                switch (config.format) {
+                case MULTI:
+                    return collection.map(q -> new AbstractMap.SimpleEntry<>(key, q));
+                case CSV:
+                    return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.collect(toList()))));
+                default:
+                    throw new IllegalArgumentException("Unsupported formatting: " + config);
+                }
+            }
+
+            String value = String.valueOf(v);
+            if (config.isEncode()) {
+                value = queryEncode(value);
+            }
+            return of(new AbstractMap.SimpleEntry<>(key, value));
         }
     }
 

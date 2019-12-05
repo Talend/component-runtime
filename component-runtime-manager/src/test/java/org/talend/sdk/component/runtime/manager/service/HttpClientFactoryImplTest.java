@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager.service;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -90,6 +91,14 @@ class HttpClientFactoryImplTest {
             }
             {
                 final String result = client.multi(values);
+                assertTrue(result.contains("@/?multip=0&multip=a+b&multip=c/d@"), result);
+            }
+            {
+                final String result = client.csvs(singletonMap("multip", values));
+                assertTrue(result.contains("@/?multip=0,a+b,c/d@"), result);
+            }
+            {
+                final String result = client.multis(singletonMap("multip", values));
                 assertTrue(result.contains("@/?multip=0&multip=a+b&multip=c/d@"), result);
             }
         } finally {
@@ -522,6 +531,12 @@ class HttpClientFactoryImplTest {
 
         @Request
         String multi(@Query(value = "multip", format = MULTI) final List<String> values);
+
+        @Request
+        String csvs(@QueryParams final Map<String, List<String>> values);
+
+        @Request
+        String multis(@QueryParams(format = MULTI) final Map<String, List<String>> values);
     }
 
     public interface OAuth1Client extends HttpClient {
