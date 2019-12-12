@@ -199,7 +199,7 @@
     <spark.version>2.4.4</spark.version>
     <spark-scala.version>2.11</spark-scala.version>
 
-    <groovy.version>3.0.0-rc-1</groovy.version>
+    <groovy.version>3.0.0-rc-2</groovy.version>
     <gmavenplus.version>1.8.0</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <javadoc-plugin.version>3.1.0</javadoc-plugin.version>
