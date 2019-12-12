@@ -22,6 +22,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1593[TCOMP-1593^]: Update to OpenWebBeans 2.0.13
 - link:https://jira.talendforge.org/browse/TCOMP-1595[TCOMP-1595^]: Infinite partitionmapper shouldn't require assesor
 - link:https://jira.talendforge.org/browse/TCOMP-1599[TCOMP-1599^]: More unsafe usage tolerance on JVM versions
+- link:https://jira.talendforge.org/browse/TCOMP-1600[TCOMP-1600^]: Upgrade to Tomcat 9.0.30
 
 == Version 1.1.15
 
