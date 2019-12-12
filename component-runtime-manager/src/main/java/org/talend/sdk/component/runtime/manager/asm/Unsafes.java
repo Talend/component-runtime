@@ -16,38 +16,49 @@
 package org.talend.sdk.component.runtime.manager.asm;
 
 import static java.util.Objects.requireNonNull;
+import static lombok.AccessLevel.PRIVATE;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 
-public class Unsafes {
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = PRIVATE)
+public final class Unsafes {
 
     private static final Object UNSAFE;
+
+    private static final Object INTERNAL_UNSAFE;
 
     private static final Method UNSAFE_DEFINE_CLASS;
 
     static {
         Class<?> unsafeClass;
         try {
-            unsafeClass = AccessController.doPrivileged((PrivilegedAction<Class<?>>) () -> {
-                try {
-                    return Thread.currentThread().getContextClassLoader().loadClass("sun.misc.Unsafe");
-                } catch (final Exception e) {
-                    try {
-                        return ClassLoader.getSystemClassLoader().loadClass("sun.misc.Unsafe");
-                    } catch (ClassNotFoundException e1) {
-                        throw new IllegalStateException("Cannot get sun.misc.Unsafe", e);
-                    }
-                }
-            });
+            unsafeClass = AccessController
+                    .doPrivileged((PrivilegedAction<Class<?>>) () -> Stream
+                            .of(Thread.currentThread().getContextClassLoader(), ClassLoader.getSystemClassLoader())
+                            .flatMap(classloader -> Stream
+                                    .of("sun.misc.Unsafe", "jdk.internal.misc.Unsafe")
+                                    .flatMap(name -> {
+                                        try {
+                                            return Stream.of(classloader.loadClass(name));
+                                        } catch (final ClassNotFoundException e) {
+                                            return Stream.empty();
+                                        }
+                                    }))
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalStateException("Cannot get Unsafe")));
         } catch (final Exception e) {
-            throw new IllegalStateException("Cannot get sun.misc.Unsafe class", e);
+            throw new IllegalStateException("Cannot get Unsafe class", e);
         }
 
         UNSAFE = AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
@@ -59,17 +70,66 @@ public class Unsafes {
                 throw new IllegalStateException(e);
             }
         });
+        INTERNAL_UNSAFE = AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            try { // j11, unwrap unsafe, it owns defineClass now and no more theUnsafe
+                final Field theInternalUnsafe = unsafeClass.getDeclaredField("theInternalUnsafe");
+                theInternalUnsafe.setAccessible(true);
+                return theInternalUnsafe.get(null).getClass();
+            } catch (final Exception notJ11OrMore) {
+                return UNSAFE;
+            }
+        });
 
         if (UNSAFE != null) {
             UNSAFE_DEFINE_CLASS = AccessController.doPrivileged((PrivilegedAction<Method>) () -> {
                 try {
-                    return unsafeClass
+                    return INTERNAL_UNSAFE
+                            .getClass()
                             .getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class,
                                     ClassLoader.class, ProtectionDomain.class);
                 } catch (final Exception e) {
                     return null;
                 }
             });
+
+            try {
+                final Class<?> rootLoaderClass = Class.forName("java.lang.ClassLoader");
+                rootLoaderClass
+                        .getDeclaredMethod("defineClass",
+                                new Class[] { String.class, byte[].class, int.class, int.class })
+                        .setAccessible(true);
+                rootLoaderClass
+                        .getDeclaredMethod("defineClass",
+                                new Class[] { String.class, byte[].class, int.class, int.class,
+                                        ProtectionDomain.class })
+                        .setAccessible(true);
+            } catch (final Exception e) {
+                try { // some j>8, since we have unsafe let's use it
+                    final Class<?> rootLoaderClass = Class.forName("java.lang.ClassLoader");
+                    final Method objectFieldOffset =
+                            UNSAFE.getClass().getDeclaredMethod("objectFieldOffset", Field.class);
+                    final Method putBoolean =
+                            UNSAFE.getClass().getDeclaredMethod("putBoolean", Object.class, long.class, boolean.class);
+                    objectFieldOffset.setAccessible(true);
+                    final long accOffset = Long.class
+                            .cast(objectFieldOffset
+                                    .invoke(UNSAFE, AccessibleObject.class.getDeclaredField("override")));
+                    putBoolean
+                            .invoke(UNSAFE,
+                                    rootLoaderClass
+                                            .getDeclaredMethod("defineClass",
+                                                    new Class[] { String.class, byte[].class, int.class, int.class }),
+                                    accOffset, true);
+                    putBoolean
+                            .invoke(UNSAFE,
+                                    rootLoaderClass
+                                            .getDeclaredMethod("defineClass", new Class[] { String.class, byte[].class,
+                                                    int.class, int.class, ProtectionDomain.class }),
+                                    accOffset, true);
+                } catch (final Exception ex) {
+                    // no-op: no more supported by the JVM
+                }
+            }
         } else {
             UNSAFE_DEFINE_CLASS = null;
         }
