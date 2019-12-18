@@ -15,18 +15,22 @@
  */
 package org.talend.sdk.component.runtime.beam;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.apache.beam.sdk.annotations.Experimental.Kind.SOURCE_SINK;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
 
 import org.apache.beam.sdk.annotations.Experimental;
 import org.apache.beam.sdk.coders.Coder;
+import org.apache.beam.sdk.io.BoundedReadFromUnboundedSource;
 import org.apache.beam.sdk.io.BoundedSource;
 import org.apache.beam.sdk.io.UnboundedSource;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -37,6 +41,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.PInput;
 import org.apache.beam.sdk.values.POutput;
+import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
@@ -58,7 +63,30 @@ import lombok.NoArgsConstructor;
 public final class TalendIO {
 
     public static Base<PBegin, PCollection<Record>, Mapper> read(final Mapper mapper) {
-        return mapper.isStream() ? new InfiniteRead(mapper) : new Read(mapper);
+        return read(mapper, emptyMap());
+    }
+
+    public static Base<PBegin, PCollection<Record>, Mapper> read(final Mapper mapper,
+            final Map<String, String> mapperConfiguration) {
+        if (mapper.isStream()) {
+            if (mapperConfiguration != null) {
+                final String maxRecords = mapperConfiguration.get("maxRecords");
+                final String maxDurationMs = mapperConfiguration.get("maxDurationMs");
+                if (mapperConfiguration
+                        .keySet()
+                        .stream()
+                        .anyMatch(it -> Stream.of("maxRecords", "maxDurationMs").noneMatch(k -> k.equals(it)))) {
+                    throw new IllegalArgumentException("Unsupported configuration: " + mapperConfiguration);
+                }
+                return new InfiniteRead(mapper, maxRecords == null ? -1 : Long.parseLong(maxRecords.trim()),
+                        maxDurationMs == null ? -1 : Long.parseLong(maxDurationMs.trim()));
+            }
+            return new InfiniteRead(mapper, -1, -1);
+        }
+        if (!mapperConfiguration.isEmpty()) {
+            throw new IllegalArgumentException("Unsupported configuration: " + mapperConfiguration);
+        }
+        return new Read(mapper);
     }
 
     public static Write write(final Processor output) {
@@ -113,13 +141,33 @@ public final class TalendIO {
 
     private static class InfiniteRead extends Base<PBegin, PCollection<Record>, Mapper> {
 
-        private InfiniteRead(final Mapper delegate) {
+        private final long maxRecords;
+
+        private final long maxDurationMs;
+
+        private InfiniteRead(final Mapper delegate, final long maxRecords, final long maxDurationMs) {
             super(delegate);
+            this.maxRecords = maxRecords;
+            this.maxDurationMs = maxDurationMs;
         }
 
         @Override
         public PCollection<Record> expand(final PBegin incoming) {
-            return incoming.apply(org.apache.beam.sdk.io.Read.from(new UnBoundedSourceImpl(delegate)));
+            PTransform<PBegin, PCollection<Record>> unbounded =
+                    org.apache.beam.sdk.io.Read.from(new UnBoundedSourceImpl(delegate));
+            if (maxRecords > 0) {
+                unbounded = ((org.apache.beam.sdk.io.Read.Unbounded<Record>) unbounded).withMaxNumRecords(maxRecords);
+            }
+            if (maxDurationMs > 0) {
+                if (UnboundedSource.class.isInstance(unbounded)) {
+                    unbounded = ((org.apache.beam.sdk.io.Read.Unbounded<Record>) unbounded)
+                            .withMaxReadTime(Duration.millis(maxDurationMs));
+                } else { // maxrecords set
+                    unbounded = ((BoundedReadFromUnboundedSource<Record>) unbounded)
+                            .withMaxReadTime(Duration.millis(maxDurationMs));
+                }
+            }
+            return incoming.apply(unbounded);
         }
     }
 
@@ -254,6 +302,22 @@ public final class TalendIO {
         @Override
         public Coder<CheckpointMark> getCheckpointMarkCoder() {
             return new NoCheckpointCoder();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            return mapper.equals(UnBoundedSourceImpl.class.cast(o).mapper);
+        }
+
+        @Override
+        public int hashCode() {
+            return mapper.hashCode();
         }
     }
 
