@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.apache.commons.net.util.SubnetUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 
@@ -46,6 +47,11 @@ public class SecurityFilter implements Filter {
     @ConfigProperty(name = "talend.vault.cache.security.allowedIps",
             defaultValue = "localhost,127.0.0.1,0:0:0:0:0:0:0:1")
     private List<String> allowedIp;
+
+    @Inject
+    @Documentation("The subnet allowed to call that server on `/api/*` if no token is passed.")
+    @ConfigProperty(name = "talend.vault.cache.security.allowedSubnet")
+    private List<String> allowedSubnet;
 
     @Inject
     @Documentation("The tokens enabling a client to call this server without being in `allowedIp` whitelist.")
@@ -86,8 +92,21 @@ public class SecurityFilter implements Filter {
 
     // cheap security
     private boolean isAllowed(final HttpServletRequest request) {
-        return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(sanitizeHost(request.getRemoteHost()));
+        return allowedIp.contains(request.getRemoteAddr()) || allowedIp.contains(sanitizeHost(request.getRemoteHost()))
+                || isInSubnet(request);
     }
+
+    private boolean isInSubnet(final HttpServletRequest request) {
+
+        for (String subnet : allowedSubnet) {
+            SubnetUtils utils = new SubnetUtils(subnet);
+            if (utils.getInfo().isInRange(request.getRemoteAddr())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private String sanitizeHost(final String remoteHost) {
         switch (sanitization) {
