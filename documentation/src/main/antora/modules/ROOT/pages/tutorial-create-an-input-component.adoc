@@ -1,37 +1,30 @@
-= Talend Input component for Hazelcat
+= Talend Input component for Hazelcast
 :page-partial:
 :description: Example of input component implementation with Talend Component Kit
 :keywords: tutorial, example, partition mapper, producer, source, hazelcast, distributed
 
 [[tutorial-create-an-input-component2]]
-In this tutorial, we will walk through the creation of a complete Talend input component from scratch for hazelcast using
-Talend Component Framework that we will reference in this tutorial as *TCK*.
+This tutorial walks you through the creation, from scratch, of a complete Talend input component for Hazelcast using the *Talend Component Kit (TCK)* framework.
 
-We will create an input component for hazelcast. Hazelcast will be a prefect example to show how to create an input component
-for distributed systems. Hazelcast is an in-memory distributed data grid. You can read more about it here https://hazelcast.org/ but all what you
-will need to know to follow this tutorial is that hazelcast is a distributed system that can store data.
-____
-So, Let's start by creating the component project.
-____
-== Project creation
-TCK project is a simple java project with some specific configuration and dependencies. You can choose your
-preferred build tool from *Maven* or *Gradle* as TCK supports both of them. *But, in this tutorial, we will use maven.*
+Hazelcast is an in-memory distributed system that can store data, which makes it a good example of input component for distributed systems. This is enough for you to get started with this tutorial, but you can find more information about it here: https://hazelcast.org/. 
 
-Let's generate the project structure using *Talend Starter TOOLKIT* .
+== Creating the project
+A *TCK* project is a simple Java project with specific configurations and dependencies. You can choose your preferred build tool from *Maven* or *Gradle* as TCK supports both. *In this tutorial, Maven is used.*
 
-For that, please go to https://starter-toolkit.talend.io/ and fill in the project information as shown
-in the screen capture bellow, then click finish and click *download as a zip*
+The first step consists in generating the project structure using *Talend Starter Toolkit* .
 
-image::tutorial_hazelcast_generateproject_1.png[]
-image::tutorial_hazelcast_generateproject_2.png[]
-
-Extract the zip file into your workspace and import it to your preferred IDE. We will use Intellij IDE, but you can use Eclipse
-or any other IDE that you are comfortable with.
-
-NOTE: You can use the *starter toolkit* to design the full configuration of the component, but in this tutorial we will do that
-manually to explain some concepts of TCK.
-
-Let's explore the generated `pom.xml` file:
+. Go to https://starter-toolkit.talend.io/ and fill in the project information as shown
+in the screenshots below, then click *Finish* and *Download as ZIP*. +
++
+image::tutorial_hazelcast_generateproject_1.png[] +
+image::tutorial_hazelcast_generateproject_2.png[] +
++
+. Extract the ZIP file into your workspace and import it to your preferred IDE. This tutorial uses Intellij IDE, but you can use Eclipse or any other IDE that you are comfortable with.
++
+NOTE: You can use the *Starter Toolkit* to define the full configuration of the component, but in this tutorial some parts are configured manually to explain key concepts of TCK.
++
+The generated `pom.xml` file of the project looks as follows: +
++
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
@@ -56,12 +49,12 @@ Let's explore the generated `pom.xml` file:
     <!--
     Set it to true if you want the documentation to be rendered as HTML and PDF
 
-    You can also use it on the command line: -Dtalend.documentation.htmlAndPdf=true
+    You can also use it in the command line: -Dtalend.documentation.htmlAndPdf=true
     -->
     <talend.documentation.htmlAndPdf>false</talend.documentation.htmlAndPdf>
 
     <!--
-    if you want to deploy into the studio you can use the related goal:
+    if you want to deploy into the Studio you can use the related goal:
 
     mvn package talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
 
@@ -117,19 +110,23 @@ Let's explore the generated `pom.xml` file:
   </build>
 </project>
 ----
-Change the `name` tag to a more relevant one, for example *<name>Component Hazelcast</name>*
++
+. Change the `name` tag to a more relevant value, for example: *<name>Component Hazelcast</name>*.
 
-- `component-api` dependency provides us with the necessary API to develop the components.
-- `talend-component-maven-plugin` provides building and validation tools for the components development.
+- The `component-api` dependency provides the necessary API to develop the components.
+- `talend-component-maven-plugin` provides build and validation tools for the component development. +
++
+The Java compiler also needs a Talend specific configuration for the components to work correctly.
+The most important is the *-parameters* option that preserves the parameter names needed for introspection features that TCK relies on.
 
-Also the java compiler needs some Talend specific configuration for the components to work correctly.
-The most important is the option *-parameters* that preserve the parameters name needed for some introspection feature that TCK rely on.
-
-Let's download the mvn dependencies declared in the `pom.xml` file.
+. Download the mvn dependencies declared in the `pom.xml` file: +
++
 ```
 $ mvn clean compile
-```
-You should get a BUILD SUCCESS at this point as shown bellow.
+``` 
++
+You should get a `BUILD SUCCESS` at this point: +
++
 ```
 [INFO] Scanning for projects...
 [INFO]
@@ -148,32 +145,33 @@ You should get a BUILD SUCCESS at this point as shown bellow.
 [INFO] Finished at: 2019-09-03T11:42:41+02:00
 [INFO] ------------------------------------------------------------------------
 ```
-Now, let's create the project structure. For that, create the following folder structure as the following:
-
++
+. Create the project structure:
++
 ```
 $ mkdir -p src/main/java
 $ mkdir -p src/main/resources
 ```
-And then, let's create the component java packages.
-
-IMPORTANT: The Package are mandatory in the component model and you can't use the default one (no package).
-It's recommended to create unique package by component to be able to reuse them as dependencies in other component
-for example or to guarantee an isolation while writing unit tests.
-
++
+. Create the component Java packages.
++
+IMPORTANT: Packages are mandatory in the component model and you cannot use the default one (no package).
+It is recommended to create a unique package per component to be able to reuse it as dependency in other components, for example to guarantee isolation while writing unit tests.
++
 ```
 $ mkdir -p src/main/java/org/talend/components/hazelcast
 $ mkdir -p src/main/resources/org/talend/components/hazelcast
 ```
-____
-Now, the project is correctly setup, let's continue by registering the component family and setting up
-some i18n properties
-____
-== Registering the Hazelcast components family
-Every family (group) of components needs to be registered to be loaded by components server and then to be available
-in Talend Studio components palette for example.
 
-The family registration is done via the `package-info.java` file so let's create it.
-For that move to `src/main/java/org/talend/components/hazelcast` package and create a  `package-info.java` file as bellow.
+The project is now correctly set up. The next steps consist in registering the component family and setting up some properties.
+
+== Registering the Hazelcast components family
+Registering every component family allows the component server to properly load the components and to ensure they are available in Talend Studio.
+
+=== Creating the package-info.java file
+The family registration happens via a `package-info.java` file that you have to create.
+
+Move to the `src/main/java/org/talend/components/hazelcast` package and create a `package-info.java` file: 
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -184,51 +182,53 @@ package org.talend.components.hazelcast;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 ----
-*@Components*: declare the family name and the categories to which it will belongs *@Icon*: declare the component family icon. this is mostly used in the studio metadata tree.
+* *@Components*: Declares the family name and the categories to which the component belongs.
+* *@Icon*: Defines the component family icon. This icon is visible in the Studio metadata tree.
 
-TCK also provides i18n support via java properties files to customize and translate the display name of some properties
-like the family name or, as we will see later in this tutorial, the component configuration labels.
+=== Creating the internationalization file
+Talend Component Kit supports internationalization (i18n) via Java properties files. Using these files, you can customize and translate the display name of properties such as the name of a component family or, as shown later in this tutorial, labels displayed in the component configuration.
 
-So, let's create the i18n file in the `resources` folder.
-For that, please move to `src/main/resources/org/talend/components/hazelcast` and create a `Messages.properties` file as bellow:
+Go to `src/main/resources/org/talend/components/hazelcast` and create an i18n `Messages.properties` file as below: 
 
 [source,properties,indent=0,subs="verbatim,quotes,attributes"]
 ----
 # An i18n name for the component family
 Hazelcast._displayName=Hazelcast
 ----
-For the family icon, defined in the `package-info.java` file, an icon image needs to be provided in the `resources/icons`
-folder.
 
-TCK support `svg` and `png` format for the icons.
+=== Providing the family icon
+You can define the component family icon in the `package-info.java` file. The icon image must exist in the `resources/icons` folder.
 
-So let's create the `icons` folder and put an icon image for our hazelcast family.
+TCK supports both `SVG` and `PNG` formats for the icons.
 
+. Create the `icons` folder and add an icon image for the Hazelcast family.
++
 ```
 $ mkdir -p /src/main/resources/icons
 ```
-I will use the hazelcast icon from there official github repository that you can get from here https://avatars3.githubusercontent.com/u/1453152?s=200&v=4
+This tutorial uses the Hazelcast icon from the official GitHub repository that you can get from: https://avatars3.githubusercontent.com/u/1453152?s=200&v=4
 
-Download the image and rename it to `Hazelcast_icon32.png`.
-The name template is important and it should match `<Icon id from the package-info>_icon.32.png`
-____
-That's all for the component registration.
-Now we can start designing the component configuration
-____
-== Hazelcast component configuration
-All the I/O components follow a predefined model of configuration.
-The configuration needs to be composed of two parts:
+. Download the image and rename it to `Hazelcast_icon32.png`.
+The name syntax is important and should match `<Icon id from the package-info>_icon.32.png`.
 
-- *Datastore*: define all the properties that will let the component connect to the targeted system.
-- *Dataset*: define the data that will be read or written from/to the targeted system.
+The component registration is now complete.
+The next step consists in defining the component configuration.
+
+== Defining the Hazelcast component configuration
+All Input and Output (I/O) components follow a predefined model of configuration.
+The configuration requires two parts:
+
+- *Datastore*: Defines all properties that let the component connect to the targeted system.
+- *Dataset*: Defines the data to be read or written from/to the targeted system.
 
 === Datastore
-To connect to hazelcast cluster we will need the cluster ip address, the group name and the password of the targeted cluster.
+Connecting to the Hazelcast cluster requires the IP address, group name and password of the targeted cluster.
 
-In the component this will be represented by a simple POJO.
-So, let's create a class file `HazelcastDatastore.java` in `serc/main/java/org/talend/components/hazelcast`
-folder.
+In the component, the datastore is represented by a simple POJO.
 
+. Create a `HazelcastDatastore.java` class file in the `src/main/java/org/talend/components/hazelcast`
+folder. +
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -242,16 +242,16 @@ import org.talend.sdk.component.api.meta.Documentation;
 
 import java.io.Serializable;
 
-@GridLayout({
+@GridLayout({ <1>
         @GridLayout.Row("clusterIpAddress"),
         @GridLayout.Row({"groupName", "password"})
 })
-@DataStore("HazelcastDatastore")
-@Documentation("Hazelcast Datastore configuration")
+@DataStore("HazelcastDatastore") <2>
+@Documentation("Hazelcast Datastore configuration") <3>
 public class HazelcastDatastore implements Serializable {
 
-    @Option
-    @Required
+    @Option <4>
+    @Required <5>
     @Documentation("The hazelcast cluster ip address")
     private String clusterIpAddress;
 
@@ -260,7 +260,7 @@ public class HazelcastDatastore implements Serializable {
     private String groupName;
 
     @Option
-    @Credential
+    @Credential <6>
     @Documentation("cluster password")
     private String password;
 
@@ -268,42 +268,39 @@ public class HazelcastDatastore implements Serializable {
     // You need to generate them
 }
 ----
-Let's walk through the annotations used here :
-
-- `@GridLayout`: define the ui layout of this configuration in a grid manner.
-- `@DataStore`: mark this POJO as being a data store with the id `HazelcastDatastore` that can be used to reference the datastore in the i18n files or some services
-- `@Documentation`: document classes and properties. then TCK rely on those metadata to generate a documentation for the component.
-- `@Option`: mark class's attributes as being a configuration entry.
-- `@Credential`: mark an Option as being a sensible data that need to be encrypted before it's stored.
-- `@Required`: mark a configuration as being required.
-
-Now let's define the i18n properties of the data store.
++
+<1> `@GridLayout`: define the UI layout of this configuration in a grid manner.
+<2> `@DataStore`: mark this POJO as being a data store with the id `HazelcastDatastore` that can be used to reference the datastore in the i18n files or some services
+<3> `@Documentation`: document classes and properties. then TCK rely on those metadata to generate a documentation for the component.
+<4> `@Option`: mark class's attributes as being a configuration entry.
+<5> `@Required`: mark a configuration as being required.
+<6> `@Credential`: mark an Option as being a sensible data that need to be encrypted before it's stored.
++
+. Define the i18n properties of the datastore.
 In the `Messages.properties` file let add the following lines:
-
++
 [source,properties,indent=0,subs="verbatim,quotes,attributes"]
 ----
 #datastore
 Hazelcast.datastore.HazelcastDatastore._displayName=Hazelcast Connection
 HazelcastDatastore.clusterIpAddress._displayName=Cluster ip address
 HazelcastDatastore.groupName._displayName=Group Name
-HazelcastDatastore.password._displayName=Passowrd
+HazelcastDatastore.password._displayName=Password
 ----
-____
-By this, we have defined the hazelcast datastore.
-Let's see now for the dataset
-____
+
+The Hazelcast datastore is now defined.
 
 === Dataset
-In hazelcast there is different types of data store that can be found.
-You can manipulate Maps, List, Set, Cache, Locks, Queue, Topic....
+Hazelcast includes different types of datastores.
+You can manipulate maps, lists, sets, caches, locks, queues, topics and so on.
 
-In this tutorial we will focus on Maps as an example, but all what we will see is also applicable to all the other data structures.
+This tutorial focuses on maps but still applies to the other data structures.
 
-To read/write from a map we will need the map name.
-So, let's create the dataset classe.
-For that create `HazelcastDataset.java`
-file in `src/main/java/org/talend/components/hazelcast`
+Reading/writing from a map requires the map name.
 
+. Create the dataset class by creating a `HazelcastDataset.java`
+file in `src/main/java/org/talend/components/hazelcast`.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -338,12 +335,12 @@ public class HazelcastDataset implements Serializable {
 }
 
 ----
-Here, we have a new annotation `@Dataset` that mark this classe as being a dataset.
-Note that we also have a reference to the datastore. this is a part of the components model.
-
-Now and as we have done with the datastore, let's define the i18n properties of the dataset.
-for that add the following lines to the `Messages.properties` file
-
+The `@Dataset` annotation marks the class as a dataset.
+Note that it also references a datastore, as required by the components model.
++
+. Just how it was done for the datastore, define the i18n properties of the dataset.
+To do that, add the following lines to the `Messages.properties` file.
++
 [source,properties,indent=0,subs="verbatim,quotes,attributes"]
 ----
 #dataset
@@ -351,17 +348,16 @@ Hazelcast.dataset.HazelcastDataset._displayName=Hazelcast Map
 HazelcastDataset.connection._displayName=Connection
 HazelcastDataset.mapName._displayName=Map Name
 ----
-____
-That's all we need for the component configuration. Now let's create the Source that will read the data from the hazelcast
-map.
-____
+
+The component configuration is now ready. The next step consists in creating the Source that will read the data from the Hazelcast map.
+
 === Source
-Source is the class responsible of reading the data from the configured dataset.
+The Source is the class responsible for reading the data from the configured dataset.
 
-A source get the configuration instance that will be injected by TCK at runtime and will use it to connect to the targeted
-system to read the data.
+A source gets the configuration instance injected by TCK at runtime and uses it to connect to the targeted system and read the data.
 
-Here is a simple source for Hazelcast.
+. Create a new class as follows. 
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -381,8 +377,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 @Version
-@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
-@Emitter(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast") <1>
+@Emitter(name = "Input") <2>
 @Documentation("Hazelcast source")
 public class HazelcastSource implements Serializable {
 
@@ -399,7 +395,7 @@ public class HazelcastSource implements Serializable {
 
     @Producer
     public Record next() {
-        // provide a record every time it called. return null if there is no more data
+        // provide a record every time it is called. Returns null if there is no more data
         return null;
     }
 
@@ -409,39 +405,30 @@ public class HazelcastSource implements Serializable {
     }
 }
 ----
-
-Note that this class is annotated with `@Emitter` which mark this class as being a source that will produce records. We find
-the `Icon` annotation that define the icon of the component. Here we will use the same icon as the family one but you can use
-different icon if you want.
-
-The constructor of the source class let TCK inject the required configuration to the source. We can also inject some common
-services provided by TCK or other services that we can define in the component. We will see the service part later in this tutorial.
-
-The method annotated with `@PostConstruct` is used to prepare resource or open a connection for example.
-
-The method annotated with `@Producer` is responsible of retuning the next record if any. the method will return null if no
-more record can be read.
-
-The method annotated with `@PreDestroy` is responsible of cleaning any resource that was used or opened in the Source.
-
-As for the configuration. the source also need some i18n properties to provide human readable display name of the source.
-
-For that, please add the following line to the Messages.properties file.
-
+<1> The `Icon` annotation defines the icon of the component. Here, it uses the same icon as the family icon but you can use a different one.
+<2> The class is annotated with `@Emitter`. It marks this class as being a source that will produce records. +
+The constructor of the source class lets TCK inject the required configuration to the source. We can also inject some common services provided by TCK or other services that we can define in the component. We will see the service part later in this tutorial.
+<3> The method annotated with `@PostConstruct` prepares resources or opens a connection, for example.
+<4> The method annotated with `@Producer` retrieves the next record if any. The method will return `null` if no more record can be read.
+<5> The method annotated with `@PreDestroy` cleans any resource that was used or opened in the Source.
++
+. The source also needs i18n properties to provide a readable display name. Add the following line to the `Messages.properties` file.
++
 [source,properties,indent=0,subs="verbatim,quotes,attributes"]
 ----
 #Source
 Hazelcast.Input._displayName=Input
 ----
-
-At this point we can already see the result in the Talend component web tester to see how the configuration looks like and validate
-our layout visually.
-
-For that, let's execute this command in the project folder.
++
+. At this point, it is already possible to see the result in the Talend Component Web Tester to check how the configuration looks like and validate the layout visually.
+To do that, execute the following command in the project folder.
++
 ```
 $ mvn clean install talend-component:web
 ```
-This will start the component web tester and deploy the component to it. Then you can browse it at http://localhost:8080/
+This command starts the Component Web Tester and deploys the component there.
+. Access http://localhost:8080/.
++
 ```
 [INFO]
 [INFO] --- talend-component-maven-plugin:1.1.12:web (default-cli) @ talend-component-hazelcast ---
@@ -462,15 +449,13 @@ This will start the component web tester and deploy the component to it. Then yo
 ```
 
 image::tutorial_hazelcast_webtester.png[]
-____
-Now that we have setup our source let start creating some hazelcast specific code to connect to a cluster and read some
-values for a map.
-____
+
+The source is set up. It is now time to start creating some Hazelcast specific code to connect to a cluster and read values for a map.
+
 === Source implementation for Hazelcast
 
-To work with hazelcast we will need to add the `hazelcast-client` maven dependency to the `pom.xml` of the project.
-
-Add this dependency into the dependencies tag in the `pom.xml`
+. Add the `hazelcast-client` Maven dependency to the `pom.xml` of the project, in the `dependencies` node.
++
 [source,xml]
 ----
     <dependency>
@@ -479,9 +464,13 @@ Add this dependency into the dependencies tag in the `pom.xml`
       <version>3.12.2</version>
     </dependency>
 ----
-Let's get an hazelcast instance in the `@PostConstruct` method. for that, let's start by declaring a HazelcastInstance
-attribute in the source class. Note that any non serializable attribute needs to be marked as transient to avoid serialization
-issues. Then let's implement the post construct method.
+. Add a Hazelcast instance to the `@PostConstruct` method. 
+.. Declare a `HazelcastInstance` attribute in the source class. 
++
+NOTE: Any non-serializable attribute needs to be marked as transient to avoid serialization issues. 
++
+.. Implement the post construct method.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -535,22 +524,21 @@ public class HazelcastSource implements Serializable {
 
     @Producer
     public Record next() {
-        // provide a record every time it called. return null if there is no more data
+        // Provides a record every time it is called. Returns null if there is no more data
         return null;
     }
 
     @PreDestroy
     public void release() {
-        // clean and release any resources
+        // Cleans and releases any resource
     }
 
 }
 ----
-Here, we have mapped the component configuration to hazelcast client configuration to create a hazelcast instance that
-we will use later to get the map by it's name and then read the data from it.
-The code is straight forward as you can notice. To keep it simple, we did expose only the required configuration in the component.
-
-Now let's implement the code that will be responsible of reading the data from the hazelcast map.
+The component configuration is mapped to the Hazelcast client configuration to create a Hazelcast instance. This instance will be used later to get the map from its name and read the map data.
+Only the required configuration in the component is exposed to keep the code as simple as possible.
+. Implement the code responsible for reading the data from the Hazelcast map through the `Producer` method.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -614,9 +602,9 @@ public class HazelcastSource implements Serializable {
 
     @Producer
     public Record next() {
-        // provide a record every time it called. return null if there is no more data
+        // Provides a record every time it is called. Returns null if there is no more data
         if (mapIterator == null) {
-            // Get the Distributed Map from Cluster.
+            // Gets the Distributed Map from Cluster.
             IMap<String, String> map = hazelcastInstance.getMap(dataset.getMapName());
             mapIterator = map.entrySet().iterator();
         }
@@ -631,34 +619,24 @@ public class HazelcastSource implements Serializable {
 
     @PreDestroy
     public void release() {
-        // clean and release any resources
+        // Cleans and releases any resource
     }
 }
 ----
-Let's walk thought the implementation of the `Producer` annotated method.
-
-We start by checking if the map iterator was already initialized and if not we get the map by it's name and we initialize it.
-we do that in the `@Producer` method to ensure the map is only initialized if the `next()` method is called (a lazy initialisation). we also avoid the
-map initialization in the `PostConstruct` as the hazelcast map is not serializable.
-
-IMPORTANT: Note that all the objects initialized in the `PostConstruct` method needs to be serializable as the source
-may be serialized and sent to an other worker in a distributed cluster for it's execution.
-
-From the map, we create an iterator on the map keys that we will use to read from the map. then we will transform every pair
-of key/value to a Talend Record with a key, value Object on every call to next.
-
-Notice here that we have used the `RecordBuilderFactory` class which is a built in service in TCK that we have injected via
-the Source constructor. This service is a factory to create Talend Records.
-
-Now the `next()` method will produce a Record every time it's called. the method will return null if no more data is in the map.
-
-____
-That's all for the `@Producer` annotated method.
-
-Now let's implement the `@PreDestroy` annotated method which will be responsible of releasing
-all the resource used by the Source. So here we will need to shutdown the hazelcast client instance to release any connection
-between the component and hazelcast cluster.
-____
+The `Producer` implements the following logic:
+* Check if the map iterator is already initialized. If not, get the map from its name and initialize the map iterator. This is done in the `@Producer` method to ensure the map is initialized only if the `next()` method is called (lazy initialization). It also avoids the map initialization in the `PostConstruct` method as the Hazelcast map is not serializable.
++
+IMPORTANT: All the objects initialized in the `PostConstruct` method need to be serializable as the source can be serialized and sent to another worker in a distributed cluster.
++
+* From the map, create an iterator on the map keys that will read from the map. 
+* Transform every key/value pair into a Talend Record with a "key, value" object on every call to `next()`.
++
+NOTE: The `RecordBuilderFactory` class used above is a built-in service in TCK injected via the Source constructor. This service is a factory to create Talend Records.
+* Now, the `next()` method will produce a Record every time it is called. The method will return "null" if there is no more data in the map.
++
+. Implement the `@PreDestroy` annotated method, responsible for releasing
+all resources used by the Source. The method needs to shut the Hazelcast client instance down to release any connection between the component and the Hazelcast cluster.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -722,7 +700,7 @@ public class HazelcastSource implements Serializable {
 
     @Producer
     public Record next() {
-        // provide a record every time it called. return null if there is no more data
+        // Provides a record every time it is called. Returns null if there is no more data
         if (mapIterator == null) {
             // Get the Distributed Map from Cluster.
             IMap<String, String> map = hazelcastInstance.getMap(dataset.getMapName());
@@ -739,25 +717,23 @@ public class HazelcastSource implements Serializable {
 
     @PreDestroy
     public void release() {
-        // clean and release any resources
+        // Clean and release any resource
         if (hazelcastInstance != null) {
             hazelcastInstance.shutdown();
         }
     }
 }
 ----
-____
-Now, The hazel cast Source is completed. Let's write a simple unit test to check that it's working.
-____
-=== Test the source
-TCK provide a set of testing api and tools that makes the testing simple and straight forward.
-So let's create our first test.
 
-To test our hazelcast Source, we will create an embedded hazelcast instance of only one member, for now,
-and initialize it with some data. Then we will create a test Job that will read the data from it using the Source
-that we have just implemented.
+The Hazelcast Source is completed. The next section shows how to write a simple unit test to check that it works properly.
 
-So for that, let's start by adding the the required test maven dependencies to our project.
+=== Testing the Source
+TCK provides a set of APIs and tools that makes the testing straightforward.
+
+The test of the Hazelcast Source consists in creating an embedded Hazelcast instance with only one member and initializing it with some data, and then in creating a test Job to read the data from it using the implemented Source.
+
+. Add the required Maven test dependencies to the project.
++
 [source,xml]
 ----
         <dependency>
@@ -773,9 +749,9 @@ So for that, let's start by adding the the required test maven dependencies to o
             <scope>test</scope>
         </dependency>
 ----
-Let's start initializing a hazelcast test instance. and let's create a map with some test data.
-
-For that, create the test class `HazelcastSourceTest.java` in `src/test/java` folder that you will need to create before.
+. Initialize a Hazelcast test instance and create a map with some test data.
+To do that, create the `HazelcastSourceTest.java` test class in the `src/test/java` folder. Create the folder if it does not exist.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -818,21 +794,17 @@ class HazelcastSourceTest {
 
 }
 ----
-Here we start by creating a hazelcast instance for our test. then we create the `MY-DISTRIBUTED-MAP` map. The get map will
-create the map if it's not already exists. Then we add some key, values that we will use in our test.
-After that we have a simple test that check that the data was correctly initialized. By the end, we shutdown the hazelcast test
-instance.
+The above example creates a Hazelcast instance for the test and creates the `MY-DISTRIBUTED-MAP` map. The `getMap` creates the map if it does not already exist. Some keys and values uses in the test are added.
+Then, a simple test checks that the data is correctly initialized. Finally, the Hazelcast test instance is shut down.
 
-Run the test by execution and check in the logs that a hazelcast cluster of one member is created and that the test is
-passing.
+. Run the test and check in the logs that a Hazelcast cluster of one member has been created and that the test has passed.
++
 ```
 $ mvn clean test
 ```
 
-Now, let's create our test job to test our Source.
-
-To be able to test the component. TCK provides the annotation `@WithComponents` which enable component testing. So, let's
-start by adding this annotation to our test. The annotation takes the components java package as a value parameter.
+. To be able to test components, TCK provides the `@WithComponents` annotation which enables component testing. Add this annotation to the test. The annotation takes the component Java package as a value parameter.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -877,8 +849,8 @@ class HazelcastSourceTest {
 
 }
 ----
-Now let's create the test job that will configure the hazelcast and link it to an output that will collect the data
-that will be produced by the source.
+. Create the test Job that configures the Hazelcast instance and link it to an output that collects the data produced by the Source.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -908,7 +880,7 @@ class HazelcastSourceTest {
     private static HazelcastInstance hazelcastInstance;
 
     @Injected
-    protected BaseComponentsHandler componentsHandler;
+    protected BaseComponentsHandler componentsHandler; <1>
 
     @BeforeAll
     static void init() {
@@ -927,7 +899,7 @@ class HazelcastSourceTest {
     }
 
     @Test
-    void sourceTest() {
+    void sourceTest() { <2>
         final HazelcastDatastore connection = new HazelcastDatastore();
         connection.setClusterIpAddress(hazelcastInstance.getCluster().getMembers().iterator().next().getAddress().getHost());
         connection.setGroupName(hazelcastInstance.getConfig().getGroupConfig().getName());
@@ -936,7 +908,7 @@ class HazelcastSourceTest {
         dataset.setConnection(connection);
         dataset.setMapName(MAP_NAME);
 
-        final String configUri = configurationByExample().forInstance(dataset).configured().toQueryString();
+        final String configUri = configurationByExample().forInstance(dataset).configured().toQueryString(); <3>
 
         Job.components()
                 .component("Input", "Hazelcast://Input?" + configUri)
@@ -947,7 +919,7 @@ class HazelcastSourceTest {
             .run();
 
         List<Record> data = componentsHandler.getCollectedData(Record.class);
-        assertEquals(4, data.size());
+        assertEquals(4, data.size()); <4>
     }
 
     @AfterAll
@@ -956,39 +928,26 @@ class HazelcastSourceTest {
     }
 }
 ----
-Note that we have added the `componentsHandler` attribute which will be injected by TCK to our test. This component handler
-gives us access to the collected data.
-
-In `sourceTest` method we have instantiated the configuration of the source and fill it we the configuration of our hazelcast
-test instance created before to let the source connect to it.
-The Job API provide a simple way to build a DAG (directed acyclic graph) job using Talend components and then run it on
-a specific runner (standalone, beam or spark). in this test we will first start using only the default runner which is the
-standalone one.
-
-the `configurationByExample()` method create the `ByExample` factory which provide a simple way to convert the configuration
-instance to an URI configuration that can be used with the Job API to configure the component correctly.
-
-At the end we run the job and check that the collected data size is equals to the initialized test data.
-
-Execute the unit test and check that it's passing. So our source is reading the data correctly from hazelcast.
+<1> The `componentsHandler` attribute is injected to the test by TCK. This component handler gives access to the collected data.
+<2> The `sourceTest` method instantiates the configuration of the Source and fills it with the configuration of the Hazelcast test instance created before to let the Source connect to it. +
+The Job API provides a simple way to build a DAG (Directed Acyclic Graph) Job using Talend components and then runs it on a specific runner (standalone, Beam or Spark). This test starts using the default runner only, which is the standalone one.
+<3> The `configurationByExample()` method creates the `ByExample` factory. It provides a simple way to convert the configuration instance to an URI configuration used with the Job API to configure the component.
+<4> The job runs and checks that the collected data size is equal to the initialized test data.
+. Execute the unit test and check that it passes, meaning that the Source is reading the data correctly from Hazelcast.
++
 ```
 $ mvn clean test
 ```
 
-____
-By that, our simple source is completed and tested. In the next section we will implement a the partition mapper for the source
-which will be responsible of spiting the work (data reading) corresponding to the available cluster members to distribute
-the work load.
-____
+The Source is now completed and tested. The next section shows how to implement the Partition Mapper for the Source. In this case, the Partition Mapper will split the work (data reading) between the available cluster members to distribute the workload.
 
 === Partition Mapper
-The partition mapper will be responsible of calculating the number of Source that can be created and executed in parallel
-on different available worker in a distributed system. (in hazelcast it will corresponds to the  cluster members counts)
+The Partition Mapper calculates the number of Sources that can be created and executed in parallel on the available workers of a distributed system. For Hazelcast, it corresponds to the cluster member count.
 
-So, le's evolve our test environment to add more hazelcast members and initialize it with more data.
+To fully illustrate this concept, this section also shows how to enhance the test environment to add more Hazelcast cluster members and initialize it with more data.
 
-For that, we will need to instantiate more hazelcast instance as every hazelcast instance correspond to one member
-in a cluster. In our test this can be done as the following:
+. Instantiate more Hazelcast instances, as every Hazelcast instance corresponds to one member in a cluster. In the test, it is reflected as follows:
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -1080,22 +1039,18 @@ class HazelcastSourceTest {
 
 }
 ----
-Here we create two hazelcast instance which will create two hazelcast members. So we will get a cluster
-of two members (nodes) where we can distribute the data.
-We also added more data to the test map and update the shutdown method and our test.
-
-Now let's run our test on our multi nodes cluster.
+The above code sample creates two Hazelcast instances, leading to the creation of two Hazelcast members. Having a cluster of two members (nodes) will allow to distribute the data. +
+The above code also adds more data to the test map and updates the shutdown method and the test.
+. Run the test on the multi-nodes cluster.
++
 ```
 mvn clean test
 ```
+NOTE: The Source is a simple implementation that does not distribute the workload and reads the data in a classic way,
+without distributing the read action to different cluster members.
 
-Note that the Source is a simple implementation that don't distribute the work load and read all the data in a classic way
-without distributing the read action on different cluster member.
-
-Now that we have our multi members hazelcast cluster, we can start implementing a partition mapper that takes
-into account the cluster size and the available dataset size to distribute the work on the members efficiently.
-
-So let's implement the partition mapper class. For that, start creating a class file `HazelcastPartitionMapper.java`
+. Start implementing the Partition Mapper class by creating a `HazelcastPartitionMapper.java` class file.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -1180,37 +1135,23 @@ public class HazelcastPartitionMapper {
     }
 }
 ----
-When introducing a partition mapper with a Source.
-The partition mapper will be responsible of parameter injection and source instance creation. This way we move all the
-attribute initialization from the source to the partition mapper class.
+When coupling a Partition Mapper with a Source, the Partition Mapper becomes responsible for injecting parameters and creating source instances. This way, all the attribute initialization part moves from the Source to the Partition Mapper class.
++
+The configuration also sets an instance name to make it easy to find the client instance in the logs or while debugging.
++
+The Partition Mapper class is composed of the following:
++
+- `constructor`: Handles configuration and service injections
+- `Assessor`: This annotation indicates that the method is responsible for assessing the dataset size. The underlying runner uses the estimated dataset size to compute the optimal bundle size to distribute the workload efficiently.
+- `Split`: This annotation indicates that the method is responsible for creating Partition Mapper instances based on the bundle size requested by the underlying runner and the size of the dataset. It creates as much partitions as possible to parallelize and distribute the workload efficiently on the available workers (known as members in the Hazelcast case).
+- `Emitter`: This annotation indicates that the method is responsible for creating the Source instance with an adapted configuration allowing to handle the amount of records it will produce and the required services. +
+I adapts the configuration to let the Source read only the requested bundle of data. +
 
-in the configuration we also set an instance name to make it easy to find the client instance in logs and while debugging.
-We also set the instance class loader to be the tccl.
-
-The partition mapper class is composed of :
-
-- `constructor`: responsible of configuration and services injection
-- `Assessor`: method annotated with Assessor is responsible of the dataset size estimation. the estimated dataset size is
-used by the underlying runner to calculate the optimal bundle size to ditribute the work load efficiently.
-- `Split`: method annotated with Split is responsible of the calculation and the creation of partition mapper instance
-based on the requested bundle size  by the underlying runner.it will create as much partition as possible to handle
-the work load according to the requested bundle size and the dataset size in a way that bundles can be palatalized
-efficiently on different available worker (members in hazelcast)
-
-- `Emitter`: method annotated by Emitter is responsible of the creation of the source instance with an adapted configuration
-that will let the source to be able of the bundle size to handle the records amount that it will produce. and the required services
-In other words, it will adapt the configuration to let the source read only the requested bundle of data.
-The source will need to control the bundle that will be read. Think of it like a pagination pattern where every source
-instance  will read only one page.
-
-____
-Let's implement the Assessor method
-____
 ==== Assessor
-The assessor method will need to calculate the memory size of every member on the cluster. for that we will need to submit
-the some calculation task to the members. for that we will nead a serializable task that is aware of the hazelcast instance
+The `Assessor` method computes the memory size of every member of the cluster. Implementing it requires submitting a calculation task to the members through a serializable task that is aware of the Hazelcast instance.
 
-Let's create our serializable task first.
+. Create the serializable task.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -1231,8 +1172,10 @@ public abstract class SerializableTask<T> implements Callable<T>, Serializable, 
     }
 }
 ----
-We will use this class to submit any task to hazelcast cluster. Now, let's use it to estimate the dataset size in the assessor
-method.
+The purpose of this class is to submit any task to the Hazelcast cluster.
+
+. Use the created task to estimate the dataset size in the `Assessor` method.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -1339,14 +1282,19 @@ public class HazelcastPartitionMapper {
     }
 }
 ----
-In the Assessor method we calculate the memory size that our map occupies on all the members.
-In hazelcast, to distribute the a task to all the members we use an execution service which we initialize in `getExecutorService()`
-method. So we request the size of the map on every available member and then we sum the result to get the total size of the
-map in the distributed cluster.
-____
-Now, let's implement the `Split` method.
-____
+The `Assessor` method calculates the memory size that the map occupies for all members. +
+In Hazelcast, distributing a task to all members can be achieved using an execution service initialized in the `getExecutorService()`
+method. The size of the map is requested on every available member. By summing up the results, the total size of the map in the distributed cluster is computed.
+
 ==== Split
+
+The `Split` method calculates the heap size of the map on every member of the cluster.
+Then, it calculates how many members a source can handle.
+
+If a member contains less data than the requested bundle size, the method tries to combine it with another member. That combination can only happen if the combined data size is still less or equal to the requested bundle size.
+
+The following code illustrates the logic described above.
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -1519,22 +1467,12 @@ public class HazelcastPartitionMapper {
 }
 ----
 
-the split method calculate the heap size of our map on every member of the cluster.
-Then, it calculate how much members, a source can handle.
-As the only thing that we can distribute with a configuration like this is to split the reading task from the different
-members.
-
-So if a member contains less data than the requested bundle size we check if we can combine it with the data from
-an other member where the combination of the two members data size is less or equals to the requested bundle size.
-
-Read the code carefully to fully understand the logic implemented here.
-
-____
-Now, that we have finished the implementation of the split, let adapt the source to take into account the split.
-The source will get the list of members from where it will read data.
-____
+The next step consists in adapting the source to take the Split into account.
 
 ==== Source
+
+The following sample shows how to adapt the Source to the Split carried out previously.
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -1641,17 +1579,17 @@ public class HazelcastSource implements Serializable {
     }
 }
 ----
-In the `next` method we read the data from the members that we will get from the partition mapper.
+The `next` method reads the data from the members received from the Partition Mapper.
 
-In a bigdata runner (like spark) we will get multiple source instance. and every source instance will be responsible of
-reading data from a specific set of members already calculated by the partition mapper.
+A Big Data runner like Spark will get multiple Source instances. Every source instance will be responsible for reading data from a specific set of members already calculated by the Partition Mapper.
 
-Take some time to read the code and to understand what it's going on and how we iterate on the data member by member.
-The data is fetched only when the `next` method is called. Which let us stream the data from members without loading it
+The data is fetched only when the `next` method is called. This logic allows to stream the data from members without loading it
 all into the memory.
 
-Now, let's implement the last method of this component. The method annotated by `@Emitter` in the `HazelcastPartitionMapper`
-class.
+==== Emitter
+
+. Implement the method annotated with `@Emitter` in the `HazelcastPartitionMapper` class.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -1824,23 +1762,22 @@ public class HazelcastPartitionMapper implements Serializable {
     }
 }
 ----
-In the `createSource()` method we create the source instance and we passe the required services and the selected hazelcast
-members to the the source instance.
-____
-Now, our component is done. It will be able to read data and distribute the work load upon members in a big data
-execution engine that will manage the distribution of the work load.
-____
+The `createSource()` method creates the source instance and passes the required services and the selected Hazelcast members to the source instance.
 
-Run the test and check that it's working.
+. Run the test and check that it works as intended.
 
 ```
 $ mvn clean test
 ```
 
-== Introduce TCK service
-Let's refactor the component by introducing a service to make some piece of code reusable and avoid code duplication.
+The component implementation is now done. It is able to read data and to distribute the workload to available members in a Big Data
+execution environment.
 
-Let's refactor the hazelcast instance creation in a service as the service executor creation.
+== Introducing TCK services
+Refactor the component by introducing a service to make some pieces of code reusable and avoid code duplication.
+
+. Refactor the Hazelcast instance creation into a service.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -1892,8 +1829,9 @@ public class HazelcastService implements Serializable {
 }
 
 ----
-This service can be injected to the partition mapper and reused from there. so let's do that.
 
+. Inject this service to the Partition Mapper to reuse it.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -2058,7 +1996,9 @@ public class HazelcastPartitionMapper implements Serializable {
 
 }
 ----
-And let's adapt the Source class to reuse the service.
+
+. Adapt the Source class to reuse the service.
++
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 package org.talend.components.hazelcast;
@@ -2151,7 +2091,6 @@ public class HazelcastSource implements Serializable {
 }
 ----
 
-rerun the test to ensure everything still working correctly.
-____
-That's all for this tutorial. Now you should be able to create any input component for any system ;)
-____
+. Run the test one last time to ensure everything still works as expected.
+
+Thank you for following this tutorial. Use the logic and approach presented here to create any input component for any system.
