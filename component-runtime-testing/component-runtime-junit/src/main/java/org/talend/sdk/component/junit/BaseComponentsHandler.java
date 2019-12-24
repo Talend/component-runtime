@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -155,8 +156,8 @@ public class BaseComponentsHandler implements ComponentsHandler {
         };
 
         STATE
-                .set(new State(embeddedComponentManager, new ArrayList<>(), initState.get().emitter, null, null, null,
-                        null));
+                .set(new State(embeddedComponentManager, new CopyOnWriteArrayList<>(), initState.get().emitter, null,
+                        null, null, null));
         return embeddedComponentManager;
     }
 

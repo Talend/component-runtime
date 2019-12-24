@@ -147,6 +147,20 @@ class ComponentExtensionTest {
 
 <1> All service fields are marked with `@Service` to let the rule inject them before the test is ran.
 
+=== Streaming components
+
+Streaming components have the issue to not stop by design. The Job DSL exposes two properties to help with that issue:
+
+- `streaming.maxRecords`: enables to request a maximum number of records
+- `streaming.maxDurationMs`: enables to request a maximum duration for the execution of the input
+
+You can set them as properties on the job:
+
+[source,java]
+----
+job.property("streaming.maxRecords", 5);
+----
+
 === Mocking the output
 
 Using the `test://collector` component as shown in the previous sample stores all records emitted by the chain (typically your source) in memory. You can then access them using `theSimpleComponentRule.getCollectedData(type)`.

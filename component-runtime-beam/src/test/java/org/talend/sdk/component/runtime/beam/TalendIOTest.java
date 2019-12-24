@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
@@ -42,7 +43,9 @@ import java.util.stream.StreamSupport;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.apache.beam.runners.core.construction.UnboundedReadFromBoundedSource;
 import org.apache.beam.sdk.PipelineResult;
+import org.apache.beam.sdk.io.BoundedReadFromUnboundedSource;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Create;
@@ -106,6 +109,51 @@ public class TalendIOTest implements Serializable {
                 sample.output(sample.element().getString("data"));
             }
         }))).containsInAnyOrder("a", "b");
+        assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
+    }
+
+    @Test
+    public void inputInfinite() { // ensure it stops with direct runner
+        final PCollection<Record> out = pipeline.apply(TalendIO.read(new TheTestMapper() {
+
+            @Override
+            public boolean isStream() {
+                return true;
+            }
+
+            @Override
+            public Input create() {
+                return new BaseTestInput() {
+
+                    private transient Iterator<String> chain;
+
+                    @Override
+                    public Object next() {
+                        if (chain == null) {
+                            chain = asList("a", "b").iterator();
+                        }
+                        return chain.hasNext() ? new Sample(chain.next()) : null;
+                    }
+                };
+            }
+
+            @Override
+            public int hashCode() {
+                return 0;
+            }
+
+            @Override
+            public boolean equals(final Object obj) { // simplified to avoid mutations in beam validations
+                return getClass().isInstance(obj);
+            }
+        }, singletonMap("maxRecords", "1")));
+        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Record, String>() {
+
+            @ProcessElement
+            public void toData(final ProcessContext sample) {
+                sample.output(sample.element().getString("data"));
+            }
+        }))).containsInAnyOrder("a");
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
     }
 

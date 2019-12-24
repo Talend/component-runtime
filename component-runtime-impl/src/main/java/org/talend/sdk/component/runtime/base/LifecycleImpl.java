@@ -20,6 +20,7 @@ import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExc
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
@@ -55,6 +56,23 @@ public class LifecycleImpl extends Named implements Lifecycle {
 
     private void invoke(final Class<? extends Annotation> marker) {
         findMethods(marker).forEach(this::doInvoke);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final LifecycleImpl lifecycle = LifecycleImpl.class.cast(o);
+        return Objects.equals(delegate, lifecycle.delegate) && Objects.equals(loader, lifecycle.loader);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(delegate, loader);
     }
 
     protected Object doInvoke(final Method m, final Object... args) {

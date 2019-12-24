@@ -97,10 +97,25 @@ public class BeamExecutor implements Job.ExecutorBuilder {
             delegate.getLevels().values().stream().flatMap(Collection::stream).forEach(component -> {
                 if (component.isSource()) {
                     final Mapper mapper = mappers.get(component.getId());
+                    final Map<String, String> mapperConfig = new HashMap<>();
+                    if (mapper.isStream()) {
+                        mapperConfig
+                                .put("maxRecords",
+                                        String
+                                                .valueOf(delegate
+                                                        .getJobProperties()
+                                                        .getOrDefault("streaming.maxRecords", "1000")));
+                        mapperConfig
+                                .put("maxDurationMs",
+                                        String
+                                                .valueOf(delegate
+                                                        .getJobProperties()
+                                                        .getOrDefault("streaming.maxDurationMs", "60000")));
+                    }
                     pCollections
                             .put(component.getId(),
                                     pipeline
-                                            .apply(toName("TalendIO", component), TalendIO.read(mapper))
+                                            .apply(toName("TalendIO", component), TalendIO.read(mapper, mapperConfig))
                                             .apply(toName("RecordNormalizer", component),
                                                     RecordNormalizer.of(mapper.plugin())));
                 } else {

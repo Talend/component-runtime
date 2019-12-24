@@ -322,13 +322,15 @@ public class JobImpl implements Job {
         }
 
         private void localRun() {
+            final long maxRecords =
+                    Long.parseLong(String.valueOf(getJobProperties().getOrDefault("streaming.maxRecords", "-1")));
             final Map<String, InputRunner> inputs =
                     levels.values().stream().flatMap(Collection::stream).filter(Component::isSource).map(n -> {
                         final Mapper mapper = manager
                                 .findMapper(n.getNode().getFamily(), n.getNode().getComponent(),
                                         n.getNode().getVersion(), n.getNode().getConfiguration())
                                 .orElseThrow(() -> new IllegalStateException("No mapper found for: " + n.getNode()));
-                        return new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(mapper));
+                        return new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(mapper, maxRecords));
                     }).collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
             final Map<String, AutoChunkProcessor> processors = levels
@@ -572,7 +574,12 @@ public class JobImpl implements Job {
 
         private final Input input;
 
-        private InputRunner(final Mapper mapper) {
+        private final long maxRecords;
+
+        private long currentRecords;
+
+        private InputRunner(final Mapper mapper, final long maxRecords) {
+            this.maxRecords = maxRecords;
             RuntimeException error = null;
             try {
                 mapper.start();
@@ -596,10 +603,14 @@ public class JobImpl implements Job {
         }
 
         public Record next() {
+            if (maxRecords > 0 && currentRecords > maxRecords) {
+                return null;
+            }
             final Object next = input.next();
             if (next == null) {
                 return null;
             }
+            currentRecords++;
             return Record.class.cast(next);
         }
 

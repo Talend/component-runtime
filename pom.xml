@@ -150,7 +150,7 @@
     <johnzon.version>1.2.2</johnzon.version>
     <meecrowave.version>1.2.9</meecrowave.version>
     <owb.version>2.0.13</owb.version>
-    <tomcat.version>9.0.29</tomcat.version>
+    <tomcat.version>9.0.30</tomcat.version>
     <cxf.version>3.3.4</cxf.version>
     <log4j2.version>2.12.1</log4j2.version>
     <logback.version>1.2.3</logback.version>
@@ -199,7 +199,7 @@
     <spark.version>2.4.4</spark.version>
     <spark-scala.version>2.11</spark-scala.version>
 
-    <groovy.version>3.0.0-rc-1</groovy.version>
+    <groovy.version>3.0.0-rc-2</groovy.version>
     <gmavenplus.version>1.8.0</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <javadoc-plugin.version>3.1.0</javadoc-plugin.version>
