@@ -31,7 +31,7 @@
     <talend.build.name>${talend.build.name.base}.intellij</talend.build.name>
 
     <idea.unpacked.folder>${project.basedir}/.cache/idea/</idea.unpacked.folder>
-    <idea.build.version>2017.3.5</idea.build.version>
+    <idea.build.version>2019.3.1</idea.build.version>
     <idea.source>
       https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.build.version}/ideaIC-${idea.build.version}.zip
     </idea.source>
@@ -271,13 +271,13 @@
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_gson-2.8.2</artifactId>
+          <artifactId>lib_extensions</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_jsr305</artifactId>
+          <artifactId>lib_gson-2.8.5</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
@@ -289,19 +289,49 @@
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_swingx-core-1.6.2</artifactId>
+          <artifactId>lib_jsr305</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_slf4j-api-1.7.10</artifactId>
+          <artifactId>lib_platform-api</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_extensions</artifactId>
+          <artifactId>lib_platform-impl</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>lib_platform-util-ui</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>lib_swingx-core-1.6.2-2</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>lib_slf4j-api-1.7.25</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>plugins_java_lib_java-api</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>plugins_java_lib_java-impl</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
@@ -319,7 +349,7 @@
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>plugins_gradle_lib_gradle</artifactId>
+          <artifactId>plugins_gradle-java_lib_gradle-java</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>

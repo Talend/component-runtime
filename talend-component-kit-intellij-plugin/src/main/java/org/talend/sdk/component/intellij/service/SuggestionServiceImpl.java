@@ -24,11 +24,14 @@ import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.intellij.completion.properties.Suggestion.DISPLAY_NAME;
 import static org.talend.sdk.component.intellij.completion.properties.Suggestion.PLACEHOLDER;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.intellij.codeInsight.AnnotationUtil;
@@ -98,6 +101,38 @@ public class SuggestionServiceImpl implements SuggestionService {
             add(ACTION_UPDATE);
         }
     };
+
+    private static final Predicate<PsiClass> IS_STATIC;
+    static {
+        Predicate<PsiClass> predicate = c -> false; // better to ignore if idea is not compatible, will not break end
+                                                    // user
+        try {
+            final Method getModifiers = PsiClass.class.getMethod("getModifiers");
+            predicate = clazz -> {
+                try {
+                    return Stream
+                            .of(JvmModifier[].class.cast(getModifiers.invoke(clazz)))
+                            .anyMatch(m -> JvmModifier.STATIC == m);
+                } catch (final IllegalAccessException | InvocationTargetException e) {
+                    return false;
+                }
+            };
+        } catch (final NoSuchMethodException nsme) {
+            try {
+                final Method hasModifier = PsiClass.class.getMethod("hasModifier", JvmModifier.class);
+                predicate = clazz -> {
+                    try {
+                        return Boolean.class.cast(hasModifier.invoke(clazz, JvmModifier.STATIC));
+                    } catch (final IllegalAccessException | InvocationTargetException e) {
+                        return false;
+                    }
+                };
+            } catch (final NoSuchMethodException nsme2) {
+                // no-op
+            }
+        }
+        IS_STATIC = predicate;
+    }
 
     @Override
     public boolean isSupported(final CompletionParameters completionParameters) {
@@ -201,16 +236,9 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     private Stream<PsiClass> unwrapInnerClasses(final PsiClass c) {
-        try {
-            return Stream
-                    .concat(Stream.of(c),
-                            Stream
-                                    .of(c.getAllInnerClasses())
-                                    .filter(ic -> Stream.of(ic.getModifiers()).anyMatch(m -> JvmModifier.STATIC == m))
-                                    .flatMap(this::unwrapInnerClasses));
-        } catch (final NoSuchMethodError nsme) {
-            return Stream.empty(); // old idea versions dont have getModifiers()
-        }
+        return Stream
+                .concat(Stream.of(c),
+                        Stream.of(c.getAllInnerClasses()).filter(IS_STATIC::test).flatMap(this::unwrapInnerClasses));
     }
 
     private int withPriority(final Suggestion.Type type) {

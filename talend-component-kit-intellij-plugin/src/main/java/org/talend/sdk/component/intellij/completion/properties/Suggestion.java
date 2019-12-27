@@ -15,6 +15,11 @@
  */
 package org.talend.sdk.component.intellij.completion.properties;
 
+import java.lang.reflect.Field;
+import java.util.stream.Stream;
+
+import javax.swing.Icon;
+
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
@@ -59,16 +64,27 @@ public class Suggestion {
                                     presentation.setIcon(AllIcons.Nodes.ModuleGroup);
                                     presentation.appendTailText("  Family", true);
                                 } else if (Type.Component.equals(suggestion.getType())) {
-                                    presentation.setIcon(Icons.TACOKIT);
+                                    presentation.setIcon(Icons.TACOKIT.getIcon());
                                     presentation.appendTailText("  Component", true);
                                 } else if (Type.Configuration.equals(suggestion.getType())) {
                                     presentation.setIcon(AllIcons.Hierarchy.Class);
                                     presentation.appendTailText("  Configuration", true);
                                 } else if (Type.Action.equals(suggestion.getType())) {
-                                    presentation.setIcon(AllIcons.Actions.Submit1);
+                                    presentation.setIcon(findSubmit());
                                     presentation.appendTailText("  Action", true);
                                 }
                             }
                         }), priority);
+    }
+
+    private Icon findSubmit() {
+        return Stream.of("SetDefault", "Submit1").flatMap(it -> {
+            try {
+                final Field declaredField = AllIcons.Actions.class.getField(it);
+                return Stream.of(Icon.class.cast(declaredField.get(null)));
+            } catch (final Exception e) {
+                return Stream.empty();
+            }
+        }).findFirst().orElse(AllIcons.Hierarchy.Base);
     }
 }

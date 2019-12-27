@@ -46,11 +46,11 @@ public class TalendModuleType extends ModuleType<TalendModuleBuilder> {
 
     @Override
     public Icon getNodeIcon(final boolean b) {
-        return Icons.TACOKIT;
+        return Icons.TACOKIT.getIcon();
     }
 
     @Override
     public Icon getIcon() {
-        return Icons.TACOKIT;
+        return Icons.TACOKIT.getIcon();
     }
 }

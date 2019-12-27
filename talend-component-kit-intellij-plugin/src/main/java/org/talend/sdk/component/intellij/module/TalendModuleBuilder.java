@@ -142,6 +142,7 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
                 final VirtualFile gradleFile = findFileUnderRootInModule(module, "build.gradle");
                 if (gradleFile != null) {
                     final ProjectDataManager projectDataManager = getService(ProjectDataManager.class);
+                    // todo: move to JavaGradleProjectImportBuilder
                     final GradleProjectImportBuilder importBuilder = new GradleProjectImportBuilder(projectDataManager);
                     final GradleProjectImportProvider importProvider = new GradleProjectImportProvider(importBuilder);
                     final AddModuleWizard addModuleWizard =
