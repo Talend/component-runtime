@@ -18,14 +18,14 @@ function installJava {
 function installMaven {
   local target="$HOME/.cache/talend/build/maven-$1"
   cd "/tmp"
-  wget "http://apache.mirrors.ovh.net/ftp.apache.org/dist/maven/maven-3/$1/binaries/apache-maven-$1-bin.tar.gz"
+  wget "http://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$1/apache-maven-$1-bin.tar.gz"
   tar xf "apache-maven-$1-bin.tar.gz"
   mv "apache-maven-$1" "$target"
   echo "Created $target"
   cd -
 }
 # ensure env is set up
-BUILD_MAVEN_VERSION=${BUILD_MAVEN_VERSION:-3.6.1}
+BUILD_MAVEN_VERSION=${BUILD_MAVEN_VERSION:-3.6.3}
 [ "x$BUILD_ENV_RESET" == "x" ] || rm -Rf "$HOME/.cache/talend/build"
 if [ ! -d "$HOME/.cache/talend/build" ]; then
   mkdir -p "$HOME/.cache/talend/build"
