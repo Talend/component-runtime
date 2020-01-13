@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ export default class ProjectMetadata extends React.Component {
 												</span>
 											}
 										/>
-									
+
 										<CategorySelector
 											initialValue={project.project.category}
 											onChange={value => onCategoryUpdate(value, project)}

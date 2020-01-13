@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -134,11 +134,6 @@
     <!-- this is a bad default but each module should override it -->
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
-
-    <blackduck-scan.log.level>INFO</blackduck-scan.log.level>
-    <blackduck.url>https://blackduck.talend.com</blackduck.url>
-    <blackduck.trust.all.cert>false</blackduck.trust.all.cert>
-    <blackduck.parallelism>64</blackduck.parallelism>
 
     <xbean.version>4.15</xbean.version>
     <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
@@ -989,61 +984,6 @@
         </executions>
       </plugin>
 
-      <plugin><!-- mvn talend-tools:hub-detect -->
-        <groupId>org.talend.tools</groupId>
-        <artifactId>talend-tools-maven-plugin</artifactId>
-        <version>1.0.7</version>
-        <configuration>
-          <blackduckUrl>${blackduck.url}</blackduckUrl>
-          <blackduckName>Talend Component (TCOMP)</blackduckName>
-          <systemVariables>
-            <!-- https://github.com/blackducksoftware/synopsys-detect/blob/master/detect-configuration/src/main/java/com/synopsys/integration/detect/configuration/DetectProperty.java -->
-            <blackduck.timeout>3600</blackduck.timeout>
-            <detect.output.path>${maven.multiModuleProjectDirectory}/.blackduck</detect.output.path>
-            <logging.level.com.blackducksoftware.integration>${blackduck-scan.log.level}</logging.level.com.blackducksoftware.integration>
-            <logging.level.org.apache.http>${blackduck-scan.log.level}</logging.level.org.apache.http>
-            <detect.blackduck.parallel.processors>${blackduck.parallelism}</detect.blackduck.parallel.processors>
-            <detect.blackduck.signature.scanner.parallel.processors>${blackduck.parallelism}</detect.blackduck.signature.scanner.parallel.processors>
-            <blackduck.trust.cert>${blackduck.trust.all.cert}</blackduck.trust.cert>
-            <detect.blackduck.signature.scanner.memory>8192</detect.blackduck.signature.scanner.memory>
-          </systemVariables>
-          <jvmOptions>
-            <jvmOption>-Xmx6g</jvmOption>
-          </jvmOptions>
-          <!-- to debug synopsys-detect
-          <jvmOptions>
-            <jvmOption>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmOption>
-          </jvmOptions>
-          -->
-          <!--
-            exclude volatiles or well known or not deliveries folders
-            to avoid false positives
-            -->
-          <exclusions>
-            /gpg/,
-            /javadoc/,
-            /antrun/,
-            /apidocs/,
-            /asciidoctor-reveal.js-*/,
-            /.blackduck/,
-            /blackduck/,
-            /documentation-*/,
-            /documentation/,
-            /gradle-*/,
-            /index-files/,
-            /it/,
-            /jacoco*/,
-            /local-repo/,
-            /maven-*/,
-            /${project.version}/,
-            /reveal.js-*/,
-            /site/,
-            /dist/,
-            /test-dependencies/
-          </exclusions>
-        </configuration>
-      </plugin>
-
       <plugin><!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
@@ -1103,7 +1043,7 @@
           <java>
             <licenseHeader>
               <content><![CDATA[/**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1443,6 +1383,7 @@
         <version>3.7.1</version>
       </plugin>
     </plugins>
+    <!--
     <extensions>
       <extension>
         <groupId>com.github.rmannibucau</groupId>
@@ -1450,6 +1391,7 @@
         <version>1.0.0</version>
       </extension>
     </extensions>
+    -->
   </build>
 
   <profiles>
