@@ -26,6 +26,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1606[TCOMP-1606^]: Ensure job dsl can stop infinite inputs
 - link:https://jira.talendforge.org/browse/TCOMP-1608[TCOMP-1608^]: Upgrade geronimo openapi to 1.0.12
 - link:https://jira.talendforge.org/browse/TCOMP-1609[TCOMP-1609^]: Ensure Intellij plugin works with Intellij Idea 2019
+- link:https://jira.talendforge.org/browse/TCOMP-1611[TCOMP-1611^]: Upgrade to Apache Beam 2.17.0
 
 == Version 1.1.15
 
