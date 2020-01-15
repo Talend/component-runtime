@@ -22,7 +22,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -37,6 +36,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.talend.sdk.component.starter.server.configuration.StarterConfiguration;
+import org.talend.sdk.component.starter.server.service.Resources;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
@@ -82,8 +82,7 @@ public class ComponentGenerator {
 
     @PostConstruct
     private void init() {
-        defaultIconContent = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><g></g></svg>"
-                .getBytes(StandardCharsets.UTF_8);
+        defaultIconContent = Resources.resourceFileToBytes("generator/component/defaultIcon.svg");
     }
 
     public Stream<FacetGenerator.InMemoryFile> create(final String tuple, final Build build, final String family,
@@ -107,7 +106,7 @@ public class ComponentGenerator {
         final String baseName = names.toJavaName(build.getArtifact());
         final String serviceName = baseName + "Service";
         final String usedFamily = ofNullable(family).orElse(build.getArtifact());
-        final String mainResourcesDirectory = build.getMainResourcesDirectory();
+        final String iconResourcesDirectory = build.getMainResourcesDirectory() + "/icons";
 
         final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
         files
@@ -118,9 +117,10 @@ public class ComponentGenerator {
                                 put("package", tuple);
                                 put("family", usedFamily);
                                 put("category", ofNullable(category).orElse(build.getArtifact()));
+                                put("iconResources", iconResourcesDirectory);
                             }
                         })));
-        files.add(generateIcon(mainResourcesDirectory, usedFamily));
+        files.add(generateIcon(iconResourcesDirectory, usedFamily));
         files
                 .add(new FacetGenerator.InMemoryFile(mainJava + "/service/" + serviceName + ".java",
                         tpl.render("generator/component/Service.mustache", new HashMap<String, Object>() {
@@ -150,7 +150,7 @@ public class ComponentGenerator {
 
         if (sources != null && !sources.isEmpty()) {
             files
-                    .addAll(createSourceFiles(tuple, mainResourcesDirectory, sources, mainJava, serviceName)
+                    .addAll(createSourceFiles(tuple, iconResourcesDirectory, sources, mainJava, serviceName)
                             .collect(toList()));
 
             messageProperties.put(tuple + ".source", new TreeMap<String, String>() {
@@ -176,7 +176,7 @@ public class ComponentGenerator {
 
         if (processors != null && !processors.isEmpty()) {
             files
-                    .addAll(createProcessorFiles(tuple, mainResourcesDirectory, processors, mainJava, serviceName)
+                    .addAll(createProcessorFiles(tuple, iconResourcesDirectory, processors, mainJava, serviceName)
                             .collect(toList()));
             messageProperties.put(tuple + ".output", new TreeMap<String, String>() {
 
@@ -252,8 +252,8 @@ public class ComponentGenerator {
         });
     }
 
-    private FacetGenerator.InMemoryFile generateIcon(final String mainResourcesDirectory, final String iconName) {
-        return new FacetGenerator.InMemoryFile(String.format("%s/icons/%s.svg", mainResourcesDirectory, iconName),
+    private FacetGenerator.InMemoryFile generateIcon(final String iconResourcesDirectory, final String iconName) {
+        return new FacetGenerator.InMemoryFile(String.format("%s/%s.svg", iconResourcesDirectory, iconName),
                 defaultIconContent);
     }
 
@@ -274,7 +274,7 @@ public class ComponentGenerator {
     }
 
     private Stream<FacetGenerator.InMemoryFile> createProcessorFiles(final String packageBase,
-            final String resourcesDirectory, final Collection<ProjectRequest.ProcessorConfiguration> processors,
+            final String iconResourcesDirectory, final Collection<ProjectRequest.ProcessorConfiguration> processors,
             final String mainJava, final String serviceName) {
         return processors.stream().flatMap(processor -> {
             final boolean isOutput = isOutput(processor);
@@ -316,7 +316,7 @@ public class ComponentGenerator {
             generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(),
                     configurationClassName, files, null);
             String iconName = ofNullable(processor.getIcon()).filter(s -> !s.isEmpty()).orElse(processor.getName());
-            files.add(generateIcon(resourcesDirectory, iconName));
+            files.add(generateIcon(iconResourcesDirectory, iconName));
             files
                     .add(new FacetGenerator.InMemoryFile(
                             mainJava + "/" + processorFinalPackage + "/" + className + ".java",
@@ -334,6 +334,7 @@ public class ComponentGenerator {
                                     put("outputs", outputNames);
                                     put("hasOutputs", outputNames.size() != 0);
                                     put("icon", iconName);
+                                    put("iconResources", iconResourcesDirectory);
                                     put("generic", outputNames.stream().anyMatch(o -> o.type.equals("Record"))
                                             || inputNames.stream().anyMatch(o -> o.type.equals("Record")));
                                 }
@@ -348,7 +349,7 @@ public class ComponentGenerator {
     }
 
     private Stream<FacetGenerator.InMemoryFile> createSourceFiles(final String packageBase,
-            final String resourcesDirectory, final Collection<ProjectRequest.SourceConfiguration> sources,
+            final String iconResourcesDirectory, final Collection<ProjectRequest.SourceConfiguration> sources,
             final String mainJava, final String serviceName) {
         return sources.stream().flatMap(source -> {
             final boolean generic = source.getOutputStructure() == null || source.getOutputStructure().isGeneric()
@@ -363,7 +364,7 @@ public class ComponentGenerator {
 
             final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
             String iconName = ofNullable(source.getIcon()).filter(s -> !s.isEmpty()).orElse(source.getName());
-            files.add(generateIcon(resourcesDirectory, iconName));
+            files.add(generateIcon(iconResourcesDirectory, iconName));
             files
                     .add(new FacetGenerator.InMemoryFile(mainJava + "/source/" + mapperName + ".java",
                             tpl.render("generator/component/Mapper.mustache", new HashMap<String, Object>() {
@@ -379,6 +380,7 @@ public class ComponentGenerator {
                                     put("sourceName", sourceName);
                                     put("infinite", source.isStream());
                                     put("icon", iconName);
+                                    put("iconResources", iconResourcesDirectory);
                                 }
                             })));
             files

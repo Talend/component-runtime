@@ -92,6 +92,11 @@ class ComponentGeneratorTest {
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/MycompRecord.java"),
                 files.get("src/main/java/com/foo/source/MycompRecord.java"));
+
+        assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/mycomp.svg"),
+                files.get("src/main/resources/icons/mycomp.svg"));
+
+        assertTrue(files.get("src/main/java/com/foo/source/MycompMapper.java").contains("custom = \"mycomp\""));
     }
 
     private String resourceFileToString(final String filePath) {
