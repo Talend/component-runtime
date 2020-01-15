@@ -1,7 +1,7 @@
 ++++
 <jsonArray>[
   {
-    "commits":2538,
+    "commits":2540,
     "description":"Joined the Apache EE family (OpenWebBeans, Meecrowave, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -158,6 +158,13 @@
     "description":"",
     "gravatar":"https://avatars1.githubusercontent.com/u/783286?v=4",
     "id":"sgandon"
+  },
+  {
+    "commits":1,
+    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
+    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
+    "id":"undx",
+    "name":"Emmanuel GALLOIS"
   },
   {
     "commits":1,
