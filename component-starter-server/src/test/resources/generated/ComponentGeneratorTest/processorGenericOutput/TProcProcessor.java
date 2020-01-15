@@ -22,7 +22,7 @@ import org.talend.sdk.component.api.record.Record;
 import com.foo.service.TestService;
 
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
-@Icon(value = CUSTOM, custom = "tProc") // icon is located at src/main/resources/icons
+@Icon(value = CUSTOM, custom = "tProc") // icon is located at src/main/resources/icons/tProc.svg
 @Processor(name = "tProc")
 @Documentation("TODO fill the documentation for this processor")
 public class TProcProcessor implements Serializable {

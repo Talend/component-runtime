@@ -25,7 +25,7 @@ import {{servicePackage}}.{{serviceName}};
 // this class role is to enable the work to be distributed in environments supporting it.
 //
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
-@Icon(value = CUSTOM, custom = "{{icon}}") // icon is located at {{iconResources}}
+@Icon(value = CUSTOM, custom = "{{icon}}") // icon is located at {{iconResources}}/{{icon}}.svg
 @PartitionMapper(name = "{{name}}"{{#infinite}}, infinite = true{{/infinite}})
 @Documentation("TODO fill the documentation for this mapper")
 public class {{className}} implements Serializable {
