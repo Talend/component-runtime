@@ -68,7 +68,7 @@ class ComponentGeneratorTest {
                 .create("com.foo", build, "superfamily", "supercategory", sources, emptyList(), emptyList())
                 .collect(toMap(FacetGenerator.InMemoryFile::getPath,
                         i -> new String(i.getContent(), StandardCharsets.UTF_8)));
-        assertEquals(9, files.size());
+        assertEquals(10, files.size());
 
         assertTrue(files.keySet().stream().anyMatch(k -> k.contains(".svg")));
 

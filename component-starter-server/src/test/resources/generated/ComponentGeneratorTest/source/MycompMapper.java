@@ -22,7 +22,7 @@ import com.foo.service.TestService;
 // this class role is to enable the work to be distributed in environments supporting it.
 //
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
-@Icon(value=CUSTOM, custom="mycompInput") // add icons/mycompInput.svg in resources
+@Icon(value = CUSTOM, custom = "mycomp")
 @PartitionMapper(name = "mycomp")
 @Documentation("TODO fill the documentation for this mapper")
 public class MycompMapper implements Serializable {
