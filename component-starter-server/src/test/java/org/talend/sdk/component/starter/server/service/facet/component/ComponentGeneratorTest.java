@@ -93,8 +93,8 @@ class ComponentGeneratorTest {
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/MycompRecord.java"),
                 files.get("src/main/java/com/foo/source/MycompRecord.java"));
 
-        assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/mycomp.svg"),
-                files.get("src/main/resources/icons/mycomp.svg"));
+        assertEquals("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M6 14L0 8l1.9-1.9L6 "
+                + "10.2 14.1 2 16 3.9z\"/></svg>", files.get("src/main/resources/icons/mycomp.svg"));
 
         assertTrue(files.get("src/main/java/com/foo/source/MycompMapper.java").contains("custom = \"mycomp\""));
     }
