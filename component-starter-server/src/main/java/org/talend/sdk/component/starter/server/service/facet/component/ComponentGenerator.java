@@ -119,9 +119,7 @@ public class ComponentGenerator {
                                 put("category", ofNullable(category).orElse(build.getArtifact()));
                             }
                         })));
-        files
-                .add(new FacetGenerator.InMemoryFile(
-                        build.getMainResourcesDirectory() + "/icons/" + usedFamily + ".svg", defaultIconContent));
+        files.add(generateIcon(build.getMainResourcesDirectory(), usedFamily));
         files
                 .add(new FacetGenerator.InMemoryFile(mainJava + "/service/" + serviceName + ".java",
                         tpl.render("generator/component/Service.mustache", new HashMap<String, Object>() {
@@ -249,6 +247,15 @@ public class ComponentGenerator {
         });
     }
 
+    private String getDefaultIconName(final String name, final String kind) {
+        return name.replace("_", "").replace("#", "").replace(" ", "") + kind;
+    }
+
+    private FacetGenerator.InMemoryFile generateIcon(final String mainResourcesDirectory, final String iconName) {
+        return new FacetGenerator.InMemoryFile(String.format("%s/icons/%s.svg", mainResourcesDirectory, iconName),
+                defaultIconContent);
+    }
+
     private Stream<FacetGenerator.InMemoryFile> generateProperties(final String mainResourcesDirectory,
             final Map<String, Map<String, String>> messageProperties) {
 
@@ -307,7 +314,9 @@ public class ComponentGenerator {
 
             generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(),
                     configurationClassName, files, null);
-
+            String iconName = ofNullable(processor.getIcon())
+                    .filter(s -> !s.isEmpty())
+                    .orElse(getDefaultIconName(processor.getName(), "Output"));
             files
                     .add(new FacetGenerator.InMemoryFile(
                             mainJava + "/" + processorFinalPackage + "/" + className + ".java",
@@ -324,10 +333,7 @@ public class ComponentGenerator {
                                     put("hasInputs", inputNames.size() != 0);
                                     put("outputs", outputNames);
                                     put("hasOutputs", outputNames.size() != 0);
-                                    put("icon",
-                                            ofNullable(processor.getIcon())
-                                                    .filter(s -> !s.isEmpty())
-                                                    .orElse("Icon.IconType.STAR"));
+                                    put("icon", iconName);
                                     put("generic", outputNames.stream().anyMatch(o -> o.type.equals("Record"))
                                             || inputNames.stream().anyMatch(o -> o.type.equals("Record")));
                                 }
@@ -356,6 +362,9 @@ public class ComponentGenerator {
             final String sourcePackage = packageBase + ".source";
 
             final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
+            String iconName = ofNullable(source.getIcon())
+                    .filter(s -> !s.isEmpty())
+                    .orElse(getDefaultIconName(source.getName(), "Input"));
             files
                     .add(new FacetGenerator.InMemoryFile(mainJava + "/source/" + mapperName + ".java",
                             tpl.render("generator/component/Mapper.mustache", new HashMap<String, Object>() {
@@ -370,10 +379,7 @@ public class ComponentGenerator {
                                     put("configurationName", configurationClassName);
                                     put("sourceName", sourceName);
                                     put("infinite", source.isStream());
-                                    put("icon",
-                                            ofNullable(source.getIcon())
-                                                    .filter(s -> !s.isEmpty())
-                                                    .orElse("Icon.IconType.STAR"));
+                                    put("icon", iconName);
                                 }
                             })));
             files
