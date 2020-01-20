@@ -52,7 +52,6 @@
     <dependency>
       <groupId>org.apache.openwebbeans</groupId>
       <artifactId>openwebbeans-se</artifactId>
-      <version>${owb.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

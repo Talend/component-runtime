@@ -1,5 +1,11 @@
 
 
+== Version 1.1.17
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1616[TCOMP-1616^]: Upgrade OpenWebBeans to 2.0.14 in component-server and component-server-vault-proxy
+
 == Version 1.1.16
 
 === Bug
