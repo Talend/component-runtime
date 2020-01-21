@@ -46,7 +46,6 @@
     <asciidoctor-pdf-gem.version>1.5.0.alpha.17</asciidoctor-pdf-gem.version>
     <crawler-commons.version>1.0</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
-    <webhost.ftphost>files.000webhost.com</webhost.ftphost>
 
     <!-- skip flags for the release -->
     <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
@@ -54,6 +53,14 @@
     <pdf.skip>false</pdf.skip>
     <swagger2markup.skip>false</swagger2markup.skip>
     <indexation.skip>false</indexation.skip>
+
+    <!-- API Mock update -->
+    <scm-publish-plugin.version>3.0.0</scm-publish-plugin.version>
+    <api.mock.site>tacokit-openapi-demo</api.mock.site>
+    <api.mock.workDir>${project.build.directory}/exec/api-mock</api.mock.workDir>
+    <api.mock.siteDocOuputDirectory>${api.mock.workDir}/gh-pages</api.mock.siteDocOuputDirectory>
+    <api.mock.scmBranch>gh-pages</api.mock.scmBranch>
+    <api.mock.pubScmUrl>scm:git:git@github.com:Talend/${api.mock.site}.git</api.mock.pubScmUrl>
   </properties>
 
   <dependencies>
@@ -339,20 +346,13 @@
                 </systemProperty>
               </systemProperties>
               <arguments>
-                <argument>${project.build.directory}/exec/api-mock</argument>
-                <argument>${talend.webhost.username}</argument>
-                <argument>${talend.webhost.password}</argument>
-                <argument>${webhost.ftphost}</argument>
+                <argument>${api.mock.workDir}</argument>
+                <argument>${api.mock.site}</argument>
               </arguments>
             </configuration>
           </execution>
         </executions>
         <dependencies>
-          <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>${commons-net.version}</version>
-          </dependency>
           <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>
             <artifactId>microprofile-openapi-api</artifactId>
@@ -484,6 +484,11 @@
             <version>${xbean.version}</version>
           </dependency>
           <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-web</artifactId>
+            <version>${owb.version}</version>
+          </dependency>
+          <dependency>
             <groupId>args4j</groupId>
             <artifactId>args4j</artifactId>
             <version>${args4j.version}</version>
@@ -525,6 +530,18 @@
           </dependency>
         </dependencies>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-scm-publish-plugin</artifactId>
+        <version>${scm-publish-plugin.version}</version>
+        <configuration>
+          <scmBranch>${api.mock.scmBranch}</scmBranch>
+          <pubScmUrl>${api.mock.pubScmUrl}</pubScmUrl>
+          <content>${api.mock.siteDocOuputDirectory}</content>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>com.github.rmannibucau</groupId>
         <artifactId>common-maven-plugin</artifactId>
