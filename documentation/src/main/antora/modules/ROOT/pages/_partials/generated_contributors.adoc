@@ -70,7 +70,7 @@
     "id":"RyanSkraba"
   },
   {
-    "commits":4,
+    "commits":5,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -103,13 +103,6 @@
     "gravatar":"https://avatars1.githubusercontent.com/u/35097656?v=4",
     "id":"aleboulanger",
     "name":"Aurélien Leboulanger"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars3.githubusercontent.com/u/7931696?v=4",
-    "id":"pbailly",
-    "name":"Pierre Bailly-Ferry"
   },
   {
     "commits":1,

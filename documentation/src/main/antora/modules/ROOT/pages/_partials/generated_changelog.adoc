@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1616[TCOMP-1616^]: Upgrade OpenWebBeans to 2.0.14 in component-server and component-server-vault-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-1618[TCOMP-1618^]: Upgrade Junit to 5.6.0
 
 == Version 1.1.16
 
