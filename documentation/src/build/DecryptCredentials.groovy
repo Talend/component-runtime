@@ -34,7 +34,7 @@ def decryptAndSet(name) {
     log.info("Set the Talend ${name} credentials into the project properties")
 
 }
+
 decryptAndSet('jira')
 decryptAndSet('github')
-decryptAndSet('webhost')
 
