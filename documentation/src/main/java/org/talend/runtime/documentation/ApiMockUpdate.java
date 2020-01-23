@@ -68,11 +68,10 @@ public class ApiMockUpdate {
             log.warn("Api mock update skipped");
             return;
         }
-        doMain(new File(args[0]), args[1]);
+        doMain(new File(args[0]));
     }
 
-    private static void doMain(final File root, final String deployUrl)
-            throws IOException, ExecutionException, InterruptedException {
+    private static void doMain(final File root) throws IOException, ExecutionException, InterruptedException {
         System.setProperty("talend.component.manager.m2.repository", createM2WithComponents(root).getAbsolutePath());
         System.setProperty("talend.component.server.component.coordinates", "org.talend.demo:components:1.0.0");
         updateMocks(root);

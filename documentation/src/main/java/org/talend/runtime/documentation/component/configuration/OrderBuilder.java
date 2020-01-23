@@ -24,8 +24,10 @@ import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @GridLayout({ @GridLayout.Row({ "field" }), @GridLayout.Row({ "order" }), })
 public class OrderBuilder {
