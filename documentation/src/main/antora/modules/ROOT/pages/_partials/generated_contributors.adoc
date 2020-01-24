@@ -57,6 +57,13 @@
     "name":"Jimmy Somsanith"
   },
   {
+    "commits":6,
+    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
+    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
+    "id":"undx",
+    "name":"Emmanuel GALLOIS"
+  },
+  {
     "commits":5,
     "description":"Security architect at @Talend, security expert at @Apache.",
     "gravatar":"https://avatars0.githubusercontent.com/u/472162?v=4",
@@ -68,13 +75,6 @@
     "description":"",
     "gravatar":"https://avatars0.githubusercontent.com/u/7744819?v=4",
     "id":"RyanSkraba"
-  },
-  {
-    "commits":5,
-    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
-    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
-    "id":"undx",
-    "name":"Emmanuel GALLOIS"
   },
   {
     "commits":3,
