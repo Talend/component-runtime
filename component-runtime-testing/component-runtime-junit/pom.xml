@@ -29,8 +29,6 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.junit</talend.build.name>
-    <!-- should follow beam-sdk-java-core version -->
-    <joda.time.version>2.10.3</joda.time.version>
   </properties>
 
   <dependencies>

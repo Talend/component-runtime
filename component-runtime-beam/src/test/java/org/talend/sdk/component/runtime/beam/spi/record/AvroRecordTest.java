@@ -174,18 +174,31 @@ class AvroRecordTest {
                 .endUnion()
                 .noDefault()
                 //
+                .name("f3")
+                .prop("logicalType", "date")
+                .prop("talend.component.DATETIME", "true")
+                .type()
+                .unionOf()
+                .nullType()
+                .and()
+                .longType()
+                .endUnion()
+                .noDefault()
+                //
                 .endRecord();
         ZonedDateTime zdt = ZonedDateTime.of(2020, 01, 24, 15, 0, 1, 0, ZoneId.of("UTC"));
         Date date = new Date();
         final GenericData.Record avro = new GenericData.Record(datetime);
         avro.put(0, zdt.toInstant().toEpochMilli());
         avro.put(1, date.getTime());
+        avro.put(2, null);
         final Record record = new AvroRecord(avro);
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SchemaRegistryCoder.of().encode(record, buffer);
         final Record decoded = SchemaRegistryCoder.of().decode(new ByteArrayInputStream(buffer.toByteArray()));
         assertEquals(zdt, decoded.getDateTime("f1"));
         assertEquals(date.getTime(), decoded.getDateTime("f2").toInstant().toEpochMilli());
+        assertNull(decoded.getDateTime("f3"));
     }
 
     @Test

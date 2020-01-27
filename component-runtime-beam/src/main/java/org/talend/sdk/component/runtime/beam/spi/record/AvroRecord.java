@@ -60,7 +60,6 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         this.schema = new AvroSchema(record.getSchema());
         this.delegate = record;
         // dirty fix for Avro DateTime related logicalTypes converted to org.joda.time.DateTime
-        // TODO : check if fixed in beam 2.19.0 release (see: https://issues.apache.org/jira/browse/BEAM-9144)
         this.delegate
                 .getSchema()
                 .getFields()
@@ -203,9 +202,6 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return expectedType.cast(ByteBuffer.class.cast(value).array());
         }
         if (org.joda.time.DateTime.class.isInstance(value) && ZonedDateTime.class == expectedType) {
-            if (value == null) {
-                return null;
-            }
             final long epochMilli = org.joda.time.DateTime.class.cast(value).getMillis();
             return expectedType.cast(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(epochMilli), UTC));
         }
