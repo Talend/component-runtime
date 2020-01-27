@@ -2,6 +2,12 @@
 
 == Version 1.1.17
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1619[TCOMP-1619^]: Handle correctly DATETIME field type on AvroRecord
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1616[TCOMP-1616^]: Upgrade OpenWebBeans to 2.0.14 in component-server and component-server-vault-proxy

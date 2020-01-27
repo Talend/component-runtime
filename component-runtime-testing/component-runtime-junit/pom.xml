@@ -112,6 +112,12 @@
       <version>${log4j2.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>${joda.time.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -144,6 +150,15 @@
                 <exclude>**/EnvironmentalContext*</exclude>
               </excludes>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-banned-joda-time-dependency</id>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>
