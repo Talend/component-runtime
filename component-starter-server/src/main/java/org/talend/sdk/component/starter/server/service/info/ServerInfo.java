@@ -133,8 +133,8 @@ public class ServerInfo {
     // and if we are not up to date we update that
     private void refresh() {
         final Client client = ClientBuilder.newClient();
-        final WebTarget base =
-                client.target("http://repo.maven.apache.org/maven2/org/talend/sdk/component/component-starter-server/");
+        final WebTarget base = client
+                .target("https://repo.maven.apache.org/maven2/org/talend/sdk/component/component-starter-server/");
         final QuickMvnMetadataParser handler = new QuickMvnMetadataParser();
         try (final InputStream metadata =
                 base.path("maven-metadata.xml").request(MediaType.APPLICATION_XML_TYPE).get(InputStream.class)) {
