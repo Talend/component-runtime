@@ -35,7 +35,6 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -52,9 +51,6 @@ import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroRecordTest {
-
-    @org.junit.Rule
-    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @Test
     void recordEntryFromName() {
