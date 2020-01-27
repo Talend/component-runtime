@@ -107,7 +107,7 @@ public class Dependencies {
         }
         if (!Boolean.getBoolean("talend.component.junit.maven.central.skip")) {
             final MavenRemoteRepository central = MavenRemoteRepositories
-                    .createRemoteRepository("central_test_default", "http://repo.maven.apache.org/maven2/", "default");
+                    .createRemoteRepository("central_test_default", "https://repo.maven.apache.org/maven2/", "default");
             central.setChecksumPolicy(MavenChecksumPolicy.CHECKSUM_POLICY_WARN);
             central.setUpdatePolicy(MavenUpdatePolicy.UPDATE_POLICY_NEVER);
             repositories.add(central);
