@@ -1398,7 +1398,7 @@
         <version>3.0.0-M3</version>
         <executions>
           <execution>
-            <id>enforce-banned-dependencies</id>
+            <id>enforce-banned-joda-time-dependency</id>
             <goals>
               <goal>enforce</goal>
             </goals>

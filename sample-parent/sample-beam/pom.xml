@@ -72,7 +72,7 @@
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
-            <id>enforce-banned-dependencies</id>
+            <id>enforce-banned-joda-time-dependency</id>
             <phase>none</phase>
           </execution>
         </executions>
