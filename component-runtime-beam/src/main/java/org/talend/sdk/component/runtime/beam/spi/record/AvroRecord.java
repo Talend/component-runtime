@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -58,6 +59,14 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     public AvroRecord(final IndexedRecord record) {
         this.schema = new AvroSchema(record.getSchema());
         this.delegate = record;
+        // dirty fix for Avro DateTime related logicalTypes converted to org.joda.time.DateTime
+        this.delegate
+                .getSchema()
+                .getFields()
+                .stream()
+                .filter(f -> org.joda.time.DateTime.class.isInstance(this.delegate.get(f.pos())))
+                .forEach(f -> this.delegate
+                        .put(f.pos(), org.joda.time.DateTime.class.cast(this.delegate.get(f.pos())).getMillis()));
     }
 
     public AvroRecord(final Record record) {
@@ -191,6 +200,10 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
         if (ByteBuffer.class.isInstance(value) && byte[].class == expectedType) {
             return expectedType.cast(ByteBuffer.class.cast(value).array());
+        }
+        if (org.joda.time.DateTime.class.isInstance(value) && ZonedDateTime.class == expectedType) {
+            final long epochMilli = org.joda.time.DateTime.class.cast(value).getMillis();
+            return expectedType.cast(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(epochMilli), UTC));
         }
         if (!expectedType.isInstance(value)) {
             if (Utf8.class.isInstance(value) && String.class == expectedType) {
