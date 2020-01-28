@@ -339,6 +339,7 @@
               </systemProperties>
               <arguments>
                 <argument>${project.build.directory}/exec/api-mock</argument>
+                <argument>${project.build.directory}/${project.build.finalName}/apidemo</argument>
               </arguments>
             </configuration>
           </execution>

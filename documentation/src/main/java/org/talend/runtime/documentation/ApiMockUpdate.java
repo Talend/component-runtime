@@ -68,16 +68,17 @@ public class ApiMockUpdate {
             log.warn("Api mock update skipped");
             return;
         }
-        doMain(new File(args[0]));
+        doMain(new File(args[0]), new File(args[1]));
     }
 
-    private static void doMain(final File root) throws IOException, ExecutionException, InterruptedException {
+    private static void doMain(final File root, final File apiPath)
+            throws IOException, ExecutionException, InterruptedException {
         System.setProperty("talend.component.manager.m2.repository", createM2WithComponents(root).getAbsolutePath());
         System.setProperty("talend.component.server.component.coordinates", "org.talend.demo:components:1.0.0");
-        updateMocks(root);
+        updateMocks(apiPath);
     }
 
-    private static void updateMocks(final File root)
+    private static void updateMocks(final File apiPath)
             throws ExecutionException, InterruptedException, UnknownHostException {
         try (final Meecrowave server = new Meecrowave(new Meecrowave.Builder() {
 
@@ -85,13 +86,13 @@ public class ApiMockUpdate {
                 randomHttpPort();
                 setScanningExcludes(
                         "classworlds,container,freemarker,zipkin,backport,commons,component-form,component-runtime-junit,"
-                                + "component-tools,crawler,doxia,exec,jsch,jcl,org.osgi,talend-component");
+                                + "component-tools,crawler,doxia,exec,jsch,jcl,org.osgi,talend-component,component-server-vault-proxy");
                 setScanningPackageExcludes(
-                        "org.talend.sdk.component.proxy,org.talend.sdk.component.runtime.server.vault");
+                        "org.talend.sdk.component.proxy,org.talend.sdk.component.runtime.server.vault,org.talend.sdk.component.server.vault.proxy");
             }
         }).bake()) {
             captureMocks(format("http://%s:%d", InetAddress.getLocalHost().getHostName(),
-                    server.getConfiguration().getHttpPort()), new File(root, "gh-pages"));
+                    server.getConfiguration().getHttpPort()), apiPath);
         }
         log.warn("[updateMocks] finished.");
     }

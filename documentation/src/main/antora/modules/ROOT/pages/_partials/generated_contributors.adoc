@@ -43,6 +43,13 @@
     "name":"Chao MENG"
   },
   {
+    "commits":10,
+    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
+    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
+    "id":"undx",
+    "name":"Emmanuel GALLOIS"
+  },
+  {
     "commits":9,
     "description":"",
     "gravatar":"https://avatars1.githubusercontent.com/u/7734020?v=4",
@@ -51,24 +58,10 @@
   },
   {
     "commits":9,
-    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
-    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
-    "id":"undx",
-    "name":"Emmanuel GALLOIS"
-  },
-  {
-    "commits":9,
     "description":"Frontend Architect.\r\nThis is my Talend account. You can check out @jsomsanith for my personal account",
     "gravatar":"https://avatars2.githubusercontent.com/u/10761073?v=4",
     "id":"jsomsanith-tlnd",
     "name":"Jimmy Somsanith"
-  },
-  {
-    "commits":6,
-    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
-    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
-    "id":"undx",
-    "name":"Emmanuel GALLOIS"
   },
   {
     "commits":5,

@@ -236,7 +236,7 @@ public class Generator {
                                     .createArrayBuilder()
                                     .add(builderFactory
                                             .createObjectBuilder()
-                                            .add("url", "https://talend.github.io/tacokit-openapi-demo")))
+                                            .add("url", "https://talend.github.io/component-runtime/apidemo")))
                     .build();
             if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
