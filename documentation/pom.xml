@@ -46,7 +46,6 @@
     <asciidoctor-pdf-gem.version>1.5.0.alpha.17</asciidoctor-pdf-gem.version>
     <crawler-commons.version>1.0</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
-    <webhost.ftphost>files.000webhost.com</webhost.ftphost>
 
     <!-- skip flags for the release -->
     <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
@@ -340,19 +339,12 @@
               </systemProperties>
               <arguments>
                 <argument>${project.build.directory}/exec/api-mock</argument>
-                <argument>${talend.webhost.username}</argument>
-                <argument>${talend.webhost.password}</argument>
-                <argument>${webhost.ftphost}</argument>
+                <argument>${project.build.directory}/${project.build.finalName}/apidemo</argument>
               </arguments>
             </configuration>
           </execution>
         </executions>
         <dependencies>
-          <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>${commons-net.version}</version>
-          </dependency>
           <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>
             <artifactId>microprofile-openapi-api</artifactId>

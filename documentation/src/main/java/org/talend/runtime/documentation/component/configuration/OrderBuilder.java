@@ -17,6 +17,8 @@ package org.talend.runtime.documentation.component.configuration;
 
 import static org.talend.runtime.documentation.component.configuration.CommonConfig.PROPOSABLE_GET_TABLE_FIELDS;
 
+import java.io.Serializable;
+
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
@@ -24,11 +26,13 @@ import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @GridLayout({ @GridLayout.Row({ "field" }), @GridLayout.Row({ "order" }), })
-public class OrderBuilder {
+public class OrderBuilder implements Serializable {
 
     @Option
     @Proposable(PROPOSABLE_GET_TABLE_FIELDS)

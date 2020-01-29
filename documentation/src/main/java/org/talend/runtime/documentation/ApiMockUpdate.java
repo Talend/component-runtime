@@ -19,14 +19,12 @@ import static java.lang.String.format;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,8 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -50,7 +46,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
-import java.util.stream.Stream;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
@@ -58,8 +53,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.meecrowave.Meecrowave;
 
@@ -75,49 +68,17 @@ public class ApiMockUpdate {
             log.warn("Api mock update skipped");
             return;
         }
-        if (args.length < 3 || args[1] == null) {
-            log.warn("No credentials, skipping mock update");
-            return;
-        }
-        doMain(args, new File(args[0]));
+        doMain(new File(args[0]), new File(args[1]));
     }
 
-    private static void doMain(final String[] args, final File output)
+    private static void doMain(final File root, final File apiPath)
             throws IOException, ExecutionException, InterruptedException {
-        System.setProperty("talend.component.manager.m2.repository", createM2WithComponents(output).getAbsolutePath());
+        System.setProperty("talend.component.manager.m2.repository", createM2WithComponents(root).getAbsolutePath());
         System.setProperty("talend.component.server.component.coordinates", "org.talend.demo:components:1.0.0");
-
-        final FTPClient ftp = new FTPClient();
-        ftp.setConnectTimeout(60000);
-        try {
-            ftp.connect(args[3]);
-            ftp.setSoTimeout(60000);
-            ftp.setDataTimeout(60000);
-            ftp.setControlKeepAliveTimeout(60000);
-            ftp.setControlKeepAliveReplyTimeout(60000);
-            final int reply = ftp.getReplyCode();
-            if (!FTPReply.isPositiveCompletion(reply)) {
-                ftp.disconnect();
-                return;
-            }
-            if (!ftp.login(args[1], args[2])) {
-                ftp.disconnect();
-                throw new IllegalArgumentException("Invalid credentials (" + args[1] + ")");
-            }
-            updateMocks(ftp);
-            ftp.logout();
-        } finally {
-            if (ftp.isConnected()) {
-                try {
-                    ftp.disconnect();
-                } catch (IOException ioe) {
-                    // do nothing
-                }
-            }
-        }
+        updateMocks(apiPath);
     }
 
-    private static void updateMocks(final FTPClient ftp)
+    private static void updateMocks(final File apiPath)
             throws ExecutionException, InterruptedException, UnknownHostException {
         try (final Meecrowave server = new Meecrowave(new Meecrowave.Builder() {
 
@@ -125,13 +86,15 @@ public class ApiMockUpdate {
                 randomHttpPort();
                 setScanningExcludes(
                         "classworlds,container,freemarker,zipkin,backport,commons,component-form,component-runtime-junit,"
-                                + "component-tools,crawler,doxia,exec,jsch,jcl,org.osgi,talend-component");
-                setScanningPackageExcludes("org.talend.sdk.component.proxy");
+                                + "component-tools,crawler,doxia,exec,jsch,jcl,org.osgi,talend-component,component-server-vault-proxy");
+                setScanningPackageExcludes(
+                        "org.talend.sdk.component.proxy,org.talend.sdk.component.runtime.server.vault,org.talend.sdk.component.server.vault.proxy");
             }
         }).bake()) {
             captureMocks(format("http://%s:%d", InetAddress.getLocalHost().getHostName(),
-                    server.getConfiguration().getHttpPort()), ftp);
+                    server.getConfiguration().getHttpPort()), apiPath);
         }
+        log.warn("[updateMocks] finished.");
     }
 
     private static File createM2WithComponents(final File root) {
@@ -156,7 +119,7 @@ public class ApiMockUpdate {
         return target;
     }
 
-    private static void captureMocks(final String target, final FTPClient ftp)
+    private static void captureMocks(final String target, final File output)
             throws ExecutionException, InterruptedException {
         final String familyId = "Y29tcG9uZW50cyNNb2Nr";
         final String componentId = "Y29tcG9uZW50cyNNb2NrI01vY2tJbnB1dA";
@@ -170,10 +133,10 @@ public class ApiMockUpdate {
                             // env
                             capture(files, executor, "/api/v1/environment", target, emptyMap(),
                                     t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
-
                             // action
                             capture(files, executor, "/api/v1/action/index", target, emptyMap(),
                                     t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+                            //
                             capture(files, executor, "/api/v1/action/execute", target, emptyMap(), t -> t
                                     .queryParam("family", "Mock")
                                     .queryParam("type", "healthcheck")
@@ -185,11 +148,13 @@ public class ApiMockUpdate {
                             // component
                             capture(files, executor, "/api/v1/component/index", target, emptyMap(),
                                     t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+
                             capture(files, executor, "/api/v1/component/details", target, emptyMap(),
                                     t -> t
                                             .queryParam("identifiers", componentId)
                                             .request(APPLICATION_JSON_TYPE)
                                             .get(byte[].class)),
+
                             capture(files, executor, "/api/v1/component/dependencies", target, emptyMap(),
                                     t -> t
                                             .queryParam("identifiers", componentId)
@@ -211,11 +176,13 @@ public class ApiMockUpdate {
                             // configuration type
                             capture(files, executor, "/api/v1/configurationtype/index", target, emptyMap(),
                                     t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+
                             capture(files, executor, "/api/v1/configurationtype/details", target, emptyMap(),
                                     t -> t
                                             .queryParam("identifiers", configurationId)
                                             .request(APPLICATION_JSON_TYPE)
                                             .get(byte[].class)),
+
                             capture(files, executor, "/api/v1/configurationtype/migrate/{id}/{configurationVersion}",
                                     target, map("id", configurationId, "configurationVersion", "1"),
                                     t -> t
@@ -227,32 +194,16 @@ public class ApiMockUpdate {
         }
         executor.shutdown();
         log.info("Updating {}", files.keySet());
-        final Collection<String> createdPaths = new ArrayList<>();
-        files.forEach((sshPath, data) -> { // keep a single SSH connection (in the original thread)
-            final String[] pathSegments = sshPath.substring(1).split("/");
-            for (int i = 1; i < pathSegments.length; i++) {
-                final String parentPath = Stream.of(pathSegments).limit(i).collect(joining("/", "/", "/"));
-                if (!createdPaths.contains(parentPath)) {
-                    try {
-                        log.info("Creating {}", parentPath);
-                        ftp.mkd(parentPath);
-                        createdPaths.add(parentPath);
-                    } catch (final IOException e) {
-                        throw new IllegalStateException(e);
-                    }
-                }
-            }
+        files.forEach((filePath, data) -> {
+            final File apiResult = new File(output, filePath);
+            apiResult.getParentFile().mkdirs();
             try {
-                log.info("Storing {}", sshPath);
-                if (!ftp.storeFile(sshPath, new ByteArrayInputStream(data))) {
-                    log.info("Failed to store {}", sshPath);
-                    throw new IllegalStateException("Can't upload " + sshPath);
-                }
-                log.info("Stored {}", sshPath);
-            } catch (final IOException e) {
+                log.info("Storing {}", filePath);
+                Files.write(apiResult.toPath(), data);
+            } catch (final Exception e) {
                 throw new IllegalStateException(e);
             }
-            log.info("Uploaded {}", sshPath);
+            log.info("Stored {}", filePath);
         });
         executor.shutdownNow(); // ensure it is off before exiting the method
     }
@@ -269,8 +220,8 @@ public class ApiMockUpdate {
             final String path, final String base, final Map<String, String> templates,
             final Function<WebTarget, byte[]> target) {
         return CompletableFuture.runAsync(() -> {
-            final String sshPath = "/public_html" + new StringSubstitutor(templates, "{", "}").replace(path);
-            log.info("Trying to grab {}", sshPath);
+            final String outputPath = new StringSubstitutor(templates, "{", "}").replace(path);
+            log.info("Trying to grab {}", outputPath);
             final Client client = ClientBuilder.newClient();
             try {
                 WebTarget webTarget = client.target(base).path(path);
@@ -278,10 +229,10 @@ public class ApiMockUpdate {
                     webTarget = webTarget.resolveTemplate(tpl.getKey(), tpl.getValue());
                 }
                 webTarget.property("http.connection.timeout", 30000L).property("http.receive.timeout", 60000L);
-                files.put(sshPath, target.apply(webTarget));
-                log.info("Grabbed to grab {}", sshPath);
+                files.put(outputPath, target.apply(webTarget));
+                log.info("Grabbed to grab {}", outputPath);
             } catch (final ProcessingException | WebApplicationException ex) {
-                log.error("Error on {}", sshPath, ex);
+                log.error("Error on {}", outputPath, ex);
                 throw ex;
             } finally {
                 client.close();

@@ -26,9 +26,11 @@ import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @GridLayout({ @GridLayout.Row({ "field" }), @GridLayout.Row({ "operation" }), @GridLayout.Row({ "value" }) })
 public class QueryBuilder implements Serializable {
 
