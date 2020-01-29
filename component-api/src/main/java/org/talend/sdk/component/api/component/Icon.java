@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 @Documentation("Associate an icon to a component, "
         + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter` - and "
-        + "configurations - `@DataStore` and `@DataSet` - classes.")
+        + "configurations - classes.")
 @Target({ TYPE, PACKAGE, ANNOTATION_TYPE })
 @Retention(RUNTIME)
 public @interface Icon {
