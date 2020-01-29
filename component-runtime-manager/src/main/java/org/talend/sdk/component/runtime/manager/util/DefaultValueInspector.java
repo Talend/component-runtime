@@ -129,7 +129,7 @@ public class DefaultValueInspector {
         final Collection<?> collection = Collection.class.cast(rootInstance);
         if (!collection.isEmpty()) {
             final Object next = collection.iterator().next();
-            if (param.getPath().endsWith("[${index}]") || next == null) {
+            if (param.getPath().endsWith("[${index}]")) {
                 return next;
             }
             return findField(next, param);
