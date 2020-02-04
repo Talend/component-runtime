@@ -1,3 +1,5 @@
+
+
 == Version 1.1.17
 
 === Bug
@@ -6,6 +8,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1622[TCOMP-1622^]: [DOC] @Icon is not supported on datastore/dataset
 - link:https://jira.talendforge.org/browse/TCOMP-1623[TCOMP-1623^]: Change scheme for maven repos
 
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1616[TCOMP-1616^]: Upgrade OpenWebBeans to 2.0.14 in component-server and component-server-vault-proxy
@@ -13,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1618[TCOMP-1618^]: Upgrade Junit to 5.6.0
 - link:https://jira.talendforge.org/browse/TCOMP-1620[TCOMP-1620^]: Upgrade to Apache Beam 2.18.0
 - link:https://jira.talendforge.org/browse/TCOMP-1621[TCOMP-1621^]: Upgrade to Johnzon 1.2.3
+- link:https://jira.talendforge.org/browse/TCOMP-1624[TCOMP-1624^]: @Service does not support list injections
 
 == Version 1.1.16
 
