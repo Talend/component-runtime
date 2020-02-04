@@ -162,6 +162,7 @@ public class Generator {
 
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
+        final String version = args[3].replace("-SNAPSHOT", "");
 
         try (final Tasks tasks = new Tasks()) {
             tasks.register(Asciidoctor.Factory::create).thenApply(adoc -> {
@@ -179,8 +180,8 @@ public class Generator {
             tasks.register(() -> generatedUi(generatedDir));
             tasks.register(() -> generatedServerConfiguration(generatedDir));
             tasks.register(() -> generatedServerVaultProxyConfiguration(generatedDir));
-            tasks.register(() -> updateComponentServerApi(generatedDir));
-            tasks.register(() -> updateComponentServerVaultApi(generatedDir));
+            tasks.register(() -> updateComponentServerApi(generatedDir, version));
+            tasks.register(() -> updateComponentServerVaultApi(generatedDir, version));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
             tasks.register(() -> generatedRemoteEngineCustomizerHelp(generatedDir));
@@ -190,7 +191,7 @@ public class Generator {
                 log.info("System is offline, skipping jira changelog and github contributor generation");
             } else {
                 tasks.register(() -> generatedContributors(generatedDir, args[5], args[6]));
-                tasks.register(() -> generatedJira(generatedDir, args[1], args[2], args[3]));
+                tasks.register(() -> generatedJira(generatedDir, args[1], args[2], version));
             }
         }
     }
@@ -202,17 +203,18 @@ public class Generator {
         }
     }
 
-    private static void updateComponentServerApi(final File generatedDir) throws Exception {
+    private static void updateComponentServerApi(final File generatedDir, final String version) throws Exception {
         writeServerOpenApi(new File(generatedDir, "generated_rest-resources.adoc"),
-                "META-INF/resources/documentation/openapi.json");
+                "META-INF/resources/documentation/openapi.json", version);
     }
 
-    private static void updateComponentServerVaultApi(final File generatedDir) throws Exception {
+    private static void updateComponentServerVaultApi(final File generatedDir, final String version) throws Exception {
         writeServerOpenApi(new File(generatedDir, "generated_rest-resources-vault.adoc"),
-                "META-INF/resources/openapi.json");
+                "META-INF/resources/openapi.json", version);
     }
 
-    private static void writeServerOpenApi(final File output, final String resource) throws Exception {
+    private static void writeServerOpenApi(final File output, final String resource, final String version)
+            throws Exception {
         try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
                 final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
             final String newJson = IO.slurp(source);
@@ -231,12 +233,13 @@ public class Generator {
                     : jsonb.fromJson(oldJson, JsonObject.class);
             final JsonObject newApi = builderFactory
                     .createObjectBuilder(jsonb.fromJson(newJson, JsonObject.class))
-                    .add("servers",
-                            builderFactory
-                                    .createArrayBuilder()
-                                    .add(builderFactory
-                                            .createObjectBuilder()
-                                            .add("url", "https://talend.github.io/component-runtime/apidemo")))
+                    .add("servers", builderFactory
+                            .createArrayBuilder()
+                            .add(builderFactory
+                                    .createObjectBuilder()
+                                    .add("url", String
+                                            .format("https://talend.github.io/component-runtime/%s/examples/apidemo",
+                                                    version))))
                     .build();
             if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
@@ -481,10 +484,9 @@ public class Generator {
                     .get(new GenericType<List<JiraVersion>>() {
                     });
 
-            final String currentVersion = version.replace("-SNAPSHOT", "");
             final List<JiraVersion> jiraLoggedVersions = versions
                     .stream()
-                    .filter(v -> (v.isReleased() || jiraVersionMatches(currentVersion, v.getName())))
+                    .filter(v -> (v.isReleased() || jiraVersionMatches(version, v.getName())))
                     .collect(toList());
             if (jiraLoggedVersions.isEmpty()) {
                 try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
@@ -545,7 +547,7 @@ public class Generator {
 
             final List<JiraVersion> queriedVersion = jiraLoggedVersions
                     .stream()
-                    .filter(it -> !changelogPerVersion.containsKey(it.getName()) || currentVersion.equals(it.getName()))
+                    .filter(it -> !changelogPerVersion.containsKey(it.getName()) || version.equals(it.getName()))
                     .collect(toList());
             final Map<String, TreeMap<String, List<JiraIssue>>> issues = IntStream
                     .range(0, (queriedVersion.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
