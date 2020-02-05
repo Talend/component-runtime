@@ -236,6 +236,9 @@ public class RecordConverters implements Serializable {
         if (Float.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.FLOAT).build();
         }
+        if (BigDecimal.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
+            return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
+        }
         if (Double.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
         }
