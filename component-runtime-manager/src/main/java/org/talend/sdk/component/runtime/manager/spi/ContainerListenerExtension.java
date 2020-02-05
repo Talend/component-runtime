@@ -27,4 +27,8 @@ public interface ContainerListenerExtension extends ContainerListener {
     default void setComponentManager(final ComponentManager manager) {
         // no-op
     }
+
+    default int order() {
+        return 0;
+    }
 }
