@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.Comparator.comparing;
+import static java.util.Locale.ROOT;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -940,7 +941,19 @@ public class ComponentManager implements AutoCloseable {
 
             @Override
             public String get(final String key) {
-                return System.getenv(key);
+                String val = System.getenv(key);
+                if (val != null) {
+                    return val;
+                }
+                val = System.getenv(key.replace('.', '_'));
+                if (val != null) {
+                    return val;
+                }
+                val = System.getenv(key.replace('.', '_').toUpperCase(ROOT));
+                if (val != null) {
+                    return val;
+                }
+                return null;
             }
 
             @Override

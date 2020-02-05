@@ -393,4 +393,23 @@ class ComponentManagerTest {
         });
         proc.stop();
     }
+
+    @Test
+    void testLocalConfigurationFromEnvironment(@TempDir final File temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
+        pluginFolder.mkdirs();
+        final File plugin = pluginGenerator
+                .createPlugin(pluginFolder, "plugin.jar", "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+        try (final ComponentManager manager =
+                     new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+            manager.addPlugin(plugin.getAbsolutePath());
+            Container container = manager.getContainer().findAll().stream().findFirst().orElse(null);
+            assertNotNull(container);
+            assertEquals("plugin", container.getId());
+            //LocalConfiguration svc = container.findService(LocalConfiguration.class);
+        } finally { // clean temp files
+            doCleanup(pluginFolder);
+        }
+    }
+
 }
