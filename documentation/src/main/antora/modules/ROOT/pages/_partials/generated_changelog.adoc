@@ -18,6 +18,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1620[TCOMP-1620^]: Upgrade to Apache Beam 2.18.0
 - link:https://jira.talendforge.org/browse/TCOMP-1621[TCOMP-1621^]: Upgrade to Johnzon 1.2.3
 - link:https://jira.talendforge.org/browse/TCOMP-1624[TCOMP-1624^]: @Service does not support list injections
+- link:https://jira.talendforge.org/browse/TCOMP-1625[TCOMP-1625^]: Upgrade to xbean 4.16
+- link:https://jira.talendforge.org/browse/TCOMP-1626[TCOMP-1626^]: Ensure ContainerListenerExtensions can be sorted
 
 == Version 1.1.16
 
