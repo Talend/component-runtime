@@ -27,9 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Stream;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -44,10 +47,10 @@ import javax.json.spi.JsonProvider;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
 import routines.system.IPersistableRow;
 
 class RecordConvertersTest {
@@ -302,6 +305,51 @@ class RecordConvertersTest {
                             () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<Record> list = record.getArray(Record.class, "list");
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
+        }
+    }
+
+    @Test
+    void bigDecimalsInArray() throws Exception {
+        BigDecimal pos1 = new BigDecimal(48.8480275637);
+        BigDecimal pos2 = new BigDecimal(2.25369456784);
+        List<BigDecimal> expected = asList(pos1, pos2);
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            JsonObject json = jsonBuilderFactory
+                    .createObjectBuilder()
+                    .add("points", jsonBuilderFactory.createArrayBuilder().add(pos1).add(pos2).build())
+                    .build();
+            Record record =
+                    converter.toRecord(new MappingMetaRegistry(), json, () -> jsonb, () -> recordBuilderFactory);
+            assertEquals(expected, record.getArray(BigDecimal.class, "points"));
+        }
+    }
+
+    @Test
+    void bigDecimalsInArrays() throws Exception {
+        BigDecimal pos1 = new BigDecimal(48.8480275637);
+        BigDecimal pos2 = new BigDecimal(2.25369456784);
+        BigDecimal pos3 = new BigDecimal(25);
+        List<BigDecimal> expected = asList(pos1, pos2, pos1, pos2, pos2, pos1, pos3);
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            JsonObject json =
+                    jsonBuilderFactory
+                            .createObjectBuilder()
+                            .add("coordinates", jsonBuilderFactory
+                                    .createArrayBuilder()
+                                    .add(jsonBuilderFactory.createArrayBuilder().add(pos1).add(pos2).build())
+                                    .add(jsonBuilderFactory.createArrayBuilder().add(pos1).add(pos2).build())
+                                    .add(jsonBuilderFactory.createArrayBuilder().add(pos2).add(pos1).add(pos3).build())
+                                    .build())
+                            .build();
+            Record record =
+                    converter.toRecord(new MappingMetaRegistry(), json, () -> jsonb, () -> recordBuilderFactory);
+            assertEquals(expected,
+                    record
+                            .getArray(ArrayList.class, "coordinates")
+                            .stream()
+                            .flatMap(a -> a.stream())
+                            .flatMap(bd -> Stream.of(bd))
+                            .collect(toList()));
         }
     }
 
