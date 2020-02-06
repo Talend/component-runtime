@@ -945,11 +945,12 @@ public class ComponentManager implements AutoCloseable {
                 if (val != null) {
                     return val;
                 }
-                val = System.getenv(key.replace('.', '_'));
+                String k = key.replaceAll("[^A-Za-z0-9]", "_");
+                val = System.getenv(k);
                 if (val != null) {
                     return val;
                 }
-                val = System.getenv(key.replace('.', '_').toUpperCase(ROOT));
+                val = System.getenv(k.toUpperCase(ROOT));
                 if (val != null) {
                     return val;
                 }
