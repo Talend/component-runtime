@@ -66,6 +66,6 @@ This issue can be caused by the icon specified in the component metadata.
 
 * Make sure to specify a custom icon for the component and the component family.
 * These custom icons must be in PNG format to be properly handled by Talend Studio.
-* Remove SVG parameters from the `talend.component.server.icon.paths` property in the HTTP server configuration. 
+* Remove SVG parameters from the `talend.component.server.icon.paths` property in the HTTP server configuration. Refer to xref:ref-server-configuration.adoc[this section].
 
 Learn more about defining custom icons for components in xref:component-registering.adoc[this document].

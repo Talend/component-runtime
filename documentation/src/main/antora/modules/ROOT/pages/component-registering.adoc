@@ -46,7 +46,7 @@ Metadata is set on the component class and belongs to the `org.talend.sdk.compon
 When you generate your project and import it in your IDE, icon and version both come with a default value.
 
 - *@Icon*: Sets an icon key used to represent the component.
-You can use a custom key with the `custom()` method but the icon may not be rendered properly. The icon defaults to *Star*. +
+You can use a custom key with the `custom()` method but the icon may not be rendered properly. The icon defaults to *Check*. +
 Replace it with a custom icon, as described in xref:component-defining-custom-icon.adoc[this section].
 - *@Version*: Sets the component version. 1 by default. +
 Learn how to manage different versions and migrations between your component versions in xref:component-versions-and-migration.adoc[this section].
