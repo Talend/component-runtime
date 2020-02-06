@@ -37,6 +37,7 @@ package org.talend.sdk.component.sample;
 import org.talend.sdk.component.api.component.Components;
 ----
 
+[[icon_version]]
 == Component icon and version
 
 Components can require metadata to be integrated in Talend Studio or Cloud platforms.
@@ -46,8 +47,7 @@ When you generate your project and import it in your IDE, icon and version both 
 
 - *@Icon*: Sets an icon key used to represent the component.
 You can use a custom key with the `custom()` method but the icon may not be rendered properly. The icon defaults to *Star*. +
-You can use a custom icon from the link:icons.html[icon gallery] or create your own. +
-Learn how to set a custom icon for your component in xref:component-defining-custom-icon.adoc[this section].
+Replace it with a custom icon, as described in xref:component-defining-custom-icon.adoc[this section].
 - *@Version*: Sets the component version. 1 by default. +
 Learn how to manage different versions and migrations between your component versions in xref:component-versions-and-migration.adoc[this section].
 
