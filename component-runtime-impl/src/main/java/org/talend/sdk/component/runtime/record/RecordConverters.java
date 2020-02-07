@@ -154,7 +154,11 @@ public class RecordConverters implements Serializable {
             case NUMBER:
                 final JsonNumber number = JsonNumber.class.cast(value);
                 if (number.isIntegral()) {
-                    builder.withLong(key, number.longValue());
+                    if (number.toString().length() > String.valueOf(Integer.MIN_VALUE).length()) {
+                        builder.withLong(key, number.longValue());
+                    } else {
+                        builder.withInt(key, number.intValue());
+                    }
                 } else {
                     builder.withDouble(key, number.doubleValue());
                 }
