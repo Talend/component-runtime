@@ -162,6 +162,7 @@ public class Generator {
 
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
+        final String version = args[3].replace("-SNAPSHOT", "");
 
         try (final Tasks tasks = new Tasks()) {
             tasks.register(Asciidoctor.Factory::create).thenApply(adoc -> {
@@ -179,8 +180,8 @@ public class Generator {
             tasks.register(() -> generatedUi(generatedDir));
             tasks.register(() -> generatedServerConfiguration(generatedDir));
             tasks.register(() -> generatedServerVaultProxyConfiguration(generatedDir));
-            tasks.register(() -> updateComponentServerApi(generatedDir));
-            tasks.register(() -> updateComponentServerVaultApi(generatedDir));
+            tasks.register(() -> updateComponentServerApi(generatedDir, version));
+            tasks.register(() -> updateComponentServerVaultApi(generatedDir, version));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
             tasks.register(() -> generatedRemoteEngineCustomizerHelp(generatedDir));
@@ -190,7 +191,7 @@ public class Generator {
                 log.info("System is offline, skipping jira changelog and github contributor generation");
             } else {
                 tasks.register(() -> generatedContributors(generatedDir, args[5], args[6]));
-                tasks.register(() -> generatedJira(generatedDir, args[1], args[2], args[3]));
+                tasks.register(() -> generatedJira(generatedDir, args[1], args[2], version));
             }
         }
     }
@@ -202,19 +203,20 @@ public class Generator {
         }
     }
 
-    private static void updateComponentServerApi(final File generatedDir) throws Exception {
+    private static void updateComponentServerApi(final File generatedDir, final String version) throws Exception {
         writeServerOpenApi(new File(generatedDir, "generated_rest-resources.adoc"),
-                "META-INF/resources/documentation/openapi.json");
+                "META-INF/resources/documentation/openapi.json", version);
     }
 
-    private static void updateComponentServerVaultApi(final File generatedDir) throws Exception {
+    private static void updateComponentServerVaultApi(final File generatedDir, final String version) throws Exception {
         writeServerOpenApi(new File(generatedDir, "generated_rest-resources-vault.adoc"),
-                "META-INF/resources/openapi.json");
+                "META-INF/resources/openapi.json", version);
     }
 
-    private static void writeServerOpenApi(final File output, final String resource) throws Exception {
+    private static void writeServerOpenApi(final File output, final String resource, final String version)
+            throws Exception {
         try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-                final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
+             final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
             final String newJson = IO.slurp(source);
             String oldJson = !output.exists() ? "{}" : String.join("\n", Files.readAllLines(output.toPath()));
             final int start = oldJson.indexOf(".swaggerUi = ");
@@ -231,12 +233,13 @@ public class Generator {
                     : jsonb.fromJson(oldJson, JsonObject.class);
             final JsonObject newApi = builderFactory
                     .createObjectBuilder(jsonb.fromJson(newJson, JsonObject.class))
-                    .add("servers",
-                            builderFactory
-                                    .createArrayBuilder()
-                                    .add(builderFactory
-                                            .createObjectBuilder()
-                                            .add("url", "https://talend.github.io/component-runtime/apidemo")))
+                    .add("servers", builderFactory
+                            .createArrayBuilder()
+                            .add(builderFactory
+                                    .createObjectBuilder()
+                                    .add("url", String
+                                            .format("https://talend.github.io/component-runtime/main/%s/examples/apidemo",
+                                                    version))))
                     .build();
             if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
@@ -244,7 +247,7 @@ public class Generator {
                             .write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
                                     + "(window.talend " + "= (window.talend || {})).swaggerUi = " + newApi.toString()
                                     + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
-                                            .getBytes(StandardCharsets.UTF_8));
+                                    .getBytes(StandardCharsets.UTF_8));
                 }
             }
         }
@@ -344,7 +347,7 @@ public class Generator {
             builder
                     .append(root ? "."
                             : (IntStream.range(0, section.getLevel() - 1).mapToObj(i -> "*").collect(joining())
-                                    + " xref:" + target + "#" + section.getId() + "["))
+                            + " xref:" + target + "#" + section.getId() + "["))
                     .append(root ? mapTitle(section.getTitle()) : section.getTitle())
                     .append(root ? "" : "]")
                     .append('\n');
@@ -456,7 +459,7 @@ public class Generator {
     // to avoid to be very slow we just grab current version and extract other versions
     // from the previous file
     private static void generatedJira(final File generatedDir, final String username, final String password,
-            final String version) {
+                                      final String version) {
         if (username == null || username.trim().isEmpty() || "skip".equals(username)) {
             log.error("No JIRA credentials, will skip changelog generation");
             return;
@@ -481,10 +484,9 @@ public class Generator {
                     .get(new GenericType<List<JiraVersion>>() {
                     });
 
-            final String currentVersion = version.replace("-SNAPSHOT", "");
             final List<JiraVersion> jiraLoggedVersions = versions
                     .stream()
-                    .filter(v -> (v.isReleased() || jiraVersionMatches(currentVersion, v.getName())))
+                    .filter(v -> (v.isReleased() || jiraVersionMatches(version, v.getName())))
                     .collect(toList());
             if (jiraLoggedVersions.isEmpty()) {
                 try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
@@ -495,7 +497,7 @@ public class Generator {
 
             final Map<String, String> changelogPerVersion = new HashMap<>();
             try (final BufferedReader reader =
-                    new BufferedReader(new StringReader(String.join("\n", Files.readAllLines(file.toPath()))))) {
+                         new BufferedReader(new StringReader(String.join("\n", Files.readAllLines(file.toPath()))))) {
                 final StringBuilder builder = new StringBuilder();
                 String line;
                 String versionRead = null;
@@ -545,7 +547,7 @@ public class Generator {
 
             final List<JiraVersion> queriedVersion = jiraLoggedVersions
                     .stream()
-                    .filter(it -> !changelogPerVersion.containsKey(it.getName()) || currentVersion.equals(it.getName()))
+                    .filter(it -> !changelogPerVersion.containsKey(it.getName()) || version.equals(it.getName()))
                     .collect(toList());
             final Map<String, TreeMap<String, List<JiraIssue>>> issues = IntStream
                     .range(0, (queriedVersion.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
@@ -554,9 +556,9 @@ public class Generator {
                                     min(maxVersionPerQuery * (pageIdx + 1), queriedVersion.size())))
                     .map(pageVersions -> "project=" + project + " AND labels=\"changelog\""
                             + pageVersions
-                                    .stream()
-                                    .map(v -> "fixVersion=" + v.getName())
-                                    .collect(joining(" OR ", " AND (", ")")))
+                            .stream()
+                            .map(v -> "fixVersion=" + v.getName())
+                            .collect(joining(" OR ", " AND (", ")")))
                     .flatMap(jql -> Stream
                             .of(searchFrom.apply(jql, 0L))
                             .flatMap(it -> paginate.apply(jql, it))
@@ -691,23 +693,23 @@ public class Generator {
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
                     return name.startsWith("git.") ? null
                             : (name + ":: " + of(configProperty.defaultValue())
-                                    .filter(it -> !it
-                                            .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
-                                    .map(it -> "Default value: `" + it + "`. ")
-                                    .orElse("")
-                                    + Stream
-                                            .of(field.getDeclaredAnnotations())
-                                            .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
-                                            .map(a -> {
-                                                try {
-                                                    return a.annotationType().getMethod("value").invoke(a).toString();
-                                                } catch (final IllegalAccessException | InvocationTargetException
-                                                        | NoSuchMethodException e) {
-                                                    return "-";
-                                                }
-                                            })
-                                            .findFirst()
-                                            .orElse("-"));
+                            .filter(it -> !it
+                                    .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
+                            .map(it -> "Default value: `" + it + "`. ")
+                            .orElse("")
+                            + Stream
+                            .of(field.getDeclaredAnnotations())
+                            .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
+                            .map(a -> {
+                                try {
+                                    return a.annotationType().getMethod("value").invoke(a).toString();
+                                } catch (final IllegalAccessException | InvocationTargetException
+                                        | NoSuchMethodException e) {
+                                    return "-";
+                                }
+                            })
+                            .findFirst()
+                            .orElse("-"));
                 })
                 .filter(Objects::nonNull)
                 .sorted()
@@ -796,7 +798,7 @@ public class Generator {
     }
 
     private static void renderUiDoc(final PrintStream stream, final ParameterExtensionEnricher enricher,
-            final Jsonb jsonb, final Class<?> type) {
+                                    final Jsonb jsonb, final Class<?> type) {
         stream.println();
         stream.print("= @" + type.getSimpleName());
         stream.println();
@@ -817,7 +819,7 @@ public class Generator {
     }
 
     private static Map<String, String> getMeta(final ParameterExtensionEnricher enricher, final Class<?> type,
-            final Class<?> paramType) {
+                                               final Class<?> paramType) {
         return new TreeMap<>(enricher
                 .onParameterAnnotation("theparameter", paramType, generateAnnotation(type))
                 .entrySet()
