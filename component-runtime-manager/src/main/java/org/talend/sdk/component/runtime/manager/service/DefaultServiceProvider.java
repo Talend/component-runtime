@@ -15,10 +15,12 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,12 +36,14 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonWriterFactory;
 import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGeneratorFactory;
 import javax.json.stream.JsonParserFactory;
 
+import org.apache.johnzon.mapper.MapperBuilder;
 import org.talend.sdk.component.api.record.RecordPointerFactory;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
@@ -55,7 +59,9 @@ import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
+import org.talend.sdk.component.runtime.manager.util.Lazy;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
+import org.talend.sdk.component.runtime.record.json.RecordJsonGenerator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -126,14 +132,12 @@ public class DefaultServiceProvider {
                     .asSerializable(loader, id, JsonGeneratorFactory.class.getName(), jsonpGeneratorFactory);
         }
         if (Jsonb.class == api) {
-            return Jsonb.class
-                    .cast(javaProxyEnricherFactory
-                            .asSerializable(loader, id, Jsonb.class.getName(),
-                                    jsonbProvider
-                                            .create()
-                                            .withProvider(jsonpProvider) // reuses the same memory buffering
-                                            .withConfig(jsonbConfig)
-                                            .build()));
+            final JsonbBuilder jsonbBuilder = createPojoJsonbBuilder(id);
+            return new GenericOrPojoJsonb(id, jsonbProvider
+                    .create()
+                    .withProvider(jsonpProvider) // reuses the same memory buffering
+                    .withConfig(jsonbConfig)
+                    .build(), jsonbBuilder.build());
         }
         if (LocalConfiguration.class == api) {
             final List<LocalConfiguration> containerConfigurations = new ArrayList<>(localConfigurations);
@@ -175,10 +179,35 @@ public class DefaultServiceProvider {
             return new ContainerInfo(id);
         }
         if (RecordService.class == api) {
-            return new RecordServiceImpl(id,
-                    RecordBuilderFactory.class.cast(services.get().get(RecordBuilderFactory.class)));
+            return new RecordServiceImpl(id, recordBuilderFactoryProvider.apply(id), () -> jsonpBuilderFactory,
+                    () -> jsonpProvider,
+                    Lazy
+                            .lazy(() -> Jsonb.class
+                                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services))));
         }
         return null;
+    }
+
+    private JsonbBuilder createPojoJsonbBuilder(final String id) {
+        final JsonbBuilder jsonbBuilder =
+                JsonbBuilder
+                        .newBuilder()
+                        .withProvider(new PreComputedJsonpProvider(id, jsonpProvider, jsonpParserFactory,
+                                jsonpWriterFactory, jsonpBuilderFactory,
+                                new RecordJsonGenerator.Factory(() -> recordBuilderFactoryProvider.apply(id),
+                                        emptyMap()),
+                                jsonpReaderFactory))
+                        .withConfig(jsonbConfig);
+        try { // to passthrough the writer, otherwise RecoderJsonGenerator is broken
+            final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
+            if (!mapper.isAccessible()) {
+                mapper.setAccessible(true);
+            }
+            MapperBuilder.class.cast(mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
+        }
+        return jsonbBuilder;
     }
 
     private Properties aggregateConfigurations(final Stream<InputStream> localConfigs) {

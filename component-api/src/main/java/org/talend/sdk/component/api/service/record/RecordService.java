@@ -28,6 +28,24 @@ import org.talend.sdk.component.api.record.Schema;
 public interface RecordService {
 
     /**
+     * Simple mapper of record to pojo.
+     *
+     * @param data record to map to pojo.
+     * @param <T> the pojo type (optional).
+     * @return a pojo representing the data record.
+     */
+    <T> T toObject(final Record data, Class<T> expected);
+
+    /**
+     * Simple mapper of data to record.
+     *
+     * @param data pojo to map to record.
+     * @param <T> the pojo type (optional).
+     * @return a record representing the pojo.
+     */
+    <T> Record toRecord(final T data);
+
+    /**
      * Forward an entry from the source record if it exists.
      *
      * @param source the source record to read data from.
