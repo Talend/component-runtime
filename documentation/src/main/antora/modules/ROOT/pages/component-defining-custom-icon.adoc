@@ -4,23 +4,33 @@
 :keywords: component icon
 
 Every component family and component needs to have a representative icon. +
-You can use one of the icons provided by the framework or you can use a custom icon.
+You have to define a custom icon as follows:
 
 - For the component family the icon is defined in the `package-info.java` file.
 - For the component itself, you need to declare the icon in the component class.
 
-To use a custom icon, you need to have the icon file placed in the `src/main/resources/icons` folder of the project.
-The icon file needs to have a name following the convention `IconName.svg` - or the convention `IconName_icon32.png` which will run in degraded mode in Talend Cloud.
-Indeed, you can replace `IconName` by the name of your choice.
+Custom icons must comply with the following requirements:
+
+* Icons must be stored in the `src/main/resources/icons` folder of the project.
+* Icon file names need to match one of the following patterns: `IconName.svg` or `IconName_icon32.png`. The latter will run in degraded mode in Talend Cloud. Replace `IconName` by the name of your choice. 
+* Icons must be squared, even for the SVG format.
+
+
 
 [source,java]
 ----
 @Icon(value = Icon.IconType.CUSTOM, custom = "IconName")
 ----
 
-IMPORTANT: even in SVG, the icon must be squared.
+[IMPORTANT]
+====
+Note that SVG icons are not supported by Talend Studio and can cause the deployment of the component to fail. 
 
-TIP: the Maven (or Gradle) `svg2png` plugin takes care of converting the SVG into PNG, if you want a finer control over both images, you can provide both in your component.
+If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven (or Gradle) `svg2png` plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component. 
+
+Ultimately, you can also remove SVG parameters from the `talend.component.server.icon.paths` property in the HTTP server configuration.
+====
+
 
 
 ifeval::["{backend}" == "html5"]
