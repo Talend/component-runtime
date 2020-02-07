@@ -153,7 +153,11 @@ public class RecordConverters implements Serializable {
                 break;
             case NUMBER:
                 final JsonNumber number = JsonNumber.class.cast(value);
-                builder.withDouble(key, number.doubleValue());
+                if (number.isIntegral()) {
+                    builder.withLong(key, number.longValue());
+                } else {
+                    builder.withDouble(key, number.doubleValue());
+                }
                 break;
             case NULL:
                 break;
