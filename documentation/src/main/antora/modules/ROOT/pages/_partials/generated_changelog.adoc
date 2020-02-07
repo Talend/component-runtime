@@ -7,6 +7,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1619[TCOMP-1619^]: Handle correctly DATETIME field type on AvroRecord
 - link:https://jira.talendforge.org/browse/TCOMP-1622[TCOMP-1622^]: [DOC] @Icon is not supported on datastore/dataset
 - link:https://jira.talendforge.org/browse/TCOMP-1623[TCOMP-1623^]: Change scheme for maven repos
+- link:https://jira.talendforge.org/browse/TCOMP-1628[TCOMP-1628^]: Manage BigDecimal in RecordConverter
+- link:https://jira.talendforge.org/browse/TCOMP-1629[TCOMP-1629^]: Ensure LocalConfiguration environment source replace dot with _
+- link:https://jira.talendforge.org/browse/TCOMP-1630[TCOMP-1630^]: Avoid NPE when configurationByExample() is called in a list of primitive without values
 
 
 
@@ -18,6 +21,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1620[TCOMP-1620^]: Upgrade to Apache Beam 2.18.0
 - link:https://jira.talendforge.org/browse/TCOMP-1621[TCOMP-1621^]: Upgrade to Johnzon 1.2.3
 - link:https://jira.talendforge.org/browse/TCOMP-1624[TCOMP-1624^]: @Service does not support list injections
+- link:https://jira.talendforge.org/browse/TCOMP-1625[TCOMP-1625^]: Upgrade to xbean 4.16
+- link:https://jira.talendforge.org/browse/TCOMP-1626[TCOMP-1626^]: Ensure ContainerListenerExtensions can be sorted
+- link:https://jira.talendforge.org/browse/TCOMP-1627[TCOMP-1627^]: Upgrade to Apache Beam 2.19.0
 
 == Version 1.1.16
 
