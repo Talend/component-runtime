@@ -339,7 +339,7 @@
               </systemProperties>
               <arguments>
                 <argument>${project.build.directory}/exec/api-mock</argument>
-                <argument>${project.basedir}/src/main/antora/modules/ROOT/examples/apidemo</argument>
+                <argument>${project.build.directory}/exec/api-mock/examples/apidemo</argument>
               </arguments>
             </configuration>
           </execution>
