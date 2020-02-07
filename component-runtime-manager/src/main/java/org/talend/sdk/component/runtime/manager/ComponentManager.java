@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.Comparator.comparing;
+import static java.util.Locale.ROOT;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -387,6 +388,7 @@ public class ComponentManager implements AutoCloseable {
         }
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
                 .peek(e -> e.setComponentManager(ComponentManager.this))
+                .sorted(comparing(ContainerListenerExtension::order))
                 .forEach(container::registerListener);
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl))
                 .filter(ComponentExtension::isActive)
@@ -939,7 +941,20 @@ public class ComponentManager implements AutoCloseable {
 
             @Override
             public String get(final String key) {
-                return System.getenv(key);
+                String val = System.getenv(key);
+                if (val != null) {
+                    return val;
+                }
+                String k = key.replaceAll("[^A-Za-z0-9]", "_");
+                val = System.getenv(k);
+                if (val != null) {
+                    return val;
+                }
+                val = System.getenv(k.toUpperCase(ROOT));
+                if (val != null) {
+                    return val;
+                }
+                return null;
             }
 
             @Override

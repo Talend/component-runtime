@@ -24,6 +24,7 @@ import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -90,6 +91,8 @@ class InjectorImplTest {
         final Injected instance = new Injected();
         injector.inject(instance);
         assertNotNull(instance.cache);
+        assertNotNull(instance.caches);
+        assertEquals(2, instance.caches.size()); // LocalConfiguration and LocalCache
     }
 
     @Test
@@ -114,6 +117,9 @@ class InjectorImplTest {
 
         @Service
         private LocalCache cache;
+
+        @Service
+        private List<Object> caches;
     }
 
     public static class InvalidInjectedConfig1 {
