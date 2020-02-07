@@ -22,16 +22,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.serialization.Serializer;
-import org.talend.sdk.component.api.input.Producer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -59,7 +60,7 @@ class InputImplTest {
             assertEquals(1, record.getSchema().getEntries().size());
             final Schema.Entry data = record.getSchema().getEntries().iterator().next();
             assertEquals("data", data.getName());
-            assertEquals(Schema.Type.DOUBLE, data.getType());
+            assertEquals(Schema.Type.INT, data.getType());
             assertEquals(i, record.get(Double.class, "data").doubleValue());
             assertTrue(delegate.start);
             assertFalse(delegate.stop);
@@ -70,6 +71,37 @@ class InputImplTest {
         assertTrue(delegate.start);
         assertTrue(delegate.stop);
         assertEquals(10, delegate.count);
+    }
+
+    @Test
+    void lifecycleWithDouble() {
+        final ComponentWithDoubleSample delegate = new ComponentWithDoubleSample();
+        final Input input = new InputImpl("Root", "Test", "Plugin", delegate);
+        assertFalse(delegate.start);
+        assertFalse(delegate.stop);
+        assertEquals(0, delegate.count);
+
+        input.start();
+        assertTrue(delegate.start);
+        assertFalse(delegate.stop);
+        assertEquals(0, delegate.count);
+
+        DoubleStream.of(0.1, 0.2, 0.3).forEach(d -> {
+            final Object next = input.next();
+            assertTrue(Record.class.isInstance(next));
+            final Record record = Record.class.cast(next);
+            assertEquals(Schema.Type.RECORD, record.getSchema().getType());
+            assertEquals(1, record.getSchema().getEntries().size());
+            final Schema.Entry data = record.getSchema().getEntries().iterator().next();
+            assertEquals("data", data.getName());
+            assertEquals(Schema.Type.DOUBLE, data.getType());
+            assertTrue(delegate.start);
+            assertFalse(delegate.stop);
+        });
+        input.stop();
+        assertTrue(delegate.start);
+        assertTrue(delegate.stop);
+        assertTrue(delegate.count > 0.2 && delegate.count < 0.4);
     }
 
     @Test
@@ -112,5 +144,37 @@ class InputImplTest {
     public static class Sample {
 
         private int data;
+    }
+
+    public static class ComponentWithDoubleSample implements Serializable {
+
+        private boolean stop;
+
+        private boolean start;
+
+        private double count = 0;
+
+        @PostConstruct
+        public void init() {
+            start = true;
+        }
+
+        @Producer
+        public DoubleSample produces() {
+            count = count + 0.1;
+            return new DoubleSample(count);
+        }
+
+        @PreDestroy
+        public void destroy() {
+            stop = true;
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class DoubleSample {
+
+        private double data;
     }
 }
