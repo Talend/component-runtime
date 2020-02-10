@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
@@ -32,6 +33,16 @@ public class LocalCacheService implements LocalCache, Serializable {
     private final String plugin;
 
     private final ConcurrentMap<String, Element> cache = new ConcurrentHashMap<>();
+
+    @Override
+    public void evict(final String key) {
+        cache.remove(internalKey(key));
+    }
+
+    @Override
+    public <T> void evictIfValue(final String key, final T expected) {
+        cache.remove(internalKey(key), new Element(expected, 0));
+    }
 
     @Override
     public <T> T computeIfAbsent(final String key, final long timeoutMs, final Supplier<T> value) {
@@ -60,6 +71,22 @@ public class LocalCacheService implements LocalCache, Serializable {
 
         private boolean isExpired() {
             return System.currentTimeMillis() > endOfValidity;
+        }
+
+        @Override
+        public boolean equals(final Object o) { // ignore endOfValidity
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            return Objects.equals(Element.class.cast(o).value, value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
         }
     }
 

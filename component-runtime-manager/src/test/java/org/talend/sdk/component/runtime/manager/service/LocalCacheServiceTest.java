@@ -31,6 +31,24 @@ import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFi
 class LocalCacheServiceTest {
 
     @Test
+    void conditionalEviction() {
+        final LocalCache cache = new LocalCacheService("LocalCacheServiceTest");
+        final String value = cache.computeIfAbsent("foo", () -> "bar");
+        assertEquals("bar", value);
+        assertEquals("bar", cache.computeIfAbsent("foo", () -> "test"));
+        cache.evictIfValue("foo", value);
+        assertEquals("renewed", cache.computeIfAbsent("foo", () -> "renewed"));
+    }
+
+    @Test
+    void eviction() {
+        final LocalCache cache = new LocalCacheService("LocalCacheServiceTest");
+        assertEquals("bar", cache.computeIfAbsent("foo", () -> "bar"));
+        cache.evict("foo");
+        assertEquals("renewed", cache.computeIfAbsent("foo", () -> "renewed"));
+    }
+
+    @Test
     void serialize() throws IOException, ClassNotFoundException {
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(LocalCache.class, new LocalCacheService("tmp"));
