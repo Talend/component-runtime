@@ -57,3 +57,15 @@ Make sure you are connected to a remote project and the artifact repository for 
 . Restart your Talend Studio and connect to the remote project.
 
 The components are deployed automatically to the repository and available in the Palette for other users when connected to a remote project with the same sharing repository configuration.
+
+
+== Troubleshooting
+
+*My custom component builds correctly but does not appear in Talend Studio, how to fix it?*
+This issue can be caused by the icon specified in the component metadata.
+
+* Make sure to specify a custom icon for the component and the component family.
+* These custom icons must be in PNG format to be properly handled by Talend Studio.
+* Remove SVG parameters from the `talend.component.server.icon.paths` property in the HTTP server configuration. Refer to xref:ref-server-configuration.adoc[this section].
+
+Learn more about defining custom icons for components in xref:component-registering.adoc[this document].

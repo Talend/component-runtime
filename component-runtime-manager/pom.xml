@@ -155,6 +155,17 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <environmentVariables>
+            <USER_PATH>/home/user</USER_PATH>
+            <talend_localconfig_user_home>/home/user</talend_localconfig_user_home>
+            <TALEND_LOCALCONFIG_TEST_0>true</TALEND_LOCALCONFIG_TEST_0>
+          </environmentVariables>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
