@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Collections.singletonList;
-import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -39,32 +38,6 @@ class LocalConfigurationServiceTest {
         @Override
         public Set<String> keys() {
             return System.getProperties().stringPropertyNames();
-        }
-    };
-
-    private final LocalConfiguration environmentProperties = new LocalConfiguration() {
-
-        @Override
-        public String get(final String key) {
-            String val = System.getenv(key);
-            if (val != null) {
-                return val;
-            }
-            String k = key.replaceAll("[^A-Za-z0-9]", "_");
-            val = System.getenv(k);
-            if (val != null) {
-                return val;
-            }
-            val = System.getenv(k.toUpperCase(ROOT));
-            if (val != null) {
-                return val;
-            }
-            return null;
-        }
-
-        @Override
-        public Set<String> keys() {
-            return System.getenv().keySet();
         }
     };
 
@@ -113,26 +86,5 @@ class LocalConfigurationServiceTest {
             System.clearProperty("LocalConfigurationServiceTest.test.foo");
             System.clearProperty("LocalConfigurationServiceTest.test.bar");
         }
-    }
-
-    @Test
-    void environmentPropertiesGet() {
-        assertEquals("/home/user", environmentProperties.get("USER_PATH"));
-        assertEquals("/home/user", environmentProperties.get("user_path"));
-        assertEquals("/home/user", environmentProperties.get("user_PATH"));
-        assertEquals("/home/user", environmentProperties.get("talend_localconfig_user_home"));
-        assertEquals("/home/user", environmentProperties.get("talend.localconfig.user.home"));
-        assertEquals("true", environmentProperties.get("talend.LOCALCONFIG.test.0"));
-        assertEquals("true", environmentProperties.get("talend.localconfig.test_0"));
-        assertEquals("true", environmentProperties.get("talend.localconfig.TEST.0"));
-        assertEquals("true", environmentProperties.get("talend.localconfig.test#0"));
-        assertEquals("true", environmentProperties.get("talend$localconfig.test+0"));
-    }
-
-    @Test
-    void environmentPropertiesGetAbsentKey() {
-        assertNull(environmentProperties.get("talend.compmgr.exists"));
-        assertNull(environmentProperties.get("HOMER"));
-        assertNull(environmentProperties.get("TALEND_LOCALCONFIG_USER_HOME"));
     }
 }
