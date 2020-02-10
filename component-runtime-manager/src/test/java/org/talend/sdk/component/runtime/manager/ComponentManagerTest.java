@@ -405,10 +405,10 @@ class ComponentManagerTest {
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
-            Container container = manager.getContainer().findAll().stream().findFirst().orElse(null);
+            final Container container = manager.getContainer().findAll().stream().findFirst().orElse(null);
             assertNotNull(container);
-            LocalConfiguration envConf =
-                    (LocalConfiguration) container.get(AllServices.class).getServices().get(LocalConfiguration.class);
+            final LocalConfiguration envConf =
+                    LocalConfiguration.class.cast(container.get(AllServices.class).getServices().get(LocalConfiguration.class));
             // check translated env vars
             assertEquals("/home/user", envConf.get("USER_PATH"));
             assertEquals("/home/user", envConf.get("user_path"));
