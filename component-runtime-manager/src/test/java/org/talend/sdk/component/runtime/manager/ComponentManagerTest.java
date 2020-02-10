@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -57,9 +58,11 @@ import org.apache.xbean.finder.util.Files;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -398,15 +401,29 @@ class ComponentManagerTest {
     void testLocalConfigurationFromEnvironment(@TempDir final File temporaryFolder) throws Exception {
         final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
-        final File plugin = pluginGenerator
-                .createPlugin(pluginFolder, "plugin.jar", "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+        final File plugin = pluginGenerator.createPlugin(pluginFolder, "plugin.jar");
         try (final ComponentManager manager =
-                     new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+                new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
             Container container = manager.getContainer().findAll().stream().findFirst().orElse(null);
             assertNotNull(container);
-            assertEquals("plugin", container.getId());
-            //LocalConfiguration svc = container.findService(LocalConfiguration.class);
+            LocalConfiguration envConf =
+                    (LocalConfiguration) container.get(AllServices.class).getServices().get(LocalConfiguration.class);
+            // check translated env vars
+            assertEquals("/home/user", envConf.get("USER_PATH"));
+            assertEquals("/home/user", envConf.get("user_path"));
+            assertEquals("/home/user", envConf.get("user_PATH"));
+            assertEquals("/home/user", envConf.get("talend_localconfig_user_home"));
+            assertEquals("/home/user", envConf.get("talend.localconfig.user.home"));
+            assertEquals("true", envConf.get("talend.LOCALCONFIG.test.0"));
+            assertEquals("true", envConf.get("talend.localconfig.test_0"));
+            assertEquals("true", envConf.get("talend.localconfig.TEST.0"));
+            assertEquals("true", envConf.get("talend.localconfig.test#0"));
+            assertEquals("true", envConf.get("talend$localconfig.test+0"));
+            // check for non existing values
+            assertNull(envConf.get("talend.compmgr.exists"));
+            assertNull(envConf.get("HOMER"));
+            assertNull(envConf.get("TALEND_LOCALCONFIG_USER_HOME"));
         } finally { // clean temp files
             doCleanup(pluginFolder);
         }

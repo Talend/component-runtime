@@ -216,7 +216,7 @@ public class Generator {
     private static void writeServerOpenApi(final File output, final String resource, final String version)
             throws Exception {
         try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-             final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
+                final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
             final String newJson = IO.slurp(source);
             String oldJson = !output.exists() ? "{}" : String.join("\n", Files.readAllLines(output.toPath()));
             final int start = oldJson.indexOf(".swaggerUi = ");
@@ -247,7 +247,7 @@ public class Generator {
                             .write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
                                     + "(window.talend " + "= (window.talend || {})).swaggerUi = " + newApi.toString()
                                     + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
-                                    .getBytes(StandardCharsets.UTF_8));
+                                            .getBytes(StandardCharsets.UTF_8));
                 }
             }
         }
@@ -347,7 +347,7 @@ public class Generator {
             builder
                     .append(root ? "."
                             : (IntStream.range(0, section.getLevel() - 1).mapToObj(i -> "*").collect(joining())
-                            + " xref:" + target + "#" + section.getId() + "["))
+                                    + " xref:" + target + "#" + section.getId() + "["))
                     .append(root ? mapTitle(section.getTitle()) : section.getTitle())
                     .append(root ? "" : "]")
                     .append('\n');
@@ -459,7 +459,7 @@ public class Generator {
     // to avoid to be very slow we just grab current version and extract other versions
     // from the previous file
     private static void generatedJira(final File generatedDir, final String username, final String password,
-                                      final String version) {
+            final String version) {
         if (username == null || username.trim().isEmpty() || "skip".equals(username)) {
             log.error("No JIRA credentials, will skip changelog generation");
             return;
@@ -497,7 +497,7 @@ public class Generator {
 
             final Map<String, String> changelogPerVersion = new HashMap<>();
             try (final BufferedReader reader =
-                         new BufferedReader(new StringReader(String.join("\n", Files.readAllLines(file.toPath()))))) {
+                    new BufferedReader(new StringReader(String.join("\n", Files.readAllLines(file.toPath()))))) {
                 final StringBuilder builder = new StringBuilder();
                 String line;
                 String versionRead = null;
@@ -556,9 +556,9 @@ public class Generator {
                                     min(maxVersionPerQuery * (pageIdx + 1), queriedVersion.size())))
                     .map(pageVersions -> "project=" + project + " AND labels=\"changelog\""
                             + pageVersions
-                            .stream()
-                            .map(v -> "fixVersion=" + v.getName())
-                            .collect(joining(" OR ", " AND (", ")")))
+                                    .stream()
+                                    .map(v -> "fixVersion=" + v.getName())
+                                    .collect(joining(" OR ", " AND (", ")")))
                     .flatMap(jql -> Stream
                             .of(searchFrom.apply(jql, 0L))
                             .flatMap(it -> paginate.apply(jql, it))
@@ -693,23 +693,23 @@ public class Generator {
                             field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
                     return name.startsWith("git.") ? null
                             : (name + ":: " + of(configProperty.defaultValue())
-                            .filter(it -> !it
-                                    .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
-                            .map(it -> "Default value: `" + it + "`. ")
-                            .orElse("")
-                            + Stream
-                            .of(field.getDeclaredAnnotations())
-                            .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
-                            .map(a -> {
-                                try {
-                                    return a.annotationType().getMethod("value").invoke(a).toString();
-                                } catch (final IllegalAccessException | InvocationTargetException
-                                        | NoSuchMethodException e) {
-                                    return "-";
-                                }
-                            })
-                            .findFirst()
-                            .orElse("-"));
+                                    .filter(it -> !it
+                                            .equals(org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE))
+                                    .map(it -> "Default value: `" + it + "`. ")
+                                    .orElse("")
+                                    + Stream
+                                            .of(field.getDeclaredAnnotations())
+                                            .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
+                                            .map(a -> {
+                                                try {
+                                                    return a.annotationType().getMethod("value").invoke(a).toString();
+                                                } catch (final IllegalAccessException | InvocationTargetException
+                                                        | NoSuchMethodException e) {
+                                                    return "-";
+                                                }
+                                            })
+                                            .findFirst()
+                                            .orElse("-"));
                 })
                 .filter(Objects::nonNull)
                 .sorted()
@@ -798,7 +798,7 @@ public class Generator {
     }
 
     private static void renderUiDoc(final PrintStream stream, final ParameterExtensionEnricher enricher,
-                                    final Jsonb jsonb, final Class<?> type) {
+            final Jsonb jsonb, final Class<?> type) {
         stream.println();
         stream.print("= @" + type.getSimpleName());
         stream.println();
@@ -819,7 +819,7 @@ public class Generator {
     }
 
     private static Map<String, String> getMeta(final ParameterExtensionEnricher enricher, final Class<?> type,
-                                               final Class<?> paramType) {
+            final Class<?> paramType) {
         return new TreeMap<>(enricher
                 .onParameterAnnotation("theparameter", paramType, generateAnnotation(type))
                 .entrySet()
