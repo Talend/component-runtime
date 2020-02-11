@@ -17,15 +17,13 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -36,30 +34,22 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.json.Json;
 import javax.json.JsonArray;
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.bind.config.PropertyOrderStrategy;
-import javax.json.spi.JsonProvider;
-import javax.json.stream.JsonGeneratorFactory;
 
-import org.apache.johnzon.core.JsonProviderImpl;
-import org.apache.johnzon.mapper.MapperBuilder;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
-import org.talend.sdk.component.runtime.record.json.PojoJsonbProvider;
-import org.talend.sdk.component.runtime.record.json.RecordJsonGenerator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -68,15 +58,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import routines.system.IPersistableRow;
 
-class RecordConvertersTest {
-
-    private final RecordConverters converter = new RecordConverters();
-
-    private final JsonProvider jsonProvider = JsonProvider.provider();
-
-    private final JsonBuilderFactory jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
-
-    private final RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+class RecordConvertersTest extends BaseRecordTest {
 
     @Test
     void studioTypes() throws Exception {
@@ -389,26 +371,6 @@ class RecordConvertersTest {
         }
     }
 
-    private Jsonb createPojoJsonb() {
-        final JsonbBuilder jsonbBuilder = JsonbBuilder.newBuilder().withProvider(new JsonProviderImpl() {
-
-            @Override
-            public JsonGeneratorFactory createGeneratorFactory(final Map<String, ?> config) {
-                return new RecordJsonGenerator.Factory(() -> new RecordBuilderFactoryImpl("test"), config);
-            }
-        });
-        try { // to passthrough the writer, otherwise RecoderJsonGenerator is broken
-            final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
-            if (!mapper.isAccessible()) {
-                mapper.setAccessible(true);
-            }
-            MapperBuilder.class.cast(mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
-        } catch (final Exception e) {
-            throw new IllegalStateException(e);
-        }
-        return jsonbBuilder.build();
-    }
-
     @Test
     void pojoRoundTrip() throws Exception {
         JsonObject jsonObj1 =
@@ -417,9 +379,10 @@ class RecordConvertersTest {
                 jsonBuilderFactory.createObjectBuilder().add("string", "strval2").add("number", 2222.0).build();
         JsonArray aryOfJsonObj = jsonBuilderFactory.createArrayBuilder().add(jsonObj2).add(jsonObj2).build();
         JsonArray aryOfDouble = jsonBuilderFactory.createArrayBuilder().add(12.0).add(15.3).build();
-        Integer[] intAry = new Integer[] { 19, 20, 21 };
-        PojoWrapper pojo = new PojoWrapper("pojo", 19, 10.5, 2020l, jsonObj1, aryOfJsonObj, aryOfDouble,
-                new JsonObject[] { jsonObj1 }, intAry);
+        JsonArray aryOfBool = jsonBuilderFactory.createArrayBuilder().add(JsonValue.TRUE).add(JsonValue.FALSE).build();
+        Integer[] intAry = new Integer[]{ 19, 20, 21 };
+        PojoWrapper pojo = new PojoWrapper("pojo", 19, 10.5, 2020l, jsonObj1, aryOfJsonObj, aryOfDouble, aryOfBool,
+                new JsonObject[]{ jsonObj1 }, intAry);
         try (final Jsonb jsonb = createPojoJsonb()) {
             final Jsonb jsonbProvider = getJsonb(jsonb);
             //
@@ -440,6 +403,9 @@ class RecordConvertersTest {
             Iterator<Double> itDbl = record.getArray(Double.class, "jsonPrimitiveValue").iterator();
             assertEquals(aryOfDouble.get(0), itDbl.next());
             assertEquals(aryOfDouble.get(1), itDbl.next());
+            Iterator<Boolean> itBool = record.getArray(Boolean.class, "jsonBoolValue").iterator();
+            assertTrue(itBool.next());
+            assertFalse(itBool.next());
             assertEquals(Arrays.stream(intAry).collect(toList()),
                     record.getArray(Integer.class, "intAryValue").stream().collect(toList()));
             //
@@ -458,6 +424,8 @@ class RecordConvertersTest {
             assertEquals(2010.0, wrapper.getJsonValue().getJsonNumber("number").doubleValue());
             assertEquals(aryOfJsonObj.toString(), wrapper.getJsonListValue().toString());
             assertEquals(aryOfDouble.toString(), wrapper.getJsonPrimitiveValue().toString());
+            assertEquals(JsonValue.TRUE, wrapper.getJsonBoolValue().get(0));
+            assertEquals(JsonValue.FALSE, wrapper.getJsonBoolValue().get(1));
             assertEquals(jsonObj1.getString("string"),
                     JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getString("string"));
             assertEquals(jsonObj1.getJsonNumber("number").doubleValue(),
@@ -468,18 +436,7 @@ class RecordConvertersTest {
         }
     }
 
-    private Jsonb getJsonb(Jsonb jsonb) {
-        // create a Jsonb instance which is PojoJsonbProvider as in component-runtime-manager
-        return Jsonb.class
-                .cast(Proxy
-                        .newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                                new Class<?>[] { Jsonb.class, PojoJsonbProvider.class }, (proxy, method, args) -> {
-                                    if (method.getDeclaringClass() == Supplier.class) {
-                                        return jsonb;
-                                    }
-                                    return method.invoke(jsonb, args);
-                                }));
-    }
+
 
     @Data
     @ToString
@@ -500,6 +457,8 @@ class RecordConvertersTest {
         private JsonArray jsonListValue;
 
         private JsonArray jsonPrimitiveValue;
+
+        private JsonArray jsonBoolValue;
 
         private JsonObject[] jsonAryValue;
 

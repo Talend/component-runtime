@@ -19,15 +19,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.record.BaseRecordTest;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
-class RecordJsonGeneratorTest {
+class RecordJsonGeneratorTest extends BaseRecordTest {
 
     @Test
     void flatRecord() {
         final RecordBuilderFactoryImpl factory = new RecordBuilderFactoryImpl("test");
         final OutputRecordHolder out = new OutputRecordHolder();
-        final RecordJsonGenerator generator = new RecordJsonGenerator(factory, out);
+        final RecordJsonGenerator generator = new RecordJsonGenerator(factory, getJsonb(createPojoJsonb()), out);
         generator.writeStartObject();
         generator.write("a", 1);
         generator.write("b", "s");
@@ -41,7 +42,7 @@ class RecordJsonGeneratorTest {
     void arrayOfDouble() {
         final RecordBuilderFactoryImpl factory = new RecordBuilderFactoryImpl("test");
         final OutputRecordHolder out = new OutputRecordHolder();
-        final RecordJsonGenerator generator = new RecordJsonGenerator(factory, out);
+        final RecordJsonGenerator generator = new RecordJsonGenerator(factory, getJsonb(createPojoJsonb()),out);
         generator.writeStartObject();
         generator.writeStartArray("a");
         generator.write(1.0);
@@ -56,7 +57,7 @@ class RecordJsonGeneratorTest {
     void arrayRecords() {
         final RecordBuilderFactoryImpl factory = new RecordBuilderFactoryImpl("test");
         final OutputRecordHolder out = new OutputRecordHolder();
-        final RecordJsonGenerator generator = new RecordJsonGenerator(factory, out);
+        final RecordJsonGenerator generator = new RecordJsonGenerator(factory, getJsonb(createPojoJsonb()),out);
         generator.writeStartObject();
         generator.writeStartArray("a");
         generator.writeStartObject();
@@ -77,7 +78,7 @@ class RecordJsonGeneratorTest {
     void objectOfObject() {
         final RecordBuilderFactoryImpl factory = new RecordBuilderFactoryImpl("test");
         final OutputRecordHolder out = new OutputRecordHolder();
-        final RecordJsonGenerator generator = new RecordJsonGenerator(factory, out);
+        final RecordJsonGenerator generator = new RecordJsonGenerator(factory,getJsonb(createPojoJsonb()), out);
         generator.writeStartObject();
         generator.writeStartObject("a");
         generator.write("b", "1");

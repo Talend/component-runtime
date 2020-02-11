@@ -19,8 +19,6 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.OutputStream;
 import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -39,13 +37,11 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 
-import org.apache.johnzon.core.JsonProviderImpl;
-import org.apache.johnzon.mapper.MapperBuilder;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
@@ -58,6 +54,8 @@ import lombok.RequiredArgsConstructor;
 public class RecordJsonGenerator implements JsonGenerator {
 
     private final RecordBuilderFactory factory;
+
+    private final Jsonb jsonb;
 
     private final OutputRecordHolder holder;
 
@@ -108,25 +106,30 @@ public class RecordJsonGenerator implements JsonGenerator {
         throw new UnsupportedOperationException();
     }
 
-    private Schema.Builder buildSchemaFromJsonObject(final JsonObject json) {
-        Schema.Builder builder = factory.newSchemaBuilder(Type.RECORD);
-        json.entrySet().stream().forEach(entry -> {
-            String k = entry.getKey();
-            JsonValue v = entry.getValue();
-            builder.withEntry(factory.newEntryBuilder().withName(k).withType(findType(v.getClass())).build());
-        });
-        return builder;
-    }
-
     @Override
     public JsonGenerator write(final String name, final JsonValue value) {
         switch (value.getValueType()) {
         case ARRAY:
-            List values = JsonArray.class.cast(value).stream().collect(toList());
-            objectBuilder.withArray(createEntryForJsonArray(name, values), values);
+            JsonValue jv = JsonValue.class.cast(Collection.class.cast(value).iterator().next());
+            if (jv.getValueType().equals(ValueType.TRUE) || jv.getValueType().equals(ValueType.FALSE)) {
+                objectBuilder.withArray(
+                        factory.newEntryBuilder()
+                                .withName(name)
+                                .withType(Type.ARRAY)
+                                .withElementSchema(factory.newSchemaBuilder(Type.BOOLEAN).build())
+                                .build(),
+                        Collection.class.cast(Collection.class.cast(value)
+                                .stream()
+                                .map(v -> JsonValue.class.cast(v).getValueType().equals(ValueType.TRUE) ?
+                                        Boolean.TRUE : Boolean.FALSE)
+                                .collect(toList())));
+            } else {
+                objectBuilder.withArray(createEntryForJsonArray(name, Collection.class.cast(value)),
+                        Collection.class.cast(value));
+            }
             break;
         case OBJECT:
-            Record r = recordConverters.toRecord(mappingRegistry, value, () -> getJsonb(createJsonb()), () -> factory);
+            Record r = recordConverters.toRecord(mappingRegistry, value, () -> jsonb, () -> factory);
             objectBuilder.withRecord(name, r);
             break;
         case STRING:
@@ -201,10 +204,10 @@ public class RecordJsonGenerator implements JsonGenerator {
     public JsonGenerator write(final JsonValue value) {
         switch (value.getValueType()) {
         case ARRAY:
-            arrayBuilder.add(JsonArray.class.cast(value).stream().collect(toList()));
+            arrayBuilder.add(Collection.class.cast(value));
             break;
         case OBJECT:
-            Record r = recordConverters.toRecord(mappingRegistry, value, () -> getJsonb(createJsonb()), () -> factory);
+            Record r = recordConverters.toRecord(mappingRegistry, value, () -> jsonb, () -> factory);
             arrayBuilder.add(factory.newRecordBuilder(r.getSchema(), r));
             break;
         case STRING:
@@ -353,13 +356,18 @@ public class RecordJsonGenerator implements JsonGenerator {
                 .collect(toList());
     }
 
-    private Schema.Entry createEntryForJsonArray(final String name, final List array) {
+    private Schema.Entry createEntryForJsonArray(final String name, final Collection array) {
         final Schema.Type type = findType(array);
         final Schema.Entry.Builder builder = factory.newEntryBuilder().withName(name).withType(Schema.Type.ARRAY);
         if (type == Schema.Type.RECORD) {
             final JsonObject first = JsonObject.class.cast(array.iterator().next());
-            Schema schema = buildSchemaFromJsonObject(first).build();
-            builder.withElementSchema(schema);
+            Schema.Builder recordBuilder = factory.newSchemaBuilder(Type.RECORD);
+            first.entrySet().stream().forEach(entry -> {
+                String k = entry.getKey();
+                JsonValue v = entry.getValue();
+                recordBuilder.withEntry(factory.newEntryBuilder().withName(k).withType(findType(v.getClass())).build());
+            });
+            builder.withElementSchema(recordBuilder.build());
         } else {
             builder.withElementSchema(factory.newSchemaBuilder(type).build());
         }
@@ -453,49 +461,19 @@ public class RecordJsonGenerator implements JsonGenerator {
         // no-op
     }
 
-    private Jsonb createJsonb() {
-        final JsonbBuilder jsonbBuilder = JsonbBuilder.newBuilder().withProvider(new JsonProviderImpl() {
-
-            @Override
-            public JsonGeneratorFactory createGeneratorFactory(final Map<String, ?> config) {
-                return new RecordJsonGenerator.Factory(() -> factory, config);
-            }
-        });
-        try { // to passthrough the writer, otherwise RecoderJsonGenerator is broken
-            final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
-            if (!mapper.isAccessible()) {
-                mapper.setAccessible(true);
-            }
-            MapperBuilder.class.cast(mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
-        } catch (final Exception e) {
-            throw new IllegalStateException(e);
-        }
-        return jsonbBuilder.build();
-    }
-
-    private Jsonb getJsonb(final Jsonb jsonb) {
-        return Jsonb.class
-                .cast(Proxy
-                        .newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                                new Class<?>[] { Jsonb.class, PojoJsonbProvider.class }, (proxy, method, args) -> {
-                                    if (method.getDeclaringClass() == Supplier.class) {
-                                        return jsonb;
-                                    }
-                                    return method.invoke(jsonb, args);
-                                }));
-    }
-
     @RequiredArgsConstructor
     public static class Factory implements JsonGeneratorFactory {
 
         private final Supplier<RecordBuilderFactory> factory;
+
+        private final Supplier<Jsonb> jsonb;
 
         private final Map<String, ?> configuration;
 
         @Override
         public JsonGenerator createGenerator(final Writer writer) {
             if (OutputRecordHolder.class.isInstance(writer)) {
-                return new RecordJsonGenerator(factory.get(), OutputRecordHolder.class.cast(writer));
+                return new RecordJsonGenerator(factory.get(), jsonb.get(), OutputRecordHolder.class.cast(writer));
             }
             throw new IllegalArgumentException("Unsupported writer: " + writer);
         }
