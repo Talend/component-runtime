@@ -19,6 +19,8 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.OutputStream;
 import java.io.Writer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -32,13 +34,23 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 
+import org.apache.johnzon.core.JsonProviderImpl;
+import org.apache.johnzon.mapper.MapperBuilder;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,6 +66,10 @@ public class RecordJsonGenerator implements JsonGenerator {
     private Record.Builder objectBuilder;
 
     private Collection<Object> arrayBuilder;
+
+    private final RecordConverters recordConverters = new RecordConverters();
+
+    private final RecordConverters.MappingMetaRegistry mappingRegistry = new RecordConverters.MappingMetaRegistry();
 
     @Override
     public JsonGenerator writeStartObject() {
@@ -92,9 +108,44 @@ public class RecordJsonGenerator implements JsonGenerator {
         throw new UnsupportedOperationException();
     }
 
+    private Schema.Builder buildSchemaFromJsonObject(final JsonObject json) {
+        Schema.Builder builder = factory.newSchemaBuilder(Type.RECORD);
+        json.entrySet().stream().forEach(entry -> {
+            String k = entry.getKey();
+            JsonValue v = entry.getValue();
+            builder.withEntry(factory.newEntryBuilder().withName(k).withType(findType(v.getClass())).build());
+        });
+        return builder;
+    }
+
     @Override
     public JsonGenerator write(final String name, final JsonValue value) {
-        // objectBuilder.withRecord(name, value); // todo: unwrap
+        switch (value.getValueType()) {
+        case ARRAY:
+            List values = JsonArray.class.cast(value).stream().collect(toList());
+            objectBuilder.withArray(createEntryForJsonArray(name, values), values);
+            break;
+        case OBJECT:
+            Record r = recordConverters.toRecord(mappingRegistry, value, () -> getJsonb(createJsonb()), () -> factory);
+            objectBuilder.withRecord(name, r);
+            break;
+        case STRING:
+            objectBuilder.withString(name, JsonString.class.cast(value).getString());
+            break;
+        case NUMBER:
+            objectBuilder.withDouble(name, JsonNumber.class.cast(value).numberValue().doubleValue());
+            break;
+        case TRUE:
+            objectBuilder.withBoolean(name, true);
+            break;
+        case FALSE:
+            objectBuilder.withBoolean(name, false);
+            break;
+        case NULL:
+            break;
+        default:
+            throw new IllegalStateException("Unexpected value: " + value.getValueType());
+        }
         return this;
     }
 
@@ -148,7 +199,31 @@ public class RecordJsonGenerator implements JsonGenerator {
 
     @Override
     public JsonGenerator write(final JsonValue value) {
-        arrayBuilder.add(value); // todo: unwrap
+        switch (value.getValueType()) {
+        case ARRAY:
+            arrayBuilder.add(JsonArray.class.cast(value).stream().collect(toList()));
+            break;
+        case OBJECT:
+            Record r = recordConverters.toRecord(mappingRegistry, value, () -> getJsonb(createJsonb()), () -> factory);
+            arrayBuilder.add(factory.newRecordBuilder(r.getSchema(), r));
+            break;
+        case STRING:
+            arrayBuilder.add(JsonString.class.cast(value).getString());
+            break;
+        case NUMBER:
+            arrayBuilder.add(JsonNumber.class.cast(value).numberValue().doubleValue());
+            break;
+        case TRUE:
+            arrayBuilder.add(true);
+            break;
+        case FALSE:
+            arrayBuilder.add(false);
+            break;
+        case NULL:
+            break;
+        default:
+            throw new IllegalStateException("Unexpected value: " + value.getValueType());
+        }
         return this;
     }
 
@@ -278,6 +353,19 @@ public class RecordJsonGenerator implements JsonGenerator {
                 .collect(toList());
     }
 
+    private Schema.Entry createEntryForJsonArray(final String name, final List array) {
+        final Schema.Type type = findType(array);
+        final Schema.Entry.Builder builder = factory.newEntryBuilder().withName(name).withType(Schema.Type.ARRAY);
+        if (type == Schema.Type.RECORD) {
+            final JsonObject first = JsonObject.class.cast(array.iterator().next());
+            Schema schema = buildSchemaFromJsonObject(first).build();
+            builder.withElementSchema(schema);
+        } else {
+            builder.withElementSchema(factory.newSchemaBuilder(type).build());
+        }
+        return builder.build();
+    }
+
     private Schema.Entry.Builder createEntryBuilderForArray(final String name, final List array) {
         final Schema.Type type = findType(array);
         final Schema.Entry.Builder builder = factory.newEntryBuilder().withName(name).withType(Schema.Type.ARRAY);
@@ -296,11 +384,13 @@ public class RecordJsonGenerator implements JsonGenerator {
             return Schema.Type.STRING;
         }
         final Class<?> clazz = array.stream().filter(Objects::nonNull).findFirst().map(Object::getClass).orElse(null);
+        return findType(clazz);
+    }
+
+    private Schema.Type findType(final Class<?> clazz) {
         if (clazz == null) {
             return Schema.Type.STRING;
         }
-
-        // todo: enhance
         if (Collection.class.isAssignableFrom(clazz)) {
             return Schema.Type.ARRAY;
         }
@@ -328,6 +418,22 @@ public class RecordJsonGenerator implements JsonGenerator {
         if (ZonedDateTime.class == clazz) {
             return Schema.Type.DATETIME;
         }
+        if (JsonArray.class.isAssignableFrom(clazz)) {
+            return Schema.Type.ARRAY;
+        }
+        if (JsonObject.class.isAssignableFrom(clazz)) {
+            return Schema.Type.RECORD;
+        }
+        if (JsonNumber.class.isAssignableFrom(clazz)) {
+            return Schema.Type.DOUBLE;
+        }
+        if (JsonString.class.isAssignableFrom(clazz)) {
+            return Schema.Type.STRING;
+        }
+        if (JsonValue.class.isAssignableFrom(clazz)) {
+            return Schema.Type.STRING;
+        }
+
         return Schema.Type.RECORD;
     }
 
@@ -345,6 +451,38 @@ public class RecordJsonGenerator implements JsonGenerator {
     @Override
     public void flush() {
         // no-op
+    }
+
+    private Jsonb createJsonb() {
+        final JsonbBuilder jsonbBuilder = JsonbBuilder.newBuilder().withProvider(new JsonProviderImpl() {
+
+            @Override
+            public JsonGeneratorFactory createGeneratorFactory(final Map<String, ?> config) {
+                return new RecordJsonGenerator.Factory(() -> factory, config);
+            }
+        });
+        try { // to passthrough the writer, otherwise RecoderJsonGenerator is broken
+            final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
+            if (!mapper.isAccessible()) {
+                mapper.setAccessible(true);
+            }
+            MapperBuilder.class.cast(mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
+        }
+        return jsonbBuilder.build();
+    }
+
+    private Jsonb getJsonb(final Jsonb jsonb) {
+        return Jsonb.class
+                .cast(Proxy
+                        .newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                new Class<?>[] { Jsonb.class, PojoJsonbProvider.class }, (proxy, method, args) -> {
+                                    if (method.getDeclaringClass() == Supplier.class) {
+                                        return jsonb;
+                                    }
+                                    return method.invoke(jsonb, args);
+                                }));
     }
 
     @RequiredArgsConstructor

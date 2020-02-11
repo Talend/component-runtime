@@ -452,6 +452,8 @@ public class RecordConverters implements Serializable {
                                 .add(name, toArray(factory,
                                         v -> buildRecord(factory, providerSupplier, Record.class.cast(v)).build(),
                                         collection));
+                    } else if (JsonValue.class.isInstance(item)) {
+                        builder.add(name, toArray(factory, JsonValue.class::cast, collection));
                     } // else throw?
                 }
                 break;
