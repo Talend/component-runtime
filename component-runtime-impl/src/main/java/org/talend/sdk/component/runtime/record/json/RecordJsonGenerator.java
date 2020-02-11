@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 import javax.json.JsonArray;
 import javax.json.JsonNumber;
@@ -124,9 +125,7 @@ public class RecordJsonGenerator implements JsonGenerator {
                                         .cast(Collection.class
                                                 .cast(value)
                                                 .stream()
-                                                .map(v -> JsonValue.class.cast(v).getValueType().equals(ValueType.TRUE)
-                                                        ? Boolean.TRUE
-                                                        : Boolean.FALSE)
+                                                .map(v -> JsonValue.class.cast(v).getValueType().equals(ValueType.TRUE))
                                                 .collect(toList())));
             } else {
                 objectBuilder
@@ -367,14 +366,19 @@ public class RecordJsonGenerator implements JsonGenerator {
         final Schema.Entry.Builder builder = factory.newEntryBuilder().withName(name).withType(Schema.Type.ARRAY);
         if (type == Schema.Type.RECORD) {
             final JsonObject first = JsonObject.class.cast(array.iterator().next());
-            Schema.Builder recordBuilder = factory.newSchemaBuilder(Type.RECORD);
-            first.entrySet().stream().map(entry -> {
-                String k = entry.getKey();
-                JsonValue v = entry.getValue();
-                return recordBuilder
-                        .withEntry(factory.newEntryBuilder().withName(k).withType(findType(v.getClass())).build());
-            });
-            builder.withElementSchema(recordBuilder.build());
+            final Schema.Builder rBuilder = first
+                    .entrySet()
+                    .stream()
+                    .collect(Collector.of(() -> factory.newSchemaBuilder(Type.RECORD), (schemaBuilder, entry) -> {
+                        final String k = entry.getKey();
+                        final JsonValue v = entry.getValue();
+                        schemaBuilder
+                                .withEntry(
+                                        factory.newEntryBuilder().withName(k).withType(findType(v.getClass())).build());
+                    }, (b1, b2) -> {
+                        throw new IllegalStateException();
+                    }));
+            builder.withElementSchema(rBuilder.build());
         } else {
             builder.withElementSchema(factory.newSchemaBuilder(type).build());
         }
