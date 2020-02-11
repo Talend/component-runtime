@@ -13,6 +13,12 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1632[TCOMP-1632^]: Add a way to evict cached data from LocalCache
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1616[TCOMP-1616^]: Upgrade OpenWebBeans to 2.0.14 in component-server and component-server-vault-proxy
@@ -24,6 +30,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1625[TCOMP-1625^]: Upgrade to xbean 4.16
 - link:https://jira.talendforge.org/browse/TCOMP-1626[TCOMP-1626^]: Ensure ContainerListenerExtensions can be sorted
 - link:https://jira.talendforge.org/browse/TCOMP-1627[TCOMP-1627^]: Upgrade to Apache Beam 2.19.0
+- link:https://jira.talendforge.org/browse/TCOMP-1633[TCOMP-1633^]: Upgrade Groovy to 3.0.0
 
 == Version 1.1.16
 
