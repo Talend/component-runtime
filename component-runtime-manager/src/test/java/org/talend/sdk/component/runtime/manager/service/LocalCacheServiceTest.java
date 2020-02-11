@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
@@ -53,8 +54,8 @@ class LocalCacheServiceTest {
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(LocalCache.class, new LocalCacheService("tmp"));
         try {
-            final LocalCache cache = new LocalCacheService("LocalCacheServiceTest");
-            final LocalCache copy = roundTrip(cache);
+            final LocalCache<String> cache = new LocalCacheService("LocalCacheServiceTest");
+            final LocalCache<String> copy = roundTrip(cache);
             assertNotNull(copy);
         } finally {
             DynamicContainerFinder.LOADERS.remove("LocalCacheServiceTest");
@@ -64,17 +65,21 @@ class LocalCacheServiceTest {
 
     @Test
     void getOrSet() {
-        final LocalCacheService cache = new LocalCacheService("tmp");
+        final LocalCacheService<Integer> cache = new LocalCacheService<>("tmp");
         final AtomicInteger counter = new AtomicInteger(0);
-        final Supplier<Integer> cacheUsage = () -> cache.computeIfAbsent("foo", 500, counter::incrementAndGet);
+
+        final boolean[] toDelete = new boolean[] { false };
+
+        final Supplier<Integer> cacheUsage =
+                () -> cache.computeIfAbsent("foo", (Integer at) -> toDelete[0], counter::incrementAndGet);
         for (int i = 0; i < 3; i++) {
             assertEquals(1, cacheUsage.get().intValue());
         }
-        try {
-            Thread.sleep(800);
-        } catch (final InterruptedException e) {
-            fail(e.getMessage());
-        }
+
+        toDelete[0] = true;
         assertEquals(2, cacheUsage.get().intValue());
+
+        cache.clean();
+        assertTrue(cache.isEmpty());
     }
 }

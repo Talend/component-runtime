@@ -31,11 +31,11 @@ public class CacheHandler implements InterceptorHandler {
 
     private final BiFunction<Method, Object[], Object> invoker;
 
-    private final LocalCache cache;
+    private final LocalCache<Object> cache;
 
     private final ConcurrentMap<Method, Long> timeouts = new ConcurrentHashMap<>();
 
-    public CacheHandler(final BiFunction<Method, Object[], Object> invoker, final LocalCache cache) {
+    public CacheHandler(final BiFunction<Method, Object[], Object> invoker, final LocalCache<Object> cache) {
         this.invoker = invoker;
         this.cache = cache;
     }

@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.api.service.cache;
 
+import java.io.Serializable;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -22,8 +24,20 @@ import java.util.function.Supplier;
  * to handle local caching.
  * Useful for actions when deployed in a long running instance
  * when actions are costly.
+ * 
+ * @param <T> the type of data to access/cache.
  */
-public interface LocalCache {
+public interface LocalCache<T> extends Serializable {
+
+    /**
+     * Read or compute and save a value for a determined duration.
+     * 
+     * @param key : the cache key, must be unique accross the server.
+     * @param toRemove : is the object to be removed.
+     * @param supplier : the value provider if the cache get does a miss.
+     * @return the cached or newly computed value.
+     */
+    T computeIfAbsent(String key, Predicate<T> toRemove, Supplier<T> supplier);
 
     /**
      * Remove a cached entry.
@@ -46,20 +60,25 @@ public interface LocalCache {
      * @param key the cache key, must be unique accross the server.
      * @param timeoutMs the cache duration.
      * @param supplier the value provider if the cache get does a miss.
-     * @param <T> the type of data to access/cache.
      * @return the cached or newly computed value.
      */
-    <T> T computeIfAbsent(String key, long timeoutMs, Supplier<T> supplier);
+    default T computeIfAbsent(String key, long timeoutMs, Supplier<T> supplier) {
+        final long current = System.currentTimeMillis();
+        Predicate<T> toRemove = (T obj) -> {
+            return System.currentTimeMillis() > current + timeoutMs;
+        };
+
+        return this.computeIfAbsent(key, toRemove, supplier);
+    }
 
     /**
      * Default the timeout to {@literal Integer.MAX_VALUE}.
      *
      * @param key the cache key, must be unique accross the server.
      * @param supplier the value provider if the cache get does a miss.
-     * @param <T> the type of data to access/cache.
      * @return the cached or newly computed - and cached indefinitively - value.
      */
-    default <T> T computeIfAbsent(String key, Supplier<T> supplier) {
+    default T computeIfAbsent(String key, Supplier<T> supplier) {
         return computeIfAbsent(key, Integer.MAX_VALUE, supplier);
     }
 }

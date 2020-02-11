@@ -17,9 +17,13 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.talend.sdk.component.api.service.cache.LocalCache;
@@ -27,12 +31,14 @@ import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.AllArgsConstructor;
 
+import static java.util.stream.Collectors.toList;
+
 @AllArgsConstructor
-public class LocalCacheService implements LocalCache, Serializable {
+public class LocalCacheService<T> implements LocalCache<T>, Serializable {
 
     private final String plugin;
 
-    private final ConcurrentMap<String, Element> cache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Element<T>> cache = new ConcurrentHashMap<>();
 
     @Override
     public void evict(final String key) {
@@ -41,36 +47,47 @@ public class LocalCacheService implements LocalCache, Serializable {
 
     @Override
     public <T> void evictIfValue(final String key, final T expected) {
-        cache.remove(internalKey(key), new Element(expected, 0));
+        cache.remove(internalKey(key), new Element(expected, e->true));
     }
 
     @Override
-    public <T> T computeIfAbsent(final String key, final long timeoutMs, final Supplier<T> value) {
+    public T computeIfAbsent(String key, final Predicate<T> toRemove, final Supplier<T> value) {
         final String internalKey = internalKey(key);
-        final Element element = cache
-                .compute(internalKey,
-                        (k, e) -> e == null || e.isExpired()
-                                ? new Element(value.get(), System.currentTimeMillis() + timeoutMs)
-                                : e);
-        if (element == null) {
-            return null;
-        }
-        return (T) element.value;
+
+        final Element<T> element = cache
+                .compute(internalKey, (String k,
+                        Element<T> e) -> e == null || e.mustBeRemoved() ? new Element<>(value.get(), toRemove) : e);
+
+        return element.value;
     }
 
     private String internalKey(final String key) {
         return plugin + '@' + key;
     }
 
+    public void clean() {
+        final List<String> removableElements = this.cache
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue().mustBeRemoved())
+                .map(Entry::getKey)
+                .collect(toList());// materialize before actually removing it
+        removableElements.forEach(this.cache::remove);
+    }
+
+    public boolean isEmpty() {
+        return this.cache.isEmpty();
+    }
+
     @AllArgsConstructor
-    public static class Element {
+    public static class Element<T> {
 
-        private final Object value;
+        private final T value;
 
-        private final long endOfValidity;
+        private final Predicate<T> toRemove;
 
-        private boolean isExpired() {
-            return System.currentTimeMillis() > endOfValidity;
+        private boolean mustBeRemoved() {
+            return this.toRemove.test(value);
         }
 
         @Override
