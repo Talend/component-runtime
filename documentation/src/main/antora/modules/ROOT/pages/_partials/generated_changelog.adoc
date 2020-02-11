@@ -32,6 +32,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1626[TCOMP-1626^]: Ensure ContainerListenerExtensions can be sorted
 - link:https://jira.talendforge.org/browse/TCOMP-1627[TCOMP-1627^]: Upgrade to Apache Beam 2.19.0
 - link:https://jira.talendforge.org/browse/TCOMP-1633[TCOMP-1633^]: Upgrade Groovy to 3.0.0
+- link:https://jira.talendforge.org/browse/TCOMP-1634[TCOMP-1634^]: Upgrade tomcat to 9.0.31
 
 == Version 1.1.16
 
