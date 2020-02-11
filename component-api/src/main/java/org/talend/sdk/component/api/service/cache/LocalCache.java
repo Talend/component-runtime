@@ -26,6 +26,21 @@ import java.util.function.Supplier;
 public interface LocalCache {
 
     /**
+     * Remove a cached entry.
+     *
+     * @param key key to evict.
+     */
+    void evict(String key);
+
+    /**
+     * Remove a cached entry if a particular value is in the cache.
+     *
+     * @param key key to evict.
+     * @param expected expected value activating the eviction.
+     */
+    <T> void evictIfValue(String key, T expected);
+
+    /**
      * Read or compute and save a value for a determined duration.
      *
      * @param key the cache key, must be unique accross the server.
