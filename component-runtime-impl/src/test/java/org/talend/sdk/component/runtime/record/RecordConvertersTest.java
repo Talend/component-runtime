@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
@@ -45,10 +46,13 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.bind.config.PropertyOrderStrategy;
+import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 import lombok.AllArgsConstructor;
@@ -58,10 +62,14 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import routines.system.IPersistableRow;
 
-class RecordConvertersTest extends BaseRecordTest {
+class RecordConvertersTest {
+
+    @RegisterExtension
+    public final PluralRecordExtension pluralRecordExtension = new PluralRecordExtension();
 
     @Test
-    void studioTypes() throws Exception {
+    void studioTypes(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final SimpleRowStruct record = new SimpleRowStruct();
         record.character = 'a';
         record.character2 = 'a';
@@ -95,7 +103,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void studioTypes2() throws Exception {
+    void studioTypes2(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final RowStruct rowStruct = new RowStruct();
         rowStruct.col1int = 10;
         rowStruct.col2string = "stringy";
@@ -131,21 +140,21 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void pojo2Record() throws Exception {
+    void pojo2Record(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter, final Jsonb jsonb)
+            throws Exception {
         final Wrapper record = new Wrapper();
         record.value = "hey";
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final Record json = Record.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, Record.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
-            assertEquals("hey", json.getString("value"));
-        }
+        final Record json = Record.class
+                .cast(converter
+                        .toType(new RecordConverters.MappingMetaRegistry(), record, Record.class,
+                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        assertEquals("hey", json.getString("value"));
     }
 
     @Test
-    void nullSupport() throws Exception {
+    void nullSupport(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withString("value", null).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
@@ -158,7 +167,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void booleanRoundTrip() throws Exception {
+    void booleanRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
@@ -175,7 +185,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void intRoundTrip() throws Exception {
+    void intRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withInt("value", 2).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final IntStruct struct = IntStruct.class
@@ -192,7 +203,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void booleanRoundTripPojo() throws Exception {
+    void booleanRoundTripPojo(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final BoolStruct struct = BoolStruct.class
@@ -209,7 +221,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void stringRoundTrip() throws Exception {
+    void stringRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withString("value", "yes").build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
@@ -226,28 +239,25 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void notRowStructIntRoundTrip() throws Exception {
+    void notRowStructIntRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter, final Jsonb jsonb)
+            throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withInt("myInt", 2).build();
-        try (final Jsonb jsonb = createPojoJsonb()) {
-            // create a Jsonb instance which is PojoJsonbProvider as in component-runtime-manager
-            final Jsonb jsonbProvider = getJsonb(jsonb);
-            // run the round trip
-            final IntWrapper wrapper = IntWrapper.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, IntWrapper.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonbProvider,
-                                    () -> recordBuilderFactory));
-            assertEquals(2, wrapper.myInt);
-            final Record toRecord = converter
-                    .toRecord(new RecordConverters.MappingMetaRegistry(), wrapper, () -> jsonbProvider,
-                            () -> recordBuilderFactory);
-            assertEquals(Schema.Type.INT, toRecord.getSchema().getEntries().iterator().next().getType());
-            assertEquals(2, toRecord.getInt("myInt"));
-        }
+        // run the round trip
+        final IntWrapper wrapper = IntWrapper.class
+                .cast(converter
+                        .toType(new RecordConverters.MappingMetaRegistry(), record, IntWrapper.class,
+                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        assertEquals(2, wrapper.myInt);
+        final Record toRecord = converter
+                .toRecord(new RecordConverters.MappingMetaRegistry(), wrapper, () -> jsonb, () -> recordBuilderFactory);
+        assertEquals(Schema.Type.INT, toRecord.getSchema().getEntries().iterator().next().getType());
+        assertEquals(2, toRecord.getInt("myInt"));
     }
 
     @Test
-    void bytesRoundTrip() throws Exception {
+    void bytesRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final byte[] bytes = new byte[] { 1, 2, 3 };
         final Record record = recordBuilderFactory.newRecordBuilder().withBytes("value", bytes).build();
         try (final Jsonb jsonb =
@@ -287,7 +297,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void convertListString() throws Exception {
+    void convertListString(final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter)
+            throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final Record record = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(),
@@ -307,7 +318,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void convertListObject() throws Exception {
+    void convertListObject(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final Record record = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(),
@@ -327,7 +339,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void bigDecimalsInArray() throws Exception {
+    void bigDecimalsInArray(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final BigDecimal pos1 = new BigDecimal("48.8480275637");
         final BigDecimal pos2 = new BigDecimal("2.25369456784");
         final List<BigDecimal> expected = asList(pos1, pos2);
@@ -343,7 +356,8 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void bigDecimalsInArrays() throws Exception {
+    void bigDecimalsInArrays(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final BigDecimal pos1 = new BigDecimal("48.8480275637");
         final BigDecimal pos2 = new BigDecimal("2.25369456784");
         final BigDecimal pos3 = new BigDecimal(25);
@@ -372,7 +386,9 @@ class RecordConvertersTest extends BaseRecordTest {
     }
 
     @Test
-    void pojoRoundTrip() throws Exception {
+    void pojoRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter, final Jsonb jsonb)
+            throws Exception {
         JsonObject jsonObj1 =
                 jsonBuilderFactory.createObjectBuilder().add("string", "strval").add("number", 2010).build();
         JsonObject jsonObj2 =
@@ -380,63 +396,55 @@ class RecordConvertersTest extends BaseRecordTest {
         JsonArray aryOfJsonObj = jsonBuilderFactory.createArrayBuilder().add(jsonObj2).add(jsonObj2).build();
         JsonArray aryOfDouble = jsonBuilderFactory.createArrayBuilder().add(12.0).add(15.3).build();
         JsonArray aryOfBool = jsonBuilderFactory.createArrayBuilder().add(JsonValue.TRUE).add(JsonValue.FALSE).build();
-        Integer[] intAry = new Integer[]{ 19, 20, 21 };
+        Integer[] intAry = new Integer[] { 19, 20, 21 };
         PojoWrapper pojo = new PojoWrapper("pojo", 19, 10.5, 2020l, jsonObj1, aryOfJsonObj, aryOfDouble, aryOfBool,
-                new JsonObject[]{ jsonObj1 }, intAry);
-        try (final Jsonb jsonb = createPojoJsonb()) {
-            final Jsonb jsonbProvider = getJsonb(jsonb);
-            //
-            final Record record = converter
-                    .toRecord(new RecordConverters.MappingMetaRegistry(), pojo, () -> jsonbProvider,
-                            () -> recordBuilderFactory);
-            //
-            assertEquals("pojo", record.getString("stringValue"));
-            assertEquals(19, record.getInt("intValue"));
-            assertEquals(10.5, record.getDouble("doubleValue"));
-            assertEquals(2020l, record.getLong("longValue"));
-            assertEquals("{\"string\":\"strval\",\"number\":2010.0}", record.getRecord("jsonValue").toString());
-            assertEquals("strval", record.getRecord("jsonValue").getString("string"));
-            assertEquals(2010, record.getRecord("jsonValue").getDouble("number"));
-            Iterator<JsonObject> itJson = record.getArray(JsonObject.class, "jsonListValue").iterator();
-            assertEquals(aryOfJsonObj.get(0).toString(), itJson.next().toString());
-            assertEquals(aryOfJsonObj.get(1).toString(), itJson.next().toString());
-            Iterator<Double> itDbl = record.getArray(Double.class, "jsonPrimitiveValue").iterator();
-            assertEquals(aryOfDouble.get(0), itDbl.next());
-            assertEquals(aryOfDouble.get(1), itDbl.next());
-            Iterator<Boolean> itBool = record.getArray(Boolean.class, "jsonBoolValue").iterator();
-            assertTrue(itBool.next());
-            assertFalse(itBool.next());
-            assertEquals(Arrays.stream(intAry).collect(toList()),
-                    record.getArray(Integer.class, "intAryValue").stream().collect(toList()));
-            //
-            final PojoWrapper wrapper = PojoWrapper.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, PojoWrapper.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonbProvider,
-                                    () -> recordBuilderFactory));
-            //
-            assertEquals("pojo", wrapper.stringValue);
-            assertEquals(19, wrapper.getIntValue());
-            assertEquals(10.5, wrapper.getDoubleValue());
-            assertEquals(2020l, wrapper.getLongValue());
-            assertEquals("{\"string\":\"strval\",\"number\":2010.0}", wrapper.getJsonValue().toString());
-            assertEquals("strval", wrapper.getJsonValue().getString("string"));
-            assertEquals(2010.0, wrapper.getJsonValue().getJsonNumber("number").doubleValue());
-            assertEquals(aryOfJsonObj.toString(), wrapper.getJsonListValue().toString());
-            assertEquals(aryOfDouble.toString(), wrapper.getJsonPrimitiveValue().toString());
-            assertEquals(JsonValue.TRUE, wrapper.getJsonBoolValue().get(0));
-            assertEquals(JsonValue.FALSE, wrapper.getJsonBoolValue().get(1));
-            assertEquals(jsonObj1.getString("string"),
-                    JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getString("string"));
-            assertEquals(jsonObj1.getJsonNumber("number").doubleValue(),
-                    JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getJsonNumber("number").doubleValue());
-            assertEquals(Arrays.stream(intAry).collect(toList()),
-                    Arrays.stream(wrapper.getIntAryValue()).collect(toList()));
-
-        }
+                new JsonObject[] { jsonObj1 }, intAry);
+        //
+        final Record record = converter
+                .toRecord(new RecordConverters.MappingMetaRegistry(), pojo, () -> jsonb, () -> recordBuilderFactory);
+        //
+        assertEquals("pojo", record.getString("stringValue"));
+        assertEquals(19, record.getInt("intValue"));
+        assertEquals(10.5, record.getDouble("doubleValue"));
+        assertEquals(2020l, record.getLong("longValue"));
+        assertEquals("{\"string\":\"strval\",\"number\":2010.0}", record.getRecord("jsonValue").toString());
+        assertEquals("strval", record.getRecord("jsonValue").getString("string"));
+        assertEquals(2010, record.getRecord("jsonValue").getDouble("number"));
+        Iterator<JsonObject> itJson = record.getArray(JsonObject.class, "jsonListValue").iterator();
+        assertEquals(aryOfJsonObj.get(0).toString(), itJson.next().toString());
+        assertEquals(aryOfJsonObj.get(1).toString(), itJson.next().toString());
+        Iterator<Double> itDbl = record.getArray(Double.class, "jsonPrimitiveValue").iterator();
+        assertEquals(aryOfDouble.get(0), itDbl.next());
+        assertEquals(aryOfDouble.get(1), itDbl.next());
+        Iterator<Boolean> itBool = record.getArray(Boolean.class, "jsonBoolValue").iterator();
+        assertTrue(itBool.next());
+        assertFalse(itBool.next());
+        assertEquals(Arrays.stream(intAry).collect(toList()),
+                record.getArray(Integer.class, "intAryValue").stream().collect(toList()));
+        //
+        final PojoWrapper wrapper = PojoWrapper.class
+                .cast(converter
+                        .toType(new RecordConverters.MappingMetaRegistry(), record, PojoWrapper.class,
+                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        //
+        assertEquals("pojo", wrapper.stringValue);
+        assertEquals(19, wrapper.getIntValue());
+        assertEquals(10.5, wrapper.getDoubleValue());
+        assertEquals(2020l, wrapper.getLongValue());
+        assertEquals("{\"string\":\"strval\",\"number\":2010.0}", wrapper.getJsonValue().toString());
+        assertEquals("strval", wrapper.getJsonValue().getString("string"));
+        assertEquals(2010.0, wrapper.getJsonValue().getJsonNumber("number").doubleValue());
+        assertEquals(aryOfJsonObj.toString(), wrapper.getJsonListValue().toString());
+        assertEquals(aryOfDouble.toString(), wrapper.getJsonPrimitiveValue().toString());
+        assertEquals(JsonValue.TRUE, wrapper.getJsonBoolValue().get(0));
+        assertEquals(JsonValue.FALSE, wrapper.getJsonBoolValue().get(1));
+        assertEquals(jsonObj1.getString("string"),
+                JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getString("string"));
+        assertEquals(jsonObj1.getJsonNumber("number").doubleValue(),
+                JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getJsonNumber("number").doubleValue());
+        assertEquals(Arrays.stream(intAry).collect(toList()),
+                Arrays.stream(wrapper.getIntAryValue()).collect(toList()));
     }
-
-
 
     @Data
     @ToString

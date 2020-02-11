@@ -112,20 +112,26 @@ public class RecordJsonGenerator implements JsonGenerator {
         case ARRAY:
             JsonValue jv = JsonValue.class.cast(Collection.class.cast(value).iterator().next());
             if (jv.getValueType().equals(ValueType.TRUE) || jv.getValueType().equals(ValueType.FALSE)) {
-                objectBuilder.withArray(
-                        factory.newEntryBuilder()
-                                .withName(name)
-                                .withType(Type.ARRAY)
-                                .withElementSchema(factory.newSchemaBuilder(Type.BOOLEAN).build())
-                                .build(),
-                        Collection.class.cast(Collection.class.cast(value)
-                                .stream()
-                                .map(v -> JsonValue.class.cast(v).getValueType().equals(ValueType.TRUE) ?
-                                        Boolean.TRUE : Boolean.FALSE)
-                                .collect(toList())));
+                objectBuilder
+                        .withArray(
+                                factory
+                                        .newEntryBuilder()
+                                        .withName(name)
+                                        .withType(Type.ARRAY)
+                                        .withElementSchema(factory.newSchemaBuilder(Type.BOOLEAN).build())
+                                        .build(),
+                                Collection.class
+                                        .cast(Collection.class
+                                                .cast(value)
+                                                .stream()
+                                                .map(v -> JsonValue.class.cast(v).getValueType().equals(ValueType.TRUE)
+                                                        ? Boolean.TRUE
+                                                        : Boolean.FALSE)
+                                                .collect(toList())));
             } else {
-                objectBuilder.withArray(createEntryForJsonArray(name, Collection.class.cast(value)),
-                        Collection.class.cast(value));
+                objectBuilder
+                        .withArray(createEntryForJsonArray(name, Collection.class.cast(value)),
+                                Collection.class.cast(value));
             }
             break;
         case OBJECT:
@@ -362,10 +368,11 @@ public class RecordJsonGenerator implements JsonGenerator {
         if (type == Schema.Type.RECORD) {
             final JsonObject first = JsonObject.class.cast(array.iterator().next());
             Schema.Builder recordBuilder = factory.newSchemaBuilder(Type.RECORD);
-            first.entrySet().stream().forEach(entry -> {
+            first.entrySet().stream().map(entry -> {
                 String k = entry.getKey();
                 JsonValue v = entry.getValue();
-                recordBuilder.withEntry(factory.newEntryBuilder().withName(k).withType(findType(v.getClass())).build());
+                return recordBuilder
+                        .withEntry(factory.newEntryBuilder().withName(k).withType(findType(v.getClass())).build());
             });
             builder.withElementSchema(recordBuilder.build());
         } else {
@@ -438,6 +445,7 @@ public class RecordJsonGenerator implements JsonGenerator {
         if (JsonString.class.isAssignableFrom(clazz)) {
             return Schema.Type.STRING;
         }
+        // JsonValue.TRUE or JsonValue.FALSE should not pass here, managed upstream.
         if (JsonValue.class.isAssignableFrom(clazz)) {
             return Schema.Type.STRING;
         }

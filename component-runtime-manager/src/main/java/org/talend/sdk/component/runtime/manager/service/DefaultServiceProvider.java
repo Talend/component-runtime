@@ -132,8 +132,10 @@ public class DefaultServiceProvider {
                     .asSerializable(loader, id, JsonGeneratorFactory.class.getName(), jsonpGeneratorFactory);
         }
         if (Jsonb.class == api) {
-            final JsonbBuilder jsonbBuilder = createPojoJsonbBuilder(id, Lazy.lazy(() -> Jsonb.class
-                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services))));
+            final JsonbBuilder jsonbBuilder = createPojoJsonbBuilder(id,
+                    Lazy
+                            .lazy(() -> Jsonb.class
+                                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services))));
             return new GenericOrPojoJsonb(id, jsonbProvider
                     .create()
                     .withProvider(jsonpProvider) // reuses the same memory buffering
@@ -190,17 +192,14 @@ public class DefaultServiceProvider {
     }
 
     private JsonbBuilder createPojoJsonbBuilder(final String id, final Supplier<Jsonb> jsonb) {
-        final JsonbBuilder jsonbBuilder =
-                JsonbBuilder
-                        .newBuilder()
-                        .withProvider(new PreComputedJsonpProvider(id, jsonpProvider, jsonpParserFactory,
-                                jsonpWriterFactory, jsonpBuilderFactory,
-                                new RecordJsonGenerator.Factory(
-                                        Lazy.lazy(() -> recordBuilderFactoryProvider.apply(id)),
-                                        jsonb,
-                                        emptyMap()),
-                                jsonpReaderFactory))
-                        .withConfig(jsonbConfig);
+        final JsonbBuilder jsonbBuilder = JsonbBuilder
+                .newBuilder()
+                .withProvider(new PreComputedJsonpProvider(id, jsonpProvider, jsonpParserFactory, jsonpWriterFactory,
+                        jsonpBuilderFactory,
+                        new RecordJsonGenerator.Factory(Lazy.lazy(() -> recordBuilderFactoryProvider.apply(id)), jsonb,
+                                emptyMap()),
+                        jsonpReaderFactory))
+                .withConfig(jsonbConfig);
         try { // to passthrough the writer, otherwise RecoderJsonGenerator is broken
             final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
             if (!mapper.isAccessible()) {
