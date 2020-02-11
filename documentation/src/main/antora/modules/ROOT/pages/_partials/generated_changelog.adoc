@@ -10,6 +10,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1628[TCOMP-1628^]: Manage BigDecimal in RecordConverter
 - link:https://jira.talendforge.org/browse/TCOMP-1629[TCOMP-1629^]: Ensure LocalConfiguration environment source replace dot with _
 - link:https://jira.talendforge.org/browse/TCOMP-1630[TCOMP-1630^]: Avoid NPE when configurationByExample() is called in a list of primitive without values
+- link:https://jira.talendforge.org/browse/TCOMP-1631[TCOMP-1631^]: int attribute in pojo is transformed to double in a Record
 
 
 
