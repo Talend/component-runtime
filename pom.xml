@@ -145,7 +145,7 @@
     <johnzon.version>1.2.3</johnzon.version>
     <meecrowave.version>1.2.9</meecrowave.version>
     <owb.version>2.0.14</owb.version>
-    <tomcat.version>9.0.30</tomcat.version>
+    <tomcat.version>9.0.31</tomcat.version>
     <cxf.version>3.3.5</cxf.version>
     <log4j2.version>2.12.1</log4j2.version>
     <logback.version>1.2.3</logback.version>
