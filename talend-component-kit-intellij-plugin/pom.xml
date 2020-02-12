@@ -40,8 +40,7 @@
     <idea.intellij.public.url>https://plugins.jetbrains.com</idea.intellij.public.url>
     <idea.intellij.channel>default</idea.intellij.channel>
     <idea.plugin.id>10558</idea.plugin.id>
-    <retrofit.version>1.9.0</retrofit.version>
-    <plugin-repository-rest-client.version>0.5.2</plugin-repository-rest-client.version>
+    <plugin-repository-rest-client.version>2.0.2</plugin-repository-rest-client.version>
   </properties>
 
   <repositories>
@@ -116,21 +115,6 @@
             <groupId>org.jetbrains.intellij</groupId>
             <artifactId>plugin-repository-rest-client</artifactId>
             <version>${plugin-repository-rest-client.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.squareup.retrofit</groupId>
-            <artifactId>retrofit</artifactId>
-            <version>${retrofit.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.squareup.retrofit</groupId>
-            <artifactId>converter-simplexml</artifactId>
-            <version>${retrofit.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-            <version>1.2.30</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -218,21 +202,6 @@
                 <groupId>org.jetbrains.intellij</groupId>
                 <artifactId>plugin-repository-rest-client</artifactId>
                 <version>${plugin-repository-rest-client.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>com.squareup.retrofit</groupId>
-                <artifactId>retrofit</artifactId>
-                <version>${retrofit.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>com.squareup.retrofit</groupId>
-                <artifactId>converter-simplexml</artifactId>
-                <version>${retrofit.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-stdlib</artifactId>
-                <version>1.2.30</version>
               </dependency>
             </dependencies>
           </plugin>
