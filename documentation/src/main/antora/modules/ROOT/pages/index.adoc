@@ -17,7 +17,7 @@ TIP: A PDF version of the documentation is available https://oss.sonatype.org/se
 endif::[]
 
 ifeval::["{page-origin-refname}" != "master"]
-NOTE: A complete PDF version of this documentation is available http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{page-component-version}/documentation-{page-component-version}-all-in-one.pdf[here].
+NOTE: A complete PDF version of this documentation is available https://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{page-component-version}/documentation-{page-component-version}-all-in-one.pdf[here].
 endif::[]
 endif::[]
 
