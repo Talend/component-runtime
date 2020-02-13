@@ -1,5 +1,11 @@
 
 
+== Version 1.1.19
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1639[TCOMP-1639^]: component-server incorrect response set in request
+
 == Version 1.1.18
 
 === Bug

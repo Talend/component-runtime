@@ -289,7 +289,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                     final InMemoryRequest request = new InMemoryRequest(method.toUpperCase(ENGLISH), headers, path,
                             appBase + path, appBase, queryString, 8080, context, new WebSocketInputStream(message),
                             session::getUserPrincipal, controller);
-                    controller.invoke(request, new InMemoryResponse(session::isOpen, () -> {
+                    final InMemoryResponse response = new InMemoryResponse(session::isOpen, () -> {
                         if (session.getBasicRemote().getBatchingAllowed()) {
                             try {
                                 session.getBasicRemote().flushBatch();
@@ -317,7 +317,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                         protected void onClose(final OutputStream stream) throws IOException {
                             stream.write(EOM.getBytes(StandardCharsets.UTF_8));
                         }
-                    });
+                    };
+                    request.setResponse(response);
+                    controller.invoke(request, response);
                 } catch (final ServletException e) {
                     throw new IllegalArgumentException(e);
                 }
