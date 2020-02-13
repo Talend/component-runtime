@@ -1,5 +1,11 @@
 
 
+== Version 1.1.18
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1638[TCOMP-1638^]: Inject services to delegate in proxy
+
 == Version 1.1.17
 
 === Bug

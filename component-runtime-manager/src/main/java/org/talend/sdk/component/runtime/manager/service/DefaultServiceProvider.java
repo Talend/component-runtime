@@ -163,7 +163,7 @@ public class DefaultServiceProvider {
             return new LocalCacheService(id);
         }
         if (Injector.class == api) {
-            return new InjectorImpl(id, reflections, services.get());
+            return new InjectorImpl(id, reflections, proxyGenerator, services.get());
         }
         if (HttpClientFactory.class == api) {
             return new HttpClientFactoryImpl(id, reflections, Jsonb.class.cast(services.get().get(Jsonb.class)),

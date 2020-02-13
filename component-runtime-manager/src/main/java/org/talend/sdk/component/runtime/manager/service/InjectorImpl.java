@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.injector.Injector;
+import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
@@ -45,6 +46,8 @@ public class InjectorImpl implements Serializable, Injector {
 
     private final ReflectionService reflectionService;
 
+    private final ProxyGenerator proxyGenerator;
+
     private final Map<Class<?>, Object> services;
 
     @Override
@@ -52,7 +55,18 @@ public class InjectorImpl implements Serializable, Injector {
         if (instance == null) {
             return null;
         }
-        doInject(instance.getClass(), instance);
+        doInject(instance.getClass(), unwrap(instance));
+        return instance;
+    }
+
+    private Object unwrap(final Object instance) {
+        if (instance.getClass().getName().endsWith("$$TalendServiceProxy")) {
+            try {
+                return proxyGenerator.getHandler(instance).getDelegate();
+            } catch (final IllegalStateException nsfe) {
+                // no-op
+            }
+        }
         return instance;
     }
 

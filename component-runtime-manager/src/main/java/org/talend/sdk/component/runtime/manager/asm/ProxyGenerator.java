@@ -85,6 +85,7 @@ import org.apache.xbean.asm7.Type;
 import org.apache.xbean.asm7.shade.commons.EmptyVisitor;
 import org.talend.sdk.component.api.service.interceptor.InterceptorHandler;
 import org.talend.sdk.component.api.service.interceptor.Intercepts;
+import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 
 import lombok.AllArgsConstructor;
 
@@ -611,6 +612,18 @@ public class ProxyGenerator implements Serializable {
             final Field invocationHandlerField = proxy.getClass().getDeclaredField(FIELD_INTERCEPTOR_HANDLER);
             invocationHandlerField.setAccessible(true);
             invocationHandlerField.set(proxy, handler);
+        } catch (final IllegalAccessException | NoSuchFieldException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public InterceptorHandlerFacade getHandler(final Object instance) {
+        try {
+            final Field invocationHandlerField = instance.getClass().getDeclaredField(FIELD_INTERCEPTOR_HANDLER);
+            if (!invocationHandlerField.isAccessible()) {
+                invocationHandlerField.setAccessible(true);
+            }
+            return InterceptorHandlerFacade.class.cast(invocationHandlerField.get(instance));
         } catch (final IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }

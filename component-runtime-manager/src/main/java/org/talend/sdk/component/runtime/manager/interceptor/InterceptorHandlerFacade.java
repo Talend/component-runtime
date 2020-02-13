@@ -37,10 +37,12 @@ import org.talend.sdk.component.api.service.interceptor.InterceptorHandler;
 import org.talend.sdk.component.api.service.interceptor.Intercepts;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
 public class InterceptorHandlerFacade implements InterceptorHandler {
 
+    @Getter
     private final Object delegate;
 
     private final Map<Class<?>, Object> services;
