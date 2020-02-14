@@ -15,15 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
-import static java.util.Collections.singleton;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
-
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +29,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.cache.LocalCache.Element;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
@@ -46,6 +37,11 @@ import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
 class LocalCacheServiceTest {
 
@@ -75,7 +71,7 @@ class LocalCacheServiceTest {
         }
     };
 
-    private final LocalCacheService<String> cache = new LocalCacheService<String>("LocalCacheServiceTest");
+    private final LocalCacheService<String> cache = new LocalCacheService<>("LocalCacheServiceTest");
 
 
     @BeforeEach
@@ -127,8 +123,8 @@ class LocalCacheServiceTest {
 
     @Test
     void mustRemoved() {
-        final boolean[] mustRemoved = new boolean[1];
-        mustRemoved[0] = false;
+        final boolean[] mustRemoved = new boolean[] { false };
+
         final String v1 = cache.computeIfAbsent("key1", (Element<String> e) -> mustRemoved[0], () -> "value1");
         final String v2 = cache.computeIfAbsent("key1", () -> "value2");
         mustRemoved[0] = true;
@@ -176,9 +172,9 @@ class LocalCacheServiceTest {
     @Test
     void serialize() throws IOException, ClassNotFoundException {
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
-        DynamicContainerFinder.SERVICES.put(LocalCache.class, new LocalCacheService("tmp"));
+        DynamicContainerFinder.SERVICES.put(LocalCache.class, new LocalCacheService<>("tmp"));
         try {
-            final LocalCache<String> cache = new LocalCacheService("LocalCacheServiceTest");
+            final LocalCache<String> cache = new LocalCacheService<>("LocalCacheServiceTest");
             final LocalCache<String> copy = roundTrip(cache);
             assertNotNull(copy);
         } finally {
@@ -187,7 +183,7 @@ class LocalCacheServiceTest {
         }
     }
 
-  /*  @Test
+    @Test
     void getOrSet() {
         final LocalCacheService<Integer> cache = new LocalCacheService<>("tmp");
         final AtomicInteger counter = new AtomicInteger(0);
@@ -195,7 +191,7 @@ class LocalCacheServiceTest {
         final boolean[] toDelete = new boolean[] { false };
 
         final Supplier<Integer> cacheUsage =
-                () -> cache.computeIfAbsent("foo", (Integer at) -> toDelete[0], counter::incrementAndGet);
+                () -> cache.computeIfAbsent("foo", (Element<Integer> at) -> toDelete[0], counter::incrementAndGet);
         for (int i = 0; i < 3; i++) {
             assertEquals(1, cacheUsage.get().intValue());
         }
@@ -205,5 +201,7 @@ class LocalCacheServiceTest {
 
         cache.clean();
         assertTrue(cache.isEmpty());
-    }*/
+
+    }
+
 }

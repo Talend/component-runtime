@@ -33,11 +33,12 @@ import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
-import lombok.RequiredArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
+
 
 /**
  * Implementation of LocalCache with in memory conccurent map.
@@ -48,6 +49,7 @@ public class LocalCacheService<T> implements LocalCache<T>, Serializable {
 
     /** plugin name for this cache */
     private final String plugin;
+
 
     private final ConcurrentMap<String, ElementImpl<T>> cache = new ConcurrentHashMap<>();
 
@@ -94,7 +96,7 @@ public class LocalCacheService<T> implements LocalCache<T>, Serializable {
             final Supplier<T> value) {
 
         final ElementImpl<T> element = this.addToMap(key,
-                () -> new ElementImpl<T>(value, toRemove, -1, null));
+                () -> new ElementImpl<>(value, toRemove, -1, null));
 
         return element.value;
     }
@@ -166,7 +168,6 @@ public class LocalCacheService<T> implements LocalCache<T>, Serializable {
         ScheduledFuture<?> task = null;
         final CacheConfiguration config = this.configuration.get();
         if (config != null && config.isActive()) {
-            long realEnd = end;
             task = this.getThreadService().schedule(() -> this.evict(key), end, SECONDS);
         }
         return task;

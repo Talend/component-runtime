@@ -33,7 +33,7 @@ public interface LocalCache<T> extends Serializable {
      * Use to enrich object with meta-data (help tio choice if to be removed)
      * @param <T> the type of data to cache.
      */
-    public interface Element<T> {
+    interface Element<T> {
         T getValue();
 
         long getEndOfValidity();
@@ -57,6 +57,7 @@ public interface LocalCache<T> extends Serializable {
      */
     T computeIfAbsent(String key, long timeoutMs, Supplier<T> value);
 
+
     /**
      * Compute and save a value, if key not present, for undetermined duration.
      * @param key : the cache key, must be unique accross the server.
@@ -67,7 +68,6 @@ public interface LocalCache<T> extends Serializable {
 
     /**
      * Remove a cached entry.
-     *
      * @param key key to evict.
      */
     void evict(String key);
