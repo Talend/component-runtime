@@ -18,47 +18,115 @@ package org.talend.sdk.component.runtime.manager.service;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.cache.LocalCache;
+import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 
-@AllArgsConstructor
+/**
+ * Implementation of LocalCache with in memory conccurent map.
+ * @param <T>   the type of cached data.
+ */
+@RequiredArgsConstructor
 public class LocalCacheService<T> implements LocalCache<T>, Serializable {
 
+    /** plugin name for this cache */
     private final String plugin;
 
-    private final ConcurrentMap<String, Element<T>> cache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ElementImpl<T>> cache = new ConcurrentHashMap<>();
 
+    @Configuration("talend.component.manager.services.cache.eviction")
+    private Supplier<CacheConfiguration> configuration;
+
+    // scheduler we use to evict tokens
+    private volatile ScheduledExecutorService threadService;
+
+    /**
+     * Evict an object.
+     * @param key key to evict.
+     */
     @Override
     public void evict(final String key) {
-        cache.remove(internalKey(key));
+        final ElementImpl<T> removedElement = cache.remove(internalKey(key));
+        if (removedElement != null) {
+            removedElement.release();
+        }
     }
 
     @Override
-    public <T> void evictIfValue(final String key, final T expected) {
-        cache.remove(internalKey(key), new Element(expected, e->true));
+    public void evictIfValue(final String key, final T expected) {
+        final String realKey = internalKey(key);
+
+        // use compute to be able to call release.
+        cache.compute(realKey,
+                (String oldKey , ElementImpl<T> oldElement) -> {
+                    if (oldElement != null && Objects.equals(oldElement.getValue(), expected)) {
+                        // ok to evit, so do release.
+                        oldElement.release();
+                        return null;
+                    }
+                    return oldElement;
+                });
+
     }
 
-    @Override
-    public T computeIfAbsent(String key, final Predicate<T> toRemove, final Supplier<T> value) {
-        final String internalKey = internalKey(key);
 
-        final Element<T> element = cache
-                .compute(internalKey, (String k,
-                        Element<T> e) -> e == null || e.mustBeRemoved() ? new Element<>(value.get(), toRemove) : e);
+
+    @Override
+    public T computeIfAbsent(String key,
+            final Predicate<Element<T>> toRemove,
+            final Supplier<T> value) {
+
+        final ElementImpl<T> element = this.addToMap(key,
+                () -> new ElementImpl<T>(value, toRemove, -1, null));
 
         return element.value;
+    }
+
+    @Override
+    public T computeIfAbsent(String key, long timeoutMs, Supplier<T> value) {
+
+        final long endOfValidity = timeoutMs > 0 ? System.currentTimeMillis() + timeoutMs : -1;
+        final ScheduledFuture<?> task = endOfValidity > 0 ? evictionTask(key, endOfValidity) : null;
+
+        final ElementImpl<T> element = addToMap(key,
+                () -> new ElementImpl<T>(value, null, endOfValidity, task));
+
+        return element.value;
+    }
+
+    private ElementImpl<T> addToMap(String key, Supplier<ElementImpl<T>> builder) {
+        final String internalKey = internalKey(key);
+        return cache.compute(
+                internalKey,
+                (String k, ElementImpl<T> old) ->    //
+                        old == null || old.mustBeRemoved() ?
+                                builder.get() :
+                                old
+        );
+    }
+
+    @Override
+    public T computeIfAbsent(String key, Supplier<T> value) {
+        final CacheConfiguration config = this.configuration.get();
+        long timeOut = config.isActive() ? config.getDefaultEvictionInterval() : -1;
+        return computeIfAbsent(key, timeOut, value);
     }
 
     private String internalKey(final String key) {
@@ -79,26 +147,105 @@ public class LocalCacheService<T> implements LocalCache<T>, Serializable {
         return this.cache.isEmpty();
     }
 
-    @AllArgsConstructor
-    public static class Element<T> {
+    private ScheduledExecutorService getThreadService() {
+        if (this.threadService == null) {
+            synchronized (this) {
+                if (this.threadService == null) {
+                    this.threadService = Executors.newSingleThreadScheduledExecutor((Runnable r) -> {
+                        final Thread thread = new Thread(r, this.getClass().getName() + "-eviction-" + hashCode());
+                        thread.setPriority(Thread.NORM_PRIORITY);
+                        return thread;
+                    });
+                }
+            }
+        }
+        return this.threadService;
+    }
 
+    private ScheduledFuture<?> evictionTask(String key, long end) {
+        ScheduledFuture<?> task = null;
+        final CacheConfiguration config = this.configuration.get();
+        if (config != null && config.isActive()) {
+            long realEnd = end;
+            task = this.getThreadService().schedule(() -> this.evict(key), end, SECONDS);
+        }
+        return task;
+    }
+
+    /**
+     * Cache configuration.
+     */
+    @Data
+    public static class CacheConfiguration implements Serializable {
+
+        @Option
+        private long defaultEvictionInterval;
+
+        @Option
+        private boolean active;
+    }
+
+    /**
+     * Wrapper for each cached object.
+     * @param <T> : type of cached object.
+     */
+    private static class ElementImpl<T> implements Element<T> {
+
+        /** cached object */
         private final T value;
 
-        private final Predicate<T> toRemove;
+        /** function, if exists, that authorize to remove object. */
+        private final Predicate<Element<T>> toRemove;
 
-        private boolean mustBeRemoved() {
-            return this.toRemove.test(value);
+        /** give time object can be release (infinity if < 0) */
+        private final long endOfValidity;
+
+        /** scheduled task to remove object if nedeed (to cancel if removed before) */
+        private final ScheduledFuture<?> removedTask;
+
+        public ElementImpl(Supplier<T> value,
+                Predicate<Element<T>> toRemove,
+                long endOfValidity,
+                ScheduledFuture<?> removedTask) {
+            this.value = value.get();
+            this.toRemove = toRemove;
+            this.endOfValidity = endOfValidity;
+            this.removedTask = removedTask;
         }
 
         @Override
-        public boolean equals(final Object o) { // ignore endOfValidity
+        public T getValue() {
+            return this.value;
+        }
+
+        @Override
+        public long getEndOfValidity() {
+            return this.endOfValidity;
+        }
+
+        public boolean mustBeRemoved() {
+            return (this.endOfValidity > 0 && this.endOfValidity <= System.currentTimeMillis()) // time out passed
+                    ||  (this.toRemove != null && this.toRemove.test(this)); // or function indicate to remove.
+        }
+
+        /**
+         * Release this object because removed.
+         */
+        public synchronized void release() {
+            if (this.removedTask != null) {
+                this.removedTask.cancel(false);
+            }
+        }
+
+        @Override
+        public boolean equals(final Object o) { // consider only value
             if (this == o) {
                 return true;
             }
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            return Objects.equals(Element.class.cast(o).value, value);
+            return Objects.equals(ElementImpl.class.cast(o).value, value);
         }
 
         @Override

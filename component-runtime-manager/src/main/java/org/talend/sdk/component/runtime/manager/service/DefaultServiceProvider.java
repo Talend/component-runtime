@@ -160,7 +160,9 @@ public class DefaultServiceProvider {
             return proxyGenerator;
         }
         if (LocalCache.class == api) {
-            return new LocalCacheService<>(id);
+            final LocalCacheService<Object> service = new LocalCacheService<>(id);
+            Injector.class.cast(services.get().get(Injector.class)).inject(service);
+            return service;
         }
         if (Injector.class == api) {
             return new InjectorImpl(id, reflections, proxyGenerator, services.get());

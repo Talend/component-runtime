@@ -25,19 +25,45 @@ import java.util.function.Supplier;
  * Useful for actions when deployed in a long running instance
  * when actions are costly.
  * 
- * @param <T> the type of data to access/cache.
+ * @param <T>  the type of cached data.
  */
 public interface LocalCache<T> extends Serializable {
 
     /**
-     * Read or compute and save a value for a determined duration.
-     * 
+     * Use to enrich object with meta-data (help tio choice if to be removed)
+     * @param <T> the type of data to cache.
+     */
+    public interface Element<T> {
+        T getValue();
+
+        long getEndOfValidity();
+    }
+
+    /**
+     * Read or compute and save a value until remove predicate go to remove.
      * @param key : the cache key, must be unique accross the server.
      * @param toRemove : is the object to be removed.
-     * @param supplier : the value provider if the cache get does a miss.
+     * @param value : the value provider if the cache get does a miss.
      * @return the cached or newly computed value.
      */
-    T computeIfAbsent(String key, Predicate<T> toRemove, Supplier<T> supplier);
+    T computeIfAbsent(String key, Predicate<Element<T>> toRemove, Supplier<T> value);
+
+    /**
+     * Read or compute and save a value for a determined duration.
+     * @param key : the cache key, must be unique accross the server.
+     * @param timeoutMs : duration of cache value.
+     * @param value : value provider.
+     * @return the cached or newly computed value.
+     */
+    T computeIfAbsent(String key, long timeoutMs, Supplier<T> value);
+
+    /**
+     * Compute and save a value, if key not present, for undetermined duration.
+     * @param key : the cache key, must be unique accross the server.
+     * @param value : value provider.
+     * @return the cached or newly computed value.
+     */
+    T computeIfAbsent(String key, Supplier<T> value);
 
     /**
      * Remove a cached entry.
@@ -52,33 +78,6 @@ public interface LocalCache<T> extends Serializable {
      * @param key key to evict.
      * @param expected expected value activating the eviction.
      */
-    <T> void evictIfValue(String key, T expected);
+    void evictIfValue(String key, T expected);
 
-    /**
-     * Read or compute and save a value for a determined duration.
-     *
-     * @param key the cache key, must be unique accross the server.
-     * @param timeoutMs the cache duration.
-     * @param supplier the value provider if the cache get does a miss.
-     * @return the cached or newly computed value.
-     */
-    default T computeIfAbsent(String key, long timeoutMs, Supplier<T> supplier) {
-        final long current = System.currentTimeMillis();
-        Predicate<T> toRemove = (T obj) -> {
-            return System.currentTimeMillis() > current + timeoutMs;
-        };
-
-        return this.computeIfAbsent(key, toRemove, supplier);
-    }
-
-    /**
-     * Default the timeout to {@literal Integer.MAX_VALUE}.
-     *
-     * @param key the cache key, must be unique accross the server.
-     * @param supplier the value provider if the cache get does a miss.
-     * @return the cached or newly computed - and cached indefinitively - value.
-     */
-    default T computeIfAbsent(String key, Supplier<T> supplier) {
-        return computeIfAbsent(key, Integer.MAX_VALUE, supplier);
-    }
 }
