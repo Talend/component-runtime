@@ -85,6 +85,6 @@ public class Suggestion {
             } catch (final Exception e) {
                 return Stream.empty();
             }
-        }).findFirst().orElse(AllIcons.Hierarchy.Base);
+        }).findFirst().orElse(AllIcons.Actions.Forward);
     }
 }

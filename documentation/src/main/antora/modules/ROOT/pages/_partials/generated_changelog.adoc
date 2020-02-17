@@ -6,6 +6,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1639[TCOMP-1639^]: component-server incorrect response set in request
 
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1640[TCOMP-1640^]: Ensure Intellij plugin works with Intellij Idea IU-201
+
 == Version 1.1.18
 
 === Bug

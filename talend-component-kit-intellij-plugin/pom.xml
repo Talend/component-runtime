@@ -31,7 +31,7 @@
     <talend.build.name>${talend.build.name.base}.intellij</talend.build.name>
 
     <idea.unpacked.folder>${project.basedir}/.cache/idea/</idea.unpacked.folder>
-    <idea.build.version>2019.3.1</idea.build.version>
+    <idea.build.version>2019.3.3</idea.build.version>
     <idea.source>
       https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.build.version}/ideaIC-${idea.build.version}.zip
     </idea.source>
