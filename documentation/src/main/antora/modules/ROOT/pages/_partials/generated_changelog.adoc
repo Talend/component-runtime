@@ -11,6 +11,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1640[TCOMP-1640^]: Ensure Intellij plugin works with Intellij Idea IU-201
+- link:https://jira.talendforge.org/browse/TCOMP-1642[TCOMP-1642^]: Upgrade Groovy to 3.0.1
 
 == Version 1.1.18
 
