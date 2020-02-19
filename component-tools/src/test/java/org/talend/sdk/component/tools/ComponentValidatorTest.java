@@ -74,6 +74,8 @@ class ComponentValidatorTest {
         boolean validateDocumentation() default false;
 
         boolean validateDataSet() default true;
+
+        boolean validateWording() default false;
     }
 
     @Slf4j
@@ -143,6 +145,7 @@ class ComponentValidatorTest {
             cfg.setValidateSvg(true);
             cfg.setValidateNoFinalOption(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
+            cfg.setValidateWording(config.validateWording());
             Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -325,6 +328,32 @@ class ComponentValidatorTest {
         expectedException
                 .expectMessage("Some error were detected:\n"
                         + "- No @Documentation on 'org.talend.test.failure.documentation.component.MyComponent'");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.wording.component", validateDocumentation = true,
+            validateDataSet = false, validateWording = true)
+    void testFailureDocumentationWordingComponent(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("Some error were detected:\n"
+                        + "- @Documentation on 'org.talend.test.failure.wording.component.MyComponent' is empty or is"
+                        + " not capitalized or ends not by a dot.");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.wording.option", validateDocumentation = true,
+            validateDataSet = false, validateWording = true)
+    void testFailureDocumentationWordingOption(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("Some error were detected:\n" + "- @Documentation on 'empty' is empty or is"
+                        + " not capitalized or ends not by a dot.\n- @Documentation on 'input' is empty or is not capitalized or ends not by a dot");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.wording", validateDocumentation = true, validateDataSet = false,
+            validateWording = true, success = true)
+    void testValidDocumentationWordingComponent(final ExceptionSpec expectedException) {
+        //
     }
 
     @Test
