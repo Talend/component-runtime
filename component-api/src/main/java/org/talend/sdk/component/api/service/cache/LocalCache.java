@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.api.service.cache;
 
-import java.io.Serializable;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -24,50 +23,87 @@ import java.util.function.Supplier;
  * to handle local caching.
  * Useful for actions when deployed in a long running instance
  * when actions are costly.
- * 
- * @param <T>  the type of cached data.
  */
-public interface LocalCache<T> extends Serializable {
+public interface LocalCache {
 
     /**
      * Use to enrich object with meta-data (help tio choice if to be removed)
-     * @param <T> the type of data to cache.
      */
-    interface Element<T> {
-        T getValue();
+    interface Element {
 
-        long getEndOfValidity();
+        /**
+         * Get the cached object.
+         * 
+         * @param expectedType : expected type of object.
+         * @param <T> : Type.
+         * @return cached object.
+         */
+        <T> T getValue(Class<T> expectedType);
+
+        default Object getValue() {
+            return this.getValue(Object.class);
+        }
+
+        /**
+         * time when this will be no longer valide.
+         * 
+         * @return Last validity timestamp.
+         */
+        long getLastValidityTimestamp();
     }
 
     /**
+     * Read or compute and save a value for a determined duration and predicate.
+     * 
+     * @param expectedClass : cached instance class.
+     * @param key : the cache key, must be unique accross the server.
+     * @param toRemove : is the object to be removed.
+     * @param timeoutMs : duration of cache value.
+     * @param value : the value provider if the cache get does a miss.
+     * @param <T> class of cached instance.
+     * @return the cached or newly computed value.
+     */
+    <T> T computeIfAbsent(Class<T> expectedClass, String key, Predicate<Element> toRemove, long timeoutMs,
+            Supplier<T> value);
+
+    /**
      * Read or compute and save a value until remove predicate go to remove.
+     * 
+     * @param expectedClass : cached instance class.
      * @param key : the cache key, must be unique accross the server.
      * @param toRemove : is the object to be removed.
      * @param value : the value provider if the cache get does a miss.
+     * @param <T> class of cached instance.
      * @return the cached or newly computed value.
      */
-    T computeIfAbsent(String key, Predicate<Element<T>> toRemove, Supplier<T> value);
+    <T> T computeIfAbsent(Class<T> expectedClass, String key, Predicate<Element> toRemove, Supplier<T> value);
 
     /**
      * Read or compute and save a value for a determined duration.
+     * 
+     * @param expectedClass : cached instance class.
      * @param key : the cache key, must be unique accross the server.
      * @param timeoutMs : duration of cache value.
      * @param value : value provider.
+     * @param <T> class of cached instance.
      * @return the cached or newly computed value.
      */
-    T computeIfAbsent(String key, long timeoutMs, Supplier<T> value);
-
+    <T> T computeIfAbsent(Class<T> expectedClass, String key, long timeoutMs, Supplier<T> value);
 
     /**
      * Compute and save a value, if key not present, for undetermined duration.
+     * 
+     * @param expectedClass : cached instance class.
      * @param key : the cache key, must be unique accross the server.
      * @param value : value provider.
+     * @param <T> class of cached instance.
      * @return the cached or newly computed value.
      */
-    T computeIfAbsent(String key, Supplier<T> value);
+    <T> T computeIfAbsent(Class<T> expectedClass, String key, Supplier<T> value);
 
     /**
      * Remove a cached entry.
+     * 
      * @param key key to evict.
      */
     void evict(String key);
@@ -78,6 +114,6 @@ public interface LocalCache<T> extends Serializable {
      * @param key key to evict.
      * @param expected expected value activating the eviction.
      */
-    void evictIfValue(String key, T expected);
+    void evictIfValue(String key, Object expected);
 
 }

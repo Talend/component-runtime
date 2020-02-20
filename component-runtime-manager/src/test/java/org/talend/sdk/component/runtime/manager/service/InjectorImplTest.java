@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
@@ -46,6 +48,7 @@ import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFa
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
+import org.talend.sdk.component.runtime.manager.util.MemoizingSupplier;
 
 import lombok.Data;
 
@@ -53,10 +56,15 @@ class InjectorImplTest {
 
     private Injector injector;
 
+    private final Supplier<ScheduledExecutorService> executor = new MemoizingSupplier<>(this::buildExecutorService);
+
     @BeforeEach
     void init() {
         final Map<Class<?>, Object> services = new HashMap<>(2);
-        services.put(LocalCache.class, new LocalCacheService("LocalCacheServiceTest"));
+
+        services
+                .put(LocalCache.class,
+                        new LocalCacheService("LocalCacheServiceTest", System::currentTimeMillis, executor));
         services
                 .put(LocalConfiguration.class,
                         new LocalConfigurationService(Collections.singletonList(new LocalConfiguration() {
@@ -77,6 +85,14 @@ class InjectorImplTest {
                 new ProxyGenerator(), services);
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(Injector.class, injector);
+    }
+
+    private ScheduledExecutorService buildExecutorService() {
+        return Executors.newScheduledThreadPool(4, (Runnable r) -> {
+            final Thread thread = new Thread(r, "ReflectionTest-" + hashCode());
+            thread.setPriority(Thread.NORM_PRIORITY);
+            return thread;
+        });
     }
 
     @AfterEach
@@ -102,7 +118,8 @@ class InjectorImplTest {
     @Test
     void injectWithProxy() throws Exception {
         final Map<Class<?>, Object> services = new HashMap<>(1);
-        LocalCache localCache = new LocalCacheService("LocalCacheServiceTest");
+        LocalCache localCache =
+                new LocalCacheService("LocalCacheServiceTest", System::currentTimeMillis, this.executor);
         services.put(LocalCache.class, localCache);
 
         final InjectedCache instance = new InjectedCache();

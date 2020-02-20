@@ -16,11 +16,16 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -37,24 +42,26 @@ import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
+import org.talend.sdk.component.runtime.manager.util.MemoizingSupplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
 class LocalCacheServiceTest {
 
-
     private boolean active;
 
-    private int  intervale;
+    private int interval;
+
+    private Supplier<ScheduledExecutorService> executorGetter;
 
     private LocalConfiguration cacheConfig = new LocalConfiguration() {
+
         @Override
         public String get(String key) {
             if ("test.talend.component.manager.services.cache.eviction.defaultEvictionInterval".equals(key)) {
-                return String.valueOf(intervale);
+                return String.valueOf(interval);
             }
             if ("test.talend.component.manager.services.cache.eviction.active".equals(key)) {
                 return String.valueOf(active);
@@ -71,18 +78,28 @@ class LocalCacheServiceTest {
         }
     };
 
-    private final LocalCacheService<String> cache = new LocalCacheService<>("LocalCacheServiceTest");
+    private LocalCacheService cache;
 
+    private long simulateCurrent = -1;
+
+    private long getCurrentMillis() {
+        if (this.simulateCurrent >= 0) {
+            return this.simulateCurrent;
+        }
+        return System.currentTimeMillis();
+    }
 
     @BeforeEach
     void init() {
+        executorGetter = new MemoizingSupplier<>(this::buildExecutorService);
+        cache = new LocalCacheService("LocalCacheServiceTest", this::getCurrentMillis, executorGetter);
         this.active = false;
-        this.intervale = 0;
-        final Map<Class<?>, Object> services = new HashMap<>(2);
-       // services.put(LocalCache.class, new LocalCacheService("LocalCacheServiceTest"));
-        services.put(LocalConfiguration.class,
-                new LocalConfigurationService(Collections.singletonList(cacheConfig), "test"));
+        this.interval = -1;
 
+        final Map<Class<?>, Object> services = new HashMap<>(1);
+        services
+                .put(LocalConfiguration.class,
+                        new LocalConfigurationService(Collections.singletonList(cacheConfig), "test"));
 
         final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
         Injector injector = new InjectorImpl("LocalCacheServiceTest",
@@ -90,45 +107,60 @@ class LocalCacheServiceTest {
                 new ProxyGenerator(), services);
 
         injector.inject(cache);
-        Assertions.assertTrue(cache.isEmpty(), "not empty after creation");
+
+        Assertions.assertTrue(isCacheEmpty(), "not empty after creation");
     }
 
     @AfterEach
-    void end() {
+    void end() throws NoSuchFieldException, IllegalAccessException {
+        this.cache.release();
+
+        final Field field = LocalCacheService.class.getDeclaredField("cache");
+        field.setAccessible(true);
+        Object o = field.get(this.cache);
+        if (o != null) {
+            Map content = (Map) o;
+            Assertions.assertTrue(content.isEmpty());
+        }
+
         cache.clean();
     }
 
     @Test
     void conditionalEviction() {
-        final String value = this.cache.computeIfAbsent("foo", () -> "bar");
+        final String value = this.cache.computeIfAbsent(String.class, "foo", () -> "bar");
         assertEquals("bar", value);
-        assertEquals("bar", cache.computeIfAbsent("foo", () -> "test"));
+        assertEquals("bar", cache.computeIfAbsent(String.class, "foo", () -> "test"));
 
         cache.evictIfValue("foo", value);
-        assertEquals("renewed", cache.computeIfAbsent("foo", () -> "renewed"));
+        assertEquals("renewed", cache.computeIfAbsent(String.class, "foo", () -> "renewed"));
 
         cache.evictIfValue("foo", "doNothing");
-        assertEquals("renewed", cache.computeIfAbsent("foo", () -> "renewed"));
+        assertEquals("renewed", cache.computeIfAbsent(String.class, "foo", () -> "renewed"));
 
         cache.evictIfValue("foo", null);
-        assertEquals("renewed", cache.computeIfAbsent("foo", () -> "renewed"));
+        assertEquals("renewed", cache.computeIfAbsent(String.class, "foo", () -> "renewed"));
     }
 
     @Test
     void eviction() {
-        assertEquals("bar", cache.computeIfAbsent("foo", () -> "bar"));
+        assertEquals("bar", cache.computeIfAbsent(String.class, "foo", () -> "bar"));
         cache.evict("foo");
-        assertEquals("renewed", cache.computeIfAbsent("foo", () -> "renewed"));
+        assertEquals("renewed", cache.computeIfAbsent(String.class, "foo", () -> "renewed"));
     }
 
     @Test
     void mustRemoved() {
         final boolean[] mustRemoved = new boolean[] { false };
+        this.active = true;
+        this.interval = 100;
+        this.simulateCurrent = 100L;
 
-        final String v1 = cache.computeIfAbsent("key1", (Element<String> e) -> mustRemoved[0], () -> "value1");
-        final String v2 = cache.computeIfAbsent("key1", () -> "value2");
+        final String v1 = cache.computeIfAbsent(String.class, "key1", (Element e) -> mustRemoved[0], () -> "value1");
+        final String v2 = cache.computeIfAbsent(String.class, "key1", () -> "value2");
         mustRemoved[0] = true;
-        final String v3 = cache.computeIfAbsent("key1", () -> "value3");
+        this.simulateCurrent = 300L;
+        final String v3 = cache.computeIfAbsent(String.class, "key1", () -> "value3");
         assertEquals("value1", v1);
         assertEquals("value1", v2);
         assertEquals("value3", v3);
@@ -136,15 +168,16 @@ class LocalCacheServiceTest {
 
     @Test
     void localTimeout() throws InterruptedException {
-        final String v1 = cache.computeIfAbsent("key1", 200L, () -> "value1");
-        final String v2 = cache.computeIfAbsent("key1", 200L,  () -> "value2");
+        final String v1 = cache.computeIfAbsent(String.class, "key1", 200L, () -> "value1");
+        final String v2 = cache.computeIfAbsent(String.class, "key1", 200L, () -> "value2");
 
-        final String valueKey2 = cache.computeIfAbsent("key2", -1L, () -> "valueKey2");
+        final String valueKey2 = cache.computeIfAbsent(String.class, "key2", -1L, () -> "valueKey2");
 
-        Thread.sleep(240L);
-        final String v3 = cache.computeIfAbsent("key1", 200L, () -> "value3");
+        Thread.sleep(400L);
 
-        final String value2Key2 = cache.computeIfAbsent("key2", () -> "value2Key2");
+        final String v3 = cache.computeIfAbsent(String.class, "key1", 200L, () -> "value3");
+
+        final String value2Key2 = cache.computeIfAbsent(String.class, "key2", () -> "value2Key2");
 
         assertEquals("value1", v1);
         assertEquals("value1", v2);
@@ -155,27 +188,42 @@ class LocalCacheServiceTest {
     }
 
     @Test
-    void timeout() throws InterruptedException {
+    void timeoutAuto() {
         this.active = true;
-        this.intervale = 200;
+        this.interval = 200;
 
-        final String v1 = cache.computeIfAbsent("key1", () -> "value1");
-        final String v2 = cache.computeIfAbsent("key1", () -> "value2");
+        final CountDownLatch latch = new CountDownLatch(1);
+        final long start = System.currentTimeMillis();
+        String value = cache.computeIfAbsent(String.class, "foo", (Element e) -> {
+            latch.countDown();
+            return true;
+        }, () -> "bar");
+        assertEquals("bar", value);
+        final String v2 = cache.computeIfAbsent(String.class, "foo", () -> "value2");
+        assertEquals("bar", v2);
+        try {
+            latch.await();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        final long end = System.currentTimeMillis();
 
-        Thread.sleep(240L);
-        final String v3 = cache.computeIfAbsent("key1", () -> "value3");
-        assertEquals("value1", v1);
-        assertEquals("value1", v2);
+        final long duration = end - start;
+        assertEquals(200, duration, 100);
+
+        final String v3 = cache.computeIfAbsent(String.class, "foo", () -> "value3");
         assertEquals("value3", v3);
     }
 
     @Test
     void serialize() throws IOException, ClassNotFoundException {
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
-        DynamicContainerFinder.SERVICES.put(LocalCache.class, new LocalCacheService<>("tmp"));
+        DynamicContainerFinder.SERVICES
+                .put(LocalCache.class, new LocalCacheService("tmp", System::currentTimeMillis, executorGetter));
         try {
-            final LocalCache<String> cache = new LocalCacheService<>("LocalCacheServiceTest");
-            final LocalCache<String> copy = roundTrip(cache);
+            final LocalCache cache =
+                    new LocalCacheService("LocalCacheServiceTest", System::currentTimeMillis, executorGetter);
+            final LocalCache copy = roundTrip(cache);
             assertNotNull(copy);
         } finally {
             DynamicContainerFinder.LOADERS.remove("LocalCacheServiceTest");
@@ -185,23 +233,43 @@ class LocalCacheServiceTest {
 
     @Test
     void getOrSet() {
-        final LocalCacheService<Integer> cache = new LocalCacheService<>("tmp");
         final AtomicInteger counter = new AtomicInteger(0);
+        this.active = true;
+        this.interval = 300;
+        this.simulateCurrent = 100L;
 
         final boolean[] toDelete = new boolean[] { false };
 
-        final Supplier<Integer> cacheUsage =
-                () -> cache.computeIfAbsent("foo", (Element<Integer> at) -> toDelete[0], counter::incrementAndGet);
+        final Supplier<Integer> cacheUsage = () -> cache
+                .computeIfAbsent(Integer.class, "foo", (Element at) -> toDelete[0], counter::incrementAndGet);
         for (int i = 0; i < 3; i++) {
             assertEquals(1, cacheUsage.get().intValue());
         }
-
+        this.simulateCurrent = 450L;
         toDelete[0] = true;
         assertEquals(2, cacheUsage.get().intValue());
+        this.simulateCurrent = 850L;
 
         cache.clean();
-        assertTrue(cache.isEmpty());
-
+        Assertions.assertTrue(isCacheEmpty(), "not empty clean with toDelete");
     }
 
+    private boolean isCacheEmpty() {
+        try {
+            final Field cacheField = LocalCacheService.class.getDeclaredField("cache");
+            cacheField.setAccessible(true);
+            final Object cacheMap = cacheField.get(this.cache);
+            return ((Map<?, ?>) cacheMap).isEmpty();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalArgumentException("pb acces cache map", e);
+        }
+    }
+
+    private ScheduledExecutorService buildExecutorService() {
+        return Executors.newScheduledThreadPool(4, (Runnable r) -> {
+            final Thread thread = new Thread(r, DefaultServiceProvider.class.getName() + "-eviction-" + hashCode());
+            thread.setPriority(Thread.NORM_PRIORITY);
+            return thread;
+        });
+    }
 }

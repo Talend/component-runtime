@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -60,6 +62,7 @@ import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.util.Lazy;
+import org.talend.sdk.component.runtime.manager.util.MemoizingSupplier;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
 import org.talend.sdk.component.runtime.record.json.RecordJsonGenerator;
 
@@ -97,6 +100,9 @@ public class DefaultServiceProvider {
     private final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
 
     private final EnrichedPropertyEditorRegistry propertyEditorRegistry;
+
+    private final Supplier<ScheduledExecutorService> executorService =
+            new MemoizingSupplier<>(this::buildExecutorService);
 
     public <T> T lookup(final String id, final ClassLoader loader, final Supplier<List<InputStream>> localConfigLookup,
             final Function<String, Path> resolver, final Class<T> api,
@@ -160,7 +166,8 @@ public class DefaultServiceProvider {
             return proxyGenerator;
         }
         if (LocalCache.class == api) {
-            final LocalCacheService<Object> service = new LocalCacheService<>(id);
+            final LocalCacheService service =
+                    new LocalCacheService(id, System::currentTimeMillis, this.executorService);
             Injector.class.cast(services.get().get(Injector.class)).inject(service);
             return service;
         }
@@ -252,5 +259,20 @@ public class DefaultServiceProvider {
             throw error;
         }
         return result;
+    }
+
+    /**
+     * Build executor service
+     * used by
+     * - Local cache for eviction.
+     * 
+     * @return scheduled executor service.
+     */
+    private ScheduledExecutorService buildExecutorService() {
+        return Executors.newScheduledThreadPool(4, (Runnable r) -> {
+            final Thread thread = new Thread(r, DefaultServiceProvider.class.getName() + "-services-" + hashCode());
+            thread.setPriority(Thread.NORM_PRIORITY);
+            return thread;
+        });
     }
 }

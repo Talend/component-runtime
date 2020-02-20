@@ -22,11 +22,14 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.cache.LocalCache;
@@ -34,101 +37,123 @@ import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.toList;
 
 
 /**
  * Implementation of LocalCache with in memory conccurent map.
- * @param <T>   the type of cached data.
  */
-@RequiredArgsConstructor
-public class LocalCacheService<T> implements LocalCache<T>, Serializable {
+public class LocalCacheService implements LocalCache, Serializable {
 
     /** plugin name for this cache */
     private final String plugin;
 
+    private final Supplier<Long> timer;
 
-    private final ConcurrentMap<String, ElementImpl<T>> cache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ElementImpl> cache = new ConcurrentHashMap<>();
 
     @Configuration("talend.component.manager.services.cache.eviction")
     private Supplier<CacheConfiguration> configuration;
 
     // scheduler we use to evict tokens
-    private volatile ScheduledExecutorService threadService;
+    private transient Supplier<ScheduledExecutorService> threadServiceGetter;
+
+    public LocalCacheService(final String plugin, final Supplier<Long> timer,
+            final Supplier<ScheduledExecutorService> threadServiceGetter) {
+        this.plugin = plugin;
+        this.timer = timer;
+        this.threadServiceGetter = threadServiceGetter;
+    }
 
     /**
      * Evict an object.
+     * 
      * @param key key to evict.
      */
     @Override
     public void evict(final String key) {
-        final ElementImpl<T> removedElement = cache.remove(internalKey(key));
-        if (removedElement != null) {
-            removedElement.release();
-        }
-    }
-
-    @Override
-    public void evictIfValue(final String key, final T expected) {
         final String realKey = internalKey(key);
 
         // use compute to be able to call release.
-        cache.compute(realKey,
-                (String oldKey , ElementImpl<T> oldElement) -> {
-                    if (oldElement != null && Objects.equals(oldElement.getValue(), expected)) {
-                        // ok to evit, so do release.
-                        oldElement.release();
-                        return null;
-                    }
-                    return oldElement;
-                });
+        cache.compute(realKey, (String oldKey, ElementImpl oldElement) -> {
+            if (oldElement != null && oldElement.canBeEvict()) {
+                // ok to evit, so do release.
+                oldElement.release();
+                return null;
+            }
+            return oldElement;
+        });
+    }
+
+    @Override
+    public void evictIfValue(final String key, final Object expected) {
+        final String realKey = internalKey(key);
+
+        // use compute to be able to call release.
+        cache.compute(realKey, (String oldKey, ElementImpl oldElement) -> {
+            if (oldElement != null && (Objects.equals(oldElement.getValue(), expected) || oldElement.canBeEvict())) {
+                // ok to evit, so do release.
+                oldElement.release();
+                return null;
+            }
+            return oldElement;
+        });
 
     }
 
-
-
     @Override
-    public T computeIfAbsent(String key,
-            final Predicate<Element<T>> toRemove,
+    public <T> T computeIfAbsent(final Class<T> expectedClass, final String key,
+            final Predicate<Element> toRemove, final long timeoutMs,
             final Supplier<T> value) {
 
-        final ElementImpl<T> element = this.addToMap(key,
-                () -> new ElementImpl<>(value, toRemove, -1, null));
+        final ScheduledFuture<?> task = timeoutMs > 0 ? this.evictionTask(key, timeoutMs) : null;
 
-        return element.value;
+        final long endOfValidity = this.calcEndOfValidity(timeoutMs);
+        final ElementImpl element =
+                this.addToMap(key, () -> new ElementImpl(value, toRemove, endOfValidity, task, this.timer));
+
+        return element.getValue(expectedClass);
     }
 
     @Override
-    public T computeIfAbsent(String key, long timeoutMs, Supplier<T> value) {
+    public <T> T computeIfAbsent(final Class<T> expectedClass, final String key, final Predicate<Element> toRemove,
+            final Supplier<T> value) {
 
-        final long endOfValidity = timeoutMs > 0 ? System.currentTimeMillis() + timeoutMs : -1;
-        final ScheduledFuture<?> task = endOfValidity > 0 ? evictionTask(key, endOfValidity) : null;
-
-        final ElementImpl<T> element = addToMap(key,
-                () -> new ElementImpl<T>(value, null, endOfValidity, task));
-
-        return element.value;
+        final long timeout = this.getDefaultTimeout();
+        return this.computeIfAbsent(expectedClass, key, toRemove, timeout, value);
     }
 
-    private ElementImpl<T> addToMap(String key, Supplier<ElementImpl<T>> builder) {
+    @Override
+    public <T> T computeIfAbsent(final Class<T> expectedClass,
+            final String key, final long timeoutMs, final Supplier<T> value) {
+        return this.computeIfAbsent(expectedClass, key, null, timeoutMs, value);
+    }
+
+    private ElementImpl addToMap(final String key, final Supplier<ElementImpl> builder) {
         final String internalKey = internalKey(key);
-        return cache.compute(
-                internalKey,
-                (String k, ElementImpl<T> old) ->    //
-                        old == null || old.mustBeRemoved() ?
-                                builder.get() :
-                                old
-        );
+        return cache.compute(internalKey, (String k, ElementImpl old) -> //
+        old == null || old.mustBeRemoved() ? builder.get() : old);
     }
 
     @Override
-    public T computeIfAbsent(String key, Supplier<T> value) {
-        final CacheConfiguration config = this.configuration.get();
-        long timeOut = config.isActive() ? config.getDefaultEvictionInterval() : -1;
-        return computeIfAbsent(key, timeOut, value);
+    public <T> T computeIfAbsent(final Class<T> expectedClass, final String key, final Supplier<T> value) {
+        long timeOut = getDefaultTimeout();
+        return computeIfAbsent(expectedClass, key, null, timeOut, value);
+    }
+
+    @PreDestroy
+    public void release() {
+        this.cache.forEach((String k, ElementImpl e) -> e.release());
+        this.cache.clear();
+    }
+
+    private long calcEndOfValidity(final long timeoutMs) {
+        return timeoutMs > 0 ? this.timer.get() + timeoutMs : -1;
+    }
+
+    private long getDefaultTimeout() {
+        final CacheConfiguration config = getConfig();
+        return config != null && config.isActive() ? config.getDefaultEvictionInterval() : -1;
     }
 
     private String internalKey(final String key) {
@@ -141,36 +166,25 @@ public class LocalCacheService<T> implements LocalCache<T>, Serializable {
                 .stream()
                 .filter(e -> e.getValue().mustBeRemoved())
                 .map(Entry::getKey)
-                .collect(toList());// materialize before actually removing it
+                .collect(Collectors.toList());// materialize before actually removing it
         removableElements.forEach(this.cache::remove);
     }
 
-    public boolean isEmpty() {
-        return this.cache.isEmpty();
-    }
-
     private ScheduledExecutorService getThreadService() {
-        if (this.threadService == null) {
-            synchronized (this) {
-                if (this.threadService == null) {
-                    this.threadService = Executors.newSingleThreadScheduledExecutor((Runnable r) -> {
-                        final Thread thread = new Thread(r, this.getClass().getName() + "-eviction-" + hashCode());
-                        thread.setPriority(Thread.NORM_PRIORITY);
-                        return thread;
-                    });
-                }
-            }
-        }
-        return this.threadService;
+        return this.threadServiceGetter.get();
     }
 
-    private ScheduledFuture<?> evictionTask(String key, long end) {
+    private ScheduledFuture<?> evictionTask(final String key, final long delayMillis) {
         ScheduledFuture<?> task = null;
-        final CacheConfiguration config = this.configuration.get();
+        final CacheConfiguration config = getConfig();
         if (config != null && config.isActive()) {
-            task = this.getThreadService().schedule(() -> this.evict(key), end, SECONDS);
+            task = this.getThreadService().schedule(() -> this.evict(key), delayMillis, TimeUnit.MILLISECONDS);
         }
         return task;
+    }
+
+    private CacheConfiguration getConfig() {
+        return this.configuration != null ? this.configuration.get() : null;
     }
 
     /**
@@ -188,15 +202,14 @@ public class LocalCacheService<T> implements LocalCache<T>, Serializable {
 
     /**
      * Wrapper for each cached object.
-     * @param <T> : type of cached object.
      */
-    private static class ElementImpl<T> implements Element<T> {
+    private static class ElementImpl implements Element {
 
         /** cached object */
-        private final T value;
+        private final Object value;
 
         /** function, if exists, that authorize to remove object. */
-        private final Predicate<Element<T>> toRemove;
+        private final Predicate<Element> canBeRemoved;
 
         /** give time object can be release (infinity if < 0) */
         private final long endOfValidity;
@@ -204,29 +217,38 @@ public class LocalCacheService<T> implements LocalCache<T>, Serializable {
         /** scheduled task to remove object if nedeed (to cancel if removed before) */
         private final ScheduledFuture<?> removedTask;
 
-        public ElementImpl(Supplier<T> value,
-                Predicate<Element<T>> toRemove,
-                long endOfValidity,
-                ScheduledFuture<?> removedTask) {
+        private final Supplier<Long> serviceTimer;
+
+        public <T> ElementImpl(final Supplier<T> value, final Predicate<Element> canBeRemoved, final long endOfValidity,
+                final ScheduledFuture<?> removedTask, final Supplier<Long> timer) {
             this.value = value.get();
-            this.toRemove = toRemove;
+            this.canBeRemoved = canBeRemoved;
             this.endOfValidity = endOfValidity;
             this.removedTask = removedTask;
+            this.serviceTimer = timer;
         }
 
         @Override
-        public T getValue() {
-            return this.value;
+        public <T> T getValue(final Class<T> expectedType) {
+            if (this.value != null && !expectedType.isInstance(this.value)) {
+                throw new ClassCastException(
+                        this.value.getClass().getName() + " cannot be cast to " + expectedType.getName());
+            }
+            return expectedType.cast(this.value);
         }
 
         @Override
-        public long getEndOfValidity() {
+        public long getLastValidityTimestamp() {
             return this.endOfValidity;
         }
 
         public boolean mustBeRemoved() {
-            return (this.endOfValidity > 0 && this.endOfValidity <= System.currentTimeMillis()) // time out passed
-                    ||  (this.toRemove != null && this.toRemove.test(this)); // or function indicate to remove.
+            return (this.endOfValidity > 0 && this.endOfValidity <= this.serviceTimer.get()) // time out passed
+                    && (this.canBeEvict()); // or function indicate to remove.
+        }
+
+        public boolean canBeEvict() {
+            return this.canBeRemoved == null || this.canBeRemoved.test(this);
         }
 
         /**
