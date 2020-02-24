@@ -168,8 +168,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
                     .warn("You don't validate placeholders are set, maybe think about setting validatePlaceholder=true");
         }
         if (!validateWording) {
-            getLog()
-                    .warn("You don't validate wording rules, maybe think about setting validateWording=true");
+            getLog().warn("You don't validate wording rules, maybe think about setting validateWording=true");
         }
         final ComponentValidator.Configuration configuration = new ComponentValidator.Configuration();
         configuration.setValidateFamily(validateFamily);
