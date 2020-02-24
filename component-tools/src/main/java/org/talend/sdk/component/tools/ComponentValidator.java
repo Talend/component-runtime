@@ -602,20 +602,20 @@ public class ComponentValidator extends BaseTask {
 
     private void validateDocumentationWording(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
-        final Predicate<String> isWordingCorrect = s -> !s.matches("^[A-Z0-9]+.*\\.$");
+        final Predicate<String> isIncorrectWording = s -> !s.matches("^[A-Z0-9]+.*\\.$");
         final String error = "@Documentation on '%s' is empty or is not capitalized or ends not by a dot.";
         errors
                 .addAll(components
                         .stream()
                         .filter(c -> c.isAnnotationPresent(Documentation.class))
-                        .filter(c -> isWordingCorrect.test(c.getAnnotation(Documentation.class).value()))
+                        .filter(c -> isIncorrectWording.test(c.getAnnotation(Documentation.class).value()))
                         .map(c -> String.format(error, c.getName()))
                         .sorted()
                         .collect(toSet()));
         errors
                 .addAll(findOptions(finder)
                         .filter(field -> field.isAnnotationPresent(Documentation.class))
-                        .filter(c -> isWordingCorrect.test(c.getAnnotation(Documentation.class).value()))
+                        .filter(c -> isIncorrectWording.test(c.getAnnotation(Documentation.class).value()))
                         .map(c -> String.format(error, c.getName()))
                         .sorted()
                         .collect(toSet()));
