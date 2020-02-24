@@ -13,6 +13,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1640[TCOMP-1640^]: Ensure Intellij plugin works with Intellij Idea IU-201
 - link:https://jira.talendforge.org/browse/TCOMP-1641[TCOMP-1641^]: Upgrade OpenWebBeans to 2.0.15
 - link:https://jira.talendforge.org/browse/TCOMP-1642[TCOMP-1642^]: Upgrade Groovy to 3.0.1
+- link:https://jira.talendforge.org/browse/TCOMP-1644[TCOMP-1644^]: Upgrade log4j to 2.13.0
+- link:https://jira.talendforge.org/browse/TCOMP-1647[TCOMP-1647^]: Upgrade netty to 4.1.45.Final
 
 == Version 1.1.18
 
