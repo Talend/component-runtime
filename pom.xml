@@ -245,6 +245,8 @@
     <npm.version>6.12.0</npm.version>
     <frontend.version>1.8.0</frontend.version>
 
+    <!-- misc dependencies -->
+    <jcommander.version>1.78</jcommander.version>
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
     <java11.jaxb.version>2.3.0</java11.jaxb.version>
@@ -714,6 +716,11 @@
             <artifactId>openejb-jee</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>${jcommander.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

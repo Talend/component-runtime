@@ -16,6 +16,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1644[TCOMP-1644^]: Upgrade log4j to 2.13.0
 - link:https://jira.talendforge.org/browse/TCOMP-1645[TCOMP-1645^]: Ensure correct wording is used in @Documentation
 - link:https://jira.talendforge.org/browse/TCOMP-1647[TCOMP-1647^]: Upgrade netty to 4.1.45.Final
+- link:https://jira.talendforge.org/browse/TCOMP-1648[TCOMP-1648^]: Unsafe Dependancy Resolution on jcommander
 
 == Version 1.1.18
 
