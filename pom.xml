@@ -77,6 +77,28 @@
       <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+2</timezone>
     </developer>
+    <developer>
+      <name>Emmanuel GALLOIS</name>
+      <id>undx</id>
+      <email>egallois@talend.com</email>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <name>Christophe Le Saec</name>
+      <id>clesaec</id>
+      <email>clesaec@talend.com</email>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <modules>
