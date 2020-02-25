@@ -50,7 +50,7 @@ import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip
 
 class LocalCacheServiceTest {
 
-    private boolean active;
+    private int defaultMaxSize;
 
     private int interval;
 
@@ -63,7 +63,7 @@ class LocalCacheServiceTest {
         private final Set<String> keys = new HashSet<>();
         {
             keys.add("test.talend.component.manager.services.cache.eviction.defaultEvictionTimeout");
-            keys.add("test.talend.component.manager.services.cache.eviction.active");
+            keys.add("test.talend.component.manager.services.cache.eviction.defaultMaxSize");
             keys.add("test.talend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun");
         }
 
@@ -72,8 +72,8 @@ class LocalCacheServiceTest {
             if ("test.talend.component.manager.services.cache.eviction.defaultEvictionTimeout".equals(key)) {
                 return String.valueOf(interval);
             }
-            if ("test.talend.component.manager.services.cache.eviction.active".equals(key)) {
-                return String.valueOf(active);
+            if ("test.talend.component.manager.services.cache.eviction.defaultMaxSize".equals(key)) {
+                return String.valueOf(defaultMaxSize);
             }
             if ("test.talend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun".equals(key)) {
                 return String.valueOf(maxEviction);
@@ -102,7 +102,7 @@ class LocalCacheServiceTest {
     void init() {
         executorGetter = new MemoizingSupplier<>(this::buildExecutorService);
         cache = new LocalCacheService("LocalCacheServiceTest", this::getCurrentMillis, executorGetter);
-        this.active = false;
+        this.defaultMaxSize = -1;
         this.interval = -1;
         this.maxEviction = -1;
 
@@ -162,7 +162,7 @@ class LocalCacheServiceTest {
     @Test
     void mustRemoved() {
         final boolean[] mustRemoved = new boolean[] { false };
-        this.active = true;
+
         this.interval = 100;
         this.simulateCurrent = 100L;
 
@@ -199,7 +199,6 @@ class LocalCacheServiceTest {
 
     @Test
     void timeoutAuto() {
-        this.active = true;
         this.interval = 200;
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -244,7 +243,6 @@ class LocalCacheServiceTest {
     @Test
     void getOrSet() {
         final AtomicInteger counter = new AtomicInteger(0);
-        this.active = true;
         this.interval = 300;
         this.simulateCurrent = 100L;
 
@@ -282,6 +280,14 @@ class LocalCacheServiceTest {
         Assertions.assertEquals(10, cacheSize());
         cache.clean();
         Assertions.assertTrue(isCacheEmpty(), "not empty after last clean");
+    }
+
+    @Test
+    public void evictionAuto() {
+        this.defaultMaxSize = 10;
+        for (int i = 0; i < 20; i++) {
+            cache.computeIfAbsent(String.class, "k" + i, (Element e) -> false, -1L, () -> "val");
+        }
     }
 
     private boolean isCacheEmpty() {

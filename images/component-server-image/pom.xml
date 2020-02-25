@@ -226,7 +226,7 @@
                   <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
                   <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
                   <jvmFlag>-Dtalend.component.manager.services.cache.eviction.defaultEvictionTimeout=30_000</jvmFlag>
-                  <jvmFlag>-Dtalend.component.manager.services.cache.eviction.active=true</jvmFlag>
+                  <jvmFlag>-Dtalend.component.manager.services.cache.eviction.defaultMaxSize=5_000</jvmFlag>
                   <jvmFlag>-Dtalend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun=-1</jvmFlag>
                 </jvmFlags>
                 <args>

@@ -40,7 +40,6 @@ import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.Data;
-import lombok.Synchronized;
 
 /**
  * Implementation of LocalCache with in memory concurrent map.
@@ -108,7 +107,18 @@ public class LocalCacheService implements LocalCache, Serializable {
             final Predicate<Element> toRemove, final long timeoutMs,
             final Supplier<T> value) {
 
-        this.clean(); // clean before add one element.
+        final Integer maxSize = this.getConfigValue(CacheConfiguration::getDefaultMaxSize, -1);
+        if (maxSize > 0 && this.cache.size() >= maxSize) {
+            this.clean(); // clean before add one element.
+            if (this.cache.size() >= maxSize) {
+                synchronized (this.cache) {
+                    while (this.cache.size() >= maxSize) {
+                        final String keyToRemove = this.cache.keySet().iterator().next();
+                        this.cache.remove(keyToRemove);
+                    }
+                }
+            }
+        }
 
         final ScheduledFuture<?> task = timeoutMs > 0 ? this.evictionTask(key, timeoutMs) : null;
 
@@ -123,7 +133,7 @@ public class LocalCacheService implements LocalCache, Serializable {
     public <T> T computeIfAbsent(final Class<T> expectedClass, final String key, final Predicate<Element> toRemove,
             final Supplier<T> value) {
 
-        final long timeout = this.getDefaultTimeout();
+        final long timeout = this.getConfigValue(CacheConfiguration::getDefaultEvictionTimeout, -1L);
         return this.computeIfAbsent(expectedClass, key, toRemove, timeout, value);
     }
 
@@ -141,7 +151,7 @@ public class LocalCacheService implements LocalCache, Serializable {
 
     @Override
     public <T> T computeIfAbsent(final Class<T> expectedClass, final String key, final Supplier<T> value) {
-        long timeOut = getDefaultTimeout();
+        final long timeOut = this.getConfigValue(CacheConfiguration::getDefaultEvictionTimeout, -1L);
         return computeIfAbsent(expectedClass, key, null, timeOut, value);
     }
 
@@ -155,10 +165,6 @@ public class LocalCacheService implements LocalCache, Serializable {
         return timeoutMs > 0 ? this.timer.get() + timeoutMs : -1;
     }
 
-    private long getDefaultTimeout() {
-        final CacheConfiguration config = getConfig();
-        return config != null && config.isActive() ? config.getDefaultEvictionTimeout() : -1;
-    }
 
     private String internalKey(final String key) {
         return plugin + '@' + key;
@@ -183,13 +189,16 @@ public class LocalCacheService implements LocalCache, Serializable {
         return this.threadServiceGetter.get();
     }
 
+    /**
+     * Schedule an eviction task for a key.
+     * @param key : key to evict from cache.
+     * @param delayMillis : delay in millis before triggered.
+     * @return result of task.
+     */
     private ScheduledFuture<?> evictionTask(final String key, final long delayMillis) {
-        ScheduledFuture<?> task = null;
-        boolean isActive = this.getConfigValue(CacheConfiguration::isActive, false);
-        if (isActive) {
-            task = this.getThreadService().schedule(() -> this.evict(key), delayMillis, TimeUnit.MILLISECONDS);
-        }
-        return task;
+        return this.getThreadService().schedule(() -> this.evict(key), //
+                delayMillis,  //
+                TimeUnit.MILLISECONDS); //
     }
 
     private <T> T getConfigValue(Function<CacheConfiguration, T> getter, T defaultValue) {
@@ -212,10 +221,10 @@ public class LocalCacheService implements LocalCache, Serializable {
         private long defaultEvictionTimeout;
 
         @Option
-        private boolean active;
+        private int maxDeletionPerEvictionRun;
 
         @Option
-        private int maxDeletionPerEvictionRun;
+        private int defaultMaxSize;
     }
 
     /**
