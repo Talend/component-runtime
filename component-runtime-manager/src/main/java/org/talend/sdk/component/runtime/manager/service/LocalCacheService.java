@@ -201,7 +201,7 @@ public class LocalCacheService implements LocalCache, Serializable {
                 TimeUnit.MILLISECONDS); //
     }
 
-    private <T> T getConfigValue(Function<CacheConfiguration, T> getter, T defaultValue) {
+    private <T> T getConfigValue(final Function<CacheConfiguration, T> getter, final T defaultValue) {
         return Optional.ofNullable(this.getConfig()) //
                 .map(getter) //
                 .orElse(defaultValue);
