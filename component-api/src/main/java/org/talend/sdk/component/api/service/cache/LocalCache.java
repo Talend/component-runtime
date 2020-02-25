@@ -27,7 +27,8 @@ import java.util.function.Supplier;
 public interface LocalCache {
 
     /**
-     * Use to enrich object with meta-data (help tio choice if to be removed)
+     * Use to enrich object with meta-data
+     * (help to choice if attached object has to be removed from cache)
      */
     interface Element {
 
@@ -45,8 +46,7 @@ public interface LocalCache {
         }
 
         /**
-         * time when this will be no longer valide.
-         * 
+         * time when this will be no longer valid.
          * @return Last validity timestamp.
          */
         long getLastValidityTimestamp();

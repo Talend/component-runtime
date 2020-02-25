@@ -41,7 +41,7 @@ import lombok.Data;
 
 
 /**
- * Implementation of LocalCache with in memory conccurent map.
+ * Implementation of LocalCache with in memory concurrent map.
  */
 public class LocalCacheService implements LocalCache, Serializable {
 
@@ -77,7 +77,7 @@ public class LocalCacheService implements LocalCache, Serializable {
         // use compute to be able to call release.
         cache.compute(realKey, (String oldKey, ElementImpl oldElement) -> {
             if (oldElement != null && oldElement.canBeEvict()) {
-                // ok to evit, so do release.
+                // ok to evict, so do release.
                 oldElement.release();
                 return null;
             }
@@ -153,7 +153,7 @@ public class LocalCacheService implements LocalCache, Serializable {
 
     private long getDefaultTimeout() {
         final CacheConfiguration config = getConfig();
-        return config != null && config.isActive() ? config.getDefaultEvictionInterval() : -1;
+        return config != null && config.isActive() ? config.getDefaultEvictionTimeout() : -1;
     }
 
     private String internalKey(final String key) {
@@ -194,7 +194,7 @@ public class LocalCacheService implements LocalCache, Serializable {
     public static class CacheConfiguration implements Serializable {
 
         @Option
-        private long defaultEvictionInterval;
+        private long defaultEvictionTimeout;
 
         @Option
         private boolean active;

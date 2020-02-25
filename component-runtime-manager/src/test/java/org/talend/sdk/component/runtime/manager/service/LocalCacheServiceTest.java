@@ -209,7 +209,7 @@ class LocalCacheServiceTest {
         final long end = System.currentTimeMillis();
 
         final long duration = end - start;
-        assertEquals(200, duration, 100);
+        assertEquals(200, duration, 200);
 
         final String v3 = cache.computeIfAbsent(String.class, "foo", () -> "value3");
         assertEquals("value3", v3);
@@ -261,7 +261,7 @@ class LocalCacheServiceTest {
             final Object cacheMap = cacheField.get(this.cache);
             return ((Map<?, ?>) cacheMap).isEmpty();
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalArgumentException("pb acces cache map", e);
+            throw new IllegalArgumentException("cache map access error", e);
         }
     }
 
