@@ -20,14 +20,17 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PreDestroy;
 
@@ -37,8 +40,7 @@ import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.Data;
-
-
+import lombok.Synchronized;
 
 /**
  * Implementation of LocalCache with in memory concurrent map.
@@ -106,6 +108,8 @@ public class LocalCacheService implements LocalCache, Serializable {
             final Predicate<Element> toRemove, final long timeoutMs,
             final Supplier<T> value) {
 
+        this.clean(); // clean before add one element.
+
         final ScheduledFuture<?> task = timeoutMs > 0 ? this.evictionTask(key, timeoutMs) : null;
 
         final long endOfValidity = this.calcEndOfValidity(timeoutMs);
@@ -161,11 +165,16 @@ public class LocalCacheService implements LocalCache, Serializable {
     }
 
     public void clean() {
-        final List<String> removableElements = this.cache
-                .entrySet()
-                .stream()
-                .filter(e -> e.getValue().mustBeRemoved())
-                .map(Entry::getKey)
+        Stream<Entry<String, ElementImpl>> elements =  //
+                this.cache.entrySet() //
+                        .stream()     //
+                        .filter(e -> e.getValue().mustBeRemoved());
+
+        final int maxEviction = this.getConfigValue(CacheConfiguration::getMaxDeletionPerEvictionRun, -1);
+        if (maxEviction > 0) {
+            elements = elements.limit(maxEviction);
+        }
+        final List<String> removableElements = elements.map(Entry::getKey)
                 .collect(Collectors.toList());// materialize before actually removing it
         removableElements.forEach(this.cache::remove);
     }
@@ -176,11 +185,17 @@ public class LocalCacheService implements LocalCache, Serializable {
 
     private ScheduledFuture<?> evictionTask(final String key, final long delayMillis) {
         ScheduledFuture<?> task = null;
-        final CacheConfiguration config = getConfig();
-        if (config != null && config.isActive()) {
+        boolean isActive = this.getConfigValue(CacheConfiguration::isActive, false);
+        if (isActive) {
             task = this.getThreadService().schedule(() -> this.evict(key), delayMillis, TimeUnit.MILLISECONDS);
         }
         return task;
+    }
+
+    private <T> T getConfigValue(Function<CacheConfiguration, T> getter, T defaultValue) {
+        return Optional.ofNullable(this.getConfig()) //
+                .map(getter) //
+                .orElse(defaultValue);
     }
 
     private CacheConfiguration getConfig() {
@@ -198,6 +213,9 @@ public class LocalCacheService implements LocalCache, Serializable {
 
         @Option
         private boolean active;
+
+        @Option
+        private int maxDeletionPerEvictionRun;
     }
 
     /**
@@ -244,7 +262,7 @@ public class LocalCacheService implements LocalCache, Serializable {
 
         public boolean mustBeRemoved() {
             return (this.endOfValidity > 0 && this.endOfValidity <= this.serviceTimer.get()) // time out passed
-                    && (this.canBeEvict()); // or function indicate to remove.
+                    && this.canBeEvict(); // or function indicate to remove.
         }
 
         public boolean canBeEvict() {

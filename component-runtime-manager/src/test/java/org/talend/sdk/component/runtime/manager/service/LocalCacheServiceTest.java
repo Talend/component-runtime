@@ -54,26 +54,35 @@ class LocalCacheServiceTest {
 
     private int interval;
 
+    private int maxEviction;
+
     private Supplier<ScheduledExecutorService> executorGetter;
 
     private LocalConfiguration cacheConfig = new LocalConfiguration() {
 
+        private final Set<String> keys = new HashSet<>();
+        {
+            keys.add("test.talend.component.manager.services.cache.eviction.defaultEvictionTimeout");
+            keys.add("test.talend.component.manager.services.cache.eviction.active");
+            keys.add("test.talend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun");
+        }
+
         @Override
         public String get(String key) {
-            if ("test.talend.component.manager.services.cache.eviction.defaultEvictionInterval".equals(key)) {
+            if ("test.talend.component.manager.services.cache.eviction.defaultEvictionTimeout".equals(key)) {
                 return String.valueOf(interval);
             }
             if ("test.talend.component.manager.services.cache.eviction.active".equals(key)) {
                 return String.valueOf(active);
+            }
+            if ("test.talend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun".equals(key)) {
+                return String.valueOf(maxEviction);
             }
             throw new IllegalArgumentException("unknown key '" + key + "'");
         }
 
         @Override
         public Set<String> keys() {
-            Set<String> keys = new HashSet<>();
-            keys.add("test.talend.component.manager.services.cache.eviction.defaultEvictionInterval");
-            keys.add("test.talend.component.manager.services.cache.eviction.active");
             return keys;
         }
     };
@@ -95,6 +104,7 @@ class LocalCacheServiceTest {
         cache = new LocalCacheService("LocalCacheServiceTest", this::getCurrentMillis, executorGetter);
         this.active = false;
         this.interval = -1;
+        this.maxEviction = -1;
 
         final Map<Class<?>, Object> services = new HashMap<>(1);
         services
@@ -254,12 +264,40 @@ class LocalCacheServiceTest {
         Assertions.assertTrue(isCacheEmpty(), "not empty clean with toDelete");
     }
 
+    @Test
+    void cleanWithMax() throws InterruptedException {
+        this.maxEviction = 10;
+        this.interval = 10;
+
+        final boolean[] toDelete = new boolean[] { false };
+        for (int i = 0; i < 20; i++) {
+            cache.computeIfAbsent(String.class, "k" + i, (Element e) -> toDelete[0], 3L, () -> "val");
+        }
+        Thread.sleep(60);
+        Assertions.assertEquals(20, cacheSize());
+        cache.clean();
+        Assertions.assertEquals(20, cacheSize());
+        toDelete[0] = true;
+        cache.clean();
+        Assertions.assertEquals(10, cacheSize());
+        cache.clean();
+        Assertions.assertTrue(isCacheEmpty(), "not empty after last clean");
+    }
+
     private boolean isCacheEmpty() {
+        return this.internalCacheMap().isEmpty();
+    }
+
+    private int cacheSize() {
+        return this.internalCacheMap().size();
+    }
+
+    private Map<?, ?> internalCacheMap() {
         try {
             final Field cacheField = LocalCacheService.class.getDeclaredField("cache");
             cacheField.setAccessible(true);
             final Object cacheMap = cacheField.get(this.cache);
-            return ((Map<?, ?>) cacheMap).isEmpty();
+            return (Map<?, ?>) cacheMap;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalArgumentException("cache map access error", e);
         }
