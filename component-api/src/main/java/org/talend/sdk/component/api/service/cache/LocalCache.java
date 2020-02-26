@@ -47,6 +47,7 @@ public interface LocalCache {
 
         /**
          * time when this will be no longer valid.
+         * 
          * @return Last validity timestamp.
          */
         long getLastValidityTimestamp();

@@ -103,9 +103,8 @@ public class LocalCacheService implements LocalCache, Serializable {
     }
 
     @Override
-    public <T> T computeIfAbsent(final Class<T> expectedClass, final String key,
-            final Predicate<Element> toRemove, final long timeoutMs,
-            final Supplier<T> value) {
+    public <T> T computeIfAbsent(final Class<T> expectedClass, final String key, final Predicate<Element> toRemove,
+            final long timeoutMs, final Supplier<T> value) {
 
         final Integer maxSize = this.getConfigValue(CacheConfiguration::getDefaultMaxSize, -1);
         if (maxSize > 0 && this.cache.size() >= maxSize) {
@@ -138,8 +137,8 @@ public class LocalCacheService implements LocalCache, Serializable {
     }
 
     @Override
-    public <T> T computeIfAbsent(final Class<T> expectedClass,
-            final String key, final long timeoutMs, final Supplier<T> value) {
+    public <T> T computeIfAbsent(final Class<T> expectedClass, final String key, final long timeoutMs,
+            final Supplier<T> value) {
         return this.computeIfAbsent(expectedClass, key, null, timeoutMs, value);
     }
 
@@ -165,23 +164,25 @@ public class LocalCacheService implements LocalCache, Serializable {
         return timeoutMs > 0 ? this.timer.get() + timeoutMs : -1;
     }
 
-
     private String internalKey(final String key) {
         return plugin + '@' + key;
     }
 
     public void clean() {
-        Stream<Entry<String, ElementImpl>> elements =  //
-                this.cache.entrySet() //
-                        .stream()     //
+        Stream<Entry<String, ElementImpl>> elements = //
+                this.cache
+                        .entrySet() //
+                        .stream() //
                         .filter(e -> e.getValue().mustBeRemoved());
 
         final int maxEviction = this.getConfigValue(CacheConfiguration::getMaxDeletionPerEvictionRun, -1);
         if (maxEviction > 0) {
             elements = elements.limit(maxEviction);
         }
-        final List<String> removableElements = elements.map(Entry::getKey)
-                .collect(Collectors.toList());// materialize before actually removing it
+        final List<String> removableElements = elements.map(Entry::getKey).collect(Collectors.toList());// materialize
+                                                                                                        // before
+                                                                                                        // actually
+                                                                                                        // removing it
         removableElements.forEach(this.cache::remove);
     }
 
@@ -191,18 +192,22 @@ public class LocalCacheService implements LocalCache, Serializable {
 
     /**
      * Schedule an eviction task for a key.
+     * 
      * @param key : key to evict from cache.
      * @param delayMillis : delay in millis before triggered.
      * @return result of task.
      */
     private ScheduledFuture<?> evictionTask(final String key, final long delayMillis) {
-        return this.getThreadService().schedule(() -> this.evict(key), //
-                delayMillis,  //
-                TimeUnit.MILLISECONDS); //
+        return this
+                .getThreadService()
+                .schedule(() -> this.evict(key), //
+                        delayMillis, //
+                        TimeUnit.MILLISECONDS); //
     }
 
     private <T> T getConfigValue(final Function<CacheConfiguration, T> getter, final T defaultValue) {
-        return Optional.ofNullable(this.getConfig()) //
+        return Optional
+                .ofNullable(this.getConfig()) //
                 .map(getter) //
                 .orElse(defaultValue);
     }
