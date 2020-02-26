@@ -288,6 +288,7 @@ class LocalCacheServiceTest {
         for (int i = 0; i < 20; i++) {
             cache.computeIfAbsent(String.class, "k" + i, (Element e) -> false, -1L, () -> "val");
         }
+        Assertions.assertEquals(10, this.cacheSize());
     }
 
     private boolean isCacheEmpty() {
