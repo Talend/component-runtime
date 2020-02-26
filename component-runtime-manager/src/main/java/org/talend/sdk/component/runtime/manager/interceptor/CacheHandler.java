@@ -44,7 +44,7 @@ public class CacheHandler implements InterceptorHandler {
     public Object invoke(final Method method, final Object[] args) {
         final String key = toKey(method, args);
         final long timeout = timeouts.computeIfAbsent(method, m -> findAnnotation(m, Cached.class).get().timeout());
-        return cache.computeIfAbsent(key, timeout, () -> invoker.apply(method, args));
+        return cache.computeIfAbsent(Object.class, key, timeout, () -> invoker.apply(method, args));
     }
 
     // assumes toString() and hashCode() of params are representative

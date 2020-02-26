@@ -39,7 +39,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -64,11 +67,13 @@ import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
+import org.talend.sdk.component.runtime.manager.util.MemoizingSupplier;
 import org.talend.sdk.component.runtime.manager.xbean.converter.ZonedDateTimeConverter;
 
 import lombok.Data;
@@ -130,13 +135,16 @@ class ReflectionServiceTest {
         final Properties properties = new Properties();
         properties.setProperty("test.myconfig.url", "http://foo");
         properties.setProperty("myconfig.user", "set");
+        final Supplier<ScheduledExecutorService> executor = new MemoizingSupplier<>(this::buildExecutorService);
         final Function<Map<String, String>, Object[]> factory =
                 getComponentFactory(MyConfig.class, new HashMap<Class<?>, Object>() {
 
                     {
-                        put(LocalConfiguration.class, new LocalConfigurationService(
-                                singletonList(new PropertiesConfiguration(properties)), "test"));
-                        put(LocalCache.class, new LocalCacheService("test"));
+                        put(LocalConfiguration.class, //
+                                new LocalConfigurationService(singletonList(new PropertiesConfiguration(properties)),
+                                        "test"));
+                        put(LocalCache.class, //
+                                new LocalCacheService("test", System::currentTimeMillis, executor));
                     }
                 });
         final MyConfig myConfig = MyConfig.class.cast(factory.apply(new HashMap<String, String>() {
@@ -147,6 +155,14 @@ class ReflectionServiceTest {
         })[0]);
         assertEquals("http://foo", myConfig.url);
         assertEquals("set", myConfig.user);
+    }
+
+    private ScheduledExecutorService buildExecutorService() {
+        return Executors.newScheduledThreadPool(4, (Runnable r) -> {
+            final Thread thread = new Thread(r, "ReflectionTest-" + hashCode());
+            thread.setPriority(Thread.NORM_PRIORITY);
+            return thread;
+        });
     }
 
     @Test

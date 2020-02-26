@@ -31,6 +31,7 @@ public interface RecordService {
      * Simple mapper of record to pojo.
      *
      * @param data record to map to pojo.
+     * @param expected : class expected.
      * @param <T> the pojo type (optional).
      * @return a pojo representing the data record.
      */

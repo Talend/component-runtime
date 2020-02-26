@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.api.service.cache;
 
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -26,8 +27,84 @@ import java.util.function.Supplier;
 public interface LocalCache {
 
     /**
+     * Use to enrich object with meta-data
+     * (help to choice if attached object has to be removed from cache)
+     */
+    interface Element {
+
+        /**
+         * Get the cached object.
+         * 
+         * @param expectedType : expected type of object.
+         * @param <T> : Type.
+         * @return cached object.
+         */
+        <T> T getValue(Class<T> expectedType);
+
+        default Object getValue() {
+            return this.getValue(Object.class);
+        }
+
+        /**
+         * time when this will be no longer valid.
+         * 
+         * @return Last validity timestamp.
+         */
+        long getLastValidityTimestamp();
+    }
+
+    /**
+     * Read or compute and save a value for a determined duration and predicate.
+     * 
+     * @param expectedClass : cached instance class.
+     * @param key : the cache key, must be unique accross the server.
+     * @param toRemove : is the object to be removed.
+     * @param timeoutMs : duration of cache value.
+     * @param value : the value provider if the cache get does a miss.
+     * @param <T> class of cached instance.
+     * @return the cached or newly computed value.
+     */
+    <T> T computeIfAbsent(Class<T> expectedClass, String key, Predicate<Element> toRemove, long timeoutMs,
+            Supplier<T> value);
+
+    /**
+     * Read or compute and save a value until remove predicate go to remove.
+     * 
+     * @param expectedClass : cached instance class.
+     * @param key : the cache key, must be unique accross the server.
+     * @param toRemove : is the object to be removed.
+     * @param value : the value provider if the cache get does a miss.
+     * @param <T> class of cached instance.
+     * @return the cached or newly computed value.
+     */
+    <T> T computeIfAbsent(Class<T> expectedClass, String key, Predicate<Element> toRemove, Supplier<T> value);
+
+    /**
+     * Read or compute and save a value for a determined duration.
+     * 
+     * @param expectedClass : cached instance class.
+     * @param key : the cache key, must be unique accross the server.
+     * @param timeoutMs : duration of cache value.
+     * @param value : value provider.
+     * @param <T> class of cached instance.
+     * @return the cached or newly computed value.
+     */
+    <T> T computeIfAbsent(Class<T> expectedClass, String key, long timeoutMs, Supplier<T> value);
+
+    /**
+     * Compute and save a value, if key not present, for undetermined duration.
+     * 
+     * @param expectedClass : cached instance class.
+     * @param key : the cache key, must be unique accross the server.
+     * @param value : value provider.
+     * @param <T> class of cached instance.
+     * @return the cached or newly computed value.
+     */
+    <T> T computeIfAbsent(Class<T> expectedClass, String key, Supplier<T> value);
+
+    /**
      * Remove a cached entry.
-     *
+     * 
      * @param key key to evict.
      */
     void evict(String key);
@@ -38,28 +115,6 @@ public interface LocalCache {
      * @param key key to evict.
      * @param expected expected value activating the eviction.
      */
-    <T> void evictIfValue(String key, T expected);
+    void evictIfValue(String key, Object expected);
 
-    /**
-     * Read or compute and save a value for a determined duration.
-     *
-     * @param key the cache key, must be unique accross the server.
-     * @param timeoutMs the cache duration.
-     * @param supplier the value provider if the cache get does a miss.
-     * @param <T> the type of data to access/cache.
-     * @return the cached or newly computed value.
-     */
-    <T> T computeIfAbsent(String key, long timeoutMs, Supplier<T> supplier);
-
-    /**
-     * Default the timeout to {@literal Integer.MAX_VALUE}.
-     *
-     * @param key the cache key, must be unique accross the server.
-     * @param supplier the value provider if the cache get does a miss.
-     * @param <T> the type of data to access/cache.
-     * @return the cached or newly computed - and cached indefinitively - value.
-     */
-    default <T> T computeIfAbsent(String key, Supplier<T> supplier) {
-        return computeIfAbsent(key, Integer.MAX_VALUE, supplier);
-    }
 }
