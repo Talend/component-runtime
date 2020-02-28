@@ -1,5 +1,11 @@
 
 
+== Version 1.1.20
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1649[TCOMP-1649^]: Tomcat bump to 9.0.31 broke talend-component:web goal
+
 == Version 1.1.19
 
 === Bug
