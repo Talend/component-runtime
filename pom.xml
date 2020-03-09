@@ -182,7 +182,7 @@
     <beam.version>2.19.0</beam.version>
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.3</joda.time.version>
-    <commons-codec.version>1.12</commons-codec.version>
+    <commons-codec.version>1.14</commons-codec.version>
     <commons-compress.version>1.20</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
