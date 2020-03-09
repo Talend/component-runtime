@@ -29,7 +29,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":53,
+    "commits":55,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",

@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1659[TCOMP-1659^]: Upgrade lombok to 1.18.12
 - link:https://jira.talendforge.org/browse/TCOMP-1660[TCOMP-1660^]: Upgrade commons-compress to 1.20
 - link:https://jira.talendforge.org/browse/TCOMP-1661[TCOMP-1661^]: Upgrade commons-codec to 1.14
+- link:https://jira.talendforge.org/browse/TCOMP-1662[TCOMP-1662^]: Upgrade guava to 28.2-jre
 
 == Version 1.1.19
 
