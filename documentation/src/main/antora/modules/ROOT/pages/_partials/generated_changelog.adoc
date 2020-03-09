@@ -11,6 +11,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1655[TCOMP-1655^]: Upgrade jib-core to 0.13.1
+- link:https://jira.talendforge.org/browse/TCOMP-1656[TCOMP-1656^]: Upgrade log4j2 to 2.13.1
 
 == Version 1.1.19
 
