@@ -22,6 +22,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1664[TCOMP-1664^]: Upgrade asciidoctorj to 2.2.0 and its dependencies
 - link:https://jira.talendforge.org/browse/TCOMP-1665[TCOMP-1665^]: Upgrade jackson to 2.10.3
 - link:https://jira.talendforge.org/browse/TCOMP-1666[TCOMP-1666^]: Upgrade batik-codec to 1.12
+- link:https://jira.talendforge.org/browse/TCOMP-1667[TCOMP-1667^]: Upgrade jgit to 5.6.1.202002131546-r
 
 == Version 1.1.19
 
