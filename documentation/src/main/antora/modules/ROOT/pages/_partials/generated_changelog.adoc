@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1657[TCOMP-1657^]: Upgrade maven to 3.6.3
 - link:https://jira.talendforge.org/browse/TCOMP-1658[TCOMP-1658^]: Upgrade groovy to 3.0.2
 - link:https://jira.talendforge.org/browse/TCOMP-1659[TCOMP-1659^]: Upgrade lombok to 1.18.12
+- link:https://jira.talendforge.org/browse/TCOMP-1660[TCOMP-1660^]: Upgrade commons-compress to 1.20
 
 == Version 1.1.19
 
