@@ -18,6 +18,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1660[TCOMP-1660^]: Upgrade commons-compress to 1.20
 - link:https://jira.talendforge.org/browse/TCOMP-1661[TCOMP-1661^]: Upgrade commons-codec to 1.14
 - link:https://jira.talendforge.org/browse/TCOMP-1662[TCOMP-1662^]: Upgrade guava to 28.2-jre
+- link:https://jira.talendforge.org/browse/TCOMP-1663[TCOMP-1663^]: Upgrade ziplock to 8.0.1
 
 == Version 1.1.19
 

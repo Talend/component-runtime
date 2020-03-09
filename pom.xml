@@ -162,7 +162,7 @@
     <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.28</slf4j.version>
     <junit.version>4.13-beta-3</junit.version>
-    <ziplock.version>8.0.0</ziplock.version>
+    <ziplock.version>8.0.1</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.2.3</johnzon.version>
     <meecrowave.version>1.2.9</meecrowave.version>
