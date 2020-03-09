@@ -14,6 +14,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1656[TCOMP-1656^]: Upgrade log4j2 to 2.13.1
 - link:https://jira.talendforge.org/browse/TCOMP-1657[TCOMP-1657^]: Upgrade maven to 3.6.3
 - link:https://jira.talendforge.org/browse/TCOMP-1658[TCOMP-1658^]: Upgrade groovy to 3.0.2
+- link:https://jira.talendforge.org/browse/TCOMP-1659[TCOMP-1659^]: Upgrade lombok to 1.18.12
 
 == Version 1.1.19
 
