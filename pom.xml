@@ -215,7 +215,7 @@
     <gradle.version>6.0-rc-1</gradle.version>
     <mvn.version>3.6.3</mvn.version>
 
-    <spark.version>2.4.4</spark.version>
+    <spark.version>2.4.5</spark.version>
     <spark-scala.version>2.11</spark-scala.version>
 
     <groovy.version>3.0.2</groovy.version>

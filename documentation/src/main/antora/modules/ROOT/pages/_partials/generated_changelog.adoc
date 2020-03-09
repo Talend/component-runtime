@@ -25,6 +25,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1667[TCOMP-1667^]: Upgrade jgit to 5.6.1.202002131546-r
 - link:https://jira.talendforge.org/browse/TCOMP-1668[TCOMP-1668^]: Upgrade junit to 4.13
 - link:https://jira.talendforge.org/browse/TCOMP-1669[TCOMP-1669^]: Upgrade bouncycastle to 1.64
+- link:https://jira.talendforge.org/browse/TCOMP-1670[TCOMP-1670^]: Upgrade spark-core_2.11 to 2.4.5
 
 == Version 1.1.19
 
