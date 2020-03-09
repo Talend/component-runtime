@@ -22,18 +22,18 @@
     "name":"Ivan Gonchar"
   },
   {
+    "commits":60,
+    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
+    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
+    "id":"undx",
+    "name":"Emmanuel GALLOIS"
+  },
+  {
     "commits":59,
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
     "id":"jmfrancois",
     "name":"Jean-Michel FRANCOIS"
-  },
-  {
-    "commits":57,
-    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
-    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
-    "id":"undx",
-    "name":"Emmanuel GALLOIS"
   },
   {
     "commits":24,
