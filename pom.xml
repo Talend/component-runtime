@@ -202,7 +202,7 @@
     <geronimo-config.version>1.2.2</geronimo-config.version>
     <junit5.version>5.6.0</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <jackson.version>2.10.0</jackson.version>
+    <jackson.version>2.10.3</jackson.version>
     <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>

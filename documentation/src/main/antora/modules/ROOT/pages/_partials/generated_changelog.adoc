@@ -20,6 +20,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1662[TCOMP-1662^]: Upgrade guava to 28.2-jre
 - link:https://jira.talendforge.org/browse/TCOMP-1663[TCOMP-1663^]: Upgrade ziplock to 8.0.1
 - link:https://jira.talendforge.org/browse/TCOMP-1664[TCOMP-1664^]: Upgrade asciidoctorj to 2.2.0 and its dependencies
+- link:https://jira.talendforge.org/browse/TCOMP-1665[TCOMP-1665^]: Upgrade jackson to 2.10.3
 
 == Version 1.1.19
 
