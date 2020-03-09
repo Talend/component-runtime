@@ -43,7 +43,7 @@
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
 
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
-    <asciidoctor-pdf-gem.version>1.5.0.alpha.17</asciidoctor-pdf-gem.version>
+    <asciidoctor-pdf-gem.version>1.5.2</asciidoctor-pdf-gem.version>
     <crawler-commons.version>1.0</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
 
