@@ -28,6 +28,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1670[TCOMP-1670^]: Upgrade spark-core_2.11 to 2.4.5
 - link:https://jira.talendforge.org/browse/TCOMP-1671[TCOMP-1671^]: Upgrade maven-shade-plugin to 3.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-1672[TCOMP-1672^]: Upgrade httpclient to 4.5.12
+- link:https://jira.talendforge.org/browse/TCOMP-1673[TCOMP-1673^]: Upgrade component-runtime-testing dependencies
+- link:https://jira.talendforge.org/browse/TCOMP-1674[TCOMP-1674^]: Upgrade tomitribe-crest to 0.14
 
 == Version 1.1.19
 
