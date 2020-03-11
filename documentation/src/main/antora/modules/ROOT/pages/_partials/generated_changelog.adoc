@@ -27,6 +27,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1669[TCOMP-1669^]: Upgrade bouncycastle to 1.64
 - link:https://jira.talendforge.org/browse/TCOMP-1670[TCOMP-1670^]: Upgrade spark-core_2.11 to 2.4.5
 - link:https://jira.talendforge.org/browse/TCOMP-1671[TCOMP-1671^]: Upgrade maven-shade-plugin to 3.2.2
+- link:https://jira.talendforge.org/browse/TCOMP-1672[TCOMP-1672^]: Upgrade httpclient to 4.5.12
 
 == Version 1.1.19
 
