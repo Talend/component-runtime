@@ -7,3 +7,4 @@ package com.foo;
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 
 import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;

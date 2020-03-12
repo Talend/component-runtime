@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1649[TCOMP-1649^]: Tomcat bump to 9.0.31 broke talend-component:web goal
+- link:https://jira.talendforge.org/browse/TCOMP-1676[TCOMP-1676^]: Starter-toolkit mvn package throws error when running for the first time
 
 
 
