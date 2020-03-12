@@ -32,6 +32,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1672[TCOMP-1672^]: Upgrade httpclient to 4.5.12
 - link:https://jira.talendforge.org/browse/TCOMP-1673[TCOMP-1673^]: Upgrade component-runtime-testing dependencies
 - link:https://jira.talendforge.org/browse/TCOMP-1674[TCOMP-1674^]: Upgrade tomitribe-crest to 0.14
+- link:https://jira.talendforge.org/browse/TCOMP-1678[TCOMP-1678^]: Upgrade jgit to 5.7.0.202003090808-r
 
 == Version 1.1.19
 
