@@ -759,6 +759,9 @@ public class ComponentManager implements AutoCloseable {
                         Thread.currentThread().getContextClassLoader().getResources("TALEND-INF/dependencies.txt");
                 while (componentMarkers.hasMoreElements()) {
                     File file = Files.toFile(componentMarkers.nextElement());
+                    if (file == null) {
+                    	continue;
+                    }
                     if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
                             && file.getParentFile().getName().equals("TALEND-INF")) {
                         file = file.getParentFile().getParentFile();
