@@ -22,7 +22,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":72,
+    "commits":73,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -65,7 +65,7 @@
   },
   {
     "commits":5,
-    "description":"Security architect at @Talend, security expert at @Apache.",
+    "description":"Senior security architect at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
     "gravatar":"https://avatars0.githubusercontent.com/u/472162?v=4",
     "id":"coheigea",
     "name":"Colm O hEigeartaigh"

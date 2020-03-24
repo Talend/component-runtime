@@ -7,7 +7,7 @@
     {{> navigation-tree navigation=./items level=(increment ../level)}}
   {{else}}
     <a class="menu-link" href="
-      {{~#if (eq ./urlType 'internal')}}{{{relativize @root.page.url ./url}}}
+      {{~#if (eq ./urlType 'internal')}}{{{relativize ./url @root.page.url}}}
       {{~else}}{{{./url}}}{{~/if}}">{{{./content}}}</a>
   {{/if}}
   </li>
