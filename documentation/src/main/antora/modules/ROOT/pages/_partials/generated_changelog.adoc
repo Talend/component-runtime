@@ -7,6 +7,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1649[TCOMP-1649^]: Tomcat bump to 9.0.31 broke talend-component:web goal
 - link:https://jira.talendforge.org/browse/TCOMP-1676[TCOMP-1676^]: Starter-toolkit mvn package throws error when running for the first time
 - link:https://jira.talendforge.org/browse/TCOMP-1677[TCOMP-1677^]: Using other types than String in Studio's context values causes compilation error
+- link:https://jira.talendforge.org/browse/TCOMP-1686[TCOMP-1686^]: antora helper function relativize corrupts documentation
 
 
 
@@ -40,8 +41,6 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1639[TCOMP-1639^]: component-server incorrect response set in request
 
-
-
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1640[TCOMP-1640^]: Ensure Intellij plugin works with Intellij Idea IU-201
@@ -71,13 +70,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1630[TCOMP-1630^]: Avoid NPE when configurationByExample() is called in a list of primitive without values
 - link:https://jira.talendforge.org/browse/TCOMP-1631[TCOMP-1631^]: int attribute in pojo is transformed to double in a Record
 
-
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1632[TCOMP-1632^]: Add a way to evict cached data from LocalCache
-
-
 
 === Work Item
 

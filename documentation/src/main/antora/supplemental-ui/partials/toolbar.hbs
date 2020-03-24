@@ -8,7 +8,7 @@
       {{#each page.breadcrumbs}}
       <li class="crumb{{#if @last}} active{{/if}}">
       {{~#if (and ./url (eq ./urlType 'internal'))~}}
-      <a href="{{{relativize @root.page.url ./url}}}">{{{./content}}}</a>
+      <a href="{{{relativize ./url @root.page.url}}}">{{{./content}}}</a>
       {{~else~}}
       <a href="#">{{{./content}}}</a>
       {{~/if~}}
