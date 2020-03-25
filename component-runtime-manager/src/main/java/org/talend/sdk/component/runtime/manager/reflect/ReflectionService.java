@@ -755,7 +755,8 @@ public class ReflectionService {
             }
             type = type.getSuperclass();
         }
-        throw new IllegalArgumentException("Unknown field: " + name);
+        throw new IllegalArgumentException(
+                String.format("Unknown field: %s in class: %s.", name, clazz != null ? clazz.getName() : "null"));
     }
 
     private int sortIndexEntry(final Map.Entry<String, Object> e1, final Map.Entry<String, Object> e2) {
