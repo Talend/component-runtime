@@ -68,7 +68,6 @@
 * xref:index-knowledge-base.adoc[Knowledge base]
 ** xref:index-knowledge-base.adoc[Knowledge base articles]
 ** xref:changelog.adoc[Changelog]
-** xref:contributors.adoc[Community contributors]
 * xref:index-reference-guide.adoc[Reference Guide]
 ** xref:gallery.adoc[Widget and validation gallery]
 ** xref:ref-actions.adoc[List of available actions]
