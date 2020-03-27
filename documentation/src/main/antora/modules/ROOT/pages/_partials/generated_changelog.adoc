@@ -37,6 +37,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1674[TCOMP-1674^]: Upgrade tomitribe-crest to 0.14
 - link:https://jira.talendforge.org/browse/TCOMP-1678[TCOMP-1678^]: Upgrade jgit to 5.7.0.202003090808-r
 - link:https://jira.talendforge.org/browse/TCOMP-1687[TCOMP-1687^]: More explicit exception messsage on reflection for findField
+- link:https://jira.talendforge.org/browse/TCOMP-1690[TCOMP-1690^]: Upgrade netty to 4.1.48.Final
 
 == Version 1.1.19
 
