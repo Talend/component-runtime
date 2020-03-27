@@ -135,6 +135,11 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).thenApply(done -> {
             ListItem.merge(futures, uiSchema);
             addActions(root, uiSchema, visitedProperties);
+            // remove key to container object
+            if ("OBJECT".equals(root.getProperty().getType()) && uiSchema.getWidget() == null) {
+                uiSchema.setKey(null);
+                uiSchema.setWidget("fieldset");
+            }
             return uiSchema;
         });
     }

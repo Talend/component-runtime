@@ -96,10 +96,9 @@ class UiSpecServiceTest {
         final Collection<SimplePropertyDefinition> properties =
                 load("enumInArray.json", ComponentDetail.class).getProperties();
         final List<UiSchema> schemas = createUiSchemas(properties);
-        assertEquals("configuration," + "configuration.dataset.connection," + "configuration.dataset.connection.auth,"
-                + "configuration.dataset.connection.host," + "configuration.dataset.connection.password,"
-                + "configuration.dataset.connection.port," + "configuration.dataset.connection.properties,"
-                + "configuration.dataset.connection.properties[].name,"
+        assertEquals("configuration.dataset.connection.auth," + "configuration.dataset.connection.host,"
+                + "configuration.dataset.connection.password," + "configuration.dataset.connection.port,"
+                + "configuration.dataset.connection.properties," + "configuration.dataset.connection.properties[].name,"
                 + "configuration.dataset.connection.properties[].value," + "configuration.dataset.connection.timeout,"
                 + "configuration.dataset.connection.tls," + "configuration.dataset.connection.transport,"
                 + "configuration.dataset.connection.username,"
@@ -108,11 +107,10 @@ class UiSpecServiceTest {
                 + "configuration.flagToSetOnceProduced[].flagValue," + "configuration.inbox,configuration.skipHeaders,"
                 + "configuration.terms,configuration.terms[]," + "configuration.terms[].absoluteDate,"
                 + "configuration.terms[].address," + "configuration.terms[].comparisonType,"
-                + "configuration.terms[].date," + "configuration.terms[].flag,"
-                + "configuration.terms[].flag.customFlag," + "configuration.terms[].flag.flag,"
-                + "configuration.terms[].flag.flagValue," + "configuration.terms[].header,"
-                + "configuration.terms[].negate," + "configuration.terms[].operator," + "configuration.terms[].pattern,"
-                + "configuration.terms[].recipientType," + "configuration.terms[].relativeDate,"
+                + "configuration.terms[].date," + "configuration.terms[].flag.customFlag,"
+                + "configuration.terms[].flag.flag," + "configuration.terms[].flag.flagValue,"
+                + "configuration.terms[].header," + "configuration.terms[].negate," + "configuration.terms[].operator,"
+                + "configuration.terms[].pattern," + "configuration.terms[].recipientType,"
                 + "configuration.terms[].relativeDate.unit," + "configuration.terms[].relativeDate.value,"
                 + "configuration.terms[].type",
                 schemas
@@ -150,7 +148,8 @@ class UiSpecServiceTest {
         assertEquals("Advanced", advanced.getTitle());
     }
 
-    @Test // ensure the resolution works, even when an nested array item request a parent sibling parameter
+    @Test
+    // ensure the resolution works, even when an nested array item request a parent sibling parameter
     void paramResolutionToParent() throws Exception {
         final ConfigTypeNode node = load("param-resolution-to-parent.json", ConfigTypeNode.class);
         final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();

@@ -7,6 +7,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1649[TCOMP-1649^]: Tomcat bump to 9.0.31 broke talend-component:web goal
 - link:https://jira.talendforge.org/browse/TCOMP-1676[TCOMP-1676^]: Starter-toolkit mvn package throws error when running for the first time
 - link:https://jira.talendforge.org/browse/TCOMP-1677[TCOMP-1677^]: Using other types than String in Studio's context values causes compilation error
+- link:https://jira.talendforge.org/browse/TCOMP-1679[TCOMP-1679^]: Combination of @Required and @Suggestable on a field creates strange behaviour
+- link:https://jira.talendforge.org/browse/TCOMP-1682[TCOMP-1682^]: Remove key attribute in UISchema for containers
 - link:https://jira.talendforge.org/browse/TCOMP-1686[TCOMP-1686^]: antora helper function relativize corrupts documentation
 
 
