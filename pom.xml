@@ -168,7 +168,7 @@
     <meecrowave.version>1.2.9</meecrowave.version>
     <owb.version>2.0.15</owb.version>
     <tomcat.version>9.0.31</tomcat.version>
-    <cxf.version>3.3.5</cxf.version>
+    <cxf.version>3.3.6</cxf.version>
     <log4j2.version>2.13.1</log4j2.version>
     <logback.version>1.2.3</logback.version>
     <log4j.version>1.2.17</log4j.version>
