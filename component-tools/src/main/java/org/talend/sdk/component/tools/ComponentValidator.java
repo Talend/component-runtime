@@ -328,7 +328,9 @@ public class ComponentValidator extends BaseTask {
             if (svgs.isEmpty()) {
                 log.error("No 'icons/" + icon + ".svg' found, this will run in degraded mode in Talend Cloud");
             } else {
-                errors.addAll(svgs.stream().flatMap(this::validateSvg).collect(toSet()));
+                if (configuration.isValidateSvg()) {
+                    errors.addAll(svgs.stream().flatMap(this::validateSvg).collect(toSet()));
+                }
             }
             if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + "_icon32.png")).noneMatch(File::exists)) {
                 return "No icon: '" + icon + "' found, did you create - or generated with svg2png - 'icons/" + icon
