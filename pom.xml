@@ -237,7 +237,7 @@
     <spotless.version>1.23.0</spotless.version>
     <jib.version>1.4.0</jib.version>
     <jib-core.version>0.13.1</jib-core.version>
-    <bouncycastle.version>1.64</bouncycastle.version>
+    <bouncycastle.version>1.65</bouncycastle.version>
     <commons-io.version>2.6</commons-io.version>
 
     <jruby.version>9.2.11.0</jruby.version>
