@@ -39,6 +39,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1687[TCOMP-1687^]: More explicit exception messsage on reflection for findField
 - link:https://jira.talendforge.org/browse/TCOMP-1690[TCOMP-1690^]: Upgrade netty to 4.1.48.Final
 - link:https://jira.talendforge.org/browse/TCOMP-1692[TCOMP-1692^]: Update CXF to 3.3.6 due to CVE-2020-1954
+- link:https://jira.talendforge.org/browse/TCOMP-1697[TCOMP-1697^]: Update BouncyCastle to 1.65
 
 == Version 1.1.19
 
