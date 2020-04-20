@@ -76,6 +76,8 @@ class ComponentValidatorTest {
         boolean validateDataSet() default true;
 
         boolean validateWording() default false;
+
+        boolean validateSvg() default true;
     }
 
     @Slf4j
@@ -142,7 +144,7 @@ class ComponentValidatorTest {
             cfg.setValidateLocalConfiguration(true);
             cfg.setValidateOutputConnection(true);
             cfg.setValidatePlaceholder(true);
-            cfg.setValidateSvg(true);
+            cfg.setValidateSvg(config.validateSvg());
             cfg.setValidateNoFinalOption(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             cfg.setValidateWording(config.validateWording());
@@ -211,6 +213,12 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.svgerror")
     void testFailureSvg(final ExceptionSpec expectedException) {
         expectedException.expectMessage("[myicon.svg] viewBox must be '0 0 16 16' found '0 0 16 17'");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.svgerror", validateSvg = false, success = true)
+    void testIgnoreSvg(final ExceptionSpec expectedException) {
+        //
     }
 
     @Test
