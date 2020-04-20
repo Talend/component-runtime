@@ -22,7 +22,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":81,
+    "commits":82,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -92,6 +92,13 @@
   },
   {
     "commits":2,
+    "description":"",
+    "gravatar":"https://avatars3.githubusercontent.com/u/1133383?v=4",
+    "id":"rdubois",
+    "name":"Rémy DUBOIS"
+  },
+  {
+    "commits":2,
     "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?).\n\nBlog: https://ismaelmejia.com/",
     "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
@@ -137,13 +144,6 @@
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/51320496?v=4",
     "id":"clesaec"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars3.githubusercontent.com/u/1133383?v=4",
-    "id":"rdubois",
-    "name":"Rémy DUBOIS"
   },
   {
     "commits":1,
