@@ -35,16 +35,22 @@ class RecordBuilderFactoryImplTest {
 
     private final Schema address = factory
             .newSchemaBuilder(RECORD)
-            .withEntry(factory.newEntryBuilder().withName("street").withType(STRING).build())
+            .withEntry(
+                    factory.newEntryBuilder().withName("street").withLabel("current street").withType(STRING).build())
             .withEntry(factory.newEntryBuilder().withName("number").withType(INT).build())
             .build();
 
     private final Schema baseSchema = factory
             .newSchemaBuilder(RECORD)
-            .withEntry(factory.newEntryBuilder().withName("name").withType(STRING).build())
+            .withEntry(factory.newEntryBuilder().withName("name").withLabel("current name").withType(STRING).build())
             .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
-            .withEntry(
-                    factory.newEntryBuilder().withName("address").withType(RECORD).withElementSchema(address).build())
+            .withEntry(factory
+                    .newEntryBuilder()
+                    .withName("address")
+                    .withLabel("current address")
+                    .withType(RECORD)
+                    .withElementSchema(address)
+                    .build())
             .build();
 
     @Test
@@ -53,8 +59,12 @@ class RecordBuilderFactoryImplTest {
                 .newSchemaBuilder(baseSchema)
                 .withEntry(factory.newEntryBuilder().withName("custom").withType(STRING).build())
                 .build();
-        assertEquals("name/STRING,age/INT,address/RECORD,custom/STRING",
-                custom.getEntries().stream().map(it -> it.getName() + '/' + it.getType()).collect(joining(",")));
+        assertEquals("name/STRING/current name,age/INT/null,address/RECORD/current address,custom/STRING/null",
+                custom
+                        .getEntries()
+                        .stream()
+                        .map(it -> it.getName() + '/' + it.getType() + '/' + it.getLabel())
+                        .collect(joining(",")));
     }
 
     @Test

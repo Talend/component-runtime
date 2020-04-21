@@ -93,6 +93,7 @@ public class CoGroupByKeyResultMappingTransform<K>
                         final Schema.Entry entry = builderFactory
                                 .newEntryBuilder()
                                 .withName(sanitizeConnectionName(p.getFirst()))
+                                .withLabel(p.getFirst())
                                 .withType(Schema.Type.ARRAY)
                                 .withElementSchema(record.getSchema())
                                 .build();
@@ -105,6 +106,7 @@ public class CoGroupByKeyResultMappingTransform<K>
                         .withRecord(builderFactory
                                 .newEntryBuilder()
                                 .withName("__talend_internal")
+                                .withLabel("__talend_internal")
                                 .withType(Schema.Type.RECORD)
                                 .withElementSchema(internalRecord.getSchema())
                                 .build(), internalRecord);

@@ -204,6 +204,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
                             .withArray(factory
                                     .newEntryBuilder()
                                     .withName(sanitizeConnectionName(o.getKey()))
+                                    .withLabel(o.getKey())
                                     .withType(Schema.Type.ARRAY)
                                     .withElementSchema(
                                             firstElement == null ? Schemas.EMPTY_RECORD : firstElement.getSchema())
@@ -239,6 +240,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
                                         .withArray(factory
                                                 .newEntryBuilder()
                                                 .withName(sanitizeConnectionName(name))
+                                                .withLabel(name)
                                                 .withType(Schema.Type.ARRAY)
                                                 .withElementSchema(
                                                         first == null ? Schemas.EMPTY_RECORD : first.getSchema())

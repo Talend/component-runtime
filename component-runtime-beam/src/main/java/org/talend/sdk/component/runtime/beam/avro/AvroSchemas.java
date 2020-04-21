@@ -45,6 +45,7 @@ public final class AvroSchemas {
         return EMPTY_SCHEMA;
     }
 
+    // TOOD remove it as org.talend.sdk.component.runtime.record.SchemaImpl also do this 100% same work
     public static String sanitizeConnectionName(final String name) {
         if (name.isEmpty()) {
             return name;
@@ -65,4 +66,12 @@ public final class AvroSchemas {
         }
         return new String(sanitized);
     }
+
+    public static Schema.Field addProp(final Schema.Field field, final String key, final String value) {
+        if (value != null) {
+            field.addProp(key, value);
+        }
+        return field;
+    }
+
 }

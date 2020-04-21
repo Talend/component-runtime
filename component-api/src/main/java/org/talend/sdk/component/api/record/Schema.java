@@ -55,6 +55,11 @@ public interface Schema {
         String getName();
 
         /**
+         * @return The label of this entry.
+         */
+        String getLabel();
+
+        /**
          * @return Type of the entry, this determine which other fields are populated.
          */
         Type getType();
@@ -88,6 +93,8 @@ public interface Schema {
         interface Builder {
 
             Builder withName(String name);
+
+            Builder withLabel(String label);
 
             Builder withType(Type type);
 

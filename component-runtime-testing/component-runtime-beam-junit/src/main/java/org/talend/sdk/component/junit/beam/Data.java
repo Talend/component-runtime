@@ -117,6 +117,7 @@ public class Data {
                                         .withArray(recordBuilderFactory
                                                 .newEntryBuilder()
                                                 .withName(sanitizeConnectionName(entry.getKey()))
+                                                .withLabel(entry.getKey())
                                                 .withType(Schema.Type.ARRAY)
                                                 .withElementSchema(list.iterator().next().getSchema())
                                                 .build(), list)

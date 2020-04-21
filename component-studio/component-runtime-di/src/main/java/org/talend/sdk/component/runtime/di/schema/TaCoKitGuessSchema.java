@@ -368,6 +368,7 @@ public class TaCoKitGuessSchema {
             }
 
             final Column column = new Column();
+            // TODO check if can use entry.getLabel() value here?
             column.setLabel(name);
             column.setTalendType(typeName);
             column.setNullable(entry.isNullable());

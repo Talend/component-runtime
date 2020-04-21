@@ -94,13 +94,16 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             if (entries != null) {
                 return entries;
             }
+            // this have been called before? getFields() can run?
             entries =
                     getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL).map(field -> {
                         final Type type = mapType(field.schema());
                         final AvroSchema elementSchema = new AvroSchema(
                                 type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
-                        return new SchemaImpl.EntryImpl(field.name(), type, field.schema().getType() == UNION,
-                                field.defaultVal(), elementSchema, field.doc());
+                        // readProp(unwrapUnion(field.schema()), KeysForAvroProperty.LABEL) is not good location in my
+                        // view
+                        return new SchemaImpl.EntryImpl(field.name(), field.getProp(KeysForAvroProperty.LABEL), type,
+                                field.schema().getType() == UNION, field.defaultVal(), elementSchema, field.doc());
                     }).collect(toList());
         }
         return entries;

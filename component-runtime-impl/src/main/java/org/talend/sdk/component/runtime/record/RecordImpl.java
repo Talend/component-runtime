@@ -155,9 +155,12 @@ public final class RecordImpl implements Record {
         // here the game is to add an entry method for each kind of type + its companion with Entry provider
 
         public Builder withString(final String name, final String value) {
-            return withString(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(STRING).withNullable(true).build(),
-                    value);
+            return withString(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(STRING)
+                    .withNullable(true)
+                    .build(), value);
         }
 
         public Builder withString(final Schema.Entry entry, final String value) {
@@ -167,9 +170,12 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withBytes(final String name, final byte[] value) {
-            return withBytes(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BYTES).withNullable(true).build(),
-                    value);
+            return withBytes(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(BYTES)
+                    .withNullable(true)
+                    .build(), value);
         }
 
         public Builder withBytes(final Schema.Entry entry, final byte[] value) {
@@ -179,9 +185,12 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final String name, final Date value) {
-            return withDateTime(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).withNullable(true).build(),
-                    value);
+            return withDateTime(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(DATETIME)
+                    .withNullable(true)
+                    .build(), value);
         }
 
         public Builder withDateTime(final Schema.Entry entry, final Date value) {
@@ -193,9 +202,12 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final String name, final ZonedDateTime value) {
-            return withDateTime(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).withNullable(true).build(),
-                    value);
+            return withDateTime(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(DATETIME)
+                    .withNullable(true)
+                    .build(), value);
         }
 
         public Builder withDateTime(final Schema.Entry entry, final ZonedDateTime value) {
@@ -209,6 +221,7 @@ public final class RecordImpl implements Record {
         public Builder withTimestamp(final String name, final long value) {
             return withTimestamp(new SchemaImpl.EntryImpl.BuilderImpl()
                     .withName(name)
+                    .withLabel(name)
                     .withType(DATETIME)
                     .withNullable(false)
                     .build(), value);
@@ -221,9 +234,12 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withInt(final String name, final int value) {
-            return withInt(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(INT).withNullable(false).build(),
-                    value);
+            return withInt(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(INT)
+                    .withNullable(false)
+                    .build(), value);
         }
 
         public Builder withInt(final Schema.Entry entry, final int value) {
@@ -233,9 +249,12 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withLong(final String name, final long value) {
-            return withLong(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(LONG).withNullable(false).build(),
-                    value);
+            return withLong(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(LONG)
+                    .withNullable(false)
+                    .build(), value);
         }
 
         public Builder withLong(final Schema.Entry entry, final long value) {
@@ -245,9 +264,12 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withFloat(final String name, final float value) {
-            return withFloat(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(FLOAT).withNullable(false).build(),
-                    value);
+            return withFloat(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(FLOAT)
+                    .withNullable(false)
+                    .build(), value);
         }
 
         public Builder withFloat(final Schema.Entry entry, final float value) {
@@ -257,9 +279,12 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDouble(final String name, final double value) {
-            return withDouble(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DOUBLE).withNullable(false).build(),
-                    value);
+            return withDouble(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(DOUBLE)
+                    .withNullable(false)
+                    .build(), value);
         }
 
         public Builder withDouble(final Schema.Entry entry, final double value) {
@@ -269,9 +294,12 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withBoolean(final String name, final boolean value) {
-            return withBoolean(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BOOLEAN).withNullable(false).build(),
-                    value);
+            return withBoolean(new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName(name)
+                    .withLabel(name)
+                    .withType(BOOLEAN)
+                    .withNullable(false)
+                    .build(), value);
         }
 
         public Builder withBoolean(final Schema.Entry entry, final boolean value) {
@@ -292,6 +320,7 @@ public final class RecordImpl implements Record {
         public Builder withRecord(final String name, final Record value) {
             return withRecord(new SchemaImpl.EntryImpl.BuilderImpl()
                     .withName(name)
+                    .withLabel(name)
                     .withElementSchema(value.getSchema())
                     .withType(RECORD)
                     .withNullable(true)

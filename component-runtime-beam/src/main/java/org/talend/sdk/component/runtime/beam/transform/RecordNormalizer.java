@@ -53,6 +53,7 @@ public class RecordNormalizer extends DoFn<Record, Record> {
                 .withArray(factory
                         .newEntryBuilder()
                         .withName("__default__")
+                        .withLabel("__default__")
                         .withType(Schema.Type.ARRAY)
                         .withElementSchema(nestedSchema)
                         .build(), singletonList(element))

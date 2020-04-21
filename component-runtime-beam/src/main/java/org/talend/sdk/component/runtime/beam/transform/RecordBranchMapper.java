@@ -66,6 +66,7 @@ public class RecordBranchMapper extends DoFn<Record, Record> {
                                         factory
                                                 .newEntryBuilder()
                                                 .withName(branchName)
+                                                .withLabel(branchName)
                                                 .withType(Schema.Type.ARRAY)
                                                 .withElementSchema(e.getElementSchema())
                                                 .build(),

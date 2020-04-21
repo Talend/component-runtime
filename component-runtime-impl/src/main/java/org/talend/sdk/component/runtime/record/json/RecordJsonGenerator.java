@@ -118,6 +118,7 @@ public class RecordJsonGenerator implements JsonGenerator {
                                 factory
                                         .newEntryBuilder()
                                         .withName(name)
+                                        .withLabel(name)
                                         .withType(Type.ARRAY)
                                         .withElementSchema(factory.newSchemaBuilder(Type.BOOLEAN).build())
                                         .build(),
@@ -363,7 +364,8 @@ public class RecordJsonGenerator implements JsonGenerator {
 
     private Schema.Entry createEntryForJsonArray(final String name, final Collection array) {
         final Schema.Type type = findType(array);
-        final Schema.Entry.Builder builder = factory.newEntryBuilder().withName(name).withType(Schema.Type.ARRAY);
+        final Schema.Entry.Builder builder =
+                factory.newEntryBuilder().withName(name).withLabel(name).withType(Schema.Type.ARRAY);
         if (type == Schema.Type.RECORD) {
             final JsonObject first = JsonObject.class.cast(array.iterator().next());
             final Schema.Builder rBuilder = first
@@ -373,8 +375,12 @@ public class RecordJsonGenerator implements JsonGenerator {
                         final String k = entry.getKey();
                         final JsonValue v = entry.getValue();
                         schemaBuilder
-                                .withEntry(
-                                        factory.newEntryBuilder().withName(k).withType(findType(v.getClass())).build());
+                                .withEntry(factory
+                                        .newEntryBuilder()
+                                        .withName(k)
+                                        .withLabel(k)
+                                        .withType(findType(v.getClass()))
+                                        .build());
                     }, (b1, b2) -> {
                         throw new IllegalStateException();
                     }));
@@ -387,7 +393,8 @@ public class RecordJsonGenerator implements JsonGenerator {
 
     private Schema.Entry.Builder createEntryBuilderForArray(final String name, final List array) {
         final Schema.Type type = findType(array);
-        final Schema.Entry.Builder builder = factory.newEntryBuilder().withName(name).withType(Schema.Type.ARRAY);
+        final Schema.Entry.Builder builder =
+                factory.newEntryBuilder().withName(name).withLabel(name).withType(Schema.Type.ARRAY);
         if (type == Schema.Type.RECORD) {
             final Record first = Record.Builder.class.cast(array.iterator().next()).build();
             array.set(0, factory.newRecordBuilder(first.getSchema(), first)); // copy since build() resetted it
