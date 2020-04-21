@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.apache.avro.generic.GenericData;
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
@@ -145,6 +147,22 @@ class AvroRecordTest {
         final Object str = record.get(Object.class, "str");
         assertFalse(str.getClass().getName(), Utf8.class.isInstance(str));
         assertEquals("test", str);
+    }
+
+    @Test
+    void testLabel() {
+        final GenericData.Record avro = new GenericData.Record(org.apache.avro.Schema
+                .createRecord(getClass().getName() + ".StringTest", null, null, false, singletonList(AvroSchemas
+                        .addProp(
+                                new org.apache.avro.Schema.Field("str",
+                                        org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING), null, null),
+                                KeysForAvroProperty.LABEL, "my label"))));
+        avro.put(0, new Utf8("test"));
+        final Record record = new AvroRecord(avro);
+
+        Schema schema = record.getSchema();
+        List<Schema.Entry> entries = schema.getEntries();
+        assertEquals("my label", entries.get(0).getLabel());
     }
 
     @Test
