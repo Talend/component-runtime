@@ -42,7 +42,14 @@
     <baseImageDir>/opt/talend</baseImageDir>
 
     <!-- ensure to use an image lib with glic -->
-    <baseImage>tacokit/java8:8u212</baseImage>
+    <!-- /!\ This version of the TSBI -->
+    <docker.registryHost>artifactory.datapwn.com</docker.registryHost>
+    <docker.tsbiPath>/tlnd-docker-prod/talend/common/tsbi</docker.tsbiPath>
+    <docker.tsbiImage>/tlnd-docker-prod/talend/common/tsbi/java8-svc-base</docker.tsbiImage>
+    <docker.tsbiVersion>2.0.0-20200414174049</docker.tsbiVersion>
+    <docker.tsbiLayerspectorVersion>1.13.1-20191118103434</docker.tsbiLayerspectorVersion>
+
+    <baseImage>${docker.registryHost}${docker.tsbiImage}:${docker.tsbiVersion}</baseImage>
   </properties>
 
   <build>

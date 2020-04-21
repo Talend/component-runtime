@@ -215,6 +215,7 @@
                   <LANG>en_US.UTF-8</LANG>
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
                   <LD_LIBRARY_PATH>/opt/talend/component-kit/sigar</LD_LIBRARY_PATH>
+                  <TRACING_SAMPLING_RATE>1</TRACING_SAMPLING_RATE>
                 </environment>
                 <jvmFlags>
                   <jvmFlag>-Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER:-!*}</jvmFlag>
