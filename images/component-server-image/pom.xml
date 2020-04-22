@@ -31,6 +31,10 @@
     <image.currentVersion>
       ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}_${maven.build.timestamp}
     </image.currentVersion>
+    <tsbi.product>component-kit</tsbi.product>
+    <tsbi.service>component-server</tsbi.service>
+    <image.tag>${project.version}</image.tag>
+    <image.target>talend/common/tacokit/component-server</image.target>
     <talend.server.image.name>${talend.server.image.registry}tacokit/component-server:${image.currentVersion}</talend.server.image.name>
     <additionalDockerFiles>${project.build.outputDirectory}/docker/additional</additionalDockerFiles>
     <talend.build.name>${talend.build.name.base}.server.image</talend.build.name>
@@ -179,88 +183,30 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.google.cloud.tools</groupId>
-        <artifactId>jib-maven-plugin</artifactId>
-        <version>${jib.version}</version>
-        <!--
-        mvn clean install jib:build@build [-Dtalend.server.image.registry=...] -> will be pushed
-        mvn clean install jib:dockerBuild@build -> local docker image
-        -->
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>build</id>
-            <phase>none</phase>
-            <configuration>
-              <extraDirectories>
-                <paths>
-                  <path>${additionalDockerFiles}</path>
-                </paths>
-              </extraDirectories>
-              <from>
-                <image>${baseImage}</image>
-              </from>
-              <to>
-                <image>${talend.server.image.name}</image>
-              </to>
-              <container>
-                <extraClasspath>${imageWorkDir}/custom/*</extraClasspath>
-                <useCurrentTimestamp>true</useCurrentTimestamp>
-                <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
-                <appRoot>${imageWorkDir}</appRoot>
-                <workingDirectory>${imageWorkDir}</workingDirectory>
-                <environment>
-                  <MEECROWAVE_HOME>${imageWorkDir}</MEECROWAVE_HOME>
-                  <MEECROWAVE_BASE>${imageWorkDir}</MEECROWAVE_BASE>
-                  <MEECROWAVE_PID>${imageWorkDir}/conf/server.pid</MEECROWAVE_PID>
-                  <LANG>en_US.UTF-8</LANG>
-                  <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
-                  <LD_LIBRARY_PATH>/opt/talend/component-kit/sigar</LD_LIBRARY_PATH>
-                  <TRACING_SAMPLING_RATE>1</TRACING_SAMPLING_RATE>
-                </environment>
-                <jvmFlags>
-                  <jvmFlag>-Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER:-!*}</jvmFlag>
-                  <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
-                  <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
-                  <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
-                  <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
-                  <jvmFlag>-Dlog4j.configurationFile=${imageWorkDir}/conf/log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
-                  <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
-                  <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
-                  <jvmFlag>-Dtalend.component.manager.services.cache.eviction.defaultEvictionTimeout=30_000</jvmFlag>
-                  <jvmFlag>-Dtalend.component.manager.services.cache.eviction.defaultMaxSize=5_000</jvmFlag>
-                  <jvmFlag>-Dtalend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun=-1</jvmFlag>
-                </jvmFlags>
-                <args>
-                  <arg>--http=${boundPort}</arg>
-                </args>
-                <ports>
-                  <port>${boundPort}</port>
-                </ports>
-                <labels>
-                  <com.talend.maintainer>Talend &lt;support@talend.com&gt;</com.talend.maintainer>
-                  <com.talend.build-date>${maven.build.timestamp}</com.talend.build-date>
-                  <com.talend.git.repositories>${project.scm.url}</com.talend.git.repositories>
-                  <com.talend.git.branches>${git.branch}</com.talend.git.branches>
-                  <com.talend.git.commits>${git.commit.id}</com.talend.git.commits>
-                  <com.talend.name>Talend Component Kit Server</com.talend.name>
-                  <com.talend.application>component-server</com.talend.application>
-                  <com.talend.service>component-server</com.talend.service>
-                  <com.talend.description>Talend Component Kit Backend Server</com.talend.description>
-                  <com.talend.url>https://www.talend.com</com.talend.url>
-                  <com.talend.vendor>Talend</com.talend.vendor>
-                  <com.talend.version>${image.currentVersion}</com.talend.version>
-                  <com.talend.docker.cmd>docker run -d -p ${boundPort}:${boundPort} tacokit/component-server:${image.currentVersion}</com.talend.docker.cmd>
-                  <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc), ex:
-                    -Dtalend.component.server.component.registry=/path/to/component-registry.propertes
-                    -Dtalend.component.server.maven.repository=/path/to/m2&gt;
-                  </com.talend.docker.params>
-                  <com.talend.docker.healthcheck>curl --fail http://localhost:${boundPort}/api/v1/environment
-                  </com.talend.docker.healthcheck>
-                </labels>
-              </container>
-            </configuration>
+            <id>default</id>
+            <phase>install</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
           </execution>
         </executions>
+        <configuration>
+          <repository>${image.target}</repository>
+          <tag>${image.tag}</tag>
+          <buildArgs>
+            <PROJECT_VERSION>${project.version}</PROJECT_VERSION>
+            <TIMESTAMP>${maven.build.timestamp}</TIMESTAMP>
+            <DOCKER_REGISTRY_HOST>${docker.registryHost}</DOCKER_REGISTRY_HOST>
+            <TSBI_IMAGE_PATH>${docker.tsbiPath}</TSBI_IMAGE_PATH>
+            <TSBI_VERSION>${docker.tsbiVersion}</TSBI_VERSION>
+            <ADDITIONAL_FILES>${additionalDockerFiles}</ADDITIONAL_FILES>
+          </buildArgs>
+          <skip>${disable.dockerBuild}</skip>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
