@@ -83,6 +83,17 @@ public class SchemaImpl implements Schema {
     @AllArgsConstructor
     public static class EntryImpl implements org.talend.sdk.component.api.record.Schema.Entry {
 
+        // add this for some old code which refer this construct
+        public EntryImpl(final String name, final Schema.Type type, final boolean nullable, final Object defaultValue,
+                final Schema elementSchema, final String comment) {
+            this.name = name;
+            this.type = type;
+            this.nullable = nullable;
+            this.defaultValue = defaultValue;
+            this.elementSchema = elementSchema;
+            this.comment = comment;
+        }
+
         /**
          * The name of this entry.
          */
