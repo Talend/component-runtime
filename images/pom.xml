@@ -38,11 +38,12 @@
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
 
-    <talend.server.image.registry />
+    <talend.server.image.registry/>
     <boundPort>8080</boundPort>
     <baseImageDir>/opt/talend</baseImageDir>
     <!-- ensure to use an image lib with glic -->
     <!-- /!\ This version of the TSBI -->
+    <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
     <docker.registryHost>artifactory.datapwn.com</docker.registryHost>
     <docker.tsbiPath>/tlnd-docker-prod/talend/common/tsbi</docker.tsbiPath>
     <docker.tsbiImage>/tlnd-docker-prod/talend/common/tsbi/java8-svc-base</docker.tsbiImage>
@@ -105,15 +106,23 @@
               <arguments>
                 <argument>run</argument>
                 <argument>--rm</argument>
-                <argument>-v</argument><argument>${PWD}:/product</argument>
-                <argument>-v</argument><argument>${HOME}/.m2/settings.xml:/root/.m2/settings.xml</argument>
-                <argument>-v</argument><argument>${HOME}/.m2/repository:/root/.m2/repository</argument>
-                <argument>-v</argument><argument>/tmp/layerspector/logs:/opt/talend/logs</argument>
+                <argument>-v</argument>
+                <argument>${PWD}:/product</argument>
+                <argument>-v</argument>
+                <argument>${HOME}/.m2/settings.xml:/root/.m2/settings.xml</argument>
+                <argument>-v</argument>
+                <argument>${HOME}/.m2/repository:/root/.m2/repository</argument>
+                <argument>-v</argument>
+                <argument>/tmp/layerspector/logs:/opt/talend/logs</argument>
                 <argument>${docker.registryHost}${docker.tsbiPath}/tools/layerspector:${docker.tsbiLayerspectorVersion}</argument>
-                <argument>-t</argument><argument>maven</argument>
-                <argument>-f</argument><argument>java</argument>
-                <argument>-p</argument><argument>${tsbi.product}</argument>
-                <argument>-s</argument><argument>${tsbi.service}</argument>
+                <argument>-t</argument>
+                <argument>maven</argument>
+                <argument>-f</argument>
+                <argument>java</argument>
+                <argument>-p</argument>
+                <argument>${tsbi.product}</argument>
+                <argument>-s</argument>
+                <argument>${tsbi.service}</argument>
                 <argument>--single-project</argument>
               </arguments>
               <skip>${disable.tsbiLayerspector}</skip>
