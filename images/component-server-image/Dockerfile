@@ -10,8 +10,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM ${DOCKER_REGISTRY_HOST}${TSBI_IMAGE_PATH}/java8-svc-base:${TSBI_VERSION}
-
 ARG DOCKER_REGISTRY_HOST
 ARG TSBI_IMAGE_PATH
 ARG TSBI_VERSION
@@ -25,6 +23,8 @@ ARG boundPort=8080
 #
 ARG TALEND_JDK_SERIAL_FILTER
 ARG LOGGING_LAYOUT
+
+FROM ${DOCKER_REGISTRY_HOST}${TSBI_IMAGE_PATH}/java8-svc-base:${TSBI_VERSION}
 
 EXPOSE ${boundPort}
 
