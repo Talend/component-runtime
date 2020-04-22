@@ -144,7 +144,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/conf</outputDirectory>
+              <outputDirectory>${additionalDockerFiles}/conf</outputDirectory>
               <resources>
                 <resource>
                   <directory>${project.basedir}/src/main/resources</directory>
@@ -174,7 +174,7 @@
                   <version>1.6.4</version>
                   <classifier>native</classifier>
                   <type>jar</type>
-                  <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/sigar</outputDirectory>
+                  <outputDirectory>${additionalDockerFiles}/sigar</outputDirectory>
                   <includes>**/libsigar-amd64-linux-1.6.4.so</includes>
                 </artifactItem>
               </artifactItems>
@@ -204,7 +204,9 @@
             <DOCKER_REGISTRY_HOST>${docker.registryHost}</DOCKER_REGISTRY_HOST>
             <TSBI_IMAGE_PATH>${docker.tsbiPath}</TSBI_IMAGE_PATH>
             <TSBI_VERSION>${docker.tsbiVersion}</TSBI_VERSION>
-            <ADDITIONAL_FILES>${additionalDockerFiles}</ADDITIONAL_FILES>
+            <BOUND_PORT>${boundPort}</BOUND_PORT>
+            <GIT_BRANCH>${git.branch}</GIT_BRANCH>
+            <GIT_COMMIT>${git.commit.id}</GIT_COMMIT>
           </buildArgs>
           <skip>${disable.dockerBuild}</skip>
         </configuration>
