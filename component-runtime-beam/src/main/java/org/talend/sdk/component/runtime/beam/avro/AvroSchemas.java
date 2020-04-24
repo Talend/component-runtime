@@ -51,17 +51,24 @@ public final class AvroSchemas {
             return name;
         }
         final char[] original = name.toCharArray();
-        final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
-        final int offset = skipFirstChar ? 1 : 0;
-        final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
-        if (!skipFirstChar) {
-            sanitized[0] = original[0];
-        }
-        for (int i = 1; i < original.length; i++) {
-            if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
-                sanitized[i - offset] = '_';
+        final char[] sanitized = new char[original.length];
+        for (int i = 0; i < original.length; i++) {
+            char c = original[i];
+
+            if(i == 0) {
+                if(Character.isLetter(c) || c == '_') {
+                    sanitized[i] = c;
+                } else {
+                    sanitized[i] = '_';
+                }
+
+                continue;
+            }
+
+            if (Character.isLetterOrDigit(c) || c == '_') {
+                sanitized[i] = c;
             } else {
-                sanitized[i - offset] = original[i];
+                sanitized[i] = '_';
             }
         }
         return new String(sanitized);
