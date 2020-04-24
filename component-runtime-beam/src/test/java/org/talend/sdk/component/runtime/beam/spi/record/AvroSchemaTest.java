@@ -53,7 +53,6 @@ class AvroSchemaTest {
         assertTrue(entry.isNullable());
         assertEquals("nf", entry.getName());
         assertEquals("n f", entry.getRawName());
-        assertEquals("n f", entry.getLabel());
     }
 
     @Test

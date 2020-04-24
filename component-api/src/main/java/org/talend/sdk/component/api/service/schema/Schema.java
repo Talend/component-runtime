@@ -83,11 +83,6 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         }
 
         @Override
-        public String getLabel() {
-            return null;
-        }
-
-        @Override
         public boolean isNullable() {
             return true;
         }
