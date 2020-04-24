@@ -20,6 +20,8 @@ import static java.util.Collections.unmodifiableList;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.json.bind.annotation.JsonbTransient;
+
 import org.talend.sdk.component.api.record.Schema;
 
 import lombok.AllArgsConstructor;
@@ -92,6 +94,11 @@ public class SchemaImpl implements Schema {
             this.defaultValue = defaultValue;
             this.elementSchema = elementSchema;
             this.comment = comment;
+        }
+
+        @JsonbTransient
+        public String getLabel() {
+            return rawName != null ? rawName : name;
         }
 
         /**
