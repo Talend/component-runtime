@@ -57,7 +57,7 @@ public interface Schema {
         /**
          * @return The label of this entry.
          */
-        String getLabel();
+        String getRawName();
 
         /**
          * @return Type of the entry, this determine which other fields are populated.
@@ -94,7 +94,7 @@ public interface Schema {
 
             Builder withName(String name);
 
-            Builder withLabel(String label);
+            Builder withRawName(String rawName);
 
             Builder withType(Type type);
 

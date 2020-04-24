@@ -79,7 +79,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                                 .addProp(
                                         new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry),
                                                 entry.getComment(), entry.getDefaultValue()),
-                                        KeysForAvroProperty.LABEL, entry.getLabel()))
+                                        KeysForAvroProperty.LABEL, entry.getRawName()))
                         .collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);

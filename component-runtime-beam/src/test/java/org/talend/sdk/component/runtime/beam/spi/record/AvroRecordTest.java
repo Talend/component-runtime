@@ -162,7 +162,7 @@ class AvroRecordTest {
 
         Schema schema = record.getSchema();
         List<Schema.Entry> entries = schema.getEntries();
-        assertEquals("my label", entries.get(0).getLabel());
+        assertEquals("my label", entries.get(0).getRawName());
     }
 
     @Test

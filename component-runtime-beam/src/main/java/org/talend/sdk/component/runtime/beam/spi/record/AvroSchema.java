@@ -94,7 +94,6 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             if (entries != null) {
                 return entries;
             }
-            // this have been called before? getFields() can run?
             entries =
                     getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL).map(field -> {
                         final Type type = mapType(field.schema());

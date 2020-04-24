@@ -102,7 +102,7 @@ public class SchemaImpl implements Schema {
         /**
          * The label of this entry.
          */
-        private String label;
+        private String rawName;
 
         /**
          * Type of the entry, this determine which other fields are populated.
@@ -135,7 +135,7 @@ public class SchemaImpl implements Schema {
 
             private String name;
 
-            private String label;
+            private String rawName;
 
             private Schema.Type type;
 
@@ -170,16 +170,18 @@ public class SchemaImpl implements Schema {
 
             @Override
             public Builder withName(final String name) {
-                // can't do that now as AvroSchemas.sanitizeConnectionName is called before current method
-                // and not so easy to remove AvroSchemas.sanitizeConnectionName
-                /// withLabel(name);
                 this.name = sanitizeConnectionName(name);
+                // if raw name is changed as follow name rule, use label to store raw name
+                // if not changed, not set label to save space
+                if (!name.equals(this.name)) {
+                    withRawName(name);
+                }
                 return this;
             }
 
             @Override
-            public Builder withLabel(final String label) {
-                this.label = label;
+            public Builder withRawName(final String rawName) {
+                this.rawName = rawName;
                 return this;
             }
 
@@ -215,7 +217,7 @@ public class SchemaImpl implements Schema {
 
             @Override
             public Entry build() {
-                return new EntryImpl(name, label, type, nullable, defaultValue, elementSchema, comment);
+                return new EntryImpl(name, rawName, type, nullable, defaultValue, elementSchema, comment);
             }
         }
     }

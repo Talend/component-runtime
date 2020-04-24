@@ -142,7 +142,6 @@ public class RecordConverters implements Serializable {
                         .withArray(factory
                                 .newEntryBuilder()
                                 .withName(key)
-                                .withLabel(key)
                                 .withType(Schema.Type.ARRAY)
                                 .withElementSchema(getArrayElementSchema(factory, items))
                                 .build(), items);
@@ -154,7 +153,6 @@ public class RecordConverters implements Serializable {
                         .withRecord(factory
                                 .newEntryBuilder()
                                 .withName(key)
-                                .withLabel(key)
                                 .withType(Schema.Type.RECORD)
                                 .withElementSchema(record.getSchema())
                                 .build(), record);
@@ -754,7 +752,6 @@ public class RecordConverters implements Serializable {
                                     .newEntryBuilder()
                                     .withNullable(true)
                                     .withName(name)
-                                    .withLabel(name)
                                     .withType(RECORD)
                                     .withElementSchema(mappingMeta.recordSchema)
                                     .build();
@@ -789,7 +786,6 @@ public class RecordConverters implements Serializable {
                     .newEntryBuilder()
                     .withNullable(true)
                     .withName(name)
-                    .withLabel(name)
                     .withType(ARRAY)
                     .withElementSchema(registry.find(elementType, factory).recordSchema)
                     .build();
@@ -814,7 +810,6 @@ public class RecordConverters implements Serializable {
                     .newEntryBuilder()
                     .withNullable(true)
                     .withName(name)
-                    .withLabel(name)
                     .withType(ARRAY)
                     .withElementSchema(registry.find(elementType, factory).recordSchema)
                     .build();
@@ -838,7 +833,6 @@ public class RecordConverters implements Serializable {
                     .newEntryBuilder()
                     .withNullable(true)
                     .withName(name)
-                    .withLabel(name)
                     .withType(ARRAY)
                     .withElementSchema(registry.find(fieldType.getComponentType(), factory).recordSchema)
                     .build();
@@ -888,13 +882,7 @@ public class RecordConverters implements Serializable {
 
         private Schema.Entry newEntry(final RecordBuilderFactory builderFactory, final String name,
                 final boolean nullable, final Schema.Type type) {
-            return builderFactory
-                    .newEntryBuilder()
-                    .withNullable(nullable)
-                    .withName(name)
-                    .withLabel(name)
-                    .withType(type)
-                    .build();
+            return builderFactory.newEntryBuilder().withNullable(nullable).withName(name).withType(type).build();
         }
 
         private Class<?> findCollectionType(final Field field) {

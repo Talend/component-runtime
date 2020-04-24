@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.beam.transform;
 import static java.util.Collections.singletonList;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -92,8 +91,7 @@ public class CoGroupByKeyResultMappingTransform<K>
                         final Record record = p.getSecond();
                         final Schema.Entry entry = builderFactory
                                 .newEntryBuilder()
-                                .withName(sanitizeConnectionName(p.getFirst()))
-                                .withLabel(p.getFirst())
+                                .withName(p.getFirst())
                                 .withType(Schema.Type.ARRAY)
                                 .withElementSchema(record.getSchema())
                                 .build();
@@ -106,7 +104,6 @@ public class CoGroupByKeyResultMappingTransform<K>
                         .withRecord(builderFactory
                                 .newEntryBuilder()
                                 .withName("__talend_internal")
-                                .withLabel("__talend_internal")
                                 .withType(Schema.Type.RECORD)
                                 .withElementSchema(internalRecord.getSchema())
                                 .build(), internalRecord);

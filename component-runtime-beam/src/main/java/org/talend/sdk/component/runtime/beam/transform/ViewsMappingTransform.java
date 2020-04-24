@@ -94,7 +94,6 @@ public class ViewsMappingTransform extends PTransform<PCollection<Record>, PColl
                     .withArray(factory
                             .newEntryBuilder()
                             .withName("__default__")
-                            .withLabel("__default__")
                             .withType(Schema.Type.ARRAY)
                             .withElementSchema(element.getSchema())
                             .build(), singletonList(element));
@@ -103,8 +102,7 @@ public class ViewsMappingTransform extends PTransform<PCollection<Record>, PColl
                 builder
                         .withArray(factory
                                 .newEntryBuilder()
-                                .withName(sanitizeConnectionName(n))
-                                .withLabel(n)
+                                .withName(n)
                                 .withType(Schema.Type.ARRAY)
                                 .withElementSchema(element.getSchema())
                                 .build(), singletonList(sideInput));

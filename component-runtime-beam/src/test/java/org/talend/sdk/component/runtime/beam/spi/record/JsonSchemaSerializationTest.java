@@ -41,7 +41,7 @@ class JsonSchemaSerializationTest {
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             assertEquals(
-                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"type\":\"STRING\"},\"label\":\"array\",\"name\":\"array\",\"nullable\":true,\"type\":\"ARRAY\"}],\"type\":\"RECORD\"}",
+                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"type\":\"STRING\"},\"rawName\":\"array\",\"name\":\"array\",\"nullable\":true,\"type\":\"ARRAY\"}],\"type\":\"RECORD\"}",
                     jsonb.toJson(schema));
         }
     }

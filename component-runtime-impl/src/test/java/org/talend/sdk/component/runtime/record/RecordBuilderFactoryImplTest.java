@@ -36,18 +36,18 @@ class RecordBuilderFactoryImplTest {
     private final Schema address = factory
             .newSchemaBuilder(RECORD)
             .withEntry(
-                    factory.newEntryBuilder().withName("street").withLabel("current street").withType(STRING).build())
+                    factory.newEntryBuilder().withName("street").withRawName("current street").withType(STRING).build())
             .withEntry(factory.newEntryBuilder().withName("number").withType(INT).build())
             .build();
 
     private final Schema baseSchema = factory
             .newSchemaBuilder(RECORD)
-            .withEntry(factory.newEntryBuilder().withName("name").withLabel("current name").withType(STRING).build())
+            .withEntry(factory.newEntryBuilder().withName("name").withRawName("current name").withType(STRING).build())
             .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
             .withEntry(factory
                     .newEntryBuilder()
                     .withName("address")
-                    .withLabel("current address")
+                    .withRawName("current address")
                     .withType(RECORD)
                     .withElementSchema(address)
                     .build())
@@ -63,7 +63,7 @@ class RecordBuilderFactoryImplTest {
                 custom
                         .getEntries()
                         .stream()
-                        .map(it -> it.getName() + '/' + it.getType() + '/' + it.getLabel())
+                        .map(it -> it.getName() + '/' + it.getType() + '/' + it.getRawName())
                         .collect(joining(",")));
     }
 
