@@ -37,7 +37,6 @@ LABEL com.talend.git.branches="${GIT_BRANCH}"
 LABEL com.talend.git.commits="${GIT_COMMIT}"
 
 COPY --chown=talend:talend target/classes/docker/additional/ ${TALEND_APP_HOME}/
-COPY --chown=talend:talend target/classes/org/               ${TALEND_APP_HOME}/classes/org/
 
 ENV MEECROWAVE_HOME       ${TALEND_APP_HOME}
 ENV MEECROWAVE_BASE       ${TALEND_APP_HOME}
