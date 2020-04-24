@@ -55,7 +55,7 @@ public interface Schema {
         String getName();
 
         /**
-         * @return The raw name of this entry.
+         * @return The label of this entry.
          */
         String getRawName();
 

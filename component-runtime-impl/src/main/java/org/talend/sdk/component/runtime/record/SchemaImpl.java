@@ -100,7 +100,7 @@ public class SchemaImpl implements Schema {
         private String name;
 
         /**
-         * The raw name of this entry.
+         * The label of this entry.
          */
         private String rawName;
 
