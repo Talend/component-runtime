@@ -55,9 +55,14 @@ public interface Schema {
         String getName();
 
         /**
-         * @return The label of this entry.
+         * @return The raw name of this entry.
          */
         String getRawName();
+
+        /**
+         * @return The label of this entry.
+         */
+        String getLabel();
 
         /**
          * @return Type of the entry, this determine which other fields are populated.

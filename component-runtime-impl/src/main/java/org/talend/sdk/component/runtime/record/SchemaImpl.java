@@ -94,6 +94,10 @@ public class SchemaImpl implements Schema {
             this.comment = comment;
         }
 
+        public String getLabel() {
+            return rawName != null ? rawName : name;
+        }
+
         /**
          * The name of this entry.
          */
