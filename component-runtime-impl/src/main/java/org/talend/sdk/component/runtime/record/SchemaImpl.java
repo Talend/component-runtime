@@ -156,8 +156,8 @@ public class SchemaImpl implements Schema {
                 for (int i = 0; i < original.length; i++) {
                     char c = original[i];
 
-                    if(i == 0) {
-                        if(Character.isLetter(c) || c == '_') {
+                    if (i == 0) {
+                        if (Character.isLetter(c) || c == '_') {
                             sanitized[i] = c;
                         } else {
                             sanitized[i] = '_';

@@ -46,8 +46,7 @@ class RecordBuilderFactoryImplTest {
             .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
             .withEntry(factory
                     .newEntryBuilder()
-                    .withName("address")
-                    .withRawName("current address")
+                    .withName("current address")
                     .withType(RECORD)
                     .withElementSchema(address)
                     .build())
@@ -59,7 +58,7 @@ class RecordBuilderFactoryImplTest {
                 .newSchemaBuilder(baseSchema)
                 .withEntry(factory.newEntryBuilder().withName("custom").withType(STRING).build())
                 .build();
-        assertEquals("name/STRING/current name,age/INT/null,address/RECORD/current address,custom/STRING/null",
+        assertEquals("name/STRING/current name,age/INT/null,current_address/RECORD/current address,custom/STRING/null",
                 custom
                         .getEntries()
                         .stream()
@@ -77,12 +76,12 @@ class RecordBuilderFactoryImplTest {
                 .newRecordBuilder(baseSchema)
                 .withString("name", "Test")
                 .withInt("age", 33)
-                .withRecord("address",
+                .withRecord("current_address",
                         factory.newRecordBuilder(address).withString("street", "here").withInt("number", 1).build())
                 .build();
         final Record output = factory.newRecordBuilder(customSchema, baseRecord).withString("custom", "added").build();
         assertEquals(
-                "{\"name\":\"Test\",\"age\":33,\"address\":{\"street\":\"here\",\"number\":1},\"custom\":\"added\"}",
+                "{\"name\":\"Test\",\"age\":33,\"current_address\":{\"street\":\"here\",\"number\":1},\"custom\":\"added\"}",
                 output.toString());
     }
 }
