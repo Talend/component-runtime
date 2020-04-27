@@ -41,6 +41,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1690[TCOMP-1690^]: Upgrade netty to 4.1.48.Final
 - link:https://jira.talendforge.org/browse/TCOMP-1692[TCOMP-1692^]: Update CXF to 3.3.6 due to CVE-2020-1954
 - link:https://jira.talendforge.org/browse/TCOMP-1697[TCOMP-1697^]: Update BouncyCastle to 1.65
+- link:https://jira.talendforge.org/browse/TCOMP-1703[TCOMP-1703^]: Upgrade log4j-2 to 2.13.2
 
 == Version 1.1.19
 
