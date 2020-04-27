@@ -86,7 +86,7 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
 
         @JsonbTransient
         @Override
-        public String getLabel() {
+        public String getOriginalFieldName() {
             return null;
         }
 

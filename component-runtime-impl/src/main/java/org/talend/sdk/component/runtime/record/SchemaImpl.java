@@ -97,7 +97,7 @@ public class SchemaImpl implements Schema {
         }
 
         @JsonbTransient
-        public String getLabel() {
+        public String getOriginalFieldName() {
             return rawName != null ? rawName : name;
         }
 
@@ -107,7 +107,7 @@ public class SchemaImpl implements Schema {
         private String name;
 
         /**
-         * The label of this entry.
+         * The raw name of this entry.
          */
         private String rawName;
 
