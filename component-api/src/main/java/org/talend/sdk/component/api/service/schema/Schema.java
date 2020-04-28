@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.json.bind.annotation.JsonbTransient;
+
 import org.talend.sdk.component.api.meta.Partial;
 
 import lombok.AllArgsConstructor;
@@ -75,6 +77,17 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         // 1.0 compat
         public void setType(final org.talend.sdk.component.api.service.schema.Type type) {
             this.type = org.talend.sdk.component.api.record.Schema.Type.valueOf(type.name());
+        }
+
+        @Override
+        public String getRawName() {
+            return null;
+        }
+
+        @JsonbTransient
+        @Override
+        public String getOriginalFieldName() {
+            return null;
         }
 
         @Override

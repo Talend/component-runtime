@@ -19,7 +19,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -116,7 +115,7 @@ public class Data {
                                 aggregator
                                         .withArray(recordBuilderFactory
                                                 .newEntryBuilder()
-                                                .withName(sanitizeConnectionName(entry.getKey()))
+                                                .withName(entry.getKey())
                                                 .withType(Schema.Type.ARRAY)
                                                 .withElementSchema(list.iterator().next().getSchema())
                                                 .build(), list)

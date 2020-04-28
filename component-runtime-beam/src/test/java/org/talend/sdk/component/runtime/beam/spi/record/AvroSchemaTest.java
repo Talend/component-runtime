@@ -37,11 +37,13 @@ class AvroSchemaTest {
 
     @Test
     void getRecordType() {
+        Schema.Field field = new Schema.Field("nf",
+                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)), null, null);
+        field.addProp(KeysForAvroProperty.LABEL, "n f");
+
         final Schema delegate = Schema
-                .createUnion(Schema.create(Schema.Type.NULL), Schema
-                        .createRecord("foo", null, null, false, singletonList(new Schema.Field("nf",
-                                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)),
-                                null, null))));
+                .createUnion(Schema.create(Schema.Type.NULL),
+                        Schema.createRecord("foo", null, null, false, singletonList(field)));
         final AvroSchema schema = new AvroSchema(delegate);
         final List<org.talend.sdk.component.api.record.Schema.Entry> entries = schema.getEntries();
         assertEquals(RECORD, schema.getType());
@@ -50,6 +52,8 @@ class AvroSchemaTest {
         assertEquals(STRING, entry.getType());
         assertTrue(entry.isNullable());
         assertEquals("nf", entry.getName());
+        assertEquals("n f", entry.getRawName());
+        assertEquals("n f", entry.getOriginalFieldName());
     }
 
     @Test

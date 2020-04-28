@@ -35,13 +35,13 @@ class JsonSchemaSerializationTest {
     void toJson() throws Exception {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(RECORD)
-                .withEntry(new SchemaImpl.EntryImpl("array", Schema.Type.ARRAY, true, null,
+                .withEntry(new SchemaImpl.EntryImpl("array", "array", Schema.Type.ARRAY, true, null,
                         new AvroSchemaBuilder().withType(STRING).build(), null))
                 .build();
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             assertEquals(
-                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"type\":\"STRING\"},\"name\":\"array\",\"nullable\":true,\"type\":\"ARRAY\"}],\"type\":\"RECORD\"}",
+                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"type\":\"STRING\"},\"name\":\"array\",\"nullable\":true,\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"type\":\"RECORD\"}",
                     jsonb.toJson(schema));
         }
     }

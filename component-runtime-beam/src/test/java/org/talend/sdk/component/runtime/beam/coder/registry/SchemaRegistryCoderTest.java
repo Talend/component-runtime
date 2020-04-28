@@ -111,7 +111,7 @@ class SchemaRegistryCoderTest {
     void codecArrayRecord() throws IOException {
         final AvroRecord nestedRecord = new AvroRecord(new RecordImpl.BuilderImpl().withDouble("len", 2).build());
         final Record record = new AvroRecord(new RecordImpl.BuilderImpl()
-                .withArray(new SchemaImpl.EntryImpl("__default__", Schema.Type.ARRAY, true, null,
+                .withArray(new SchemaImpl.EntryImpl("__default__", "__default__", Schema.Type.ARRAY, true, null,
                         nestedRecord.getSchema(), null), singletonList(nestedRecord))
                 .build());
 

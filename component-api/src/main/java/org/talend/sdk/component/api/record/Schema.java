@@ -55,6 +55,16 @@ public interface Schema {
         String getName();
 
         /**
+         * @return The raw name of this entry.
+         */
+        String getRawName();
+
+        /**
+         * @return the raw name of this entry if exists, else return name.
+         */
+        String getOriginalFieldName();
+
+        /**
          * @return Type of the entry, this determine which other fields are populated.
          */
         Type getType();
@@ -88,6 +98,8 @@ public interface Schema {
         interface Builder {
 
             Builder withName(String name);
+
+            Builder withRawName(String rawName);
 
             Builder withType(Type type);
 
