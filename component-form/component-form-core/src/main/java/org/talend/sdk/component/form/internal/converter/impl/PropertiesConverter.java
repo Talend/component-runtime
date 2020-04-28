@@ -77,9 +77,9 @@ public class PropertiesConverter implements PropertyConverter {
                                     .getMetadata()
                                     .keySet()
                                     .stream()
-                                    .anyMatch(k -> k.equals("action::suggestions")
+                                    .anyMatch(k -> k.equalsIgnoreCase("action::suggestions")
                                             || k.equalsIgnoreCase("action::dynamic_values"))) {
-                                defaults.putIfAbsent("$" + property.getPath() + "_name", value);
+                                defaults.putIfAbsent("$" + property.getName() + "_name", value);
                             }
                             defaults.put(property.getName(), value);
                         }
