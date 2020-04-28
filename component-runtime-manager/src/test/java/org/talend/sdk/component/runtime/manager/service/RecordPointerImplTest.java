@@ -29,25 +29,24 @@ class RecordPointerImplTest {
 
     @Test
     void extractFlat() {
-        final Record record =
-                new RecordImpl.BuilderImpl()
-                        .withString("foo", "foo_1234")
-                        .withInt("bar", 1324)
-                        .withArray(
-                                new SchemaImpl.EntryImpl("array1", Schema.Type.ARRAY, false, null,
-                                        new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build(), null),
-                                asList("a", "b"))
-                        .withArray(
-                                new SchemaImpl.EntryImpl("array2", Schema.Type.ARRAY, false, null,
-                                        new SchemaImpl.BuilderImpl()
-                                                .withType(Schema.Type.RECORD)
-                                                .withEntry(new SchemaImpl.EntryImpl("item", Schema.Type.STRING, false,
-                                                        null, null, null))
-                                                .build(),
-                                        null),
-                                asList(new RecordImpl.BuilderImpl().withString("v1", "first").build(),
-                                        new RecordImpl.BuilderImpl().withString("v2", "second").build()))
-                        .build();
+        final Record record = new RecordImpl.BuilderImpl()
+                .withString("foo", "foo_1234")
+                .withInt("bar", 1324)
+                .withArray(
+                        new SchemaImpl.EntryImpl("array1", "array1", Schema.Type.ARRAY, false, null,
+                                new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build(), null),
+                        asList("a", "b"))
+                .withArray(
+                        new SchemaImpl.EntryImpl("array2", "array2", Schema.Type.ARRAY, false, null,
+                                new SchemaImpl.BuilderImpl()
+                                        .withType(Schema.Type.RECORD)
+                                        .withEntry(new SchemaImpl.EntryImpl("item", "item", Schema.Type.STRING, false,
+                                                null, null, null))
+                                        .build(),
+                                null),
+                        asList(new RecordImpl.BuilderImpl().withString("v1", "first").build(),
+                                new RecordImpl.BuilderImpl().withString("v2", "second").build()))
+                .build();
         assertEquals(record, new RecordPointerFactoryImpl("test").apply("").getValue(record, Object.class));
         assertEquals(record, new RecordPointerFactoryImpl("test").apply("/").getValue(record, Object.class));
         assertEquals(record.getString("foo"),

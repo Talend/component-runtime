@@ -99,8 +99,10 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                         final Type type = mapType(field.schema());
                         final AvroSchema elementSchema = new AvroSchema(
                                 type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
-                        return new SchemaImpl.EntryImpl(field.name(), type, field.schema().getType() == UNION,
-                                field.defaultVal(), elementSchema, field.doc());
+                        // readProp(unwrapUnion(field.schema()), KeysForAvroProperty.LABEL) is not good location in my
+                        // view
+                        return new SchemaImpl.EntryImpl(field.name(), field.getProp(KeysForAvroProperty.LABEL), type,
+                                field.schema().getType() == UNION, field.defaultVal(), elementSchema, field.doc());
                     }).collect(toList());
         }
         return entries;

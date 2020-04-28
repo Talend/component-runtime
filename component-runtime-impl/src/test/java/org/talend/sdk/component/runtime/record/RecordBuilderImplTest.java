@@ -143,7 +143,7 @@ class RecordBuilderImplTest {
     void nullSupportCollections() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder
-                .withArray(new SchemaImpl.EntryImpl("test", Schema.Type.ARRAY, true, null,
+                .withArray(new SchemaImpl.EntryImpl("test", "test", Schema.Type.ARRAY, true, null,
                         new SchemaImpl(Schema.Type.STRING, null, null), null), null);
         final Record record = builder.build();
         assertEquals(1, record.getSchema().getEntries().size());
