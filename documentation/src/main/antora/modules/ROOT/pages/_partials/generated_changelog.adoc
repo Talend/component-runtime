@@ -1,5 +1,11 @@
 
 
+== Version 1.1.15.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
+
 == Version 1.1.15
 
 === Bug
