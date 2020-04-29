@@ -60,7 +60,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default int getInt(final String name) {
+    default Integer getInt(final String name) {
         return get(Integer.class, name);
     }
 
@@ -70,7 +70,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default long getLong(final String name) {
+    default Long getLong(final String name) {
         return get(Long.class, name);
     }
 
@@ -80,7 +80,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default double getDouble(final String name) {
+    default Double getDouble(final String name) {
         return get(Double.class, name);
     }
 
@@ -90,7 +90,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default float getFloat(final String name) {
+    default Float getFloat(final String name) {
         return get(Float.class, name);
     }
 
@@ -100,7 +100,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default boolean getBoolean(final String name) {
+    default Boolean getBoolean(final String name) {
         return get(Boolean.class, name);
     }
 
