@@ -109,7 +109,7 @@
     <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
     <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
     <url>https://github.com/talend/component-runtime</url>
-    <tag>component-runtime-1.1.15</tag>
+    <tag>HEAD</tag>
   </scm>
   <distributionManagement>
     <snapshotRepository>
