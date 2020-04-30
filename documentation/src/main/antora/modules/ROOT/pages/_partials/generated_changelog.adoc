@@ -11,6 +11,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1682[TCOMP-1682^]: Remove key attribute in UISchema for containers
 - link:https://jira.talendforge.org/browse/TCOMP-1686[TCOMP-1686^]: antora helper function relativize corrupts documentation
 - link:https://jira.talendforge.org/browse/TCOMP-1694[TCOMP-1694^]: [MAVEN PLUGIN] `validateSvg` argument is ineffective
+- link:https://jira.talendforge.org/browse/TCOMP-1698[TCOMP-1698^]: UiSpecService injects a wrong property for suggestions and dynamic_values
 
 
 
