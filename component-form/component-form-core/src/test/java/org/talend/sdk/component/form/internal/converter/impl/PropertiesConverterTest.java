@@ -39,14 +39,15 @@ class PropertiesConverterTest {
         final Map<String, Object> values = new HashMap<>();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             new PropertiesConverter(jsonb, values, emptyList())
-                    .convert(completedFuture(new PropertyContext<>(new SimplePropertyDefinition("foo.bar", "bar", "Bar",
-                            "STRING", "def", new PropertyValidation(), singletonMap("action::suggestions", "yes"), null,
-                            new LinkedHashMap<>()), null, new PropertyContext.Configuration())))
+                    .convert(completedFuture(new PropertyContext<>(new SimplePropertyDefinition("configuration.foo.bar",
+                            "bar", "Bar", "STRING", "def", new PropertyValidation(),
+                            singletonMap("action::suggestionS", "yes"), null, new LinkedHashMap<>()), null,
+                            new PropertyContext.Configuration())))
                     .toCompletableFuture()
                     .get();
         }
         assertEquals(2, values.size());
         assertEquals("def", values.get("bar"));
-        assertEquals("def", values.get("$foo.bar_name"));
+        assertEquals("def", values.get("$bar_name"));
     }
 }
