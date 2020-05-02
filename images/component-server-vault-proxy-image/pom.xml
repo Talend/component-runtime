@@ -27,14 +27,16 @@
   <name>Component Runtime :: Images :: Server Vault Proxy</name>
 
   <properties>
-    <imageWorkDir>${baseImageDir}/component-kit-vault-proxy</imageWorkDir>
-    <image.currentVersion>
-      ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}_${maven.build.timestamp}
-    </image.currentVersion>
-    <talend.server.image.name>${talend.server.image.registry}tacokit/component-server-vault-proxy:${image.currentVersion}</talend.server.image.name>
     <additionalDockerFiles>${project.build.outputDirectory}/docker/additional</additionalDockerFiles>
     <boundPort>9090</boundPort>
+    <image.currentVersion>${project.version}_${maven.build.timestamp}</image.currentVersion>
+    <image.tag>${project.version}</image.tag>
+    <image.target>talend/common/tacokit/component-server-vault-proxy</image.target>
+    <imageWorkDir>${baseImageDir}/component-kit-vault-proxy</imageWorkDir>
     <talend.build.name>${talend.build.name.base}.vault.proxy.image</talend.build.name>
+    <talend.server.image.name>${talend.server.image.registry}tacokit/component-server-vault-proxy:${image.currentVersion}</talend.server.image.name>
+    <tsbi.product>component-kit-vault-proxy</tsbi.product>
+    <tsbi.service>component-server-vault-proxy</tsbi.service>
   </properties>
 
   <dependencies>
@@ -214,6 +216,39 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin><!--
+        mvn clean verify dockerfile:build -P dev-tsbi
+        docker tag talend/common/tacokit/component-server-vault-proxy:${tag} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}
+        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}
+        -->
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default</id>
+            <phase>none</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <repository>${image.target}</repository>
+          <tag>${image.tag}_${maven.build.timestamp}</tag>
+          <dockerfile>Dockerfile</dockerfile>
+          <buildArgs>
+            <PROJECT_VERSION>${project.version}</PROJECT_VERSION>
+            <TIMESTAMP>${maven.build.timestamp}</TIMESTAMP>
+            <DOCKER_REGISTRY_HOST>${docker.registryHost}</DOCKER_REGISTRY_HOST>
+            <TSBI_IMAGE_PATH>${docker.tsbiPath}</TSBI_IMAGE_PATH>
+            <TSBI_VERSION>${docker.tsbiVersion}</TSBI_VERSION>
+            <BOUND_PORT>${boundPort}</BOUND_PORT>
+            <GIT_BRANCH>${git.branch}</GIT_BRANCH>
+            <GIT_COMMIT>${git.commit.id}</GIT_COMMIT>
+          </buildArgs>
+          <skip>${disable.dockerBuild}</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>
