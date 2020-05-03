@@ -255,7 +255,7 @@
         <jdk>[11,20)</jdk>
       </activation>
       <properties>
-        <!-- requires spark with xbean-asm7 -->
+        <!-- requires spark with xbean-asm8 -->
         <invoker.skip>true</invoker.skip>
       </properties>
     </profile>

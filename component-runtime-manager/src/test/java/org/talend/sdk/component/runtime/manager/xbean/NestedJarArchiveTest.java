@@ -15,13 +15,13 @@
  */
 package org.talend.sdk.component.runtime.manager.xbean;
 
-import static org.apache.xbean.asm7.ClassWriter.COMPUTE_FRAMES;
-import static org.apache.xbean.asm7.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm7.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm7.Opcodes.ALOAD;
-import static org.apache.xbean.asm7.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm7.Opcodes.RETURN;
-import static org.apache.xbean.asm7.Opcodes.V1_8;
+import static org.apache.xbean.asm8.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm8.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm8.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm8.Opcodes.ALOAD;
+import static org.apache.xbean.asm8.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm8.Opcodes.RETURN;
+import static org.apache.xbean.asm8.Opcodes.V1_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -35,10 +35,10 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
-import org.apache.xbean.asm7.AnnotationVisitor;
-import org.apache.xbean.asm7.ClassWriter;
-import org.apache.xbean.asm7.MethodVisitor;
-import org.apache.xbean.asm7.Type;
+import org.apache.xbean.asm8.AnnotationVisitor;
+import org.apache.xbean.asm8.ClassWriter;
+import org.apache.xbean.asm8.MethodVisitor;
+import org.apache.xbean.asm8.Type;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;

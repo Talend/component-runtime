@@ -96,7 +96,7 @@ import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGeneratorFactory;
 import javax.json.stream.JsonParserFactory;
 
-import org.apache.xbean.asm7.Type;
+import org.apache.xbean.asm8.Type;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.archive.Archive;

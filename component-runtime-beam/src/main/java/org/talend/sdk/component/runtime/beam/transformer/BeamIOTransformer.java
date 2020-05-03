@@ -17,12 +17,12 @@ package org.talend.sdk.component.runtime.beam.transformer;
 
 import static java.lang.Integer.MIN_VALUE;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.xbean.asm7.Opcodes.ALOAD;
-import static org.apache.xbean.asm7.Opcodes.ARETURN;
-import static org.apache.xbean.asm7.Opcodes.ASM7;
-import static org.apache.xbean.asm7.Opcodes.DUP;
-import static org.apache.xbean.asm7.Opcodes.INVOKESTATIC;
-import static org.apache.xbean.asm7.Opcodes.NEW;
+import static org.apache.xbean.asm8.Opcodes.ALOAD;
+import static org.apache.xbean.asm8.Opcodes.ARETURN;
+import static org.apache.xbean.asm8.Opcodes.ASM8;
+import static org.apache.xbean.asm8.Opcodes.DUP;
+import static org.apache.xbean.asm8.Opcodes.INVOKESTATIC;
+import static org.apache.xbean.asm8.Opcodes.NEW;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,13 +48,13 @@ import java.util.stream.Stream;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.transforms.Combine;
-import org.apache.xbean.asm7.ClassReader;
-import org.apache.xbean.asm7.ClassVisitor;
-import org.apache.xbean.asm7.ClassWriter;
-import org.apache.xbean.asm7.Label;
-import org.apache.xbean.asm7.MethodVisitor;
-import org.apache.xbean.asm7.Type;
-import org.apache.xbean.asm7.commons.AdviceAdapter;
+import org.apache.xbean.asm8.ClassReader;
+import org.apache.xbean.asm8.ClassVisitor;
+import org.apache.xbean.asm8.ClassWriter;
+import org.apache.xbean.asm8.Label;
+import org.apache.xbean.asm8.MethodVisitor;
+import org.apache.xbean.asm8.Type;
+import org.apache.xbean.asm8.commons.AdviceAdapter;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
@@ -290,7 +290,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
         private final Type accumulatorType;
 
         private SerializableCoderReplacement(final ClassVisitor delegate, final String plugin, final Class<?> clazz) {
-            super(ASM7, delegate);
+            super(ASM8, delegate);
             this.plugin = plugin;
 
             Type accumulatorType = null;
@@ -333,7 +333,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
         public MethodVisitor visitMethod(final int access, final String name, final String descriptor,
                 final String signature, final String[] exceptions) {
             final MethodVisitor delegate = super.visitMethod(access, name, descriptor, signature, exceptions);
-            return new MethodVisitor(ASM7, delegate) {
+            return new MethodVisitor(ASM8, delegate) {
 
                 @Override
                 public void visitMethodInsn(final int opcode, final String owner, final String name,
@@ -421,11 +421,11 @@ public class BeamIOTransformer implements ClassFileTransformer {
 
         private static final Type[] RESET_TCCL_ARGS = new Type[] { CLASSLOADER_TYPE };
 
-        private static final org.apache.xbean.asm7.commons.Method SET_METHOD =
-                new org.apache.xbean.asm7.commons.Method("setPluginTccl", CLASSLOADER_TYPE, SET_TCCL_ARGS);
+        private static final org.apache.xbean.asm8.commons.Method SET_METHOD =
+                new org.apache.xbean.asm8.commons.Method("setPluginTccl", CLASSLOADER_TYPE, SET_TCCL_ARGS);
 
-        private static final org.apache.xbean.asm7.commons.Method RESET_METHOD =
-                new org.apache.xbean.asm7.commons.Method("resetTccl", Type.VOID_TYPE, RESET_TCCL_ARGS);
+        private static final org.apache.xbean.asm8.commons.Method RESET_METHOD =
+                new org.apache.xbean.asm8.commons.Method("resetTccl", Type.VOID_TYPE, RESET_TCCL_ARGS);
 
         private final String plugin;
 
@@ -439,7 +439,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
 
         private TCCLAdviceAdapter(final MethodVisitor mv, final int access, final String name, final String desc,
                 final String plugin) {
-            super(ASM7, mv, access, name, desc);
+            super(ASM8, mv, access, name, desc);
             this.plugin = plugin;
             this.desc = desc;
         }
@@ -503,7 +503,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
         private boolean hasWriteReplace;
 
         private ComponentClassVisitor(final ClassVisitor cv, final String plugin) {
-            super(ASM7, cv);
+            super(ASM8, cv);
             this.plugin = plugin;
             this.writer = cv;
         }
