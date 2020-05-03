@@ -257,7 +257,8 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
     }
 
     @Override
-    public void processResource(final String resource, final InputStream inputStream, final List<Relocator> list) {
+    public void processResource(final String resource, final InputStream is, final List<Relocator> relocators,
+            final long time) throws IOException {
         // no-op
     }
 

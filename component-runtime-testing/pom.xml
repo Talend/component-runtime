@@ -37,7 +37,7 @@
   </modules>
 
   <properties>
-    <wagon.version>3.3.4</wagon.version>
+    <wagon.version>3.4.0</wagon.version>
   </properties>
 
   <dependencyManagement>

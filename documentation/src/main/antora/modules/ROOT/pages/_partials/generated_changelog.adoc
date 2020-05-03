@@ -58,6 +58,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1712[TCOMP-1712^]: Upgrade commons-lang3 to 3.10
 - link:https://jira.talendforge.org/browse/TCOMP-1713[TCOMP-1713^]: Upgrade jackson to 2.11.0
 - link:https://jira.talendforge.org/browse/TCOMP-1714[TCOMP-1714^]: Upgrade junit to 5.7.0-M1
+- link:https://jira.talendforge.org/browse/TCOMP-1716[TCOMP-1716^]: Upgrade maven shade plugin to 3.2.3 and misc libs
 
 == Version 1.1.19
 
@@ -154,11 +155,19 @@
 
 
 
+
+
 == Version 1.1.15.1
 
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1685[TCOMP-1685^]: Provide docker images based on TSBI
 
 == Version 1.1.15
 
