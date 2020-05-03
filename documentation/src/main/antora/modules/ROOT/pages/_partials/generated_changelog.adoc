@@ -56,6 +56,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1710[TCOMP-1710^]: Upgrade johnzon to 1.2.5
 - link:https://jira.talendforge.org/browse/TCOMP-1711[TCOMP-1711^]: Upgrade guava to 29.0-jre
 - link:https://jira.talendforge.org/browse/TCOMP-1712[TCOMP-1712^]: Upgrade commons-lang3 to 3.10
+- link:https://jira.talendforge.org/browse/TCOMP-1713[TCOMP-1713^]: Upgrade jackson to 2.11.0
 
 == Version 1.1.19
 
