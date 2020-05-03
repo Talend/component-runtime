@@ -54,6 +54,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1706[TCOMP-1706^]: Upgrade OpenWebBeans to 2.0.16
 - link:https://jira.talendforge.org/browse/TCOMP-1708[TCOMP-1708^]: Upgrade groovy to 3.0.3
 - link:https://jira.talendforge.org/browse/TCOMP-1710[TCOMP-1710^]: Upgrade johnzon to 1.2.5
+- link:https://jira.talendforge.org/browse/TCOMP-1711[TCOMP-1711^]: Upgrade guava to 29.0-jre
 
 == Version 1.1.19
 
