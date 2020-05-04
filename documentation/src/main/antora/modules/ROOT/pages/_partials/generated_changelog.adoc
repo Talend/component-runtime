@@ -12,6 +12,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1686[TCOMP-1686^]: antora helper function relativize corrupts documentation
 - link:https://jira.talendforge.org/browse/TCOMP-1694[TCOMP-1694^]: [MAVEN PLUGIN] `validateSvg` argument is ineffective
 - link:https://jira.talendforge.org/browse/TCOMP-1698[TCOMP-1698^]: UiSpecService injects a wrong property for suggestions and dynamic_values
+- link:https://jira.talendforge.org/browse/TCOMP-1718[TCOMP-1718^]: Duplicated code in RecordConverters
 
 
 

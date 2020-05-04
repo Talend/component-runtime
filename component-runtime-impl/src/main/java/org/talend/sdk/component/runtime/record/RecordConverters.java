@@ -416,11 +416,6 @@ public class RecordConverters implements Serializable {
                         builder
                                 .add(name, toArray(factory, v -> jsonProvider.createValue(Float.class.cast(v)),
                                         collection));
-                    } else if (Double.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name, toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)),
-                                        collection));
                     } else if (Integer.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
                         builder
