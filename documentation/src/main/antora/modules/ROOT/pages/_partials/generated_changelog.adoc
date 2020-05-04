@@ -59,7 +59,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1713[TCOMP-1713^]: Upgrade jackson to 2.11.0
 - link:https://jira.talendforge.org/browse/TCOMP-1714[TCOMP-1714^]: Upgrade junit to 5.7.0-M1
 - link:https://jira.talendforge.org/browse/TCOMP-1716[TCOMP-1716^]: Upgrade maven shade plugin to 3.2.3 and misc libs
-- link:https://jira.talendforge.org/browse/TCOMP-1717[TCOMP-1717^]: Upgrade geronimo-metrics to 1.0.4
 
 == Version 1.1.19
 
@@ -143,8 +142,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1613[TCOMP-1613^]: Upgrade cxf to 3.3.5
 - link:https://jira.talendforge.org/browse/TCOMP-1614[TCOMP-1614^]: Upgrade groovy to 3.0.0-rc3
 - link:https://jira.talendforge.org/browse/TCOMP-1615[TCOMP-1615^]: Upgrade OpenWebBeans to 2.0.14
-
-
 
 
 
