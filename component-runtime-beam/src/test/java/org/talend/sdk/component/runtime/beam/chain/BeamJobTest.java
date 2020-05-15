@@ -58,14 +58,14 @@ class BeamJobTest implements Serializable {
                     private final ComponentManager contextualInstance;
 
                     {
-                        contextualInstance = CONTEXTUAL_INSTANCE.get();
-                        CONTEXTUAL_INSTANCE.set(this);
+                        contextualInstance = ComponentManager.contextualInstance().get();
+                        ComponentManager.contextualInstance().set(this);
                         addPlugin(jar.getAbsolutePath());
                     }
 
                     @Override
                     public void close() {
-                        CONTEXTUAL_INSTANCE.set(contextualInstance);
+                        ComponentManager.contextualInstance().set(contextualInstance);
                         super.close();
                         removePlugin(jar.getAbsolutePath());
                     }

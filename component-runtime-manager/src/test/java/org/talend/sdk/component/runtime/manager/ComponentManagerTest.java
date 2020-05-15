@@ -55,6 +55,7 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.xbean.finder.util.Files;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.record.Record;
@@ -64,6 +65,7 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
+import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
@@ -102,6 +104,26 @@ class ComponentManagerTest {
             if (jvd != null) {
                 System.setProperty("java.version.date", jvd);
             }
+        }
+    }
+
+    @Test
+    void testInstance() throws InterruptedException {
+        final ComponentManager[] managers = new ComponentManager[60];
+        Thread[] th = new Thread[managers.length];
+        for (int ind = 0; ind < th.length; ind++) {
+            final int indice = ind;
+            th[ind] = new Thread(() -> {
+                managers[indice] = ComponentManager.instance();
+            });
+            th[ind].start();
+        }
+        for (int ind = 0; ind < th.length; ind++) {
+            th[ind].join();
+        }
+        Assertions.assertNotNull(managers[0]);
+        for (int i = 1; i < managers.length; i++) {
+            Assertions.assertSame(managers[0], managers[i], "manager " + i + " is another instance");
         }
     }
 
@@ -411,6 +433,7 @@ class ComponentManagerTest {
                     .cast(container.get(AllServices.class).getServices().get(LocalConfiguration.class));
             // check translated env vars
             assertEquals("/home/user", envConf.get("USER_PATH"));
+            assertEquals("/home/user", envConf.get("USER.PATH"));
             assertEquals("/home/user", envConf.get("user_path"));
             assertEquals("/home/user", envConf.get("user_PATH"));
             assertEquals("/home/user", envConf.get("talend_localconfig_user_home"));
