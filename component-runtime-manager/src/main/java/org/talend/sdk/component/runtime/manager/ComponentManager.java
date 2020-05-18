@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.Comparator.comparing;
+import static java.util.Locale.ROOT;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -54,7 +55,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -138,6 +138,7 @@ import org.talend.sdk.component.dependencies.EmptyResolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.jmx.JmxManager;
+import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.impl.Mode;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
@@ -204,7 +205,7 @@ public class ComponentManager implements AutoCloseable {
 
                     parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
                             container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
-                                    .forEach(this::addPlugin);
+                            .forEach(this::addPlugin);
                     info("Components: " + availablePlugins());
                 }
 
@@ -368,9 +369,9 @@ public class ComponentManager implements AutoCloseable {
         }
         classesFilter = new FilterList(Stream
                 .concat(Stream
-                        .of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
-                                "javax.json.", "org.talend.sdk.component.classloader.",
-                                "org.talend.sdk.component.runtime.", "org.slf4j.", "org.apache.johnzon."),
+                                .of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
+                                        "javax.json.", "org.talend.sdk.component.classloader.",
+                                        "org.talend.sdk.component.runtime.", "org.slf4j.", "org.apache.johnzon."),
                         additionalContainerClasses())
                 .distinct()
                 .map(PrefixFilter::new)
@@ -424,7 +425,7 @@ public class ComponentManager implements AutoCloseable {
                         : new EmptyResolver())
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
-                }, logInfoLevelMapping) {
+        }, logInfoLevelMapping) {
 
             @Override
             public Path resolve(final String path) {
@@ -448,6 +449,7 @@ public class ComponentManager implements AutoCloseable {
         }
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
                 .peek(e -> e.setComponentManager(ComponentManager.this))
+                .sorted(comparing(ContainerListenerExtension::order))
                 .forEach(container::registerListener);
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl))
                 .filter(ComponentExtension::isActive)
@@ -527,7 +529,7 @@ public class ComponentManager implements AutoCloseable {
 
     /**
      * For test purpose only.
-     * 
+     *
      * @return
      */
     protected static AtomicReference<ComponentManager> contextualInstance() {
@@ -536,13 +538,14 @@ public class ComponentManager implements AutoCloseable {
 
     public static Path findM2() {
         return ofNullable(System.getProperty("talend.component.manager.m2.repository"))
-                .map(Paths::get)
+                .map(PathFactory::get)
                 .orElseGet(() -> {
                     // check if we are in the studio process if so just grab the the studio config
                     final String m2Repo = System.getProperty("maven.repository");
                     if (!"global".equals(m2Repo)) {
-                        final Path localM2 =
-                                Paths.get(System.getProperty("osgi.configuration.area", "")).resolve(".m2/repository");
+                        final Path localM2 = PathFactory
+                                .get(System.getProperty("osgi.configuration.area", ""))
+                                .resolve(".m2/repository");
                         if (java.nio.file.Files.exists(localM2)) {
                             return localM2;
                         }
@@ -557,12 +560,12 @@ public class ComponentManager implements AutoCloseable {
 
     protected void info(final String msg) {
         switch (logInfoLevelMapping.intValue()) {
-        case 500: // FINE
-            log.debug(msg);
-            break;
-        case 800: // INFo
-        default:
-            log.info(msg);
+            case 500: // FINE
+                log.debug(msg);
+                break;
+            case 800: // INFo
+            default:
+                log.info(msg);
         }
     }
 
@@ -571,14 +574,14 @@ public class ComponentManager implements AutoCloseable {
                 .concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
                         ofNullable(
                                 System.getProperty("talend.component.manager.classloader.container.classesAndPackages"))
-                                        .map(s -> s.split(","))
-                                        .map(Stream::of)
-                                        .orElseGet(Stream::empty));
+                                .map(s -> s.split(","))
+                                .map(Stream::of)
+                                .orElseGet(Stream::empty));
     }
 
     private static Path findDefaultM2() {
         // check out settings.xml first
-        final Path settings = Paths
+        final Path settings = PathFactory
                 .get(System
                         .getProperty("talend.component.manager.m2.settings",
                                 System.getProperty("user.home") + "/.m2/settings.xml"));
@@ -595,14 +598,14 @@ public class ComponentManager implements AutoCloseable {
                     }
                 }
                 if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
-                    return Paths.get(localM2RepositoryFromSettings);
+                    return PathFactory.get(localM2RepositoryFromSettings);
                 }
             } catch (final Exception ignore) {
                 // fallback on default local path
             }
         }
 
-        return Paths.get(System.getProperty("user.home", "")).resolve(".m2/repository");
+        return PathFactory.get(System.getProperty("user.home", "")).resolve(".m2/repository");
     }
 
     private static String getIdentifiers() {
@@ -621,7 +624,7 @@ public class ComponentManager implements AutoCloseable {
     private static Path toFile(final String classFileName, final URL url) {
         String path = url.getFile();
         path = path.substring(0, path.length() - classFileName.length());
-        return Paths.get(decode(path));
+        return PathFactory.get(decode(path));
     }
 
     public void addCallerAsPlugin() {
@@ -661,27 +664,27 @@ public class ComponentManager implements AutoCloseable {
         if (url != null) {
             Path plugin = null;
             switch (url.getProtocol()) {
-            case "bundleresource": // studio on equinox, this is the definition part so we don't register it
-                break;
-            case "file":
-                plugin = toFile(resource, url);
-                break;
-            case "jar":
-                if (url.getPath() != null && url.getPath().startsWith("mvn:")) { // pax mvn
-                    // studio temporary integration, to drop when studio integrates correctly tcomp
+                case "bundleresource": // studio on equinox, this is the definition part so we don't register it
                     break;
-                }
-                final String spec = url.getFile();
-                final int separator = spec.indexOf('!');
-                if (separator > 0) {
-                    try {
-                        plugin = Paths.get(decode(new URL(spec.substring(0, separator)).getFile()));
-                    } catch (final MalformedURLException e) {
-                        // no-op
+                case "file":
+                    plugin = toFile(resource, url);
+                    break;
+                case "jar":
+                    if (url.getPath() != null && url.getPath().startsWith("mvn:")) { // pax mvn
+                        // studio temporary integration, to drop when studio integrates correctly tcomp
+                        break;
                     }
-                }
-                break;
-            default:
+                    final String spec = url.getFile();
+                    final int separator = spec.indexOf('!');
+                    if (separator > 0) {
+                        try {
+                            plugin = PathFactory.get(decode(new URL(spec.substring(0, separator)).getFile()));
+                        } catch (final MalformedURLException e) {
+                            // no-op
+                        }
+                    }
+                    break;
+                default:
             }
             if (plugin == null) {
                 log.warn("Can't find " + url);
@@ -734,21 +737,21 @@ public class ComponentManager implements AutoCloseable {
     // really a DIY entry point for custom flow, it creates component instances but
     // nothing more
     public Optional<Object> createComponent(final String plugin, final String name, final ComponentType componentType,
-            final int version, final Map<String, String> configuration) {
+                                            final int version, final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, componentType, version, configuration)
                 // unwrap to access the actual instance which is the desired one
                 .map(i -> Delegated.class.isInstance(i) ? Delegated.class.cast(i).getDelegate() : i);
     }
 
     private Optional<Object> findComponentInternal(final String plugin, final String name,
-            final ComponentType componentType, final int version, final Map<String, String> configuration) {
+                                                   final ComponentType componentType, final int version, final Map<String, String> configuration) {
         if (container.findAll().isEmpty()) {
             autoDiscoverPlugins(false, true);
         }
         return find(pluginContainer -> Stream
                 .of(findInstance(plugin, name, componentType, version, configuration, pluginContainer)))
-                        .filter(Objects::nonNull)
-                        .findFirst();
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 
     public void autoDiscoverPlugins(final boolean callers, final boolean classpath) {
@@ -778,7 +781,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     private Object findInstance(final String plugin, final String name, final ComponentType componentType,
-            final int version, final Map<String, String> configuration, final Container pluginContainer) {
+                                final int version, final Map<String, String> configuration, final Container pluginContainer) {
         return findGenericInstance(plugin, name, componentType, version, configuration, pluginContainer)
                 .orElseGet(
                         () -> findDeployedInstance(plugin, name, componentType, version, configuration, pluginContainer)
@@ -788,8 +791,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     private Stream<Object> findDeployedInstance(final String plugin, final String name,
-            final ComponentType componentType, final int version, final Map<String, String> configuration,
-            final Container pluginContainer) {
+                                                final ComponentType componentType, final int version, final Map<String, String> configuration,
+                                                final Container pluginContainer) {
         return Stream
                 .of(pluginContainer.get(ContainerComponentRegistry.class))
                 .filter(Objects::nonNull)
@@ -807,8 +810,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     private Optional<Object> findGenericInstance(final String plugin, final String name,
-            final ComponentType componentType, final int version, final Map<String, String> configuration,
-            final Container pluginContainer) {
+                                                 final ComponentType componentType, final int version, final Map<String, String> configuration,
+                                                 final Container pluginContainer) {
         return ofNullable(pluginContainer.get(GenericComponentExtension.class))
                 .filter(ext -> ext.canHandle(componentType.runtimeType(), plugin, name))
                 .map(ext -> Object.class
@@ -820,12 +823,12 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public Optional<Mapper> findMapper(final String plugin, final String name, final int version,
-            final Map<String, String> configuration) {
+                                       final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, MAPPER, version, configuration).map(Mapper.class::cast);
     }
 
     public Optional<org.talend.sdk.component.runtime.output.Processor> findProcessor(final String plugin,
-            final String name, final int version, final Map<String, String> configuration) {
+                                                                                     final String name, final int version, final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, PROCESSOR, version, configuration)
                 .map(org.talend.sdk.component.runtime.output.Processor.class::cast);
     }
@@ -838,11 +841,7 @@ public class ComponentManager implements AutoCloseable {
         return container.find(plugin);
     }
 
-    public synchronized String addPlugin(final String pluginRootFile) {
-        Optional<Container> pl = findPlugin(pluginRootFile);
-        if (pl.isPresent()) {
-            return pl.get().getId();
-        }
+    public String addPlugin(final String pluginRootFile) {
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(pluginRootFile))
@@ -932,7 +931,7 @@ public class ComponentManager implements AutoCloseable {
             configurations
                     .addAll(toStream(
                             loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
-                                    .collect(toList()));
+                            .collect(toList()));
         }
         configurations.addAll(asList(new LocalConfiguration() {
 
@@ -949,7 +948,20 @@ public class ComponentManager implements AutoCloseable {
 
             @Override
             public String get(final String key) {
-                return System.getenv(key);
+                String val = System.getenv(key);
+                if (val != null) {
+                    return val;
+                }
+                String k = key.replaceAll("[^A-Za-z0-9]", "_");
+                val = System.getenv(k);
+                if (val != null) {
+                    return val;
+                }
+                val = System.getenv(k.toUpperCase(ROOT));
+                if (val != null) {
+                    return val;
+                }
+                return null;
             }
 
             @Override
@@ -961,8 +973,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     private <T extends Annotation> T findComponentsConfig(final Map<String, AnnotatedElement> componentDefaults,
-            final Class<?> type, final ConfigurableClassLoader loader, final Class<T> annotation,
-            final T defaultValue) {
+                                                          final Class<?> type, final ConfigurableClassLoader loader, final Class<T> annotation,
+                                                          final T defaultValue) {
 
         final AnnotatedElement annotatedElement =
                 componentDefaults.computeIfAbsent(getAnnotatedElementCacheKey(type), p -> {
@@ -1023,11 +1035,11 @@ public class ComponentManager implements AutoCloseable {
     }
 
     private Function<Map<String, String>, Object[]> createParametersFactory(final String plugin,
-            final Executable method, final Map<Class<?>, Object> services, final Supplier<List<ParameterMeta>> metas) {
+                                                                            final Executable method, final Map<Class<?>, Object> services, final Supplier<List<ParameterMeta>> metas) {
         // it is "slow" for cold boots so let's delay it
         return config -> executeInContainer(plugin,
                 lazy(() -> reflections.parameterFactory(method, services, metas == null ? null : metas.get())))
-                        .apply(config);
+                .apply(config);
     }
 
     public enum ComponentType {
@@ -1107,7 +1119,7 @@ public class ComponentManager implements AutoCloseable {
                 String alreadyScannedClasses = null;
                 Filter filter = KnownClassesFilter.INSTANCE;
                 try (final InputStream containerFilterConfig =
-                        container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
+                             container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
                     if (containerFilterConfig != null) {
                         final Properties config = new Properties();
                         config.load(containerFilterConfig);
@@ -1336,9 +1348,9 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private void onComponent(final Container container, final ContainerComponentRegistry registry,
-                final Map<Class<?>, Object> services, final AllServices allServices,
-                final Map<String, AnnotatedElement> componentDefaults, final ComponentContexts componentContexts,
-                final Class<?> type, final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache) {
+                                 final Map<Class<?>, Object> services, final AllServices allServices,
+                                 final Map<String, AnnotatedElement> componentDefaults, final ComponentContexts componentContexts,
+                                 final Class<?> type, final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache) {
             final Components components = findComponentsConfig(componentDefaults, type, container.getLoader(),
                     Components.class, DEFAULT_COMPONENT);
 
@@ -1402,9 +1414,9 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private ServiceMeta.ActionMeta createServiceMeta(final Container container,
-                final Map<Class<?>, Object> services, final Map<String, AnnotatedElement> componentDefaults,
-                final Class<?> service, final Object instance, final Method serviceMethod,
-                final Class<?> declaringClass) {
+                                                         final Map<Class<?>, Object> services, final Map<String, AnnotatedElement> componentDefaults,
+                                                         final Class<?> service, final Object instance, final Method serviceMethod,
+                                                         final Class<?> declaringClass) {
             final Components components = findComponentsConfig(componentDefaults, declaringClass, container.getLoader(),
                     Components.class, DEFAULT_COMPONENT);
 
@@ -1486,7 +1498,7 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private Archive toArchive(final String module, final OriginalId originalId,
-                final ConfigurableClassLoader loader) {
+                                  final ConfigurableClassLoader loader) {
             final Collection<Archive> archives = new ArrayList<>();
             final Archive mainArchive =
                     toArchive(module, ofNullable(originalId).map(OriginalId::getValue).orElse(module), loader);
@@ -1521,7 +1533,7 @@ public class ComponentManager implements AutoCloseable {
                     if (path != null && path.contains(marker) && !mainPath.contains(marker)) {
                         final String mvnPath = path.substring(path.lastIndexOf(marker) + marker.length());
                         final Path asFile = ofNullable(container.getRootRepositoryLocationPath())
-                                .orElseGet(() -> Paths.get("."))
+                                .orElseGet(() -> PathFactory.get("."))
                                 .resolve(mvnPath);
                         return !Objects.equals(Files.toFile(mainUrl).toPath(), asFile);
                     }
@@ -1573,7 +1585,7 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private Archive toArchive(final String module, final String moduleId, final ConfigurableClassLoader loader) {
-            final Path file = of(Paths.get(module))
+            final Path file = of(PathFactory.get(module))
                     .filter(java.nio.file.Files::exists)
                     .orElseGet(() -> container.resolve(module));
             if (java.nio.file.Files.exists(file)) {
@@ -1693,13 +1705,13 @@ public class ComponentManager implements AutoCloseable {
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
                             ? config -> executeInContainer(plugin,
-                                    () -> context
-                                            .getOwningExtension()
-                                            .convert(new ComponentInstanceImpl(
-                                                    doInvoke(constructor, parameterFactory.apply(config)), plugin,
-                                                    component.getName(), name), Mapper.class))
+                            () -> context
+                                    .getOwningExtension()
+                                    .convert(new ComponentInstanceImpl(
+                                            doInvoke(constructor, parameterFactory.apply(config)), plugin,
+                                            component.getName(), name), Mapper.class))
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
-                                    doInvoke(constructor, parameterFactory.apply(config)));
+                            doInvoke(constructor, parameterFactory.apply(config)));
 
             component
                     .getPartitionMappers()
@@ -1729,13 +1741,13 @@ public class ComponentManager implements AutoCloseable {
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
                             ? config -> executeInContainer(plugin,
-                                    () -> context
-                                            .getOwningExtension()
-                                            .convert(new ComponentInstanceImpl(
-                                                    doInvoke(constructor, parameterFactory.apply(config)), plugin,
-                                                    component.getName(), name), Mapper.class))
+                            () -> context
+                                    .getOwningExtension()
+                                    .convert(new ComponentInstanceImpl(
+                                            doInvoke(constructor, parameterFactory.apply(config)), plugin,
+                                            component.getName(), name), Mapper.class))
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
-                                    doInvoke(constructor, parameterFactory.apply(config)));
+                            doInvoke(constructor, parameterFactory.apply(config)));
             component
                     .getPartitionMappers()
                     .put(name,
@@ -1767,25 +1779,25 @@ public class ComponentManager implements AutoCloseable {
                     context.getOwningExtension() != null && context
                             .getOwningExtension()
                             .supports(org.talend.sdk.component.runtime.output.Processor.class)
-                                    ? config -> executeInContainer(
-                                            plugin,
-                                            () -> context
-                                                    .getOwningExtension()
-                                                    .convert(
-                                                            new ComponentInstanceImpl(doInvoke(constructor,
-                                                                    parameterFactory.apply(config)), plugin,
-                                                                    component.getName(), name),
-                                                            org.talend.sdk.component.runtime.output.Processor.class))
-                                    : config -> new ProcessorImpl(this.component.getName(), name, plugin,
-                                            ofNullable(config)
-                                                    .map(it -> it
-                                                            .entrySet()
-                                                            .stream()
-                                                            .filter(e -> e.getKey().startsWith("$")
-                                                                    || e.getKey().contains(".$"))
-                                                            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
-                                                    .orElseGet(Collections::emptyMap),
-                                            doInvoke(constructor, parameterFactory.apply(config)));
+                            ? config -> executeInContainer(
+                            plugin,
+                            () -> context
+                                    .getOwningExtension()
+                                    .convert(
+                                            new ComponentInstanceImpl(doInvoke(constructor,
+                                                    parameterFactory.apply(config)), plugin,
+                                                    component.getName(), name),
+                                            org.talend.sdk.component.runtime.output.Processor.class))
+                            : config -> new ProcessorImpl(this.component.getName(), name, plugin,
+                            ofNullable(config)
+                                    .map(it -> it
+                                            .entrySet()
+                                            .stream()
+                                            .filter(e -> e.getKey().startsWith("$")
+                                                    || e.getKey().contains(".$"))
+                                            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
+                                    .orElseGet(Collections::emptyMap),
+                            doInvoke(constructor, parameterFactory.apply(config)));
             component
                     .getProcessors()
                     .put(name,
@@ -1867,10 +1879,10 @@ public class ComponentManager implements AutoCloseable {
             }
             return this.component == null || !component.equals(this.component.getName())
                     ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
-                            iconFinder.findIcon(familyAnnotationElement), comp,
-                            Class.class.isInstance(familyAnnotationElement)
-                                    ? getPackage(Class.class.cast(familyAnnotationElement))
-                                    : ""))
+                    iconFinder.findIcon(familyAnnotationElement), comp,
+                    Class.class.isInstance(familyAnnotationElement)
+                            ? getPackage(Class.class.cast(familyAnnotationElement))
+                            : ""))
                     : this.component;
         }
 
@@ -1921,7 +1933,7 @@ public class ComponentManager implements AutoCloseable {
 
         /**
          * Enables a customizer to know other configuration.
-         * 
+         *
          * @deprecated Mainly here for backward compatibility for beam customizer.
          *
          * @param customizers all customizers.
