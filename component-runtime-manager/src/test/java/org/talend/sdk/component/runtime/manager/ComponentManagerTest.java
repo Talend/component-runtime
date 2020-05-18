@@ -102,6 +102,39 @@ class ComponentManagerTest {
     }
 
     @Test
+    void addPluginMultiThread(@TempDir final File temporaryFolder) throws InterruptedException {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
+        pluginFolder.mkdirs();
+        final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
+        DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl("plugin"));
+        final String jvd = System.getProperty("java.version.date"); // java 11
+        System.clearProperty("java.version.date");
+        try (final ComponentManager manager =
+                     new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+            final String pluginPath = plugin.getAbsolutePath();
+            Thread[] th = new Thread[5];
+            for (int ind = 0; ind < th.length; ind++) {
+                final int indice = ind;
+                th[ind] = new Thread(() -> {
+                    manager.addPlugin(pluginPath);
+                });
+            }
+            for (int ind = 0; ind < th.length; ind++) {
+                th[ind].start();
+            }
+            for (int ind = 0; ind < th.length; ind++) {
+                th[ind].join();
+            }
+        } finally { // clean temp files
+            DynamicContainerFinder.SERVICES.clear();
+            doCleanup(pluginFolder);
+            if (jvd != null) {
+                System.setProperty("java.version.date", jvd);
+            }
+        }
+    }
+
+    @Test
     void configInstantiation(@TempDir final File temporaryFolder) {
         final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();

@@ -838,7 +838,11 @@ public class ComponentManager implements AutoCloseable {
         return container.find(plugin);
     }
 
-    public String addPlugin(final String pluginRootFile) {
+    public synchronized String addPlugin(final String pluginRootFile) {
+        Optional<Container> pl = findPlugin(pluginRootFile);
+        if (pl.isPresent()) {
+            return pl.get().getId();
+        }
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(pluginRootFile))
