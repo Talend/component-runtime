@@ -321,6 +321,8 @@ class JobTest {
     private ComponentManager newTestManager(final File jar) {
         return new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
 
+            final ComponentManager originalMgr = ComponentManager.contextualInstance().get();
+
             {
                 ComponentManager.contextualInstance().set(this);
                 final String containerId = addPlugin(jar.getAbsolutePath());
@@ -332,7 +334,7 @@ class JobTest {
             public void close() {
                 DynamicContainerFinder.SERVICES.clear();
                 super.close();
-                ComponentManager.contextualInstance().set(null);
+                ComponentManager.contextualInstance().set(originalMgr);
             }
         };
     }
