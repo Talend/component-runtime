@@ -100,7 +100,7 @@ public class StudioInstaller implements Runnable {
                     if (!version.equals(installedVersion)) {
                         throw new IllegalStateException("Can't deploy this component. A different version '"
                                 + installedVersion
-                                + "' is already installed.\nYou can enforce the deployment by using -Dtalend.component.enforceDeploy=true");
+                                + "' is already installed.\nYou can enforce the deployment by using -Dtalend.component.enforceDeployment=true");
                     }
                 }
             } catch (final IOException e) {

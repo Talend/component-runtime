@@ -92,7 +92,7 @@ class StudioInstallerTest {
         final IllegalStateException e = assertThrows(IllegalStateException.class, installer::run);
         assertEquals(
                 "Can't deploy this component. A different version '1.0-SNAPSHOT' is already installed.\n"
-                        + "You can enforce the deployment by using -Dtalend.component.enforceDeploy=true",
+                        + "You can enforce the deployment by using -Dtalend.component.enforceDeployment=true",
                 e.getMessage());
     }
 

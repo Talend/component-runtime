@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1719[TCOMP-1719^]: Header responses for icon not propagated correctly from Component-server-vault-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-1720[TCOMP-1720^]: Changing the version breaks deployment to Studio
 - link:https://jira.talendforge.org/browse/TCOMP-1721[TCOMP-1721^]: Component Manager Singleton is not thread safe
 
 == Version 1.1.20
