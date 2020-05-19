@@ -272,8 +272,8 @@ public class NativeWrappedIOTest {
                 super(findM2(), "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
                 testPlugins = addJarContaining(Thread.currentThread().getContextClassLoader(),
                         componentPackage.replace('.', '/'));
-                oldInstance = CONTEXTUAL_INSTANCE.get();
-                CONTEXTUAL_INSTANCE.set(this);
+                oldInstance = ComponentManager.contextualInstance().get();
+                ComponentManager.contextualInstance().set(this);
             }
 
             @Override
@@ -281,7 +281,7 @@ public class NativeWrappedIOTest {
                 try {
                     super.close();
                 } finally {
-                    CONTEXTUAL_INSTANCE.compareAndSet(this, oldInstance);
+                    ComponentManager.contextualInstance().compareAndSet(this, oldInstance);
                 }
             }
 

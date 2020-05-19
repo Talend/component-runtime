@@ -612,8 +612,8 @@ public class BaseComponentsHandler implements ComponentsHandler {
             container
                     .builder("component-runtime-junit.jar", jarLocation(SimpleCollector.class).getAbsolutePath())
                     .create();
-            oldInstance = CONTEXTUAL_INSTANCE.get();
-            CONTEXTUAL_INSTANCE.set(this);
+            oldInstance = ComponentManager.contextualInstance().get();
+            ComponentManager.contextualInstance().set(this);
         }
 
         @Override
@@ -621,7 +621,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
             try {
                 super.close();
             } finally {
-                CONTEXTUAL_INSTANCE.compareAndSet(this, oldInstance);
+                ComponentManager.contextualInstance().compareAndSet(this, oldInstance);
             }
         }
 

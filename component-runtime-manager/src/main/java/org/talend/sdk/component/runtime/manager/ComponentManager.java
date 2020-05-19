@@ -181,7 +181,68 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ComponentManager implements AutoCloseable {
 
-    protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
+    private static class SingletonHolder {
+
+        protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
+
+        static {
+            final Thread shutdownHook =
+                    new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
+
+                        @Override
+                        public void run() {
+                            ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
+                        }
+                    };
+
+            ComponentManager manager = new ComponentManager(findM2()) {
+
+                private final AtomicBoolean closed = new AtomicBoolean(false);
+
+                {
+                    info("Creating the contextual ComponentManager instance " + getIdentifiers());
+
+                    parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
+                            container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
+                                    .forEach(this::addPlugin);
+                    info("Components: " + availablePlugins());
+                }
+
+                @Override
+                public void close() {
+                    if (!closed.compareAndSet(false, true)) {
+                        return;
+                    }
+                    try {
+                        synchronized (CONTEXTUAL_INSTANCE) {
+                            if (CONTEXTUAL_INSTANCE.compareAndSet(this, null)) {
+                                try {
+                                    Runtime.getRuntime().removeShutdownHook(shutdownHook);
+                                } catch (final IllegalStateException ise) {
+                                    // already shutting down
+                                }
+                            }
+                        }
+                    } finally {
+                        CONTEXTUAL_INSTANCE.set(null);
+                        super.close();
+                        info("Released the contextual ComponentManager instance " + getIdentifiers());
+                    }
+                }
+
+                Object readResolve() throws ObjectStreamException {
+                    return new SerializationReplacer();
+                }
+            };
+
+            Runtime.getRuntime().addShutdownHook(shutdownHook);
+            manager.info("Created the contextual ComponentManager instance " + getIdentifiers());
+            if (!CONTEXTUAL_INSTANCE.compareAndSet(null, manager)) { // unlikely it fails in a synch block
+                manager = CONTEXTUAL_INSTANCE.get();
+            }
+        }
+
+    }
 
     private static final Components DEFAULT_COMPONENT = new Components() {
 
@@ -461,70 +522,16 @@ public class ComponentManager implements AutoCloseable {
      * @return the contextual manager instance.
      */
     public static ComponentManager instance() {
-        ComponentManager manager = CONTEXTUAL_INSTANCE.get();
-        if (manager == null) {
-            synchronized (CONTEXTUAL_INSTANCE) {
-                if (CONTEXTUAL_INSTANCE.get() == null) {
-                    final Thread shutdownHook =
-                            new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
+        return SingletonHolder.CONTEXTUAL_INSTANCE.get();
+    }
 
-                                @Override
-                                public void run() {
-                                    ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
-                                }
-                            };
-
-                    manager = new ComponentManager(findM2()) {
-
-                        private final AtomicBoolean closed = new AtomicBoolean(false);
-
-                        {
-
-                            info("Creating the contextual ComponentManager instance " + getIdentifiers());
-
-                            parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
-                                    container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
-                                            .forEach(this::addPlugin);
-                            info("Components: " + availablePlugins());
-                        }
-
-                        @Override
-                        public void close() {
-                            if (!closed.compareAndSet(false, true)) {
-                                return;
-                            }
-                            try {
-                                synchronized (CONTEXTUAL_INSTANCE) {
-                                    if (CONTEXTUAL_INSTANCE.compareAndSet(this, null)) {
-                                        try {
-                                            Runtime.getRuntime().removeShutdownHook(shutdownHook);
-                                        } catch (final IllegalStateException ise) {
-                                            // already shutting down
-                                        }
-                                    }
-                                }
-                            } finally {
-                                CONTEXTUAL_INSTANCE.set(null);
-                                super.close();
-                                info("Released the contextual ComponentManager instance " + getIdentifiers());
-                            }
-                        }
-
-                        Object readResolve() throws ObjectStreamException {
-                            return new SerializationReplacer();
-                        }
-                    };
-
-                    Runtime.getRuntime().addShutdownHook(shutdownHook);
-                    manager.info("Created the contextual ComponentManager instance " + getIdentifiers());
-                    if (!CONTEXTUAL_INSTANCE.compareAndSet(null, manager)) { // unlikely it fails in a synch block
-                        manager = CONTEXTUAL_INSTANCE.get();
-                    }
-                }
-            }
-        }
-
-        return manager;
+    /**
+     * For test purpose only.
+     *
+     * @return
+     */
+    protected static AtomicReference<ComponentManager> contextualInstance() {
+        return SingletonHolder.CONTEXTUAL_INSTANCE;
     }
 
     public static Path findM2() {
@@ -831,7 +838,11 @@ public class ComponentManager implements AutoCloseable {
         return container.find(plugin);
     }
 
-    public String addPlugin(final String pluginRootFile) {
+    public synchronized String addPlugin(final String pluginRootFile) {
+        Optional<Container> pl = findPlugin(pluginRootFile);
+        if (pl.isPresent()) {
+            return pl.get().getId();
+        }
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(pluginRootFile))
