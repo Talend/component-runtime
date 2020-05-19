@@ -1,5 +1,11 @@
 
 
+== Version 1.1.21
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1721[TCOMP-1721^]: Component Manager Singleton is not thread safe
+
 == Version 1.1.20
 
 === Bug
@@ -157,6 +163,14 @@
 
 
 
+
+
+
+== Version 1.1.15.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1721[TCOMP-1721^]: Component Manager Singleton is not thread safe
 
 == Version 1.1.15.1
 
