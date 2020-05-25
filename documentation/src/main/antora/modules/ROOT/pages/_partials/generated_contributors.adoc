@@ -22,7 +22,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":109,
+    "commits":112,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -103,6 +103,12 @@
     "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
     "name":"Ismaël Mejía"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/31616269?v=4",
+    "id":"lcelton-talend"
   },
   {
     "commits":1,

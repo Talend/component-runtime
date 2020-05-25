@@ -8,6 +8,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1720[TCOMP-1720^]: Changing the version breaks deployment to Studio
 - link:https://jira.talendforge.org/browse/TCOMP-1721[TCOMP-1721^]: Component Manager Singleton is not thread safe
 
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1681[TCOMP-1681^]: Make ESB Studio job export TaCoKit compliant
+
 == Version 1.1.20
 
 === Bug
@@ -151,6 +157,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1613[TCOMP-1613^]: Upgrade cxf to 3.3.5
 - link:https://jira.talendforge.org/browse/TCOMP-1614[TCOMP-1614^]: Upgrade groovy to 3.0.0-rc3
 - link:https://jira.talendforge.org/browse/TCOMP-1615[TCOMP-1615^]: Upgrade OpenWebBeans to 2.0.14
+
+
 
 
 
