@@ -1,5 +1,11 @@
 
 
+== Version 1.1.22
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1727[TCOMP-1727^]: WebSocketContainer not present in ServletContext
+
 == Version 1.1.21
 
 === Bug
