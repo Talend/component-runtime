@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
@@ -143,6 +144,18 @@ public class ActionResourceImpl implements ActionResource {
         if (WebApplicationException.class.isInstance(re.getCause())) {
             return WebApplicationException.class.cast(re.getCause()).getResponse();
         }
+
+        if (ComponentException.class.isInstance(re)) {
+            ComponentException ce = (ComponentException) re;
+            throw new WebApplicationException(Response
+                    .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400 : 520, "Unexpected callback error")
+                    .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
+                            "Action execution failed with: " + ofNullable(re.getMessage())
+                                    .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
+                                            : "no error message")))
+                    .build());
+        }
+
         throw new WebApplicationException(Response
                 .status(520, "Unexpected callback error")
                 .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,

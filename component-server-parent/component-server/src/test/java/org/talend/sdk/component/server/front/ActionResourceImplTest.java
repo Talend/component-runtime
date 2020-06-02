@@ -88,6 +88,36 @@ class ActionResourceImplTest {
     }
 
     @Test
+    void testUnknownException() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "custom")
+                .queryParam("action", "unknownException")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(520, error.getStatus());
+        assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
+        assertEquals("Action execution failed with: unknown exception",
+                error.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
+    void testUserException() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "custom")
+                .queryParam("action", "userException")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(400, error.getStatus());
+        assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
+        assertEquals("Action execution failed with: user exception",
+                error.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
     void executeWithEnumParam() {
         final Response error = base
                 .path("action/execute")

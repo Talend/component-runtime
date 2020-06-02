@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import lombok.Getter;
+import org.talend.sdk.component.api.exception.ComponentException;
 
 public class InvocationExceptionWrapper {
 
@@ -70,22 +71,5 @@ public class InvocationExceptionWrapper {
             return null;
         }
         return mapException(cause, visited);
-    }
-
-    public static class ComponentException extends IllegalStateException {
-
-        @Getter
-        private final String originalType;
-
-        @Getter
-        private final String originalMessage;
-
-        public ComponentException(final String type, final String message, final StackTraceElement[] stackTrace,
-                final Throwable cause) {
-            super("(" + type + ") " + message, cause);
-            originalType = type;
-            originalMessage = message;
-            setStackTrace(stackTrace);
-        }
     }
 }

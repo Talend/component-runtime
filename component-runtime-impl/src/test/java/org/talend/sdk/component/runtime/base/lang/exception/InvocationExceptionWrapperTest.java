@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.exception.ComponentException;
 
 class InvocationExceptionWrapperTest {
 
@@ -28,9 +29,9 @@ class InvocationExceptionWrapperTest {
     void ensureOriginalIsReplacedToGuaranteeSerializationAccrossClassLoaders() {
         final RuntimeException mapped = InvocationExceptionWrapper
                 .toRuntimeException(new InvocationTargetException(new CustomException("custom for test")));
-        assertTrue(InvocationExceptionWrapper.ComponentException.class.isInstance(mapped));
+        assertTrue(ComponentException.class.isInstance(mapped));
         assertEquals("(" + CustomException.class.getName() + ") custom for test", mapped.getMessage());
-        assertTrue(InvocationExceptionWrapper.ComponentException.class.isInstance(mapped.getCause()));
+        assertTrue(ComponentException.class.isInstance(mapped.getCause()));
         assertEquals("(" + AnotherException.class.getName() + ") other", mapped.getCause().getMessage());
     }
 
