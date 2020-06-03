@@ -22,7 +22,7 @@ public class ComponentException extends RuntimeException {
     public static enum ErrorOrigin {
         USER, // Error caused by user misconfiguration
         BACKEND, // Error caused by backend
-        UNKNOWN
+        UNKNOWN // Any other error
     }
 
     @Getter
@@ -56,6 +56,18 @@ public class ComponentException extends RuntimeException {
 
     public ComponentException(final ErrorOrigin errorOrigin, final String message, final Throwable cause) {
         this(errorOrigin, cause != null ? cause.getClass().getName() : null, message, null, cause);
+    }
+
+    public ComponentException(final String message) {
+        this(ErrorOrigin.UNKNOWN, message);
+    }
+
+    public ComponentException(final String message, final Throwable cause) {
+        this(ErrorOrigin.UNKNOWN, message, cause);
+    }
+
+    public ComponentException(final Throwable cause) {
+        this(ErrorOrigin.UNKNOWN, cause.getMessage(), cause);
     }
 
 }

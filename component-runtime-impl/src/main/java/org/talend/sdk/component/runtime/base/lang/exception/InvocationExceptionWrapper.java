@@ -15,15 +15,14 @@
  */
 package org.talend.sdk.component.runtime.base.lang.exception;
 
+import org.talend.sdk.component.api.exception.ComponentException;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import lombok.Getter;
-import org.talend.sdk.component.api.exception.ComponentException;
 
 public class InvocationExceptionWrapper {
 

@@ -50,7 +50,7 @@ class ActionResourceImplTest {
     @Test
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(7, index.getItems().size());
+        assertEquals(10, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
@@ -58,6 +58,7 @@ class ActionResourceImplTest {
         final Iterator<ActionItem> it = items.iterator();
         assertAction("proc", "user", "another-test-component-14.11.1986.jarAction", 1, it.next());
         it.next(); // skip jdbc custom
+        it.next(); // skip backend
         assertAction("chain", "healthcheck", "default", 6, it.next());
     }
 
@@ -114,6 +115,21 @@ class ActionResourceImplTest {
         assertEquals(400, error.getStatus());
         assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
         assertEquals("Action execution failed with: user exception",
+                error.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
+    void testBackendException() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "custom")
+                .queryParam("action", "backendException")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(456, error.getStatus());
+        assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
+        assertEquals("Action execution failed with: backend exception",
                 error.readEntity(ErrorPayload.class).getDescription());
     }
 

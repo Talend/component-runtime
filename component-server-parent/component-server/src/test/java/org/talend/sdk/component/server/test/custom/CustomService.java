@@ -65,4 +65,9 @@ public class CustomService implements Serializable {
     public Map<String, String> generateUserException(final LocalConfiguration configuration) {
         throw new ComponentException(ComponentException.ErrorOrigin.USER, "user exception");
     }
+
+    @Action("backendException")
+    public Map<String, String> generateBackendException(final LocalConfiguration configuration) {
+        throw new ComponentException(ComponentException.ErrorOrigin.BACKEND, "backend exception");
+    }
 }
