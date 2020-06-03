@@ -12,6 +12,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1696[TCOMP-1696^]: Definition of an error contract to handle expected errors
 
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1729[TCOMP-1729^]: Upgrade to Apache Beam 2.21.0
+
 == Version 1.1.21
 
 === Bug
