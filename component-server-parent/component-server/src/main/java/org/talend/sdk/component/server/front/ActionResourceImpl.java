@@ -149,8 +149,8 @@ public class ActionResourceImpl implements ActionResource {
             ComponentException ce = (ComponentException) re;
             throw new WebApplicationException(Response
                     .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
-                            : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456
-                            : 520, "Unexpected callback error")
+                            : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,
+                            "Unexpected callback error")
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
                             "Action execution failed with: " + ofNullable(re.getMessage())
                                     .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"

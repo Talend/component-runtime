@@ -6,6 +6,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1727[TCOMP-1727^]: WebSocketContainer not present in ServletContext
 
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1696[TCOMP-1696^]: Definition of an error contract to handle expected errors
+
 == Version 1.1.21
 
 === Bug
