@@ -20,9 +20,12 @@ import static java.util.stream.Collectors.toList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Suggestions;
@@ -51,5 +54,20 @@ public class CustomService implements Serializable {
                                                 "i.m.another.virtual.configuration.entry")
                                         .map(key -> new SuggestionValues.Item(key, configuration.get(key))))
                         .collect(toList()));
+    }
+
+    @Action("unknownException")
+    public Map<String, String> generateUnknownException(final LocalConfiguration configuration) {
+        throw new ComponentException(ComponentException.ErrorOrigin.UNKNOWN, "unknown exception");
+    }
+
+    @Action("userException")
+    public Map<String, String> generateUserException(final LocalConfiguration configuration) {
+        throw new ComponentException(ComponentException.ErrorOrigin.USER, "user exception");
+    }
+
+    @Action("backendException")
+    public Map<String, String> generateBackendException(final LocalConfiguration configuration) {
+        throw new ComponentException(ComponentException.ErrorOrigin.BACKEND, "backend exception");
     }
 }
