@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.16-SNAPSHOT</version>
+    <version>1.1.23-SNAPSHOT</version>
   </parent>
 
   <artifactId>talend-component-kit-intellij-plugin</artifactId>
@@ -31,7 +31,7 @@
     <talend.build.name>${talend.build.name.base}.intellij</talend.build.name>
 
     <idea.unpacked.folder>${project.basedir}/.cache/idea/</idea.unpacked.folder>
-    <idea.build.version>2017.3.5</idea.build.version>
+    <idea.build.version>2019.3.3</idea.build.version>
     <idea.source>
       https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.build.version}/ideaIC-${idea.build.version}.zip
     </idea.source>
@@ -40,8 +40,7 @@
     <idea.intellij.public.url>https://plugins.jetbrains.com</idea.intellij.public.url>
     <idea.intellij.channel>default</idea.intellij.channel>
     <idea.plugin.id>10558</idea.plugin.id>
-    <retrofit.version>1.9.0</retrofit.version>
-    <plugin-repository-rest-client.version>0.5.2</plugin-repository-rest-client.version>
+    <plugin-repository-rest-client.version>2.0.7</plugin-repository-rest-client.version>
   </properties>
 
   <repositories>
@@ -116,21 +115,6 @@
             <groupId>org.jetbrains.intellij</groupId>
             <artifactId>plugin-repository-rest-client</artifactId>
             <version>${plugin-repository-rest-client.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.squareup.retrofit</groupId>
-            <artifactId>retrofit</artifactId>
-            <version>${retrofit.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.squareup.retrofit</groupId>
-            <artifactId>converter-simplexml</artifactId>
-            <version>${retrofit.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-            <version>1.2.30</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -219,21 +203,6 @@
                 <artifactId>plugin-repository-rest-client</artifactId>
                 <version>${plugin-repository-rest-client.version}</version>
               </dependency>
-              <dependency>
-                <groupId>com.squareup.retrofit</groupId>
-                <artifactId>retrofit</artifactId>
-                <version>${retrofit.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>com.squareup.retrofit</groupId>
-                <artifactId>converter-simplexml</artifactId>
-                <version>${retrofit.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-stdlib</artifactId>
-                <version>1.2.30</version>
-              </dependency>
             </dependencies>
           </plugin>
         </plugins>
@@ -271,13 +240,13 @@
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_gson-2.8.2</artifactId>
+          <artifactId>lib_extensions</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_jsr305</artifactId>
+          <artifactId>lib_gson-2.8.5</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
@@ -289,19 +258,49 @@
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_swingx-core-1.6.2</artifactId>
+          <artifactId>lib_jsr305</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_slf4j-api-1.7.10</artifactId>
+          <artifactId>lib_platform-api</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>lib_extensions</artifactId>
+          <artifactId>lib_platform-impl</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>lib_platform-util-ui</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>lib_swingx-core-1.6.2-2</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>lib_slf4j-api-1.7.25</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>plugins_java_lib_java-api</artifactId>
+          <version>${idea.build.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.intellij.idea</groupId>
+          <artifactId>plugins_java_lib_java-impl</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
@@ -319,7 +318,7 @@
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
-          <artifactId>plugins_gradle_lib_gradle</artifactId>
+          <artifactId>plugins_gradle-java_lib_gradle-java</artifactId>
           <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,10 +100,10 @@ public class StaticUiSpecGenerator implements Runnable {
             try (final Jsonb jsonb = JsonbBuilder.create();
                     final JarOutputStream jar = new JarOutputStream(Files.newOutputStream(output))) {
 
-                jar.putNextEntry(new JarEntry("configurations/"));
+                jar.putNextEntry(new JarEntry("configuration/"));
                 jar.closeEntry();
 
-                jar.putNextEntry(new JarEntry("components/"));
+                jar.putNextEntry(new JarEntry("component/"));
                 jar.closeEntry();
 
                 final BiConsumer<String, String> onFile = (name, content) -> {
@@ -171,7 +171,7 @@ public class StaticUiSpecGenerator implements Runnable {
                 final Ui ui =
                         service.convert(list.getDetails().iterator().next(), "en", null).toCompletableFuture().get();
                 onFile
-                        .accept("configuration/"
+                        .accept("component/"
                                 + route.getId().substring("component_server_component_details_en_".length()),
                                 jsonb.toJson(ui));
             } catch (final InterruptedException | ExecutionException e) {

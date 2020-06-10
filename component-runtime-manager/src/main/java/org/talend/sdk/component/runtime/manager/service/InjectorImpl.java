@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -29,6 +32,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.injector.Injector;
+import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
@@ -42,6 +46,8 @@ public class InjectorImpl implements Serializable, Injector {
 
     private final ReflectionService reflectionService;
 
+    private final ProxyGenerator proxyGenerator;
+
     private final Map<Class<?>, Object> services;
 
     @Override
@@ -49,7 +55,18 @@ public class InjectorImpl implements Serializable, Injector {
         if (instance == null) {
             return null;
         }
-        doInject(instance.getClass(), instance);
+        doInject(instance.getClass(), unwrap(instance));
+        return instance;
+    }
+
+    private Object unwrap(final Object instance) {
+        if (instance.getClass().getName().endsWith("$$TalendServiceProxy")) {
+            try {
+                return proxyGenerator.getHandler(instance).getDelegate();
+            } catch (final IllegalStateException nsfe) {
+                // no-op
+            }
+        }
         return instance;
     }
 
@@ -68,7 +85,22 @@ public class InjectorImpl implements Serializable, Injector {
                     }
                 })
                 .forEach(field -> {
-                    final Object value = services.get(field.getType());
+                    Object value = services.get(field.getType());
+                    if (value == null && ParameterizedType.class.isInstance(field.getGenericType())) {
+                        final ParameterizedType pt = ParameterizedType.class.cast(field.getGenericType());
+                        if (Class.class.isInstance(pt.getRawType())
+                                && Collection.class.isAssignableFrom(Class.class.cast(pt.getRawType()))) {
+                            final Type serviceType = pt.getActualTypeArguments()[0];
+                            if (Class.class.isInstance(serviceType)) {
+                                final Class<?> serviceClass = Class.class.cast(serviceType);
+                                value = services
+                                        .entrySet()
+                                        .stream()
+                                        .filter(e -> serviceClass.isAssignableFrom(e.getKey()))
+                                        .collect(toList());
+                            }
+                        }
+                    }
                     if (value != null) {
                         try {
                             field.set(instance, value);

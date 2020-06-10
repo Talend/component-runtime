@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.1.16-SNAPSHOT</version>
+  <version>1.1.23-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -76,6 +76,28 @@
       <organization>Talend</organization>
       <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+2</timezone>
+    </developer>
+    <developer>
+      <name>Emmanuel GALLOIS</name>
+      <id>undx</id>
+      <email>egallois@talend.com</email>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <name>Christophe Le Saec</name>
+      <id>clesaec</id>
+      <email>clesaec@talend.com</email>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <timezone>+1</timezone>
     </developer>
   </developers>
 
@@ -135,24 +157,19 @@
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
-    <blackduck-scan.log.level>INFO</blackduck-scan.log.level>
-    <blackduck.url>https://blackduck.talend.com</blackduck.url>
-    <blackduck.trust.all.cert>false</blackduck.trust.all.cert>
-    <blackduck.parallelism>64</blackduck.parallelism>
-
-    <xbean.version>4.15</xbean.version>
+    <xbean.version>4.16</xbean.version>
     <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
     <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.28</slf4j.version>
-    <junit.version>4.13-beta-3</junit.version>
-    <ziplock.version>8.0.0</ziplock.version>
+    <junit.version>4.13</junit.version>
+    <ziplock.version>8.0.1</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
-    <johnzon.version>1.2.2</johnzon.version>
+    <johnzon.version>1.2.6</johnzon.version>
     <meecrowave.version>1.2.9</meecrowave.version>
-    <owb.version>2.0.13</owb.version>
-    <tomcat.version>9.0.30</tomcat.version>
-    <cxf.version>3.3.4</cxf.version>
-    <log4j2.version>2.12.1</log4j2.version>
+    <owb.version>2.0.16</owb.version>
+    <tomcat.version>9.0.31</tomcat.version>
+    <cxf.version>3.3.6</cxf.version>
+    <log4j2.version>2.13.2</log4j2.version>
     <logback.version>1.2.3</logback.version>
     <log4j.version>1.2.17</log4j.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
@@ -161,71 +178,75 @@
     <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.2</geronimo-jsonb.version>
     <geronimo-json.version>1.3</geronimo-json.version>
-    <batik.version>1.11</batik.version>
-    <beam.version>2.16.0</beam.version>
-    <commons-codec.version>1.12</commons-codec.version>
-    <commons-compress.version>1.19</commons-compress.version>
+    <batik.version>1.12</batik.version>
+    <beam.version>2.21.0</beam.version>
+    <!-- should follow beam-sdk-java-core version -->
+    <joda.time.version>2.10.3</joda.time.version>
+    <commons-codec.version>1.14</commons-codec.version>
+    <commons-compress.version>1.20</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
-    <commons-text.version>1.6</commons-text.version>
+    <commons-text.version>1.8</commons-text.version>
     <geronimo-jaxrs.version>1.1</geronimo-jaxrs.version>
-    <asciidoctorj.version>2.1.0</asciidoctorj.version>
-    <asciidoctorj-pdf.version>1.5.0-beta.7</asciidoctorj-pdf.version>
+    <asciidoctorj.version>2.2.0</asciidoctorj.version>
+    <asciidoctorj-pdf.version>1.5.2</asciidoctorj-pdf.version>
     <microprofile-config-api.version>1.3</microprofile-config-api.version>
     <microprofile-openapi-api.version>1.1.1</microprofile-openapi-api.version>
     <microprofile-opentracing.version>1.2.1</microprofile-opentracing.version>
     <microprofile-metrics-api.version>1.1.1</microprofile-metrics-api.version>
     <geronimo-microprofile.version>1.0.2</geronimo-microprofile.version>
     <opentracing.version>0.31.0</opentracing.version>
-    <geronimo-openapi.version>1.0.11</geronimo-openapi.version>
+    <geronimo-openapi.version>1.0.12</geronimo-openapi.version>
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-opentracing.version>1.0.2</geronimo-opentracing.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
-    <junit5.version>5.6.0-M1</junit5.version>
+    <junit5.version>5.7.0-M1</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <jackson.version>2.10.0</jackson.version>
+    <jackson.version>2.11.0</jackson.version>
     <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
-    <jsoup.version>1.12.1</jsoup.version>
+    <jsoup.version>1.13.1</jsoup.version>
 
     <talend-icon.version>3.8.0</talend-icon.version> <!-- deprecated after -->
     <talend-ui.version>4.6.0</talend-ui.version>
 
     <!-- for the starter -->
     <gradle.version>6.0-rc-1</gradle.version>
-    <mvn.version>3.6.2</mvn.version>
+    <mvn.version>3.6.3</mvn.version>
 
-    <spark.version>2.4.4</spark.version>
+    <spark.version>2.4.5</spark.version>
     <spark-scala.version>2.11</spark-scala.version>
 
-    <groovy.version>3.0.0-rc-2</groovy.version>
+    <groovy.version>3.0.3</groovy.version>
     <gmavenplus.version>1.8.0</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <javadoc-plugin.version>3.1.0</javadoc-plugin.version>
     <deploy-plugin.version>2.8.2</deploy-plugin.version>
     <clean-plugin.version>3.1.0</clean-plugin.version>
     <download-plugin.version>1.4.2</download-plugin.version>
-    <shade-plugin.version>3.2.1</shade-plugin.version>
+    <shade-plugin.version>3.2.3</shade-plugin.version>
     <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
     <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
     <git-commit-id-plugin.version>3.0.0</git-commit-id-plugin.version>
     <common-plugin.version>1.0.7</common-plugin.version>
-    <jgit.version>5.5.1.201910021850-r</jgit.version>
+    <jgit.version>5.7.0.202003110725-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <surefire-plugin.version>3.0.0-M4</surefire-plugin.version>
     <gpg-plugin.version>1.6</gpg-plugin.version>
     <spotless.version>1.23.0</spotless.version>
     <jib.version>1.4.0</jib.version>
-    <jib-core.version>0.12.0</jib-core.version>
-    <bouncycastle.version>1.62</bouncycastle.version>
+    <jib-core.version>0.13.1</jib-core.version>
+    <bouncycastle.version>1.65</bouncycastle.version>
     <commons-io.version>2.6</commons-io.version>
 
-    <jruby.version>9.2.9.0</jruby.version>
+    <jruby.version>9.2.11.1</jruby.version>
     <node.version>v12.13.0</node.version>
     <npm.version>6.12.0</npm.version>
     <frontend.version>1.8.0</frontend.version>
 
+    <!-- misc dependencies -->
+    <jcommander.version>1.78</jcommander.version>
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
     <java11.jaxb.version>2.3.0</java11.jaxb.version>
@@ -241,7 +262,7 @@
       <dependency><!-- upgrade for jib (to not get CVE) -->
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.5.9</version>
+        <version>4.5.12</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -281,7 +302,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>27.1-jre</version>
+        <version>29.0-jre</version>
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
@@ -437,6 +458,16 @@
             <artifactId>jaxb-api</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-se</artifactId>
+        <version>${owb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-web</artifactId>
+        <version>${owb.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.cxf</groupId>
@@ -686,13 +717,18 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>${jcommander.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.8</version>
+      <version>1.18.12</version>
       <scope>provided</scope>
     </dependency>
 
@@ -989,61 +1025,6 @@
         </executions>
       </plugin>
 
-      <plugin><!-- mvn talend-tools:hub-detect -->
-        <groupId>org.talend.tools</groupId>
-        <artifactId>talend-tools-maven-plugin</artifactId>
-        <version>1.0.7</version>
-        <configuration>
-          <blackduckUrl>${blackduck.url}</blackduckUrl>
-          <blackduckName>Talend Component (TCOMP)</blackduckName>
-          <systemVariables>
-            <!-- https://github.com/blackducksoftware/synopsys-detect/blob/master/detect-configuration/src/main/java/com/synopsys/integration/detect/configuration/DetectProperty.java -->
-            <blackduck.timeout>3600</blackduck.timeout>
-            <detect.output.path>${maven.multiModuleProjectDirectory}/.blackduck</detect.output.path>
-            <logging.level.com.blackducksoftware.integration>${blackduck-scan.log.level}</logging.level.com.blackducksoftware.integration>
-            <logging.level.org.apache.http>${blackduck-scan.log.level}</logging.level.org.apache.http>
-            <detect.blackduck.parallel.processors>${blackduck.parallelism}</detect.blackduck.parallel.processors>
-            <detect.blackduck.signature.scanner.parallel.processors>${blackduck.parallelism}</detect.blackduck.signature.scanner.parallel.processors>
-            <blackduck.trust.cert>${blackduck.trust.all.cert}</blackduck.trust.cert>
-            <detect.blackduck.signature.scanner.memory>8192</detect.blackduck.signature.scanner.memory>
-          </systemVariables>
-          <jvmOptions>
-            <jvmOption>-Xmx6g</jvmOption>
-          </jvmOptions>
-          <!-- to debug synopsys-detect
-          <jvmOptions>
-            <jvmOption>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmOption>
-          </jvmOptions>
-          -->
-          <!--
-            exclude volatiles or well known or not deliveries folders
-            to avoid false positives
-            -->
-          <exclusions>
-            /gpg/,
-            /javadoc/,
-            /antrun/,
-            /apidocs/,
-            /asciidoctor-reveal.js-*/,
-            /.blackduck/,
-            /blackduck/,
-            /documentation-*/,
-            /documentation/,
-            /gradle-*/,
-            /index-files/,
-            /it/,
-            /jacoco*/,
-            /local-repo/,
-            /maven-*/,
-            /${project.version}/,
-            /reveal.js-*/,
-            /site/,
-            /dist/,
-            /test-dependencies/
-          </exclusions>
-        </configuration>
-      </plugin>
-
       <plugin><!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
@@ -1103,7 +1084,7 @@
           <java>
             <licenseHeader>
               <content><![CDATA[/**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1442,7 +1423,31 @@
         <artifactId>maven-site-plugin</artifactId>
         <version>3.7.1</version>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.0.0-M3</version>
+        <executions>
+          <execution>
+            <id>enforce-banned-joda-time-dependency</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>joda-time:joda-time</exclude>
+                  </excludes>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
+    <!--
     <extensions>
       <extension>
         <groupId>com.github.rmannibucau</groupId>
@@ -1450,6 +1455,7 @@
         <version>1.0.0</version>
       </extension>
     </extensions>
+    -->
   </build>
 
   <profiles>

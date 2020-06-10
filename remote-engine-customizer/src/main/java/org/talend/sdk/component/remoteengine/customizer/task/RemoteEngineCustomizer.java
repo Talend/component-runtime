@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ import com.google.cloud.tools.jib.api.LogEvent;
 import com.google.cloud.tools.jib.blob.Blobs;
 import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
 import com.google.cloud.tools.jib.builder.steps.StepsRunner;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
+import com.google.cloud.tools.jib.configuration.BuildContext;
 import com.google.cloud.tools.jib.configuration.ImageConfiguration;
 import com.google.cloud.tools.jib.event.EventHandlers;
 import com.google.cloud.tools.jib.image.Image;
@@ -262,7 +262,7 @@ public class RemoteEngineCustomizer {
             final Path appCache, final DockerConfiguration dockerConfiguration, final ImageType fromImageType)
             throws Exception {
         final StepsRunner steps = StepsRunner
-                .begin(BuildConfiguration
+                .begin(BuildContext
                         .builder()
                         .setBaseImageConfiguration(createBaseImage(from, dockerConfiguration, fromImageType))
                         .setTargetFormat(ImageFormat.OCI)

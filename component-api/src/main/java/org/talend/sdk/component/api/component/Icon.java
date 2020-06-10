@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 @Documentation("Associate an icon to a component, "
         + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter` - and "
-        + "configurations - `@DataStore` and `@DataSet` - classes.")
+        + "configurations - classes.")
 @Target({ TYPE, PACKAGE, ANNOTATION_TYPE })
 @Retention(RUNTIME)
 public @interface Icon {

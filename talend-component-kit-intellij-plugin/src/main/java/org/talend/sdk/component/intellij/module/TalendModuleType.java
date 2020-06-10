@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,11 @@ public class TalendModuleType extends ModuleType<TalendModuleBuilder> {
 
     @Override
     public Icon getNodeIcon(final boolean b) {
-        return Icons.TACOKIT;
+        return Icons.TACOKIT.getIcon();
     }
 
     @Override
     public Icon getIcon() {
-        return Icons.TACOKIT;
+        return Icons.TACOKIT.getIcon();
     }
 }

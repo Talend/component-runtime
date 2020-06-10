@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -232,6 +233,15 @@ public class ComponentValidator extends BaseTask {
             validateNoFinalOption(finder, errors);
         }
 
+        if (configuration.isValidateWording()) {
+            if (configuration.isValidateDocumentation()) {
+                validateDocumentationWording(finder, components, errors);
+            }
+            if (configuration.isValidateInternationalization()) {
+                validateInternationalizationWording(finder, components, errors);
+            }
+        }
+
         if (!extensions.isEmpty()) {
             final ValidationExtension.ValidationContext context = new ValidationExtension.ValidationContext() {
 
@@ -318,7 +328,9 @@ public class ComponentValidator extends BaseTask {
             if (svgs.isEmpty()) {
                 log.error("No 'icons/" + icon + ".svg' found, this will run in degraded mode in Talend Cloud");
             } else {
-                errors.addAll(svgs.stream().flatMap(this::validateSvg).collect(toSet()));
+                if (configuration.isValidateSvg()) {
+                    errors.addAll(svgs.stream().flatMap(this::validateSvg).collect(toSet()));
+                }
             }
             if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + "_icon32.png")).noneMatch(File::exists)) {
                 return "No icon: '" + icon + "' found, did you create - or generated with svg2png - 'icons/" + icon
@@ -590,6 +602,27 @@ public class ComponentValidator extends BaseTask {
                         .collect(toSet()));
     }
 
+    private void validateDocumentationWording(final AnnotationFinder finder, final List<Class<?>> components,
+            final Set<String> errors) {
+        final Predicate<String> isIncorrectWording = s -> !s.matches("^[A-Z0-9]+.*\\.$");
+        final String error = "@Documentation on '%s' is empty or is not capitalized or ends not by a dot.";
+        errors
+                .addAll(components
+                        .stream()
+                        .filter(c -> c.isAnnotationPresent(Documentation.class))
+                        .filter(c -> isIncorrectWording.test(c.getAnnotation(Documentation.class).value()))
+                        .map(c -> String.format(error, c.getName()))
+                        .sorted()
+                        .collect(toSet()));
+        errors
+                .addAll(findOptions(finder)
+                        .filter(field -> field.isAnnotationPresent(Documentation.class))
+                        .filter(c -> isIncorrectWording.test(c.getAnnotation(Documentation.class).value()))
+                        .map(c -> String.format(error, c.getName()))
+                        .sorted()
+                        .collect(toSet()));
+    }
+
     private void validateInternationalization(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
         errors
@@ -680,6 +713,12 @@ public class ComponentValidator extends BaseTask {
             }
             return validateFamilyI18nKey(action.getDeclaringClass(), key);
         }).filter(Objects::nonNull).collect(toSet()));
+    }
+
+    private void validateInternationalizationWording(final AnnotationFinder finder, final List<Class<?>> components,
+            final Set<String> errors) {
+        // TODO: define rules to apply to messages to users.
+        // as a starter can apply it to all non enum, *_displayname and *_placeholder
     }
 
     private void validateHttpClient(final AnnotationFinder finder, final Set<String> errors) {
@@ -1193,6 +1232,8 @@ public class ComponentValidator extends BaseTask {
         private boolean validateActions;
 
         private boolean validateDocumentation;
+
+        private boolean validateWording;
 
         private boolean validateLayout;
 

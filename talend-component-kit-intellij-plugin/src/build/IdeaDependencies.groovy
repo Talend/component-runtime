@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,14 +33,19 @@ def dependencies = [
         'lib/idea',
         'lib/util',
         'lib/extensions',
-        'lib/gson-2.8.2',
+        'lib/gson-2.8.5',
         'lib/jdom',
         'lib/jsr305',
-        'lib/swingx-core-1.6.2',
-        'lib/slf4j-api-1.7.10',
+        'lib/platform-api',
+        'lib/platform-impl',
+        'lib/platform-util-ui',
+        'lib/swingx-core-1.6.2-2',
+        'lib/slf4j-api-1.7.25',
+        'plugins/java/lib/java-api',
+        'plugins/java/lib/java-impl',
         'plugins/properties/lib/properties',
         'plugins/maven/lib/maven',
-        'plugins/gradle/lib/gradle'
+        'plugins/gradle-java/lib/gradle-java'
 ]
 
 def ideaBase = project.properties['idea.unpacked.folder']

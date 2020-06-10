@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.16-SNAPSHOT</version>
+    <version>1.1.23-SNAPSHOT</version>
   </parent>
 
   <artifactId>documentation</artifactId>
@@ -43,10 +43,9 @@
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
 
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
-    <asciidoctor-pdf-gem.version>1.5.0.alpha.17</asciidoctor-pdf-gem.version>
+    <asciidoctor-pdf-gem.version>1.5.2</asciidoctor-pdf-gem.version>
     <crawler-commons.version>1.0</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
-    <webhost.ftphost>files.000webhost.com</webhost.ftphost>
 
     <!-- skip flags for the release -->
     <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
@@ -286,6 +285,13 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
+        <configuration>
+          <environmentVariables>
+            <!-- if you experiment trouble during documentation build, export manually these vars -->
+            <NOCOLOR>true</NOCOLOR> <!-- no escape codes -->
+            <NOLESS>true</NOLESS> <!--do not use less, this will hang build -->
+          </environmentVariables>
+        </configuration>
         <executions>
           <execution>
             <id>generated-doc</id>
@@ -340,19 +346,12 @@
               </systemProperties>
               <arguments>
                 <argument>${project.build.directory}/exec/api-mock</argument>
-                <argument>${talend.webhost.username}</argument>
-                <argument>${talend.webhost.password}</argument>
-                <argument>${webhost.ftphost}</argument>
+                <argument>${project.build.directory}/exec/api-mock/examples/apidemo</argument>
               </arguments>
             </configuration>
           </execution>
         </executions>
         <dependencies>
-          <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>${commons-net.version}</version>
-          </dependency>
           <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>
             <artifactId>microprofile-openapi-api</artifactId>

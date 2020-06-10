@@ -1,5 +1,7 @@
 package com.foo.processor;
 
+import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
+
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
@@ -20,7 +22,7 @@ import org.talend.sdk.component.api.record.Record;
 import com.foo.service.TestService;
 
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
-@Icon(Icon.IconType.STAR) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename.svg in resources
+@Icon(value = CUSTOM, custom = "tProc") // icon is located at src/main/resources/icons/tProc.svg
 @Processor(name = "tProc")
 @Documentation("TODO fill the documentation for this processor")
 public class TProcProcessor implements Serializable {

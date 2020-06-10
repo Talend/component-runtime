@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ class ComponentGeneratorTest {
                 .create("com.foo", build, "superfamily", "supercategory", sources, emptyList(), emptyList())
                 .collect(toMap(FacetGenerator.InMemoryFile::getPath,
                         i -> new String(i.getContent(), StandardCharsets.UTF_8)));
-        assertEquals(9, files.size());
+        assertEquals(10, files.size());
 
         assertTrue(files.keySet().stream().anyMatch(k -> k.contains(".svg")));
 
@@ -92,6 +92,11 @@ class ComponentGeneratorTest {
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/MycompRecord.java"),
                 files.get("src/main/java/com/foo/source/MycompRecord.java"));
+
+        assertEquals("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M6 14L0 8l1.9-1.9L6 "
+                + "10.2 14.1 2 16 3.9z\"/></svg>", files.get("src/main/resources/icons/mycomp.svg"));
+
+        assertTrue(files.get("src/main/java/com/foo/source/MycompMapper.java").contains("custom = \"mycomp\""));
     }
 
     private String resourceFileToString(final String filePath) {

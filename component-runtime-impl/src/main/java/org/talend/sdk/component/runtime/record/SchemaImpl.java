@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.Schema;
 
@@ -83,10 +85,31 @@ public class SchemaImpl implements Schema {
     @AllArgsConstructor
     public static class EntryImpl implements org.talend.sdk.component.api.record.Schema.Entry {
 
+        // add this for some old code which refer this construct
+        public EntryImpl(final String name, final Schema.Type type, final boolean nullable, final Object defaultValue,
+                final Schema elementSchema, final String comment) {
+            this.name = name;
+            this.type = type;
+            this.nullable = nullable;
+            this.defaultValue = defaultValue;
+            this.elementSchema = elementSchema;
+            this.comment = comment;
+        }
+
+        @JsonbTransient
+        public String getOriginalFieldName() {
+            return rawName != null ? rawName : name;
+        }
+
         /**
          * The name of this entry.
          */
         private String name;
+
+        /**
+         * The raw name of this entry.
+         */
+        private String rawName;
 
         /**
          * Type of the entry, this determine which other fields are populated.
@@ -118,6 +141,8 @@ public class SchemaImpl implements Schema {
         public static class BuilderImpl implements Builder {
 
             private String name;
+
+            private String rawName;
 
             private Schema.Type type;
 
@@ -153,6 +178,17 @@ public class SchemaImpl implements Schema {
             @Override
             public Builder withName(final String name) {
                 this.name = sanitizeConnectionName(name);
+                // if raw name is changed as follow name rule, use label to store raw name
+                // if not changed, not set label to save space
+                if (!name.equals(this.name)) {
+                    withRawName(name);
+                }
+                return this;
+            }
+
+            @Override
+            public Builder withRawName(final String rawName) {
+                this.rawName = rawName;
                 return this;
             }
 
@@ -188,7 +224,7 @@ public class SchemaImpl implements Schema {
 
             @Override
             public Entry build() {
-                return new EntryImpl(name, type, nullable, defaultValue, elementSchema, comment);
+                return new EntryImpl(name, rawName, type, nullable, defaultValue, elementSchema, comment);
             }
         }
     }

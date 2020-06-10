@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class CacheHandler implements InterceptorHandler {
     public Object invoke(final Method method, final Object[] args) {
         final String key = toKey(method, args);
         final long timeout = timeouts.computeIfAbsent(method, m -> findAnnotation(m, Cached.class).get().timeout());
-        return cache.computeIfAbsent(key, timeout, () -> invoker.apply(method, args));
+        return cache.computeIfAbsent(Object.class, key, timeout, () -> invoker.apply(method, args));
     }
 
     // assumes toString() and hashCode() of params are representative

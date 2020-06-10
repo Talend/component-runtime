@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,25 @@ import org.talend.sdk.component.api.record.Schema;
  * Helping class to build records.
  */
 public interface RecordService {
+
+    /**
+     * Simple mapper of record to pojo.
+     *
+     * @param data record to map to pojo.
+     * @param expected : class expected.
+     * @param <T> the pojo type (optional).
+     * @return a pojo representing the data record.
+     */
+    <T> T toObject(final Record data, Class<T> expected);
+
+    /**
+     * Simple mapper of data to record.
+     *
+     * @param data pojo to map to record.
+     * @param <T> the pojo type (optional).
+     * @return a record representing the pojo.
+     */
+    <T> Record toRecord(final T data);
 
     /**
      * Forward an entry from the source record if it exists.

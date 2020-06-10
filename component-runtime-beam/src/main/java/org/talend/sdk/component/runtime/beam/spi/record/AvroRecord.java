@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -39,6 +40,7 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
@@ -58,15 +60,27 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     public AvroRecord(final IndexedRecord record) {
         this.schema = new AvroSchema(record.getSchema());
         this.delegate = record;
+        // dirty fix for Avro DateTime related logicalTypes converted to org.joda.time.DateTime
+        this.delegate
+                .getSchema()
+                .getFields()
+                .stream()
+                .filter(f -> org.joda.time.DateTime.class.isInstance(this.delegate.get(f.pos())))
+                .forEach(f -> this.delegate
+                        .put(f.pos(), org.joda.time.DateTime.class.cast(this.delegate.get(f.pos())).getMillis()));
     }
 
     public AvroRecord(final Record record) {
         final List<Schema.Entry> entries = record.getSchema().getEntries();
-        final List<org.apache.avro.Schema.Field> fields = entries
-                .stream()
-                .map(entry -> new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry), entry.getComment(),
-                        entry.getDefaultValue()))
-                .collect(toList());
+        final List<org.apache.avro.Schema.Field> fields =
+                entries
+                        .stream()
+                        .map(entry -> AvroSchemas
+                                .addProp(
+                                        new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry),
+                                                entry.getComment(), entry.getDefaultValue()),
+                                        KeysForAvroProperty.LABEL, entry.getRawName()))
+                        .collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
         avroSchema.setFields(fields);
@@ -191,6 +205,10 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
         if (ByteBuffer.class.isInstance(value) && byte[].class == expectedType) {
             return expectedType.cast(ByteBuffer.class.cast(value).array());
+        }
+        if (org.joda.time.DateTime.class.isInstance(value) && ZonedDateTime.class == expectedType) {
+            final long epochMilli = org.joda.time.DateTime.class.cast(value).getMillis();
+            return expectedType.cast(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(epochMilli), UTC));
         }
         if (!expectedType.isInstance(value)) {
             if (Utf8.class.isInstance(value) && String.class == expectedType) {

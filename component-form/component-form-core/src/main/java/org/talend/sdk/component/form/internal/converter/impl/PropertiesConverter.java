@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,9 +77,9 @@ public class PropertiesConverter implements PropertyConverter {
                                     .getMetadata()
                                     .keySet()
                                     .stream()
-                                    .anyMatch(k -> k.equals("action::suggestions")
+                                    .anyMatch(k -> k.equalsIgnoreCase("action::suggestions")
                                             || k.equalsIgnoreCase("action::dynamic_values"))) {
-                                defaults.putIfAbsent("$" + property.getPath() + "_name", value);
+                                defaults.putIfAbsent("$" + property.getName() + "_name", value);
                             }
                             defaults.put(property.getName(), value);
                         }

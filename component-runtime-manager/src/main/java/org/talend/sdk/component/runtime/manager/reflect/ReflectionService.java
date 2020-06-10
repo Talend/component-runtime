@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -755,7 +755,8 @@ public class ReflectionService {
             }
             type = type.getSuperclass();
         }
-        throw new IllegalArgumentException("Unknown field: " + name);
+        throw new IllegalArgumentException(
+                String.format("Unknown field: %s in class: %s.", name, clazz != null ? clazz.getName() : "null"));
     }
 
     private int sortIndexEntry(final Map.Entry<String, Object> e1, final Map.Entry<String, Object> e2) {

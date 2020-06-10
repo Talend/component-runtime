@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.singer.kitap;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collection;
@@ -26,29 +29,39 @@ import java.util.OptionalLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.spi.JsonbProvider;
+import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
-import org.talend.sdk.component.runtime.manager.service.RecordServiceImpl;
+import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.singer.java.Singer;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor // todo: simplify with recordconverters
 public class RecordJsonMapper implements Function<Record, JsonObject> {
 
     private final JsonBuilderFactory jsonBuilderFactory;
 
     private final Singer singer;
 
-    private final RecordService service = new RecordServiceImpl(null, new RecordBuilderFactoryImpl(null));
+    private final RecordService service = RecordService.class
+            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+                    Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
+                    Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                    JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)
+                            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                                    RecordService.class, null));
 
     @Override
     public JsonObject apply(final Record record) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import lombok.Getter;
+import org.talend.sdk.component.api.exception.ComponentException;
 
 public class InvocationExceptionWrapper {
 
@@ -70,22 +70,5 @@ public class InvocationExceptionWrapper {
             return null;
         }
         return mapException(cause, visited);
-    }
-
-    public static class ComponentException extends IllegalStateException {
-
-        @Getter
-        private final String originalType;
-
-        @Getter
-        private final String originalMessage;
-
-        public ComponentException(final String type, final String message, final StackTraceElement[] stackTrace,
-                final Throwable cause) {
-            super("(" + type + ") " + message, cause);
-            originalType = type;
-            originalMessage = message;
-            setStackTrace(stackTrace);
-        }
     }
 }

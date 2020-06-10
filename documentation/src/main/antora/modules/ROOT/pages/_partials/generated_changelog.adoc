@@ -1,5 +1,152 @@
 
 
+== Version 1.1.22
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1727[TCOMP-1727^]: WebSocketContainer not present in ServletContext
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1696[TCOMP-1696^]: Definition of an error contract to handle expected errors
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1729[TCOMP-1729^]: Upgrade to Apache Beam 2.21.0
+- link:https://jira.talendforge.org/browse/TCOMP-1730[TCOMP-1730^]: Upgrade johnzon to 1.2.6
+
+== Version 1.1.21
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1719[TCOMP-1719^]: Header responses for icon not propagated correctly from Component-server-vault-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-1720[TCOMP-1720^]: Changing the version breaks deployment to Studio
+- link:https://jira.talendforge.org/browse/TCOMP-1721[TCOMP-1721^]: Component Manager Singleton is not thread safe
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1681[TCOMP-1681^]: Make ESB Studio job export TaCoKit compliant
+
+== Version 1.1.20
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1649[TCOMP-1649^]: Tomcat bump to 9.0.31 broke talend-component:web goal
+- link:https://jira.talendforge.org/browse/TCOMP-1676[TCOMP-1676^]: Starter-toolkit mvn package throws error when running for the first time
+- link:https://jira.talendforge.org/browse/TCOMP-1677[TCOMP-1677^]: Using other types than String in Studio's context values causes compilation error
+- link:https://jira.talendforge.org/browse/TCOMP-1679[TCOMP-1679^]: Combination of @Required and @Suggestable on a field creates strange behaviour
+- link:https://jira.talendforge.org/browse/TCOMP-1682[TCOMP-1682^]: Remove key attribute in UISchema for containers
+- link:https://jira.talendforge.org/browse/TCOMP-1686[TCOMP-1686^]: antora helper function relativize corrupts documentation
+- link:https://jira.talendforge.org/browse/TCOMP-1694[TCOMP-1694^]: [MAVEN PLUGIN] `validateSvg` argument is ineffective
+- link:https://jira.talendforge.org/browse/TCOMP-1698[TCOMP-1698^]: UiSpecService injects a wrong property for suggestions and dynamic_values
+- link:https://jira.talendforge.org/browse/TCOMP-1718[TCOMP-1718^]: Duplicated code in RecordConverters
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1655[TCOMP-1655^]: Upgrade jib-core to 0.13.1
+- link:https://jira.talendforge.org/browse/TCOMP-1656[TCOMP-1656^]: Upgrade log4j2 to 2.13.1
+- link:https://jira.talendforge.org/browse/TCOMP-1657[TCOMP-1657^]: Upgrade maven to 3.6.3
+- link:https://jira.talendforge.org/browse/TCOMP-1658[TCOMP-1658^]: Upgrade groovy to 3.0.2
+- link:https://jira.talendforge.org/browse/TCOMP-1659[TCOMP-1659^]: Upgrade lombok to 1.18.12
+- link:https://jira.talendforge.org/browse/TCOMP-1660[TCOMP-1660^]: Upgrade commons-compress to 1.20
+- link:https://jira.talendforge.org/browse/TCOMP-1661[TCOMP-1661^]: Upgrade commons-codec to 1.14
+- link:https://jira.talendforge.org/browse/TCOMP-1662[TCOMP-1662^]: Upgrade guava to 28.2-jre
+- link:https://jira.talendforge.org/browse/TCOMP-1663[TCOMP-1663^]: Upgrade ziplock to 8.0.1
+- link:https://jira.talendforge.org/browse/TCOMP-1664[TCOMP-1664^]: Upgrade asciidoctorj to 2.2.0 and its dependencies
+- link:https://jira.talendforge.org/browse/TCOMP-1665[TCOMP-1665^]: Upgrade jackson to 2.10.3
+- link:https://jira.talendforge.org/browse/TCOMP-1666[TCOMP-1666^]: Upgrade batik-codec to 1.12
+- link:https://jira.talendforge.org/browse/TCOMP-1667[TCOMP-1667^]: Upgrade jgit to 5.6.1.202002131546-r
+- link:https://jira.talendforge.org/browse/TCOMP-1668[TCOMP-1668^]: Upgrade junit to 4.13
+- link:https://jira.talendforge.org/browse/TCOMP-1669[TCOMP-1669^]: Upgrade bouncycastle to 1.64
+- link:https://jira.talendforge.org/browse/TCOMP-1670[TCOMP-1670^]: Upgrade spark-core_2.11 to 2.4.5
+- link:https://jira.talendforge.org/browse/TCOMP-1671[TCOMP-1671^]: Upgrade maven-shade-plugin to 3.2.2
+- link:https://jira.talendforge.org/browse/TCOMP-1672[TCOMP-1672^]: Upgrade httpclient to 4.5.12
+- link:https://jira.talendforge.org/browse/TCOMP-1673[TCOMP-1673^]: Upgrade component-runtime-testing dependencies
+- link:https://jira.talendforge.org/browse/TCOMP-1674[TCOMP-1674^]: Upgrade tomitribe-crest to 0.14
+- link:https://jira.talendforge.org/browse/TCOMP-1678[TCOMP-1678^]: Upgrade jgit to 5.7.0.202003090808-r
+- link:https://jira.talendforge.org/browse/TCOMP-1685[TCOMP-1685^]: Provide docker images based on TSBI
+- link:https://jira.talendforge.org/browse/TCOMP-1687[TCOMP-1687^]: More explicit exception messsage on reflection for findField
+- link:https://jira.talendforge.org/browse/TCOMP-1690[TCOMP-1690^]: Upgrade netty to 4.1.48.Final
+- link:https://jira.talendforge.org/browse/TCOMP-1692[TCOMP-1692^]: Update CXF to 3.3.6 due to CVE-2020-1954
+- link:https://jira.talendforge.org/browse/TCOMP-1697[TCOMP-1697^]: Update BouncyCastle to 1.65
+- link:https://jira.talendforge.org/browse/TCOMP-1703[TCOMP-1703^]: Upgrade log4j-2 to 2.13.2
+- link:https://jira.talendforge.org/browse/TCOMP-1705[TCOMP-1705^]: Upgrade to Apache Beam 2.20.0
+- link:https://jira.talendforge.org/browse/TCOMP-1706[TCOMP-1706^]: Upgrade OpenWebBeans to 2.0.16
+- link:https://jira.talendforge.org/browse/TCOMP-1708[TCOMP-1708^]: Upgrade groovy to 3.0.3
+- link:https://jira.talendforge.org/browse/TCOMP-1710[TCOMP-1710^]: Upgrade johnzon to 1.2.5
+- link:https://jira.talendforge.org/browse/TCOMP-1711[TCOMP-1711^]: Upgrade guava to 29.0-jre
+- link:https://jira.talendforge.org/browse/TCOMP-1712[TCOMP-1712^]: Upgrade commons-lang3 to 3.10
+- link:https://jira.talendforge.org/browse/TCOMP-1713[TCOMP-1713^]: Upgrade jackson to 2.11.0
+- link:https://jira.talendforge.org/browse/TCOMP-1714[TCOMP-1714^]: Upgrade junit to 5.7.0-M1
+- link:https://jira.talendforge.org/browse/TCOMP-1716[TCOMP-1716^]: Upgrade maven shade plugin to 3.2.3 and misc libs
+
+== Version 1.1.19
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1639[TCOMP-1639^]: component-server incorrect response set in request
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1640[TCOMP-1640^]: Ensure Intellij plugin works with Intellij Idea IU-201
+- link:https://jira.talendforge.org/browse/TCOMP-1641[TCOMP-1641^]: Upgrade OpenWebBeans to 2.0.15
+- link:https://jira.talendforge.org/browse/TCOMP-1642[TCOMP-1642^]: Upgrade Groovy to 3.0.1
+- link:https://jira.talendforge.org/browse/TCOMP-1643[TCOMP-1643^]: Add automatic scheduling eviction system on LocalCache
+- link:https://jira.talendforge.org/browse/TCOMP-1644[TCOMP-1644^]: Upgrade log4j to 2.13.0
+- link:https://jira.talendforge.org/browse/TCOMP-1645[TCOMP-1645^]: Ensure correct wording is used in @Documentation
+- link:https://jira.talendforge.org/browse/TCOMP-1647[TCOMP-1647^]: Upgrade netty to 4.1.45.Final
+- link:https://jira.talendforge.org/browse/TCOMP-1648[TCOMP-1648^]: Unsafe Dependancy Resolution on jcommander
+
+== Version 1.1.18
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1638[TCOMP-1638^]: Inject services to delegate in proxy
+
+== Version 1.1.17
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1619[TCOMP-1619^]: Handle correctly DATETIME field type on AvroRecord
+- link:https://jira.talendforge.org/browse/TCOMP-1622[TCOMP-1622^]: [DOC] @Icon is not supported on datastore/dataset
+- link:https://jira.talendforge.org/browse/TCOMP-1623[TCOMP-1623^]: Change scheme for maven repos
+- link:https://jira.talendforge.org/browse/TCOMP-1628[TCOMP-1628^]: Manage BigDecimal in RecordConverter
+- link:https://jira.talendforge.org/browse/TCOMP-1629[TCOMP-1629^]: Ensure LocalConfiguration environment source replace dot with _
+- link:https://jira.talendforge.org/browse/TCOMP-1630[TCOMP-1630^]: Avoid NPE when configurationByExample() is called in a list of primitive without values
+- link:https://jira.talendforge.org/browse/TCOMP-1631[TCOMP-1631^]: int attribute in pojo is transformed to double in a Record
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1632[TCOMP-1632^]: Add a way to evict cached data from LocalCache
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1616[TCOMP-1616^]: Upgrade OpenWebBeans to 2.0.14 in component-server and component-server-vault-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-1617[TCOMP-1617^]: Move mocked api results to github pages
+- link:https://jira.talendforge.org/browse/TCOMP-1618[TCOMP-1618^]: Upgrade Junit to 5.6.0
+- link:https://jira.talendforge.org/browse/TCOMP-1620[TCOMP-1620^]: Upgrade to Apache Beam 2.18.0
+- link:https://jira.talendforge.org/browse/TCOMP-1621[TCOMP-1621^]: Upgrade to Johnzon 1.2.3
+- link:https://jira.talendforge.org/browse/TCOMP-1624[TCOMP-1624^]: @Service does not support list injections
+- link:https://jira.talendforge.org/browse/TCOMP-1625[TCOMP-1625^]: Upgrade to xbean 4.16
+- link:https://jira.talendforge.org/browse/TCOMP-1626[TCOMP-1626^]: Ensure ContainerListenerExtensions can be sorted
+- link:https://jira.talendforge.org/browse/TCOMP-1627[TCOMP-1627^]: Upgrade to Apache Beam 2.19.0
+- link:https://jira.talendforge.org/browse/TCOMP-1633[TCOMP-1633^]: Upgrade Groovy to 3.0.0
+- link:https://jira.talendforge.org/browse/TCOMP-1634[TCOMP-1634^]: Upgrade tomcat to 9.0.31
+
 == Version 1.1.16
 
 === Bug
@@ -7,8 +154,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1596[TCOMP-1596^]: Windows URI are broken
 - link:https://jira.talendforge.org/browse/TCOMP-1597[TCOMP-1597^]: Httpclient does not support multi query parameters
 - link:https://jira.talendforge.org/browse/TCOMP-1598[TCOMP-1598^]: validator task uses ENGLISH locale to validate instead of root one
-
-
+- link:https://jira.talendforge.org/browse/TCOMP-1612[TCOMP-1612^]: Starter toolkit shouldn't use the default 'STAR' icon in demo component
 
 === Work Item
 
@@ -24,6 +170,50 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1599[TCOMP-1599^]: More unsafe usage tolerance on JVM versions
 - link:https://jira.talendforge.org/browse/TCOMP-1600[TCOMP-1600^]: Upgrade to Tomcat 9.0.30
 - link:https://jira.talendforge.org/browse/TCOMP-1606[TCOMP-1606^]: Ensure job dsl can stop infinite inputs
+- link:https://jira.talendforge.org/browse/TCOMP-1608[TCOMP-1608^]: Upgrade geronimo openapi to 1.0.12
+- link:https://jira.talendforge.org/browse/TCOMP-1609[TCOMP-1609^]: Ensure Intellij plugin works with Intellij Idea 2019
+- link:https://jira.talendforge.org/browse/TCOMP-1611[TCOMP-1611^]: Upgrade to Apache Beam 2.17.0
+- link:https://jira.talendforge.org/browse/TCOMP-1613[TCOMP-1613^]: Upgrade cxf to 3.3.5
+- link:https://jira.talendforge.org/browse/TCOMP-1614[TCOMP-1614^]: Upgrade groovy to 3.0.0-rc3
+- link:https://jira.talendforge.org/browse/TCOMP-1615[TCOMP-1615^]: Upgrade OpenWebBeans to 2.0.14
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+== Version 1.1.15.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1721[TCOMP-1721^]: Component Manager Singleton is not thread safe
+
+== Version 1.1.15.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1685[TCOMP-1685^]: Provide docker images based on TSBI
 
 == Version 1.1.15
 
@@ -34,13 +224,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1573[TCOMP-1573^]: Body encoder is called twice for each query
 - link:https://jira.talendforge.org/browse/TCOMP-1582[TCOMP-1582^]: Deploy to Nexus 3.15 caused "Provided url doesn't respond neither to Nexus 2 nor to Nexus 3 endpoints"
 
-
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1576[TCOMP-1576^]: Add the possibility to desactivate http client redirection in HTTP Configurer
-
-
 
 === Work Item
 
@@ -68,13 +254,9 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1558[TCOMP-1558^]: org.talend.sdk.component.api.service.record.RecordService must be serializable
 
-
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1548[TCOMP-1548^]: Basic Remote Engine Customizer
-
-
 
 === Work Item
 
@@ -96,8 +278,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1541[TCOMP-1541^]: Studio integration enforces JSON<->Record conversion instead of relying on rowStruct making number precision lost
 - link:https://jira.talendforge.org/browse/TCOMP-1542[TCOMP-1542^]: Validator plugin uses family instead of pluginId (artifactId) to validate local-configuration
 
-
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1508[TCOMP-1508^]: Don't let Talend Starter Toolkit loose state on Enter in intellij
@@ -106,8 +286,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1545[TCOMP-1545^]: Update OpenWebBeans to version 2.0.12
 - link:https://jira.talendforge.org/browse/TCOMP-1546[TCOMP-1546^]: Update Meecrowave to 1.2.9
 - link:https://jira.talendforge.org/browse/TCOMP-1547[TCOMP-1547^]: Update Johnzon to 1.2.1
-
-
 
 === Work Item
 
@@ -153,16 +331,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1500[TCOMP-1500^]: Ensure component-form button have a key to have an id and propagate errors in the front
 - link:https://jira.talendforge.org/browse/TCOMP-1503[TCOMP-1503^]: EnvironmentSecuredFilter not working on /environment/
 
-
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1482[TCOMP-1482^]: Enable web tester to switch the language
 - link:https://jira.talendforge.org/browse/TCOMP-1483[TCOMP-1483^]: Enable to expose the documentation through the web tester
 - link:https://jira.talendforge.org/browse/TCOMP-1485[TCOMP-1485^]: Asciidoctor documentation does not enable titles (component name and configuration ones) to be translated
 - link:https://jira.talendforge.org/browse/TCOMP-1486[TCOMP-1486^]: Ensure locale mapping is configurable in component-server
-
-
 
 === Work Item
 
@@ -187,8 +361,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1472[TCOMP-1472^]: Connectors maven goal does not work in 1.1.10
 - link:https://jira.talendforge.org/browse/TCOMP-1473[TCOMP-1473^]: Docker image text log setup should use ISO8601 and not HH:mm:ss.SSS
 
-
-
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1470[TCOMP-1470^]: Upgrade Tomcat to v9.0.21
@@ -207,8 +379,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1440[TCOMP-1440^]: Bulk components without @ElementListener when used with component-extension (default in the server)
 - link:https://jira.talendforge.org/browse/TCOMP-1441[TCOMP-1441^]: Missing parameter init in the UiSchema Trigger builder
 - link:https://jira.talendforge.org/browse/TCOMP-1446[TCOMP-1446^]: Rework gradle lifecycle
-
-
 
 === Work Item
 
@@ -255,15 +425,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1401[TCOMP-1401^]: Documentation table is broken
 - link:https://jira.talendforge.org/browse/TCOMP-1407[TCOMP-1407^]: Databricks: interface javax.json.stream.JsonGeneratorFactory is not visible from class loader
 
-
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1386[TCOMP-1386^]: Add withRecord(String,Record) in Record.Builder
 - link:https://jira.talendforge.org/browse/TCOMP-1387[TCOMP-1387^]: Use icon bundle version 3.1.0
 - link:https://jira.talendforge.org/browse/TCOMP-1412[TCOMP-1412^]: Add rest and couchbase icon to component api
-
-
 
 === Work Item
 
@@ -275,7 +441,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1403[TCOMP-1403^]: Upgrade asciidoctor to 2.0.0 and asciidoctor-pdf to alpha17
 - link:https://jira.talendforge.org/browse/TCOMP-1404[TCOMP-1404^]: Upgrade to Apache Beam 2.12.0
 - link:https://jira.talendforge.org/browse/TCOMP-1408[TCOMP-1408^]: Starter does not support types starting with a lowercase
-- link:https://jira.talendforge.org/browse/TCOMP-1411[TCOMP-1411^]: ComponentManager relies on beam jar name. This is unlikely and should move to beam integration module.
+- link:https://jira.talendforge.org/browse/TCOMP-1411[TCOMP-1411^]: ComponentManager relies on beam jar name.
+This is unlikely and should move to beam integration module.
 - link:https://jira.talendforge.org/browse/TCOMP-1417[TCOMP-1417^]: Upgrade to Geronimo OpenAPI 1.0.8
 
 == Version 1.1.8
@@ -290,13 +457,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1370[TCOMP-1370^]: ImageM2Mojo does not set timestamp in the docker image leading to component-server having a wrong lastUpdated value
 - link:https://jira.talendforge.org/browse/TCOMP-1372[TCOMP-1372^]: Nested components don't expose their doc deterministicly until it is overriden
 
-
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1341[TCOMP-1341^]: Register deploy in studio task OOTB in gradle extension
-
-
 
 === Work Item
 
@@ -314,7 +477,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1348[TCOMP-1348^]: [form-core] Ensure suggestions trigger is bound to "change" event too
 - link:https://jira.talendforge.org/browse/TCOMP-1349[TCOMP-1349^]: [form-core] When a tab is empty, don't show it
 - link:https://jira.talendforge.org/browse/TCOMP-1350[TCOMP-1350^]: talend.component.server.component.registry should support glob pattern
-- link:https://jira.talendforge.org/browse/TCOMP-1351[TCOMP-1351^]: Upgrade jsoup for Spark Cluster Testing  module
+- link:https://jira.talendforge.org/browse/TCOMP-1351[TCOMP-1351^]: Upgrade jsoup for Spark Cluster Testing module
 - link:https://jira.talendforge.org/browse/TCOMP-1353[TCOMP-1353^]: component-server must not use TALEND-INF/dependencies.txt but another path
 - link:https://jira.talendforge.org/browse/TCOMP-1354[TCOMP-1354^]: Enforce services to belong to the delcaring service class
 - link:https://jira.talendforge.org/browse/TCOMP-1361[TCOMP-1361^]: Upgrade to asciidoctorj 2.0.0-RC.1
@@ -331,14 +494,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1314[TCOMP-1314^]: category field of the starter is broken
 - link:https://jira.talendforge.org/browse/TCOMP-1316[TCOMP-1316^]: [build] Ensure snapshot use timestamped versions in dependencies.txt
 
-
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1306[TCOMP-1306^]: Add RecordPointerFactory to enable to extract data from Record using json pointer spec
 - link:https://jira.talendforge.org/browse/TCOMP-1315[TCOMP-1315^]: Ensure @Internationalized can use shortnames too in Messages.properties
-
-
 
 === Work Item
 
@@ -366,11 +525,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1281[TCOMP-1281^]: Add jackson-mapper-asl in docker image of the server
 - link:https://jira.talendforge.org/browse/TCOMP-1298[TCOMP-1298^]: Support restricted lists for @Proposable
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1297[TCOMP-1297^]: make max batch size property configurable for family and components through LocalConfiguration
-
 
 === Work Item
 
@@ -389,13 +546,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1295[TCOMP-1295^]: Ensure local-configuration.properties of a container are merged
 - link:https://jira.talendforge.org/browse/TCOMP-1296[TCOMP-1296^]: Ensure user can enrich families with custom jar+configuration
 
-
 == Version 1.1.5
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1245[TCOMP-1245^]: Provided services (SPI) by tacokit not available
-
 
 === Work Item
 
@@ -411,13 +566,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1258[TCOMP-1258^]: Support to build a Record from a provided Schema
 - link:https://jira.talendforge.org/browse/TCOMP-1259[TCOMP-1259^]: Add getOptional to Record
 
-
 == Version 1.1.4
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1223[TCOMP-1223^]: byte[] not supported in AvroRecord (beam)
-
 
 === Work Item
 
@@ -431,7 +584,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1242[TCOMP-1242^]: Runtime validation error message wrongly interpolated
 - link:https://jira.talendforge.org/browse/TCOMP-1243[TCOMP-1243^]: Ensure component classloader isolates the system classloader resources except for the JVM ones
 
-
 == Version 1.1.3
 
 === Bug
@@ -444,8 +596,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1192[TCOMP-1192^]: Ensure Avro schema union is interpreted as nullable in Record Schema model
 - link:https://jira.talendforge.org/browse/TCOMP-1194[TCOMP-1194^]: [testing] Ensure BeamEnvironment adds component-runtime-beam
 - link:https://jira.talendforge.org/browse/TCOMP-1196[TCOMP-1196^]: Nested maven repository not used for component module
-- link:https://jira.talendforge.org/browse/TCOMP-1197[TCOMP-1197^]: Tacokit beam tests. NPE when creating the schema with RECORD type.
-- link:https://jira.talendforge.org/browse/TCOMP-1198[TCOMP-1198^]: Tacokit beam tests. SchemaParseException => drop unsupported characters
+- link:https://jira.talendforge.org/browse/TCOMP-1197[TCOMP-1197^]: Tacokit beam tests.
+NPE when creating the schema with RECORD type.
+- link:https://jira.talendforge.org/browse/TCOMP-1198[TCOMP-1198^]: Tacokit beam tests.
+SchemaParseException => drop unsupported characters
 - link:https://jira.talendforge.org/browse/TCOMP-1200[TCOMP-1200^]: Packages not defined from nested repository classes
 - link:https://jira.talendforge.org/browse/TCOMP-1201[TCOMP-1201^]: includeTransitiveDependencies option of nested-maven-repository does not work
 - link:https://jira.talendforge.org/browse/TCOMP-1202[TCOMP-1202^]: Refine avro classloading exclusion to accept hadoop and mapred packages
@@ -455,11 +609,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1215[TCOMP-1215^]: Nested maven repository in jars don't go through transformers
 - link:https://jira.talendforge.org/browse/TCOMP-1218[TCOMP-1218^]: Record entries order shouldn't be sorted by the runtime
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1185[TCOMP-1185^]: Support maxBatchSize in Job test runner for standalone mode
-
 
 === Work Item
 
@@ -480,7 +632,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1219[TCOMP-1219^]: Upgrade starter to gradle 5
 - link:https://jira.talendforge.org/browse/TCOMP-1220[TCOMP-1220^]: Upgrade Maven to 3.6.0 in starter
 
-
 == Version 1.1.2
 
 === Bug
@@ -499,11 +650,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1159[TCOMP-1159^]: AvroSchema does not support DATETTIME type (beam module)
 - link:https://jira.talendforge.org/browse/TCOMP-1168[TCOMP-1168^]: Avro record implementation ignores nullable/union
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1143[TCOMP-1143^]: Ensure icons are validated and fail the build if a custom one is missing (validate mojo)
-
 
 === Work Item
 
@@ -532,24 +681,20 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1166[TCOMP-1166^]: Documentation mojo does not log generated files properly
 - link:https://jira.talendforge.org/browse/TCOMP-1167[TCOMP-1167^]: Beam-Avro record name generation should use avro fingerprint to be more unique than current logic
 
-
 == Version 1.1.1
 
 === Backlog Task
 
 - link:https://jira.talendforge.org/browse/TCOMP-1086[TCOMP-1086^]: Fix documentation about DiscoverSchema
 
-
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1064[TCOMP-1064^]: Update action can't receive List<MyClass> parameter
 - link:https://jira.talendforge.org/browse/TCOMP-1110[TCOMP-1110^]: When a configuration has no layout and uses @AfterGroup the configuration is lost
 
-
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1111[TCOMP-1111^]: Move to PropertyEditorRegistry from xbean instead of using the deprecated static class
-
 
 == Version 1.1.0
 
@@ -585,7 +730,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-991[TCOMP-991^]: metadat : ignore activations from config not being part of the form while creating metadata
 - link:https://jira.talendforge.org/browse/TCOMP-996[TCOMP-996^]: metadata : migration issues
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1001[TCOMP-1001^]: [proxy] ConfigurationClient should expose a migrate method
@@ -601,7 +745,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1095[TCOMP-1095^]: Ensure all configuration type models root entries are named "configuration"
 - link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
 - link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
-
 
 === Work Item
 
@@ -645,7 +788,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
 - link:https://jira.talendforge.org/browse/TCOMP-998[TCOMP-998^]: [dependency upgrade] Apache Commons Compress 1.18
 
-
 == Version 1.0.4
 
 === Bug
@@ -660,13 +802,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-961[TCOMP-961^]: Default value of Suggestions method parameter is ignored
 - link:https://jira.talendforge.org/browse/TCOMP-964[TCOMP-964^]: ClassCastException is thrown when non-string values are used as Suggestions method parameter
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-825[TCOMP-825^]: Provide component server proxy
 - link:https://jira.talendforge.org/browse/TCOMP-928[TCOMP-928^]: Add negate and evaluation strategy to @ActiveIf
 - link:https://jira.talendforge.org/browse/TCOMP-929[TCOMP-929^]: Ensure category contains the family
-
 
 === Work Item
 
@@ -689,14 +829,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-966[TCOMP-966^]: Ensure Studio integration renames HTTP threads to identify them more explicitly
 - link:https://jira.talendforge.org/browse/TCOMP-967[TCOMP-967^]: Ensure parameter index is in metadata for services and constructors
 
-
 == Version 1.0.3
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-919[TCOMP-919^]: Starter doesn't synchronize correctly with central versions
 - link:https://jira.talendforge.org/browse/TCOMP-920[TCOMP-920^]: Use Meecrowave 1.2.3
-
 
 == Version 1.0.2
 
@@ -708,11 +846,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-904[TCOMP-904^]: [tacokit studio integration] - fix job classpath generation
 - link:https://jira.talendforge.org/browse/TCOMP-913[TCOMP-913^]: Fix absolute path resolution for child of child use-case
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-900[TCOMP-900^]: [tacokit studio integration] - Handle conditional outputs
-
 
 === Work Item
 
@@ -722,7 +858,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-907[TCOMP-907^]: Support maxBatchSize as in the studio in Beam
 - link:https://jira.talendforge.org/browse/TCOMP-910[TCOMP-910^]: Add maxbatchsize as built in parameter to Processor meta model
 - link:https://jira.talendforge.org/browse/TCOMP-915[TCOMP-915^]: Upgrade Apache Meecrowave to 1.2.2
-
 
 == Version 1.0.1
 
@@ -740,7 +875,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-890[TCOMP-890^]: Merge the component outputs (by name) from @AfterGroup and @ElementListener
 - link:https://jira.talendforge.org/browse/TCOMP-893[TCOMP-893^]: Don't log a warning for services when parameters don't have i18n support
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-834[TCOMP-834^]: Ensure that component has only one configuration argument.
@@ -752,7 +886,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-861[TCOMP-861^]: Ensure Car Mojo can be skipped
 - link:https://jira.talendforge.org/browse/TCOMP-887[TCOMP-887^]: [studio] add chunk size advanced common param for processors & output
 - link:https://jira.talendforge.org/browse/TCOMP-892[TCOMP-892^]: Validate runtime configuration before executing the runtime
-
 
 === Work Item
 
@@ -783,19 +916,16 @@
 - link:https://jira.talendforge.org/browse/TCOMP-894[TCOMP-894^]: [dependency upgrade] Johnzon 1.1.8
 - link:https://jira.talendforge.org/browse/TCOMP-895[TCOMP-895^]: [dependency upgrade] xbean 4.9
 
-
 == Version 1.0.0
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-827[TCOMP-827^]: Fix Automatic-Module-Name
 
-
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-811[TCOMP-811^]: Upgrade to tomcat 9.0.8
 - link:https://jira.talendforge.org/browse/TCOMP-826[TCOMP-826^]: Extract component model from component server to a new artifact
-
 
 == Version 0.0.12
 
@@ -804,13 +934,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-763[TCOMP-763^]: Add a dev mode in the studio for tacokit
 - link:https://jira.talendforge.org/browse/TCOMP-802[TCOMP-802^]: Add method to upload dependencies from .car to nexus
 
-
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-808[TCOMP-808^]: Upgrade to JUnit 5.2.0
 - link:https://jira.talendforge.org/browse/TCOMP-809[TCOMP-809^]: compress js and css for the starter
 - link:https://jira.talendforge.org/browse/TCOMP-810[TCOMP-810^]: ui spec service uses a multiselecttag for a proposable on a string field
-
 
 == Version 0.0.11
 
@@ -818,20 +946,17 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-804[TCOMP-804^]: Idea plugin doesn't render properly configuration inputs
 
-
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-798[TCOMP-798^]: intellij plugin - add official starter url
 - link:https://jira.talendforge.org/browse/TCOMP-799[TCOMP-799^]: @Checkable expects the datastore name to match the validation name
 - link:https://jira.talendforge.org/browse/TCOMP-806[TCOMP-806^]: Ensure server and starter support gzip
 
-
 == Version 0.0.10
 
 === Backlog Task
 
 - link:https://jira.talendforge.org/browse/TCOMP-643[TCOMP-643^]: Deployment
-
 
 === Bug
 
@@ -841,11 +966,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-783[TCOMP-783^]: ActiveIfs doesn't make option visible
 - link:https://jira.talendforge.org/browse/TCOMP-796[TCOMP-796^]: Datastore check (@Checkable) should default meta parameters to "datastore" if none is found
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-773[TCOMP-773^]: Extend the http client api to handle more generic use cases
-
 
 === Work Item
 
@@ -853,13 +976,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-772[TCOMP-772^]: Upgrade icon set to ui/icons 0.179.0
 - link:https://jira.talendforge.org/browse/TCOMP-774[TCOMP-774^]: Upgrade xbean to 4.8
 
-
 == Version 0.0.9
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-768[TCOMP-768^]: More tolerance of configuration prefix for implicit migration of configuration node in form core library
-
 
 == Version 0.0.8
 
@@ -869,7 +990,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-762[TCOMP-762^]: Starter should only propose a single category level in the ui
 - link:https://jira.talendforge.org/browse/TCOMP-767[TCOMP-767^]: Ensure the configurationtype endpoints have matching name/path values
 
-
 == Version 0.0.7
 
 === Work Item
@@ -878,7 +998,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-764[TCOMP-764^]: Clean up component-form-core dependencies
 - link:https://jira.talendforge.org/browse/TCOMP-765[TCOMP-765^]: Upgrade to batik 1.9.1
 
-
 == Version 0.0.6
 
 === Bug
@@ -886,14 +1005,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-752[TCOMP-752^]: Fix Advanced settings and Test connection button appearance in repository wizard
 - link:https://jira.talendforge.org/browse/TCOMP-757[TCOMP-757^]: Duplicate method name "writeReplace" with signature "()Ljava.lang.Object;" in class file
 
-
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-751[TCOMP-751^]: Support gzip compression on component-server
 - link:https://jira.talendforge.org/browse/TCOMP-753[TCOMP-753^]: Make classpath scanning to find component configurable
 - link:https://jira.talendforge.org/browse/TCOMP-758[TCOMP-758^]: Support component-server server configuration from system properties
 - link:https://jira.talendforge.org/browse/TCOMP-759[TCOMP-759^]: Enum must be i18n
-
 
 == Version 0.0.5
 
@@ -912,31 +1029,26 @@
 - link:https://jira.talendforge.org/browse/TCOMP-749[TCOMP-749^]: Intellij Idea plugin
 - link:https://jira.talendforge.org/browse/TCOMP-750[TCOMP-750^]: Unify @Pattern using javascript regex instead of a mixed mode
 
-
 == Version 0.0.4
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-734[TCOMP-734^]: Add support for context and globalMap values in Tacokit component settings
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-733[TCOMP-733^]: support to use a beam pipeline under the hood for beam components in di
-
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-693[TCOMP-693^]: Integrate Migration API
 - link:https://jira.talendforge.org/browse/TCOMP-737[TCOMP-737^]: upgrade to beam 2.4.0
 
-
 == Version 0.0.3
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-731[TCOMP-731^]: Configuration Type migration handler skipped
-
 
 == Version 0.0.2
 
@@ -946,13 +1058,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-726[TCOMP-726^]: When a component is not found the error message can be misleading
 - link:https://jira.talendforge.org/browse/TCOMP-728[TCOMP-728^]: Http client doesn't ignore empty query parameters
 
-
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-722[TCOMP-722^]: WebSocket connection fails with a NPE when the endpoint doesn't exists
 - link:https://jira.talendforge.org/browse/TCOMP-723[TCOMP-723^]: Adding configurationByExample utility to create query string for Job DSL
 - link:https://jira.talendforge.org/browse/TCOMP-724[TCOMP-724^]: Documentation endpoint doesn't support HTML
-
 
 == Version 0.0.1
 

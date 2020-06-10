@@ -2,6 +2,6 @@
 :page-partial:
 :page-talend_icons: true
 
-IMPORTANT: for custom components it is recommended to not reuse Talend icons but use custom vendor icons.
+IMPORTANT: When creating a new component, always specify a custom icon instead of the default icon, as described in xref:component-registering.adoc[this section].
 
 include::{partialsdir}/generated_icons.adoc[]

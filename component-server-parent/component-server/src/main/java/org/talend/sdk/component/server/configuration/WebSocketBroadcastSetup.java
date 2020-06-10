@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -289,7 +289,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                     final InMemoryRequest request = new InMemoryRequest(method.toUpperCase(ENGLISH), headers, path,
                             appBase + path, appBase, queryString, 8080, context, new WebSocketInputStream(message),
                             session::getUserPrincipal, controller);
-                    controller.invoke(request, new InMemoryResponse(session::isOpen, () -> {
+                    final InMemoryResponse response = new InMemoryResponse(session::isOpen, () -> {
                         if (session.getBasicRemote().getBatchingAllowed()) {
                             try {
                                 session.getBasicRemote().flushBatch();
@@ -317,7 +317,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                         protected void onClose(final OutputStream stream) throws IOException {
                             stream.write(EOM.getBytes(StandardCharsets.UTF_8));
                         }
-                    });
+                    };
+                    request.setResponse(response);
+                    controller.invoke(request, response);
                 } catch (final ServletException e) {
                     throw new IllegalArgumentException(e);
                 }

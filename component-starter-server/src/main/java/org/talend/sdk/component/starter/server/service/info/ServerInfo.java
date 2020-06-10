@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,8 +133,8 @@ public class ServerInfo {
     // and if we are not up to date we update that
     private void refresh() {
         final Client client = ClientBuilder.newClient();
-        final WebTarget base =
-                client.target("http://repo.maven.apache.org/maven2/org/talend/sdk/component/component-starter-server/");
+        final WebTarget base = client
+                .target("https://repo.maven.apache.org/maven2/org/talend/sdk/component/component-starter-server/");
         final QuickMvnMetadataParser handler = new QuickMvnMetadataParser();
         try (final InputStream metadata =
                 base.path("maven-metadata.xml").request(MediaType.APPLICATION_XML_TYPE).get(InputStream.class)) {

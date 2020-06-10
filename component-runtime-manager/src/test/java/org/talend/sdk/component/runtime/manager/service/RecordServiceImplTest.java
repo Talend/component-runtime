@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
@@ -31,6 +35,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.json.Json;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.spi.JsonbProvider;
+import javax.json.spi.JsonProvider;
+
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -43,7 +52,13 @@ class RecordServiceImplTest {
 
     private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl(null);
 
-    private final RecordService service = new RecordServiceImpl(null, factory);
+    private final RecordService service = RecordService.class
+            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+                    Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
+                    Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                    JsonbProvider.provider(), null, null, emptyList(), t -> factory, null)
+                            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                                    RecordService.class, null));
 
     private final Schema address = factory
             .newSchemaBuilder(RECORD)
@@ -66,6 +81,20 @@ class RecordServiceImplTest {
             .withRecord("address",
                     factory.newRecordBuilder(address).withString("street", "here").withInt("number", 1).build())
             .build();
+
+    @Test
+    void mappers() {
+        final Pojo pojo = new Pojo();
+        pojo.name = "now";
+
+        final Record record = service.toRecord(pojo);
+        assertNotNull(record);
+        assertEquals("{\"name\":\"now\"}", record.toString());
+
+        final Pojo after = service.toObject(record, Pojo.class);
+        assertNotSame(after, pojo);
+        assertEquals(after.name, pojo.name);
+    }
 
     @Test
     void visit() {
@@ -149,5 +178,10 @@ class RecordServiceImplTest {
                 .stream()
                 .map(e -> e.getName() + '=' + record.get(Object.class, e.getName()))
                 .collect(joining(","));
+    }
+
+    public static class Pojo {
+
+        public String name;
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,17 @@ import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
@@ -34,13 +38,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.cache.Cached;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.injector.Injector;
+import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
+import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
+import org.talend.sdk.component.runtime.manager.util.MemoizingSupplier;
 
 import lombok.Data;
 
@@ -48,10 +56,15 @@ class InjectorImplTest {
 
     private Injector injector;
 
+    private final Supplier<ScheduledExecutorService> executor = new MemoizingSupplier<>(this::buildExecutorService);
+
     @BeforeEach
     void init() {
         final Map<Class<?>, Object> services = new HashMap<>(2);
-        services.put(LocalCache.class, new LocalCacheService("LocalCacheServiceTest"));
+
+        services
+                .put(LocalCache.class,
+                        new LocalCacheService("LocalCacheServiceTest", System::currentTimeMillis, executor));
         services
                 .put(LocalConfiguration.class,
                         new LocalConfigurationService(Collections.singletonList(new LocalConfiguration() {
@@ -69,9 +82,17 @@ class InjectorImplTest {
         final PropertyEditorRegistry propertyEditorRegistry = new PropertyEditorRegistry();
         injector = new InjectorImpl("LocalCacheServiceTest",
                 new ReflectionService(new ParameterModelService(propertyEditorRegistry), propertyEditorRegistry),
-                services);
+                new ProxyGenerator(), services);
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(Injector.class, injector);
+    }
+
+    private ScheduledExecutorService buildExecutorService() {
+        return Executors.newScheduledThreadPool(4, (Runnable r) -> {
+            final Thread thread = new Thread(r, "ReflectionTest-" + hashCode());
+            thread.setPriority(Thread.NORM_PRIORITY);
+            return thread;
+        });
     }
 
     @AfterEach
@@ -90,6 +111,27 @@ class InjectorImplTest {
         final Injected instance = new Injected();
         injector.inject(instance);
         assertNotNull(instance.cache);
+        assertNotNull(instance.caches);
+        assertEquals(2, instance.caches.size()); // LocalConfiguration and LocalCache
+    }
+
+    @Test
+    void injectWithProxy() throws Exception {
+        final Map<Class<?>, Object> services = new HashMap<>(1);
+        LocalCache localCache =
+                new LocalCacheService("LocalCacheServiceTest", System::currentTimeMillis, this.executor);
+        services.put(LocalCache.class, localCache);
+
+        final InjectedCache instance = new InjectedCache();
+        ProxyGenerator proxyGenerator = new ProxyGenerator();
+        final Class<?> proxyClass = proxyGenerator
+                .generateProxy(Thread.currentThread().getContextClassLoader(), InjectedCache.class, "injector",
+                        InjectedCache.class.getName());
+        final InjectedCache proxy = InjectedCache.class.cast(proxyClass.getConstructor().newInstance());
+        proxyGenerator.initialize(proxy, new InterceptorHandlerFacade(instance, services));
+        injector.inject(proxy);
+        assertEquals("false", proxy.getString());
+        assertTrue(proxy.getClass().getName().endsWith("$TalendServiceProxy"));
     }
 
     @Test
@@ -114,6 +156,20 @@ class InjectorImplTest {
 
         @Service
         private LocalCache cache;
+
+        @Service
+        private List<Object> caches;
+    }
+
+    public static class InjectedCache {
+
+        @Service
+        private LocalCache cache;
+
+        @Cached
+        public String getString() {
+            return Boolean.toString(cache == null);
+        }
     }
 
     public static class InvalidInjectedConfig1 {

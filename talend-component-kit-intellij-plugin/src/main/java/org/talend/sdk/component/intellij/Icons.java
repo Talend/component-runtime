@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,17 @@
  */
 package org.talend.sdk.component.intellij;
 
-import static com.intellij.openapi.util.IconLoader.getIcon;
-
 import javax.swing.Icon;
 
-public final class Icons {
+import com.intellij.openapi.util.IconLoader;
 
-    public static final Icon TACOKIT = getIcon("/tacokit.png", Icons.class);
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-    public static final Icon TALEND = getIcon("/talend_logo_.png", Icons.class);
+@Getter
+@RequiredArgsConstructor
+public enum Icons {
+    TACOKIT(IconLoader.getIcon("/tacokit.png", Icons.class));
 
-    private Icons() {
-        // no-op
-    }
+    public final Icon icon;
 }

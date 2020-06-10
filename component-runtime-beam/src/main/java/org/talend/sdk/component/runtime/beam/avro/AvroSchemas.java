@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ public final class AvroSchemas {
         return EMPTY_SCHEMA;
     }
 
+    // TOOD remove it as org.talend.sdk.component.runtime.record.SchemaImpl also do this 100% same work
     public static String sanitizeConnectionName(final String name) {
         if (name.isEmpty()) {
             return name;
@@ -65,4 +66,12 @@ public final class AvroSchemas {
         }
         return new String(sanitized);
     }
+
+    public static Schema.Field addProp(final Schema.Field field, final String key, final String value) {
+        if (value != null) {
+            field.addProp(key, value);
+        }
+        return field;
+    }
+
 }

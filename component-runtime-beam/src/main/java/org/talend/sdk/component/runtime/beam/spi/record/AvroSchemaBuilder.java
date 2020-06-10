@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,11 +158,14 @@ public class AvroSchemaBuilder implements Schema.Builder {
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
         fields
-                .add(new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
-                        entry.isNullable() && schema.getType() != org.apache.avro.Schema.Type.UNION
-                                ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
-                                : schema,
-                        entry.getComment(), (Object) entry.getDefaultValue()));
+                .add(AvroSchemas
+                        .addProp(
+                                new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
+                                        entry.isNullable() && schema.getType() != org.apache.avro.Schema.Type.UNION
+                                                ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
+                                                : schema,
+                                        entry.getComment(), (Object) entry.getDefaultValue()),
+                                KeysForAvroProperty.LABEL, entry.getRawName()));
         return this;
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -272,8 +272,8 @@ public class NativeWrappedIOTest {
                 super(findM2(), "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
                 testPlugins = addJarContaining(Thread.currentThread().getContextClassLoader(),
                         componentPackage.replace('.', '/'));
-                oldInstance = CONTEXTUAL_INSTANCE.get();
-                CONTEXTUAL_INSTANCE.set(this);
+                oldInstance = ComponentManager.contextualInstance().get();
+                ComponentManager.contextualInstance().set(this);
             }
 
             @Override
@@ -281,7 +281,7 @@ public class NativeWrappedIOTest {
                 try {
                     super.close();
                 } finally {
-                    CONTEXTUAL_INSTANCE.compareAndSet(this, oldInstance);
+                    ComponentManager.contextualInstance().compareAndSet(this, oldInstance);
                 }
             }
 

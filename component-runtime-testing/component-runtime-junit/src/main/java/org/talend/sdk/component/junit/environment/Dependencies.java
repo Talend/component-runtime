@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ public class Dependencies {
         }
         if (!Boolean.getBoolean("talend.component.junit.maven.central.skip")) {
             final MavenRemoteRepository central = MavenRemoteRepositories
-                    .createRemoteRepository("central_test_default", "http://repo.maven.apache.org/maven2/", "default");
+                    .createRemoteRepository("central_test_default", "https://repo.maven.apache.org/maven2/", "default");
             central.setChecksumPolicy(MavenChecksumPolicy.CHECKSUM_POLICY_WARN);
             central.setUpdatePolicy(MavenUpdatePolicy.UPDATE_POLICY_NEVER);
             repositories.add(central);

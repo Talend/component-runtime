@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -18,4 +18,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
         http://xmlns.jcp.org/xml/ns/javaee
-		    http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"/>
+		    http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd">
+    <scan>
+        <exclude name="org.talend.sdk.component.runtime.server.vault.proxy.endpoint.security.*">
+            <if-system-property name="talend.vault.security" value="bypass"/>
+        </exclude>
+    </scan>
+</beans>

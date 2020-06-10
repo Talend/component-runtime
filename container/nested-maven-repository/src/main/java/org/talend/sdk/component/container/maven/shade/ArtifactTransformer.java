@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -257,7 +257,8 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
     }
 
     @Override
-    public void processResource(final String resource, final InputStream inputStream, final List<Relocator> list) {
+    public void processResource(final String resource, final InputStream is, final List<Relocator> relocators,
+            final long time) throws IOException {
         // no-op
     }
 

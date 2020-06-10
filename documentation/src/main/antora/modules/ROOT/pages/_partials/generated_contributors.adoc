@@ -1,21 +1,14 @@
 ++++
 <jsonArray>[
   {
-    "commits":2532,
+    "commits":2547,
     "description":"Joined the Apache EE family (OpenWebBeans, Meecrowave, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":294,
-    "description":"I am a software developer at @Talend\r\nFor my personal projects you can check them @khabali \n\nBlog: https://khabali.github.io",
-    "gravatar":"https://avatars3.githubusercontent.com/u/25590305?v=4",
-    "id":"akhabali",
-    "name":"Anas KHABALI"
-  },
-  {
-    "commits":207,
+    "commits":212,
     "description":"Technical Writer at @Talend",
     "gravatar":"https://avatars1.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",
@@ -27,6 +20,13 @@
     "gravatar":"https://avatars3.githubusercontent.com/u/7621737?v=4",
     "id":"gonchar-ivan",
     "name":"Ivan Gonchar"
+  },
+  {
+    "commits":122,
+    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
+    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
+    "id":"undx",
+    "name":"Emmanuel GALLOIS"
   },
   {
     "commits":59,
@@ -64,8 +64,8 @@
     "name":"Jimmy Somsanith"
   },
   {
-    "commits":5,
-    "description":"Security architect at @Talend, security expert at @Apache.",
+    "commits":8,
+    "description":"Senior security architect at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
     "gravatar":"https://avatars0.githubusercontent.com/u/472162?v=4",
     "id":"coheigea",
     "name":"Colm O hEigeartaigh"
@@ -92,10 +92,63 @@
   },
   {
     "commits":2,
+    "description":"",
+    "gravatar":"https://avatars3.githubusercontent.com/u/1133383?v=4",
+    "id":"rdubois",
+    "name":"Rémy DUBOIS"
+  },
+  {
+    "commits":2,
     "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?).\n\nBlog: https://ismaelmejia.com/",
     "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
     "name":"Ismaël Mejía"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/31616269?v=4",
+    "id":"lcelton-talend"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars3.githubusercontent.com/u/11495292?v=4",
+    "id":"zwxue",
+    "name":"Zhiwei Xue"
+  },
+  {
+    "commits":1,
+    "description":"Focused on Big Data technologies. Open Source fan, I contribute to Apache projects.\r\nI'm an Apache Beam committer and PMC member",
+    "gravatar":"https://avatars3.githubusercontent.com/u/8821084?v=4",
+    "id":"echauchot",
+    "name":"Etienne Chauchot"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/51320496?v=4",
+    "id":"clesaec"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars1.githubusercontent.com/u/12494310?v=4",
+    "id":"bguillon-td",
+    "name":"Benoit Guillon"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars1.githubusercontent.com/u/783286?v=4",
+    "id":"sgandon"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars1.githubusercontent.com/u/19730806?v=4",
+    "id":"fviolette",
+    "name":"François Violette"
   },
   {
     "commits":1,
@@ -107,23 +160,16 @@
   {
     "commits":1,
     "description":"",
-    "gravatar":"https://avatars3.githubusercontent.com/u/7931696?v=4",
-    "id":"pbailly",
-    "name":"Pierre Bailly-Ferry"
+    "gravatar":"https://avatars1.githubusercontent.com/u/7802267?v=4",
+    "id":"wwang-talend",
+    "name":"wang wei"
   },
   {
     "commits":1,
     "description":"",
-    "gravatar":"https://avatars3.githubusercontent.com/u/11495292?v=4",
-    "id":"zwxue",
-    "name":"Zhiwei Xue"
-  },
-  {
-    "commits":1,
-    "description":"Focused on Big Data technologies. Open Source fan, I contribute to Apache projects such as Apache Beam.\r\nI'm an Apache Beam committer and PMC member",
-    "gravatar":"https://avatars3.githubusercontent.com/u/8821084?v=4",
-    "id":"echauchot",
-    "name":"Etienne Chauchot"
+    "gravatar":"https://avatars3.githubusercontent.com/u/53257653?v=4",
+    "id":"rlecomte-talend",
+    "name":"Richard Lecomte"
   },
   {
     "commits":1,
@@ -142,36 +188,9 @@
   {
     "commits":1,
     "description":"",
-    "gravatar":"https://avatars3.githubusercontent.com/u/1133383?v=4",
-    "id":"rdubois",
-    "name":"Rémy DUBOIS"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars1.githubusercontent.com/u/12494310?v=4",
-    "id":"bguillon-td",
-    "name":"Benoit Guillon"
-  },
-  {
-    "commits":1,
-    "description":"",
     "gravatar":"https://avatars3.githubusercontent.com/u/20939820?v=4",
     "id":"Voievidko",
     "name":"Roman"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars1.githubusercontent.com/u/783286?v=4",
-    "id":"sgandon"
-  },
-  {
-    "commits":1,
-    "description":"Information Architect",
-    "gravatar":"https://avatars1.githubusercontent.com/u/19730806?v=4",
-    "id":"fviolette",
-    "name":"François Violette"
   }
 ]</jsonArray>
 ++++

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.catalina.webresources.StandardRoot;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.runner.Cli;
+import org.apache.tomcat.websocket.server.WsSci;
 
 // utility to use into the studio, mainly to workaround JVM URL stream handler limitations
 public class EnhancedCli extends Cli implements AutoCloseable {
@@ -58,6 +59,7 @@ public class EnhancedCli extends Cli implements AutoCloseable {
                             // single time
                         }
                     });
+                    stdCtx.addServletContainerInitializer(new WsSci(), null);
                 }));
 
                 doWait(meecrowave, null);

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.talend.sdk.component.api.service.schema;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.meta.Partial;
 
@@ -75,6 +77,17 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         // 1.0 compat
         public void setType(final org.talend.sdk.component.api.service.schema.Type type) {
             this.type = org.talend.sdk.component.api.record.Schema.Type.valueOf(type.name());
+        }
+
+        @Override
+        public String getRawName() {
+            return null;
+        }
+
+        @JsonbTransient
+        @Override
+        public String getOriginalFieldName() {
+            return null;
         }
 
         @Override

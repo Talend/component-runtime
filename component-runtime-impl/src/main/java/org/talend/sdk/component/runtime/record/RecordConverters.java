@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,8 @@ import org.apache.johnzon.jsonb.extension.JsonValueReader;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.json.OutputRecordHolder;
+import org.talend.sdk.component.runtime.record.json.PojoJsonbProvider;
 
 import lombok.Data;
 
@@ -101,6 +103,9 @@ public class RecordConverters implements Serializable {
 
     public <T> Record toRecord(final MappingMetaRegistry registry, final T data, final Supplier<Jsonb> jsonbProvider,
             final Supplier<RecordBuilderFactory> recordBuilderProvider) {
+        if (data == null) {
+            return null;
+        }
         if (Record.class.isInstance(data)) {
             return Record.class.cast(data);
         }
@@ -114,6 +119,15 @@ public class RecordConverters implements Serializable {
         }
 
         final Jsonb jsonb = jsonbProvider.get();
+        if (!String.class.isInstance(data) && !data.getClass().isPrimitive()
+                && PojoJsonbProvider.class.isInstance(jsonb)) {
+            final Jsonb pojoMapper = PojoJsonbProvider.class.cast(jsonb).get();
+            final OutputRecordHolder holder = new OutputRecordHolder();
+            try (final OutputRecordHolder stream = holder) {
+                pojoMapper.toJson(data, stream);
+            }
+            return holder.getRecord();
+        }
         return json2Record(recordBuilderProvider.get(), jsonb.fromJson(jsonb.toJson(data), JsonObject.class));
     }
 
@@ -235,6 +249,9 @@ public class RecordConverters implements Serializable {
         }
         if (Float.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.FLOAT).build();
+        }
+        if (BigDecimal.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
+            return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
         }
         if (Double.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
@@ -399,11 +416,6 @@ public class RecordConverters implements Serializable {
                         builder
                                 .add(name, toArray(factory, v -> jsonProvider.createValue(Float.class.cast(v)),
                                         collection));
-                    } else if (Double.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name, toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)),
-                                        collection));
                     } else if (Integer.class.isInstance(item)) {
                         final JsonProvider jsonProvider = providerSupplier.get();
                         builder
@@ -435,6 +447,8 @@ public class RecordConverters implements Serializable {
                                 .add(name, toArray(factory,
                                         v -> buildRecord(factory, providerSupplier, Record.class.cast(v)).build(),
                                         collection));
+                    } else if (JsonValue.class.isInstance(item)) {
+                        builder.add(name, toArray(factory, JsonValue.class::cast, collection));
                     } // else throw?
                 }
                 break;
@@ -820,9 +834,9 @@ public class RecordConverters implements Serializable {
             schemaBuilder.withEntry(entry);
             recordProvisionners
                     .add((builder, instance) -> ofNullable(getField(instance, field, Object[].class)) // todo:
-                                                                                                      // check
-                                                                                                      // this
-                                                                                                      // cast
+                            // check
+                            // this
+                            // cast
                             .map(Arrays::asList)
                             .ifPresent(value -> builder.withArray(entry, value)));
         }

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 #
-#  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ git push --follow-tags | tee -a "$trace" && \
 echo ">> Checkouting the release tag" | tee -a "$trace" && \
 git checkout -b component-runtime-$release component-runtime-$release | tee -a "$trace" && \
 echo ">> Building and pushing docker images $release" | tee -a "$trace" && \
-cd images && mvn -DskipTests -Dinvoker.skip=true -T1C clean install jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/ | tee -a "$trace" && cd - && \
+cd images && mvn -DskipTests -Dinvoker.skip=true -T1C clean install jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/ -Djib.httpTimeout=60000 | tee -a "$trace" && cd - && \
 echo ">> Rebuilding master and updating it (doc) for next iteration" | tee -a "$trace" && \
 git reset --hard | tee -a "$trace" && \
 git checkout master | tee -a "$trace" && \

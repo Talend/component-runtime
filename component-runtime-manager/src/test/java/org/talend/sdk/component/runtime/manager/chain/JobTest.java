@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -321,8 +321,10 @@ class JobTest {
     private ComponentManager newTestManager(final File jar) {
         return new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
 
+            final ComponentManager originalMgr = ComponentManager.contextualInstance().get();
+
             {
-                CONTEXTUAL_INSTANCE.set(this);
+                ComponentManager.contextualInstance().set(this);
                 final String containerId = addPlugin(jar.getAbsolutePath());
                 DynamicContainerFinder.SERVICES
                         .put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl(containerId));
@@ -332,7 +334,7 @@ class JobTest {
             public void close() {
                 DynamicContainerFinder.SERVICES.clear();
                 super.close();
-                CONTEXTUAL_INSTANCE.set(null);
+                ComponentManager.contextualInstance().set(originalMgr);
             }
         };
     }

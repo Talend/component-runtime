@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,8 +99,10 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                         final Type type = mapType(field.schema());
                         final AvroSchema elementSchema = new AvroSchema(
                                 type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
-                        return new SchemaImpl.EntryImpl(field.name(), type, field.schema().getType() == UNION,
-                                field.defaultVal(), elementSchema, field.doc());
+                        // readProp(unwrapUnion(field.schema()), KeysForAvroProperty.LABEL) is not good location in my
+                        // view
+                        return new SchemaImpl.EntryImpl(field.name(), field.getProp(KeysForAvroProperty.LABEL), type,
+                                field.schema().getType() == UNION, field.defaultVal(), elementSchema, field.doc());
                     }).collect(toList());
         }
         return entries;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean validateDocumentation;
 
     /**
+     * Should the Talend rules of wording for the components be validated.
+     */
+    @Parameter(defaultValue = "false", property = "talend.validation.wording")
+    private boolean validateWording;
+
+    /**
      * Should the layout of the component be validated.
      */
     @Parameter(defaultValue = "true", property = "talend.validation.layout")
@@ -161,6 +167,9 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
             getLog()
                     .warn("You don't validate placeholders are set, maybe think about setting validatePlaceholder=true");
         }
+        if (!validateWording) {
+            getLog().warn("You don't validate wording rules, maybe think about setting validateWording=true");
+        }
         final ComponentValidator.Configuration configuration = new ComponentValidator.Configuration();
         configuration.setValidateFamily(validateFamily);
         configuration.setValidateSerializable(validateSerializable);
@@ -179,6 +188,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidatePlaceholder(validatePlaceholder);
         configuration.setValidateSvg(validateSvg);
         configuration.setValidateNoFinalOption(validateNoFinalOption);
+        configuration.setValidateWording(validateWording);
         configuration.setPluginId(pluginId);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);

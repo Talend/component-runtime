@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,13 +35,13 @@ class JsonSchemaSerializationTest {
     void toJson() throws Exception {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(RECORD)
-                .withEntry(new SchemaImpl.EntryImpl("array", Schema.Type.ARRAY, true, null,
+                .withEntry(new SchemaImpl.EntryImpl("array", "array", Schema.Type.ARRAY, true, null,
                         new AvroSchemaBuilder().withType(STRING).build(), null))
                 .build();
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             assertEquals(
-                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"type\":\"STRING\"},\"name\":\"array\",\"nullable\":true,\"type\":\"ARRAY\"}],\"type\":\"RECORD\"}",
+                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"type\":\"STRING\"},\"name\":\"array\",\"nullable\":true,\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"type\":\"RECORD\"}",
                     jsonb.toJson(schema));
         }
     }

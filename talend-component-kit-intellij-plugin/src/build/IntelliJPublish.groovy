@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.talend.sdk.component.build
 
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest
 import org.apache.maven.settings.crypto.SettingsDecrypter
-import org.jetbrains.intellij.pluginRepository.PluginRepositoryInstance
+import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 
 //
 // Helper script to publish a plugin to jetbrains repository using a settings.xml server
@@ -51,11 +51,11 @@ def decryptedServer = session.container.lookup(SettingsDecrypter).decrypt(new De
 server = decryptedServer.server != null ? decryptedServer.server : server
 
 int pluginId = Integer.parseInt(project.properties['idea.plugin.id'].trim())
-def repositoryInstance = new PluginRepositoryInstance(project.properties['idea.intellij.public.url'], server.getPassword())
+def repositoryInstance = PluginRepositoryFactory.create(project.properties['idea.intellij.public.url'], server.getPassword())
 project.properties['idea.intellij.channel'].trim().split(',').each { channel ->
     try {
-        repositoryInstance
-                .uploadPlugin(pluginId, pluginZip, channel == 'default' ? '' : channel)
+        repositoryInstance.uploader
+                .uploadPlugin(pluginId, pluginZip, channel == 'default' ? '' : channel, null)
     } catch (final Exception e) { // don't break the release for that, worse case upload it manually
         log.error(e.message, e)
     }

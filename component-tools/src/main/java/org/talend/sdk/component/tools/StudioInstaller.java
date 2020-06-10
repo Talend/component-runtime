@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public class StudioInstaller implements Runnable {
                     if (!version.equals(installedVersion)) {
                         throw new IllegalStateException("Can't deploy this component. A different version '"
                                 + installedVersion
-                                + "' is already installed.\nYou can enforce the deployment by using -Dtalend.component.enforceDeploy=true");
+                                + "' is already installed.\nYou can enforce the deployment by using -Dtalend.component.enforceDeployment=true");
                     }
                 }
             } catch (final IOException e) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,14 +58,14 @@ class BeamJobTest implements Serializable {
                     private final ComponentManager contextualInstance;
 
                     {
-                        contextualInstance = CONTEXTUAL_INSTANCE.get();
-                        CONTEXTUAL_INSTANCE.set(this);
+                        contextualInstance = ComponentManager.contextualInstance().get();
+                        ComponentManager.contextualInstance().set(this);
                         addPlugin(jar.getAbsolutePath());
                     }
 
                     @Override
                     public void close() {
-                        CONTEXTUAL_INSTANCE.set(contextualInstance);
+                        ComponentManager.contextualInstance().set(contextualInstance);
                         super.close();
                         removePlugin(jar.getAbsolutePath());
                     }

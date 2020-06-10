@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,6 +142,7 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
                 final VirtualFile gradleFile = findFileUnderRootInModule(module, "build.gradle");
                 if (gradleFile != null) {
                     final ProjectDataManager projectDataManager = getService(ProjectDataManager.class);
+                    // todo: move to JavaGradleProjectImportBuilder
                     final GradleProjectImportBuilder importBuilder = new GradleProjectImportBuilder(projectDataManager);
                     final GradleProjectImportProvider importProvider = new GradleProjectImportProvider(importBuilder);
                     final AddModuleWizard addModuleWizard =

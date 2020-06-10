@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
 import static org.junit.Assert.assertArrayEquals;
@@ -23,15 +24,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
+import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.transforms.Create;
+import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
+import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
@@ -131,5 +147,106 @@ class AvroRecordTest {
         final Object str = record.get(Object.class, "str");
         assertFalse(str.getClass().getName(), Utf8.class.isInstance(str));
         assertEquals("test", str);
+    }
+
+    @Test
+    void testLabel() {
+        final GenericData.Record avro = new GenericData.Record(org.apache.avro.Schema
+                .createRecord(getClass().getName() + ".StringTest", null, null, false, singletonList(AvroSchemas
+                        .addProp(
+                                new org.apache.avro.Schema.Field("str",
+                                        org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING), null, null),
+                                KeysForAvroProperty.LABEL, "my label"))));
+        avro.put(0, new Utf8("test"));
+        final Record record = new AvroRecord(avro);
+
+        Schema schema = record.getSchema();
+        List<Schema.Entry> entries = schema.getEntries();
+        assertEquals("my label", entries.get(0).getRawName());
+    }
+
+    @Test
+    void schemaRegistryCoder() throws Exception {
+        org.apache.avro.Schema datetime = org.apache.avro.SchemaBuilder
+                .record("datetimes")
+                .fields()
+                .name("f1")
+                .prop("logicalType", "timestamp-millis")
+                .prop("talend.component.DATETIME", " true")
+                .type()
+                .unionOf()
+                .nullType()
+                .and()
+                .longType()
+                .endUnion()
+                .noDefault()
+                //
+                .name("f2")
+                .prop("logicalType", "date")
+                .prop("talend.component.DATETIME", "true")
+                .type()
+                .unionOf()
+                .nullType()
+                .and()
+                .longType()
+                .endUnion()
+                .noDefault()
+                //
+                .name("f3")
+                .prop("logicalType", "date")
+                .prop("talend.component.DATETIME", "true")
+                .type()
+                .unionOf()
+                .nullType()
+                .and()
+                .longType()
+                .endUnion()
+                .noDefault()
+                //
+                .endRecord();
+        ZonedDateTime zdt = ZonedDateTime.of(2020, 01, 24, 15, 0, 1, 0, ZoneId.of("UTC"));
+        Date date = new Date();
+        final GenericData.Record avro = new GenericData.Record(datetime);
+        avro.put(0, zdt.toInstant().toEpochMilli());
+        avro.put(1, date.getTime());
+        avro.put(2, null);
+        final Record record = new AvroRecord(avro);
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        SchemaRegistryCoder.of().encode(record, buffer);
+        final Record decoded = SchemaRegistryCoder.of().decode(new ByteArrayInputStream(buffer.toByteArray()));
+        assertEquals(zdt, decoded.getDateTime("f1"));
+        assertEquals(date.getTime(), decoded.getDateTime("f2").toInstant().toEpochMilli());
+        assertNull(decoded.getDateTime("f3"));
+    }
+
+    @Test
+    void pipelineDateTimeFields() throws Exception {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
+        final Record.Builder builder = factory.newRecordBuilder();
+        final Date date = new Date(new java.text.SimpleDateFormat("yyyy-MM-dd").parse("2018-12-6").getTime());
+        final Date datetime = new Date();
+        final Date time = new Date(1000 * 60 * 60 * 15 + 1000 * 60 * 20 + 39000); // 15:20:39
+        builder.withDateTime("t_date", date);
+        builder.withDateTime("t_datetime", datetime);
+        builder.withDateTime("t_time", time);
+        Record rec = builder.build();
+        final Pipeline pipeline = Pipeline.create();
+        PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
+        PCollection<Record> output = input.apply(new RecordToRecord());
+        assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
+    }
+
+    public class RecordToRecord extends PTransform<PCollection<Record>, PCollection<Record>> {
+
+        private final RecordBuilderFactory factory;
+
+        public RecordToRecord() {
+            this.factory = new AvroRecordBuilderFactoryProvider().apply(null);
+        }
+
+        @Override
+        public PCollection<Record> expand(final PCollection<Record> input) {
+            return input.apply("RecordToRecord", ParDo.of(new RecordNormalizer(factory)));
+        }
     }
 }

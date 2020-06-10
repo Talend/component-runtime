@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ class RecordBuilderImplTest {
     void nullSupportCollections() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder
-                .withArray(new SchemaImpl.EntryImpl("test", Schema.Type.ARRAY, true, null,
+                .withArray(new SchemaImpl.EntryImpl("test", "test", Schema.Type.ARRAY, true, null,
                         new SchemaImpl(Schema.Type.STRING, null, null), null), null);
         final Record record = builder.build();
         assertEquals(1, record.getSchema().getEntries().size());

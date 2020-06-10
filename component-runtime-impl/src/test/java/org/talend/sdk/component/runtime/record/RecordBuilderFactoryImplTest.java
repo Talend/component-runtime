@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,16 +35,21 @@ class RecordBuilderFactoryImplTest {
 
     private final Schema address = factory
             .newSchemaBuilder(RECORD)
-            .withEntry(factory.newEntryBuilder().withName("street").withType(STRING).build())
+            .withEntry(
+                    factory.newEntryBuilder().withName("street").withRawName("current street").withType(STRING).build())
             .withEntry(factory.newEntryBuilder().withName("number").withType(INT).build())
             .build();
 
     private final Schema baseSchema = factory
             .newSchemaBuilder(RECORD)
-            .withEntry(factory.newEntryBuilder().withName("name").withType(STRING).build())
+            .withEntry(factory.newEntryBuilder().withName("name").withRawName("current name").withType(STRING).build())
             .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
-            .withEntry(
-                    factory.newEntryBuilder().withName("address").withType(RECORD).withElementSchema(address).build())
+            .withEntry(factory
+                    .newEntryBuilder()
+                    .withName("current address")
+                    .withType(RECORD)
+                    .withElementSchema(address)
+                    .build())
             .build();
 
     @Test
@@ -53,8 +58,12 @@ class RecordBuilderFactoryImplTest {
                 .newSchemaBuilder(baseSchema)
                 .withEntry(factory.newEntryBuilder().withName("custom").withType(STRING).build())
                 .build();
-        assertEquals("name/STRING,age/INT,address/RECORD,custom/STRING",
-                custom.getEntries().stream().map(it -> it.getName() + '/' + it.getType()).collect(joining(",")));
+        assertEquals("name/STRING/current name,age/INT/null,current_address/RECORD/current address,custom/STRING/null",
+                custom
+                        .getEntries()
+                        .stream()
+                        .map(it -> it.getName() + '/' + it.getType() + '/' + it.getRawName())
+                        .collect(joining(",")));
     }
 
     @Test
@@ -67,12 +76,12 @@ class RecordBuilderFactoryImplTest {
                 .newRecordBuilder(baseSchema)
                 .withString("name", "Test")
                 .withInt("age", 33)
-                .withRecord("address",
+                .withRecord("current_address",
                         factory.newRecordBuilder(address).withString("street", "here").withInt("number", 1).build())
                 .build();
         final Record output = factory.newRecordBuilder(customSchema, baseRecord).withString("custom", "added").build();
         assertEquals(
-                "{\"name\":\"Test\",\"age\":33,\"address\":{\"street\":\"here\",\"number\":1},\"custom\":\"added\"}",
+                "{\"name\":\"Test\",\"age\":33,\"current_address\":{\"street\":\"here\",\"number\":1},\"custom\":\"added\"}",
                 output.toString());
     }
 }

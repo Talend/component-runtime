@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,6 +135,11 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).thenApply(done -> {
             ListItem.merge(futures, uiSchema);
             addActions(root, uiSchema, visitedProperties);
+            // remove key to container object
+            if ("OBJECT".equals(root.getProperty().getType()) && uiSchema.getWidget() == null) {
+                uiSchema.setKey(null);
+                uiSchema.setWidget("fieldset");
+            }
             return uiSchema;
         });
     }

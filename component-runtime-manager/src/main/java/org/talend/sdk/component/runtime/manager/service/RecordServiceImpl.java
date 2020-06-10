@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
+
+import javax.json.JsonBuilderFactory;
+import javax.json.bind.Jsonb;
+import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.Data;
@@ -43,6 +49,16 @@ public class RecordServiceImpl implements RecordService, Serializable {
     private final String plugin;
 
     private final RecordBuilderFactory recordBuilderFactory;
+
+    private final Supplier<JsonBuilderFactory> jsonBuilderFactorySupplier;
+
+    private final Supplier<JsonProvider> jsonProvider;
+
+    private final Supplier<Jsonb> jsonbSupplier;
+
+    private final RecordConverters recordConverters = new RecordConverters();
+
+    private final RecordConverters.MappingMetaRegistry mappingRegistry = new RecordConverters.MappingMetaRegistry();
 
     @Override
     public Collector<Schema.Entry, Record.Builder, Record> toRecord(final Schema schema, final Record fallbackRecord,
@@ -167,6 +183,19 @@ public class RecordServiceImpl implements RecordService, Serializable {
             return visitor.apply(value, visited);
         }
         return visited;
+    }
+
+    @Override
+    public <T> T toObject(final Record data, final Class<T> expected) {
+        return expected
+                .cast(recordConverters
+                        .toType(mappingRegistry, data, expected, jsonBuilderFactorySupplier, jsonProvider,
+                                jsonbSupplier, () -> recordBuilderFactory));
+    }
+
+    @Override
+    public <T> Record toRecord(final T data) {
+        return recordConverters.toRecord(mappingRegistry, data, jsonbSupplier, () -> recordBuilderFactory);
     }
 
     @Override

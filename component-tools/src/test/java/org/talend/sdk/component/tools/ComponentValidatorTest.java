@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,10 @@ class ComponentValidatorTest {
         boolean validateDocumentation() default false;
 
         boolean validateDataSet() default true;
+
+        boolean validateWording() default false;
+
+        boolean validateSvg() default true;
     }
 
     @Slf4j
@@ -140,9 +144,10 @@ class ComponentValidatorTest {
             cfg.setValidateLocalConfiguration(true);
             cfg.setValidateOutputConnection(true);
             cfg.setValidatePlaceholder(true);
-            cfg.setValidateSvg(true);
+            cfg.setValidateSvg(config.validateSvg());
             cfg.setValidateNoFinalOption(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
+            cfg.setValidateWording(config.validateWording());
             Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -208,6 +213,12 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.svgerror")
     void testFailureSvg(final ExceptionSpec expectedException) {
         expectedException.expectMessage("[myicon.svg] viewBox must be '0 0 16 16' found '0 0 16 17'");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.svgerror", validateSvg = false, success = true)
+    void testIgnoreSvg(final ExceptionSpec expectedException) {
+        //
     }
 
     @Test
@@ -325,6 +336,32 @@ class ComponentValidatorTest {
         expectedException
                 .expectMessage("Some error were detected:\n"
                         + "- No @Documentation on 'org.talend.test.failure.documentation.component.MyComponent'");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.wording.component", validateDocumentation = true,
+            validateDataSet = false, validateWording = true)
+    void testFailureDocumentationWordingComponent(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("Some error were detected:\n"
+                        + "- @Documentation on 'org.talend.test.failure.wording.component.MyComponent' is empty or is"
+                        + " not capitalized or ends not by a dot.");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.wording.option", validateDocumentation = true,
+            validateDataSet = false, validateWording = true)
+    void testFailureDocumentationWordingOption(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("Some error were detected:\n" + "- @Documentation on 'empty' is empty or is"
+                        + " not capitalized or ends not by a dot.\n- @Documentation on 'input' is empty or is not capitalized or ends not by a dot");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.wording", validateDocumentation = true, validateDataSet = false,
+            validateWording = true, success = true)
+    void testValidDocumentationWordingComponent(final ExceptionSpec expectedException) {
+        //
     }
 
     @Test

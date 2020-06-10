@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,30 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Stream;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
@@ -42,26 +49,27 @@ import javax.json.bind.config.PropertyOrderStrategy;
 import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 import routines.system.IPersistableRow;
 
 class RecordConvertersTest {
 
-    private final RecordConverters converter = new RecordConverters();
-
-    private final JsonProvider jsonProvider = JsonProvider.provider();
-
-    private final JsonBuilderFactory jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
-
-    private final RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+    @RegisterExtension
+    public final PluralRecordExtension pluralRecordExtension = new PluralRecordExtension();
 
     @Test
-    void studioTypes() throws Exception {
+    void studioTypes(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final SimpleRowStruct record = new SimpleRowStruct();
         record.character = 'a';
         record.character2 = 'a';
@@ -95,7 +103,8 @@ class RecordConvertersTest {
     }
 
     @Test
-    void studioTypes2() throws Exception {
+    void studioTypes2(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final RowStruct rowStruct = new RowStruct();
         rowStruct.col1int = 10;
         rowStruct.col2string = "stringy";
@@ -131,21 +140,21 @@ class RecordConvertersTest {
     }
 
     @Test
-    void pojo2Record() throws Exception {
+    void pojo2Record(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter, final Jsonb jsonb)
+            throws Exception {
         final Wrapper record = new Wrapper();
         record.value = "hey";
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final Record json = Record.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, Record.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
-            assertEquals("hey", json.getString("value"));
-        }
+        final Record json = Record.class
+                .cast(converter
+                        .toType(new RecordConverters.MappingMetaRegistry(), record, Record.class,
+                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        assertEquals("hey", json.getString("value"));
     }
 
     @Test
-    void nullSupport() throws Exception {
+    void nullSupport(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withString("value", null).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
@@ -158,7 +167,8 @@ class RecordConvertersTest {
     }
 
     @Test
-    void booleanRoundTrip() throws Exception {
+    void booleanRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
@@ -175,7 +185,8 @@ class RecordConvertersTest {
     }
 
     @Test
-    void intRoundTrip() throws Exception {
+    void intRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withInt("value", 2).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final IntStruct struct = IntStruct.class
@@ -192,7 +203,8 @@ class RecordConvertersTest {
     }
 
     @Test
-    void booleanRoundTripPojo() throws Exception {
+    void booleanRoundTripPojo(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final BoolStruct struct = BoolStruct.class
@@ -209,7 +221,8 @@ class RecordConvertersTest {
     }
 
     @Test
-    void stringRoundTrip() throws Exception {
+    void stringRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withString("value", "yes").build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final JsonObject json = JsonObject.class
@@ -226,7 +239,25 @@ class RecordConvertersTest {
     }
 
     @Test
-    void bytesRoundTrip() throws Exception {
+    void notRowStructIntRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter, final Jsonb jsonb)
+            throws Exception {
+        final Record record = recordBuilderFactory.newRecordBuilder().withInt("myInt", 2).build();
+        // run the round trip
+        final IntWrapper wrapper = IntWrapper.class
+                .cast(converter
+                        .toType(new RecordConverters.MappingMetaRegistry(), record, IntWrapper.class,
+                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        assertEquals(2, wrapper.myInt);
+        final Record toRecord = converter
+                .toRecord(new RecordConverters.MappingMetaRegistry(), wrapper, () -> jsonb, () -> recordBuilderFactory);
+        assertEquals(Schema.Type.INT, toRecord.getSchema().getEntries().iterator().next().getType());
+        assertEquals(2, toRecord.getInt("myInt"));
+    }
+
+    @Test
+    void bytesRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final byte[] bytes = new byte[] { 1, 2, 3 };
         final Record record = recordBuilderFactory.newRecordBuilder().withBytes("value", bytes).build();
         try (final Jsonb jsonb =
@@ -266,7 +297,8 @@ class RecordConvertersTest {
     }
 
     @Test
-    void convertListString() throws Exception {
+    void convertListString(final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter)
+            throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final Record record = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(),
@@ -286,7 +318,8 @@ class RecordConvertersTest {
     }
 
     @Test
-    void convertListObject() throws Exception {
+    void convertListObject(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             final Record record = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(),
@@ -303,6 +336,142 @@ class RecordConvertersTest {
             final Collection<Record> list = record.getArray(Record.class, "list");
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }
+    }
+
+    @Test
+    void bigDecimalsInArray(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
+        final BigDecimal pos1 = new BigDecimal("48.8480275637");
+        final BigDecimal pos2 = new BigDecimal("2.25369456784");
+        final List<BigDecimal> expected = asList(pos1, pos2);
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonObject json = jsonBuilderFactory
+                    .createObjectBuilder()
+                    .add("points", jsonBuilderFactory.createArrayBuilder().add(pos1).add(pos2).build())
+                    .build();
+            final Record record =
+                    converter.toRecord(new MappingMetaRegistry(), json, () -> jsonb, () -> recordBuilderFactory);
+            assertEquals(expected, record.getArray(BigDecimal.class, "points"));
+        }
+    }
+
+    @Test
+    void bigDecimalsInArrays(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
+        final BigDecimal pos1 = new BigDecimal("48.8480275637");
+        final BigDecimal pos2 = new BigDecimal("2.25369456784");
+        final BigDecimal pos3 = new BigDecimal(25);
+        final List<BigDecimal> expected = asList(pos1, pos2, pos1, pos2, pos2, pos1, pos3);
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonObject json =
+                    jsonBuilderFactory
+                            .createObjectBuilder()
+                            .add("coordinates", jsonBuilderFactory
+                                    .createArrayBuilder()
+                                    .add(jsonBuilderFactory.createArrayBuilder().add(pos1).add(pos2).build())
+                                    .add(jsonBuilderFactory.createArrayBuilder().add(pos1).add(pos2).build())
+                                    .add(jsonBuilderFactory.createArrayBuilder().add(pos2).add(pos1).add(pos3).build())
+                                    .build())
+                            .build();
+            final Record record =
+                    converter.toRecord(new MappingMetaRegistry(), json, () -> jsonb, () -> recordBuilderFactory);
+            assertEquals(expected,
+                    record
+                            .getArray(ArrayList.class, "coordinates")
+                            .stream()
+                            .flatMap(a -> a.stream())
+                            .flatMap(bd -> Stream.of(bd))
+                            .collect(toList()));
+        }
+    }
+
+    @Test
+    void pojoRoundTrip(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter, final Jsonb jsonb)
+            throws Exception {
+        JsonObject jsonObj1 =
+                jsonBuilderFactory.createObjectBuilder().add("string", "strval").add("number", 2010).build();
+        JsonObject jsonObj2 =
+                jsonBuilderFactory.createObjectBuilder().add("string", "strval2").add("number", 2222.0).build();
+        JsonArray aryOfJsonObj = jsonBuilderFactory.createArrayBuilder().add(jsonObj2).add(jsonObj2).build();
+        JsonArray aryOfDouble = jsonBuilderFactory.createArrayBuilder().add(12.0).add(15.3).build();
+        JsonArray aryOfBool = jsonBuilderFactory.createArrayBuilder().add(JsonValue.TRUE).add(JsonValue.FALSE).build();
+        Integer[] intAry = new Integer[] { 19, 20, 21 };
+        PojoWrapper pojo = new PojoWrapper("pojo", 19, 10.5, 2020l, jsonObj1, aryOfJsonObj, aryOfDouble, aryOfBool,
+                new JsonObject[] { jsonObj1 }, intAry);
+        //
+        final Record record = converter
+                .toRecord(new RecordConverters.MappingMetaRegistry(), pojo, () -> jsonb, () -> recordBuilderFactory);
+        //
+        assertEquals("pojo", record.getString("stringValue"));
+        assertEquals(19, record.getInt("intValue"));
+        assertEquals(10.5, record.getDouble("doubleValue"));
+        assertEquals(2020l, record.getLong("longValue"));
+        assertEquals("{\"string\":\"strval\",\"number\":2010.0}", record.getRecord("jsonValue").toString());
+        assertEquals("strval", record.getRecord("jsonValue").getString("string"));
+        assertEquals(2010, record.getRecord("jsonValue").getDouble("number"));
+        Iterator<JsonObject> itJson = record.getArray(JsonObject.class, "jsonListValue").iterator();
+        assertEquals(aryOfJsonObj.get(0).toString(), itJson.next().toString());
+        assertEquals(aryOfJsonObj.get(1).toString(), itJson.next().toString());
+        Iterator<Double> itDbl = record.getArray(Double.class, "jsonPrimitiveValue").iterator();
+        assertEquals(aryOfDouble.get(0), itDbl.next());
+        assertEquals(aryOfDouble.get(1), itDbl.next());
+        Iterator<Boolean> itBool = record.getArray(Boolean.class, "jsonBoolValue").iterator();
+        assertTrue(itBool.next());
+        assertFalse(itBool.next());
+        assertEquals(Arrays.stream(intAry).collect(toList()),
+                record.getArray(Integer.class, "intAryValue").stream().collect(toList()));
+        //
+        final PojoWrapper wrapper = PojoWrapper.class
+                .cast(converter
+                        .toType(new RecordConverters.MappingMetaRegistry(), record, PojoWrapper.class,
+                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        //
+        assertEquals("pojo", wrapper.stringValue);
+        assertEquals(19, wrapper.getIntValue());
+        assertEquals(10.5, wrapper.getDoubleValue());
+        assertEquals(2020l, wrapper.getLongValue());
+        assertEquals("{\"string\":\"strval\",\"number\":2010.0}", wrapper.getJsonValue().toString());
+        assertEquals("strval", wrapper.getJsonValue().getString("string"));
+        assertEquals(2010.0, wrapper.getJsonValue().getJsonNumber("number").doubleValue());
+        assertEquals(aryOfJsonObj.toString(), wrapper.getJsonListValue().toString());
+        assertEquals(aryOfDouble.toString(), wrapper.getJsonPrimitiveValue().toString());
+        assertEquals(JsonValue.TRUE, wrapper.getJsonBoolValue().get(0));
+        assertEquals(JsonValue.FALSE, wrapper.getJsonBoolValue().get(1));
+        assertEquals(jsonObj1.getString("string"),
+                JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getString("string"));
+        assertEquals(jsonObj1.getJsonNumber("number").doubleValue(),
+                JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getJsonNumber("number").doubleValue());
+        assertEquals(Arrays.stream(intAry).collect(toList()),
+                Arrays.stream(wrapper.getIntAryValue()).collect(toList()));
+    }
+
+    @Data
+    @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PojoWrapper {
+
+        private String stringValue;
+
+        private Integer intValue;
+
+        private Double doubleValue;
+
+        private Long longValue;
+
+        private JsonObject jsonValue;
+
+        private JsonArray jsonListValue;
+
+        private JsonArray jsonPrimitiveValue;
+
+        private JsonArray jsonBoolValue;
+
+        private JsonObject[] jsonAryValue;
+
+        private Integer[] intAryValue;
+
     }
 
     public static class Wrapper {
@@ -372,5 +541,10 @@ class RecordConvertersTest {
         public java.math.BigDecimal col10bigdec;
 
         public java.util.Date col11date;
+    }
+
+    public static class IntWrapper {
+
+        public int myInt;
     }
 }

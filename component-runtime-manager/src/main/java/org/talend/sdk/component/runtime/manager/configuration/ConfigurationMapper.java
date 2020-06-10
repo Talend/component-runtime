@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.lang.reflect.Field;
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,8 +67,11 @@ public class ConfigurationMapper {
                             .getNestedParameters()
                             .stream()
                             .filter(ConfigurationMapper::isPrimitive)
-                            .collect(toMap(p -> evaluateIndexes(p.getPath(), indexes),
-                                    p -> getValue(item, p.getName()).toString()));
+                            .map(p -> new AbstractMap.SimpleImmutableEntry<>(evaluateIndexes(p.getPath(), indexes),
+                                    getValue(item, p.getName())))
+                            .filter(p -> p.getValue() != null)
+                            .collect(
+                                    toMap(AbstractMap.SimpleImmutableEntry::getKey, p -> String.valueOf(p.getValue())));
 
                     res
                             .putAll(map(
@@ -137,7 +141,7 @@ public class ConfigurationMapper {
         StringBuilder evaluatedPath = new StringBuilder();
         for (Map.Entry<Integer, Integer> index : indexes.entrySet()) {
             int i = p.indexOf(placeholder);
-            evaluatedPath.append(p.substring(0, i)).append(index.getValue()).append("]");
+            evaluatedPath.append(p, 0, i).append(index.getValue()).append("]");
             p = p.substring(i + placeholder.length() + 1);
         }
         return evaluatedPath.append(p).toString();

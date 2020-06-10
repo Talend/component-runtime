@@ -67,7 +67,7 @@ jobs:
       - STEP=Update Documentation
       script:
       - travis_wait 50 mvn clean install -e -q -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
-      - cd documentation && travis_wait 50 mvn clean verify pre-site -e -Dwebhost.ftphost=$WEBHOST_FTPPHOST -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
+      - cd documentation && travis_wait 50 mvn clean verify pre-site -e -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
 
     - stage: master_build
       env:

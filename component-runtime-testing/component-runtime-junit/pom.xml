@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2019 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime-testing</artifactId>
-    <version>1.1.16-SNAPSHOT</version>
+    <version>1.1.23-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-junit</artifactId>
@@ -112,6 +112,12 @@
       <version>${log4j2.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>${joda.time.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -144,6 +150,15 @@
                 <exclude>**/EnvironmentalContext*</exclude>
               </excludes>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-banned-joda-time-dependency</id>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>
