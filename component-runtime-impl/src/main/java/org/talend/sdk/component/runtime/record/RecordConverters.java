@@ -55,6 +55,7 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -518,8 +519,11 @@ public class RecordConverters implements Serializable {
 
         private final Collection<BiConsumer<Record.Builder, Object>> recordProvisionners;
 
-        private MappingMeta(final Class<?> type, final MappingMetaRegistry registry,
-                final Supplier<RecordBuilderFactory> factory) {
+        // CHECKSTYLE:OFF
+        public MappingMeta(final Class<?> type, final MappingMetaRegistry registry,
+                final Supplier<RecordBuilderFactory> factory,
+                final BiFunction<Field, String, BiConsumer<Object, Record>> dynamicInstanceProvider,
+                final BiFunction<Field, RecordBuilderFactory, BiConsumer<Record.Builder, Object>> dynamicRecordProvider) {
             linearMapping = Stream.of(type.getInterfaces()).anyMatch(it -> it.getName().startsWith("routines.system."));
             if (!linearMapping) {
                 instanceProvisionners = null;
@@ -756,6 +760,18 @@ public class RecordConverters implements Serializable {
                                             .ifPresent(value -> builder
                                                     .withRecord(entry, mappingMeta.newRecord(value, builderFactory))));
                         }
+                        if ("routines.system.Dynamic".equals(fieldType.getName())) {
+                            instanceProvisionners.add(dynamicInstanceProvider.apply(field, name));
+                            final Schema.Entry entry = builderFactory
+                                    .newEntryBuilder()
+                                    .withName(name)
+                                    .withType(RECORD)
+                                    .withNullable(true)
+                                    .withElementSchema(mappingMeta.recordSchema)
+                                    .build();
+                            schemaBuilder.withEntry(entry);
+                            recordProvisionners.add(dynamicRecordProvider.apply(field, builderFactory));
+                        }
                     }
                 });
 
@@ -935,7 +951,7 @@ public class RecordConverters implements Serializable {
     @Data
     public static class MappingMetaRegistry implements Serializable {
 
-        private final Map<Class<?>, MappingMeta> registry = new ConcurrentHashMap<>();
+        protected final Map<Class<?>, MappingMeta> registry = new ConcurrentHashMap<>();
 
         private Object writeReplace() throws ObjectStreamException {
             return new Factory(); // don't serialize the mapping, recalculate it lazily
@@ -946,7 +962,7 @@ public class RecordConverters implements Serializable {
             if (meta != null) {
                 return meta;
             }
-            final MappingMeta mappingMeta = new MappingMeta(parameterType, this, factorySupplier);
+            final MappingMeta mappingMeta = new MappingMeta(parameterType, this, factorySupplier, null, null);
             final MappingMeta existing = registry.putIfAbsent(parameterType, mappingMeta);
             if (existing != null) {
                 return existing;

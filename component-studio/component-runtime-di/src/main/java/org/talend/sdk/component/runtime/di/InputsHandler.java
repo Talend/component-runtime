@@ -21,12 +21,13 @@ import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.runtime.di.record.DiMappingMetaRegistry;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
 public class InputsHandler extends BaseIOHandler {
 
-    private final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+    private final DiMappingMetaRegistry registry = new DiMappingMetaRegistry();
 
     public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
