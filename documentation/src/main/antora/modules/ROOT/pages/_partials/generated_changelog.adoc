@@ -1,5 +1,18 @@
 
 
+== Version 1.1.23
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1719[TCOMP-1719^]: Header responses for icon not propagated correctly from Component-server-vault-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-1734[TCOMP-1734^]: Studio froze when installing a patch with azure-dls-gen2-1.10.0-component.car
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1731[TCOMP-1731^]: Make connectors docker image TSBI compliant
+
 == Version 1.1.22
 
 === Bug
@@ -19,19 +32,13 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1729[TCOMP-1729^]: Upgrade to Apache Beam 2.21.0
 - link:https://jira.talendforge.org/browse/TCOMP-1730[TCOMP-1730^]: Upgrade johnzon to 1.2.6
 
+
+
 == Version 1.1.21
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1719[TCOMP-1719^]: Header responses for icon not propagated correctly from Component-server-vault-proxy
-- link:https://jira.talendforge.org/browse/TCOMP-1720[TCOMP-1720^]: Changing the version breaks deployment to Studio
-- link:https://jira.talendforge.org/browse/TCOMP-1721[TCOMP-1721^]: Component Manager Singleton is not thread safe
-
-
-
-=== New Feature
-
-- link:https://jira.talendforge.org/browse/TCOMP-1681[TCOMP-1681^]: Make ESB Studio job export TaCoKit compliant
 
 == Version 1.1.20
 

@@ -22,7 +22,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":122,
+    "commits":123,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -85,6 +85,12 @@
   },
   {
     "commits":2,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/31616269?v=4",
+    "id":"lcelton-talend"
+  },
+  {
+    "commits":2,
     "description":"\n\nBlog: https://www.linkedin.com/in/zoltantakacsdev/",
     "gravatar":"https://avatars0.githubusercontent.com/u/2045409?v=4",
     "id":"ZoltanTakacs",
@@ -103,12 +109,6 @@
     "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
     "name":"Ismaël Mejía"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars2.githubusercontent.com/u/31616269?v=4",
-    "id":"lcelton-talend"
   },
   {
     "commits":1,
@@ -139,7 +139,7 @@
   },
   {
     "commits":1,
-    "description":"",
+    "description":"Senior Cloud Software Architect",
     "gravatar":"https://avatars1.githubusercontent.com/u/783286?v=4",
     "id":"sgandon"
   },
