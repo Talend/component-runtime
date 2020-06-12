@@ -37,7 +37,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
@@ -71,7 +70,6 @@ public class CarMain {
     }
 
     public static void main(final String[] args) {
-        System.out.println(Arrays.asList(args));
         if (args == null || args.length < 2) {
             help();
             return;
@@ -284,9 +282,7 @@ public class CarMain {
                     if (!output.getCanonicalPath().startsWith(m2Root.getCanonicalPath())) {
                         throw new IOException("The output file is not contained in the destination directory");
                     }
-                    if (output.exists()) {
-                        System.out.println(output + " already exists, skipping");
-                    } else {
+                    if (!output.exists()) {
                         output.getParentFile().mkdirs();
                         Files.copy(jar, output.toPath());
                     }

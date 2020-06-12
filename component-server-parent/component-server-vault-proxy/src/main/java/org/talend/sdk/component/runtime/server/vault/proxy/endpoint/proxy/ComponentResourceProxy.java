@@ -19,7 +19,6 @@ import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML;
 import static org.talend.sdk.component.runtime.server.vault.proxy.endpoint.jaxrs.Responses.decorate;
 
 import java.util.Map;
@@ -105,14 +104,14 @@ public class ComponentResourceProxy {
     @GET
     @Path("icon/family/{id}")
     @CacheResult
-    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM, APPLICATION_SVG_XML })
+    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM, "image/svg+xml" })
     public CompletionStage<Response> familyIcon() {
         return handler.forward();
     }
 
     @GET
     @Path("icon/{id}")
-    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM, APPLICATION_SVG_XML })
+    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM, "image/svg+xml" })
     @CacheResult
     public CompletionStage<Response> icon() {
         return handler.forward();
