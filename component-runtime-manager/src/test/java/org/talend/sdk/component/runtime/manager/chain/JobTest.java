@@ -140,6 +140,27 @@ class JobTest {
     }
 
     @Test
+    void respectMaxRecordsSize(final TestInfo info, @TempDir final Path temporaryFolder) {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), plugin);
+        try (final ComponentManager manager = newTestManager(jar)) {
+            Job
+                    .components()
+                    .component("countdown", "lifecycle://countdown?__version=1&start=5")
+                    .component("square", "lifecycle://square?__version=1")
+                    .connections()
+                    .from("countdown")
+                    .to("square")
+                    .build()
+                    .property("streaming.maxRecords", "2")
+                    .run();
+            final LocalPartitionMapper mapper = LocalPartitionMapper.class.cast(manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get());
+            assertEquals(asList("start", "produce(4)", "produce(3)", "stop"), ((Supplier<List<String>>) mapper.getDelegate()).get());
+        }
+    }
+
+    @Test
     void multipleEmitSupport(final TestInfo info, @TempDir final Path temporaryFolder) {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
