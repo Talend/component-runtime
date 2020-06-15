@@ -42,6 +42,10 @@ import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.record.DynamicColumns;
 import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 
@@ -148,12 +152,13 @@ class ComponentValidatorTest {
             cfg.setValidateNoFinalOption(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             cfg.setValidateWording(config.validateWording());
+            cfg.setValidateDynamicColumns(true);
             Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
             final TestLog log = new TestLog();
             store.put(TestLog.class.getName(), log);
-            store.put(ComponentValidator.class.getName(), new ComponentValidator(cfg, new File[] { pluginDir }, log));
+            store.put(ComponentValidator.class.getName(), new ComponentValidator(cfg, new File[]{ pluginDir }, log));
             store.put(ExceptionSpec.class.getName(), new ExceptionSpec());
         }
 
@@ -331,7 +336,7 @@ class ComponentValidatorTest {
 
     @Test
     @ComponentPackage(value = "org.talend.test.failure.documentation.component", validateDocumentation = true,
-            validateDataSet = false)
+                      validateDataSet = false)
     void testFailureDocumentationComponent(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("Some error were detected:\n"
@@ -340,7 +345,7 @@ class ComponentValidatorTest {
 
     @Test
     @ComponentPackage(value = "org.talend.test.failure.wording.component", validateDocumentation = true,
-            validateDataSet = false, validateWording = true)
+                      validateDataSet = false, validateWording = true)
     void testFailureDocumentationWordingComponent(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("Some error were detected:\n"
@@ -350,7 +355,7 @@ class ComponentValidatorTest {
 
     @Test
     @ComponentPackage(value = "org.talend.test.failure.wording.option", validateDocumentation = true,
-            validateDataSet = false, validateWording = true)
+                      validateDataSet = false, validateWording = true)
     void testFailureDocumentationWordingOption(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("Some error were detected:\n" + "- @Documentation on 'empty' is empty or is"
@@ -359,14 +364,28 @@ class ComponentValidatorTest {
 
     @Test
     @ComponentPackage(value = "org.talend.test.valid.wording", validateDocumentation = true, validateDataSet = false,
-            validateWording = true, success = true)
+                      validateWording = true, success = true)
     void testValidDocumentationWordingComponent(final ExceptionSpec expectedException) {
         //
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.failure.dynamiccolumns", validateDataSet = false)
+    void testFailureDynamicColumnsComponent(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("Some error were detected:\n" +
+                        "- org.talend.test.failure.dynamiccolumns.MyComponent has @DynamicColumns but is not implementing @Producer or @ElementListener.");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.dynamiccolumns", success = true)
+    void testValidDynamicColumnsComponent(final ExceptionSpec expectedException) {
+        //
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.failure.documentation.option", validateDocumentation = true,
-            validateDataSet = false)
+                      validateDataSet = false)
     void testFailureDocumentationOption(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("Some error were detected:\n"
@@ -535,7 +554,7 @@ class ComponentValidatorTest {
 
     @Test
     @ComponentPackage(value = "org.talend.test.valid.localconfiguration", success = true, validateDataSet = false,
-            pluginId = "test")
+                      pluginId = "test")
     void testValidLocalConfigurationKey() {
         // no-op
     }
