@@ -10,6 +10,12 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1737[TCOMP-1737^]: Allow to force installation of an already existing component with the car bundle
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1731[TCOMP-1731^]: Make connectors docker image TSBI compliant
@@ -32,6 +38,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1729[TCOMP-1729^]: Upgrade to Apache Beam 2.21.0
 - link:https://jira.talendforge.org/browse/TCOMP-1730[TCOMP-1730^]: Upgrade johnzon to 1.2.6
+
+
 
 
 
