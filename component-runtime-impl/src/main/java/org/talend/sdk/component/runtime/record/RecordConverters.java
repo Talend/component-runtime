@@ -76,6 +76,7 @@ import org.apache.johnzon.core.JsonLongImpl;
 import org.apache.johnzon.jsonb.extension.JsonValueReader;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.json.OutputRecordHolder;
 import org.talend.sdk.component.runtime.record.json.PojoJsonbProvider;
@@ -764,7 +765,8 @@ public class RecordConverters implements Serializable {
                             instanceProvisionners.add(dynamicInstanceProvider.apply(field, name));
                             final Schema.Entry entry = builderFactory
                                     .newEntryBuilder()
-                                    .withName(name)
+                                    .withName(name + DynamicColumns.DYNAMIC_COLUMN_MARKER)
+                                    .withRawName(name)
                                     .withType(RECORD)
                                     .withNullable(true)
                                     .withElementSchema(mappingMeta.recordSchema)
