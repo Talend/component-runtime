@@ -29,10 +29,12 @@ import org.talend.sdk.component.api.configuration.constraint.Uniques;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 
 import lombok.Getter;
 
 @Emitter(family = "chain", name = "list")
+@DynamicColumns
 public class ListInput implements Serializable {
 
     private final Collection<String> list;

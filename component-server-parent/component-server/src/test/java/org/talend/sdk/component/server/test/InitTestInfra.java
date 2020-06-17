@@ -64,6 +64,7 @@ import org.apache.ziplock.Files;
 import org.apache.ziplock.IO;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
 
@@ -450,6 +451,10 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             processorAnnotation.visit("family", "comp");
             processorAnnotation.visit("name", "proc");
             processorAnnotation.visitEnd();
+            final AnnotationVisitor pAnnotation =
+                    writer.visitAnnotation(Type.getDescriptor(DynamicColumns.class), true);
+            pAnnotation.visit("enabled", true);
+            pAnnotation.visitEnd();
             writer
                     .visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
                             null, Type.getInternalName(Object.class),

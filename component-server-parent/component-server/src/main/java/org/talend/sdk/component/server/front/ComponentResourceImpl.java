@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -34,6 +33,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,10 +55,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMapperMeta;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
@@ -406,7 +409,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 }
 
                 final Locale locale = localeMapper.mapLocale(language);
-                final boolean isProcessor = ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta);
+                final boolean isProcessor = ProcessorMeta.class.isInstance(meta);
 
                 final ComponentDetail componentDetail = new ComponentDetail();
                 componentDetail.setLinks(emptyList() /* todo ? */);
@@ -427,13 +430,14 @@ public class ComponentResourceImpl implements ComponentResource {
                         .setActions(actionsService
                                 .findActions(meta.getParent().getName(), container, locale, meta,
                                         meta.getParent().findBundle(container.getLoader(), locale)));
-                if (isProcessor) {
-                    componentDetail.setMetadata(emptyMap());
-                } else {
-                    componentDetail
-                            .setMetadata(singletonMap("mapper::infinite", Boolean
-                                    .toString(ComponentFamilyMeta.PartitionMapperMeta.class.cast(meta).isInfinite())));
+                HashMap<String, String> metadata = new LinkedHashMap<>(2);
+                metadata.put(DynamicColumns.DYNAMIC_COLUMN_META_MAME, Boolean.toString(meta.isSupportDynamicColumns()));
+                if (!isProcessor) {
+                    metadata
+                            .put("mapper::infinite",
+                                    Boolean.toString(PartitionMapperMeta.class.cast(meta).isInfinite()));
                 }
+                componentDetail.setMetadata(metadata);
 
                 return componentDetail;
             }).orElseGet(() -> {
@@ -524,9 +528,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 .map(vals -> vals
                         .stream()
                         .map(this::normalizeCategory)
-                        .map(category -> category.replace("${family}", meta.getParent().getName())) // not
-                                                                                                    // i18n-ed
-                                                                                                    // yet
+                        .map(category -> category.replace("${family}", meta.getParent().getName())) // not i18n-ed yet
                         .map(category -> meta
                                 .getParent()
                                 .findBundle(loader, locale)
