@@ -50,7 +50,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -85,14 +84,13 @@ import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
-import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.record.DynamicColumns;
+import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
@@ -369,7 +367,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateLocalConfiguration(final AnnotationFinder finder, final String pluginId,
-                                            final Set<String> errors) {
+            final Set<String> errors) {
 
         // first check TALEND-INF/local-configuration.properties
         errors
@@ -505,7 +503,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private boolean hasPlaceholder(final ClassLoader loader, final ParameterMeta parameterMeta,
-                                   final ParameterBundle parent) {
+            final ParameterBundle parent) {
         return parameterMeta.findBundle(loader, Locale.ROOT).placeholder(parent).isPresent();
     }
 
@@ -524,7 +522,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private Stream<AbstractMap.SimpleEntry<String, ParameterMeta>>
-    toFlatNonPrimitiveConfig(final List<ParameterMeta> config) {
+            toFlatNonPrimitiveConfig(final List<ParameterMeta> config) {
         if (config == null || config.isEmpty()) {
             return empty();
         }
@@ -563,9 +561,9 @@ public class ComponentValidator extends BaseTask {
 
         return ARRAY.equals(param.getType()) && param.getNestedParameters() != null
                 && param
-                .getNestedParameters()
-                .stream()
-                .anyMatch(p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
+                        .getNestedParameters()
+                        .stream()
+                        .anyMatch(p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
 
     }
 
@@ -592,7 +590,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateDocumentation(final AnnotationFinder finder, final List<Class<?>> components,
-                                       final Set<String> errors) {
+            final Set<String> errors) {
         errors
                 .addAll(components
                         .stream()
@@ -610,7 +608,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateDocumentationWording(final AnnotationFinder finder, final List<Class<?>> components,
-                                              final Set<String> errors) {
+            final Set<String> errors) {
         final Predicate<String> isIncorrectWording = s -> !s.matches("^[A-Z0-9]+.*\\.$");
         final String error = "@Documentation on '%s' is empty or is not capitalized or ends not by a dot.";
         errors
@@ -631,7 +629,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateInternationalization(final AnnotationFinder finder, final List<Class<?>> components,
-                                              final Set<String> errors) {
+            final Set<String> errors) {
         errors
                 .addAll(components
                         .stream()
@@ -723,7 +721,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateInternationalizationWording(final AnnotationFinder finder, final List<Class<?>> components,
-                                                     final Set<String> errors) {
+            final Set<String> errors) {
         // TODO: define rules to apply to messages to users.
         // as a starter can apply it to all non enum, *_displayname and *_placeholder
     }
@@ -741,7 +739,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateModel(final AnnotationFinder finder, final List<Class<?>> components,
-                               final Set<String> errors) {
+            final Set<String> errors) {
         errors
                 .addAll(components
                         .stream()
@@ -885,7 +883,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateDataSet(final AnnotationFinder finder, final List<Class<?>> components,
-                                 final Set<String> errors) {
+            final Set<String> errors) {
         final List<Class<?>> datasetClasses = finder.findAnnotatedClasses(DataSet.class);
         final Map<Class<?>, String> datasets =
                 datasetClasses.stream().collect(toMap(identity(), d -> d.getAnnotation(DataSet.class).value()));
@@ -1049,9 +1047,9 @@ public class ComponentValidator extends BaseTask {
             final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
             return Stream
                     .concat(annotatedMethods
-                                    .stream()
-                                    .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
-                                    .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
+                            .stream()
+                            .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
+                            .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
                             annotatedMethods
                                     .stream()
                                     .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
@@ -1208,22 +1206,13 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateDynamicColumns(final AnnotationFinder finder, final Set<String> errors) {
-        final List<Class<?>> allDynColClzz = finder.findAnnotatedClasses(DynamicColumns.class);
-        final Set<String> ok = allDynColClzz.stream()
-                .flatMap(c -> of(c.getMethods())
-                                .filter(m -> m.isAnnotationPresent(ElementListener.class) || m
-                                        .isAnnotationPresent(Producer.class))
-                                .filter(m -> m.getDeclaringClass() == c)
-                                .map(m -> m.getDeclaringClass().getName())
-                )
-                .sorted()
-                .collect(toSet());
         errors
-                .addAll(allDynColClzz
+                .addAll(finder
+                        .findAnnotatedClasses(DynamicColumns.class)
                         .stream()
-                        .filter(clz-> !ok.contains(clz.getName()))
-                        .map(cl -> cl
-                                .getName() + " has @DynamicColumns but is not implementing @Producer or @ElementListener.")
+                        .filter(m -> !m.isAnnotationPresent(PartitionMapper.class)
+                                && !m.isAnnotationPresent(Processor.class))
+                        .map(c -> c.getName() + " has @DynamicColumns but is not a PartitionMapper or Processor.")
                         .sorted()
                         .collect(toSet()));
     }

@@ -167,7 +167,6 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "true", property = "talend.validation.dynamicColumns")
     private boolean validateDynamicColumns;
 
-
     @Override
     public void doExecute() {
         if (!validatePlaceholder) {

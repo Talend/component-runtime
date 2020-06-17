@@ -15,19 +15,11 @@
  */
 package org.talend.test.failure.dynamiccolumns;
 
-import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
-
 import java.io.Serializable;
 
-import javax.json.JsonObject;
-
-import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.record.DynamicColumns;
+import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 
 @Version
 @DynamicColumns
