@@ -32,6 +32,7 @@ public class OutputsHandler extends BaseIOHandler {
 
     private final JsonBuilderFactory jsonBuilderFactory;
 
+    // TODO: repplace the registry by the DiMappingMetaRegistry
     private final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
 
     public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
@@ -43,6 +44,7 @@ public class OutputsHandler extends BaseIOHandler {
     public OutputFactory asOutputFactory() {
         return name -> value -> {
             final BaseIOHandler.IO ref = connections.get(getActualName(name));
+            // TODO: do the same as in JavaJet for input Records
             if (ref != null && value != null) {
                 final String jsonValueMapper;
                 if (value instanceof javax.json.JsonValue) {

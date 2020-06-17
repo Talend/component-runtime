@@ -39,6 +39,7 @@ import java.util.function.Supplier;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMeta;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
@@ -68,8 +69,8 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
             final Record rcd = record.getOptionalRecord(name).orElse(null);
             final Dynamic dynamic = new Dynamic();
             if (rcd != null) {
-                rcd.getSchema().getEntries().stream().forEach(entry -> {
-                    DynamicMetadata metadata = new DynamicMetadata();
+                rcd.getSchema().getEntries().forEach(entry -> {
+                    final DynamicMetadata metadata = new DynamicMetadata();
                     metadata.setName(entry.getName());
                     metadata.setDbName(entry.getOriginalFieldName());
                     metadata.setNullable(entry.isNullable());
@@ -131,14 +132,14 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
     }
 
     BiConsumer<Record.Builder, Object> dynamicRecordProvisionner(final Field field,
-            final RecordBuilderFactory builderFactory) {
+            final RecordBuilderFactory factory) {
         return (builder, instance) -> {
             try {
-                Dynamic dynamic = Dynamic.class.cast(field.get(instance));
-                final Builder dynRecordBuilder = builderFactory.newRecordBuilder();
-                dynamic.metadatas.stream().forEach(meta -> {
-                    Object value = dynamic.getColumnValue(meta.getName());
-                    Entry.Builder entry = builderFactory
+                final Dynamic dynamic = Dynamic.class.cast(field.get(instance));
+                final Builder dynRecordBuilder = factory.newRecordBuilder();
+                dynamic.metadatas.forEach(meta -> {
+                    final Object value = dynamic.getColumnValue(meta.getName());
+                    final Entry.Builder entry = factory
                             .newEntryBuilder()
                             .withName(meta.getName())
                             .withRawName(meta.getDbName())
@@ -159,7 +160,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                         break;
                     case "id_Byte":
                         entry.withType(BYTES);
-                        byte[] bytes = value != null ? ((java.nio.ByteBuffer) value).array() : null;
+                        final byte[] bytes = value != null ? ((java.nio.ByteBuffer) value).array() : null;
                         dynRecordBuilder.withBytes(entry.build(), bytes);
                         break;
                     case "id_Integer":
@@ -192,14 +193,15 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                 });
                 final Record dynamicRecord = dynRecordBuilder.build();
                 builder
-                        .withRecord(builderFactory
+                        .withRecord(factory
                                 .newEntryBuilder()
-                                .withName(field.getName())
+                                .withName(field.getName() + DynamicColumns.DYNAMIC_COLUMN_MARKER)
+                                .withRawName(field.getName())
                                 .withNullable(true)
                                 .withType(RECORD)
                                 .withElementSchema(dynamicRecord.getSchema())
                                 .build(), dynamicRecord);
-            } catch (final Exception e) {
+            } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
         };
