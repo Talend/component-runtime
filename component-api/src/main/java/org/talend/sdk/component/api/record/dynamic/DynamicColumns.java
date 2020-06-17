@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.api.record;
+package org.talend.sdk.component.api.record.dynamic;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -24,11 +24,14 @@ import java.lang.annotation.Target;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Documentation("Declare that the component is able to handle Studio Dynamic type. This is a Studio only feature."
-        + "The annotation has to be declared on components implementing  `@Producer` and `@ElementListener` methods.")
-
+        + "The annotation has to be declared on components marked as `@Processor` or `@PartitionMapper`.")
 @Target(TYPE)
 @Retention(RUNTIME)
 public @interface DynamicColumns {
 
-    final String DYNAMIC_COLUMN_PREFIX = "$$DYNAMIC_COLUMN";
+    public boolean enabled() default true;
+
+    final String DYNAMIC_COLUMN_MARKER = "___TCK_DYNAMIC_COLUMN___";
+
+    final String DYNAMIC_COLUMN_META_MAME = "support::dynamiccolumns";
 }
