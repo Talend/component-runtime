@@ -118,6 +118,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                     default:
                         throw new IllegalStateException("Unexpected value: " + entry.getType());
                     }
+                    // TODO check if index is 0 based?
                     metadata.setColumnPosition(dynamic.metadatas.size());
                     dynamic.metadatas.add(metadata);
                     dynamic.addColumnValue(rcd.get(Object.class, entry.getName()));
