@@ -239,7 +239,7 @@ public class RecordConverters implements Serializable {
         return it;
     }
 
-    private Schema toSchema(final RecordBuilderFactory factory, final Object next) {
+    static Schema toSchema(final RecordBuilderFactory factory, final Object next) {
         if (String.class.isInstance(next) || JsonString.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.STRING).build();
         }
@@ -787,6 +787,17 @@ public class RecordConverters implements Serializable {
             }
         }
 
+        private Schema.Entry getEntryForArrayType(final RecordBuilderFactory builderFactory,
+                final Supplier<RecordBuilderFactory> factory, final String name, final Collection value) {
+            return builderFactory
+                    .newEntryBuilder()
+                    .withNullable(true)
+                    .withName(name)
+                    .withType(ARRAY)
+                    .withElementSchema(toSchema(factory.get(), value))
+                    .build();
+        }
+
         private void handleCollection(final MappingMetaRegistry registry, final Supplier<RecordBuilderFactory> factory,
                 final RecordBuilderFactory builderFactory, final Schema.Builder schemaBuilder, final Field field,
                 final String name, final Class<?> fieldType) {
@@ -805,7 +816,8 @@ public class RecordConverters implements Serializable {
             schemaBuilder.withEntry(entry);
             recordProvisionners
                     .add((builder, instance) -> ofNullable(getField(instance, field, Collection.class))
-                            .ifPresent(value -> builder.withArray(entry, value)));
+                            .ifPresent(value -> builder
+                                    .withArray(getEntryForArrayType(builderFactory, factory, name, value), value)));
         }
 
         private void handleSet(final MappingMetaRegistry registry, final Supplier<RecordBuilderFactory> factory,
@@ -829,7 +841,8 @@ public class RecordConverters implements Serializable {
             schemaBuilder.withEntry(entry);
             recordProvisionners
                     .add((builder, instance) -> ofNullable(getField(instance, field, Collection.class))
-                            .ifPresent(value -> builder.withArray(entry, value)));
+                            .ifPresent(value -> builder
+                                    .withArray(getEntryForArrayType(builderFactory, factory, name, value), value)));
         }
 
         private void handleArray(final MappingMetaRegistry registry, final Supplier<RecordBuilderFactory> factory,
@@ -852,11 +865,9 @@ public class RecordConverters implements Serializable {
             schemaBuilder.withEntry(entry);
             recordProvisionners
                     .add((builder, instance) -> ofNullable(getField(instance, field, Object[].class)) // todo:
-                            // check
-                            // this
-                            // cast
                             .map(Arrays::asList)
-                            .ifPresent(value -> builder.withArray(entry, value)));
+                            .ifPresent(value -> builder
+                                    .withArray(getEntryForArrayType(builderFactory, factory, name, value), value)));
         }
 
         private void handleBigDecimal(final RecordBuilderFactory builderFactory, final Schema.Builder schemaBuilder,
