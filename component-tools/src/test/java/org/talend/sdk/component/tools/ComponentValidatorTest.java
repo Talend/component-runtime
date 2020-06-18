@@ -30,6 +30,8 @@ import java.lang.annotation.Target;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -78,6 +80,10 @@ class ComponentValidatorTest {
         boolean validateWording() default false;
 
         boolean validateSvg() default true;
+
+        boolean validateExceptions() default false;
+
+        String sourceRoot() default "";
     }
 
     @Slf4j
@@ -148,12 +154,13 @@ class ComponentValidatorTest {
             cfg.setValidateNoFinalOption(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             cfg.setValidateWording(config.validateWording());
+            cfg.setValidateExceptions(config.validateExceptions());
             Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
             final TestLog log = new TestLog();
             store.put(TestLog.class.getName(), log);
-            store.put(ComponentValidator.class.getName(), new ComponentValidator(cfg, new File[] { pluginDir }, log));
+            store.put(ComponentValidator.class.getName(), new ComponentValidator(cfg, new File[] { pluginDir }, Collections.singletonList(config.sourceRoot()), log));
             store.put(ExceptionSpec.class.getName(), new ExceptionSpec());
         }
 
@@ -198,6 +205,18 @@ class ComponentValidatorTest {
         public Class<? extends Annotation> injectionMarker() {
             return Inject.class; // skip
         }
+    }
+
+    @Test
+    @ComponentPackage(value="org.talend.test.failure.exceptions", validateExceptions = true)
+    void testFailureException(final ExceptionSpec expectedException) {
+        expectedException.expectMessage("- Component should declare a custom ComponentException;");
+    }
+
+    @Test
+    @ComponentPackage(value="org.talend.test.valid.exceptions", validateExceptions = true, success = true)
+    void testValidException() {
+        //
     }
 
     @Test

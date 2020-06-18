@@ -50,6 +50,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +83,7 @@ import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
+import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
@@ -129,9 +131,12 @@ public class ComponentValidator extends BaseTask {
 
     private final List<ValidationExtension> extensions;
 
-    public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
+    private final List<String> compileSourceRoots;
+
+    public ComponentValidator(final Configuration configuration, final File[] classes, final List<String> compileSourceRoots,  final Object log) {
         super(classes);
         this.configuration = configuration;
+        this.compileSourceRoots = compileSourceRoots;
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
@@ -242,6 +247,10 @@ public class ComponentValidator extends BaseTask {
             }
         }
 
+        if (configuration.isValidateExceptions()) {
+            validateExceptions(errors);
+        }
+
         if (!extensions.isEmpty()) {
             final ValidationExtension.ValidationContext context = new ValidationExtension.ValidationContext() {
 
@@ -280,6 +289,8 @@ public class ComponentValidator extends BaseTask {
 
         log.info("Validated components: " + components.stream().map(Class::getSimpleName).collect(joining(", ")));
     }
+
+
 
     private String guessPluginId() { // assume folder name == module id
         return ofNullable(classes).flatMap(c -> Stream.of(c).map(f -> {
@@ -1161,6 +1172,41 @@ public class ComponentValidator extends BaseTask {
                         .collect(toSet()));
     }
 
+    private void validateExceptions(Set<String> errors) {
+        System.out.println("Validate exceptions");
+
+        boolean exceptionFound = Arrays.stream(classes).flatMap(f -> streamClassesInDirectory(null, f))
+                .filter(ComponentException.class::isAssignableFrom)
+                .findFirst().isPresent();
+
+
+        if (!exceptionFound) {
+            errors.add("Component should declare a custom ComponentException;");
+        }
+    }
+
+    private Stream<Class> streamClassesInDirectory(String pckg, File classFile) {
+
+        System.out.println("Looking into " + classFile);
+
+        if (classFile.isDirectory()) {
+            return Arrays.stream(classFile.listFiles()).flatMap(f -> streamClassesInDirectory(pckg == null ? "" : (pckg + classFile.getName() + "."), f));
+        }
+
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (classFile.getName().endsWith(".class")) {
+            String className = classFile.getName().substring(0, classFile.getName().lastIndexOf("."));
+            try {
+                System.out.println("Loading class " +pckg + className);
+                return Stream.of(loader.loadClass(pckg + className));
+            } catch (Exception e) {
+                log.info("Could not load class : "+ pckg + className + "=>" + e.getMessage());
+            }
+        }
+
+        return null;
+    }
+
     private Stream<Class<? extends Annotation>> getActionsStream() {
         return of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
                 Suggestions.class, Update.class);
@@ -1250,5 +1296,9 @@ public class ComponentValidator extends BaseTask {
         private boolean validateNoFinalOption;
 
         private String pluginId;
+
+        private boolean validateExceptions;
+
+        private boolean failOnValidateExceptions;
     }
 }

@@ -20,6 +20,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
 import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.maven.plugins.annotations.Mojo;
@@ -150,6 +151,18 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean validateNoFinalOption;
 
     /**
+     * Should the exceptions thrown be validated
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.exceptions")
+    private boolean validateExceptions;
+
+    /**
+     * Should build fail on exception validation error
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.failOnValidateExceptions")
+    private boolean failOnValidateExceptions;
+
+    /**
      * Should the option names be validated.
      */
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.pluginId")
@@ -190,14 +203,19 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateNoFinalOption(validateNoFinalOption);
         configuration.setValidateWording(validateWording);
         configuration.setPluginId(pluginId);
+        configuration.setValidateExceptions(validateExceptions);
+        configuration.setFailOnValidateExceptions(failOnValidateExceptions);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
-        new ComponentValidator(configuration, new File[] { classes }, getLog()) {
+        List<String> compileSourceRoots = project.getCompileSourceRoots();
+        new ComponentValidator(configuration, new File[] { classes }, compileSourceRoots, getLog()) {
 
             @Override
             protected Locale getLocale() {
                 return locale;
             }
         }.run();
+
+
     }
 }
