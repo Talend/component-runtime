@@ -75,6 +75,14 @@
     </dependency>
 
     <dependency>
+      <groupId>org.talend.studio</groupId>
+      <artifactId>routines-stubs</artifactId>
+      <version>741</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/routines.jar</systemPath>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-direct-java</artifactId>
       <version>${beam.version}</version>
