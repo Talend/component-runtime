@@ -138,6 +138,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                 final Builder dynRecordBuilder = factory.newRecordBuilder();
                 dynamic.metadatas.forEach(meta -> {
                     final Object value = dynamic.getColumnValue(meta.getName());
+                    log.debug("[dynamicRecordProvisionner] {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                     final Entry.Builder entry = factory
                             .newEntryBuilder()
                             .withName(meta.getName())
