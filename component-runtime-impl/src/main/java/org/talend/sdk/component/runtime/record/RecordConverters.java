@@ -741,6 +741,15 @@ public class RecordConverters implements Serializable {
                         recordProvisionners
                                 .add((builder, instance) -> ofNullable(getField(instance, field, Date.class))
                                         .ifPresent(value -> builder.withDateTime(entry, value)));
+                    } else if (fieldType == Object.class) {
+                        final MappingMeta mappingMeta = registry.find(fieldType, factory);
+                        instanceProvisionners
+                                .add((instance, record) -> setField(instance, field, record.getString(name)));
+                        final Schema.Entry entry = newEntry(builderFactory, name, true, STRING);
+                        schemaBuilder.withEntry(entry);
+                        recordProvisionners
+                                .add((builder, instance) -> ofNullable(getField(instance, field, Object.class))
+                                        .ifPresent(value -> builder.withString(entry, value.toString())));
                     } else {
                         final MappingMeta mappingMeta = registry.find(fieldType, factory);
                         if (mappingMeta.linearMapping) {
