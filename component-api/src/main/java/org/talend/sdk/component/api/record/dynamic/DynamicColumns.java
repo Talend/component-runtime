@@ -31,7 +31,13 @@ public @interface DynamicColumns {
 
     public boolean enabled() default true;
 
+    /**
+     * Marker used for tagging a dynamic column's name
+     */
     final String DYNAMIC_COLUMN_MARKER = "___TCK_DYNAMIC_COLUMN___";
 
+    /**
+     * Property name for Component's metadata returned by the component-server
+     */
     final String DYNAMIC_COLUMN_META_MAME = "support::dynamiccolumns";
 }

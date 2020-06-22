@@ -47,6 +47,10 @@ import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegis
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+/**
+ * This class overides the component-runtime-impl and provides the needed provisioning for dynamic columns.
+ * Its scope is runtime Studio only.
+ */
 public class DiMappingMetaRegistry extends MappingMetaRegistry {
 
     @Override
@@ -56,7 +60,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
             return meta;
         }
         final MappingMeta mappingMeta = new MappingMeta(parameterType, this, factorySupplier,
-                this::dynamicInstanceProvisionner, this::dynamicRecordProvisionner);
+                this::dynamicInstanceProvisioner, this::dynamicRecordProvisioner);
         final MappingMeta existing = registry.putIfAbsent(parameterType, mappingMeta);
         if (existing != null) {
             return existing;
@@ -64,7 +68,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
         return mappingMeta;
     }
 
-    BiConsumer<Object, Record> dynamicInstanceProvisionner(final Field field, final String name) {
+    BiConsumer<Object, Record> dynamicInstanceProvisioner(final Field field, final String name) {
         return (instance, record) -> {
             final Record rcd = record.getOptionalRecord(name).orElse(null);
             final Dynamic dynamic = new Dynamic();
@@ -130,15 +134,14 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
         };
     }
 
-    BiConsumer<Record.Builder, Object> dynamicRecordProvisionner(final Field field,
-            final RecordBuilderFactory factory) {
+    BiConsumer<Record.Builder, Object> dynamicRecordProvisioner(final Field field, final RecordBuilderFactory factory) {
         return (builder, instance) -> {
             try {
                 final Dynamic dynamic = Dynamic.class.cast(field.get(instance));
                 final Builder dynRecordBuilder = factory.newRecordBuilder();
                 dynamic.metadatas.forEach(meta -> {
                     final Object value = dynamic.getColumnValue(meta.getName());
-                    log.debug("[dynamicRecordProvisionner] {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
+                    log.debug("[dynamicRecordProvisioner] {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                     final Entry.Builder entry = factory
                             .newEntryBuilder()
                             .withName(meta.getName())
