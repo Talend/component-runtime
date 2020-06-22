@@ -239,7 +239,7 @@ public class RecordConverters implements Serializable {
         return it;
     }
 
-    static Schema toSchema(final RecordBuilderFactory factory, final Object next) {
+    public static Schema toSchema(final RecordBuilderFactory factory, final Object next) {
         if (String.class.isInstance(next) || JsonString.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.STRING).build();
         }
@@ -778,7 +778,7 @@ public class RecordConverters implements Serializable {
                                     .withRawName(name)
                                     .withType(RECORD)
                                     .withNullable(true)
-                                    .withElementSchema(mappingMeta.recordSchema)
+                                    .withElementSchema(builderFactory.newSchemaBuilder(RECORD).build())
                                     .build();
                             schemaBuilder.withEntry(entry);
                             recordProvisioners.add(dynamicRecordProvisioner.apply(field, builderFactory));
