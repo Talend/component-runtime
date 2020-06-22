@@ -873,7 +873,7 @@ public class RecordConverters implements Serializable {
                     .build();
             schemaBuilder.withEntry(entry);
             recordProvisioners
-                    .add((builder, instance) -> ofNullable(getField(instance, field, Object[].class)) // todo:
+                    .add((builder, instance) -> ofNullable(getField(instance, field, Object[].class))
                             .map(Arrays::asList)
                             .ifPresent(value -> builder
                                     .withArray(getEntryForArrayType(builderFactory, factory, name, value), value)));

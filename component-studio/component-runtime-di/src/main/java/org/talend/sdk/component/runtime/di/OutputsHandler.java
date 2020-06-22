@@ -43,8 +43,6 @@ public class OutputsHandler extends BaseIOHandler {
     public OutputFactory asOutputFactory() {
         return name -> value -> {
             final BaseIOHandler.IO ref = connections.get(getActualName(name));
-            // TODO: do the same as in JavaJet for input Records
-            // TODO: add a UT in DiBatchSimulationTest
             if (ref != null && value != null) {
                 final String jsonValueMapper;
                 if (value instanceof javax.json.JsonValue) {
