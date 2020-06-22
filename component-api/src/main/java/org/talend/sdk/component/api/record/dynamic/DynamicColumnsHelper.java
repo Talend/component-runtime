@@ -17,6 +17,8 @@ package org.talend.sdk.component.api.record.dynamic;
 
 import java.util.Collection;
 
+import org.talend.sdk.component.api.record.Schema;
+
 public class DynamicColumnsHelper {
 
     /**
@@ -53,7 +55,7 @@ public class DynamicColumnsHelper {
     }
 
     /**
-     * Returns the column name of the provided collection if it is marked as a dynamic columns holder
+     * Returns the original column name of the provided collection if it is marked as a dynamic columns holder
      *
      * @param columns to check
      *
@@ -66,6 +68,41 @@ public class DynamicColumnsHelper {
                         .map(String::valueOf)
                         .filter(DynamicColumnsHelper::isDynamicColumn)
                         .map(DynamicColumnsHelper::getRealColumnName)
+                        .findFirst()
+                        .orElse(null);
+    }
+
+    /**
+     * Returns the column name of the provided collection if it is marked as a dynamic columns holder
+     *
+     * @param columns to check
+     *
+     * @return the column name (w/ the marker) otherwise returns null
+     */
+    public static String getDynamicColumnName(final Collection<? extends Object> columns) {
+        return columns == null ? null
+                : columns
+                        .stream()
+                        .map(String::valueOf)
+                        .filter(DynamicColumnsHelper::isDynamicColumn)
+                        .findFirst()
+                        .orElse(null);
+    }
+
+    /**
+     * Returns the entry name of the provided schema if it is marked as a dynamic columns holder
+     *
+     * @param schema to check
+     *
+     * @return the column name (w/ the marker) otherwise returns null
+     */
+    public static String getDynamicColumnName(final Schema schema) {
+        return schema == null ? null
+                : schema
+                        .getEntries()
+                        .stream()
+                        .map(entry -> entry.getName())
+                        .filter(DynamicColumnsHelper::isDynamicColumn)
                         .findFirst()
                         .orElse(null);
     }
