@@ -135,6 +135,9 @@ Have a look at the https://help.talend.com/[documentation center] to check the D
 
 === Handle the dynamic columns in your components
 
+There's a helper class `DynamicColumnsHelper` for handling dynamic columns.
+You can access the API reference in the https://talend.github.io/component-runtime/apidocs/{page-component-version}/api/org/talend/sdk/component/api/record/dynamic/package-summary.html[Javadocs].
+
 ==== Case of a `Processor`
 
 [source,java]
