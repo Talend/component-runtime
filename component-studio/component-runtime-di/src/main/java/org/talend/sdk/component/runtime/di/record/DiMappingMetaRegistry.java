@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.di.record;
 
+import static java.time.Instant.ofEpochMilli;
+import static java.time.ZoneOffset.UTC;
 import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
@@ -31,8 +33,8 @@ import routines.system.DynamicMetadata;
 import routines.system.DynamicMetadata.sourceTypes;
 
 import java.lang.reflect.Field;
+import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -41,6 +43,7 @@ import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMeta;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
@@ -155,7 +158,9 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                         break;
                     case "id_List":
                         entry.withType(ARRAY);
-                        dynRecordBuilder.withArray(entry.build(), Collection.class.cast(value));
+                        final Collection ary = Collection.class.cast(value);
+                        entry.withElementSchema(RecordConverters.toSchema(factory, ary));
+                        dynRecordBuilder.withArray(entry.build(), ary);
                         break;
                     case "id_String":
                         entry.withType(STRING);
@@ -188,7 +193,9 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                         break;
                     case "id_Date":
                         entry.withType(DATETIME);
-                        dynRecordBuilder.withDateTime(entry.build(), Date.class.cast(value));
+                        final long millis = Long.class.cast(value);
+                        dynRecordBuilder
+                                .withDateTime(entry.build(), ZonedDateTime.ofInstant(ofEpochMilli(millis), UTC));
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value: " + meta.getType());
