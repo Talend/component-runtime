@@ -22,6 +22,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1731[TCOMP-1731^]: Make connectors docker image TSBI compliant
 - link:https://jira.talendforge.org/browse/TCOMP-1738[TCOMP-1738^]: Upgrade to Apache Beam 2.22.0
+- link:https://jira.talendforge.org/browse/TCOMP-1742[TCOMP-1742^]: Upgrade johnzon to 1.2.7
 
 == Version 1.1.22
 
@@ -41,6 +42,10 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1729[TCOMP-1729^]: Upgrade to Apache Beam 2.21.0
 - link:https://jira.talendforge.org/browse/TCOMP-1730[TCOMP-1730^]: Upgrade johnzon to 1.2.6
+
+
+
+
 
 
 
