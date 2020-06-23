@@ -127,7 +127,7 @@ However, it is highly unlikely to happen on a desktop. In that case, forcing a d
 
 == Handling Dynamic Schema and dynamic columns (Subscription)
 
-Have a look at the https://help.talend.com/[documentation center] to check the Dynamic Schema feature.
+Have a look at the https://help.talend.com/[documentation center] to check about the Dynamic Schema feature.
 
 === Annotate your class with the `@DynamicColumns` annotation
 
@@ -149,12 +149,10 @@ public void onNext(@Input final Record record) {
             if (DynamicColumnsHelper.isDynamicColumn(entry.getName())) {
                 Record dynamicRecord = record.getRecord(entry.getName());
                 dynamicRecord.getSchema().getEntries().stream().forEach(e -> {
-                        json.put(mappings.getOrDefault(e.getName(), e.getName()), jsonValueFromRecordValue(e, dynamicRecord));
+                        json.put(e.getName(), jsonValueFromRecordValue(e, dynamicRecord));
                     });
             } else {
-                String property = mappings.getOrDefault(entry.getName(), entry.getName());
-                Object value = jsonValueFromRecordValue(entry, record);
-                json.put(property, value);
+                json.put(entry.getName(), jsonValueFromRecordValue(entry, record));
             }
         });
     processJson(json);
@@ -201,7 +199,6 @@ private Record buildDynamicColumnRecord(final JsonObject data) {
     mainRecord.withRecord(dynamicColumnName, dynamicRecord.build());
     return mainRecord.build();
 }
-
 ----
 
 
