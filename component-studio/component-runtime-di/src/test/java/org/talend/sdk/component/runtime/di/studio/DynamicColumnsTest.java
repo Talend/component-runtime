@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.talend.sdk.component.api.record.dynamic.DynamicColumnsHelper.DYNAMIC_MARKER;
+import static org.talend.sdk.component.api.record.dynamic.DynamicHelper.DYNAMIC_MARKER;
 
 import routines.system.Dynamic;
 
@@ -54,7 +54,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
-import org.talend.sdk.component.api.record.dynamic.DynamicColumnsHelper;
+import org.talend.sdk.component.api.record.dynamic.DynamicHelper;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
@@ -241,10 +241,10 @@ public class DynamicColumnsTest {
             assertNotNull(record.getString("name"));
             assertTrue(record.getString("name").startsWith("record"));
             Collection columns = record.getSchema().getEntries().stream().map(e -> e.getName()).collect(toList());
-            assertTrue(DynamicColumnsHelper.hasDynamicColumn(columns));
-            assertEquals("dynamic", DynamicColumnsHelper.getDynamicRealColumnName(columns));
-            assertEquals("dynamic" + DYNAMIC_MARKER, DynamicColumnsHelper.getDynamicColumnName(columns));
-            Record dynamic = record.getRecord(DynamicColumnsHelper.getDynamicColumnName(record.getSchema()));
+            assertTrue(DynamicHelper.hasDynamicColumn(columns));
+            assertEquals("dynamic", DynamicHelper.getDynamicRealColumnName(columns));
+            assertEquals("dynamic" + DYNAMIC_MARKER, DynamicHelper.getDynamicColumnName(columns));
+            Record dynamic = record.getRecord(DynamicHelper.getDynamicColumnName(record.getSchema()));
             assertNotNull(dynamic);
             assertEquals(9, dynamic.getSchema().getEntries().size());
             assertEquals("value" + counter, dynamic.getString("string0"));

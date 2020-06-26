@@ -19,7 +19,7 @@ import java.util.Collection;
 
 import org.talend.sdk.component.api.record.Schema;
 
-public class DynamicColumnsHelper {
+public class DynamicHelper {
 
     /**
      * Marker used for tagging a dynamic column's name
@@ -45,7 +45,7 @@ public class DynamicColumnsHelper {
      * @return true if one column is marked as a dynamic columns holder
      */
     public static boolean hasDynamicColumn(final Collection<? extends Object> columns) {
-        return columns != null && columns.stream().map(String::valueOf).anyMatch(DynamicColumnsHelper::isDynamicColumn);
+        return columns != null && columns.stream().map(String::valueOf).anyMatch(DynamicHelper::isDynamicColumn);
     }
 
     /**
@@ -56,7 +56,9 @@ public class DynamicColumnsHelper {
      * @return a column name w/o the dynamic marker if present
      */
     public static String getRealColumnName(final String column) {
-        return column == null ? null : column.replace(DYNAMIC_MARKER, "");
+        return column == null ? null
+                : column.endsWith(DYNAMIC_MARKER) ? column.substring(0, column.length() - DYNAMIC_MARKER.length())
+                        : column;
     }
 
     /**
@@ -71,8 +73,8 @@ public class DynamicColumnsHelper {
                 : columns
                         .stream()
                         .map(String::valueOf)
-                        .filter(DynamicColumnsHelper::isDynamicColumn)
-                        .map(DynamicColumnsHelper::getRealColumnName)
+                        .filter(DynamicHelper::isDynamicColumn)
+                        .map(DynamicHelper::getRealColumnName)
                         .findFirst()
                         .orElse(null);
     }
@@ -86,12 +88,7 @@ public class DynamicColumnsHelper {
      */
     public static String getDynamicColumnName(final Collection<? extends Object> columns) {
         return columns == null ? null
-                : columns
-                        .stream()
-                        .map(String::valueOf)
-                        .filter(DynamicColumnsHelper::isDynamicColumn)
-                        .findFirst()
-                        .orElse(null);
+                : columns.stream().map(String::valueOf).filter(DynamicHelper::isDynamicColumn).findFirst().orElse(null);
     }
 
     /**
@@ -107,7 +104,7 @@ public class DynamicColumnsHelper {
                         .getEntries()
                         .stream()
                         .map(entry -> entry.getName())
-                        .filter(DynamicColumnsHelper::isDynamicColumn)
+                        .filter(DynamicHelper::isDynamicColumn)
                         .findFirst()
                         .orElse(null);
     }
