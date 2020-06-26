@@ -131,12 +131,10 @@ public class ComponentValidator extends BaseTask {
 
     private final List<ValidationExtension> extensions;
 
-    private final List<String> compileSourceRoots;
-
-    public ComponentValidator(final Configuration configuration, final File[] classes, final List<String> compileSourceRoots,  final Object log) {
+    public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         super(classes);
         this.configuration = configuration;
-        this.compileSourceRoots = compileSourceRoots;
+
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
@@ -289,8 +287,6 @@ public class ComponentValidator extends BaseTask {
 
         log.info("Validated components: " + components.stream().map(Class::getSimpleName).collect(joining(", ")));
     }
-
-
 
     private String guessPluginId() { // assume folder name == module id
         return ofNullable(classes).flatMap(c -> Stream.of(c).map(f -> {
@@ -1172,35 +1168,39 @@ public class ComponentValidator extends BaseTask {
                         .collect(toSet()));
     }
 
-    private void validateExceptions(Set<String> errors) {
+    private void validateExceptions(final Set<String> errors) {
         System.out.println("Validate exceptions");
 
-        boolean exceptionFound = Arrays.stream(classes).flatMap(f -> streamClassesInDirectory(null, f))
+        boolean exceptionFound = Arrays
+                .stream(classes)
+                .flatMap(f -> streamClassesInDirectory(null, f))
                 .filter(ComponentException.class::isAssignableFrom)
-                .findFirst().isPresent();
-
+                .findFirst()
+                .isPresent();
 
         if (!exceptionFound) {
             errors.add("Component should declare a custom ComponentException;");
         }
     }
 
-    private Stream<Class> streamClassesInDirectory(String pckg, File classFile) {
+    private Stream<Class> streamClassesInDirectory(final String pckg, final File classFile) {
 
         System.out.println("Looking into " + classFile);
 
         if (classFile.isDirectory()) {
-            return Arrays.stream(classFile.listFiles()).flatMap(f -> streamClassesInDirectory(pckg == null ? "" : (pckg + classFile.getName() + "."), f));
+            return Arrays
+                    .stream(classFile.listFiles())
+                    .flatMap(f -> streamClassesInDirectory(pckg == null ? "" : (pckg + classFile.getName() + "."), f));
         }
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         if (classFile.getName().endsWith(".class")) {
             String className = classFile.getName().substring(0, classFile.getName().lastIndexOf("."));
             try {
-                System.out.println("Loading class " +pckg + className);
+                System.out.println("Loading class " + pckg + className);
                 return Stream.of(loader.loadClass(pckg + className));
             } catch (Exception e) {
-                log.info("Could not load class : "+ pckg + className + "=>" + e.getMessage());
+                log.info("Could not load class : " + pckg + className + "=>" + e.getMessage());
             }
         }
 

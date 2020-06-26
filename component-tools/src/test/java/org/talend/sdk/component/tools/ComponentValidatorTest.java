@@ -160,7 +160,7 @@ class ComponentValidatorTest {
             store.put(ComponentPackage.class.getName(), config);
             final TestLog log = new TestLog();
             store.put(TestLog.class.getName(), log);
-            store.put(ComponentValidator.class.getName(), new ComponentValidator(cfg, new File[] { pluginDir }, Collections.singletonList(config.sourceRoot()), log));
+            store.put(ComponentValidator.class.getName(), new ComponentValidator(cfg, new File[] { pluginDir }, log));
             store.put(ExceptionSpec.class.getName(), new ExceptionSpec());
         }
 
@@ -208,13 +208,13 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value="org.talend.test.failure.exceptions", validateExceptions = true)
+    @ComponentPackage(value = "org.talend.test.failure.exceptions", validateExceptions = true)
     void testFailureException(final ExceptionSpec expectedException) {
         expectedException.expectMessage("- Component should declare a custom ComponentException;");
     }
 
     @Test
-    @ComponentPackage(value="org.talend.test.valid.exceptions", validateExceptions = true, success = true)
+    @ComponentPackage(value = "org.talend.test.valid.exceptions", validateExceptions = true, success = true)
     void testValidException() {
         //
     }
