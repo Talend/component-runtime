@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
 import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
@@ -161,8 +160,6 @@ public class ComponentFamilyMeta {
 
         private final boolean validated;
 
-        private final boolean supportDynamicColumns;
-
         BaseMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
                 final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
                 final Supplier<MigrationHandler> migrationHandler, final Function<Map<String, String>, T> instantiator,
@@ -177,9 +174,9 @@ public class ComponentFamilyMeta {
             this.type = type;
             this.instantiator = instantiator;
             this.validated = validated;
-            this.supportDynamicColumns = type.isAnnotationPresent(DynamicColumns.class);
 
             this.id = IdGenerator.get(parent.getPlugin(), parent.getName(), name);
+
         }
 
         public ComponentBundle findBundle(final ClassLoader loader, final Locale locale) {

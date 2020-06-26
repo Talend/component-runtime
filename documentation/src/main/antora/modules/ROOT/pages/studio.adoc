@@ -129,13 +129,10 @@ However, it is highly unlikely to happen on a desktop. In that case, forcing a d
 
 Have a look at the https://help.talend.com/[documentation center] to check about the Dynamic Schema feature.
 
-=== Annotate your class with the `@DynamicColumns` annotation
-
-`@DynamicColumns` is only supported on the classes marked by the `@Processor` or `@PartitionMapper` annotations.
 
 === Handle the dynamic columns in your components
 
-There's a helper class `DynamicColumnsHelper` for handling dynamic columns.
+There's a helper class `DynamicHelper` for handling dynamic column.
 You can access the API reference in the https://talend.github.io/component-runtime/apidocs/{page-component-version}/api/org/talend/sdk/component/api/record/dynamic/package-summary.html[Javadocs].
 
 ==== Case of a `Processor`
@@ -178,7 +175,7 @@ Then, in your source, we have to handle this information and construct your flow
 @Producer
 public Record next() {
    columnsSet.addAll(configuration.getDataSet().getSchema());
-   if (DynamicColumnsHelper.hasDynamicColumn(columnsSet)) {
+   if (DynamicHelper.hasDynamicColumn(columnsSet)) {
        return buildDynamicColumnsRecord(getData());
    }
    ...

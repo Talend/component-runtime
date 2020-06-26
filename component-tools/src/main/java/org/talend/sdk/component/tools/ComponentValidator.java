@@ -90,7 +90,6 @@ import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
@@ -241,10 +240,6 @@ public class ComponentValidator extends BaseTask {
             if (configuration.isValidateInternationalization()) {
                 validateInternationalizationWording(finder, components, errors);
             }
-        }
-
-        if (configuration.isValidateDynamicColumns()) {
-            validateDynamicColumns(finder, errors);
         }
 
         if (!extensions.isEmpty()) {
@@ -1205,18 +1200,6 @@ public class ComponentValidator extends BaseTask {
         return null;
     }
 
-    private void validateDynamicColumns(final AnnotationFinder finder, final Set<String> errors) {
-        errors
-                .addAll(finder
-                        .findAnnotatedClasses(DynamicColumns.class)
-                        .stream()
-                        .filter(m -> !m.isAnnotationPresent(PartitionMapper.class)
-                                && !m.isAnnotationPresent(Processor.class))
-                        .map(c -> c.getName() + " has @DynamicColumns but is not a PartitionMapper or Processor.")
-                        .sorted()
-                        .collect(toSet()));
-    }
-
     private boolean isSerializable(final Class<?> aClass) {
         return Serializable.class.isAssignableFrom(aClass);
     }
@@ -1268,6 +1251,5 @@ public class ComponentValidator extends BaseTask {
 
         private String pluginId;
 
-        private boolean validateDynamicColumns;
     }
 }

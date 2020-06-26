@@ -41,7 +41,7 @@ import java.util.function.Supplier;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
-import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
+import org.talend.sdk.component.api.record.dynamic.DynamicColumnsHelper;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMeta;
@@ -205,7 +205,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                 builder
                         .withRecord(factory
                                 .newEntryBuilder()
-                                .withName(field.getName() + DynamicColumns.DYNAMIC_COLUMN_MARKER)
+                                .withName(field.getName() + DynamicColumnsHelper.DYNAMIC_MARKER)
                                 .withRawName(field.getName())
                                 .withNullable(true)
                                 .withType(RECORD)

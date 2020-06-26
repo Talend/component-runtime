@@ -148,7 +148,6 @@ class ComponentValidatorTest {
             cfg.setValidateNoFinalOption(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             cfg.setValidateWording(config.validateWording());
-            cfg.setValidateDynamicColumns(true);
             Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -362,20 +361,6 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.valid.wording", validateDocumentation = true, validateDataSet = false,
             validateWording = true, success = true)
     void testValidDocumentationWordingComponent(final ExceptionSpec expectedException) {
-        //
-    }
-
-    @Test
-    @ComponentPackage(value = "org.talend.test.failure.dynamiccolumns", validateDataSet = false)
-    void testFailureDynamicColumnsComponent(final ExceptionSpec expectedException) {
-        expectedException
-                .expectMessage("Some error were detected:\n"
-                        + "- org.talend.test.failure.dynamiccolumns.MyComponent has @DynamicColumns but is not a PartitionMapper or Processor.");
-    }
-
-    @Test
-    @ComponentPackage(value = "org.talend.test.valid.dynamiccolumns", success = true)
-    void testValidDynamicColumnsComponent(final ExceptionSpec expectedException) {
         //
     }
 

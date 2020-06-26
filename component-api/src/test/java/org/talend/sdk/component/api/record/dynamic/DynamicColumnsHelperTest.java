@@ -19,30 +19,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.talend.sdk.component.api.record.dynamic.DynamicColumnsHelper.DYNAMIC_MARKER;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 class DynamicColumnsHelperTest {
-
-    static String DCM = DynamicColumns.DYNAMIC_COLUMN_MARKER;
 
     @Test
     void isDynamicColumn() {
         assertFalse(DynamicColumnsHelper.isDynamicColumn(null));
         assertFalse(DynamicColumnsHelper.isDynamicColumn(""));
         assertFalse(DynamicColumnsHelper.isDynamicColumn("original"));
-        assertFalse(DynamicColumnsHelper.isDynamicColumn("dynamic" + DCM + "$$"));
-        assertTrue(DynamicColumnsHelper.isDynamicColumn("dynamic" + DCM));
-        assertTrue(DynamicColumnsHelper.isDynamicColumn("dynamic$$$" + DCM));
+        assertFalse(DynamicColumnsHelper.isDynamicColumn("dynamic" + DYNAMIC_MARKER + "$$"));
+        assertTrue(DynamicColumnsHelper.isDynamicColumn("dynamic" + DYNAMIC_MARKER));
+        assertTrue(DynamicColumnsHelper.isDynamicColumn("dynamic$$$" + DYNAMIC_MARKER));
     }
 
     @Test
     void hasDynamicColumn() {
-        assertTrue(DynamicColumnsHelper.hasDynamicColumn(Arrays.asList("", null, "original", "dynamic" + DCM)));
+        assertTrue(
+                DynamicColumnsHelper.hasDynamicColumn(Arrays.asList("", null, "original", "dynamic" + DYNAMIC_MARKER)));
         assertFalse(DynamicColumnsHelper.hasDynamicColumn(Arrays.asList("one", "two", "three", null, "five")));
     }
 
@@ -51,14 +49,14 @@ class DynamicColumnsHelperTest {
         assertNull(DynamicColumnsHelper.getRealColumnName(null));
         assertEquals("", DynamicColumnsHelper.getRealColumnName(""));
         assertEquals("original", DynamicColumnsHelper.getRealColumnName("original"));
-        assertEquals("dynamic", DynamicColumnsHelper.getRealColumnName("dynamic" + DCM));
-        assertEquals("dynamic$$", DynamicColumnsHelper.getRealColumnName("dynamic" + DCM + "$$"));
+        assertEquals("dynamic", DynamicColumnsHelper.getRealColumnName("dynamic" + DYNAMIC_MARKER));
+        assertEquals("dynamic$$", DynamicColumnsHelper.getRealColumnName("dynamic" + DYNAMIC_MARKER + "$$"));
     }
 
     @Test
     void getDynamicRealColumnName() {
-        assertEquals("dynamic",
-                DynamicColumnsHelper.getDynamicRealColumnName(Arrays.asList("", null, "original", "dynamic" + DCM)));
+        assertEquals("dynamic", DynamicColumnsHelper
+                .getDynamicRealColumnName(Arrays.asList("", null, "original", "dynamic" + DYNAMIC_MARKER)));
         assertNull(DynamicColumnsHelper.getDynamicRealColumnName(Arrays.asList("one", "two", "three", null, "five")));
     }
 

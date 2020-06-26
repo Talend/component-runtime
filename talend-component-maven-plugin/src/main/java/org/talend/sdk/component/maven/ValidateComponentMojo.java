@@ -161,12 +161,6 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.locale")
     private String locale;
 
-    /**
-     * Should the components that sypport dynamic columns be validated.
-     */
-    @Parameter(defaultValue = "true", property = "talend.validation.dynamicColumns")
-    private boolean validateDynamicColumns;
-
     @Override
     public void doExecute() {
         if (!validatePlaceholder) {
@@ -196,7 +190,6 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateNoFinalOption(validateNoFinalOption);
         configuration.setValidateWording(validateWording);
         configuration.setPluginId(pluginId);
-        configuration.setValidateDynamicColumns(validateDynamicColumns);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
         new ComponentValidator(configuration, new File[] { classes }, getLog()) {

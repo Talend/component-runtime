@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.talend.sdk.component.api.record.dynamic.DynamicColumns.DYNAMIC_COLUMN_MARKER;
+import static org.talend.sdk.component.api.record.dynamic.DynamicColumnsHelper.DYNAMIC_MARKER;
 
 import routines.system.Dynamic;
 
@@ -30,22 +30,18 @@ import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.PrimitiveIterator;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
@@ -58,7 +54,6 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
-import org.talend.sdk.component.api.record.dynamic.DynamicColumns;
 import org.talend.sdk.component.api.record.dynamic.DynamicColumnsHelper;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
@@ -234,7 +229,6 @@ public class DynamicColumnsTest {
     }
 
     @org.talend.sdk.component.api.processor.Processor(name = "output", family = "DynamicColumnsTest")
-    @DynamicColumns
     public static class OutputComponent implements Serializable {
 
         int counter;
@@ -249,7 +243,7 @@ public class DynamicColumnsTest {
             Collection columns = record.getSchema().getEntries().stream().map(e -> e.getName()).collect(toList());
             assertTrue(DynamicColumnsHelper.hasDynamicColumn(columns));
             assertEquals("dynamic", DynamicColumnsHelper.getDynamicRealColumnName(columns));
-            assertEquals("dynamic" + DYNAMIC_COLUMN_MARKER, DynamicColumnsHelper.getDynamicColumnName(columns));
+            assertEquals("dynamic" + DYNAMIC_MARKER, DynamicColumnsHelper.getDynamicColumnName(columns));
             Record dynamic = record.getRecord(DynamicColumnsHelper.getDynamicColumnName(record.getSchema()));
             assertNotNull(dynamic);
             assertEquals(9, dynamic.getSchema().getEntries().size());
@@ -269,7 +263,6 @@ public class DynamicColumnsTest {
     }
 
     @Emitter(name = "input", family = "DynamicColumnsTest")
-    @DynamicColumns
     public static class InputComponent implements Serializable {
 
         private final PrimitiveIterator.OfInt stream;

@@ -22,6 +22,11 @@ import org.talend.sdk.component.api.record.Schema;
 public class DynamicColumnsHelper {
 
     /**
+     * Marker used for tagging a dynamic column's name
+     */
+    public static final String DYNAMIC_MARKER = "___TCK_DYNAMIC_COLUMN___";
+
+    /**
      * Checks if coloumn is marked as a dynamic columns holder
      *
      * @param column to check
@@ -29,7 +34,7 @@ public class DynamicColumnsHelper {
      * @return true if column's name contains marker
      */
     public static boolean isDynamicColumn(final String column) {
-        return column != null && column.endsWith(DynamicColumns.DYNAMIC_COLUMN_MARKER);
+        return column != null && column.endsWith(DYNAMIC_MARKER);
     }
 
     /**
@@ -51,7 +56,7 @@ public class DynamicColumnsHelper {
      * @return a column name w/o the dynamic marker if present
      */
     public static String getRealColumnName(final String column) {
-        return column == null ? null : column.replace(DynamicColumns.DYNAMIC_COLUMN_MARKER, "");
+        return column == null ? null : column.replace(DYNAMIC_MARKER, "");
     }
 
     /**

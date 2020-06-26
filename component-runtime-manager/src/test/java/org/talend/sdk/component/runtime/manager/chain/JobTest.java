@@ -155,8 +155,10 @@ class JobTest {
                     .build()
                     .property("streaming.maxRecords", "2")
                     .run();
-            final LocalPartitionMapper mapper = LocalPartitionMapper.class.cast(manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get());
-            assertEquals(asList("start", "produce(4)", "produce(3)", "stop"), ((Supplier<List<String>>) mapper.getDelegate()).get());
+            final LocalPartitionMapper mapper =
+                    LocalPartitionMapper.class.cast(manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get());
+            assertEquals(asList("start", "produce(4)", "produce(3)", "stop"),
+                    ((Supplier<List<String>>) mapper.getDelegate()).get());
         }
     }
 
