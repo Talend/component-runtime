@@ -207,8 +207,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setFailOnValidateExceptions(failOnValidateExceptions);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
-        List<String> compileSourceRoots = project.getCompileSourceRoots();
-        new ComponentValidator(configuration, new File[] { classes }, compileSourceRoots, getLog()) {
+        new ComponentValidator(configuration, new File[] { classes }, getLog()) {
 
             @Override
             protected Locale getLocale() {
