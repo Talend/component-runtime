@@ -1169,8 +1169,6 @@ public class ComponentValidator extends BaseTask {
     }
 
     private void validateExceptions(final Set<String> errors) {
-        System.out.println("Validate exceptions");
-
         boolean exceptionFound = Arrays
                 .stream(classes)
                 .flatMap(f -> streamClassesInDirectory(null, f))
@@ -1184,9 +1182,6 @@ public class ComponentValidator extends BaseTask {
     }
 
     private Stream<Class> streamClassesInDirectory(final String pckg, final File classFile) {
-
-        System.out.println("Looking into " + classFile);
-
         if (classFile.isDirectory()) {
             return Arrays
                     .stream(classFile.listFiles())
@@ -1197,10 +1192,9 @@ public class ComponentValidator extends BaseTask {
         if (classFile.getName().endsWith(".class")) {
             String className = classFile.getName().substring(0, classFile.getName().lastIndexOf("."));
             try {
-                System.out.println("Loading class " + pckg + className);
                 return Stream.of(loader.loadClass(pckg + className));
             } catch (Exception e) {
-                log.info("Could not load class : " + pckg + className + "=>" + e.getMessage());
+                log.error("Could not load class : " + pckg + className + "=>" + e.getMessage());
             }
         }
 
