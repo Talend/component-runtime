@@ -159,7 +159,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     /**
      * Should build fail on exception validation error
      */
-    @Parameter(defaultValue = "true", property = "talend.validation.failOnValidateExceptions")
+    @Parameter(defaultValue = "false", property = "talend.validation.failOnValidateExceptions")
     private boolean failOnValidateExceptions;
 
     /**
