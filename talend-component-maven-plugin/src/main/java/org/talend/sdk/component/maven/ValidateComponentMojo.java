@@ -20,7 +20,6 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
 import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
-import java.util.List;
 import java.util.Locale;
 
 import org.apache.maven.plugins.annotations.Mojo;
