@@ -603,7 +603,7 @@ public class JobImpl implements Job {
         }
 
         public Record next() {
-            if (maxRecords > 0 && currentRecords > maxRecords) {
+            if (maxRecords > 0 && currentRecords >= maxRecords) {
                 return null;
             }
             final Object next = input.next();

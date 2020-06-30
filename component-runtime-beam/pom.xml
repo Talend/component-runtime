@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.22-SNAPSHOT</version>
+    <version>1.1.23-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-beam</artifactId>
@@ -74,7 +74,7 @@
       <exclusions>
         <exclusion><!-- prevent PipelineOptionsFactory to get instantiated if present -->
           <groupId>com.fasterxml.jackson.module</groupId>
-          <artifactId>jackson-module-scala_2.11</artifactId>
+          <artifactId>jackson-module-scala_${spark-scala.version}</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

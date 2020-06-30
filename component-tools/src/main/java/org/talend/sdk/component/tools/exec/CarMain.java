@@ -37,7 +37,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
@@ -71,7 +70,6 @@ public class CarMain {
     }
 
     public static void main(final String[] args) {
-        System.out.println(Arrays.asList(args));
         if (args == null || args.length < 2) {
             help();
             return;
@@ -79,6 +77,14 @@ public class CarMain {
         if (Stream.of(args).anyMatch(Objects::isNull)) {
             throw new IllegalArgumentException("No argument can be null");
         }
+        boolean forceOverwrite = false;
+        for (String arg : args) {
+            if ("-f".equals(arg)) {
+                forceOverwrite = true;
+                break;
+            }
+        }
+
         switch (args[0].toLowerCase(ROOT)) {
         case "studio-deploy":
             final String studioPath;
@@ -92,7 +98,7 @@ public class CarMain {
                 help();
                 break;
             }
-            deployInStudio(studioPath);
+            deployInStudio(studioPath, forceOverwrite);
             break;
         case "maven-deploy":
             final String mavenPath;
@@ -106,7 +112,7 @@ public class CarMain {
                 help();
                 break;
             }
-            deployInM2(mavenPath);
+            deployInM2(mavenPath, forceOverwrite);
             break;
         case "deploy-to-nexus":
             final String url = getArgument("--url", args);
@@ -148,18 +154,18 @@ public class CarMain {
         return null;
     }
 
-    private static void deployInM2(final String m2) {
+    private static void deployInM2(final String m2, final boolean forceOverwrite) {
         final File m2File = new File(m2);
         if (!m2File.exists()) {
             throw new IllegalArgumentException(m2 + " doesn't exist");
         }
-        final String component = installJars(m2File);
+        final String component = installJars(m2File, forceOverwrite);
         System.out
                 .println("Installed " + jarLocation(CarMain.class).getName() + " in " + m2 + ", "
                         + "you can now register '" + component + "' component in your application.");
     }
 
-    private static void deployInStudio(final String studioLocation) {
+    private static void deployInStudio(final String studioLocation, final boolean forceOverwrite) {
         final File root = new File(studioLocation);
         if (!root.isDirectory()) {
             throw new IllegalArgumentException(studioLocation + " is not a valid directory");
@@ -216,7 +222,7 @@ public class CarMain {
         }
 
         // install jars
-        final String mainGav = installJars(m2Root);
+        final String mainGav = installJars(m2Root, forceOverwrite);
 
         // register the component
         final String components = configuration.getProperty("component.java.coordinates");
@@ -269,7 +275,7 @@ public class CarMain {
         }
     }
 
-    private static String installJars(final File m2Root) {
+    private static String installJars(final File m2Root, final boolean forceOverwrite) {
         String mainGav = null;
         try (final JarInputStream jar =
                 new JarInputStream(new BufferedInputStream(new FileInputStream(jarLocation(CarMain.class))))) {
@@ -284,11 +290,9 @@ public class CarMain {
                     if (!output.getCanonicalPath().startsWith(m2Root.getCanonicalPath())) {
                         throw new IOException("The output file is not contained in the destination directory");
                     }
-                    if (output.exists()) {
-                        System.out.println(output + " already exists, skipping");
-                    } else {
+                    if (!output.exists() || forceOverwrite) {
                         output.getParentFile().mkdirs();
-                        Files.copy(jar, output.toPath());
+                        Files.copy(jar, output.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     }
                 } else if ("TALEND-INF/metadata.properties".equals(entry.getName())) {
                     // mainGav
@@ -324,12 +328,14 @@ public class CarMain {
         System.err.println("         --location <location>: path to studio");
         System.err.println("         or");
         System.err.println("         <location>: path to studio");
+        System.err.println("         -f : force overwrite existing jars");
         System.err.println();
         System.err.println("   maven-deploy");
         System.err.println("      arguments:");
         System.err.println("         --location <location>: path to .m2 repository");
         System.err.println("         or");
         System.err.println("         <location>: path to .m2 repository");
+        System.err.println("         -f : force overwrite existing jars");
         System.err.println();
         System.err.println("   deploy-to-nexus");
         System.err.println("      arguments:");
