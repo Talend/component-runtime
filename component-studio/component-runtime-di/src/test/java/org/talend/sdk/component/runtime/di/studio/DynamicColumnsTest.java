@@ -57,7 +57,6 @@ import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.OutputsHandler;
-import org.talend.sdk.component.runtime.di.record.DiMappingMetaRegistry;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -68,6 +67,7 @@ import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -171,12 +171,11 @@ public class DynamicColumnsTest {
                 RecordBuilderFactory.class.cast(servicesMapper.get(RecordBuilderFactory.class));
         builderFactory = recordBuilderMapper;
         final RecordConverters converters = new RecordConverters();
-        final DiMappingMetaRegistry registry = new DiMappingMetaRegistry();
+        final MappingMetaRegistry registry = new MappingMetaRegistry();
 
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
-            row1 = row1Struct.class
-                    .cast(registry.findDi(row1Struct.class, builderFactory).newInstance(Record.class.cast(dataMapper)));
+            row1 = row1Struct.class.cast(registry.find(row1Struct.class).newInstance(Record.class.cast(dataMapper)));
 
             assertTrue(row1Struct.class.isInstance(row1));
             log.error("[doRun] rowStruct: {}", row1);

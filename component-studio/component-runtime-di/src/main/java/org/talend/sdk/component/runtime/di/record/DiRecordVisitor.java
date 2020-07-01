@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.di.record;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
 
@@ -34,9 +36,17 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
+import javax.json.Json;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.spi.JsonbProvider;
+import javax.json.spi.JsonProvider;
+
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
+import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 import lombok.Data;
 
@@ -54,6 +64,14 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private final Dynamic dynamic;
 
     private final String dynamicColumn;
+
+    private static final RecordService RECORD_SERVICE = RecordService.class
+            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+                    Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
+                    Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                    JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
+                            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                                    RecordService.class, null));
 
     DiRecordVisitor(final Class<?> clzz) {
         clazz = clzz;
@@ -80,6 +98,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 | InvocationTargetException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public Object visit(final Record record) {
+        return RECORD_SERVICE.visit(this, record);
     }
 
     @Override

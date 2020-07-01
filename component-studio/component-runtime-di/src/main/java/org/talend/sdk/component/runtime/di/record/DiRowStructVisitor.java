@@ -53,12 +53,15 @@ public class DiRowStructVisitor {
 
     private final Builder recordBuilder;
 
-    public DiRowStructVisitor(final RecordBuilderFactory factory) {
+    private final Object rowStruct;
+
+    public DiRowStructVisitor(final Object data, final RecordBuilderFactory factory) {
         this.factory = factory;
+        this.rowStruct = data;
         recordBuilder = factory.newRecordBuilder();
     }
 
-    public void visit(final Object rowStruct) {
+    public void visit() {
         Arrays.stream(rowStruct.getClass().getFields()).forEach(field -> {
             try {
                 final Class<?> type = field.getType();
@@ -164,6 +167,7 @@ public class DiRowStructVisitor {
     }
 
     public Record get() {
+        visit();
         return recordBuilder.build();
     }
 

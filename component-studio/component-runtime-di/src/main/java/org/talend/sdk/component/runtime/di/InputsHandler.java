@@ -21,13 +21,13 @@ import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.runtime.di.record.DiMappingMetaRegistry;
 import org.talend.sdk.component.runtime.output.InputFactory;
-import org.talend.sdk.component.runtime.record.RecordConverters.IMappingMeta;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMeta;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 public class InputsHandler extends BaseIOHandler {
 
-    private final DiMappingMetaRegistry registry = new DiMappingMetaRegistry();
+    private final MappingMetaRegistry registry = new MappingMetaRegistry();
 
     public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
@@ -45,8 +45,8 @@ public class InputsHandler extends BaseIOHandler {
                 return value;
             }
             final Object convertedValue;
-            final IMappingMeta mappingMeta;
-            mappingMeta = registry.findDi(value.getClass(), recordBuilderMapper);
+            final MappingMeta mappingMeta;
+            mappingMeta = registry.find(value.getClass());
             if (mappingMeta.isLinearMapping()) {
                 return mappingMeta.newRecord(value, recordBuilderMapper);
             } else {

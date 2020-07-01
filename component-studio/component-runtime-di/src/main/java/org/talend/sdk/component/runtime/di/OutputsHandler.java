@@ -22,8 +22,8 @@ import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.runtime.di.record.DiMappingMetaRegistry;
 import org.talend.sdk.component.runtime.output.OutputFactory;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 public class OutputsHandler extends BaseIOHandler {
 
@@ -31,7 +31,7 @@ public class OutputsHandler extends BaseIOHandler {
 
     private final JsonBuilderFactory jsonBuilderFactory;
 
-    private final DiMappingMetaRegistry registry = new DiMappingMetaRegistry();
+    private final MappingMetaRegistry registry = new MappingMetaRegistry();
 
     public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
@@ -46,7 +46,7 @@ public class OutputsHandler extends BaseIOHandler {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
                 } else if (value instanceof Record) {
-                    ref.add(registry.findDi(ref.getType(), null).newInstance(Record.class.cast(value)));
+                    ref.add(registry.find(ref.getType()).newInstance(Record.class.cast(value)));
                 } else {
                     ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
                 }
