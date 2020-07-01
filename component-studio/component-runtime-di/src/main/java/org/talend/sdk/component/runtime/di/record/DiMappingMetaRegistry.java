@@ -17,6 +17,8 @@ package org.talend.sdk.component.runtime.di.record;
 
 import static java.time.Instant.ofEpochMilli;
 import static java.time.ZoneOffset.UTC;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
@@ -33,17 +35,31 @@ import routines.system.DynamicMetadata;
 import routines.system.DynamicMetadata.sourceTypes;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import javax.json.Json;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.spi.JsonbProvider;
+import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.dynamic.DynamicHelper;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.record.RecordService;
+import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.RecordConverters.IMappingMeta;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMeta;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
@@ -55,6 +71,8 @@ import lombok.extern.slf4j.Slf4j;
  * Its scope is runtime Studio only.
  */
 public class DiMappingMetaRegistry extends MappingMetaRegistry {
+
+    protected final Map<Class<?>, DiMappingMeta> diRegistry = new ConcurrentHashMap<>();
 
     @Override
     public MappingMeta find(final Class<?> parameterType, final Supplier<RecordBuilderFactory> factorySupplier) {
@@ -69,6 +87,55 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
             return existing;
         }
         return mappingMeta;
+    }
+
+    public DiMappingMeta findDi(final Class<?> parameterType, final RecordBuilderFactory factorySupplier) {
+        final DiMappingMeta meta = diRegistry.get(parameterType);
+        if (meta != null) {
+            return meta;
+        }
+        final DiMappingMeta mappingMeta = new DiMappingMeta(parameterType, factorySupplier);
+        final DiMappingMeta existing = diRegistry.putIfAbsent(parameterType, mappingMeta);
+        if (existing != null) {
+            return existing;
+        }
+        return mappingMeta;
+    }
+
+    public static class DiMappingMeta implements IMappingMeta {
+
+        private final RecordService recordService = RecordService.class
+                .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+                        Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
+                        Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                        JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"),
+                        null)
+                                .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                                        RecordService.class, null));
+
+        private final Class<?> rowStruct;
+
+        DiMappingMeta(final Class<?> parameterType, final RecordBuilderFactory factorySupplier) {
+
+            this.rowStruct = parameterType;
+        }
+
+        @Override
+        public boolean isLinearMapping() {
+            return Stream.of(rowStruct.getInterfaces()).anyMatch(it -> it.getName().startsWith("routines.system."));
+        }
+
+        @Override
+        public Object newInstance(final Record record) {
+            return recordService.visit(new DiRecordVisitor(rowStruct), record);
+        }
+
+        @Override
+        public <T> Record newRecord(final T data, final RecordBuilderFactory factory) {
+            DiRowStructVisitor visitor = new DiRowStructVisitor(factory);
+            visitor.visit(data);
+            return visitor.get();
+        }
     }
 
     BiConsumer<Object, Record> dynamicInstanceProvisioner(final Field field, final String name) {
@@ -86,6 +153,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                     metadata.setSourceType(sourceTypes.unknown);
                     metadata.setLength(100);
                     metadata.setPrecision(0);
+                    Object raw = rcd.get(Object.class, entry.getName());
                     switch (entry.getType()) {
                     case RECORD:
                         metadata.setType("id_Object");
@@ -98,6 +166,15 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                         break;
                     case BYTES:
                         metadata.setType("id_Byte");
+                        final byte[] value;
+                        if (ByteBuffer.class.isInstance(raw)) {
+                            value = ByteBuffer.class.cast(raw).array();
+                        } else {
+                            value = byte[].class.cast(raw);
+                        }
+                        if (value != null) {
+                            raw = Base64.getEncoder().encodeToString(value);
+                        }
                         break;
                     case INT:
                         metadata.setType("id_Integer");
@@ -126,7 +203,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                         throw new IllegalStateException("Unexpected value: " + entry.getType());
                     }
                     dynamic.metadatas.add(metadata);
-                    dynamic.addColumnValue(rcd.get(Object.class, entry.getName()));
+                    dynamic.addColumnValue(raw);
                 });
             }
             try {
@@ -144,7 +221,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                 final Builder dynRecordBuilder = factory.newRecordBuilder();
                 dynamic.metadatas.forEach(meta -> {
                     final Object value = dynamic.getColumnValue(meta.getName());
-                    log.debug("[dynamicRecordProvisioner] {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
+                    log.warn("[dynamicRecordProvisioner] {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                     final Entry.Builder entry = factory
                             .newEntryBuilder()
                             .withName(meta.getName())
@@ -168,7 +245,7 @@ public class DiMappingMetaRegistry extends MappingMetaRegistry {
                         break;
                     case "id_Byte":
                         entry.withType(BYTES);
-                        final byte[] bytes = value != null ? ((java.nio.ByteBuffer) value).array() : null;
+                        final byte[] bytes = value != null ? Base64.getDecoder().decode(String.valueOf(value)) : null;
                         dynRecordBuilder.withBytes(entry.build(), bytes);
                         break;
                     case "id_Integer":

@@ -507,8 +507,17 @@ public class RecordConverters implements Serializable {
         return expectedType.cast(value);
     }
 
+    public interface IMappingMeta {
+
+        public boolean isLinearMapping();
+
+        public Object newInstance(final Record record);
+
+        public <T> Record newRecord(final T data, final RecordBuilderFactory factory);
+    }
+
     @Data
-    public static class MappingMeta {
+    public static class MappingMeta implements IMappingMeta {
 
         private final boolean linearMapping;
 
@@ -935,7 +944,8 @@ public class RecordConverters implements Serializable {
             return elementType;
         }
 
-        Object newInstance(final Record record) {
+        @Override
+        public Object newInstance(final Record record) {
             try {
                 final Object instance = constructor.newInstance();
                 instanceProvisioners.forEach(consumer -> consumer.accept(instance, record));
@@ -947,7 +957,8 @@ public class RecordConverters implements Serializable {
             }
         }
 
-        <T> Record newRecord(final T data, final RecordBuilderFactory factory) {
+        @Override
+        public <T> Record newRecord(final T data, final RecordBuilderFactory factory) {
             final Record.Builder builder = factory.newRecordBuilder(recordSchema);
             recordProvisioners.forEach(consumer -> consumer.accept(builder, data));
             return builder.build();

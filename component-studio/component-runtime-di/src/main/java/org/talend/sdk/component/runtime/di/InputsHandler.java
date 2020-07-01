@@ -23,14 +23,22 @@ import javax.json.bind.Jsonb;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.di.record.DiMappingMetaRegistry;
 import org.talend.sdk.component.runtime.output.InputFactory;
-import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.RecordConverters.IMappingMeta;
 
 public class InputsHandler extends BaseIOHandler {
 
     private final DiMappingMetaRegistry registry = new DiMappingMetaRegistry();
 
+    private final boolean alternativeMode;
+
     public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
+        this.alternativeMode = false;
+    }
+
+    public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper, final Boolean alternativeMode) {
+        super(jsonb, servicesMapper);
+        this.alternativeMode = alternativeMode;
     }
 
     public InputFactory asInputFactory() {
@@ -45,9 +53,14 @@ public class InputsHandler extends BaseIOHandler {
                 return value;
             }
             final Object convertedValue;
-            final RecordConverters.MappingMeta mappingMeta = registry.find(value.getClass(), () -> recordBuilderMapper);
+            final IMappingMeta mappingMeta;
+            if (alternativeMode) {
+                mappingMeta = registry.findDi(value.getClass(), recordBuilderMapper);
+            } else {
+                mappingMeta = registry.find(value.getClass(), () -> recordBuilderMapper);
+            }
             if (mappingMeta.isLinearMapping()) {
-                convertedValue = value;
+                return mappingMeta.newRecord(value, recordBuilderMapper);
             } else {
                 if (value instanceof javax.json.JsonValue) {
                     if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null

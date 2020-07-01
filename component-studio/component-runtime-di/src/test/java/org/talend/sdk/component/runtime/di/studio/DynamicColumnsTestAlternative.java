@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.talend.sdk.component.api.record.dynamic.DynamicHelper.DYNAMIC_MARKER;
 
 import routines.system.Dynamic;
 
@@ -52,9 +51,7 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
-import org.talend.sdk.component.api.record.dynamic.DynamicHelper;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
@@ -77,7 +74,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DynamicColumnsTest {
+public class DynamicColumnsTestAlternative {
 
     protected static RecordBuilderFactory builderFactory;
 
@@ -94,8 +91,8 @@ public class DynamicColumnsTest {
         final ComponentManager manager = ComponentManager.instance();
         final Collection<Object> sourceData = new ArrayList<>();
         final Collection<Object> processorData = new ArrayList<>();
-        doDi(manager, sourceData, processorData, manager.findProcessor("DynamicColumnsTest", "output", 1, emptyMap()),
-                manager.findMapper("DynamicColumnsTest", "input", 1, singletonMap("count", "10")));
+        doDi(manager, sourceData, processorData, manager.findProcessor("DynamicColumnsTest", "outputDi", 1, emptyMap()),
+                manager.findMapper("DynamicColumnsTest", "inputDi", 1, singletonMap("count", "10")));
         assertEquals(10, sourceData.size());
         assertEquals(10, processorData.size());
     }
@@ -118,10 +115,10 @@ public class DynamicColumnsTest {
             processorProcessor.start();
             globalMap.put("processorProcessor", processorProcessor);
 
-            final java.util.Map<Class<?>, Object> servicesMapper =
+            final Map<Class<?>, Object> servicesMapper =
                     manager.findPlugin(proc.get().plugin()).get().get(AllServices.class).getServices();
 
-            final InputsHandler inputsHandlerProcessor = new InputsHandler(jsonbProcessor, servicesMapper);
+            final InputsHandler inputsHandlerProcessor = new InputsHandler(jsonbProcessor, servicesMapper, true);
             inputsHandlerProcessor.addConnection("FLOW", row1Struct.class);
 
             final OutputsHandler outputHandlerProcessor = new OutputsHandler(jsonbProcessor, servicesMapper);
@@ -179,13 +176,10 @@ public class DynamicColumnsTest {
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
             row1 = row1Struct.class
-                    .cast(converters
-                            .toType(registry, dataMapper, row1Struct.class, () -> jsonBuilderFactory,
-                                    () -> jsonProvider, () -> jsonbMapper, () -> recordBuilderMapper));
-
-            log.error("[doRun] rowStruct: {}.", row1);
+                    .cast(registry.findDi(row1Struct.class, builderFactory).newInstance(Record.class.cast(dataMapper)));
 
             assertTrue(row1Struct.class.isInstance(row1));
+            log.error("[doRun] rowStruct: {}", row1);
 
             sourceData.add(row1);
             inputsHandlerProcessor.reset();
@@ -230,8 +224,8 @@ public class DynamicColumnsTest {
         }
     }
 
-    @org.talend.sdk.component.api.processor.Processor(name = "output", family = "DynamicColumnsTest")
-    public static class OutputComponent implements Serializable {
+    @org.talend.sdk.component.api.processor.Processor(name = "outputDi", family = "DynamicColumnsTest")
+    public static class OutputComponentDi implements Serializable {
 
         int counter;
 
@@ -243,33 +237,27 @@ public class DynamicColumnsTest {
             assertNotNull(record.getString("name"));
             assertTrue(record.getString("name").startsWith("record"));
             Collection columns = record.getSchema().getEntries().stream().map(e -> e.getName()).collect(toList());
-            assertTrue(DynamicHelper.hasDynamicColumn(columns));
-            assertEquals("dynamic", DynamicHelper.getDynamicRealColumnName(columns));
-            assertEquals("dynamic" + DYNAMIC_MARKER, DynamicHelper.getDynamicColumnName(columns));
-            Record dynamic = record.getRecord(DynamicHelper.getDynamicColumnName(record.getSchema()));
-            assertNotNull(dynamic);
-            assertEquals(9, dynamic.getSchema().getEntries().size());
-            assertEquals("value" + counter, dynamic.getString("string0"));
-            assertEquals((counter % 2 == 0), dynamic.getBoolean("bool0"));
-            assertEquals(counter, dynamic.getInt("int0"));
-            assertEquals(counter, dynamic.getLong("long0"));
-            assertEquals(1.23f * counter, dynamic.getFloat("float0"));
-            assertEquals(12345.6789 * counter, dynamic.getDouble("double0"));
-            assertEquals(String.format("zorglub-is-still-alive-%05d", counter), new String(dynamic.getBytes("bytes0")));
+            assertEquals("value" + counter, record.getString("string0"));
+            assertEquals((counter % 2 == 0), record.getBoolean("bool0"));
+            assertEquals(counter, record.getInt("int0"));
+            assertEquals(counter, record.getLong("long0"));
+            assertEquals(1.23f * counter, record.getFloat("float0"));
+            assertEquals(12345.6789 * counter, record.getDouble("double0"));
+            assertEquals(String.format("zorglub-is-still-alive-%05d", counter), new String(record.getBytes("bytes0")));
             assertEquals(IntStream.range(0, counter + 1).boxed().collect(toList()),
-                    dynamic.getArray(Integer.class, "array0"));
-            assertTrue(ZonedDateTime.now().toEpochSecond() >= dynamic.getDateTime("date0").toEpochSecond());
+                    record.getArray(Integer.class, "array0"));
+            assertTrue(ZonedDateTime.now().toEpochSecond() >= record.getDateTime("date0").toEpochSecond());
 
             counter++;
         }
     }
 
-    @Emitter(name = "input", family = "DynamicColumnsTest")
-    public static class InputComponent implements Serializable {
+    @Emitter(name = "inputDi", family = "DynamicColumnsTest")
+    public static class InputComponentDi implements Serializable {
 
         private final PrimitiveIterator.OfInt stream;
 
-        public InputComponent(@Option("count") final int count) {
+        public InputComponentDi(@Option("count") final int count) {
             this.stream = IntStream.range(0, count).iterator();
         }
 
@@ -279,8 +267,10 @@ public class DynamicColumnsTest {
                 return null;
             }
             final Integer i = stream.next();
-            final Record dyn = builderFactory
+            Record record = builderFactory
                     .newRecordBuilder()
+                    .withString("id", String.valueOf(i))
+                    .withString("name", "record" + i)
                     .withString("string0", "value" + i)
                     .withBoolean("bool0", (i % 2 == 0))
                     .withInt("int0", i)
@@ -291,16 +281,10 @@ public class DynamicColumnsTest {
                     .withArray(builderFactory
                             .newEntryBuilder()
                             .withName("array0")
-                            .withType(Schema.Type.ARRAY)
+                            .withType(Type.ARRAY)
                             .withElementSchema(builderFactory.newSchemaBuilder(Type.INT).build())
                             .build(), IntStream.range(0, i + 1).boxed().collect(toList()))
                     .withDateTime("date0", ZonedDateTime.now())
-                    .build();
-            Record record = builderFactory
-                    .newRecordBuilder()
-                    .withString("id", String.valueOf(i))
-                    .withString("name", "record" + i)
-                    .withRecord("dynamic", dyn)
                     .build();
             log.warn("[next] iteration#{} {}.", i, record);
             return record;
