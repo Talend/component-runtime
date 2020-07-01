@@ -92,8 +92,8 @@ public class DiRowStructVisitor {
                     onBoolean(toEntry(name, "", BOOLEAN), Boolean.class.cast(raw));
                     break;
                 case "java.util.Date":
-                    onDatetime(toEntry(name, "", DATETIME), Date.class.cast(raw).toInstant()
-                            .atZone(ZoneId.systemDefault()));
+                    onDatetime(toEntry(name, "", DATETIME),
+                            Date.class.cast(raw).toInstant().atZone(ZoneId.systemDefault()));
                     break;
                 case "routines.system.Dynamic":
                     Dynamic dynamic = Dynamic.class.cast(raw);
@@ -107,8 +107,8 @@ public class DiRowStructVisitor {
                             onString(toEntry(metaName, metaOriginalName, Type.RECORD), String.class.cast(value));
                             break;
                         case "id_List":
-                            onArray(getCollectionEntry(metaName, metaOriginalName, value), Collection.class
-                                    .cast(value));
+                            onArray(getCollectionEntry(metaName, metaOriginalName, value),
+                                    Collection.class.cast(value));
                             break;
                         case "id_String":
                             onString(toEntry(metaName, metaOriginalName, STRING), String.class.cast(value));

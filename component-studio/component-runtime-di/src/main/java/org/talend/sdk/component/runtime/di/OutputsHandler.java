@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.di;
 import java.util.Map;
 
 import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
@@ -44,23 +43,13 @@ public class OutputsHandler extends BaseIOHandler {
         return name -> value -> {
             final BaseIOHandler.IO ref = connections.get(getActualName(name));
             if (ref != null && value != null) {
-                final String jsonValueMapper;
                 if (value instanceof javax.json.JsonValue) {
-                    jsonValueMapper = value.toString();
+                    ref.add(jsonb.fromJson(value.toString(), ref.getType()));
                 } else if (value instanceof Record) {
-                    jsonValueMapper =
-                            converters
-                                    .toType(registry,
-                                            converters
-                                                    .toRecord(registry, value, () -> jsonb, () -> recordBuilderMapper),
-                                            JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                            () -> recordBuilderMapper)
-                                    .toString();
+                    ref.add(registry.findDi(ref.getType(), null).newInstance(Record.class.cast(value)));
                 } else {
-                    jsonValueMapper = jsonb.toJson(value);
+                    ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
                 }
-
-                ref.add(jsonb.fromJson(jsonValueMapper, ref.getType()));
             }
         };
     }

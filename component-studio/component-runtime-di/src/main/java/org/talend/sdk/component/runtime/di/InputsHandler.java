@@ -29,16 +29,8 @@ public class InputsHandler extends BaseIOHandler {
 
     private final DiMappingMetaRegistry registry = new DiMappingMetaRegistry();
 
-    private final boolean alternativeMode;
-
     public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
-        this.alternativeMode = false;
-    }
-
-    public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper, final Boolean alternativeMode) {
-        super(jsonb, servicesMapper);
-        this.alternativeMode = alternativeMode;
     }
 
     public InputFactory asInputFactory() {
@@ -54,11 +46,7 @@ public class InputsHandler extends BaseIOHandler {
             }
             final Object convertedValue;
             final IMappingMeta mappingMeta;
-            if (alternativeMode) {
-                mappingMeta = registry.findDi(value.getClass(), recordBuilderMapper);
-            } else {
-                mappingMeta = registry.find(value.getClass(), () -> recordBuilderMapper);
-            }
+            mappingMeta = registry.findDi(value.getClass(), recordBuilderMapper);
             if (mappingMeta.isLinearMapping()) {
                 return mappingMeta.newRecord(value, recordBuilderMapper);
             } else {
