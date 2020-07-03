@@ -49,25 +49,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DiRowStructVisitor {
 
-    private final RecordBuilderFactory factory;
+    private RecordBuilderFactory factory;
 
-    private final Builder recordBuilder;
+    private Builder recordBuilder;
 
-    private final Object rowStruct;
-
-    public DiRowStructVisitor(final Object data, final RecordBuilderFactory factory) {
-        this.factory = factory;
-        this.rowStruct = data;
-        recordBuilder = factory.newRecordBuilder();
-        log.debug("[DiRowStructVisitor] Class: {} ==> {}.", data.getClass().getName(), data);
-    }
-
-    public void visit() {
-        Arrays.stream(rowStruct.getClass().getFields()).forEach(field -> {
+    public void visit(final Object data) {
+        log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
+        Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
                 final Class<?> type = field.getType();
                 final String name = field.getName();
-                final Object raw = field.get(rowStruct);
+                final Object raw = field.get(data);
                 log.debug("[visit] Field {} ({}) ==> {}.", name, type.getName(), raw);
                 switch (type.getName()) {
                 case "java.lang.String":
@@ -168,8 +160,10 @@ public class DiRowStructVisitor {
         });
     }
 
-    public Record get() {
-        visit();
+    public Record get(final Object data, final RecordBuilderFactory factory) {
+        this.factory = factory;
+        recordBuilder = factory.newRecordBuilder();
+        visit(data);
         return recordBuilder.build();
     }
 

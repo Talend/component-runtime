@@ -27,14 +27,18 @@ import routines.system.DynamicMetadata.sourceTypes;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.bind.JsonbConfig;
@@ -43,6 +47,7 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
@@ -70,6 +75,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private String recordPrefix = "";
 
     private String arrayOfRecordPrefix = "";
+
+    private Set<String> recordFields;
 
     private static final RecordService RECORD_SERVICE = RecordService.class
             .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
@@ -108,6 +115,48 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     }
 
     public Object visit(final Record record) {
+        arrayOfRecordPrefix = "";
+        recordPrefix = "";
+        if (hasDynamic) {
+            dynamic.metadatas.clear();
+            dynamic.clearColumnValues();
+        }
+        recordFields =
+                record.getSchema().getEntries().stream().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
+                    final String root = rcdEntry.getName() + ".";
+                    final List<String> names = new ArrayList<>();
+                    rcdEntry
+                            .getElementSchema()
+                            .getEntries()
+                            .stream()
+                            .filter(e -> e.getType().equals(Type.RECORD))
+                            .map(sr -> {
+                                final String sub = root + sr.getName() + ".";
+                                return sr
+                                        .getElementSchema()
+                                        .getEntries()
+                                        .stream()
+                                        .map(entry -> sub + entry.getName())
+                                        .collect(Collectors.toList());
+                            })
+                            .forEach(l -> l.stream().forEach(m -> names.add(m)));
+                    rcdEntry
+                            .getElementSchema()
+                            .getEntries()
+                            .stream()
+                            .filter(e -> !e.getType().equals(Type.RECORD))
+                            .map(entry -> root + entry.getName())
+                            .forEach(sre -> names.add(sre));
+                    return names;
+                }).flatMap(liststream -> liststream.stream()).collect(Collectors.toSet());
+        recordFields
+                .addAll(record
+                        .getSchema()
+                        .getEntries()
+                        .stream()
+                        .filter(t -> !t.getType().equals(Type.RECORD))
+                        .map(entry -> entry.getName())
+                        .collect(Collectors.toSet()));
         return RECORD_SERVICE.visit(this, record);
     }
 
@@ -127,7 +176,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         Field field = fields.get(entry.getName());
         if (hasDynamic && field == null) {
             final DynamicMetadata metadata = new DynamicMetadata();
-            metadata.setName(arrayOfRecordPrefix + recordPrefix + entry.getName());
+            metadata
+                    .setName(recordFields
+                            .stream()
+                            .filter(f -> f.endsWith("." + entry.getName()))
+                            .findFirst()
+                            .orElse(entry.getName()));
             metadata.setDbName(entry.getOriginalFieldName());
             metadata.setNullable(entry.isNullable());
             metadata.setDescription(entry.getComment());
@@ -288,7 +342,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     @Override
     public RecordVisitor<Object> onRecordArray(final Entry entry, final Optional<Collection<Record>> array) {
-        // TODO: how and when to reset prefix? Not so simple...
         log.debug("[onRecordArray] visiting {}.", entry.getName());
         arrayOfRecordPrefix = entry.getName() + ".";
         return this;
@@ -296,7 +349,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     @Override
     public RecordVisitor<Object> onRecord(final Entry entry, final Optional<Record> record) {
-        // TODO: how and when to reset prefix? Not so simple...
         log.debug("[onRecord] visiting {}.", entry.getName());
         recordPrefix = entry.getName() + ".";
         return this;
