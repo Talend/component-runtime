@@ -492,37 +492,57 @@ public class RecordConverters implements Serializable {
 
         private final Class<?> rowStruct;
 
+        private Object recordVisitor;
+
+        private Method visitRecord;
+
+        private Object rowStructVisitor;
+
+        private Method visitRowStruct;
+
         public MappingMeta(final Class<?> type, final MappingMetaRegistry registry) {
             linearMapping = Stream.of(type.getInterfaces()).anyMatch(it -> it.getName().startsWith("routines.system."));
             rowStruct = type;
         }
 
         public Object newInstance(final Record record) {
+            if (recordVisitor == null) {
+                try {
+                    String className = "org.talend.sdk.component.runtime.di.record.DiRecordVisitor";
+                    Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
+                    final Constructor<?> constructor = visitorClass.getDeclaredConstructors()[0];
+                    constructor.setAccessible(true);
+                    recordVisitor = constructor.newInstance(rowStruct);
+                    visitRecord = visitorClass.getDeclaredMethod("visit", Record.class);
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                        | InvocationTargetException | NoSuchMethodException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
             try {
-                String className = "org.talend.sdk.component.runtime.di.record.DiRecordVisitor";
-                Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
-                final Constructor<?> constructor = visitorClass.getDeclaredConstructors()[0];
-                constructor.setAccessible(true);
-                final Object instance = constructor.newInstance(rowStruct);
-                final Method method = visitorClass.getDeclaredMethod("visit", Record.class);
-                return method.invoke(instance, record);
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                    | InvocationTargetException | NoSuchMethodException e) {
+                return visitRecord.invoke(recordVisitor, record);
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalStateException(e);
             }
         }
 
         public <T> Record newRecord(final T data, final RecordBuilderFactory factory) {
+            if (rowStructVisitor == null) {
+                try {
+                    String className = "org.talend.sdk.component.runtime.di.record.DiRowStructVisitor";
+                    Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
+                    final Constructor<?> constructor = visitorClass.getConstructors()[0];
+                    constructor.setAccessible(true);
+                    rowStructVisitor = constructor.newInstance();
+                    visitRowStruct = visitorClass.getDeclaredMethod("get", Object.class, RecordBuilderFactory.class);
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                        | InvocationTargetException | NoSuchMethodException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
             try {
-                String className = "org.talend.sdk.component.runtime.di.record.DiRowStructVisitor";
-                Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
-                final Constructor<?> constructor = visitorClass.getConstructors()[0];
-                constructor.setAccessible(true);
-                final Object instance = constructor.newInstance(data, factory);
-                final Method method = visitorClass.getDeclaredMethod("get");
-                return Record.class.cast(method.invoke(instance));
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                    | InvocationTargetException | NoSuchMethodException e) {
+                return Record.class.cast(visitRowStruct.invoke(rowStructVisitor, data, factory));
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalStateException(e);
             }
         }
