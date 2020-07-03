@@ -59,6 +59,7 @@ public class DiRowStructVisitor {
         this.factory = factory;
         this.rowStruct = data;
         recordBuilder = factory.newRecordBuilder();
+        log.debug("[DiRowStructVisitor] Class: {} ==> {}.", data.getClass().getName(), data);
     }
 
     public void visit() {
@@ -67,6 +68,7 @@ public class DiRowStructVisitor {
                 final Class<?> type = field.getType();
                 final String name = field.getName();
                 final Object raw = field.get(rowStruct);
+                log.debug("[visit] Field {} ({}) ==> {}.", name, type.getName(), raw);
                 switch (type.getName()) {
                 case "java.lang.String":
                 case "java.lang.BigDecimal":
@@ -104,7 +106,7 @@ public class DiRowStructVisitor {
                         final Object value = dynamic.getColumnValue(meta.getName());
                         final String metaName = meta.getName();
                         final String metaOriginalName = meta.getDbName();
-                        log.debug("[dynamic] {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
+                        log.debug("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                         switch (meta.getType()) {
                         case "id_Object":
                             onString(toEntry(metaName, metaOriginalName, Type.RECORD), String.class.cast(value));
