@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1719[TCOMP-1719^]: Header responses for icon not propagated correctly from Component-server-vault-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-1733[TCOMP-1733^]: NPE in Studio metadata connection with activeif on different layouts
 - link:https://jira.talendforge.org/browse/TCOMP-1734[TCOMP-1734^]: Studio froze when installing a patch with azure-dls-gen2-1.10.0-component.car
 - link:https://jira.talendforge.org/browse/TCOMP-1736[TCOMP-1736^]: JobImpl retrieves more than streaming.maxRecords parameter
 - link:https://jira.talendforge.org/browse/TCOMP-1739[TCOMP-1739^]: Use scala version defined on parent for Spark related components
@@ -43,6 +44,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1729[TCOMP-1729^]: Upgrade to Apache Beam 2.21.0
 - link:https://jira.talendforge.org/browse/TCOMP-1730[TCOMP-1730^]: Upgrade johnzon to 1.2.6
+
+
 
 
 
