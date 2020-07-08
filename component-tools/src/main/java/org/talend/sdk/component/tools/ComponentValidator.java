@@ -1177,7 +1177,7 @@ public class ComponentValidator extends BaseTask {
                 .isPresent();
 
         if (!exceptionFound) {
-            errors.add("Component should declare a custom ComponentException;");
+            errors.add("Component should declare a custom Exception that inherits from ComponentException.");
         }
     }
 
