@@ -150,6 +150,18 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean validateNoFinalOption;
 
     /**
+     * Should the exceptions thrown be validated
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.exceptions")
+    private boolean validateExceptions;
+
+    /**
+     * Should build fail on exception validation error
+     */
+    @Parameter(defaultValue = "false", property = "talend.validation.failOnValidateExceptions")
+    private boolean failOnValidateExceptions;
+
+    /**
      * Should the option names be validated.
      */
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.pluginId")
@@ -190,6 +202,8 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateNoFinalOption(validateNoFinalOption);
         configuration.setValidateWording(validateWording);
         configuration.setPluginId(pluginId);
+        configuration.setValidateExceptions(validateExceptions);
+        configuration.setFailOnValidateExceptions(failOnValidateExceptions);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
         new ComponentValidator(configuration, new File[] { classes }, getLog()) {
@@ -199,5 +213,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
                 return locale;
             }
         }.run();
+
+
     }
 }
