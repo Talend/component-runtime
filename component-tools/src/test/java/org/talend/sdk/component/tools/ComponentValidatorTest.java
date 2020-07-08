@@ -210,7 +210,8 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage(value = "org.talend.test.failure.exceptions", validateExceptions = true)
     void testFailureException(final ExceptionSpec expectedException) {
-        expectedException.expectMessage("- Component should declare a custom ComponentException;");
+        expectedException
+                .expectMessage("- Component should declare a custom Exception that inherits from ComponentException.");
     }
 
     @Test

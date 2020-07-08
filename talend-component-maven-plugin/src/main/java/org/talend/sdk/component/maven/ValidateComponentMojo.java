@@ -214,6 +214,5 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
             }
         }.run();
 
-
     }
 }
