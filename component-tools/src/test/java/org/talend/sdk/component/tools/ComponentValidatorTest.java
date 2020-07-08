@@ -83,6 +83,8 @@ class ComponentValidatorTest {
 
         boolean validateExceptions() default false;
 
+        boolean failOnValidateExceptions() default true;
+
         String sourceRoot() default "";
     }
 
@@ -155,6 +157,7 @@ class ComponentValidatorTest {
             cfg.setValidateDocumentation(config.validateDocumentation());
             cfg.setValidateWording(config.validateWording());
             cfg.setValidateExceptions(config.validateExceptions());
+            cfg.setFailOnValidateExceptions(config.failOnValidateExceptions());
             Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
