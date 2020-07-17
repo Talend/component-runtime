@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+/**
+ * Transform Talend Avro Records
+ */
 public class TalendAvroRecordTransformer {
 
     private RecordBuilderFactory recordBuilderFactory;
