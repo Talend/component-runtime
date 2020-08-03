@@ -61,16 +61,24 @@ public class DiRowStructVisitor {
                 final String name = field.getName();
                 final Object raw = field.get(data);
                 log.debug("[visit] Field {} ({}) ==> {}.", name, type.getName(), raw);
+                if (raw == null) {
+                    log.debug("[visit] Skipping Field {} with null value.", name);
+                    return;
+                }
                 switch (type.getName()) {
                 case "java.lang.String":
-                case "java.lang.BigDecimal":
                     onString(toEntry(name, "", STRING), String.class.cast(raw));
                     break;
+                case "java.math.BigDecimal":
+                    onString(toEntry(name, "", STRING), BigDecimal.class.cast(raw).toString());
+                    break;
                 case "java.lang.Integer":
-                case "java.lang.Short":
                 case "int":
-                case "short":
                     onInt(toEntry(name, "", INT), Integer.class.cast(raw));
+                    break;
+                case "java.lang.Short":
+                case "short":
+                    onInt(toEntry(name, "", INT), Short.class.cast(raw).intValue());
                     break;
                 case "java.lang.Long":
                 case "long":
@@ -144,12 +152,17 @@ public class DiRowStructVisitor {
                     });
                     break;
                 default:
-                    if (byte[].class.isInstance(type)) {
+                    if (byte[].class.isInstance(raw)) {
                         onBytes(toEntry(name, "", BYTES), byte[].class.cast(raw));
-                    } else if (Collection.class.isInstance(type)) {
-                        final Collection collection = Collection.class.cast(type);
+                    } else if (Byte.class.isInstance(raw)) {
+                        onInt(toEntry(name, "", INT), Byte.class.cast(raw).intValue());
+                    } else if (Collection.class.isInstance(raw)) {
+                        final Collection collection = Collection.class.cast(raw);
                         onArray(getCollectionEntry(name, "", collection), Collection.class.cast(collection));
+                    } else if (char.class.isInstance(raw) || Character.class.isInstance(raw)) {
+                        onString(toEntry(name, "", STRING), String.valueOf(raw));
                     } else {
+                        log.error("Invalid type: {} with value: {}.", type, raw);
                         throw new IllegalAccessException();
                     }
                     break;

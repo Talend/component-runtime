@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.di.record;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.function.UnaryOperator.identity;
@@ -26,11 +27,14 @@ import routines.system.DynamicMetadata.sourceTypes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,7 +66,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private final Class<?> clazz;
 
-    private final Object instance;
+    private Object instance;
 
     private final Map<String, Field> fields;
 
@@ -117,6 +121,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     public Object visit(final Record record) {
         arrayOfRecordPrefix = "";
         recordPrefix = "";
+        try {
+            instance = clazz.getConstructor().newInstance();
+        } catch (InstantiationException | InvocationTargetException | NoSuchMethodException
+                | IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
         if (hasDynamic) {
             dynamic.metadatas.clear();
             dynamic.clearColumnValues();
@@ -238,10 +248,76 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             return;
         }
         try {
-            field.set(instance, value);
+            field.set(instance, coerce(field.getType(), value, entry.getName()));
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public <T> T coerce(final Class<T> expectedType, final Object value, final String name) {
+        if (value == null) {
+            return null;
+        }
+
+        // datetime cases
+        if (Long.class.isInstance(value) && expectedType != Long.class) {
+            if (expectedType == ZonedDateTime.class) {
+                final long epochMilli = Number.class.cast(value).longValue();
+                if (epochMilli == -1L) { // not <0 which can be a bug
+                    return null;
+                }
+                return expectedType.cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC));
+            }
+            if (expectedType == Date.class) {
+                return expectedType.cast(new Date(Number.class.cast(value).longValue()));
+            }
+        }
+
+        if (!expectedType.isInstance(value)) {
+            if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
+                return mapNumber(expectedType, Number.class.cast(value));
+            }
+            if (String.class.isInstance(value)) {
+                if (ZonedDateTime.class == expectedType) {
+                    return expectedType.cast(ZonedDateTime.parse(String.valueOf(value)));
+                }
+                if (char.class == expectedType || Character.class == expectedType) {
+                    return expectedType.cast(String.valueOf(value).charAt(0));
+                }
+                if (byte[].class == expectedType) {
+                    return expectedType.cast(Base64.getDecoder().decode(String.valueOf(value)));
+                }
+                if (BigDecimal.class == expectedType) {
+                    return expectedType.cast(new BigDecimal(String.valueOf(value)));
+                }
+            }
+
+            throw new IllegalArgumentException(name + " can't be converted to " + expectedType);
+        }
+
+        return expectedType.cast(value);
+    }
+
+    public <T> T mapNumber(final Class<T> expected, final Number from) {
+        if (expected == Double.class || expected == double.class) {
+            return expected.cast(from.doubleValue());
+        }
+        if (expected == Float.class || expected == float.class) {
+            return expected.cast(from.floatValue());
+        }
+        if (expected == Integer.class || expected == int.class) {
+            return expected.cast(from.intValue());
+        }
+        if (expected == Long.class || expected == long.class) {
+            return expected.cast(from.longValue());
+        }
+        if (expected == Byte.class || expected == byte.class) {
+            return expected.cast(from.byteValue());
+        }
+        if (expected == Short.class || expected == short.class) {
+            return expected.cast(from.shortValue());
+        }
+        throw new IllegalArgumentException("Can't convert " + from + " to " + expected);
     }
 
     @Override
