@@ -66,6 +66,7 @@ public class DiRowStructVisitor {
                     return;
                 }
                 switch (type.getName()) {
+                case "java.lang.Object":
                 case "java.lang.String":
                     onString(toEntry(name, STRING), raw);
                     break;
@@ -111,7 +112,7 @@ public class DiRowStructVisitor {
                         }
                         switch (meta.getType()) {
                         case "id_Object":
-                            onString(toEntry(metaName, metaOriginalName, RECORD, metaIsNullable, metaComment), value);
+                            onString(toEntry(metaName, metaOriginalName, STRING, metaIsNullable, metaComment), value);
                             break;
                         case "id_List":
                             onArray(toCollectionEntry(metaName, metaOriginalName, value), Collection.class.cast(value));
@@ -172,7 +173,7 @@ public class DiRowStructVisitor {
                     } else if (char.class.isInstance(raw) || Character.class.isInstance(raw)) {
                         onString(toEntry(name, STRING), String.valueOf(raw));
                     } else {
-                        throw new IllegalAccessException(String.format("Invalid type: % with value: %s.", type, raw));
+                        throw new IllegalAccessException(String.format("Invalid type: %s with value: %s.", type, raw));
                     }
                     break;
                 }
@@ -197,6 +198,10 @@ public class DiRowStructVisitor {
                 final String name = field.getName();
                 final Object raw = field.get(data);
                 switch (type.getName()) {
+                case "java.util.List":
+                    schema.withEntry(toCollectionEntry(name, "", raw));
+                    break;
+                case "java.lang.Object":
                 case "java.lang.String":
                 case "java.lang.Character":
                 case "char":
@@ -241,12 +246,10 @@ public class DiRowStructVisitor {
                         final String metaName = meta.getName();
                         log.debug("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                         switch (meta.getType()) {
-                        case "id_Object":
-                            schema.withEntry(toEntry(metaName, RECORD));
-                            break;
                         case "id_List":
                             schema.withEntry(toCollectionEntry(metaName, "", value));
                             break;
+                        case "id_Object":
                         case "id_String":
                         case "id_Character":
                             schema.withEntry(toEntry(metaName, STRING));
@@ -281,11 +284,7 @@ public class DiRowStructVisitor {
                     });
                     break;
                 default:
-                    if (Collection.class.isInstance(raw)) {
-                        schema.withEntry(toCollectionEntry(name, "", raw));
-                    } else {
-                        log.warn("unmanaged type: {} for {}.", type, name);
-                    }
+                    log.warn("Unmanaged type: {} for {}.", type, name);
                 }
             } catch (IllegalAccessException e) {
                 throw new IllegalStateException(e);

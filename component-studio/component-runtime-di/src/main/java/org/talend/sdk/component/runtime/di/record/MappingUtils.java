@@ -51,14 +51,14 @@ public class MappingUtils {
         }
         // datetime cases from Long
         if (Long.class.isInstance(value) && expectedType != Long.class) {
-            if (expectedType == ZonedDateTime.class) {
+            if (ZonedDateTime.class == expectedType) {
                 final long epochMilli = Number.class.cast(value).longValue();
                 if (epochMilli == -1L) { // not <0 which can be a bug
                     return null;
                 }
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC);
             }
-            if (expectedType == Date.class) {
+            if (Date.class == expectedType) {
                 return new Date(Number.class.cast(value).longValue());
             }
         }
@@ -71,6 +71,9 @@ public class MappingUtils {
             // mapping primitive <-> Class
             if (isAssignableTo(value.getClass(), expectedType)) {
                 return mapPrimitiveWrapper(expectedType, value);
+            }
+            if (String.class == expectedType) {
+                return String.valueOf(value);
             }
             // TODO: maybe add a Date.class / ZonedDateTime.class mapping case. Should check that...
             // mainly for CSV incoming data where everything is mapped to String
