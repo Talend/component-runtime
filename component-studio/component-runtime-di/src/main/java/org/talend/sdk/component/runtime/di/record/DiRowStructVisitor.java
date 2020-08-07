@@ -37,6 +37,9 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.spi.JsonbProvider;
+
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
@@ -53,6 +56,8 @@ public class DiRowStructVisitor {
 
     private Builder recordBuilder;
 
+    private Jsonb jsonb;
+
     public void visit(final Object data) {
         log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
@@ -67,36 +72,38 @@ public class DiRowStructVisitor {
                 }
                 switch (type.getName()) {
                 case "java.lang.Object":
+                    onObject(name, raw);
+                    break;
                 case "java.lang.String":
-                    onString(toEntry(name, STRING), raw);
+                    onString(name, raw);
                     break;
                 case "java.math.BigDecimal":
-                    onDouble(toEntry(name, DOUBLE), BigDecimal.class.cast(raw).doubleValue());
+                    onDouble(name, BigDecimal.class.cast(raw).doubleValue());
                     break;
                 case "java.lang.Integer":
                 case "int":
                 case "java.lang.Short":
                 case "short":
-                    onInt(toEntry(name, INT), raw);
+                    onInt(name, raw);
                     break;
                 case "java.lang.Long":
                 case "long":
-                    onLong(toEntry(name, LONG), raw);
+                    onLong(name, raw);
                     break;
                 case "java.lang.Float":
                 case "float":
-                    onFloat(toEntry(name, FLOAT), raw);
+                    onFloat(name, raw);
                     break;
                 case "java.lang.Double":
                 case "double":
-                    onDouble(toEntry(name, DOUBLE), raw);
+                    onDouble(name, raw);
                     break;
                 case "java.lang.Boolean":
                 case "boolean":
-                    onBoolean(toEntry(name, BOOLEAN), raw);
+                    onBoolean(name, raw);
                     break;
                 case "java.util.Date":
-                    onDatetime(toEntry(name, DATETIME), Date.class.cast(raw).toInstant().atZone(UTC));
+                    onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
                     break;
                 case "routines.system.Dynamic":
                     Dynamic dynamic = Dynamic.class.cast(raw);
@@ -112,40 +119,39 @@ public class DiRowStructVisitor {
                         }
                         switch (meta.getType()) {
                         case "id_Object":
-                            onString(toEntry(metaName, metaOriginalName, STRING, metaIsNullable, metaComment), value);
+                            onObject(metaName, value);
                             break;
                         case "id_List":
                             onArray(toCollectionEntry(metaName, metaOriginalName, value), Collection.class.cast(value));
                             break;
                         case "id_String":
                         case "id_Character":
-                            onString(toEntry(metaName, metaOriginalName, STRING, metaIsNullable, metaComment), value);
+                            onString(metaName, value);
                             break;
                         case "id_byte[]":
                             final byte[] bytes =
                                     value != null ? Base64.getDecoder().decode(String.valueOf(value)) : null;
-                            onBytes(toEntry(metaName, metaOriginalName, BYTES, metaIsNullable, metaComment), bytes);
+                            onBytes(metaName, bytes);
                             break;
                         case "id_Byte":
                         case "id_Short":
                         case "id_Integer":
-                            onInt(toEntry(metaName, metaOriginalName, INT, metaIsNullable, metaComment), value);
+                            onInt(metaName, value);
                             break;
                         case "id_Long":
-                            onLong(toEntry(metaName, metaOriginalName, LONG, metaIsNullable, metaComment), value);
+                            onLong(metaName, value);
                             break;
                         case "id_Float":
-                            onFloat(toEntry(metaName, metaOriginalName, FLOAT, metaIsNullable, metaComment), value);
+                            onFloat(metaName, value);
                             break;
                         case "id_Double":
-                            onDouble(toEntry(metaName, metaOriginalName, DOUBLE, metaIsNullable, metaComment), value);
+                            onDouble(metaName, value);
                             break;
                         case "id_BigDecimal":
-                            onDouble(toEntry(metaName, metaOriginalName, DOUBLE, metaIsNullable, metaComment),
-                                    BigDecimal.class.cast(value).doubleValue());
+                            onDouble(metaName, BigDecimal.class.cast(value).doubleValue());
                             break;
                         case "id_Boolean":
-                            onBoolean(toEntry(metaName, metaOriginalName, BOOLEAN, metaIsNullable, metaComment), value);
+                            onBoolean(metaName, value);
                             break;
                         case "id_Date":
                             ZonedDateTime dateTime;
@@ -154,8 +160,7 @@ public class DiRowStructVisitor {
                             } else {
                                 dateTime = ZonedDateTime.ofInstant(Date.class.cast(value).toInstant(), UTC);
                             }
-                            onDatetime(toEntry(metaName, metaOriginalName, DATETIME, metaIsNullable, metaComment),
-                                    dateTime);
+                            onDatetime(metaName, dateTime);
                             break;
                         default:
                             throw new IllegalStateException("Unexpected value: " + meta.getType());
@@ -164,14 +169,14 @@ public class DiRowStructVisitor {
                     break;
                 default:
                     if (byte[].class.isInstance(raw)) {
-                        onBytes(toEntry(name, BYTES), byte[].class.cast(raw));
+                        onBytes(name, byte[].class.cast(raw));
                     } else if (byte.class.isInstance(raw) || Byte.class.isInstance(raw)) {
-                        onInt(toEntry(name, INT), Byte.class.cast(raw).intValue());
+                        onInt(name, Byte.class.cast(raw).intValue());
                     } else if (Collection.class.isInstance(raw)) {
                         final Collection collection = Collection.class.cast(raw);
                         onArray(toCollectionEntry(name, "", collection), Collection.class.cast(collection));
                     } else if (char.class.isInstance(raw) || Character.class.isInstance(raw)) {
-                        onString(toEntry(name, STRING), String.valueOf(raw));
+                        onString(name, String.valueOf(raw));
                     } else {
                         throw new IllegalAccessException(String.format("Invalid type: %s with value: %s.", type, raw));
                     }
@@ -185,6 +190,7 @@ public class DiRowStructVisitor {
 
     public Record get(final Object data, final RecordBuilderFactory factory) {
         this.factory = factory;
+        jsonb = JsonbProvider.provider().create().build();
         recordBuilder = factory.newRecordBuilder(inferSchema(data, factory));
         visit(data);
         return recordBuilder.build();
@@ -244,42 +250,47 @@ public class DiRowStructVisitor {
                     dynamic.metadatas.forEach(meta -> {
                         final Object value = dynamic.getColumnValue(meta.getName());
                         final String metaName = meta.getName();
+                        final String metaOriginalName = meta.getDbName();
+                        final String metaComment = meta.getDescription();
+                        final boolean metaIsNullable = meta.isNullable();
                         log.debug("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                         switch (meta.getType()) {
                         case "id_List":
-                            schema.withEntry(toCollectionEntry(metaName, "", value));
+                            schema.withEntry(toCollectionEntry(metaName, metaOriginalName, value));
                             break;
                         case "id_Object":
                         case "id_String":
                         case "id_Character":
-                            schema.withEntry(toEntry(metaName, STRING));
+                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_byte[]":
-                            schema.withEntry(toEntry(metaName, BYTES));
+                            schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_Byte":
                         case "id_Short":
                         case "id_Integer":
-                            schema.withEntry(toEntry(metaName, INT));
+                            schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_Long":
-                            schema.withEntry(toEntry(metaName, LONG));
+                            schema.withEntry(toEntry(metaName, LONG, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_Float":
-                            schema.withEntry(toEntry(metaName, FLOAT));
+                            schema.withEntry(toEntry(metaName, FLOAT, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_Double":
                         case "id_BigDecimal":
-                            schema.withEntry(toEntry(metaName, DOUBLE));
+                            schema.withEntry(toEntry(metaName, DOUBLE, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_Boolean":
-                            schema.withEntry(toEntry(metaName, BOOLEAN));
+                            schema.withEntry(toEntry(metaName, BOOLEAN, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_Date":
-                            schema.withEntry(toEntry(metaName, DATETIME));
+                            schema
+                                    .withEntry(
+                                            toEntry(metaName, DATETIME, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         default:
-                            schema.withEntry(toEntry(metaName, STRING));
+                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, metaComment));
                         }
                     });
                     break;
@@ -293,48 +304,51 @@ public class DiRowStructVisitor {
         return schema.build();
     }
 
-    private void onInt(final Entry entry, final Object value) {
-        recordBuilder.withInt(entry, Integer.class.cast(MappingUtils.coerce(Integer.class, value, entry.getName())));
+    private void onInt(final String name, final Object value) {
+        recordBuilder.withInt(name, Integer.class.cast(MappingUtils.coerce(Integer.class, value, name)));
     }
 
-    private void onLong(final Entry entry, final Object value) {
-        recordBuilder.withLong(entry, Long.class.cast(MappingUtils.coerce(Long.class, value, entry.getName())));
+    private void onLong(final String name, final Object value) {
+        recordBuilder.withLong(name, Long.class.cast(MappingUtils.coerce(Long.class, value, name)));
     }
 
-    private void onFloat(final Entry entry, final Object value) {
-        recordBuilder.withFloat(entry, Float.class.cast(MappingUtils.coerce(Float.class, value, entry.getName())));
+    private void onFloat(final String name, final Object value) {
+        recordBuilder.withFloat(name, Float.class.cast(MappingUtils.coerce(Float.class, value, name)));
     }
 
-    private void onDouble(final Entry entry, final Object value) {
-        recordBuilder.withDouble(entry, Double.class.cast(MappingUtils.coerce(Double.class, value, entry.getName())));
+    private void onDouble(final String name, final Object value) {
+        recordBuilder.withDouble(name, Double.class.cast(MappingUtils.coerce(Double.class, value, name)));
     }
 
-    private void onBoolean(final Entry entry, final Object value) {
-        recordBuilder
-                .withBoolean(entry, Boolean.class.cast(MappingUtils.coerce(Boolean.class, value, entry.getName())));
+    private void onBoolean(final String name, final Object value) {
+        recordBuilder.withBoolean(name, Boolean.class.cast(MappingUtils.coerce(Boolean.class, value, name)));
     }
 
-    private void onString(final Entry entry, final Object value) {
-        recordBuilder.withString(entry, String.class.cast(MappingUtils.coerce(String.class, value, entry.getName())));
+    private void onString(final String name, final Object value) {
+        recordBuilder.withString(name, String.class.cast(MappingUtils.coerce(String.class, value, name)));
     }
 
-    private void onDatetime(final Entry entry, final ZonedDateTime value) {
-        recordBuilder.withDateTime(entry, value);
+    private void onDatetime(final String name, final ZonedDateTime value) {
+        recordBuilder.withDateTime(name, value);
     }
 
-    private void onBytes(final Entry entry, final byte[] value) {
-        recordBuilder.withBytes(entry, value);
+    private void onBytes(final String name, final byte[] value) {
+        recordBuilder.withBytes(name, value);
     }
 
-    private void onArray(final Entry entry, final Collection array) {
-        recordBuilder.withArray(entry, array);
+    private void onArray(final Entry entry, final Collection value) {
+        recordBuilder.withArray(entry, value);
+    }
+
+    private void onObject(final String name, final Object value) {
+        recordBuilder.withString(name, jsonb.toJson(value));
     }
 
     private Entry toEntry(final String name, final Schema.Type type) {
         return factory.newEntryBuilder().withName(name).withNullable(true).withType(type).build();
     }
 
-    private Entry toEntry(final String name, final String originalName, final Schema.Type type,
+    private Entry toEntry(final String name, final Schema.Type type, final String originalName,
             final boolean isNullable, final String comment) {
         return factory
                 .newEntryBuilder()
