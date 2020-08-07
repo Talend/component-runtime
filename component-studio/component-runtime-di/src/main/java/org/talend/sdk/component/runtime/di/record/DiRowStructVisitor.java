@@ -281,10 +281,14 @@ public class DiRowStructVisitor {
                     });
                     break;
                 default:
-                    log.warn("unmanaged type: {} for {}.", type, name);
+                    if (Collection.class.isInstance(raw)) {
+                        schema.withEntry(toCollectionEntry(name, "", raw));
+                    } else {
+                        log.warn("unmanaged type: {} for {}.", type, name);
+                    }
                 }
-
-            } catch (Exception e) {
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException(e);
             }
         });
         return schema.build();
