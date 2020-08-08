@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.1.23-SNAPSHOT</version>
+  <version>1.1.24-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
