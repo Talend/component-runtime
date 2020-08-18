@@ -1,5 +1,11 @@
 
 
+== Version 1.1.24
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1750[TCOMP-1750^]: Deadlock at TPD job startup using the Component SDK and using the Workday component
+
 == Version 1.1.23
 
 === Bug
