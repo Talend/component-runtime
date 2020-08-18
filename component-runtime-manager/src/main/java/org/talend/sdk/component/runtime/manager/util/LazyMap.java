@@ -29,6 +29,20 @@ public class LazyMap<A, B> extends ConcurrentHashMap<A, B> {
 
     @Override
     public B get(final Object key) {
-        return super.computeIfAbsent((A) key, this.lazyFactory);
+        //There is a problem with ConcurrentHashMap computeIfAbsent() method when it's used recursively.
+        //The process might get stuck, thus we cannot use it here, as there will be some recursive calls to
+        //services LazyMap from DefaultServiceProvider.
+        B val = super.get((A) key);
+        if(val == null) {
+            synchronized (this) {
+                if((val = super.get((A) key)) == null) {
+                    val = this.lazyFactory.apply((A) key);
+                }
+                if(val != null) {
+                    super.put((A) key, val);
+                }
+            }
+        }
+        return val;
     }
 }
