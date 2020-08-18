@@ -29,6 +29,20 @@ public class LazyMap<A, B> extends ConcurrentHashMap<A, B> {
 
     @Override
     public B get(final Object key) {
-        return super.computeIfAbsent((A) key, this.lazyFactory);
+        B value = super.get(key);
+        if (value == null) {
+            final A castedKey = (A) (key);
+            synchronized (this) {
+                value = super.get(key);
+                if (value == null) {
+                    final B created = lazyFactory.apply(castedKey);
+                    if (created != null) { // cache
+                        put(castedKey, created);
+                        return created;
+                    }
+                }
+            }
+        }
+        return value;
     }
 }
