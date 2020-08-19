@@ -110,7 +110,7 @@ class ComponentManagerTest {
         final String jvd = System.getProperty("java.version.date"); // java 11
         System.clearProperty("java.version.date");
         try (final ComponentManager manager =
-                     new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+                new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
             final String pluginPath = plugin.getAbsolutePath();
             Thread[] th = new Thread[5];
             for (int ind = 0; ind < th.length; ind++) {
