@@ -2,7 +2,7 @@
 <jsonArray>[
   {
     "commits":2547,
-    "description":"Joined the Apache EE family (OpenWebBeans, Meecrowave, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
+    "description":"Apache addict I'm involved in several project (OpenWebBeans, Johnzon, Geronimo, Meecrowave, ... - http://home.apache.org/committer-index.html#rmannibucau).\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
@@ -22,7 +22,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":90,
+    "commits":138,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -48,6 +48,13 @@
     "gravatar":"https://avatars1.githubusercontent.com/u/7741480?v=4",
     "id":"cmeng-talend",
     "name":"Chao MENG"
+  },
+  {
+    "commits":10,
+    "description":"",
+    "gravatar":"https://avatars3.githubusercontent.com/u/53257653?v=4",
+    "id":"rlecomte-talend",
+    "name":"Richard Lecomte"
   },
   {
     "commits":9,
@@ -84,6 +91,19 @@
     "name":"Axel MAUMONT"
   },
   {
+    "commits":3,
+    "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?)\n\nBlog: https://ismaelmejia.com/",
+    "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
+    "id":"iemejia",
+    "name":"Ismaël Mejía"
+  },
+  {
+    "commits":2,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/31616269?v=4",
+    "id":"lcelton-talend"
+  },
+  {
     "commits":2,
     "description":"\n\nBlog: https://www.linkedin.com/in/zoltantakacsdev/",
     "gravatar":"https://avatars0.githubusercontent.com/u/2045409?v=4",
@@ -98,13 +118,6 @@
     "name":"Rémy DUBOIS"
   },
   {
-    "commits":2,
-    "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?).\n\nBlog: https://ismaelmejia.com/",
-    "gravatar":"https://avatars3.githubusercontent.com/u/79476?v=4",
-    "id":"iemejia",
-    "name":"Ismaël Mejía"
-  },
-  {
     "commits":1,
     "description":"",
     "gravatar":"https://avatars3.githubusercontent.com/u/11495292?v=4",
@@ -113,7 +126,7 @@
   },
   {
     "commits":1,
-    "description":"Focused on Big Data technologies. Open Source fan, I contribute to Apache projects such as Apache Beam.\r\nI'm an Apache Beam committer and PMC member",
+    "description":"Focused on Big Data technologies. Open Source fan, I contribute to Apache projects.\r\nI'm an Apache Beam committer and PMC member\n\nBlog: https://echauchot.blogspot.com/",
     "gravatar":"https://avatars3.githubusercontent.com/u/8821084?v=4",
     "id":"echauchot",
     "name":"Etienne Chauchot"
@@ -133,7 +146,7 @@
   },
   {
     "commits":1,
-    "description":"",
+    "description":"Senior Cloud Software Architect",
     "gravatar":"https://avatars1.githubusercontent.com/u/783286?v=4",
     "id":"sgandon"
   },
@@ -160,6 +173,13 @@
   },
   {
     "commits":1,
+    "description":"Templar",
+    "gravatar":"https://avatars2.githubusercontent.com/u/22737013?v=4",
+    "id":"pyzhou-talend",
+    "name":"pyzhou"
+  },
+  {
+    "commits":1,
     "description":"\n\nBlog: www.talend.com",
     "gravatar":"https://avatars1.githubusercontent.com/u/588681?v=4",
     "id":"pteyssier",
@@ -171,6 +191,12 @@
     "gravatar":"https://avatars2.githubusercontent.com/u/24808585?v=4",
     "id":"skermabon",
     "name":"Stéphane Kermabon"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars0.githubusercontent.com/u/18050008?v=4",
+    "id":"chmyga"
   },
   {
     "commits":1,
