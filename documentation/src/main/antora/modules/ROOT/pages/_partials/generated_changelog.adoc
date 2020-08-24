@@ -6,6 +6,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1750[TCOMP-1750^]: Deadlock at TPD job startup using the Component SDK and using the Workday component
 
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.23
 
 === Bug
@@ -247,11 +253,13 @@
 
 
 
+
+
 == Version 1.1.15.2
 
-=== Bug
+=== Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-1721[TCOMP-1721^]: Component Manager Singleton is not thread safe
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
