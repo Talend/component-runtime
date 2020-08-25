@@ -111,9 +111,8 @@ class ConfigurableClassLoaderTest {
                 name -> !ConfigurableClassLoaderTest.class.getName().equals(name), name -> true, null, new String[0])) {
             try {
                 loader.loadClass("org.talend.sdk.component.classloader.ConfigurableClassLoaderTest");
-                fail("ConfigurableClassLoaderTest shouldn't pass to parent");
             } catch (final ClassNotFoundException e) {
-                // filtered so we are good
+                fail("ConfigurableClassLoaderTest should find this class");
             }
             try {
                 parent.loadClass("org.talend.sdk.component.classloader.ConfigurableClassLoaderTest");
