@@ -536,24 +536,6 @@ public class ComponentManager implements AutoCloseable {
         return SingletonHolder.CONTEXTUAL_INSTANCE;
     }
 
-    public static Path findM2() {
-        return ofNullable(System.getProperty("talend.component.manager.m2.repository"))
-                .map(PathFactory::get)
-                .orElseGet(() -> {
-                    // check if we are in the studio process if so just grab the the studio config
-                    final String m2Repo = System.getProperty("maven.repository");
-                    if (!"global".equals(m2Repo)) {
-                        final Path localM2 = PathFactory
-                                .get(System.getProperty("osgi.configuration.area", ""))
-                                .resolve(".m2/repository");
-                        if (java.nio.file.Files.exists(localM2)) {
-                            return localM2;
-                        }
-                    }
-                    return findDefaultM2();
-                });
-    }
-
     private static <T> Stream<T> parallelIf(final boolean condition, final Stream<T> stringStream) {
         return condition ? stringStream.parallel() : stringStream;
     }
@@ -577,6 +559,32 @@ public class ComponentManager implements AutoCloseable {
                                         .map(s -> s.split(","))
                                         .map(Stream::of)
                                         .orElseGet(Stream::empty));
+    }
+
+    public static Path findM2() {
+        return ofNullable(System.getProperty("talend.component.manager.m2.repository"))
+                .map(m2 -> {
+                    // jobServer may badly translate paths on Windows
+                    try {
+                        return PathFactory.get(m2);
+                    } catch (Exception e) {
+                        return findStudioM2();
+                    }
+                })
+                .orElseGet(ComponentManager::findStudioM2);
+    }
+
+    private static Path findStudioM2() {
+        // check if we are in the studio process if so just grab the the studio config
+        final String m2Repo = System.getProperty("maven.repository");
+        if (!"global".equals(m2Repo)) {
+            final Path localM2 =
+                    PathFactory.get(System.getProperty("osgi.configuration.area", "")).resolve(".m2/repository");
+            if (java.nio.file.Files.exists(localM2)) {
+                return localM2;
+            }
+        }
+        return findDefaultM2();
     }
 
     private static Path findDefaultM2() {
@@ -1941,6 +1949,8 @@ public class ComponentManager implements AutoCloseable {
          * @deprecated Mainly here for backward compatibility for beam customizer.
          *
          * @param customizers all customizers.
+         *
+         * @deprecated Mainly here for backward compatibility for beam customizer.
          */
         @Deprecated
         default void setCustomizers(final Collection<Customizer> customizers) {
