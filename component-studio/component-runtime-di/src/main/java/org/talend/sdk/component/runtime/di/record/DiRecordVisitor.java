@@ -47,6 +47,7 @@ import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordService;
@@ -164,6 +165,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                         .filter(t -> !t.getType().equals(Type.RECORD))
                         .map(entry -> entry.getName())
                         .collect(Collectors.toSet()));
+        if (hasDynamic) {
+            prefillDynamic(record.getSchema());
+        }
+
         return RECORD_SERVICE.visit(this, record);
     }
 
@@ -179,70 +184,103 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         return instance;
     }
 
+    /**
+     * prefills Dynamic metadatas when the visitor do not visit it
+     *
+     * @param schema
+     */
+    private void prefillDynamic(final Schema schema) {
+        schema
+                .getEntries()
+                .stream()
+                .filter(entry -> fields.keySet().stream().noneMatch(field -> field.equals(entry.getName())))
+                .forEach(entry -> {
+                    dynamic.metadatas.add(generateMetadata(entry));
+                    dynamic.addColumnValue(null);
+                });
+    }
+
+    private DynamicMetadata generateMetadata(final Entry entry) {
+        final DynamicMetadata metadata = new DynamicMetadata();
+        metadata
+                .setName(recordFields
+                        .stream()
+                        .filter(f -> f.endsWith("." + entry.getName()))
+                        .findFirst()
+                        .orElse(entry.getName()));
+        metadata.setDbName(entry.getOriginalFieldName());
+        metadata.setNullable(entry.isNullable());
+        metadata.setDescription(entry.getComment());
+        metadata.setKey(false);
+        metadata.setSourceType(sourceTypes.unknown);
+        metadata.setLength(100);
+        metadata.setPrecision(0);
+        switch (entry.getType()) {
+        case RECORD:
+            metadata.setType("id_Object");
+            break;
+        case ARRAY:
+            metadata.setType("id_List");
+            break;
+        case STRING:
+            metadata.setType("id_String");
+            break;
+        case BYTES:
+            metadata.setType("id_byte[]");
+            break;
+        case INT:
+            metadata.setType("id_Integer");
+            break;
+        case LONG:
+            metadata.setType("id_Long");
+            break;
+        case FLOAT:
+            metadata.setType("id_Float");
+            metadata.setLength(10);
+            metadata.setPrecision(5);
+            break;
+        case DOUBLE:
+            metadata.setType("id_Double");
+            metadata.setLength(20);
+            metadata.setPrecision(10);
+            break;
+        case BOOLEAN:
+            metadata.setType("id_Boolean");
+            break;
+        case DATETIME:
+            metadata.setType("id_Date");
+            metadata.setLogicalType("timestamp-millis");
+            break;
+        default:
+            throw new IllegalStateException("Unexpected value: " + entry.getType());
+        }
+        return metadata;
+    }
+
     private void setField(final Entry entry, final Object value) {
         final Field field = fields.get(entry.getName());
         if (hasDynamic && (field == null || dynamicColumn.equals(entry.getName()))) {
-            final DynamicMetadata metadata = new DynamicMetadata();
-            metadata
-                    .setName(recordFields
-                            .stream()
-                            .filter(f -> f.endsWith("." + entry.getName()))
-                            .findFirst()
-                            .orElse(entry.getName()));
-            metadata.setDbName(entry.getOriginalFieldName());
-            metadata.setNullable(entry.isNullable());
-            metadata.setDescription(entry.getComment());
-            metadata.setKey(false);
-            metadata.setSourceType(sourceTypes.unknown);
-            metadata.setLength(100);
-            metadata.setPrecision(0);
-            switch (entry.getType()) {
-            case RECORD:
-                metadata.setType("id_Object");
-                break;
-            case ARRAY:
-                metadata.setType("id_List");
-                break;
-            case STRING:
-                metadata.setType("id_String");
-                break;
-            case BYTES:
-                metadata.setType("id_byte[]");
-                break;
-            case INT:
-                metadata.setType("id_Integer");
-                break;
-            case LONG:
-                metadata.setType("id_Long");
-                break;
-            case FLOAT:
-                metadata.setType("id_Float");
-                metadata.setLength(10);
-                metadata.setPrecision(5);
-                break;
-            case DOUBLE:
-                metadata.setType("id_Double");
-                metadata.setLength(20);
-                metadata.setPrecision(10);
-                break;
-            case BOOLEAN:
-                metadata.setType("id_Boolean");
-                break;
-            case DATETIME:
-                metadata.setType("id_Date");
-                metadata.setLogicalType("timestamp-millis");
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + entry.getType());
+            final String name = recordFields
+                    .stream()
+                    .filter(f -> f.endsWith("." + entry.getName()))
+                    .findFirst()
+                    .orElse(entry.getName());
+            int index = dynamic.getIndex(name);
+            DynamicMetadata metadata;
+            if (index < 0) {
+                metadata = generateMetadata(entry);
+                dynamic.metadatas.add(metadata);
+                index = dynamic.getIndex(name);
+            } else {
+                metadata = dynamic.getColumnMetadata(index);
             }
-            dynamic.metadatas.add(metadata);
             if ("id_Date".equals(metadata.getType())) {
-                dynamic.addColumnValue(MappingUtils.coerce(Date.class, value, metadata.getName()));
+                dynamic.setColumnValue(index, MappingUtils.coerce(Date.class, value, name));
             } else {
                 // TODO: see if we should coerce here also...
-                dynamic.addColumnValue(value);
+                dynamic.setColumnValue(index, value);
             }
-            log.debug("[setField] Dynamic {}\t({})\t ==> {}.", metadata.getName(), metadata.getType(), value);
+            log.debug("[setField] Dynamic {}\t({})\t ==> {}.", name, metadata.getType(), value);
             return;
         }
         if (field == null) {
