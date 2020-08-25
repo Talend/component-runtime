@@ -253,7 +253,7 @@ public class DiRowStructVisitor {
                         final String metaOriginalName = meta.getDbName();
                         final String metaComment = meta.getDescription();
                         final boolean metaIsNullable = meta.isNullable();
-                        log.debug("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
+                        log.debug("[inferSchema] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                         switch (meta.getType()) {
                         case "id_List":
                             schema.withEntry(toCollectionEntry(metaName, metaOriginalName, value));
