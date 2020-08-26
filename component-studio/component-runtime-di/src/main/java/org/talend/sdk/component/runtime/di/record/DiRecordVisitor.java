@@ -193,7 +193,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         schema
                 .getEntries()
                 .stream()
-                .filter(entry -> fields.keySet().stream().noneMatch(field -> field.equals(entry.getName())))
+                .filter(entry -> fields.keySet().stream().noneMatch(field -> field.equals(entry.getName()))
+                        || dynamicColumn.equals(entry.getName()))
                 .forEach(entry -> {
                     dynamic.metadatas.add(generateMetadata(entry));
                     dynamic.addColumnValue(null);
@@ -280,7 +281,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 // TODO: see if we should coerce here also...
                 dynamic.setColumnValue(index, value);
             }
-            log.debug("[setField] Dynamic {}\t({})\t ==> {}.", name, metadata.getType(), value);
+            log.debug("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getType(), value);
             return;
         }
         if (field == null) {
