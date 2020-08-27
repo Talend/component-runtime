@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -178,7 +180,6 @@ public class DynamicColumnsTest {
             row1 = row1Struct.class.cast(registry.find(row1Struct.class).newInstance(Record.class.cast(dataMapper)));
 
             assertTrue(row1Struct.class.isInstance(row1));
-            log.error("[doRun] rowStruct: {}", row1);
 
             sourceData.add(row1);
             inputsHandlerProcessor.reset();
@@ -230,7 +231,6 @@ public class DynamicColumnsTest {
 
         @ElementListener
         public void onElement(final Record record) {
-            log.warn("[onElement] iteration#{} {}.", counter, record);
             assertNotNull(record);
             assertNotNull(record.getString("id"));
             assertNotNull(record.getString("name"));
@@ -241,7 +241,8 @@ public class DynamicColumnsTest {
             assertEquals(counter, record.getInt("int0"));
             assertEquals(counter, record.getLong("long0"));
             assertEquals(1.23f * counter, record.getFloat("float0"));
-            assertEquals(12345.6789 * counter, record.getDouble("double0"));
+            assertEquals(new BigDecimal(12345.6789 * counter).setScale(7, RoundingMode.HALF_EVEN).doubleValue(),
+                    record.getDouble("double0"));
             assertEquals(String.format("zorglub-is-still-alive-%05d", counter), new String(record.getBytes("bytes0")));
             assertEquals(IntStream.range(0, counter + 1).boxed().collect(toList()),
                     record.getArray(Integer.class, "array0"));
@@ -285,7 +286,6 @@ public class DynamicColumnsTest {
                             .build(), IntStream.range(0, i + 1).boxed().collect(toList()))
                     .withDateTime("date0", ZonedDateTime.now())
                     .build();
-            log.warn("[next] iteration#{} {}.", i, record);
             return record;
         }
     }
