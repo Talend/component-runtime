@@ -278,8 +278,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             if ("id_Date".equals(metadata.getType())) {
                 dynamic.setColumnValue(index, MappingUtils.coerce(Date.class, value, name));
             } else {
-                // TODO: see if we should coerce here also...
-                dynamic.setColumnValue(index, value);
+                dynamic.setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
             }
             log.debug("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getType(), value);
             return;

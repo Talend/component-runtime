@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.di.record;
 import static java.time.ZoneOffset.UTC;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.AbstractMap;
@@ -85,6 +86,9 @@ public class MappingUtils {
                     .format("%s can't be converted to %s as its value is '%s' of type %s.", name, expectedType, value,
                             value.getClass()));
         }
+        if (Double.class == expectedType) {
+            return new BigDecimal(Double.class.cast(value), MathContext.DECIMAL32).doubleValue();
+        }
         // type should match so...
         return value;
     }
@@ -120,7 +124,7 @@ public class MappingUtils {
 
     public static <T> Object mapNumber(final Class<T> expected, final Number value) {
         if (expected == BigDecimal.class) {
-            return new BigDecimal(value.doubleValue());
+            return BigDecimal.valueOf(value.doubleValue());
         }
         if (expected == Double.class || expected == double.class) {
             return value.doubleValue();
