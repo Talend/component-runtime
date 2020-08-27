@@ -18,13 +18,12 @@ package org.talend.sdk.component.runtime.di;
 import java.util.Map;
 
 import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.OutputFactory;
-import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 public class OutputsHandler extends BaseIOHandler {
 
@@ -32,7 +31,7 @@ public class OutputsHandler extends BaseIOHandler {
 
     private final JsonBuilderFactory jsonBuilderFactory;
 
-    private final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+    private final MappingMetaRegistry registry = new MappingMetaRegistry();
 
     public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
@@ -44,23 +43,13 @@ public class OutputsHandler extends BaseIOHandler {
         return name -> value -> {
             final BaseIOHandler.IO ref = connections.get(getActualName(name));
             if (ref != null && value != null) {
-                final String jsonValueMapper;
                 if (value instanceof javax.json.JsonValue) {
-                    jsonValueMapper = value.toString();
+                    ref.add(jsonb.fromJson(value.toString(), ref.getType()));
                 } else if (value instanceof Record) {
-                    jsonValueMapper =
-                            converters
-                                    .toType(registry,
-                                            converters
-                                                    .toRecord(registry, value, () -> jsonb, () -> recordBuilderMapper),
-                                            JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                            () -> recordBuilderMapper)
-                                    .toString();
+                    ref.add(registry.find(ref.getType()).newInstance(Record.class.cast(value)));
                 } else {
-                    jsonValueMapper = jsonb.toJson(value);
+                    ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
                 }
-
-                ref.add(jsonb.fromJson(jsonValueMapper, ref.getType()));
             }
         };
     }

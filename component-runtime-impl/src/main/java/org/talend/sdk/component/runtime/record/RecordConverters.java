@@ -15,46 +15,26 @@
  */
 package org.talend.sdk.component.runtime.record;
 
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
-import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
-import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
-import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
-import static org.talend.sdk.component.api.record.Schema.Type.DOUBLE;
-import static org.talend.sdk.component.api.record.Schema.Type.FLOAT;
-import static org.talend.sdk.component.api.record.Schema.Type.INT;
-import static org.talend.sdk.component.api.record.Schema.Type.LONG;
-import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
-import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -113,7 +93,7 @@ public class RecordConverters implements Serializable {
             return json2Record(recordBuilderProvider.get(), JsonObject.class.cast(data));
         }
 
-        final MappingMeta meta = registry.find(data.getClass(), recordBuilderProvider);
+        final MappingMeta meta = registry.find(data.getClass());
         if (meta.isLinearMapping()) {
             return meta.newRecord(data, recordBuilderProvider.get());
         }
@@ -237,7 +217,7 @@ public class RecordConverters implements Serializable {
         return it;
     }
 
-    static Schema toSchema(final RecordBuilderFactory factory, final Object next) {
+    public static Schema toSchema(final RecordBuilderFactory factory, final Object next) {
         if (String.class.isInstance(next) || JsonString.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.STRING).build();
         }
@@ -297,7 +277,7 @@ public class RecordConverters implements Serializable {
         } else if (Record.class.isInstance(data)) {
             final Record record = Record.class.cast(data);
             if (!JsonObject.class.isAssignableFrom(parameterType)) {
-                final MappingMeta mappingMeta = registry.find(parameterType, recordBuilderProvider);
+                final MappingMeta mappingMeta = registry.find(parameterType);
                 if (mappingMeta.isLinearMapping()) {
                     return mappingMeta.newInstance(record);
                 }
@@ -510,454 +490,80 @@ public class RecordConverters implements Serializable {
 
         private final boolean linearMapping;
 
-        private final Constructor<?> constructor;
+        private final Class<?> rowStruct;
 
-        private final Collection<BiConsumer<Object, Record>> instanceProvisionners;
+        private Object recordVisitor;
 
-        private final Schema recordSchema;
+        private Method visitRecord;
 
-        private final Collection<BiConsumer<Record.Builder, Object>> recordProvisionners;
+        private Object rowStructVisitor;
 
-        private MappingMeta(final Class<?> type, final MappingMetaRegistry registry,
-                final Supplier<RecordBuilderFactory> factory) {
+        private Method visitRowStruct;
+
+        public MappingMeta(final Class<?> type, final MappingMetaRegistry registry) {
             linearMapping = Stream.of(type.getInterfaces()).anyMatch(it -> it.getName().startsWith("routines.system."));
-            if (!linearMapping) {
-                instanceProvisionners = null;
-                recordProvisionners = null;
-                recordSchema = null;
-                constructor = null;
-            } else {
-                final RecordBuilderFactory builderFactory = factory.get();
-                final Schema.Builder schemaBuilder = builderFactory.newSchemaBuilder(RECORD);
+            rowStruct = type;
+        }
 
-                final Field[] fields = type.getFields();
-                instanceProvisionners = new ArrayList<>(fields.length);
-                recordProvisionners = new ArrayList<>(fields.length);
-                Stream.of(fields).filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> {
-                    final String name = field.getName();
-                    final Class<?> fieldType = field.getType();
-                    if (fieldType == String.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record.getOptionalString(name).orElse(null)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, STRING);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, String.class))
-                                        .ifPresent(value -> builder.withString(entry, value)));
-                    } else if (fieldType == int.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record.getOptionalInt(name).orElse(0)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, false, INT);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Integer.class))
-                                        .ifPresent(value -> builder.withInt(entry, value)));
-                    } else if (fieldType == Integer.class) {
-                        instanceProvisionners.add((instance, record) -> {
-                            final OptionalInt value = record.getOptionalInt(name);
-                            setField(instance, field, value.isPresent() ? value.getAsInt() : null);
-                        });
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, INT);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Integer.class))
-                                        .ifPresent(value -> builder.withInt(entry, value)));
-                    } else if (fieldType == long.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record.getOptionalLong(name).orElse(0L)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, false, LONG);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Long.class))
-                                        .ifPresent(value -> builder.withLong(entry, value)));
-                    } else if (fieldType == Long.class) {
-                        instanceProvisionners.add((instance, record) -> {
-                            final OptionalLong value = record.getOptionalLong(name);
-                            setField(instance, field, value.isPresent() ? value.getAsLong() : null);
-                        });
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, LONG);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Long.class))
-                                        .ifPresent(value -> builder.withLong(entry, value)));
-                    } else if (fieldType == float.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record.getOptionalFloat(name).orElse(0f)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, false, FLOAT);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Float.class))
-                                        .ifPresent(value -> builder.withFloat(entry, value)));
-                    } else if (fieldType == Float.class) {
-                        instanceProvisionners.add((instance, record) -> {
-                            final OptionalDouble value = record.getOptionalFloat(name);
-                            setField(instance, field, value.isPresent() ? (float) value.getAsDouble() : null);
-                        });
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, FLOAT);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Float.class))
-                                        .ifPresent(value -> builder.withFloat(entry, value)));
-                    } else if (fieldType == short.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        (short) record.getOptionalInt(name).orElse(0)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, false, INT);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Short.class))
-                                        .ifPresent(value -> builder.withInt(entry, value)));
-                    } else if (fieldType == Short.class) {
-                        instanceProvisionners.add((instance, record) -> {
-                            final OptionalInt value = record.getOptionalInt(name);
-                            setField(instance, field, value.isPresent() ? (short) value.getAsInt() : null);
-                        });
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, INT);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Short.class))
-                                        .ifPresent(value -> builder.withInt(entry, value)));
-                    } else if (fieldType == byte.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        (byte) record.getOptionalInt(name).orElse(0)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, false, INT);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Byte.class))
-                                        .ifPresent(value -> builder.withInt(entry, value)));
-                    } else if (fieldType == Byte.class) {
-                        instanceProvisionners.add((instance, record) -> {
-                            final OptionalInt value = record.getOptionalInt(name);
-                            setField(instance, field, value.isPresent() ? (byte) value.getAsInt() : null);
-                        });
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, INT);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Byte.class))
-                                        .ifPresent(value -> builder.withInt(entry, value)));
-                    } else if (fieldType == double.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record.getOptionalDouble(name).orElse(0.)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, false, DOUBLE);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Double.class))
-                                        .ifPresent(value -> builder.withDouble(entry, value)));
-                    } else if (fieldType == Double.class) {
-                        instanceProvisionners.add((instance, record) -> {
-                            final OptionalDouble value = record.getOptionalDouble(name);
-                            setField(instance, field, value.isPresent() ? value.getAsDouble() : null);
-                        });
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, DOUBLE);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Double.class))
-                                        .ifPresent(value -> builder.withDouble(entry, value)));
-                    } else if (fieldType == BigDecimal.class) {
-                        handleBigDecimal(builderFactory, schemaBuilder, field, name);
-                    } else if (fieldType == byte[].class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record.getOptionalBytes(name).orElse(null)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, BYTES);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, byte[].class))
-                                        .ifPresent(value -> builder.withBytes(entry, value)));
-                    } else if (fieldType == boolean.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record.getOptionalBoolean(name).orElse(false)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, false, BOOLEAN);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Boolean.class))
-                                        .ifPresent(value -> builder.withBoolean(entry, value)));
-                    } else if (fieldType == Boolean.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record.getOptionalBoolean(name).orElse(null)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, BOOLEAN);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Boolean.class))
-                                        .ifPresent(value -> builder.withBoolean(entry, value)));
-                    } else if (fieldType == Character.class) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record
-                                                .getOptionalString(name)
-                                                .map(s -> s.isEmpty() ? null : s.charAt(0))
-                                                .orElse(null)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, STRING);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Character.class))
-                                        .ifPresent(value -> builder.withString(entry, Character.toString(value))));
-                    } else if (fieldType.isArray()) {
-                        handleArray(registry, factory, builderFactory, schemaBuilder, field, name, fieldType);
-                    } else if (Set.class.isAssignableFrom(fieldType)) {
-                        handleSet(registry, factory, builderFactory, schemaBuilder, field, name, fieldType);
-                    } else if (Collection.class.isAssignableFrom(fieldType)) {
-                        handleCollection(registry, factory, builderFactory, schemaBuilder, field, name, fieldType);
-                    } else if (Date.class.isAssignableFrom(fieldType)) {
-                        instanceProvisionners
-                                .add((instance, record) -> setField(instance, field,
-                                        record
-                                                .getOptionalDateTime(name)
-                                                .map(dt -> new Date(dt.toInstant().toEpochMilli()))
-                                                .orElse(null)));
-
-                        final Schema.Entry entry = newEntry(builderFactory, name, true, DATETIME);
-                        schemaBuilder.withEntry(entry);
-                        recordProvisionners
-                                .add((builder, instance) -> ofNullable(getField(instance, field, Date.class))
-                                        .ifPresent(value -> builder.withDateTime(entry, value)));
-                    } else {
-                        final MappingMeta mappingMeta = registry.find(fieldType, factory);
-                        if (mappingMeta.linearMapping) {
-                            instanceProvisionners
-                                    .add((instance, record) -> setField(instance, field,
-                                            record.getOptionalRecord(name).map(mappingMeta::newInstance).orElse(null)));
-
-                            final Schema.Entry entry = builderFactory
-                                    .newEntryBuilder()
-                                    .withNullable(true)
-                                    .withName(name)
-                                    .withType(RECORD)
-                                    .withElementSchema(mappingMeta.recordSchema)
-                                    .build();
-                            schemaBuilder.withEntry(entry);
-                            recordProvisionners
-                                    .add((builder, instance) -> ofNullable(getField(instance, field, Date.class))
-                                            .ifPresent(value -> builder
-                                                    .withRecord(entry, mappingMeta.newRecord(value, builderFactory))));
-                        }
-                    }
-                });
-
-                recordSchema = schemaBuilder.build();
-
+        public Object newInstance(final Record record) {
+            if (recordVisitor == null) {
                 try {
-                    constructor = type.getConstructor();
-                } catch (final NoSuchMethodException e) {
-                    throw new IllegalStateException("No constructor for " + type.getName(), e);
+                    String className = "org.talend.sdk.component.runtime.di.record.DiRecordVisitor";
+                    Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
+                    final Constructor<?> constructor = visitorClass.getDeclaredConstructors()[0];
+                    constructor.setAccessible(true);
+                    recordVisitor = constructor.newInstance(rowStruct);
+                    visitRecord = visitorClass.getDeclaredMethod("visit", Record.class);
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                        | InvocationTargetException | NoSuchMethodException e) {
+                    throw new IllegalStateException(e);
                 }
             }
-        }
-
-        private Schema.Entry getEntryForArrayType(final RecordBuilderFactory builderFactory,
-                final Supplier<RecordBuilderFactory> factory, final String name, final Collection value) {
-            return builderFactory
-                    .newEntryBuilder()
-                    .withNullable(true)
-                    .withName(name)
-                    .withType(ARRAY)
-                    .withElementSchema(toSchema(factory.get(), value))
-                    .build();
-        }
-
-        private void handleCollection(final MappingMetaRegistry registry, final Supplier<RecordBuilderFactory> factory,
-                final RecordBuilderFactory builderFactory, final Schema.Builder schemaBuilder, final Field field,
-                final String name, final Class<?> fieldType) {
-            instanceProvisionners
-                    .add((instance, record) -> setField(instance, field,
-                            record.getOptionalArray(fieldType.getComponentType(), name).orElse(null)));
-
-            final Class<?> elementType = findCollectionType(field);
-            final Schema.Entry entry = builderFactory
-                    .newEntryBuilder()
-                    .withNullable(true)
-                    .withName(name)
-                    .withType(ARRAY)
-                    .withElementSchema(registry.find(elementType, factory).recordSchema)
-                    .build();
-            schemaBuilder.withEntry(entry);
-            recordProvisionners
-                    .add((builder, instance) -> ofNullable(getField(instance, field, Collection.class))
-                            .ifPresent(value -> builder
-                                    .withArray(getEntryForArrayType(builderFactory, factory, name, value), value)));
-        }
-
-        private void handleSet(final MappingMetaRegistry registry, final Supplier<RecordBuilderFactory> factory,
-                final RecordBuilderFactory builderFactory, final Schema.Builder schemaBuilder, final Field field,
-                final String name, final Class<?> fieldType) {
-            instanceProvisionners
-                    .add((instance, record) -> setField(instance, field,
-                            record
-                                    .getOptionalArray(fieldType.getComponentType(), name)
-                                    .map(LinkedHashSet::new)
-                                    .orElse(null)));
-
-            final Class<?> elementType = findCollectionType(field);
-            final Schema.Entry entry = builderFactory
-                    .newEntryBuilder()
-                    .withNullable(true)
-                    .withName(name)
-                    .withType(ARRAY)
-                    .withElementSchema(registry.find(elementType, factory).recordSchema)
-                    .build();
-            schemaBuilder.withEntry(entry);
-            recordProvisionners
-                    .add((builder, instance) -> ofNullable(getField(instance, field, Collection.class))
-                            .ifPresent(value -> builder
-                                    .withArray(getEntryForArrayType(builderFactory, factory, name, value), value)));
-        }
-
-        private void handleArray(final MappingMetaRegistry registry, final Supplier<RecordBuilderFactory> factory,
-                final RecordBuilderFactory builderFactory, final Schema.Builder schemaBuilder, final Field field,
-                final String name, final Class<?> fieldType) {
-            instanceProvisionners
-                    .add((instance, record) -> setField(instance, field,
-                            record
-                                    .getOptionalArray(fieldType.getComponentType(), name)
-                                    .map(Collection::toArray)
-                                    .orElse(null)));
-
-            final Schema.Entry entry = builderFactory
-                    .newEntryBuilder()
-                    .withNullable(true)
-                    .withName(name)
-                    .withType(ARRAY)
-                    .withElementSchema(registry.find(fieldType.getComponentType(), factory).recordSchema)
-                    .build();
-            schemaBuilder.withEntry(entry);
-            recordProvisionners
-                    .add((builder, instance) -> ofNullable(getField(instance, field, Object[].class)) // todo:
-                            .map(Arrays::asList)
-                            .ifPresent(value -> builder
-                                    .withArray(getEntryForArrayType(builderFactory, factory, name, value), value)));
-        }
-
-        private void handleBigDecimal(final RecordBuilderFactory builderFactory, final Schema.Builder schemaBuilder,
-                final Field field, final String name) {
-            final Map<Schema, Schema.Type> typeCache = new ConcurrentHashMap<>();
-            instanceProvisionners.add((instance, record) -> {
-                final Schema.Type st = typeCache
-                        .computeIfAbsent(record.getSchema(),
-                                s -> s
-                                        .getEntries()
-                                        .stream()
-                                        .filter(e -> name.equals(e.getName()))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new)
-                                        .getType());
-                switch (st) {
-                case DOUBLE:
-                    final OptionalDouble value = record.getOptionalDouble(name);
-                    if (value.isPresent()) {
-                        setField(instance, field, BigDecimal.valueOf(value.orElseThrow(IllegalStateException::new)));
-                    }
-                    break;
-                case STRING:
-                    record.getOptionalString(name).ifPresent(str -> setField(instance, field, new BigDecimal(str)));
-                    break;
-                default:
-                }
-            });
-
-            final Schema.Entry entry = newEntry(builderFactory, name, true, STRING);
-            schemaBuilder.withEntry(entry);
-            recordProvisionners
-                    .add((builder, instance) -> ofNullable(getField(instance, field, BigDecimal.class))
-                            .ifPresent(value -> builder.withString(entry, value.toString())));
-        }
-
-        private Schema.Entry newEntry(final RecordBuilderFactory builderFactory, final String name,
-                final boolean nullable, final Schema.Type type) {
-            return builderFactory.newEntryBuilder().withNullable(nullable).withName(name).withType(type).build();
-        }
-
-        private Class<?> findCollectionType(final Field field) {
-            // todo: make it better
-            final Class<?> elementType;
-            if (ParameterizedType.class.isInstance(field.getGenericType())) {
-                final ParameterizedType parameterizedType = ParameterizedType.class.cast(field.getGenericType());
-                if (parameterizedType.getActualTypeArguments().length == 1
-                        && Class.class.isInstance(parameterizedType.getActualTypeArguments()[0])) {
-                    elementType = Class.class.cast(parameterizedType.getActualTypeArguments()[0]);
-                } else {
-                    elementType = Object.class;
-                }
-            } else {
-                elementType = Object.class;
-            }
-            return elementType;
-        }
-
-        Object newInstance(final Record record) {
             try {
-                final Object instance = constructor.newInstance();
-                instanceProvisionners.forEach(consumer -> consumer.accept(instance, record));
-                return instance;
-            } catch (final InstantiationException | IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
-            }
-        }
-
-        <T> Record newRecord(final T data, final RecordBuilderFactory factory) {
-            final Record.Builder builder = factory.newRecordBuilder(recordSchema);
-            recordProvisionners.forEach(consumer -> consumer.accept(builder, data));
-            return builder.build();
-        }
-
-        private <T> T getField(final Object instance, final Field field, final Class<T> type) {
-            try {
-                return type.cast(field.get(instance));
-            } catch (final IllegalAccessException e) {
+                return visitRecord.invoke(recordVisitor, record);
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalStateException(e);
             }
         }
 
-        private void setField(final Object instance, final Field field, final Object value) {
+        public <T> Record newRecord(final T data, final RecordBuilderFactory factory) {
+            if (rowStructVisitor == null) {
+                try {
+                    String className = "org.talend.sdk.component.runtime.di.record.DiRowStructVisitor";
+                    Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
+                    final Constructor<?> constructor = visitorClass.getConstructors()[0];
+                    constructor.setAccessible(true);
+                    rowStructVisitor = constructor.newInstance();
+                    visitRowStruct = visitorClass.getDeclaredMethod("get", Object.class, RecordBuilderFactory.class);
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                        | InvocationTargetException | NoSuchMethodException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
             try {
-                field.set(instance, value);
-            } catch (final IllegalAccessException e) {
+                return Record.class.cast(visitRowStruct.invoke(rowStructVisitor, data, factory));
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalStateException(e);
             }
         }
+
     }
 
     @Data
     public static class MappingMetaRegistry implements Serializable {
 
-        private final Map<Class<?>, MappingMeta> registry = new ConcurrentHashMap<>();
+        protected final Map<Class<?>, MappingMeta> registry = new ConcurrentHashMap<>();
 
         private Object writeReplace() throws ObjectStreamException {
             return new Factory(); // don't serialize the mapping, recalculate it lazily
         }
 
-        public MappingMeta find(final Class<?> parameterType, final Supplier<RecordBuilderFactory> factorySupplier) {
+        public MappingMeta find(final Class<?> parameterType) {
             final MappingMeta meta = registry.get(parameterType);
             if (meta != null) {
                 return meta;
             }
-            final MappingMeta mappingMeta = new MappingMeta(parameterType, this, factorySupplier);
+            final MappingMeta mappingMeta = new MappingMeta(parameterType, this);
             final MappingMeta existing = registry.putIfAbsent(parameterType, mappingMeta);
             if (existing != null) {
                 return existing;

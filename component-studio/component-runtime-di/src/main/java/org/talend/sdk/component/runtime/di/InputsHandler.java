@@ -22,11 +22,12 @@ import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.InputFactory;
-import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMeta;
+import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 public class InputsHandler extends BaseIOHandler {
 
-    private final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+    private final MappingMetaRegistry registry = new MappingMetaRegistry();
 
     public InputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
@@ -44,9 +45,10 @@ public class InputsHandler extends BaseIOHandler {
                 return value;
             }
             final Object convertedValue;
-            final RecordConverters.MappingMeta mappingMeta = registry.find(value.getClass(), () -> recordBuilderMapper);
+            final MappingMeta mappingMeta;
+            mappingMeta = registry.find(value.getClass());
             if (mappingMeta.isLinearMapping()) {
-                convertedValue = value;
+                return mappingMeta.newRecord(value, recordBuilderMapper);
             } else {
                 if (value instanceof javax.json.JsonValue) {
                     if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
