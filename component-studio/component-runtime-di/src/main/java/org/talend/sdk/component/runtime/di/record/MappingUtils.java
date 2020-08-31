@@ -87,7 +87,7 @@ public class MappingUtils {
                             value.getClass()));
         }
         if (Double.class == expectedType) {
-            return new BigDecimal(Double.class.cast(value)).setScale(7, RoundingMode.HALF_EVEN).doubleValue();
+            return new BigDecimal(Double.class.cast(value)).setScale(5, RoundingMode.HALF_UP).doubleValue();
         }
         // type should match so...
         return value;
