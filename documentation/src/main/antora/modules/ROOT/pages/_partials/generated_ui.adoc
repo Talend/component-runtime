@@ -187,7 +187,7 @@ Mark a field as being a date. It supports and is *implicit* - which means you do
 
 = @Structure
 
-Mark a List<String> field as being represented as the component data selector (field names).
+Mark a List<String> field as being represented as the component data selector (field names generally).
 
 - API: `@org.talend.sdk.component.api.configuration.ui.widget.Structure`
 

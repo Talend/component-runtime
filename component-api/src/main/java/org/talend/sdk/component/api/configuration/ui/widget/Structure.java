@@ -29,8 +29,7 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 
 @Ui
 @ActionRef(value = DiscoverSchema.class, ref = "discoverSchema")
-@Documentation("Mark a List<String> or Map<String, String> field as being represented as "
-        + "the component data selector (field names generally or field names as key and type as value).")
+@Documentation("Mark a List<String> field as being represented as the component data selector (field names generally).")
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })
 public @interface Structure {
