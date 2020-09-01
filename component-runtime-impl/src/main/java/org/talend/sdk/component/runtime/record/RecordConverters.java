@@ -30,6 +30,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -264,6 +265,14 @@ public class RecordConverters implements Serializable {
     public Object toType(final MappingMetaRegistry registry, final Object data, final Class<?> parameterType,
             final Supplier<JsonBuilderFactory> factorySupplier, final Supplier<JsonProvider> providerSupplier,
             final Supplier<Jsonb> jsonbProvider, final Supplier<RecordBuilderFactory> recordBuilderProvider) {
+        return toType(registry, data, parameterType, factorySupplier, providerSupplier, jsonbProvider,
+                recordBuilderProvider, Collections.emptyMap());
+    }
+
+    public Object toType(final MappingMetaRegistry registry, final Object data, final Class<?> parameterType,
+            final Supplier<JsonBuilderFactory> factorySupplier, final Supplier<JsonProvider> providerSupplier,
+            final Supplier<Jsonb> jsonbProvider, final Supplier<RecordBuilderFactory> recordBuilderProvider,
+            final java.util.Map<String, String> metadata) {
         if (parameterType.isInstance(data)) {
             return data;
         }
@@ -279,7 +288,7 @@ public class RecordConverters implements Serializable {
             if (!JsonObject.class.isAssignableFrom(parameterType)) {
                 final MappingMeta mappingMeta = registry.find(parameterType);
                 if (mappingMeta.isLinearMapping()) {
-                    return mappingMeta.newInstance(record);
+                    return mappingMeta.newInstance(record, metadata);
                 }
             }
             final JsonObject asJson = toJson(factorySupplier, providerSupplier, record);
@@ -506,13 +515,17 @@ public class RecordConverters implements Serializable {
         }
 
         public Object newInstance(final Record record) {
+            return newInstance(record, Collections.emptyMap());
+        }
+
+        public Object newInstance(final Record record, final java.util.Map<String, String> metadata) {
             if (recordVisitor == null) {
                 try {
                     String className = "org.talend.sdk.component.runtime.di.record.DiRecordVisitor";
                     Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
                     final Constructor<?> constructor = visitorClass.getDeclaredConstructors()[0];
                     constructor.setAccessible(true);
-                    recordVisitor = constructor.newInstance(rowStruct);
+                    recordVisitor = constructor.newInstance(rowStruct, metadata);
                     visitRecord = visitorClass.getDeclaredMethod("visit", Record.class);
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                         | InvocationTargetException | NoSuchMethodException e) {

@@ -74,6 +74,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private final String dynamicColumn;
 
+    private final int dynamicColumnLength;
+
+    private final int dynamicColumnPrecision;
+
+    private final String dynamicColumnPattern;
+
     private String recordPrefix = "";
 
     private String arrayOfRecordPrefix = "";
@@ -88,7 +94,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
                                     RecordService.class, null));
 
-    DiRecordVisitor(final Class<?> clzz) {
+    DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;
         try {
             instance = clazz.getConstructor().newInstance();
@@ -109,7 +115,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             } else {
                 dynamic = null;
             }
-            log.debug("[DiRecordVisitor] Class: {} has dynamic: {} ({}).", clazz.getName(), hasDynamic, dynamicColumn);
+            log
+                    .debug("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
+                            metadata);
+            dynamicColumnLength = Integer.valueOf(metadata.getOrDefault("length", "-1"));
+            dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault("precision", "-1"));
+            dynamicColumnPattern = metadata.getOrDefault("pattern", "yyyy-MM-dd");
         } catch (final NoSuchMethodException | IllegalAccessException | InstantiationException
                 | InvocationTargetException e) {
             throw new IllegalStateException(e);
@@ -214,8 +225,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         metadata.setDescription(entry.getComment());
         metadata.setKey(false);
         metadata.setSourceType(sourceTypes.unknown);
-        metadata.setLength(100);
-        metadata.setPrecision(0);
+        metadata.setLength(dynamicColumnLength);
+        metadata.setPrecision(dynamicColumnPrecision);
         switch (entry.getType()) {
         case RECORD:
             metadata.setType("id_Object");
@@ -237,13 +248,9 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             break;
         case FLOAT:
             metadata.setType("id_Float");
-            metadata.setLength(10);
-            metadata.setPrecision(5);
             break;
         case DOUBLE:
             metadata.setType("id_Double");
-            metadata.setLength(20);
-            metadata.setPrecision(10);
             break;
         case BOOLEAN:
             metadata.setType("id_Boolean");
@@ -251,6 +258,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         case DATETIME:
             metadata.setType("id_Date");
             metadata.setLogicalType("timestamp-millis");
+            metadata.setFormat(dynamicColumnPattern);
             break;
         default:
             throw new IllegalStateException("Unexpected value: " + entry.getType());
