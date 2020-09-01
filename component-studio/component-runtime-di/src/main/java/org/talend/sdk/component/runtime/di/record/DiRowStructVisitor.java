@@ -78,7 +78,7 @@ public class DiRowStructVisitor {
                     onString(name, raw);
                     break;
                 case "java.math.BigDecimal":
-                    onDouble(name, BigDecimal.class.cast(raw).doubleValue());
+                    onString(name, BigDecimal.class.cast(raw).toString());
                     break;
                 case "java.lang.Integer":
                 case "int":
@@ -148,7 +148,7 @@ public class DiRowStructVisitor {
                             onDouble(metaName, value);
                             break;
                         case "id_BigDecimal":
-                            onDouble(metaName, BigDecimal.class.cast(value).doubleValue());
+                            onString(metaName, BigDecimal.class.cast(value).toString());
                             break;
                         case "id_Boolean":
                             onBoolean(metaName, value);
@@ -211,6 +211,7 @@ public class DiRowStructVisitor {
                 case "java.lang.String":
                 case "java.lang.Character":
                 case "char":
+                case "java.math.BigDecimal":
                     schema.withEntry(toEntry(name, STRING));
                     break;
                 case "java.lang.Integer":
@@ -231,7 +232,6 @@ public class DiRowStructVisitor {
                     break;
                 case "java.lang.Double":
                 case "double":
-                case "java.math.BigDecimal":
                     schema.withEntry(toEntry(name, DOUBLE));
                     break;
                 case "java.lang.Boolean":
@@ -261,6 +261,7 @@ public class DiRowStructVisitor {
                         case "id_Object":
                         case "id_String":
                         case "id_Character":
+                        case "id_BigDecimal":
                             schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_byte[]":
@@ -278,7 +279,6 @@ public class DiRowStructVisitor {
                             schema.withEntry(toEntry(metaName, FLOAT, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_Double":
-                        case "id_BigDecimal":
                             schema.withEntry(toEntry(metaName, DOUBLE, metaOriginalName, metaIsNullable, metaComment));
                             break;
                         case "id_Boolean":
@@ -390,7 +390,7 @@ public class DiRowStructVisitor {
             return FLOAT;
         }
         if (BigDecimal.class.isInstance(value)) {
-            return DOUBLE;
+            return STRING;
         }
         if (Double.class.isInstance(value)) {
             return DOUBLE;
