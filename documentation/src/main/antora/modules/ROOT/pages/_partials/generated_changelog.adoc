@@ -11,6 +11,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+- link:https://jira.talendforge.org/browse/TCOMP-1764[TCOMP-1764^]: Upgrade to Apache Beam 2.23.0
 
 == Version 1.1.23
 
@@ -232,6 +233,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1613[TCOMP-1613^]: Upgrade cxf to 3.3.5
 - link:https://jira.talendforge.org/browse/TCOMP-1614[TCOMP-1614^]: Upgrade groovy to 3.0.0-rc3
 - link:https://jira.talendforge.org/browse/TCOMP-1615[TCOMP-1615^]: Upgrade OpenWebBeans to 2.0.14
+
+
 
 
 
