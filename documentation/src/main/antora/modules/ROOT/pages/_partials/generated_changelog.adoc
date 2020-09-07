@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1750[TCOMP-1750^]: Deadlock at TPD job startup using the Component SDK and using the Workday component
+- link:https://jira.talendforge.org/browse/TCOMP-1759[TCOMP-1759^]: Guess schema mixes columns returned by tck service
 
 
 
@@ -233,6 +234,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1613[TCOMP-1613^]: Upgrade cxf to 3.3.5
 - link:https://jira.talendforge.org/browse/TCOMP-1614[TCOMP-1614^]: Upgrade groovy to 3.0.0-rc3
 - link:https://jira.talendforge.org/browse/TCOMP-1615[TCOMP-1615^]: Upgrade OpenWebBeans to 2.0.14
+
+
 
 
 
