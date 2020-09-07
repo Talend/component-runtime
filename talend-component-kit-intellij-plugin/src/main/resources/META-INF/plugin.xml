@@ -17,7 +17,7 @@
   <id>org.talend.sdk.component.intellij.plugin</id>
   <name>Talend Component Kit</name>
   <version>${project.version}</version>
-  <idea-version since-build="172"/>
+  <idea-version since-build="202"/>
   <vendor email="contact@talend.com" url="https://www.talend.com">Talend</vendor>
 
   <description>This plugin allows to create new Talend components based on the Talend Component Kit framework. It also enables i18n completion
@@ -40,6 +40,7 @@
   <depends>com.intellij.properties</depends>
   <depends>org.jetbrains.idea.maven</depends>
   <depends>org.jetbrains.plugins.gradle</depends>
+  <depends>com.intellij.javafx</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <moduleType id="TALEND_COMPONENT_MODULE"
