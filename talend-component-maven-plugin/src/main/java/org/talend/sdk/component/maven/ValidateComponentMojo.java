@@ -162,6 +162,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean failOnValidateExceptions;
 
     /**
+     * Should the migrations be validated
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.validateMigrations")
+    private boolean validateMigrations;
+
+    /**
      * Should the option names be validated.
      */
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.pluginId")
@@ -204,6 +210,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setPluginId(pluginId);
         configuration.setValidateExceptions(validateExceptions);
         configuration.setFailOnValidateExceptions(failOnValidateExceptions);
+        configuration.setValidateMigrations(validateMigrations);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
         new ComponentValidator(configuration, new File[] { classes }, getLog()) {

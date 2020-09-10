@@ -74,6 +74,7 @@ import java.util.stream.StreamSupport;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Checkable;
@@ -103,6 +104,7 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.component.AbstractMigrationHandler;
 import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
@@ -247,6 +249,19 @@ public class ComponentValidator extends BaseTask {
 
         if (configuration.isValidateExceptions()) {
             validateExceptions(errors);
+        }
+
+        if (configuration.isValidateMigrations()) {
+            // Migration handlers should extends AbstractMigrationHandler !!!
+            errors.addAll(finder.findAnnotatedClasses(Version.class).stream().map(c -> {
+                Class<?> migration = c.getAnnotation(Version.class).migrationHandler();
+                if (migration == MigrationHandler.class || AbstractMigrationHandler.class.isAssignableFrom(migration)) {
+                    return null;
+                }
+                return String
+                        .format("Migration %s should inherit from %s.", c.getName(),
+                                AbstractMigrationHandler.class.getCanonicalName());
+            }).filter(Objects::nonNull).sorted().collect(toSet()));
         }
 
         if (!extensions.isEmpty()) {
@@ -1298,5 +1313,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateExceptions;
 
         private boolean failOnValidateExceptions;
+
+        private boolean validateMigrations;
     }
 }
