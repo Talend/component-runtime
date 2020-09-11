@@ -1,5 +1,11 @@
 
 
+== Version 1.1.25
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1770[TCOMP-1770^]: Performance loss on Ouput components in Studio
+
 == Version 1.1.24
 
 === Bug
