@@ -19,12 +19,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.function.Supplier;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -155,5 +159,46 @@ class RecordBuilderImplTest {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         assertThrows(IllegalArgumentException.class, () -> builder
                 .withString(new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build(), null));
+    }
+
+    @Test
+    void dateTime() {
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("date")
+                        .withNullable(false)
+                        .withType(Schema.Type.DATETIME)
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withDateTime("date", ZonedDateTime.now()).build();
+        Assertions.assertNotNull(record.getDateTime("date"));
+
+        final RecordImpl.BuilderImpl builder2 = new RecordImpl.BuilderImpl(schema);
+        assertThrows(IllegalArgumentException.class, () -> builder2.withDateTime("date", (ZonedDateTime) null));
+    }
+
+
+    @Test
+    void array() {
+        final Schema schemaArray = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.STRING)
+                .build();
+        final Schema.Entry entry = new SchemaImpl.EntryImpl.BuilderImpl()
+                .withName("data")
+                .withNullable(false)
+                .withType(Schema.Type.ARRAY)
+                .withElementSchema(schemaArray)
+                .build();
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(entry)
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+
+        final Record record = builder.withArray(entry, Arrays.asList("d1", "d2")).build();
+        final Collection<String> data = record.getArray(String.class, "data");
+        Assertions.assertEquals(2, data.size());
     }
 }

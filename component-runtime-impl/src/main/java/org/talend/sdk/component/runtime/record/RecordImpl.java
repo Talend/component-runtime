@@ -115,25 +115,37 @@ public final class RecordImpl implements Record {
             this.providedSchema = providedSchema;
         }
 
-        private void validateTypeAgainstProvidedSchema(final String name, final Schema.Type type, final Object value) {
-            if (providedSchema == null) {
-                return;
+        private Schema.Entry findMandatoryEntry(final String name) {
+            assert this.providedSchema != null;
+            if (this.entryIndex == null) {
+                this.entryIndex = providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
             }
-            if (entryIndex == null) {
-                entryIndex = providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
-            }
-            final Schema.Entry entry = entryIndex.get(name);
+            final Schema.Entry entry = this.entryIndex.get(name);
             if (entry == null) {
                 throw new IllegalArgumentException(
                         "No entry '" + name + "' expected in provided schema: " + entryIndex.keySet());
             }
-            if (entry.getType() != type) {
-                throw new IllegalArgumentException(
-                        "Entry '" + name + "' expected to be a " + entry.getType() + ", got a " + type);
+            return entry;
+        }
+
+        private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, boolean nullable) {
+            if (providedSchema == null) {
+                return new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(type).withNullable(nullable).build();
             }
+            return this.findMandatoryEntry(name);
+        }
+
+        private Schema.Entry validateTypeAgainstProvidedSchema(final String name, final Schema.Type type, final Object value) {
+            if (providedSchema == null) {
+                return null;
+            }
+
+            final Schema.Entry entry = this.findMandatoryEntry(name);
+
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("Entry '" + name + "' is not nullable");
             }
+            return entry;
         }
 
         public Record build() {
@@ -155,9 +167,8 @@ public final class RecordImpl implements Record {
         // here the game is to add an entry method for each kind of type + its companion with Entry provider
 
         public Builder withString(final String name, final String value) {
-            return withString(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(STRING).withNullable(true).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, STRING, true);
+            return withString(entry, value);
         }
 
         public Builder withString(final Schema.Entry entry, final String value) {
@@ -167,9 +178,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withBytes(final String name, final byte[] value) {
-            return withBytes(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BYTES).withNullable(true).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, BYTES, true);
+            return withBytes(entry, value);
         }
 
         public Builder withBytes(final Schema.Entry entry, final byte[] value) {
@@ -179,9 +189,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final String name, final Date value) {
-            return withDateTime(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).withNullable(true).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, true);
+            return withDateTime(entry, value);
         }
 
         public Builder withDateTime(final Schema.Entry entry, final Date value) {
@@ -193,9 +202,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final String name, final ZonedDateTime value) {
-            return withDateTime(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DATETIME).withNullable(true).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, true);
+            return withDateTime(entry, value);
         }
 
         public Builder withDateTime(final Schema.Entry entry, final ZonedDateTime value) {
@@ -207,11 +215,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withTimestamp(final String name, final long value) {
-            return withTimestamp(new SchemaImpl.EntryImpl.BuilderImpl()
-                    .withName(name)
-                    .withType(DATETIME)
-                    .withNullable(false)
-                    .build(), value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, false);
+            return withTimestamp(entry, value);
         }
 
         public Builder withTimestamp(final Schema.Entry entry, final long value) {
@@ -221,9 +226,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withInt(final String name, final int value) {
-            return withInt(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(INT).withNullable(false).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, INT, false);
+            return withInt(entry, value);
         }
 
         public Builder withInt(final Schema.Entry entry, final int value) {
@@ -233,9 +237,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withLong(final String name, final long value) {
-            return withLong(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(LONG).withNullable(false).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, LONG, false);
+            return withLong(entry, value);
         }
 
         public Builder withLong(final Schema.Entry entry, final long value) {
@@ -245,9 +248,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withFloat(final String name, final float value) {
-            return withFloat(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(FLOAT).withNullable(false).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, FLOAT, false);
+            return withFloat(entry, value);
         }
 
         public Builder withFloat(final Schema.Entry entry, final float value) {
@@ -257,9 +259,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDouble(final String name, final double value) {
-            return withDouble(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(DOUBLE).withNullable(false).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DOUBLE, false);
+            return withDouble(entry, value);
         }
 
         public Builder withDouble(final Schema.Entry entry, final double value) {
@@ -269,9 +270,8 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withBoolean(final String name, final boolean value) {
-            return withBoolean(
-                    new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(BOOLEAN).withNullable(false).build(),
-                    value);
+            final Schema.Entry entry = this.findOrBuildEntry(name, BOOLEAN, false);
+            return withBoolean(entry, value);
         }
 
         public Builder withBoolean(final Schema.Entry entry, final boolean value) {
