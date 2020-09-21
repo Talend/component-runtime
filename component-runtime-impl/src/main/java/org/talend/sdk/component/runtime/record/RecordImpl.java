@@ -115,7 +115,7 @@ public final class RecordImpl implements Record {
             this.providedSchema = providedSchema;
         }
 
-        private Schema.Entry findMandatoryEntry(final String name) {
+        private Schema.Entry findExistingEntry(final String name) {
             assert this.providedSchema != null;
             if (this.entryIndex == null) {
                 this.entryIndex = providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
@@ -128,11 +128,11 @@ public final class RecordImpl implements Record {
             return entry;
         }
 
-        private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, boolean nullable) {
+        private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
             if (providedSchema == null) {
                 return new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(type).withNullable(nullable).build();
             }
-            return this.findMandatoryEntry(name);
+            return this.findExistingEntry(name);
         }
 
         private Schema.Entry validateTypeAgainstProvidedSchema(final String name, final Schema.Type type, final Object value) {
@@ -140,8 +140,11 @@ public final class RecordImpl implements Record {
                 return null;
             }
 
-            final Schema.Entry entry = this.findMandatoryEntry(name);
-
+            final Schema.Entry entry = this.findExistingEntry(name);
+            if (entry.getType() != type) {
+                throw new IllegalArgumentException(
+                        "Entry '" + name + "' expected to be a " + entry.getType() + ", got a " + type);
+            }
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("Entry '" + name + "' is not nullable");
             }
