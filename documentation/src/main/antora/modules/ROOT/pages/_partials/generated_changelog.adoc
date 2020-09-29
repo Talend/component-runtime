@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1775[TCOMP-1775^]: Upgrade commons-lang3 to 3.11
 - link:https://jira.talendforge.org/browse/TCOMP-1776[TCOMP-1776^]: Upgrade commons-codec to 1.15
 - link:https://jira.talendforge.org/browse/TCOMP-1777[TCOMP-1777^]: Upgrade jgit to 5.9.0.202009080501-r
+- link:https://jira.talendforge.org/browse/TCOMP-1778[TCOMP-1778^]: Upgrade jib-core to 0.15.0
 
 == Version 1.1.25
 

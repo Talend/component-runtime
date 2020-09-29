@@ -237,7 +237,7 @@
     <gpg-plugin.version>1.6</gpg-plugin.version>
     <spotless.version>1.23.0</spotless.version>
     <jib.version>1.4.0</jib.version>
-    <jib-core.version>0.13.1</jib-core.version>
+    <jib-core.version>0.15.0</jib-core.version>
     <bouncycastle.version>1.65</bouncycastle.version>
     <commons-io.version>2.6</commons-io.version>
 
