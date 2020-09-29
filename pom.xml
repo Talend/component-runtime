@@ -169,7 +169,7 @@
     <owb.version>2.0.16</owb.version>
     <tomcat.version>9.0.31</tomcat.version>
     <cxf.version>3.3.6</cxf.version>
-    <log4j2.version>2.13.2</log4j2.version>
+    <log4j2.version>2.13.3</log4j2.version>
     <logback.version>1.2.3</logback.version>
     <log4j.version>1.2.17</log4j.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>

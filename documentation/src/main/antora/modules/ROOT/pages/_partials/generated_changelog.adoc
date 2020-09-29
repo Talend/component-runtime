@@ -1,5 +1,17 @@
 
 
+== Version 1.1.26
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1772[TCOMP-1772^]: Code widget doesn't allow multiline text
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1773[TCOMP-1773^]: Upgrade log4j2 to 2.13.3
+
 == Version 1.1.25
 
 === Bug
