@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1777[TCOMP-1777^]: Upgrade jgit to 5.9.0.202009080501-r
 - link:https://jira.talendforge.org/browse/TCOMP-1778[TCOMP-1778^]: Upgrade jib-core to 0.15.0
 - link:https://jira.talendforge.org/browse/TCOMP-1779[TCOMP-1779^]: Upgrade batik to 1.13
+- link:https://jira.talendforge.org/browse/TCOMP-1780[TCOMP-1780^]: Upgrade TSBI to 2.4.0-20200925092052
 
 == Version 1.1.25
 
