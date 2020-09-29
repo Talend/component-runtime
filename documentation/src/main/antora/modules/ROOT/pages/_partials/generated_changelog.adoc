@@ -13,6 +13,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1773[TCOMP-1773^]: Upgrade log4j2 to 2.13.3
 - link:https://jira.talendforge.org/browse/TCOMP-1774[TCOMP-1774^]: Upgrade johnzon to 1.2.8
 - link:https://jira.talendforge.org/browse/TCOMP-1775[TCOMP-1775^]: Upgrade commons-lang3 to 3.11
+- link:https://jira.talendforge.org/browse/TCOMP-1776[TCOMP-1776^]: Upgrade commons-codec to 1.15
 
 == Version 1.1.25
 
