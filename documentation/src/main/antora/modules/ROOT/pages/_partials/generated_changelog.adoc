@@ -11,6 +11,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1773[TCOMP-1773^]: Upgrade log4j2 to 2.13.3
+- link:https://jira.talendforge.org/browse/TCOMP-1774[TCOMP-1774^]: Upgrade johnzon to 1.2.8
 
 == Version 1.1.25
 
