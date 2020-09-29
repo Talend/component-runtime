@@ -19,6 +19,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1779[TCOMP-1779^]: Upgrade batik to 1.13
 - link:https://jira.talendforge.org/browse/TCOMP-1780[TCOMP-1780^]: Upgrade TSBI to 2.4.0-20200925092052
 - link:https://jira.talendforge.org/browse/TCOMP-1781[TCOMP-1781^]: Upgrade asciidoctorj to 2.4.1
+- link:https://jira.talendforge.org/browse/TCOMP-1782[TCOMP-1782^]: Upgrade rrd4j to 3.7
 
 == Version 1.1.25
 
