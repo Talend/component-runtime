@@ -55,7 +55,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     /**
      * @param incomingVersion the version of associatedData values.
      */
-    abstract void migrate(int incomingVersion);
+    public abstract void migrate(final int incomingVersion);
 
     /**
      * @param listener the observer that will receive changes
