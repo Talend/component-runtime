@@ -25,6 +25,7 @@ import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.runtime.manager.component.AbstractMigrationHandler;
 
 import lombok.Data;
 
@@ -40,12 +41,11 @@ public class MigrationHandlerTest implements Serializable {
         return config.getName();
     }
 
-    public static class ComponentMigration implements MigrationHandler {
+    public static class ComponentMigration extends AbstractMigrationHandler {
 
         @Override
-        public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
-            incomingData.put("config.datastore.component", "yes"); // need to override datastore migration
-            return incomingData;
+        public void migrate(final int incomingVersion) {
+            changeValue("config.datastore.component", "yes"); // need to override datastore migration
         }
     }
 
@@ -60,12 +60,11 @@ public class MigrationHandlerTest implements Serializable {
         @Option
         private ConfigDatastore datastore;
 
-        public static class DatasetMigration implements MigrationHandler {
+        public static class DatasetMigration extends AbstractMigrationHandler {
 
             @Override
-            public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
-                incomingData.put("name", "dataset");
-                return incomingData;
+            public void migrate(final int incomingVersion) {
+                changeValue("name", "dataset");
             }
         }
     }
@@ -80,13 +79,12 @@ public class MigrationHandlerTest implements Serializable {
 
         private String component;
 
-        public static class DatastoreMigration implements MigrationHandler {
+        public static class DatastoreMigration extends AbstractMigrationHandler {
 
             @Override
-            public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
-                incomingData.put("name", "datastore");
-                incomingData.put("component", "no");
-                return incomingData;
+            public void migrate(final int incomingVersion) {
+                changeValue("name", "datastore");
+                changeValue("component", "no");
             }
         }
     }

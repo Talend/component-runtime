@@ -25,6 +25,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.runtime.manager.component.AbstractMigrationHandler;
 
 import lombok.Data;
 
@@ -46,11 +47,11 @@ public class ConfiguredComponentNestedOnly implements Serializable {
 
         private String name;
 
-        public static class ConfigHandler implements MigrationHandler {
+        public static class ConfigHandler extends AbstractMigrationHandler {
 
             @Override
-            public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
-                return singletonMap("name", "ok");
+            public void migrate(final int incomingVersion) {
+                changeValue("name", "ok");
             }
         }
     }
