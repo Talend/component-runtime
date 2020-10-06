@@ -21,16 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
-import org.talend.sdk.component.runtime.manager.spi.MigrationHandlerListenerExtension;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
-
-import lombok.extern.slf4j.Slf4j;
 
 class ConfigurationMigrationTest {
 
