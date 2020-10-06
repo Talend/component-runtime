@@ -19,6 +19,8 @@ import java.util.Map;
 
 public interface MigrationHandlerListenerExtension {
 
+    void onAddKey(final Map<String, String> data, final String key, final String value);
+
     void onRenameKey(final Map<String, String> data, final String oldKey, final String newKey);
 
     void onRemoveKey(final Map<String, String> data, final String key);

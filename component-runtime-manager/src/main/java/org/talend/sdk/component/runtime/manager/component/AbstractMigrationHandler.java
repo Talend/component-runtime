@@ -53,7 +53,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     }
 
     /**
-     * @param incomingVersion the version of associatedData values.
+     * @param incomingVersion the version of associated data values.
      */
     public abstract void migrate(final int incomingVersion);
 
@@ -61,7 +61,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param listener the observer that will receive changes
      */
     public final synchronized void registerListener(final MigrationHandlerListenerExtension listener) {
-        log.warn("[registerListener] register {}.", listener);
+        log.debug("[registerListener] registering {}.", listener.getClass().getName());
         listeners.add(listener);
     }
 
@@ -69,8 +69,18 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param listener the observer that will receive changes
      */
     public final synchronized void unRegisterListener(final MigrationHandlerListenerExtension listener) {
-        log.warn("[unRegisterListener] unregister {}.", listener);
+        log.debug("[unRegisterListener] unregistering {}.", listener.getClass().getName());
         listeners.remove(listener);
+    }
+
+    /**
+     * @param key
+     * @param value
+     */
+    public final void addKey(final String key, final String value) {
+        configuration.put(key, value);
+
+        listeners.forEach(e -> e.onAddKey(configuration, key, value));
     }
 
     /**
@@ -94,7 +104,6 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     }
 
     /**
-     *
      * @param key configuration key
      * @param newValue new value to set in migration
      */
@@ -106,16 +115,17 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     }
 
     /**
-     *
      * @param key configuration key
      * @param newValue new value to set in migration
      * @param condition predicate that tests current value, if true sets new value
      */
     public final void changeValue(final String key, final String newValue, final Predicate<String> condition) {
         final String oldValue = configuration.get(key);
-        configuration.put(key, newValue);
+        if (condition.test(oldValue)) {
+            configuration.put(key, newValue);
 
-        listeners.forEach(e -> e.onChangeValue(configuration, key, oldValue, newValue));
+            listeners.forEach(e -> e.onChangeValue(configuration, key, oldValue, newValue));
+        }
     }
 
     /**
