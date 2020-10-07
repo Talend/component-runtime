@@ -912,3 +912,12 @@ ul.tree > li > a {
 .swagger-ui .info .title small pre {
   color: #3b4151 !important;
 }
+
+.btn svg {
+    height: 2.8rem;
+    width: 2.8rem;
+    margin-top: 0px;
+    margin-right: 0.4rem;
+    margin-bottom: 0px;
+    margin-left: 0.4rem;
+}
