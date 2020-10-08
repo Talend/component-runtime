@@ -162,7 +162,7 @@
     <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.28</slf4j.version>
     <junit.version>4.13</junit.version>
-    <ziplock.version>8.0.1</ziplock.version>
+    <ziplock.version>8.0.4</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.2.8</johnzon.version>
     <meecrowave.version>1.2.9</meecrowave.version>
@@ -210,7 +210,7 @@
     <jsoup.version>1.13.1</jsoup.version>
 
     <talend-icon.version>3.8.0</talend-icon.version> <!-- deprecated after -->
-    <talend-ui.version>4.6.0</talend-ui.version>
+    <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
     <gradle.version>6.0-rc-1</gradle.version>
@@ -241,7 +241,7 @@
     <bouncycastle.version>1.65</bouncycastle.version>
     <commons-io.version>2.6</commons-io.version>
 
-    <jruby.version>9.2.11.1</jruby.version>
+    <jruby.version>9.2.13.0</jruby.version>
     <node.version>v12.13.0</node.version>
     <npm.version>6.12.0</npm.version>
     <frontend.version>1.8.0</frontend.version>
