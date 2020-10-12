@@ -116,7 +116,6 @@ public final class RecordImpl implements Record {
         }
 
         private Schema.Entry findExistingEntry(final String name) {
-            assert this.providedSchema != null;
             if (this.entryIndex == null) {
                 this.entryIndex = providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
             }
