@@ -88,38 +88,42 @@ class AbstractMigrationHandlerTest {
 
         @Override
         public void migrate(final int incomingVersion) {
-            switch (incomingVersion) {
-            case 2:
-                addKey("clé", "valeur");
-                removeKey("key0");
-                renameKey("key1", "config.new.sub.key1");
-                changeValue("key2", "22222");
-                changeValue("key3", s -> s.replace("value", "valeur"));
-                changeValue("key4", "changed4", s -> s.endsWith("4"));
-                changeValue("key5", "changed4", s -> s.endsWith("4"));
-                changeValue("key6", s -> s.replace("value", "valeur"), s -> s.endsWith("6"));
-                changeValue("key7", s -> s.replace("value", "valeur"), s -> s.endsWith("6"));
-                break;
-            case 3:
-                addKey("key0", "excep");
-                break;
-            case 4:
-                renameKey("missingkey", "newkey");
-                break;
-            case 5:
-                removeKey("missingkey");
-                break;
-            case 6:
-                changeValue("missingkey", "22222");
-                break;
-            case 7:
-                changeValue("missingkey", "changed4", s -> s.endsWith("4"));
-                break;
-            case 8:
-                changeValue("missingkey", s -> s.replace("value", "valeur"), s -> s.endsWith("6"));
-                break;
-            default:
-                //
+            try {
+                switch (incomingVersion) {
+                case 2:
+                    addKey("clé", "valeur");
+                    removeKey("key0");
+                    renameKey("key1", "config.new.sub.key1");
+                    changeValue("key2", "22222");
+                    changeValue("key3", s -> s.replace("value", "valeur"));
+                    changeValue("key4", "changed4", s -> s.endsWith("4"));
+                    changeValue("key5", "changed4", s -> s.endsWith("4"));
+                    changeValue("key6", s -> s.replace("value", "valeur"), s -> s.endsWith("6"));
+                    changeValue("key7", s -> s.replace("value", "valeur"), s -> s.endsWith("6"));
+                    break;
+                case 3:
+                    addKey("key0", "excep");
+                    break;
+                case 4:
+                    renameKey("missingkey", "newkey");
+                    break;
+                case 5:
+                    removeKey("missingkey");
+                    break;
+                case 6:
+                    changeValue("missingkey", "22222");
+                    break;
+                case 7:
+                    changeValue("missingkey", "changed4", s -> s.endsWith("4"));
+                    break;
+                case 8:
+                    changeValue("missingkey", s -> s.replace("value", "valeur"), s -> s.endsWith("6"));
+                    break;
+                default:
+                    //
+                }
+            } catch (MigrationException e) {
+                throw new IllegalStateException(e);
             }
         }
     }

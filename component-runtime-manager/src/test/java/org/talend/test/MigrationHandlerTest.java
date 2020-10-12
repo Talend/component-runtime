@@ -45,7 +45,11 @@ public class MigrationHandlerTest implements Serializable {
 
         @Override
         public void migrate(final int incomingVersion) {
-            changeValue("config.datastore.component", "yes"); // need to override datastore migration
+            try {
+                changeValue("config.datastore.component", "yes"); // need to override datastore migration
+            } catch (MigrationException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
@@ -64,7 +68,11 @@ public class MigrationHandlerTest implements Serializable {
 
             @Override
             public void migrate(final int incomingVersion) {
-                addKey("name", "dataset");
+                try {
+                    addKey("name", "dataset");
+                } catch (MigrationException e) {
+                    throw new IllegalStateException(e);
+                }
             }
         }
     }
@@ -83,8 +91,12 @@ public class MigrationHandlerTest implements Serializable {
 
             @Override
             public void migrate(final int incomingVersion) {
-                addKey("name", "datastore");
-                addKey("component", "no");
+                try {
+                    addKey("name", "datastore");
+                    addKey("component", "no");
+                } catch (MigrationException e) {
+                    throw new IllegalStateException(e);
+                }
             }
         }
     }

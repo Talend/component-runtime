@@ -73,20 +73,20 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
         listeners.remove(listener);
     }
 
-    private void checkKeyExistance(final String key) {
-        configuration.computeIfAbsent(key, (k) -> {
-            throw new IllegalStateException(String.format("Key %s does not exist", key));
-        });
+    private void checkKeyExistance(final String key) throws MigrationException {
+        if (!configuration.containsKey(key)) {
+            throw new MigrationException(String.format("Key %s does not exist", key));
+        }
     }
 
     /**
      * @param key
      * @param value
      */
-    public final void addKey(final String key, final String value) {
-        configuration.computeIfPresent(key, (s1, s2) -> {
-            throw new IllegalStateException(String.format("Key %s already exists", key));
-        });
+    public final void addKey(final String key, final String value) throws MigrationException {
+        if (configuration.containsKey(key)) {
+            throw new MigrationException(String.format("Key %s already exists", key));
+        }
         configuration.put(key, value);
 
         listeners.forEach(e -> e.onAddKey(configuration, key, value));
@@ -96,7 +96,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param oldKey configuration key existing
      * @param newKey configuration key to rename
      */
-    public final void renameKey(final String oldKey, final String newKey) {
+    public final void renameKey(final String oldKey, final String newKey) throws MigrationException {
         checkKeyExistance(oldKey);
         configuration.put(newKey, configuration.get(oldKey));
         configuration.remove(oldKey);
@@ -107,7 +107,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     /**
      * @param key configuration key
      */
-    public final void removeKey(final String key) {
+    public final void removeKey(final String key) throws MigrationException {
         checkKeyExistance(key);
         configuration.remove(key);
 
@@ -118,7 +118,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param key configuration key
      * @param newValue new value to set in migration
      */
-    public final void changeValue(final String key, final String newValue) {
+    public final void changeValue(final String key, final String newValue) throws MigrationException {
         checkKeyExistance(key);
         final String oldValue = configuration.get(key);
         configuration.put(key, newValue);
@@ -131,7 +131,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param newValue new value to set in migration
      * @param condition predicate that tests current value, if true sets new value
      */
-    public final void changeValue(final String key, final String newValue, final Predicate<String> condition) {
+    public final void changeValue(final String key, final String newValue, final Predicate<String> condition)
+            throws MigrationException {
         checkKeyExistance(key);
         final String oldValue = configuration.get(key);
         if (condition.test(oldValue)) {
@@ -143,7 +144,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param key configuration key
      * @param updater function to set new value
      */
-    public final void changeValue(final String key, final Function<? super String, String> updater) {
+    public final void changeValue(final String key, final Function<? super String, String> updater)
+            throws MigrationException {
         checkKeyExistance(key);
         final String oldValue = configuration.get(key);
         final String newValue = updater.apply(oldValue);
@@ -156,12 +158,19 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param condition predicate that tests current value, if true sets new value
      */
     public final void changeValue(final String key, final Function<? super String, String> updater,
-            final Predicate<String> condition) {
+            final Predicate<String> condition) throws MigrationException {
         checkKeyExistance(key);
         final String oldValue = configuration.get(key);
         if (condition.test(oldValue)) {
             final String newValue = updater.apply(oldValue);
             changeValue(key, newValue);
+        }
+    }
+
+    public class MigrationException extends Exception {
+
+        public MigrationException(final String message) {
+            super(message);
         }
     }
 
