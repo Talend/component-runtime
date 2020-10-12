@@ -117,7 +117,8 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findExistingEntry(final String name) {
             if (this.entryIndex == null) {
-                this.entryIndex = providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
+                this.entryIndex =
+                        providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
             }
             final Schema.Entry entry = this.entryIndex.get(name);
             if (entry == null) {
@@ -129,12 +130,17 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
             if (providedSchema == null) {
-                return new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(type).withNullable(nullable).build();
+                return new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName(name)
+                        .withType(type)
+                        .withNullable(nullable)
+                        .build();
             }
             return this.findExistingEntry(name);
         }
 
-        private Schema.Entry validateTypeAgainstProvidedSchema(final String name, final Schema.Type type, final Object value) {
+        private Schema.Entry validateTypeAgainstProvidedSchema(final String name, final Schema.Type type,
+                final Object value) {
             if (providedSchema == null) {
                 return null;
             }

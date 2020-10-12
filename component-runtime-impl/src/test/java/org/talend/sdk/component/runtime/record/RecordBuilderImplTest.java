@@ -179,22 +179,16 @@ class RecordBuilderImplTest {
         assertThrows(IllegalArgumentException.class, () -> builder2.withDateTime("date", (ZonedDateTime) null));
     }
 
-
     @Test
     void array() {
-        final Schema schemaArray = new SchemaImpl.BuilderImpl()
-                .withType(Schema.Type.STRING)
-                .build();
+        final Schema schemaArray = new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build();
         final Schema.Entry entry = new SchemaImpl.EntryImpl.BuilderImpl()
                 .withName("data")
                 .withNullable(false)
                 .withType(Schema.Type.ARRAY)
                 .withElementSchema(schemaArray)
                 .build();
-        final Schema schema = new SchemaImpl.BuilderImpl()
-                .withType(Schema.Type.RECORD)
-                .withEntry(entry)
-                .build();
+        final Schema schema = new SchemaImpl.BuilderImpl().withType(Schema.Type.RECORD).withEntry(entry).build();
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
 
         final Record record = builder.withArray(entry, Arrays.asList("d1", "d2")).build();
