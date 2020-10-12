@@ -51,7 +51,7 @@ public class ConfiguredComponentNestedOnly implements Serializable {
 
             @Override
             public void migrate(final int incomingVersion) {
-                changeValue("name", "ok");
+                addKey("name", "ok");
             }
         }
     }

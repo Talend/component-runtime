@@ -64,7 +64,7 @@ public class MigrationHandlerTest implements Serializable {
 
             @Override
             public void migrate(final int incomingVersion) {
-                changeValue("name", "dataset");
+                addKey("name", "dataset");
             }
         }
     }
@@ -83,8 +83,8 @@ public class MigrationHandlerTest implements Serializable {
 
             @Override
             public void migrate(final int incomingVersion) {
-                changeValue("name", "datastore");
-                changeValue("component", "no");
+                addKey("name", "datastore");
+                addKey("component", "no");
             }
         }
     }

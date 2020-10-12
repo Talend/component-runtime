@@ -73,11 +73,20 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
         listeners.remove(listener);
     }
 
+    private void checkKeyExistance(final String key) {
+        configuration.computeIfAbsent(key, (k) -> {
+            throw new IllegalStateException(String.format("Key %s does not exist", key));
+        });
+    }
+
     /**
      * @param key
      * @param value
      */
     public final void addKey(final String key, final String value) {
+        configuration.computeIfPresent(key, (s1, s2) -> {
+            throw new IllegalStateException(String.format("Key %s already exists", key));
+        });
         configuration.put(key, value);
 
         listeners.forEach(e -> e.onAddKey(configuration, key, value));
@@ -88,6 +97,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param newKey configuration key to rename
      */
     public final void renameKey(final String oldKey, final String newKey) {
+        checkKeyExistance(oldKey);
         configuration.put(newKey, configuration.get(oldKey));
         configuration.remove(oldKey);
 
@@ -98,6 +108,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param key configuration key
      */
     public final void removeKey(final String key) {
+        checkKeyExistance(key);
         configuration.remove(key);
 
         listeners.forEach(e -> e.onRemoveKey(configuration, key));
@@ -108,6 +119,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param newValue new value to set in migration
      */
     public final void changeValue(final String key, final String newValue) {
+        checkKeyExistance(key);
         final String oldValue = configuration.get(key);
         configuration.put(key, newValue);
 
@@ -120,11 +132,10 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param condition predicate that tests current value, if true sets new value
      */
     public final void changeValue(final String key, final String newValue, final Predicate<String> condition) {
+        checkKeyExistance(key);
         final String oldValue = configuration.get(key);
         if (condition.test(oldValue)) {
-            configuration.put(key, newValue);
-
-            listeners.forEach(e -> e.onChangeValue(configuration, key, oldValue, newValue));
+            changeValue(key, newValue);
         }
     }
 
@@ -133,11 +144,10 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param updater function to set new value
      */
     public final void changeValue(final String key, final Function<? super String, String> updater) {
+        checkKeyExistance(key);
         final String oldValue = configuration.get(key);
         final String newValue = updater.apply(oldValue);
-        configuration.put(key, newValue);
-
-        listeners.forEach(e -> e.onChangeValue(configuration, key, oldValue, newValue));
+        changeValue(key, newValue);
     }
 
     /**
@@ -147,12 +157,11 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      */
     public final void changeValue(final String key, final Function<? super String, String> updater,
             final Predicate<String> condition) {
+        checkKeyExistance(key);
         final String oldValue = configuration.get(key);
         if (condition.test(oldValue)) {
             final String newValue = updater.apply(oldValue);
-            configuration.put(key, newValue);
-
-            listeners.forEach(e -> e.onChangeValue(configuration, key, oldValue, newValue));
+            changeValue(key, newValue);
         }
     }
 
