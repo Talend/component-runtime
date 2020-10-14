@@ -146,13 +146,7 @@ public class RequestParser {
                 if (urlProvider != null) {
                     throw new IllegalStateException(method + "has two Url parameters");
                 }
-                urlProvider = params -> {
-                    String url = String.valueOf(params[index]);
-                    if (url != null && url.endsWith("/")) {
-                        url = url.substring(0, url.length() - 1);
-                    }
-                    return url;
-                };
+                urlProvider = params -> String.valueOf(params[index]);
             } else if (parameters[i].isAnnotationPresent(QueryParams.class)) {
                 final QueryParams params = parameters[i].getAnnotation(QueryParams.class);
                 queryParamsProvider.queries.put(i, new QueryEncodable("", params.encode(), params.format()));
