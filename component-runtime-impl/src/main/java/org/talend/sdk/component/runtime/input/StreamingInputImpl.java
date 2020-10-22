@@ -40,14 +40,15 @@ public class StreamingInputImpl extends InputImpl {
 
     public StreamingInputImpl(final String rootName, final String name, final String plugin,
             final Serializable instance, final RetryConfiguration retryConfiguration) {
-        super(rootName, name, plugin, instance);
+        this(rootName, name, plugin, instance, retryConfiguration, ObjectConverter.IDENTITY);
+    }
+
+    public StreamingInputImpl(final String rootName, final String name, final String plugin,
+            final Serializable instance, final RetryConfiguration retryConfiguration, final ObjectConverter converter) {
+        super(rootName, name, plugin, instance, converter);
         shutdownHook = new Thread(() -> running.compareAndSet(true, false),
                 getClass().getName() + "_" + rootName() + "-" + name() + "_" + hashCode());
         this.retryConfiguration = retryConfiguration;
-    }
-
-    protected StreamingInputImpl() {
-        // no-op
     }
 
     @Override
@@ -136,7 +137,12 @@ public class StreamingInputImpl extends InputImpl {
 
     @Override
     protected Object writeReplace() throws ObjectStreamException {
-        return new StreamSerializationReplacer(plugin(), rootName(), name(), serializeDelegate(), retryConfiguration);
+        String p = this.plugin();
+        String r = rootName();
+        String n = name();
+        final byte[] delegate = serializeDelegate();
+        ObjectConverter cv = this.getConverter();
+        return new StreamSerializationReplacer(p, r, n, delegate, retryConfiguration, cv);
     }
 
     private static class StreamSerializationReplacer extends SerializationReplacer {
@@ -144,8 +150,8 @@ public class StreamingInputImpl extends InputImpl {
         private final RetryConfiguration retryConfiguration;
 
         StreamSerializationReplacer(final String plugin, final String component, final String name, final byte[] value,
-                final RetryConfiguration retryConfiguration) {
-            super(plugin, component, name, value);
+                final RetryConfiguration retryConfiguration, final ObjectConverter converter) {
+            super(converter, plugin, component, name, value);
             this.retryConfiguration = retryConfiguration;
         }
 

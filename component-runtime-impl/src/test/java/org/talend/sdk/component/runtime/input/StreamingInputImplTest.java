@@ -17,9 +17,11 @@ package org.talend.sdk.component.runtime.input;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.runtime.input.StreamingInputImpl.RetryConfiguration;
+import org.talend.sdk.component.runtime.input.StreamingInputImpl.RetryConfiguration.Constant;
+import org.talend.sdk.component.runtime.serialization.Serializer;
 
 class StreamingInputImplTest {
 
@@ -109,6 +114,38 @@ class StreamingInputImplTest {
             assertEquals(5, timestamps.size());
         } finally {
             input.stop();
+        }
+    }
+
+    @Test
+    void testSerial() throws IOException, ClassNotFoundException {
+        final List<Long> timestamps = new ArrayList<>();
+        final RetryConfiguration retryConfiguration = new RetryConfiguration(5, new Constant(500));
+
+        Serializable producer = new ProducerForSerial();
+
+        final Input input = new StreamingInputImpl("root", "name", "plugin", producer, retryConfiguration,
+                new ObjectToRecordConverter());
+
+        final Input copy = Serializer.roundTrip(input);
+        assertNotSame(copy, input);
+        assertEquals("root", copy.rootName());
+        assertEquals("name", copy.name());
+        assertEquals("plugin", copy.plugin());
+        assertTrue(StreamingInputImpl.class.isInstance(copy));
+
+        copy.start();
+        assertEquals("Hello", copy.next());
+        copy.stop();
+    }
+
+    static class ProducerForSerial implements Serializable {
+
+        private static final long serialVersionUID = -4547985432909975256L;
+
+        @Producer
+        public Object next() {
+            return "Hello";
         }
     }
 }

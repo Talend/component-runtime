@@ -33,7 +33,7 @@ public class LocalPartitionMapperTest {
 
     @Test
     void split() {
-        final Mapper mapper = new LocalPartitionMapper("Root", "Test", "Plugin", null);
+        final Mapper mapper = new LocalPartitionMapper("Root", "Test", "Plugin", null, ObjectConverter.IDENTITY);
         assertEquals(1, mapper.assess());
         assertEquals(singletonList(mapper), mapper.split(1));
         assertEquals(singletonList(mapper), mapper.split(10));
@@ -42,7 +42,8 @@ public class LocalPartitionMapperTest {
 
     @Test
     void createReader() {
-        final Mapper mapper = new LocalPartitionMapper("Root", "Test", "Plugin", new Component());
+        final Mapper mapper =
+                new LocalPartitionMapper("Root", "Test", "Plugin", new Component(), new ObjectToRecordConverter());
         final Input input = mapper.create();
         assertTrue(Record.class.isInstance(input.next()));
         assertNotSame(input.next(), input.next());
@@ -50,8 +51,9 @@ public class LocalPartitionMapperTest {
 
     @Test
     void serialization() throws IOException, ClassNotFoundException {
-        final LocalPartitionMapper mapper =
-                Serializer.roundTrip(new LocalPartitionMapper("Root", "Test", "Plugin", new Component()));
+        final LocalPartitionMapper mapper = Serializer
+                .roundTrip(
+                        new LocalPartitionMapper("Root", "Test", "Plugin", new Component(), ObjectConverter.IDENTITY));
         assertEquals("Root", mapper.rootName());
         assertEquals("Test", mapper.name());
         assertEquals("Plugin", mapper.plugin());
