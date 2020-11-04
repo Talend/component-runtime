@@ -11,6 +11,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1726[TCOMP-1726^]: Update logos and colors
+- link:https://jira.talendforge.org/browse/TCOMP-1771[TCOMP-1771^]: Record builder optimization (with static schema)
 - link:https://jira.talendforge.org/browse/TCOMP-1773[TCOMP-1773^]: Upgrade log4j2 to 2.13.3
 - link:https://jira.talendforge.org/browse/TCOMP-1774[TCOMP-1774^]: Upgrade johnzon to 1.2.8
 - link:https://jira.talendforge.org/browse/TCOMP-1775[TCOMP-1775^]: Upgrade commons-lang3 to 3.11
@@ -24,6 +25,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1783[TCOMP-1783^]: Upgrade netty to 5.0.0.Alpha2
 - link:https://jira.talendforge.org/browse/TCOMP-1784[TCOMP-1784^]: Upgrade ziplock to 8.0.4
 - link:https://jira.talendforge.org/browse/TCOMP-1785[TCOMP-1785^]: Upgrade JRuby to 9.2.13.0
+- link:https://jira.talendforge.org/browse/TCOMP-1786[TCOMP-1786^]: Upgrade to Apache Beam 2.24.0
 
 == Version 1.1.25
 
