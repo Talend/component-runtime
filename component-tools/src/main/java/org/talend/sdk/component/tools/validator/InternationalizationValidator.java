@@ -1,8 +1,22 @@
+/**
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.tools.validator;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
 
@@ -34,23 +48,27 @@ public class InternationalizationValidator implements Validator {
 
     private final Validators.ValidatorHelper helper;
 
-    public InternationalizationValidator(ValidatorHelper helper) {
+    public InternationalizationValidator(final ValidatorHelper helper) {
         this.helper = helper;
     }
 
     @Override
-    public Stream<String> validate(AnnotationFinder finder, List<Class<?>> components) {
-        final Stream<String> bundlesError = components.stream() //
+    public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
+        final Stream<String> bundlesError = components
+                .stream() //
                 .map(this::validateComponentResourceBundle) //
                 .filter(Objects::nonNull) //
                 .sorted();
 
         // enum
         final List<Field> optionsFields = finder.findAnnotatedFields(Option.class);
-        final Stream<String> missingDisplayName = optionsFields.stream().map(Field::getType) //
+        final Stream<String> missingDisplayName = optionsFields
+                .stream()
+                .map(Field::getType) //
                 .filter(Class::isEnum) //
                 .distinct() //
-                .flatMap(enumType -> Stream.of(enumType.getFields()) //
+                .flatMap(enumType -> Stream
+                        .of(enumType.getFields()) //
                         .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())) //
                         .filter(f -> hasNoBundleEntry(enumType, f, "_displayName")) //
                         .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName() + "._displayName in "
@@ -58,7 +76,8 @@ public class InternationalizationValidator implements Validator {
                 .sorted();
 
         // others - just logged for now, we can add it to errors if we encounter it too often
-        final List<String> missingOptionTranslations = optionsFields.stream()
+        final List<String> missingOptionTranslations = optionsFields
+                .stream()
                 .distinct()
                 .filter(this::fieldIsWithoutKey)
                 .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
@@ -69,8 +88,9 @@ public class InternationalizationValidator implements Validator {
 
         final Stream<String> allMissing;
         if (missingOptionTranslations != null && !missingOptionTranslations.isEmpty()) {
-            final String missingMsg = missingOptionTranslations.stream()
-                .collect(Collectors.joining("\n", "Missing resource bundle entries:\n", ""));
+            final String missingMsg = missingOptionTranslations
+                    .stream()
+                    .collect(Collectors.joining("\n", "Missing resource bundle entries:\n", ""));
             allMissing = Stream.of(missingMsg);
         } else {
             allMissing = Stream.empty();
@@ -80,18 +100,19 @@ public class InternationalizationValidator implements Validator {
         for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
             final ResourceBundle resourceBundle = helper.findResourceBundle(i);
             if (resourceBundle != null) {
-                final Collection<Collection<String>> keys =
-                        of(i.getMethods()).filter(m -> m.getDeclaringClass() != Object.class)
-                                .map(m -> asList(i.getName() + "." + m.getName(),
-                                        i.getSimpleName() + "." + m.getName()))
-                                .collect(Collectors.toSet());
-                keys.stream()
+                final Collection<Collection<String>> keys = of(i.getMethods())
+                        .filter(m -> m.getDeclaringClass() != Object.class)
+                        .map(m -> asList(i.getName() + "." + m.getName(), i.getSimpleName() + "." + m.getName()))
+                        .collect(Collectors.toSet());
+                keys
+                        .stream()
                         .filter(ks -> ks.stream().noneMatch(resourceBundle::containsKey))
                         .map(k -> "Missing key " + k.iterator().next() + " in " + i + " resource bundle")
                         .sorted()
                         .forEach(internationalizedErrors::add);
 
-                resourceBundle.keySet()
+                resourceBundle
+                        .keySet()
                         .stream()
                         .filter(k -> (k.startsWith(i.getName() + ".") || k.startsWith(i.getSimpleName() + "."))
                                 && keys.stream().noneMatch(ks -> ks.contains(k)))
@@ -104,30 +125,34 @@ public class InternationalizationValidator implements Validator {
         }
         Stream<String> actionsErrors = this.missingActionComment(finder);
 
-        return Stream.of(bundlesError, missingDisplayName, allMissing, internationalizedErrors.stream(), actionsErrors)
+        return Stream
+                .of(bundlesError, missingDisplayName, allMissing, internationalizedErrors.stream(), actionsErrors)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
 
-    private Stream<String> missingActionComment(AnnotationFinder finder) {
-        return this.getActionsStream() // Annotation of ActionType
+    private Stream<String> missingActionComment(final AnnotationFinder finder) {
+        return this
+                .getActionsStream() // Annotation of ActionType
                 .flatMap(action -> finder.findAnnotatedMethods(action).stream()) //
                 .map(action -> {
-            final Annotation actionAnnotation = Stream
-                    .of(action.getAnnotations())
-                    .filter(a -> a.annotationType().isAnnotationPresent(ActionType.class))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No action annotation on " + action));
-            final String key;
-            try {
-                final Class<? extends Annotation> annotationType = actionAnnotation.annotationType();
-                key = "${family}.actions." + annotationType.getAnnotation(ActionType.class).value() + "."
-                        + annotationType.getMethod("value").invoke(actionAnnotation).toString() + "._displayName";
-            } catch (final IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                return null;
-            }
-            return helper.validateFamilyI18nKey(action.getDeclaringClass(), key);
-        }).filter(Objects::nonNull);
+                    final Annotation actionAnnotation = Stream
+                            .of(action.getAnnotations())
+                            .filter(a -> a.annotationType().isAnnotationPresent(ActionType.class))
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("No action annotation on " + action));
+                    final String key;
+                    try {
+                        final Class<? extends Annotation> annotationType = actionAnnotation.annotationType();
+                        key = "${family}.actions." + annotationType.getAnnotation(ActionType.class).value() + "."
+                                + annotationType.getMethod("value").invoke(actionAnnotation).toString()
+                                + "._displayName";
+                    } catch (final IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                        return null;
+                    }
+                    return helper.validateFamilyI18nKey(action.getDeclaringClass(), key);
+                })
+                .filter(Objects::nonNull);
     }
 
     private Stream<Class<? extends Annotation>> getActionsStream() {
@@ -139,8 +164,8 @@ public class InternationalizationValidator implements Validator {
         final String baseName = ofNullable(component.getPackage()).map(p -> p.getName() + ".").orElse("") + "Messages";
         final ResourceBundle bundle = helper.findResourceBundle(component);
         if (bundle == null) {
-            return "No resource bundle for " + component.getName() + ", you should create a " + baseName.replace('.',
-                    '/') + ".properties at least.";
+            return "No resource bundle for " + component.getName() + ", you should create a "
+                    + baseName.replace('.', '/') + ".properties at least.";
         }
 
         final String prefix = this.helper.findPrefix(component);
@@ -159,13 +184,13 @@ public class InternationalizationValidator implements Validator {
     }
 
     private ResourceBundle findBundleFor(final Class<?> enumType, final Field f) {
-        return ofNullable(this.helper.findResourceBundle(enumType)).orElseGet(
-                () -> this.helper.findResourceBundle(f.getDeclaringClass()));
+        return ofNullable(this.helper.findResourceBundle(enumType))
+                .orElseGet(() -> this.helper.findResourceBundle(f.getDeclaringClass()));
     }
 
-    private boolean fieldIsWithoutKey(Field field) {
-        final ResourceBundle bundle = ofNullable(helper.findResourceBundle(field.getDeclaringClass())).orElseGet(
-                () -> helper.findResourceBundle(field.getType()));
+    private boolean fieldIsWithoutKey(final Field field) {
+        final ResourceBundle bundle = ofNullable(helper.findResourceBundle(field.getDeclaringClass()))
+                .orElseGet(() -> helper.findResourceBundle(field.getType()));
         final String key = field.getDeclaringClass().getSimpleName() + "." + field.getName() + "._displayName";
         return bundle == null || !bundle.containsKey(key);
     }

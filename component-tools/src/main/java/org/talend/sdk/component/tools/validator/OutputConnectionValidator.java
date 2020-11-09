@@ -15,24 +15,29 @@
  */
 package org.talend.sdk.component.tools.validator;
 
-import java.io.Serializable;
+import static java.util.stream.Stream.of;
+
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
 
-public class SerializationValidator implements Validator {
+public class OutputConnectionValidator implements Validator {
 
     @Override
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
+        // outputs must have only one input param
         return components
                 .stream()
-                .filter(this::isNotSerializable)
-                .map((Class clazz) -> clazz + " is not Serializable")
-                .sorted();
-    }
-
-    private boolean isNotSerializable(final Class<?> clazz) {
-        return !Serializable.class.isAssignableFrom(clazz);
+                .flatMap(c -> of(c.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)))
+                .filter(m -> of(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Output.class)))
+                .filter(m -> of(m.getParameters()).filter(p -> !p.isAnnotationPresent(Output.class)).count() > 1)
+                .map(Method::getDeclaringClass)
+                .distinct()
+                .map(clazz -> "The Output component '" + clazz
+                        + "' must have only one single input branch parameter in its ElementListener method.");
     }
 }

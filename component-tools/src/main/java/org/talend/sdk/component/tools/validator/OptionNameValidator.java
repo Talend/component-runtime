@@ -15,23 +15,36 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.talend.sdk.component.api.service.http.Request;
-import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
+import org.talend.sdk.component.api.configuration.Option;
 
-public class HttpValidator implements Validator {
+public class OptionNameValidator implements Validator {
 
     @Override
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
         return finder
-                .findAnnotatedClasses(Request.class) //
+                .findAnnotatedFields(Option.class)
                 .stream() //
-                .map(Class::getDeclaringClass) //
+                .filter(field -> {
+                    final String name = nameOption(field); //
+                    return name.contains(".") || name.startsWith("$"); //
+                }) //
                 .distinct() //
-                .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream()) //
+                .map(field -> {
+                    final String name = nameOption(field);
+                    return "Option name `" + name
+                            + "` is invalid, you can't start an option name with a '$' and it can't contain a '.'. "
+                            + "Please fix it on field `" + field.getDeclaringClass().getName() + "#" + field.getName()
+                            + "`";
+                }) //
                 .sorted();
+    }
+
+    private String nameOption(final Field field) {
+        return field.getAnnotation(Option.class).value();
     }
 }

@@ -15,24 +15,23 @@
  */
 package org.talend.sdk.component.tools.validator;
 
-import java.io.Serializable;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.talend.sdk.component.api.configuration.Option;
 
-public class SerializationValidator implements Validator {
+public class NoFinalOptionValidator implements Validator {
 
     @Override
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
-        return components
-                .stream()
-                .filter(this::isNotSerializable)
-                .map((Class clazz) -> clazz + " is not Serializable")
-                .sorted();
-    }
-
-    private boolean isNotSerializable(final Class<?> clazz) {
-        return !Serializable.class.isAssignableFrom(clazz);
+        return finder
+                .findAnnotatedFields(Option.class)
+                .stream() //
+                .filter(field -> Modifier.isFinal(field.getModifiers())) //
+                .distinct() //
+                .map(field -> "@Option fields must not be final, found one field violating this rule: " + field) //
+                .sorted(); //
     }
 }

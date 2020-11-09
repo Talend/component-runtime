@@ -1,6 +1,24 @@
+/**
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.tools.validator;
 
-import java.lang.reflect.Executable;
+import static java.util.stream.Stream.of;
+
+import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,23 +26,30 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
+import org.talend.sdk.component.api.service.completion.DynamicValues;
+import org.talend.sdk.component.api.service.completion.Suggestions;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
+import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
-import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.tools.ComponentValidator.Configuration;
 
 public class Validators {
+
     private final List<Validator> validators;
 
-    private Validators(List<Validator> validators) {
+    private Validators(final List<Validator> validators) {
         this.validators = validators;
     }
 
     public interface ValidatorHelper {
+
         boolean isService(Parameter parameter);
 
         ResourceBundle findResourceBundle(final Class<?> component);
@@ -38,19 +63,21 @@ public class Validators {
         String validateIcon(final Icon annotation, final Collection<String> errors);
 
         ParameterModelService getParameterModelService();
+
+        Stream<File> componentClassFiles();
     }
 
     public Set<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
         final Set<String> errors = new LinkedHashSet<>();
 
-        this.validators.stream()
+        this.validators
+                .stream()
                 .flatMap((Validator validator) -> validator.validate(finder, components))
                 .forEach(errors::add);
         return errors;
     }
 
-    public static Validators build(final Configuration configuration,
-            final ValidatorHelper helper) {
+    public static Validators build(final Configuration configuration, final ValidatorHelper helper) {
 
         final List<Validator> activeValidators = new ArrayList<>();
 
@@ -87,13 +114,65 @@ public class Validators {
             activeValidators.add(validator);
         }
 
+        if (configuration.isValidateActions()) {
+            final ActionValidator validator = new ActionValidator(helper);
+            activeValidators.add(validator);
+        }
+
         if (configuration.isValidateDocumentation()) {
             activeValidators.add(new DocumentationValidator());
         }
 
+        if (configuration.isValidateLayout()) {
+            final LayoutValidator validator = new LayoutValidator(helper);
+            activeValidators.add(validator);
+        }
+        if (configuration.isValidateOptionNames()) {
+            activeValidators.add(new OptionNameValidator());
+        }
+
+        if (configuration.isValidateLocalConfiguration()) {
+            final LocalConfigurationValidator validator = new LocalConfigurationValidator(helper, configuration);
+            activeValidators.add(validator);
+        }
+        if (configuration.isValidateOutputConnection()) {
+            activeValidators.add(new OutputConnectionValidator());
+        }
+        if (configuration.isValidatePlaceholder()) {
+            PlaceHolderValidator validator = new PlaceHolderValidator(helper);
+            activeValidators.add(validator);
+        }
+        if (configuration.isValidateNoFinalOption()) {
+            activeValidators.add(new NoFinalOptionValidator());
+        }
+        if (configuration.isValidateWording()) {
+            if (configuration.isValidateDocumentation()) {
+                activeValidators.add(new DocumentationWordingValidator());
+            }
+            if (configuration.isValidateInternationalization()) {
+                activeValidators.add(new InternationalizationWording());
+            }
+        }
+
+        if (configuration.isValidateExceptions()) {
+            final ExceptionValidator validator = new ExceptionValidator(helper, configuration);
+            activeValidators.add(validator);
+        }
 
         return new Validators(activeValidators);
 
     };
 
+    public static Stream<Class<? extends Annotation>> getActionsStream() {
+        return of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
+                Suggestions.class, Update.class);
+    }
+
+    public static Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
+        return options
+                .stream()
+                .flatMap((ParameterMeta it) -> Stream
+                        .concat(Stream.of(it), it.getNestedParameters().isEmpty() ? Stream.empty()
+                                : Validators.flatten(it.getNestedParameters())));
+    }
 }

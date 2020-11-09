@@ -15,51 +15,26 @@
  */
 package org.talend.sdk.component.tools;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Stream.concat;
-import static java.util.stream.Stream.empty;
 import static java.util.stream.Stream.of;
-import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ARRAY;
-import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ENUM;
-import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.OBJECT;
-import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.STRING;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -67,25 +42,6 @@ import java.util.stream.StreamSupport;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
-import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.action.Proposable;
-import org.talend.sdk.component.api.configuration.action.Updatable;
-import org.talend.sdk.component.api.configuration.type.DataSet;
-import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.DefaultValue;
-import org.talend.sdk.component.api.exception.ComponentException;
-import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Output;
-import org.talend.sdk.component.api.service.ActionType;
-import org.talend.sdk.component.api.service.Service;
-import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
-import org.talend.sdk.component.api.service.completion.DynamicValues;
-import org.talend.sdk.component.api.service.completion.Suggestions;
-import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
-import org.talend.sdk.component.api.service.schema.DiscoverSchema;
-import org.talend.sdk.component.api.service.update.Update;
-import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
@@ -139,40 +95,50 @@ public class ComponentValidator extends BaseTask {
         final Validators.ValidatorHelper helper = new ValidatorHelper() {
 
             @Override
-            public boolean isService(Parameter parameter) {
-                return ComponentValidator.this.parameterModelService.isService(new ParameterModelService.Param(parameter));
+            public boolean isService(final Parameter parameter) {
+                return ComponentValidator.this.parameterModelService
+                        .isService(new ParameterModelService.Param(parameter));
             }
 
             @Override
-            public ResourceBundle findResourceBundle(Class<?> component) {
+            public ResourceBundle findResourceBundle(final Class<?> component) {
                 return ComponentValidator.this.findResourceBundle(component);
             }
 
             @Override
-            public String findPrefix(Class<?> component) {
-                return  ComponentValidator.this.components(component)
+            public String findPrefix(final Class<?> component) {
+                return ComponentValidator.this
+                        .components(component)
                         .map(c -> findFamily(c, component) + "." + c.name())
                         .orElseThrow(() -> new IllegalStateException(component.getName()));
             }
 
             @Override
-            public String validateFamilyI18nKey(Class<?> clazz, String... keys) {
+            public String validateFamilyI18nKey(final Class<?> clazz, final String... keys) {
                 return ComponentValidator.this.validateFamilyI18nKey(clazz, keys);
             }
 
             @Override
-            public List<ParameterMeta> buildOrGetParameters(Class<?> c) {
+            public List<ParameterMeta> buildOrGetParameters(final Class<?> c) {
                 return ComponentValidator.this.buildOrGetParameters(c);
             }
 
             @Override
-            public String validateIcon(Icon annotation, Collection<String> errors) {
+            public String validateIcon(final Icon annotation, final Collection<String> errors) {
                 return ComponentValidator.this.validateIcon(annotation, errors);
             }
 
             @Override
             public ParameterModelService getParameterModelService() {
                 return ComponentValidator.this.parameterModelService;
+            }
+
+            @Override
+            public Stream<File> componentClassFiles() {
+                if (ComponentValidator.this.classes == null) {
+                    return Stream.empty();
+                }
+                return Stream.of(ComponentValidator.this.classes);
             }
         };
 
@@ -197,52 +163,6 @@ public class ComponentValidator extends BaseTask {
                     }
                 }
             });
-        }
-
-        if (configuration.isValidateActions()) {
-            validateActions(finder, errors);
-        }
-
-       /* if (configuration.isValidateDocumentation()) {
-            validateDocumentation(finder, components, errors);
-        }*/
-
-        if (configuration.isValidateLayout()) {
-            validateLayout(components, errors);
-        }
-
-        if (configuration.isValidateOptionNames()) {
-            validateOptionNames(finder, errors);
-        }
-
-        if (configuration.isValidateLocalConfiguration()) {
-            validateLocalConfiguration(finder,
-                    Optional.of(configuration).map(Configuration::getPluginId).orElseGet(this::guessPluginId), errors);
-        }
-
-        if (configuration.isValidateOutputConnection()) {
-            validateOutputConnection(components, errors);
-        }
-
-        if (configuration.isValidatePlaceholder()) {
-            validatePlaceholders(components, errors);
-        }
-
-        if (configuration.isValidateNoFinalOption()) {
-            validateNoFinalOption(finder, errors);
-        }
-
-        if (configuration.isValidateWording()) {
-            if (configuration.isValidateDocumentation()) {
-                validateDocumentationWording(finder, components, errors);
-            }
-            if (configuration.isValidateInternationalization()) {
-                validateInternationalizationWording(finder, components, errors);
-            }
-        }
-
-        if (configuration.isValidateExceptions()) {
-            validateExceptions(errors);
         }
 
         if (!extensions.isEmpty()) {
@@ -284,41 +204,6 @@ public class ComponentValidator extends BaseTask {
         log.info("Validated components: " + components.stream().map(Class::getSimpleName).collect(joining(", ")));
     }
 
-    private String guessPluginId() { // assume folder name == module id
-        return ofNullable(classes).flatMap(c -> Stream.of(c).map(f -> {
-            if (!f.isDirectory()) {
-                return null;
-            }
-            File current = f;
-            int iteration = 5;
-            while (iteration-- > 0 && current != null) {
-                final File currentRef = current;
-                if (Stream
-                        .of("classes", "target", "main", "java", "build")
-                        .anyMatch(it -> it.equals(currentRef.getName()))) {
-                    current = current.getParentFile();
-                } else {
-                    return current.getName();
-                }
-            }
-            return null;
-        }).filter(Objects::nonNull).findFirst()).orElseThrow(() -> new IllegalArgumentException("No pluginId set"));
-    }
-
-    private void validatePlaceholders(final List<Class<?>> components, final Set<String> errors) {
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        errors
-                .addAll(components
-                        .stream()
-                        .map(this::buildOrGetParameters)
-                        .flatMap(this::flatten)
-                        .filter(this::isStringifiable)
-                        .filter(p -> !hasPlaceholder(loader, p, null))
-                        .map(p -> "No _placeholder set for " + p.getPath() + " in Messages.properties of packages: "
-                                + asList(p.getI18nPackages()))
-                        .collect(toSet()));
-    }
-
     private String validateIcon(final Icon annotation, final Collection<String> errors) {
         if (classes.length == 0) {
             return null;
@@ -347,164 +232,6 @@ public class ComponentValidator extends BaseTask {
         return validator.validate(file.toPath());
     }
 
-    private void validateOutputConnection(final List<Class<?>> components, final Set<String> errors) {
-        // outputs must have only one input param
-        errors
-                .addAll(components
-                        .stream()
-                        .flatMap(c -> of(c.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)))
-                        .filter(m -> of(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Output.class)))
-                        .filter(m -> of(m.getParameters())
-                                .filter(p -> !p.isAnnotationPresent(Output.class))
-                                .count() > 1)
-                        .map(Method::getDeclaringClass)
-                        .distinct()
-                        .map(clazz -> "The Output component '" + clazz
-                                + "' must have only one single input branch parameter in its ElementListener method.")
-                        .collect(toList()));
-    }
-
-    private void validateLocalConfiguration(final AnnotationFinder finder, final String pluginId,
-            final Set<String> errors) {
-
-        // first check TALEND-INF/local-configuration.properties
-        errors
-                .addAll(Stream
-                        .of(classes)
-                        .map(root -> new File(root, "TALEND-INF/local-configuration.properties"))
-                        .filter(File::exists)
-                        .flatMap(props -> {
-                            final Properties properties = new Properties();
-                            try (final InputStream stream = new BufferedInputStream(new FileInputStream(props))) {
-                                properties.load(stream);
-                            } catch (final IOException e) {
-                                throw new IllegalStateException(e);
-                            }
-                            return properties
-                                    .stringPropertyNames()
-                                    .stream()
-                                    .filter(it -> !it.toLowerCase(Locale.ROOT).startsWith(pluginId + "."))
-                                    .map(it -> "'" + it + "' does not start with '" + pluginId + "', "
-                                            + "it is recommended to prefix all keys by the family");
-                        })
-                        .collect(toSet()));
-
-        // then check the @DefaultValue annotation
-        errors
-                .addAll(Stream
-                        .concat(finder.findAnnotatedFields(DefaultValue.class).stream(),
-                                finder.findAnnotatedConstructorParameters(DefaultValue.class).stream())
-                        .map(d -> {
-                            final DefaultValue annotation = d.getAnnotation(DefaultValue.class);
-                            if (annotation.value().startsWith("local_configuration:") && !annotation
-                                    .value()
-                                    .toLowerCase(Locale.ROOT)
-                                    .startsWith("local_configuration:" + pluginId + ".")) {
-                                return d + " does not start with family name (followed by a dot): '" + pluginId + "'";
-                            }
-                            return null;
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(toSet()));
-    }
-
-    private void validateLayout(final List<Class<?>> components, final Set<String> errors) {
-        components
-                .stream()
-                .map(this::buildOrGetParameters)
-                .flatMap(this::toFlatNonPrimitiveConfig)
-                .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue, (p1, p2) -> p1))
-                .entrySet()
-                .forEach(c -> visitLayout(c, errors));
-    }
-
-    private void visitLayout(final Map.Entry<String, ParameterMeta> config, final Set<String> errors) {
-
-        final Set<String> fieldsInGridLayout = config
-                .getValue()
-                .getMetadata()
-                .entrySet()
-                .stream()
-                .filter(meta -> meta.getKey().startsWith("tcomp::ui::gridlayout"))
-                .flatMap(meta -> of(meta.getValue().split("\\|")))
-                .flatMap(s -> of(s.split(",")))
-                .filter(s -> !s.isEmpty())
-                .sorted()
-                .collect(toSet());
-
-        final Set<String> fieldsInOptionOrder = config
-                .getValue()
-                .getMetadata()
-                .entrySet()
-                .stream()
-                .filter(meta -> meta.getKey().startsWith("tcomp::ui::optionsorder"))
-                .flatMap(meta -> of(meta.getValue().split(",")))
-                .sorted()
-                .collect(toSet());
-
-        if (fieldsInGridLayout.isEmpty() && fieldsInOptionOrder.isEmpty()) {
-            return;
-        }
-
-        if (!fieldsInGridLayout.isEmpty() && !fieldsInOptionOrder.isEmpty()) {
-            this.log.error("Concurrent layout found for '" + config.getKey() + "', the @OptionsOrder will be ignored.");
-        }
-
-        if (!fieldsInGridLayout.isEmpty()) {
-            errors
-                    .addAll(fieldsInGridLayout
-                            .stream()
-                            .filter(fieldInLayout -> config
-                                    .getValue()
-                                    .getNestedParameters()
-                                    .stream()
-                                    .map(ParameterMeta::getName)
-                                    .noneMatch(field -> field.equals(fieldInLayout)))
-                            .map(fieldInLayout -> "Option '" + fieldInLayout
-                                    + "' in @GridLayout doesn't exist in declaring class '" + config.getKey() + "'")
-                            .sorted()
-                            .collect(toSet()));
-
-            config
-                    .getValue()
-                    .getNestedParameters()
-                    .stream()
-                    .filter(field -> !fieldsInGridLayout.contains(field.getName()))
-                    .map(field -> "Field '" + field.getName() + "' in " + config.getKey()
-                            + " is not declared in any layout.")
-                    .forEach(this.log::error);
-        } else {
-            errors
-                    .addAll(fieldsInOptionOrder
-                            .stream()
-                            .filter(fieldInLayout -> config
-                                    .getValue()
-                                    .getNestedParameters()
-                                    .stream()
-                                    .map(ParameterMeta::getName)
-                                    .noneMatch(field -> field.equals(fieldInLayout)))
-                            .map(fieldInLayout -> "Option '" + fieldInLayout
-                                    + "' in @OptionOrder doesn't exist in declaring class '" + config.getKey() + "'")
-                            .sorted()
-                            .collect(toSet()));
-
-            config
-                    .getValue()
-                    .getNestedParameters()
-                    .stream()
-                    .filter(field -> !fieldsInOptionOrder.contains(field.getName()))
-                    .map(field -> "Field '" + field.getName() + "' in " + config.getKey()
-                            + " is not declared in any layout.")
-                    .forEach(this.log::error);
-        }
-
-    }
-
-    private boolean hasPlaceholder(final ClassLoader loader, final ParameterMeta parameterMeta,
-            final ParameterBundle parent) {
-        return parameterMeta.findBundle(loader, Locale.ROOT).placeholder(parent).isPresent();
-    }
-
     private List<ParameterMeta> buildOrGetParameters(final Class<?> c) {
         return parametersCache
                 .computeIfAbsent(c,
@@ -513,119 +240,6 @@ public class ComponentValidator extends BaseTask {
                                         ofNullable(c.getPackage()).map(Package::getName).orElse(""),
                                         new BaseParameterEnricher.Context(
                                                 new LocalConfigurationService(emptyList(), "tools"))));
-    }
-
-    private boolean isStringifiable(final ParameterMeta meta) {
-        return STRING.equals(meta.getType()) || ENUM.equals(meta.getType());
-    }
-
-    private Stream<AbstractMap.SimpleEntry<String, ParameterMeta>>
-            toFlatNonPrimitiveConfig(final List<ParameterMeta> config) {
-        if (config == null || config.isEmpty()) {
-            return empty();
-        }
-        return config
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(p -> OBJECT.equals(p.getType()) || isArrayOfObject(p))
-                .filter(p -> p.getNestedParameters() != null)
-                .flatMap(p -> concat(of(new AbstractMap.SimpleEntry<>(toJavaType(p).getName(), p)),
-                        toFlatNonPrimitiveConfig(p.getNestedParameters())));
-    }
-
-    private Class<?> toJavaType(final ParameterMeta p) {
-        if (p.getType().equals(OBJECT) || p.getType().equals(ENUM)) {
-            if (Class.class.isInstance(p.getJavaType())) {
-                return Class.class.cast(p.getJavaType());
-            }
-            throw new IllegalArgumentException("Unsupported type for parameter " + p.getPath() + " (from "
-                    + p.getSource().declaringClass() + "), ensure it is a Class<?>");
-        }
-
-        if (p.getType().equals(ARRAY) && ParameterizedType.class.isInstance(p.getJavaType())) {
-            final ParameterizedType parameterizedType = ParameterizedType.class.cast(p.getJavaType());
-            final Type[] arguments = parameterizedType.getActualTypeArguments();
-            if (arguments.length == 1 && Class.class.isInstance(arguments[0])) {
-                return Class.class.cast(arguments[0]);
-            }
-            throw new IllegalArgumentException("Unsupported type for parameter " + p.getPath() + " (from "
-                    + p.getSource().declaringClass() + "), " + "ensure it is a ParameterizedType with one argument");
-        }
-
-        throw new IllegalStateException("Parameter '" + p.getName() + "' is not an object.");
-    }
-
-    private boolean isArrayOfObject(final ParameterMeta param) {
-
-        return ARRAY.equals(param.getType()) && param.getNestedParameters() != null
-                && param
-                        .getNestedParameters()
-                        .stream()
-                        .anyMatch(p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
-
-    }
-
-    private void validateOptionNames(final AnnotationFinder finder, final Set<String> errors) {
-        errors.addAll(findOptions(finder).filter(field -> {
-            final String name = field.getAnnotation(Option.class).value();
-            return name.contains(".") || name.startsWith("$");
-        }).distinct().map(field -> {
-            final String name = field.getAnnotation(Option.class).value();
-            return "Option name `" + name
-                    + "` is invalid, you can't start an option name with a '$' and it can't contain a '.'. "
-                    + "Please fix it on field `" + field.getDeclaringClass().getName() + "#" + field.getName() + "`";
-        }).sorted().collect(toSet()));
-    }
-
-    private void validateNoFinalOption(final AnnotationFinder finder, final Set<String> errors) {
-        errors
-                .addAll(findOptions(finder)
-                        .filter(field -> Modifier.isFinal(field.getModifiers()))
-                        .distinct()
-                        .map(field -> "@Option fields must not be final, found one field violating this rule: " + field)
-                        .sorted()
-                        .collect(toSet()));
-    }
-
-
-    private void validateDocumentationWording(final AnnotationFinder finder, final List<Class<?>> components,
-            final Set<String> errors) {
-        final Predicate<String> isIncorrectWording = s -> !s.matches("^[A-Z0-9]+.*\\.$");
-        final String error = "@Documentation on '%s' is empty or is not capitalized or ends not by a dot.";
-        errors
-                .addAll(components
-                        .stream()
-                        .filter(c -> c.isAnnotationPresent(Documentation.class))
-                        .filter(c -> isIncorrectWording.test(c.getAnnotation(Documentation.class).value()))
-                        .map(c -> String.format(error, c.getName()))
-                        .sorted()
-                        .collect(toSet()));
-        errors
-                .addAll(findOptions(finder)
-                        .filter(field -> field.isAnnotationPresent(Documentation.class))
-                        .filter(c -> isIncorrectWording.test(c.getAnnotation(Documentation.class).value()))
-                        .map(c -> String.format(error, c.getName()))
-                        .sorted()
-                        .collect(toSet()));
-    }
-
-    private void validateInternationalizationWording(final AnnotationFinder finder, final List<Class<?>> components,
-            final Set<String> errors) {
-        // TODO: define rules to apply to messages to users.
-        // as a starter can apply it to all non enum, *_displayname and *_placeholder
-    }
-
-    private Stream<Field> findOptions(final AnnotationFinder finder) {
-        return finder.findAnnotatedFields(Option.class).stream();
-    }
-
-
-    private Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
-        return options
-                .stream()
-                .flatMap(it -> Stream
-                        .concat(Stream.of(it),
-                                it.getNestedParameters().isEmpty() ? empty() : flatten(it.getNestedParameters())));
     }
 
     private String validateFamilyI18nKey(final Class<?> clazz, final String... keys) {
@@ -646,189 +260,6 @@ public class ComponentValidator extends BaseTask {
             return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
         }
         return null;
-    }
-
-    private void validateActions(final AnnotationFinder finder, final Set<String> errors) {
-        // returned types
-        errors.addAll(getActionsStream().flatMap(action -> {
-            final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
-            final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
-            return Stream
-                    .concat(annotatedMethods
-                            .stream()
-                            .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
-                            .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
-                            annotatedMethods
-                                    .stream()
-                                    .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
-                                            && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
-                                    .map(m -> m + " is not declared into a service class"));
-        }).sorted().collect(toSet()));
-
-        // parameters for @DynamicValues
-        errors
-                .addAll(finder
-                        .findAnnotatedMethods(DynamicValues.class)
-                        .stream()
-                        .filter(m -> countParameters(m) != 0)
-                        .map(m -> m + " should have no parameter")
-                        .sorted()
-                        .collect(toSet()));
-
-        // parameters for @HealthCheck
-        errors
-                .addAll(finder
-                        .findAnnotatedMethods(HealthCheck.class)
-                        .stream()
-                        .filter(m -> countParameters(m) != 1
-                                || !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
-                        .map(m -> m + " should have its first parameter being a datastore (marked with @DataStore)")
-                        .sorted()
-                        .collect(toSet()));
-
-        // parameters for @DiscoverSchema
-        errors
-                .addAll(finder
-                        .findAnnotatedMethods(DiscoverSchema.class)
-                        .stream()
-                        .filter(m -> countParameters(m) != 1
-                                || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
-                        .map(m -> m + " should have its first parameter being a dataset (marked with @DataSet)")
-                        .sorted()
-                        .collect(toSet()));
-
-        // returned type for @Update, for now limit it on objects and not primitives
-        final Map<String, Method> updates = finder
-                .findAnnotatedMethods(Update.class)
-                .stream()
-                .collect(toMap(m -> m.getAnnotation(Update.class).value(), identity()));
-        errors
-                .addAll(updates
-                        .values()
-                        .stream()
-                        .filter(m -> isPrimitiveLike(m.getReturnType()))
-                        .map(m -> m + " should return an object")
-                        .sorted()
-                        .collect(toSet()));
-        final List<Field> updatableFields = finder.findAnnotatedFields(Updatable.class);
-        errors
-                .addAll(updatableFields
-                        .stream()
-                        .filter(f -> f.getAnnotation(Updatable.class).after().contains(".") /* no '..' or '.' */)
-                        .map(f -> "@Updatable.after should only reference direct child primitive fields")
-                        .sorted()
-                        .collect(toSet()));
-        errors
-                .addAll(updatableFields
-                        .stream()
-                        .filter(f -> isPrimitiveLike(f.getType()))
-                        .map(f -> "@Updatable should not be used on primitives: " + f)
-                        .sorted()
-                        .collect(toSet()));
-        errors.addAll(updatableFields.stream().map(f -> {
-            final Method service = updates.get(f.getAnnotation(Updatable.class).value());
-            if (service == null) {
-                return null; // another error will mention it
-            }
-            if (f.getType().isAssignableFrom(service.getReturnType())) {
-                return null; // no error
-            }
-            return "@Updatable field '" + f + "' does not match returned type of '" + service + "'";
-        }).filter(Objects::nonNull).sorted().collect(toSet()));
-        errors
-                .addAll(updatableFields
-                        .stream()
-                        .filter(f -> updates.get(f.getAnnotation(Updatable.class).value()) == null)
-                        .map(f -> "No @Update service found for field " + f + ", did you intend to use @Updatable?")
-                        .sorted()
-                        .collect(toSet()));
-
-        errors
-                .addAll(finder
-                        .findAnnotatedFields(Proposable.class)
-                        .stream()
-                        .filter(f -> f.getType().isEnum())
-                        .map(f -> f.toString() + " must not define @Proposable since it is an enum")
-                        .sorted()
-                        .collect(toSet()));
-
-        final Set<String> proposables = finder
-                .findAnnotatedFields(Proposable.class)
-                .stream()
-                .map(f -> f.getAnnotation(Proposable.class).value())
-                .sorted()
-                .collect(toSet());
-        final Set<String> dynamicValues = finder
-                .findAnnotatedMethods(DynamicValues.class)
-                .stream()
-                .map(f -> f.getAnnotation(DynamicValues.class).value())
-                .sorted()
-                .collect(toSet());
-        proposables.removeAll(dynamicValues);
-        errors
-                .addAll(proposables
-                        .stream()
-                        .map(p -> "No @DynamicValues(\"" + p + "\"), add a service with this method: "
-                                + "@DynamicValues(\"" + p + "\") Values proposals();")
-                        .sorted()
-                        .collect(toSet()));
-    }
-
-    private void validateExceptions(final Set<String> errors) {
-        boolean exceptionFound = Arrays
-                .stream(classes)
-                .flatMap(f -> streamClassesInDirectory(null, f))
-                .filter(ComponentException.class::isAssignableFrom)
-                .findFirst()
-                .isPresent();
-
-        if (!exceptionFound) {
-            if (configuration.isFailOnValidateExceptions()) {
-                errors.add("Component should declare a custom Exception that inherits from ComponentException.");
-            } else {
-                log.info("Component should declare a custom Exception that inherits from ComponentException.");
-            }
-        }
-    }
-
-    private Stream<Class> streamClassesInDirectory(final String pckg, final File classFile) {
-        if (classFile.isDirectory()) {
-            return Arrays
-                    .stream(classFile.listFiles())
-                    .flatMap(f -> streamClassesInDirectory(pckg == null ? "" : (pckg + classFile.getName() + "."), f));
-        }
-
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        if (classFile.getName().endsWith(".class")) {
-            String className = classFile.getName().substring(0, classFile.getName().lastIndexOf("."));
-            try {
-                return Stream.of(loader.loadClass(pckg + className));
-            } catch (Exception e) {
-                log.error("Could not load class : " + pckg + className + "=>" + e.getMessage());
-            }
-        }
-
-        return null;
-    }
-
-    private Stream<Class<? extends Annotation>> getActionsStream() {
-        return of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
-                Suggestions.class, Update.class);
-    }
-
-    private boolean isPrimitiveLike(final Class<?> type) {
-        return type.isPrimitive() || type == String.class;
-    }
-
-    private int countParameters(final Method m) {
-        return countParameters(m.getParameters());
-    }
-
-    private int countParameters(final Parameter[] params) {
-        return (int) Stream
-                .of(params)
-                .filter(p -> !parameterModelService.isService(new ParameterModelService.Param(p)))
-                .count();
     }
 
     private static <T> Collector<T, ?, Set<T>> toSet() {

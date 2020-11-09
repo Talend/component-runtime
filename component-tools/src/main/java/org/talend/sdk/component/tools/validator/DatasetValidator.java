@@ -1,14 +1,27 @@
+/**
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.tools.validator;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Stream.empty;
-import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,7 +41,6 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
-import org.talend.sdk.component.runtime.manager.chain.Job.Component;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
@@ -38,12 +50,12 @@ public class DatasetValidator implements Validator {
 
     private final Validators.ValidatorHelper helper;
 
-    public DatasetValidator(ValidatorHelper helper) {
+    public DatasetValidator(final ValidatorHelper helper) {
         this.helper = helper;
     }
 
     @Override
-    public Stream<String> validate(AnnotationFinder finder, List<Class<?>> components) {
+    public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
         final List<Class<?>> datasetClasses = finder.findAnnotatedClasses(DataSet.class);
         final Map<Class<?>, String> datasets =
                 datasetClasses.stream().collect(toMap(identity(), d -> d.getAnnotation(DataSet.class).value()));
@@ -51,11 +63,12 @@ public class DatasetValidator implements Validator {
         final Stream<String> duplicated = this.duplicatedDataset(datasets.values());
 
         final Stream<String> i18nError = datasets
-                        .entrySet()
-                        .stream()
-                        .map(entry -> this.helper.validateFamilyI18nKey(entry.getKey(),
+                .entrySet()
+                .stream()
+                .map(entry -> this.helper
+                        .validateFamilyI18nKey(entry.getKey(),
                                 "${family}.dataset." + entry.getValue() + "._displayName"))
-                        .filter(Objects::nonNull);
+                .filter(Objects::nonNull);
 
         // ensure there is always a source with a config matching without user entries each dataset
         final Map<Class<?>, Collection<ParameterMeta>> componentNeedingADataSet = components
@@ -73,52 +86,54 @@ public class DatasetValidator implements Validator {
                 .entrySet()
                 .stream()
                 .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().allMatch(input -> {
-                            final Collection<ParameterMeta> allProps = flatten(input.getValue()).collect(toList());
-                            final Collection<ParameterMeta> datasetProperties =
-                                    findNestedDataSets(allProps, dataset.getValue()).collect(toList());
-                            return !datasetProperties.isEmpty() && allProps
+                    final Collection<ParameterMeta> allProps = flatten(input.getValue()).collect(toList());
+                    final Collection<ParameterMeta> datasetProperties =
+                            findNestedDataSets(allProps, dataset.getValue()).collect(toList());
+                    return !datasetProperties.isEmpty() && allProps
+                            .stream()
+                            // .filter(it -> it.getType() != OBJECT && it.getType() != ARRAY) // should it be
+                            // done?
+                            .filter(it -> datasetProperties
                                     .stream()
-                                    // .filter(it -> it.getType() != OBJECT && it.getType() != ARRAY) // should it be
-                                    // done?
-                                    .filter(it -> datasetProperties
-                                            .stream()
-                                            .noneMatch(dit -> it.getPath().equals(dit.getPath())
-                                                    || it.getPath().startsWith(dit.getPath() + '.')))
-                                    .anyMatch(this::isRequired);
-                        }))
-                        .map(dataset -> "No source instantiable without adding parameters for @DataSet(\""
-                                + dataset.getValue() + "\") (" + dataset.getKey().getName()
-                                + "), please ensure at least a source using this "
-                                + "dataset can be used just filling the dataset information.")
-                        .sorted();
+                                    .noneMatch(dit -> it.getPath().equals(dit.getPath())
+                                            || it.getPath().startsWith(dit.getPath() + '.')))
+                            .anyMatch(this::isRequired);
+                }))
+                .map(dataset -> "No source instantiable without adding parameters for @DataSet(\"" + dataset.getValue()
+                        + "\") (" + dataset.getKey().getName() + "), please ensure at least a source using this "
+                        + "dataset can be used just filling the dataset information.")
+                .sorted();
 
         // "cloud" rule - ensure all input/output have a dataset at least
         final Stream<String> configWithoutDataset = componentNeedingADataSet
-                        .entrySet()
-                        .stream()
-                        .filter(it -> flatten(it.getValue())
-                                .noneMatch((ParameterMeta prop) -> "dataset"
-                                        .equals(prop.getMetadata().get("tcomp::configurationtype::type"))))
-                        .map(it -> "The component " + it.getKey().getName()
-                                + " is missing a dataset in its configuration (see @DataSet)")
-                        .sorted();
+                .entrySet()
+                .stream()
+                .filter(it -> flatten(it.getValue())
+                        .noneMatch((ParameterMeta prop) -> "dataset"
+                                .equals(prop.getMetadata().get("tcomp::configurationtype::type"))))
+                .map(it -> "The component " + it.getKey().getName()
+                        + " is missing a dataset in its configuration (see @DataSet)")
+                .sorted();
 
         // "cloud" rule - ensure all datasets have a datastore
         final BaseParameterEnricher.Context context =
                 new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"));
-        final Stream<String> withoutStore = datasetClasses.stream()
+        final Stream<String> withoutStore = datasetClasses
+                .stream()
                 .map((Class<?> ds) -> this.findDatasetWithoutDataStore(ds, context))
                 .filter(Objects::nonNull)
                 .sorted();
-        return Stream.of(duplicated, i18nError, sourceWithoutDataset, configWithoutDataset, withoutStore)
+        return Stream
+                .of(duplicated, i18nError, sourceWithoutDataset, configWithoutDataset, withoutStore)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
 
-    private String findDatasetWithoutDataStore(Class<?> ds, BaseParameterEnricher.Context context) {
-        final List<ParameterMeta> dataset = helper.getParameterModelService()
-                .buildParameterMetas(Stream.of(new ParameterModelService.Param(ds, ds.getAnnotations(), "dataset")),
-                        ds, ofNullable(ds.getPackage()).map(Package::getName).orElse(""), true, context);
+    private String findDatasetWithoutDataStore(final Class<?> ds, final BaseParameterEnricher.Context context) {
+        final List<ParameterMeta> dataset = helper
+                .getParameterModelService()
+                .buildParameterMetas(Stream.of(new ParameterModelService.Param(ds, ds.getAnnotations(), "dataset")), ds,
+                        ofNullable(ds.getPackage()).map(Package::getName).orElse(""), true, context);
         if (flatten(dataset)
                 .noneMatch(prop -> "datastore".equals(prop.getMetadata().get("tcomp::configurationtype::type")))) {
             return "The dataset " + ds.getName()
@@ -127,12 +142,12 @@ public class DatasetValidator implements Validator {
         return null;
     }
 
-    private Stream<String> duplicatedDataset(Collection<String> datasets) {
+    private Stream<String> duplicatedDataset(final Collection<String> datasets) {
 
         final Set<String> uniqueDatasets = new HashSet<>(datasets);
         if (datasets.size() != uniqueDatasets.size()) {
-            return Stream.of(
-                    "Duplicated DataSet found : " + datasets
+            return Stream
+                    .of("Duplicated DataSet found : " + datasets
                             .stream()
                             .collect(Collectors.groupingBy(identity()))
                             .entrySet()
