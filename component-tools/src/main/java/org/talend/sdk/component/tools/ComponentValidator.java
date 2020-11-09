@@ -17,10 +17,8 @@ package org.talend.sdk.component.tools;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
@@ -39,21 +37,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -67,38 +61,28 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
-import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
-import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.exception.ComponentException;
-import org.talend.sdk.component.api.input.Emitter;
-import org.talend.sdk.component.api.input.PartitionMapper;
-import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
-import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
-import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
@@ -107,11 +91,10 @@ import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
-import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
-import org.talend.sdk.component.runtime.visitor.ModelListener;
-import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.tools.spi.ValidationExtension;
+import org.talend.sdk.component.tools.validator.Validators;
+import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
 import lombok.Data;
 
@@ -153,6 +136,49 @@ public class ComponentValidator extends BaseTask {
         components.forEach(c -> log.debug("Found component: " + c));
 
         final Set<String> errors = new LinkedHashSet<>();
+        final Validators.ValidatorHelper helper = new ValidatorHelper() {
+
+            @Override
+            public boolean isService(Parameter parameter) {
+                return ComponentValidator.this.parameterModelService.isService(new ParameterModelService.Param(parameter));
+            }
+
+            @Override
+            public ResourceBundle findResourceBundle(Class<?> component) {
+                return ComponentValidator.this.findResourceBundle(component);
+            }
+
+            @Override
+            public String findPrefix(Class<?> component) {
+                return  ComponentValidator.this.components(component)
+                        .map(c -> findFamily(c, component) + "." + c.name())
+                        .orElseThrow(() -> new IllegalStateException(component.getName()));
+            }
+
+            @Override
+            public String validateFamilyI18nKey(Class<?> clazz, String... keys) {
+                return ComponentValidator.this.validateFamilyI18nKey(clazz, keys);
+            }
+
+            @Override
+            public List<ParameterMeta> buildOrGetParameters(Class<?> c) {
+                return ComponentValidator.this.buildOrGetParameters(c);
+            }
+
+            @Override
+            public String validateIcon(Icon annotation, Collection<String> errors) {
+                return ComponentValidator.this.validateIcon(annotation, errors);
+            }
+
+            @Override
+            public ParameterModelService getParameterModelService() {
+                return ComponentValidator.this.parameterModelService;
+            }
+        };
+
+        final Validators validators = Validators.build(configuration, helper);
+        final Set<String> errorsFromValidator = validators.validate(finder, components);
+        errors.addAll(errorsFromValidator);
 
         if (configuration.isValidateFamily()) {
             // todo: better fix is to get the package with @Components then check it has an icon
@@ -173,43 +199,13 @@ public class ComponentValidator extends BaseTask {
             });
         }
 
-        if (configuration.isValidateSerializable()) {
-            final Collection<Class<?>> copy = new ArrayList<>(components);
-            copy.removeIf(this::isSerializable);
-            errors.addAll(copy.stream().map(c -> c + " is not Serializable").sorted().collect(toSet()));
-        }
-
-        if (configuration.isValidateInternationalization()) {
-            validateInternationalization(finder, components, errors);
-        }
-
-        if (configuration.isValidateHttpClient()) {
-            validateHttpClient(finder, errors);
-        }
-
-        if (configuration.isValidateModel()) {
-            validateModel(finder, components, errors);
-        }
-
-        if (configuration.isValidateMetadata()) {
-            validateMetadata(components, errors);
-        }
-
-        if (configuration.isValidateDataStore()) {
-            validateDataStore(finder, errors);
-        }
-
-        if (configuration.isValidateDataSet()) {
-            validateDataSet(finder, components, errors);
-        }
-
         if (configuration.isValidateActions()) {
             validateActions(finder, errors);
         }
 
-        if (configuration.isValidateDocumentation()) {
+       /* if (configuration.isValidateDocumentation()) {
             validateDocumentation(finder, components, errors);
-        }
+        }*/
 
         if (configuration.isValidateLayout()) {
             validateLayout(components, errors);
@@ -591,23 +587,6 @@ public class ComponentValidator extends BaseTask {
                         .collect(toSet()));
     }
 
-    private void validateDocumentation(final AnnotationFinder finder, final List<Class<?>> components,
-            final Set<String> errors) {
-        errors
-                .addAll(components
-                        .stream()
-                        .filter(c -> !c.isAnnotationPresent(Documentation.class))
-                        .map(c -> "No @Documentation on '" + c.getName() + "'")
-                        .sorted()
-                        .collect(toSet()));
-        errors
-                .addAll(findOptions(finder)
-                        .filter(field -> !field.isAnnotationPresent(Documentation.class)
-                                && !field.getType().isAnnotationPresent(Documentation.class))
-                        .map(field -> "No @Documentation on '" + field + "'")
-                        .sorted()
-                        .collect(toSet()));
-    }
 
     private void validateDocumentationWording(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
@@ -630,389 +609,16 @@ public class ComponentValidator extends BaseTask {
                         .collect(toSet()));
     }
 
-    private void validateInternationalization(final AnnotationFinder finder, final List<Class<?>> components,
-            final Set<String> errors) {
-        errors
-                .addAll(components
-                        .stream()
-                        .map(this::validateComponentResourceBundle)
-                        .filter(Objects::nonNull)
-                        .sorted()
-                        .collect(toSet()));
-
-        // enum
-        errors
-                .addAll(findOptions(finder)
-                        .map(Field::getType)
-                        .filter(Class::isEnum)
-                        .distinct()
-                        .flatMap(enumType -> Stream
-                                .of(enumType.getFields())
-                                .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers()))
-                                .filter(f -> hasBundleEntry(enumType, f, "_displayName"))
-                                .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName()
-                                        + "._displayName in " + enumType + " resource bundle"))
-                        .sorted()
-                        .collect(toSet()));
-
-        // others - just logged for now, we can add it to errors if we encounter it too often
-        final List<String> missingOptionTranslations = findOptions(finder).distinct().filter(field -> {
-            final ResourceBundle bundle = ofNullable(findResourceBundle(field.getDeclaringClass()))
-                    .orElseGet(() -> findResourceBundle(field.getType()));
-            final String key = field.getDeclaringClass().getSimpleName() + "." + field.getName() + "._displayName";
-            return bundle == null || !bundle.containsKey(key);
-        })
-                .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
-                        + f.getName() + ">")
-                .sorted()
-                .collect(toList());
-        if (!missingOptionTranslations.isEmpty()) {
-            // represent it as a single entry to enable "copy/paste fixed" pattern
-            errors
-                    .add(missingOptionTranslations
-                            .stream()
-                            .distinct()
-                            .collect(joining("\n", "Missing resource bundle entries:\n", "")));
-        }
-
-        for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
-            final ResourceBundle resourceBundle = findResourceBundle(i);
-            if (resourceBundle != null) {
-                final Collection<Collection<String>> keys = of(i.getMethods())
-                        .filter(m -> m.getDeclaringClass() != Object.class)
-                        .map(m -> asList(i.getName() + "." + m.getName(), i.getSimpleName() + "." + m.getName()))
-                        .collect(Collectors.toSet());
-                errors
-                        .addAll(keys
-                                .stream()
-                                .filter(ks -> ks.stream().noneMatch(resourceBundle::containsKey))
-                                .map(k -> "Missing key " + k.iterator().next() + " in " + i + " resource bundle")
-                                .sorted()
-                                .collect(toSet()));
-
-                errors
-                        .addAll(resourceBundle
-                                .keySet()
-                                .stream()
-                                .filter(k -> (k.startsWith(i.getName() + ".") || k.startsWith(i.getSimpleName() + "."))
-                                        && keys.stream().noneMatch(ks -> ks.contains(k)))
-                                .map(k -> "Key " + k + " from " + i + " is no more used")
-                                .sorted()
-                                .collect(toSet()));
-            } else {
-                errors.add("No resource bundle for " + i);
-            }
-        }
-
-        errors.addAll(getActionsStream().flatMap(action -> finder.findAnnotatedMethods(action).stream()).map(action -> {
-            final Annotation actionAnnotation = Stream
-                    .of(action.getAnnotations())
-                    .filter(a -> a.annotationType().isAnnotationPresent(ActionType.class))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No action annotation on " + action));
-            final String key;
-            try {
-                final Class<? extends Annotation> annotationType = actionAnnotation.annotationType();
-                key = "${family}.actions." + annotationType.getAnnotation(ActionType.class).value() + "."
-                        + annotationType.getMethod("value").invoke(actionAnnotation).toString() + "._displayName";
-            } catch (final IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                return null;
-            }
-            return validateFamilyI18nKey(action.getDeclaringClass(), key);
-        }).filter(Objects::nonNull).collect(toSet()));
-    }
-
     private void validateInternationalizationWording(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
         // TODO: define rules to apply to messages to users.
         // as a starter can apply it to all non enum, *_displayname and *_placeholder
     }
 
-    private void validateHttpClient(final AnnotationFinder finder, final Set<String> errors) {
-        errors
-                .addAll(finder
-                        .findAnnotatedClasses(Request.class)
-                        .stream()
-                        .map(Class::getDeclaringClass)
-                        .distinct()
-                        .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream())
-                        .sorted()
-                        .collect(toSet()));
-    }
-
-    private void validateModel(final AnnotationFinder finder, final List<Class<?>> components,
-            final Set<String> errors) {
-        errors
-                .addAll(components
-                        .stream()
-                        .filter(c -> componentMarkers().filter(c::isAnnotationPresent).count() > 1)
-                        .map(i -> i + " has conflicting component annotations, ensure it has a single one")
-                        .sorted()
-                        .collect(toSet()));
-
-        errors
-                .addAll(components
-                        .stream()
-                        .filter(c -> countParameters(findConstructor(c).getParameters()) > 1)
-                        .map(c -> "Component must use a single root option. '" + c.getName() + "'")
-                        .sorted()
-                        .collect(toSet()));
-
-        final ModelVisitor modelVisitor = new ModelVisitor();
-        final ModelListener noop = new ModelListener() {
-
-        };
-
-        errors.addAll(components.stream().map(c -> {
-            try {
-                modelVisitor.visit(c, noop, configuration.isValidateComponent());
-                return null;
-            } catch (final RuntimeException re) {
-                return re.getMessage();
-            }
-        }).filter(Objects::nonNull).sorted().collect(toSet()));
-
-        // limited config types
-        errors
-                .addAll(finder
-                        .findAnnotatedFields(Structure.class)
-                        .stream()
-                        .filter(f -> !ParameterizedType.class.isInstance(f.getGenericType())
-                                || (!isListString(f) && !isMapString(f)))
-                        .map(f -> f.getDeclaringClass() + "#" + f.getName()
-                                + " uses @Structure but is not a List<String> nor a Map<String, String>")
-                        .sorted()
-                        .collect(toSet()));
-    }
-
     private Stream<Field> findOptions(final AnnotationFinder finder) {
         return finder.findAnnotatedFields(Option.class).stream();
     }
 
-    private boolean isMapString(final Field f) {
-        final ParameterizedType pt = ParameterizedType.class.cast(f.getGenericType());
-        return (Map.class == pt.getRawType()) && pt.getActualTypeArguments().length == 2
-                && pt.getActualTypeArguments()[0] == String.class && pt.getActualTypeArguments()[1] == String.class;
-    }
-
-    private boolean isListString(final Field f) {
-        final ParameterizedType pt = ParameterizedType.class.cast(f.getGenericType());
-        return ((List.class == pt.getRawType()) || (Collection.class == pt.getRawType()))
-                && pt.getActualTypeArguments().length == 1 && pt.getActualTypeArguments()[0] == String.class;
-    }
-
-    private void validateMetadata(final List<Class<?>> components, final Set<String> errors) {
-        errors.addAll(components.stream().flatMap(component -> {
-            Collection<String> messages = null;
-            final IconFinder iconFinder = new IconFinder();
-            if (iconFinder.findDirectIcon(component).isPresent()) {
-                final Icon icon = component.getAnnotation(Icon.class);
-                messages = new ArrayList<>();
-                messages.add(validateIcon(icon, errors));
-            } else if (!iconFinder.findIndirectIcon(component).isPresent()) {
-                messages = new ArrayList<>(singleton("No @Icon on " + component));
-            }
-
-            if (!component.isAnnotationPresent(Version.class)) {
-                if (messages == null) {
-                    messages = new ArrayList<>();
-                }
-                messages.add("Component " + component + " should use @Icon and @Version");
-            }
-            return messages == null ? empty() : messages.stream();
-        }).filter(Objects::nonNull).sorted().collect(toSet()));
-    }
-
-    private void validateDataStore(final AnnotationFinder finder, final Set<String> errors) {
-        final List<Class<?>> datastoreClasses = finder.findAnnotatedClasses(DataStore.class);
-
-        final List<String> datastores =
-                datastoreClasses.stream().map(d -> d.getAnnotation(DataStore.class).value()).collect(toList());
-
-        Set<String> uniqueDatastores = new HashSet<>(datastores);
-        if (datastores.size() != uniqueDatastores.size()) {
-            errors
-                    .add("Duplicated DataStore found : " + datastores
-                            .stream()
-                            .collect(groupingBy(identity()))
-                            .entrySet()
-                            .stream()
-                            .filter(e -> e.getValue().size() > 1)
-                            .map(Map.Entry::getKey)
-                            .collect(joining(", ")));
-        }
-
-        final List<Class<?>> checkableClasses = finder.findAnnotatedClasses(Checkable.class);
-        errors
-                .addAll(checkableClasses
-                        .stream()
-                        .filter(d -> !d.isAnnotationPresent(DataStore.class))
-                        .map(c -> c.getName() + " has @Checkable but is not a @DataStore")
-                        .sorted()
-                        .collect(toSet()));
-
-        final Map<String, String> checkableDataStoresMap = checkableClasses
-                .stream()
-                .filter(d -> d.isAnnotationPresent(DataStore.class))
-                .collect(toMap(d -> d.getAnnotation(DataStore.class).value(),
-                        d -> d.getAnnotation(Checkable.class).value()));
-
-        final Set<String> healthchecks = finder
-                .findAnnotatedMethods(HealthCheck.class)
-                .stream()
-                .filter(h -> h.getDeclaringClass().isAnnotationPresent(Service.class))
-                .map(m -> m.getAnnotation(HealthCheck.class).value())
-                .sorted()
-                .collect(toSet());
-        errors
-                .addAll(checkableDataStoresMap
-                        .entrySet()
-                        .stream()
-                        .filter(e -> !healthchecks.contains(e.getValue()))
-                        .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue()
-                                + "'")
-                        .sorted()
-                        .collect(toSet()));
-
-        errors
-                .addAll(datastoreClasses
-                        .stream()
-                        .map(clazz -> validateFamilyI18nKey(clazz,
-                                "${family}.datastore." + clazz.getAnnotation(DataStore.class).value()
-                                        + "._displayName"))
-                        .filter(Objects::nonNull)
-                        .collect(toList()));
-    }
-
-    private void validateDataSet(final AnnotationFinder finder, final List<Class<?>> components,
-            final Set<String> errors) {
-        final List<Class<?>> datasetClasses = finder.findAnnotatedClasses(DataSet.class);
-        final Map<Class<?>, String> datasets =
-                datasetClasses.stream().collect(toMap(identity(), d -> d.getAnnotation(DataSet.class).value()));
-        final Set<String> uniqueDatasets = new HashSet<>(datasets.values());
-        if (datasets.size() != uniqueDatasets.size()) {
-            errors
-                    .add("Duplicated DataSet found : " + datasets
-                            .values()
-                            .stream()
-                            .collect(groupingBy(identity()))
-                            .entrySet()
-                            .stream()
-                            .filter(e -> e.getValue().size() > 1)
-                            .map(Map.Entry::getKey)
-                            .collect(joining(", ")));
-        }
-        errors
-                .addAll(datasets
-                        .entrySet()
-                        .stream()
-                        .map(entry -> validateFamilyI18nKey(entry.getKey(),
-                                "${family}.dataset." + entry.getValue() + "._displayName"))
-                        .filter(Objects::nonNull)
-                        .collect(toList()));
-
-        // ensure there is always a source with a config matching without user entries each dataset
-        final BaseParameterEnricher.Context context =
-                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"));
-        final Map<Class<?>, Collection<ParameterMeta>> componentNeedingADataSet = components
-                .stream()
-                .filter(c -> isSource(c) || isOutput(c))
-                .collect(toMap(identity(),
-                        c -> parameterModelService
-                                .buildParameterMetas(findConstructor(c),
-                                        ofNullable(c.getPackage()).map(Package::getName).orElse(""), context)));
-
-        final Map<? extends Class<?>, Collection<ParameterMeta>> inputs = componentNeedingADataSet
-                .entrySet()
-                .stream()
-                .filter(it -> isSource(it.getKey()))
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        errors
-                .addAll(datasets
-                        .entrySet()
-                        .stream()
-                        .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().allMatch(input -> {
-                            final Collection<ParameterMeta> allProps = flatten(input.getValue()).collect(toList());
-                            final Collection<ParameterMeta> datasetProperties =
-                                    findNestedDataSets(allProps, dataset.getValue()).collect(toList());
-                            return !datasetProperties.isEmpty() && allProps
-                                    .stream()
-                                    // .filter(it -> it.getType() != OBJECT && it.getType() != ARRAY) // should it be
-                                    // done?
-                                    .filter(it -> datasetProperties
-                                            .stream()
-                                            .noneMatch(dit -> it.getPath().equals(dit.getPath())
-                                                    || it.getPath().startsWith(dit.getPath() + '.')))
-                                    .anyMatch(this::isRequired);
-                        }))
-                        .map(dataset -> "No source instantiable without adding parameters for @DataSet(\""
-                                + dataset.getValue() + "\") (" + dataset.getKey().getName()
-                                + "), please ensure at least a source using this "
-                                + "dataset can be used just filling the dataset information.")
-                        .sorted()
-                        .collect(toSet()));
-
-        // "cloud" rule - ensure all input/output have a dataset at least
-        errors
-                .addAll(componentNeedingADataSet
-                        .entrySet()
-                        .stream()
-                        .filter(it -> flatten(it.getValue())
-                                .noneMatch(prop -> "dataset"
-                                        .equals(prop.getMetadata().get("tcomp::configurationtype::type"))))
-                        .map(it -> "The component " + it.getKey().getName()
-                                + " is missing a dataset in its configuration (see @DataSet)")
-                        .sorted()
-                        .collect(toSet()));
-
-        // "cloud" rule - ensure all datasets have a datastore
-        errors.addAll(datasetClasses.stream().map(ds -> {
-            final List<ParameterMeta> dataset = parameterModelService
-                    .buildParameterMetas(Stream.of(new ParameterModelService.Param(ds, ds.getAnnotations(), "dataset")),
-                            ds, ofNullable(ds.getPackage()).map(Package::getName).orElse(""), true, context);
-            if (flatten(dataset)
-                    .noneMatch(prop -> "datastore".equals(prop.getMetadata().get("tcomp::configurationtype::type")))) {
-                return "The dataset " + ds.getName()
-                        + " is missing a datastore reference in its configuration (see @DataStore)";
-            }
-            return null;
-        }).filter(Objects::nonNull).sorted().collect(toSet()));
-    }
-
-    private boolean hasBundleEntry(final Class<?> enumType, final Field f, final String keyName) {
-        final ResourceBundle bundle = findBundleFor(enumType, f);
-        final String key = enumType.getSimpleName() + "." + f.getName() + "." + keyName;
-        return bundle == null || !bundle.containsKey(key);
-    }
-
-    // todo: drop it to use parameter meta now we cache it?
-    private ResourceBundle findBundleFor(final Class<?> enumType, final Field f) {
-        return ofNullable(findResourceBundle(enumType)).orElseGet(() -> findResourceBundle(f.getDeclaringClass()));
-    }
-
-    private boolean isRequired(final ParameterMeta parameterMeta) {
-        return Boolean.parseBoolean(parameterMeta.getMetadata().getOrDefault("tcomp::validation::required", "false"));
-    }
-
-    private boolean isSource(final Class<?> component) {
-        return component.isAnnotationPresent(PartitionMapper.class) || component.isAnnotationPresent(Emitter.class);
-    }
-
-    private boolean isOutput(final Class<?> component) {
-        return component.isAnnotationPresent(Processor.class) && Stream
-                .of(component.getMethods())
-                .filter(it -> it.isAnnotationPresent(ElementListener.class) || it.isAnnotationPresent(AfterGroup.class))
-                .allMatch(it -> void.class == it.getReturnType()
-                        && Stream.of(it.getParameters()).noneMatch(param -> param.isAnnotationPresent(Output.class)));
-    }
-
-    private Stream<ParameterMeta> findNestedDataSets(final Collection<ParameterMeta> options, final String name) {
-        return options
-                .stream()
-                .filter(it -> "dataset".equals(it.getMetadata().get("tcomp::configurationtype::type"))
-                        && name.equals(it.getMetadata().get("tcomp::configurationtype::name")));
-    }
 
     private Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
         return options
@@ -1223,29 +829,6 @@ public class ComponentValidator extends BaseTask {
                 .of(params)
                 .filter(p -> !parameterModelService.isService(new ParameterModelService.Param(p)))
                 .count();
-    }
-
-    private String validateComponentResourceBundle(final Class<?> component) {
-        final String baseName = ofNullable(component.getPackage()).map(p -> p.getName() + ".").orElse("") + "Messages";
-        final ResourceBundle bundle = findResourceBundle(component);
-        if (bundle == null) {
-            return "No resource bundle for " + component.getName() + ", you should create a "
-                    + baseName.replace('.', '/') + ".properties at least.";
-        }
-
-        final String prefix = components(component)
-                .map(c -> findFamily(c, component) + "." + c.name())
-                .orElseThrow(() -> new IllegalStateException(component.getName()));
-        final Collection<String> missingKeys =
-                of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(toList());
-        if (!missingKeys.isEmpty()) {
-            return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
-        }
-        return null;
-    }
-
-    private boolean isSerializable(final Class<?> aClass) {
-        return Serializable.class.isAssignableFrom(aClass);
     }
 
     private static <T> Collector<T, ?, Set<T>> toSet() {
