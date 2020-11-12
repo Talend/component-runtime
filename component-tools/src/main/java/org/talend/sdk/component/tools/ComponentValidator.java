@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -43,7 +42,6 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
-import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
@@ -87,8 +85,10 @@ public class ComponentValidator extends BaseTask {
     @Override
     public void run() {
         final AnnotationFinder finder = newFinder();
-        final List<Class<?>> components =
-                componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream()).collect(toList());
+        final List<Class<?>> components = ComponentHelper
+                .componentMarkers()
+                .flatMap(a -> finder.findAnnotatedClasses(a).stream())
+                .collect(toList());
         components.forEach(c -> log.debug("Found component: " + c));
 
         final Set<String> errors = new LinkedHashSet<>();
@@ -103,14 +103,6 @@ public class ComponentValidator extends BaseTask {
             @Override
             public ResourceBundle findResourceBundle(final Class<?> component) {
                 return ComponentValidator.this.findResourceBundle(component);
-            }
-
-            @Override
-            public String findPrefix(final Class<?> component) {
-                return ComponentValidator.this
-                        .components(component)
-                        .map(c -> findFamily(c, component) + "." + c.name())
-                        .orElseThrow(() -> new IllegalStateException(component.getName()));
             }
 
             @Override
@@ -142,56 +134,9 @@ public class ComponentValidator extends BaseTask {
             }
         };
 
-        final Validators validators = Validators.build(configuration, helper);
+        final Validators validators = Validators.build(configuration, helper, extensions);
         final Set<String> errorsFromValidator = validators.validate(finder, components);
         errors.addAll(errorsFromValidator);
-
-        if (configuration.isValidateFamily()) {
-            // todo: better fix is to get the package with @Components then check it has an icon
-            // but it should be enough for now
-            components.forEach(c -> {
-                try {
-                    final Icon icon =
-                            findPackageOrFail(c, apiTester(Icon.class), Icon.class.getName()).getAnnotation(Icon.class);
-                    ofNullable(validateIcon(icon, errors)).ifPresent(errors::add);
-                } catch (final IllegalArgumentException iae) {
-                    final IconFinder iconFinder = new IconFinder();
-                    try {
-                        findPackageOrFail(c, it -> iconFinder.findIndirectIcon(it).isPresent(), Icon.class.getName());
-                    } catch (final IllegalArgumentException iae2) {
-                        errors.add(iae.getMessage());
-                    }
-                }
-            });
-        }
-
-        if (!extensions.isEmpty()) {
-            final ValidationExtension.ValidationContext context = new ValidationExtension.ValidationContext() {
-
-                @Override
-                public AnnotationFinder finder() {
-                    return finder;
-                }
-
-                @Override
-                public List<Class<?>> components() {
-                    return components;
-                }
-
-                @Override
-                public List<ParameterMeta> parameters(final Class<?> component) {
-                    return buildOrGetParameters(component);
-                }
-            };
-            errors
-                    .addAll(extensions
-                            .stream()
-                            .map(extension -> extension.validate(context))
-                            .filter(result -> result.getErrors() != null)
-                            .flatMap(result -> result.getErrors().stream())
-                            .filter(Objects::nonNull)
-                            .collect(toList()));
-        }
 
         if (!errors.isEmpty()) {
             final List<String> preparedErrors =
@@ -243,7 +188,8 @@ public class ComponentValidator extends BaseTask {
     }
 
     private String validateFamilyI18nKey(final Class<?> clazz, final String... keys) {
-        final Class<?> pck = findPackageOrFail(clazz, apiTester(Components.class), Components.class.getName());
+        final Class<?> pck =
+                ComponentHelper.findPackageOrFail(clazz, apiTester(Components.class), Components.class.getName());
         final String family = pck.getAnnotation(Components.class).family();
         final String baseName = ofNullable(pck.getPackage()).map(p -> p.getName() + ".").orElse("") + "Messages";
         final ResourceBundle bundle = findResourceBundle(pck);

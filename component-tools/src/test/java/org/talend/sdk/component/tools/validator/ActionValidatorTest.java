@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.tools.validator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,25 +48,25 @@ class ActionValidatorTest {
     void validate() {
         final ActionValidator validator = new ActionValidator(new FakeHelper());
 
-        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ActionClassOK.class,
-                FakeDataSet.class, FakeDataStore.class));
-        final Stream<String> errorsStream = validator.validate(finder,
-                Arrays.asList(ActionClassOK.class, FakeDataSet.class, FakeDataStore.class));
+        AnnotationFinder finder =
+                new AnnotationFinder(new ClassesArchive(ActionClassOK.class, FakeDataSet.class, FakeDataStore.class));
+        final Stream<String> errorsStream =
+                validator.validate(finder, Arrays.asList(ActionClassOK.class, FakeDataSet.class, FakeDataStore.class));
         final List<String> errors = errorsStream.collect(Collectors.toList());
         Assertions.assertTrue(errors.isEmpty(), () -> errors.get(0) + " as first error");
 
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionClassKO.class));
-        final Stream<String> errorsStreamKO = validator.validate(finderKO,
-                Arrays.asList(ActionClassKO.class));
+        final Stream<String> errorsStreamKO = validator.validate(finderKO, Arrays.asList(ActionClassKO.class));
         final List<String> errorsKO = errorsStreamKO.collect(Collectors.toList());
         Assertions.assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
 
-        Assertions.assertAll(
-                () -> assertContains(errorsKO, "hello() doesn't return a class org.talend.sdk.component.api.service.completion.Values"),
-                () -> assertContains(errorsKO, "is not declared into a service class"),
-                () -> assertContains(errorsKO, "health() should have its first parameter being a datastore (marked with @DataStore)"),
-                () -> assertContains(errorsKO, "updatable() should return an object")
-        );
+        Assertions
+                .assertAll(() -> assertContains(errorsKO,
+                        "hello() doesn't return a class org.talend.sdk.component.api.service.completion.Values"),
+                        () -> assertContains(errorsKO, "is not declared into a service class"),
+                        () -> assertContains(errorsKO,
+                                "health() should have its first parameter being a datastore (marked with @DataStore)"),
+                        () -> assertContains(errorsKO, "updatable() should return an object"));
     }
 
     private void assertContains(List<String> errors, String contentPart) {
@@ -59,7 +74,6 @@ class ActionValidatorTest {
                 errors.stream().filter((String err) -> err.contains(contentPart)).findFirst().isPresent();
         Assertions.assertTrue(present, "Errors don't have '" + contentPart + "'");
     }
-
 
     static class FakeData {
 
@@ -72,6 +86,7 @@ class ActionValidatorTest {
 
     @DataSet
     static class FakeDataSet {
+
         @Proposable("testOK")
         private String prop;
 
@@ -81,10 +96,10 @@ class ActionValidatorTest {
 
     @Service
     static class ActionClassOK {
+
         @DynamicValues("testOK")
         public Values hello() {
-            return new Values(
-                    Arrays.asList(new Values.Item("", "")));
+            return new Values(Arrays.asList(new Values.Item("", "")));
 
         }
 
@@ -105,6 +120,7 @@ class ActionValidatorTest {
     }
 
     static class ActionClassKO {
+
         @DynamicValues("testKO")
         public String hello() {
             return "";

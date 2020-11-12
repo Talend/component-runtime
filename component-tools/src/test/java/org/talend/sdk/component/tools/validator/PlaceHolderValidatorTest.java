@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.tools.validator;
 
 import java.io.IOException;
@@ -32,11 +47,14 @@ class PlaceHolderValidatorTest {
         final List<String> errList = errors.collect(Collectors.toList());
         Assertions.assertNotNull(errList);
         Assertions.assertEquals(1, errList.size());
-        Assertions.assertTrue(errList.get(0).contains("paramKo"), "'" + errList.get(0) + "' doesn't contains path ParamKo");
+        Assertions
+                .assertTrue(errList.get(0).contains("paramKo"),
+                        "'" + errList.get(0) + "' doesn't contains path ParamKo");
     }
 
     @Data
     public static class MyClass {
+
         private String paramOk;
 
         private String paramKo;
@@ -48,10 +66,7 @@ class PlaceHolderValidatorTest {
         ResourceBundle.Control ctrl = new Control() {
 
             @Override
-            public ResourceBundle newBundle(String baseName,
-                    Locale locale,
-                    String format,
-                    ClassLoader loader,
+            public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader,
                     boolean reload) throws IllegalAccessException, InstantiationException, IOException {
                 if ("org.talend.sdk.component.tools.validator.Messages".equals(baseName)
                         && "java.properties".equals(format)) {
@@ -67,20 +82,12 @@ class PlaceHolderValidatorTest {
 
         ParameterMeta nested2 = this.buildMeta("paramKo");
 
-        meta = new ParameterMeta(null,
-                MyClass.class,
-                ParameterMeta.Type.OBJECT,
-                "",
-                "MyClass",
-                new String[] { MyClass.class.getPackage().getName() },
-                Arrays.asList(nested, nested2),
-                Collections.emptyList(),
-                Collections.emptyMap(),
-                false);
+        meta = new ParameterMeta(null, MyClass.class, ParameterMeta.Type.OBJECT, "", "MyClass",
+                new String[] { MyClass.class.getPackage().getName() }, Arrays.asList(nested, nested2),
+                Collections.emptyList(), Collections.emptyMap(), false);
     }
 
-
-    private  ParameterMeta meta;
+    private ParameterMeta meta;
 
     private ParameterMeta buildMeta(final String fieldName) {
         return new ParameterMeta(new Source() {
@@ -94,11 +101,13 @@ class PlaceHolderValidatorTest {
             public Class<?> declaringClass() {
                 return MyClass.class;
             }
-        }, String.class, ParameterMeta.Type.STRING, "MyClass." + fieldName, fieldName, new String[] { MyClass.class.getPackage().getName() },
-                Collections.emptyList(), Collections.emptyList(), Collections.emptyMap(), false);
+        }, String.class, ParameterMeta.Type.STRING, "MyClass." + fieldName, fieldName,
+                new String[] { MyClass.class.getPackage().getName() }, Collections.emptyList(), Collections.emptyList(),
+                Collections.emptyMap(), false);
     }
 
     private class HelperPlaceHolder extends FakeHelper {
+
         @Override
         public List<ParameterMeta> buildOrGetParameters(Class<?> c) {
             return Arrays.asList(meta);

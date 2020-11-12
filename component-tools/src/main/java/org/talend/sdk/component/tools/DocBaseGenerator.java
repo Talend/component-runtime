@@ -64,6 +64,7 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiPara
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
+import org.talend.sdk.component.tools.ComponentHelper.Component;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -126,15 +127,16 @@ public abstract class DocBaseGenerator extends BaseTask {
                     .buildParameterMetas(Constructors.findConstructor(component),
                             ofNullable(component.getPackage()).map(Package::getName).orElse(""),
                             new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools")));
-            final Component componentMeta = componentMarkers()
+            final Component componentMeta = ComponentHelper
+                    .componentMarkers()
                     .filter(component::isAnnotationPresent)
                     .map(component::getAnnotation)
-                    .map(this::asComponent)
+                    .map(ComponentHelper::asComponent)
                     .findFirst()
                     .orElseThrow(NoSuchElementException::new);
             String family = "";
             try {
-                family = findFamily(componentMeta, component);
+                family = ComponentHelper.findFamily(componentMeta, component);
             } catch (final IllegalArgumentException iae) {
                 // skip for doc
             }
@@ -144,7 +146,7 @@ public abstract class DocBaseGenerator extends BaseTask {
     }
 
     protected Stream<Class<?>> findComponents(final AnnotationFinder finder) {
-        return componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream());
+        return ComponentHelper.componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream());
     }
 
     private String getDoc(final Class<?> component) {
@@ -168,8 +170,9 @@ public abstract class DocBaseGenerator extends BaseTask {
 
     private String getComponentPrefix(final Class<?> component) {
         try {
-            return components(component)
-                    .map(c -> findFamily(c, component) + "." + c.name())
+            return ComponentHelper
+                    .components(component)
+                    .map(c -> ComponentHelper.findFamily(c, component) + "." + c.name())
                     .orElseGet(component::getSimpleName);
         } catch (final RuntimeException e) {
             return component.getSimpleName();

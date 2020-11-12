@@ -39,6 +39,7 @@ import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.tools.ComponentValidator.Configuration;
+import org.talend.sdk.component.tools.spi.ValidationExtension;
 
 public class Validators {
 
@@ -53,8 +54,6 @@ public class Validators {
         boolean isService(Parameter parameter);
 
         ResourceBundle findResourceBundle(final Class<?> component);
-
-        String findPrefix(final Class<?> component);
 
         String validateFamilyI18nKey(final Class<?> clazz, final String... keys);
 
@@ -77,7 +76,8 @@ public class Validators {
         return errors;
     }
 
-    public static Validators build(final Configuration configuration, final ValidatorHelper helper) {
+    public static Validators build(final Configuration configuration, final ValidatorHelper helper,
+            final Iterable<ValidationExtension> extensions) {
 
         final List<Validator> activeValidators = new ArrayList<>();
 
@@ -157,6 +157,17 @@ public class Validators {
         if (configuration.isValidateExceptions()) {
             final ExceptionValidator validator = new ExceptionValidator(helper, configuration);
             activeValidators.add(validator);
+        }
+
+        if (configuration.isValidateFamily()) {
+            final FamilyValidator validator = new FamilyValidator(helper);
+            activeValidators.add(validator);
+        }
+        if (extensions != null) {
+            extensions.forEach((ValidationExtension ext) -> {
+                final ExtensionValidator validator = new ExtensionValidator(ext, helper);
+                activeValidators.add(validator);
+            });
         }
 
         return new Validators(activeValidators);

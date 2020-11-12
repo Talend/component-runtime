@@ -42,6 +42,7 @@ import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
+import org.talend.sdk.component.tools.ComponentHelper;
 import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
 public class InternationalizationValidator implements Validator {
@@ -168,13 +169,20 @@ public class InternationalizationValidator implements Validator {
                     + baseName.replace('.', '/') + ".properties at least.";
         }
 
-        final String prefix = this.helper.findPrefix(component);
+        final String prefix = this.findPrefix(component);
         final Collection<String> missingKeys =
                 of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(toList());
         if (!missingKeys.isEmpty()) {
             return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
         }
         return null;
+    }
+
+    private String findPrefix(final Class<?> component) {
+        return ComponentHelper
+                .components(component)
+                .map(c -> ComponentHelper.findFamily(c, component) + "." + c.name())
+                .orElseThrow(() -> new IllegalStateException(component.getName()));
     }
 
     private boolean hasNoBundleEntry(final Class<?> enumType, final Field f, final String keyName) {
