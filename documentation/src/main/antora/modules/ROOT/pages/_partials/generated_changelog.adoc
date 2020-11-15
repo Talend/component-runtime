@@ -29,6 +29,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1785[TCOMP-1785^]: Upgrade JRuby to 9.2.13.0
 - link:https://jira.talendforge.org/browse/TCOMP-1786[TCOMP-1786^]: Upgrade to Apache Beam 2.24.0
 - link:https://jira.talendforge.org/browse/TCOMP-1804[TCOMP-1804^]: Upgrade to Apache Beam 2.25.0
+- link:https://jira.talendforge.org/browse/TCOMP-1805[TCOMP-1805^]: Upgrade TSBI to 2.5.0-20201030171201
 
 == Version 1.1.25
 
