@@ -4,6 +4,8 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1722[TCOMP-1722^]: REST - Last / in endpoint is removed
+- link:https://jira.talendforge.org/browse/TCOMP-1757[TCOMP-1757^]: Studio - context not set when call a @suggestable service
 - link:https://jira.talendforge.org/browse/TCOMP-1772[TCOMP-1772^]: Code widget doesn't allow multiline text
 
 
@@ -26,6 +28,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1784[TCOMP-1784^]: Upgrade ziplock to 8.0.4
 - link:https://jira.talendforge.org/browse/TCOMP-1785[TCOMP-1785^]: Upgrade JRuby to 9.2.13.0
 - link:https://jira.talendforge.org/browse/TCOMP-1786[TCOMP-1786^]: Upgrade to Apache Beam 2.24.0
+- link:https://jira.talendforge.org/browse/TCOMP-1804[TCOMP-1804^]: Upgrade to Apache Beam 2.25.0
 
 == Version 1.1.25
 
