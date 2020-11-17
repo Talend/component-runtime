@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
-import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.spi.JsonProvider;
@@ -36,6 +35,7 @@ import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.internal.validation.spi.ext.EnumValidationWithDefaultValue;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MaximumValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MinimumValidation;
+import org.talend.sdk.component.form.internal.validation.spi.ext.TypeValidation;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -131,12 +131,11 @@ class JsonSchemaValidatorFactoryExtTest {
     void testValidationList() {
         List validations = factory.createDefaultValidations();
         assertEquals(18, validations.size());
-        assertEquals(3,
-                validations
-                        .stream()
-                        .filter(v -> EnumValidationWithDefaultValue.class.isInstance(v)
-                                || MinimumValidation.class.isInstance(v) || MaximumValidation.class.isInstance(v))
-                        .toArray().length);
+        assertEquals(4, validations
+                .stream()
+                .filter(v -> EnumValidationWithDefaultValue.class.isInstance(v) || MinimumValidation.class.isInstance(v)
+                        || MaximumValidation.class.isInstance(v) || TypeValidation.class.isInstance(v))
+                .toArray().length);
     }
 
     @Test
