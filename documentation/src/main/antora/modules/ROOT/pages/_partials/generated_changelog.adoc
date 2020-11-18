@@ -1,5 +1,11 @@
 
 
+== Version 1.1.27
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1788[TCOMP-1788^]: Invalid properties validation
+
 == Version 1.1.26
 
 === Bug
