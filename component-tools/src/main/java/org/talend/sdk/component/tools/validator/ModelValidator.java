@@ -23,7 +23,6 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -78,8 +77,7 @@ public class ModelValidator implements Validator {
         final Stream<String> errorStructure = finder
                 .findAnnotatedFields(Structure.class)
                 .stream()
-                .filter(f -> !ParameterizedType.class.isInstance(f.getGenericType())
-                        || (!isListString(f) && !isListObject(f)))
+                .filter(f -> !ParameterizedType.class.isInstance(f.getGenericType()) || !isListObject(f))
                 .map(f -> f.getDeclaringClass() + "#" + f.getName()
                         + " uses @Structure but is not a List<String> nor a List<Object>")
                 .sorted();
@@ -100,18 +98,6 @@ public class ModelValidator implements Validator {
 
     private int countParameters(final Parameter[] params) {
         return (int) Stream.of(params).filter((Parameter p) -> !this.helper.isService(p)).count();
-    }
-
-    private boolean isMapString(final Field f) {
-        final ParameterizedType pt = ParameterizedType.class.cast(f.getGenericType());
-        return (Map.class == pt.getRawType()) && pt.getActualTypeArguments().length == 2
-                && pt.getActualTypeArguments()[0] == String.class && pt.getActualTypeArguments()[1] == String.class;
-    }
-
-    private boolean isListString(final Field f) {
-        final ParameterizedType pt = ParameterizedType.class.cast(f.getGenericType());
-        return ((List.class == pt.getRawType()) || (Collection.class == pt.getRawType()))
-                && pt.getActualTypeArguments().length == 1 && pt.getActualTypeArguments()[0] == String.class;
     }
 
     private boolean isListObject(final Field f) {
