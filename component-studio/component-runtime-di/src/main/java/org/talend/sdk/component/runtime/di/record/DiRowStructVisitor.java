@@ -56,7 +56,7 @@ public class DiRowStructVisitor {
 
     private Builder recordBuilder;
 
-    private Jsonb jsonb;
+    private final Jsonb jsonb = JsonbProvider.provider().create().build();
 
     public void visit(final Object data) {
         log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
@@ -190,7 +190,6 @@ public class DiRowStructVisitor {
 
     public Record get(final Object data, final RecordBuilderFactory factory) {
         this.factory = factory;
-        jsonb = JsonbProvider.provider().create().build();
         recordBuilder = factory.newRecordBuilder(inferSchema(data, factory));
         visit(data);
         return recordBuilder.build();

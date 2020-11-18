@@ -22,7 +22,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":152,
+    "commits":194,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -48,6 +48,12 @@
     "gravatar":"https://avatars1.githubusercontent.com/u/7741480?v=4",
     "id":"cmeng-talend",
     "name":"Chao MENG"
+  },
+  {
+    "commits":13,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/51320496?v=4",
+    "id":"clesaec"
   },
   {
     "commits":10,
@@ -130,12 +136,6 @@
     "gravatar":"https://avatars3.githubusercontent.com/u/8821084?v=4",
     "id":"echauchot",
     "name":"Etienne Chauchot"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars2.githubusercontent.com/u/51320496?v=4",
-    "id":"clesaec"
   },
   {
     "commits":1,

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime-testing</artifactId>
-    <version>1.1.25-SNAPSHOT</version>
+    <version>1.1.27-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-testing-spark</artifactId>
@@ -82,7 +82,11 @@
         <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>        
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
