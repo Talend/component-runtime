@@ -22,7 +22,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":191,
+    "commits":194,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -50,7 +50,7 @@
     "name":"Chao MENG"
   },
   {
-    "commits":12,
+    "commits":13,
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/51320496?v=4",
     "id":"clesaec"
