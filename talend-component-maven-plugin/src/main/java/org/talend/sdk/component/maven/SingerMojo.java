@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.maven;
 
-import static com.google.cloud.tools.jib.api.FilePermissions.DEFAULT_FILE_PERMISSIONS;
-import static com.google.cloud.tools.jib.api.FilePermissions.DEFAULT_FOLDER_PERMISSIONS;
+import static com.google.cloud.tools.jib.api.buildplan.FilePermissions.DEFAULT_FILE_PERMISSIONS;
+import static com.google.cloud.tools.jib.api.buildplan.FilePermissions.DEFAULT_FOLDER_PERMISSIONS;
 import static java.util.Optional.ofNullable;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
@@ -29,9 +29,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.api.JibContainerBuilder;
 import com.google.cloud.tools.jib.api.LayerConfiguration;
+import com.google.cloud.tools.jib.api.buildplan.AbsoluteUnixPath;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;

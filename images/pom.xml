@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.26-SNAPSHOT</version>
+    <version>1.1.27-SNAPSHOT</version>
   </parent>
 
   <artifactId>images</artifactId>
@@ -47,7 +47,9 @@
     <!-- TSBI -->
     <docker.registryHost>artifactory.datapwn.com</docker.registryHost>
     <docker.tsbiPath>/tlnd-docker-prod/talend/common/tsbi</docker.tsbiPath>
-    <docker.tsbiVersion>2.0.1-20200424122144</docker.tsbiVersion>
+    <docker.tsbiVersion>2.5.0-20201030171201</docker.tsbiVersion>
+    <docker.tsbiVersionRelease>2.5.0</docker.tsbiVersionRelease>
+    <docker.tsbiVersionDate>20201030171201</docker.tsbiVersionDate>
     <disable.dockerBuild>false</disable.dockerBuild>
     <disable.tsbiLayerspector>false</disable.tsbiLayerspector>
   </properties>
@@ -114,7 +116,7 @@
                 <argument>-v</argument><argument>${HOME}/.m2/settings.xml:/root/.m2/settings.xml</argument>
                 <argument>-v</argument><argument>${HOME}/.m2/repository:/root/.m2/repository</argument>
                 <argument>-v</argument><argument>/tmp/layerspector/logs:/opt/talend/logs</argument>
-                <argument>${docker.registryHost}${docker.tsbiPath}/tools/layerspector:${docker.tsbiVersion}</argument>
+                <argument>${docker.registryHost}${docker.tsbiPath}/tools/layerspector:${docker.tsbiVersionRelease}-java-${docker.tsbiVersionDate}</argument>
                 <argument>-t</argument><argument>maven</argument>
                 <argument>-f</argument><argument>java</argument>
                 <argument>-p</argument><argument>${tsbi.product}</argument>

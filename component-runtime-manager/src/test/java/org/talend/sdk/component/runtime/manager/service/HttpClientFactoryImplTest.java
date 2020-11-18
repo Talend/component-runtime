@@ -423,7 +423,7 @@ class HttpClientFactoryImplTest {
             server.start();
             final GenericClient httpClient = newDefaultFactory().create(GenericClient.class, null);
             Response<byte[]> response = httpClient
-                    .execute(2000, 2000, "http://localhost:" + server.getAddress().getPort() + "/api/", "POST", null,
+                    .execute(2000, 2000, "http://localhost:" + server.getAddress().getPort() + "/api", "POST", null,
                             null, null);
             assertEquals("POST@Authorization=Basic ABCD/Connection=keep-alive@/api@", new String(response.body()));
         } finally {
@@ -432,7 +432,7 @@ class HttpClientFactoryImplTest {
     }
 
     @Test
-    void requestGenericIgnorePath() throws IOException {
+    void requestGenericDoNotIgnorePath() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
@@ -445,7 +445,7 @@ class HttpClientFactoryImplTest {
             final GenericClient httpClient = newDefaultFactory().create(GenericClient.class, null);
             Response<byte[]> response = httpClient
                     .doNotEncodeQueryParams("http://localhost:" + server.getAddress().getPort() + "/api/", queries);
-            assertEquals("PUT@Connection=keep-alive@/api?param=value@", new String(response.body()));
+            assertEquals("PUT@Connection=keep-alive@/api/?param=value@", new String(response.body()));
         } finally {
             server.stop(0);
         }

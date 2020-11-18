@@ -834,7 +834,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private URLClassLoader createClassLoaderFromClasspath() {
         return new java.net.URLClassLoader(Arrays
-                .stream(System.getProperty("java.class.path", "").split(":"))
+                .stream(System.getProperty("java.class.path", "").split(File.pathSeparator))
                 .filter(cp -> !".".equals(cp))
                 .map(File::new)
                 .filter(File::exists)

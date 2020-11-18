@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.26-SNAPSHOT</version>
+    <version>1.1.27-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-starter-server</artifactId>
@@ -104,7 +104,7 @@
     <dependency>
       <groupId>org.rrd4j</groupId>
       <artifactId>rrd4j</artifactId>
-      <version>3.6</version>
+      <version>3.7</version>
     </dependency>
 
     <dependency>
