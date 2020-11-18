@@ -6,6 +6,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1788[TCOMP-1788^]: Invalid properties validation
 
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1725[TCOMP-1725^]: Update Tomcat to 9.0.40
+
 == Version 1.1.26
 
 === Bug
