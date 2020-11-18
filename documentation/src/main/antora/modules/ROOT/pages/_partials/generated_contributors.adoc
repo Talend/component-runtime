@@ -15,18 +15,18 @@
     "name":"Florent LB"
   },
   {
+    "commits":196,
+    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
+    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
+    "id":"undx",
+    "name":"Emmanuel GALLOIS"
+  },
+  {
     "commits":195,
     "description":"",
     "gravatar":"https://avatars3.githubusercontent.com/u/7621737?v=4",
     "id":"gonchar-ivan",
     "name":"Ivan Gonchar"
-  },
-  {
-    "commits":194,
-    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
-    "gravatar":"https://avatars3.githubusercontent.com/u/265575?v=4",
-    "id":"undx",
-    "name":"Emmanuel GALLOIS"
   },
   {
     "commits":59,
