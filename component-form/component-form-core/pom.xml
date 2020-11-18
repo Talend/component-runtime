@@ -58,6 +58,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- to remove after having a full json schema validator -->
+    <dependency>
+      <groupId>org.apache.johnzon</groupId>
+      <artifactId>johnzon-jsonschema</artifactId>
+      <version>${johnzon.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
