@@ -471,8 +471,9 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.missingplaceholder")
     void testFailureMissingPlaceholder(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("No Foo.missingPlaceholder._placeholder set for foo.missingPlaceholder in Messages.properties of packages: "
-                        + "[org.talend.test.failure.missingplaceholder]");
+                .expectMessage(
+                        "No Foo.missingPlaceholder._placeholder set for foo.missingPlaceholder in Messages.properties of packages: "
+                                + "[org.talend.test.failure.missingplaceholder]");
     }
 
     @Test

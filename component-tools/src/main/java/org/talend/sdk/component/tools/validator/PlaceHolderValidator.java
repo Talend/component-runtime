@@ -29,7 +29,8 @@ import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
 public class PlaceHolderValidator implements Validator {
 
-    private static final String ERROR_MSG_FORMAT = "No %s._placeholder set for %s in Messages.properties of packages: %s";
+    private static final String ERROR_MSG_FORMAT =
+            "No %s._placeholder set for %s in Messages.properties of packages: %s";
 
     private final Validators.ValidatorHelper helper;
 
@@ -51,10 +52,7 @@ public class PlaceHolderValidator implements Validator {
 
     private String buildErrorMessage(final ParameterMeta p) {
         final String emplacement = p.getSource().declaringClass().getSimpleName() + "." + p.getSource().name();
-        return String.format(ERROR_MSG_FORMAT,
-                emplacement,
-                p.getPath(),
-                asList(p.getI18nPackages()));
+        return String.format(ERROR_MSG_FORMAT, emplacement, p.getPath(), asList(p.getI18nPackages()));
     }
 
     private boolean isStringifiable(final ParameterMeta meta) {
