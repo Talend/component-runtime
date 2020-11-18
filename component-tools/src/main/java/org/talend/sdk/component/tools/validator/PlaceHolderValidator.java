@@ -24,11 +24,12 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
 public class PlaceHolderValidator implements Validator {
+
+    private static final String ERROR_MSG_FORMAT = "No %s._placeholder set for %s in Messages.properties of packages: %s";
 
     private final Validators.ValidatorHelper helper;
 
@@ -44,17 +45,23 @@ public class PlaceHolderValidator implements Validator {
                 .map(helper::buildOrGetParameters)
                 .flatMap(Validators::flatten)
                 .filter(this::isStringifiable)
-                .filter(p -> !hasPlaceholder(loader, p, null))
-                .map(p -> "No _placeholder set for " + p.getPath() + " in Messages.properties of packages: "
-                        + asList(p.getI18nPackages()));
+                .filter(p -> !hasPlaceholder(loader, p))
+                .map(this::buildErrorMessage);
+    }
+
+    private String buildErrorMessage(final ParameterMeta p) {
+        final String emplacement = p.getSource().declaringClass().getSimpleName() + "." + p.getSource().name();
+        return String.format(ERROR_MSG_FORMAT,
+                emplacement,
+                p.getPath(),
+                asList(p.getI18nPackages()));
     }
 
     private boolean isStringifiable(final ParameterMeta meta) {
         return STRING.equals(meta.getType()) || ENUM.equals(meta.getType());
     }
 
-    private boolean hasPlaceholder(final ClassLoader loader, final ParameterMeta parameterMeta,
-            final ParameterBundle parent) {
-        return parameterMeta.findBundle(loader, Locale.ROOT).placeholder(parent).isPresent();
+    private boolean hasPlaceholder(final ClassLoader loader, final ParameterMeta parameterMeta) {
+        return parameterMeta.findBundle(loader, Locale.ROOT).placeholder(null).isPresent();
     }
 }
