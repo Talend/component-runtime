@@ -12,6 +12,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1725[TCOMP-1725^]: Upgrade Tomcat to 9.0.40
 - link:https://jira.talendforge.org/browse/TCOMP-1808[TCOMP-1808^]: Upgrade log4j2 to 2.14.0
+- link:https://jira.talendforge.org/browse/TCOMP-1809[TCOMP-1809^]: Update CXF to 3.3.8 due to CVE-2020-13954
 
 == Version 1.1.26
 
