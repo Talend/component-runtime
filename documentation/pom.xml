@@ -46,7 +46,7 @@
     <asciidoctor-pdf-gem.version>1.5.2</asciidoctor-pdf-gem.version>
     <crawler-commons.version>1.0</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
-
+    <cxf.version>3.4.1</cxf.version>
     <!-- skip flags for the release -->
     <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
     <talend.documentation.pdf.skip>false</talend.documentation.pdf.skip>
@@ -279,16 +279,6 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
           </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-client</artifactId>
-            <version>${cxf.version}</version>
-          </dependency>
         </dependencies>
       </plugin>
       <plugin>
@@ -499,32 +489,12 @@
           </dependency>
           <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-core</artifactId>
-            <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-integration-cdi</artifactId>
-            <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
             <version>${cxf.version}</version>
           </dependency>
           <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-client</artifactId>
-            <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-security</artifactId>
-            <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
             <version>${cxf.version}</version>
           </dependency>
           <dependency>
@@ -927,36 +897,6 @@
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
                 <version>${jgit.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-core</artifactId>
-                <version>${cxf.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-integration-cdi</artifactId>
-                <version>${cxf.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                <version>${cxf.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-client</artifactId>
-                <version>${cxf.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-security</artifactId>
-                <version>${cxf.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${cxf.version}</version>
               </dependency>
             </dependencies>
           </plugin>
