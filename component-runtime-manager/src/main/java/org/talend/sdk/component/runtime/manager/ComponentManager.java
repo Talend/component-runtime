@@ -186,7 +186,8 @@ public class ComponentManager implements AutoCloseable {
 
         protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
 
-        private static ComponentManager buildNewComponentManager(final Thread shutdownHook) {
+        private static ComponentManager buildNewComponentManager() {
+            final Thread shutdownHook = SingletonHolder.buildShutDownHook();
             ComponentManager componentManager = new ComponentManager(findM2()) {
 
                 private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -229,7 +230,8 @@ public class ComponentManager implements AutoCloseable {
                     return new SerializationReplacer();
                 }
             };
-            Runtime.getRuntime().addShutdownHook(SingletonHolder.SHUTDOWN_HOOK.get());
+
+            Runtime.getRuntime().addShutdownHook(shutdownHook);
             componentManager.info("Created the contextual ComponentManager instance " + getIdentifiers());
             if (!CONTEXTUAL_INSTANCE.compareAndSet(null, componentManager)) { // unlikely it fails in a synch block
                 componentManager = CONTEXTUAL_INSTANCE.get();
@@ -241,24 +243,25 @@ public class ComponentManager implements AutoCloseable {
             log.info("renew component manager");
             final ComponentManager manager;
             if (current == null) {
-                manager = SingletonHolder.buildNewComponentManager(SingletonHolder.SHUTDOWN_HOOK.get());
+                manager = SingletonHolder.buildNewComponentManager();
             } else {
                 manager = current;
             }
             return manager;
         }
 
-        private static final Supplier<Thread> SHUTDOWN_HOOK =
-                () -> new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
+        private static final Thread buildShutDownHook() {
+            return new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
 
-                    @Override
-                    public void run() {
-                        ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
-                    }
-                };
+                @Override
+                public void run() {
+                    ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
+                }
+            };
+        }
 
         static {
-            ComponentManager manager = SingletonHolder.buildNewComponentManager(SingletonHolder.SHUTDOWN_HOOK.get());
+            ComponentManager manager = SingletonHolder.buildNewComponentManager();
         }
 
     }
