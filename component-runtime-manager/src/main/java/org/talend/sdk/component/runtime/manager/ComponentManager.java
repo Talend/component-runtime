@@ -212,7 +212,7 @@ public class ComponentManager implements AutoCloseable {
                         synchronized (CONTEXTUAL_INSTANCE) {
                             if (CONTEXTUAL_INSTANCE.compareAndSet(this, null)) {
                                 try {
-                                    log.debug("Component manager : remove shutdown hook");
+                                    log.debug("ComponentManager : remove shutdown hook");
                                     Runtime.getRuntime().removeShutdownHook(shutdownHook);
                                 } catch (final IllegalStateException ise) {
                                     // already shutting down
