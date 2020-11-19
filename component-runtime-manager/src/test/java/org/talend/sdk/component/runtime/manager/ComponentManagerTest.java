@@ -58,6 +58,7 @@ import org.apache.xbean.finder.util.Files;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.opentest4j.AssertionFailedError;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -81,6 +82,57 @@ class ComponentManagerTest {
 
     private ComponentManager newManager() {
         return newManager(new File("target/test-dependencies"));
+    }
+
+    @Test
+    void doubleClose() {
+        final ComponentManager instance = ComponentManager.instance();
+        final ComponentManager instanceCopy = ComponentManager.instance();
+        Assertions.assertSame(instance, instanceCopy);
+        instance.close();
+        Assertions.assertTrue(instance.getContainer().isClosed());
+        final ComponentManager instance2 = ComponentManager.instance();
+        Assertions.assertNotNull(instance2);
+        Assertions.assertNotSame(instance, instance2);
+        Assertions.assertFalse(instance2.getContainer().isClosed());
+    }
+
+    @Test
+    void doubleCloseOnThread() throws InterruptedException {
+        final ComponentManager instance = ComponentManager.instance();
+        final Runnable r1 = () -> instance.close();
+
+        final AtomicReference<AssertionFailedError> failure = new AtomicReference<>();
+        final Runnable r2 = () -> {
+            try {
+                ComponentManager instance2 = ComponentManager.instance();
+                Assertions.assertNotNull(instance2, "second instance is NULL");
+                while (instance2 == instance) {
+                    instance2 = ComponentManager.instance();
+                }
+                Assertions.assertNotNull(instance2, "second instance is NULL");
+                Assertions.assertFalse(instance2.getContainer().isClosed(), "second instance is closed");
+            } catch (AssertionFailedError ex) {
+                failure.set(ex);
+            }
+        };
+        final Thread t1 = new Thread(r1);
+        final Thread t2 = new Thread(r2);
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+        if (failure.get() != null) {
+            throw failure.get();
+        }
+    }
+
+    private static void pause() {
+        try {
+            Thread.sleep(10L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Test

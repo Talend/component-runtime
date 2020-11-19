@@ -186,17 +186,8 @@ public class ComponentManager implements AutoCloseable {
 
         protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
 
-        static {
-            final Thread shutdownHook =
-                    new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
-
-                        @Override
-                        public void run() {
-                            ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
-                        }
-                    };
-
-            ComponentManager manager = new ComponentManager(findM2()) {
+        private static ComponentManager buildNewComponentManager(final Thread shutdownHook) {
+            ComponentManager componentManager = new ComponentManager(findM2()) {
 
                 private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -211,13 +202,16 @@ public class ComponentManager implements AutoCloseable {
 
                 @Override
                 public void close() {
+                    log.info("close component manager.");
                     if (!closed.compareAndSet(false, true)) {
+                        log.info("Component manager already closed");
                         return;
                     }
                     try {
                         synchronized (CONTEXTUAL_INSTANCE) {
                             if (CONTEXTUAL_INSTANCE.compareAndSet(this, null)) {
                                 try {
+                                    log.info("Component manager : remove shutdown");
                                     Runtime.getRuntime().removeShutdownHook(shutdownHook);
                                 } catch (final IllegalStateException ise) {
                                     // already shutting down
@@ -235,12 +229,36 @@ public class ComponentManager implements AutoCloseable {
                     return new SerializationReplacer();
                 }
             };
-
-            Runtime.getRuntime().addShutdownHook(shutdownHook);
-            manager.info("Created the contextual ComponentManager instance " + getIdentifiers());
-            if (!CONTEXTUAL_INSTANCE.compareAndSet(null, manager)) { // unlikely it fails in a synch block
-                manager = CONTEXTUAL_INSTANCE.get();
+            Runtime.getRuntime().addShutdownHook(SingletonHolder.SHUTDOWN_HOOK.get());
+            componentManager.info("Created the contextual ComponentManager instance " + getIdentifiers());
+            if (!CONTEXTUAL_INSTANCE.compareAndSet(null, componentManager)) { // unlikely it fails in a synch block
+                componentManager = CONTEXTUAL_INSTANCE.get();
             }
+            return componentManager;
+        }
+
+        private static synchronized ComponentManager renew(final ComponentManager current) {
+            log.info("renew component manager");
+            final ComponentManager manager;
+            if (current == null) {
+                manager = SingletonHolder.buildNewComponentManager(SingletonHolder.SHUTDOWN_HOOK.get());
+            } else {
+                manager = current;
+            }
+            return manager;
+        }
+
+        private static final Supplier<Thread> SHUTDOWN_HOOK =
+                () -> new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
+
+                    @Override
+                    public void run() {
+                        ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
+                    }
+                };
+
+        static {
+            ComponentManager manager = SingletonHolder.buildNewComponentManager(SingletonHolder.SHUTDOWN_HOOK.get());
         }
 
     }
@@ -524,7 +542,7 @@ public class ComponentManager implements AutoCloseable {
      * @return the contextual manager instance.
      */
     public static ComponentManager instance() {
-        return SingletonHolder.CONTEXTUAL_INSTANCE.get();
+        return SingletonHolder.CONTEXTUAL_INSTANCE.updateAndGet(SingletonHolder::renew);
     }
 
     /**
