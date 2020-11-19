@@ -203,16 +203,16 @@ public class ComponentManager implements AutoCloseable {
 
                 @Override
                 public void close() {
-                    log.info("close component manager.");
+                    log.debug("Closing ComponentManager.");
                     if (!closed.compareAndSet(false, true)) {
-                        log.info("Component manager already closed");
+                        log.debug("ComponentManager already closed");
                         return;
                     }
                     try {
                         synchronized (CONTEXTUAL_INSTANCE) {
                             if (CONTEXTUAL_INSTANCE.compareAndSet(this, null)) {
                                 try {
-                                    log.info("Component manager : remove shutdown");
+                                    log.debug("Component manager : remove shutdown hook");
                                     Runtime.getRuntime().removeShutdownHook(shutdownHook);
                                 } catch (final IllegalStateException ise) {
                                     // already shutting down
