@@ -240,9 +240,9 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private static synchronized ComponentManager renew(final ComponentManager current) {
-            log.info("renew component manager");
             final ComponentManager manager;
             if (current == null) {
+                log.info("rebuild new component manager");
                 manager = SingletonHolder.buildNewComponentManager();
             } else {
                 manager = current;
