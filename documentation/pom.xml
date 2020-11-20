@@ -46,7 +46,6 @@
     <asciidoctor-pdf-gem.version>1.5.2</asciidoctor-pdf-gem.version>
     <crawler-commons.version>1.0</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
-    <cxf.version>3.4.1</cxf.version>
     <!-- skip flags for the release -->
     <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
     <talend.documentation.pdf.skip>false</talend.documentation.pdf.skip>
@@ -166,7 +165,6 @@
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
       <version>${cxf.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.johnzon</groupId>
