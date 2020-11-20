@@ -1,0 +1,105 @@
+= Studio schema
+:page-partial:
+:description: How to access studio's schema in your component.
+:keywords: studio, schema, metadata, columns
+
+
+In Studio, we can define for each component a schema with associated metadata.
+
+image::studio_schema.png[Job run,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/studio_schema.png",70%]
+
+To access those informations in your component, you've to do a few things:
+
+== Using the `@Structure` annotation
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.Structure`
+
+According the specified field type, you will acess to
+
+- the column names list with `List<String>`
+- a subset or all wanted metadata with `List<MySchemaMeta>` (see below)
+
+[source,java]
+----
+@Data
+@GridLayout({ @GridLayout.Row({ "dataset" }),
+              @GridLayout.Row({ "incomingSchema" }) }) <5>
+public class OutputConfig implements Serializable {
+
+    @Option
+    @Documentation("My dataset.")
+    private Dataset dataset;
+
+    @Option <1>
+    @Documentation("Incoming metadata.")
+    @Structure(type = Structure.Type.IN) <2> <3>
+    private List<SchemaInfo> incomingSchema; <4>
+----
+
+
+<1> `@Option`: mark class's attributes as being a configuration entry.
+<2> `@Structure`: mark this configuration entry as a schema container.
+<3> `Structure.Type.IN`: marks the schema for an incoming flow (Output).
+     Use `Structure.Type.OUT` for outgoing flow (Input).
+<4> `List<SchemaInfo>`: is a custom class for holding metadata.
+<4> `@GridLayout`: option should be defined in the UI layout.
+
+Then, we should have a class `SchemaInfo` as following:
+
+== Defining a specific class for holding metadata
+If you don't want just only column names (using `List<String>`), you'll have to define a custom class.
+
+[source,java]
+----
+@Data
+@GridLayout({ @GridLayout.Row({ "label", "key", "talendType", "nullable", "pattern" }) })
+@Documentation("Schema definition.")
+public class SchemaInfo implements Serializable {
+
+    @Option
+    @Documentation("Column name.")
+    private String label;
+
+    @Option
+    @Documentation("Is it a Key column.")
+    private boolean key;
+
+    @Option
+    @Documentation("Talend type such as id_String.")
+    private String talendType;
+
+    @Option
+    @Documentation("Is it a Nullable column.")
+    private boolean nullable;
+
+    @Option
+    @Documentation("Pattern used for datetime processing.")
+    private String pattern = "yyyy-MM-dd HH:mm";
+}
+----
+
+
+== Available Studio metadata informations
+[options="header",role="table-striped table-hover table-ordered"]
+|===
+|*Field name*|*Type*|*Name in Studio*
+|`label`| String|Column
+|``originalDbColumnName``| String|Db Column
+|`key`| Boolean|Key
+|`type`| String|DB Type
+|``talendType``| String|Type
+|`nullable`| Boolean|Nullable
+|`pattern`| String|Date Pattern
+|`length`| int|Length
+|`precision`| int|Precision
+|``defaultValue``| String|Default
+|`comment`| String|Comment
+
+|===
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:ref-actions.adoc[Discover schema action]
+- xref:ref-actions.adoc[Structure UI action]
+endif::[]
