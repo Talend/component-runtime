@@ -186,17 +186,9 @@ public class ComponentManager implements AutoCloseable {
 
         protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
 
-        static {
-            final Thread shutdownHook =
-                    new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
-
-                        @Override
-                        public void run() {
-                            ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
-                        }
-                    };
-
-            ComponentManager manager = new ComponentManager(findM2()) {
+        private static ComponentManager buildNewComponentManager() {
+            final Thread shutdownHook = SingletonHolder.buildShutDownHook();
+            ComponentManager componentManager = new ComponentManager(findM2()) {
 
                 private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -211,13 +203,16 @@ public class ComponentManager implements AutoCloseable {
 
                 @Override
                 public void close() {
+                    log.debug("Closing ComponentManager.");
                     if (!closed.compareAndSet(false, true)) {
+                        log.debug("ComponentManager already closed");
                         return;
                     }
                     try {
                         synchronized (CONTEXTUAL_INSTANCE) {
                             if (CONTEXTUAL_INSTANCE.compareAndSet(this, null)) {
                                 try {
+                                    log.debug("ComponentManager : remove shutdown hook");
                                     Runtime.getRuntime().removeShutdownHook(shutdownHook);
                                 } catch (final IllegalStateException ise) {
                                     // already shutting down
@@ -237,10 +232,36 @@ public class ComponentManager implements AutoCloseable {
             };
 
             Runtime.getRuntime().addShutdownHook(shutdownHook);
-            manager.info("Created the contextual ComponentManager instance " + getIdentifiers());
-            if (!CONTEXTUAL_INSTANCE.compareAndSet(null, manager)) { // unlikely it fails in a synch block
-                manager = CONTEXTUAL_INSTANCE.get();
+            componentManager.info("Created the contextual ComponentManager instance " + getIdentifiers());
+            if (!CONTEXTUAL_INSTANCE.compareAndSet(null, componentManager)) { // unlikely it fails in a synch block
+                componentManager = CONTEXTUAL_INSTANCE.get();
             }
+            return componentManager;
+        }
+
+        private static synchronized ComponentManager renew(final ComponentManager current) {
+            final ComponentManager manager;
+            if (current == null) {
+                log.info("rebuild new component manager");
+                manager = SingletonHolder.buildNewComponentManager();
+            } else {
+                manager = current;
+            }
+            return manager;
+        }
+
+        private static final Thread buildShutDownHook() {
+            return new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
+
+                @Override
+                public void run() {
+                    ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
+                }
+            };
+        }
+
+        static {
+            ComponentManager manager = SingletonHolder.buildNewComponentManager();
         }
 
     }
@@ -524,7 +545,7 @@ public class ComponentManager implements AutoCloseable {
      * @return the contextual manager instance.
      */
     public static ComponentManager instance() {
-        return SingletonHolder.CONTEXTUAL_INSTANCE.get();
+        return SingletonHolder.CONTEXTUAL_INSTANCE.updateAndGet(SingletonHolder::renew);
     }
 
     /**
