@@ -10,6 +10,12 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1761[TCOMP-1761^]: Support of complete schema definition
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1725[TCOMP-1725^]: Upgrade Tomcat to 9.0.40

@@ -21,7 +21,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -102,8 +101,7 @@ public class ModelValidator implements Validator {
 
     private boolean isListObject(final Field f) {
         final ParameterizedType pt = ParameterizedType.class.cast(f.getGenericType());
-        return ((List.class == pt.getRawType()) || (Collection.class == pt.getRawType()))
-                && (pt.getActualTypeArguments().length == 1) && (pt.getActualTypeArguments()[0] instanceof Object);
+        return List.class == pt.getRawType() && pt.getActualTypeArguments().length == 1;
     }
 
 }
