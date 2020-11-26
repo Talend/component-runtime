@@ -24,6 +24,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1809[TCOMP-1809^]: Update CXF to 3.3.8 due to CVE-2020-13954
 - link:https://jira.talendforge.org/browse/TCOMP-1812[TCOMP-1812^]: Upgrade junit to 4.13.1 due to CVE-2020-15250
 - link:https://jira.talendforge.org/browse/TCOMP-1813[TCOMP-1813^]: Upgrade jupiter to 5.7.0
+- link:https://jira.talendforge.org/browse/TCOMP-1816[TCOMP-1816^]: Apache Maven Shared Utils: OS Command Injection in Talend/component-runtime (master) and Talend/cloud-components
 
 == Version 1.1.26
 

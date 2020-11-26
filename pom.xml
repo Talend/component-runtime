@@ -215,6 +215,7 @@
     <!-- for the starter -->
     <gradle.version>6.0-rc-1</gradle.version>
     <mvn.version>3.6.3</mvn.version>
+    <maven-shared-utils.version>3.3.3</maven-shared-utils.version>
 
     <spark.version>2.4.5</spark.version>
     <spark-scala.version>2.11</spark-scala.version>
@@ -405,7 +406,16 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-shared-utils</artifactId>
+          </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.shared</groupId>
+        <artifactId>maven-shared-utils</artifactId>
+        <version>${maven-shared-utils.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
