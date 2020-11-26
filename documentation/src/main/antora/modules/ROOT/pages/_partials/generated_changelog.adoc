@@ -25,6 +25,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1812[TCOMP-1812^]: Upgrade junit to 4.13.1 due to CVE-2020-15250
 - link:https://jira.talendforge.org/browse/TCOMP-1813[TCOMP-1813^]: Upgrade jupiter to 5.7.0
 - link:https://jira.talendforge.org/browse/TCOMP-1816[TCOMP-1816^]: Apache Maven Shared Utils: OS Command Injection in Talend/component-runtime (master) and Talend/cloud-components
+- link:https://jira.talendforge.org/browse/TCOMP-1817[TCOMP-1817^]: Upgrade gmavenplus-plugin to 1.11.0
 
 == Version 1.1.26
 
