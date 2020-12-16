@@ -1,5 +1,12 @@
 
 
+== Version 1.28.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1827[TCOMP-1827^]: Upgrade lombok to 1.18.16
+- link:https://jira.talendforge.org/browse/TCOMP-1828[TCOMP-1828^]: Change project's versioning scheme
+
 == Version 1.1.27
 
 === Bug

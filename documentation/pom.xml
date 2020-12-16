@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.28-SNAPSHOT</version>
+    <version>1.28.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>documentation</artifactId>
@@ -35,7 +35,7 @@
     <sample_project-base>${project.basedir}/../sample</sample_project-base>
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
     <sample_project_test>${sample_project-base}/src/test/java/org/talend/sdk/component/sample</sample_project_test>
-    <site.rootpath />
+    <site.rootpath>/component-runtime</site.rootpath>
 
     <args4j.version>2.33</args4j.version>
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
