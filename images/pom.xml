@@ -47,9 +47,9 @@
     <!-- TSBI -->
     <docker.registryHost>artifactory.datapwn.com</docker.registryHost>
     <docker.tsbiPath>/tlnd-docker-prod/talend/common/tsbi</docker.tsbiPath>
-    <docker.tsbiVersion>2.5.0-20201030171201</docker.tsbiVersion>
-    <docker.tsbiVersionRelease>2.5.0</docker.tsbiVersionRelease>
-    <docker.tsbiVersionDate>20201030171201</docker.tsbiVersionDate>
+    <docker.tsbiVersion>2.5.3-20201201131449</docker.tsbiVersion>
+    <docker.tsbiVersionRelease>2.5.3</docker.tsbiVersionRelease>
+    <docker.tsbiVersionDate>20201201131449</docker.tsbiVersionDate>
     <disable.dockerBuild>false</disable.dockerBuild>
     <disable.tsbiLayerspector>false</disable.tsbiLayerspector>
   </properties>
