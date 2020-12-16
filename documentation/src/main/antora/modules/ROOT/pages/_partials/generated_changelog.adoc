@@ -10,6 +10,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1830[TCOMP-1830^]: Upgrade Apache Beam to 2.26.0
 - link:https://jira.talendforge.org/browse/TCOMP-1832[TCOMP-1832^]: Upgrade httpclient to 4.5.13 due to CVE-2020-13956
 - link:https://jira.talendforge.org/browse/TCOMP-1833[TCOMP-1833^]: Upgrade spark to 2.4.7
+- link:https://jira.talendforge.org/browse/TCOMP-1834[TCOMP-1834^]: Upgrade groovy to 3.0.7 due to CVE-2020-17521
 
 == Version 1.1.27
 
