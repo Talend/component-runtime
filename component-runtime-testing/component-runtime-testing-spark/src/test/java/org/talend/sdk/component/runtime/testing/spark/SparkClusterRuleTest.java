@@ -43,7 +43,7 @@ import lombok.NoArgsConstructor;
 public class SparkClusterRuleTest {
 
     @ClassRule
-    public static final SparkClusterRule SPARK = new SparkClusterRule("2.11", "2.4.0", 1);
+    public static final SparkClusterRule SPARK = new SparkClusterRule("2.11", "2.4.7", 1);
 
     @Rule
     public final TestName testName = new TestName();

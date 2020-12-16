@@ -9,6 +9,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1829[TCOMP-1829^]: Upgrade TSBI to 2.5.3-20201201131449
 - link:https://jira.talendforge.org/browse/TCOMP-1830[TCOMP-1830^]: Upgrade Apache Beam to 2.26.0
 - link:https://jira.talendforge.org/browse/TCOMP-1832[TCOMP-1832^]: Upgrade httpclient to 4.5.13 due to CVE-2020-13956
+- link:https://jira.talendforge.org/browse/TCOMP-1833[TCOMP-1833^]: Upgrade spark to 2.4.7
 
 == Version 1.1.27
 
