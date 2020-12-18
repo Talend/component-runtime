@@ -231,16 +231,16 @@ public class Generator {
             final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
             final JsonObject oldApi = !oldJson.startsWith("{") ? builderFactory.createObjectBuilder().build()
                     : jsonb.fromJson(oldJson, JsonObject.class);
-            final JsonObject newApi = builderFactory
-                    .createObjectBuilder(jsonb.fromJson(newJson, JsonObject.class))
-                    .add("servers", builderFactory
-                            .createArrayBuilder()
-                            .add(builderFactory
-                                    .createObjectBuilder()
-                                    .add("url", String
-                                            .format("https://talend.github.io/component-runtime/main/%s/examples/apidemo",
-                                                    version))))
-                    .build();
+            final JsonObject newApi =
+                    builderFactory
+                            .createObjectBuilder(jsonb.fromJson(newJson, JsonObject.class))
+                            .add("servers", builderFactory
+                                    .createArrayBuilder()
+                                    .add(builderFactory
+                                            .createObjectBuilder()
+                                            .add("url", String
+                                                    .format("https://starter-toolkit.talend.io/api/demo/%s", version))))
+                            .build();
             if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
                     writer

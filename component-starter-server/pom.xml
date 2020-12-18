@@ -31,6 +31,7 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.starter</talend.build.name>
+    <rat.numUnapprovedLicenses>10</rat.numUnapprovedLicenses>
   </properties>
 
   <dependencies>
@@ -124,6 +125,12 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
       <version>${junit5.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-api</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
