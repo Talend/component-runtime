@@ -14,6 +14,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1839[TCOMP-1839^]: Tomcat websocket server fails to start after tomcat 9.0.40 and meecrowave 1.2.10
 
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1836[TCOMP-1836^]: Upgrade OpenWebBeans to 2.0.20
+
 == Version 1.28.0
 
 === Work Item
