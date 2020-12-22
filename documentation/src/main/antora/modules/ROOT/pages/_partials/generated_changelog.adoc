@@ -6,6 +6,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1820[TCOMP-1820^]: API documentation is broken
 
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1836[TCOMP-1836^]: Upgrade OpenWebBeans to 2.0.20
+
 == Version 1.28.0
 
 === Work Item
