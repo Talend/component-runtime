@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1820[TCOMP-1820^]: API documentation is broken
+- link:https://jira.talendforge.org/browse/TCOMP-1839[TCOMP-1839^]: Tomcat websocket server fails to start after tomcat 9.0.40 and meecrowave 1.2.10
 
 
 
