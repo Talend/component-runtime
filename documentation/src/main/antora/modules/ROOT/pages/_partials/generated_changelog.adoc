@@ -13,6 +13,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1836[TCOMP-1836^]: Upgrade OpenWebBeans to 2.0.20
 - link:https://jira.talendforge.org/browse/TCOMP-1838[TCOMP-1838^]: Upgrade cxf to 3.4.1
+- link:https://jira.talendforge.org/browse/TCOMP-1840[TCOMP-1840^]: Upgrade tomcat to 9.0.41
 
 == Version 1.28.0
 
