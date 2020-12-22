@@ -17,8 +17,8 @@ package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
-import static org.apache.xbean.asm7.ClassReader.EXPAND_FRAMES;
-import static org.apache.xbean.asm7.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm9.ClassReader.EXPAND_FRAMES;
+import static org.apache.xbean.asm9.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,10 +36,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 
-import org.apache.xbean.asm7.ClassReader;
-import org.apache.xbean.asm7.ClassWriter;
-import org.apache.xbean.asm7.commons.ClassRemapper;
-import org.apache.xbean.asm7.commons.Remapper;
+import org.apache.xbean.asm9.ClassReader;
+import org.apache.xbean.asm9.ClassWriter;
+import org.apache.xbean.asm9.commons.ClassRemapper;
+import org.apache.xbean.asm9.commons.Remapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.record.Record;
