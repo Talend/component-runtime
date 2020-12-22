@@ -83,9 +83,9 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(520, error.getStatus());
-        assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
-        assertEquals("Action execution failed with: simulating an unexpected error",
-                error.readEntity(ErrorPayload.class).getDescription());
+        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
+        assertEquals("Action execution failed with: simulating an unexpected error", errorPayload.getDescription());
     }
 
     @Test
@@ -98,9 +98,9 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(520, error.getStatus());
-        assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
-        assertEquals("Action execution failed with: unknown exception",
-                error.readEntity(ErrorPayload.class).getDescription());
+        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
+        assertEquals("Action execution failed with: unknown exception", errorPayload.getDescription());
     }
 
     @Test
@@ -113,9 +113,9 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(400, error.getStatus());
-        assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
-        assertEquals("Action execution failed with: user exception",
-                error.readEntity(ErrorPayload.class).getDescription());
+        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
+        assertEquals("Action execution failed with: user exception", errorPayload.getDescription());
     }
 
     @Test
@@ -128,9 +128,9 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(456, error.getStatus());
-        assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
-        assertEquals("Action execution failed with: backend exception",
-                error.readEntity(ErrorPayload.class).getDescription());
+        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
+        assertEquals("Action execution failed with: backend exception", errorPayload.getDescription());
     }
 
     @Test
