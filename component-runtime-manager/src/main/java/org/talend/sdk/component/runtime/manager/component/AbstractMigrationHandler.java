@@ -59,14 +59,14 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     public abstract void migrate(final int incomingVersion);
 
     /**
-     * @param oldKey
-     * @param newKeys
+     * @param oldKey configuration key
+     * @param newKeys new split keys
      */
     public abstract void doSplitProperty(final String oldKey, final List<String> newKeys);
 
     /**
-     * @param oldKeys
-     * @param newKeys
+     * @param oldKeys configuration keys
+     * @param newKey merged key
      */
     public abstract void doMergeProperties(final List<String> oldKeys, final String newKey);
 
@@ -93,8 +93,10 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     }
 
     /**
-     * @param key
-     * @param value
+     * @param key configuration key
+     * @param value value for configuration key
+     *
+     * @throws MigrationException If missing key
      */
     public final void addKey(final String key, final String value) throws MigrationException {
         if (configuration.containsKey(key)) {
@@ -108,6 +110,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     /**
      * @param oldKey configuration key existing
      * @param newKey configuration key to rename
+     *
+     * @throws MigrationException If missing key
      */
     public final void renameKey(final String oldKey, final String newKey) throws MigrationException {
         checkKeyExistance(oldKey);
@@ -119,6 +123,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
 
     /**
      * @param key configuration key
+     *
+     * @throws MigrationException If missing key
      */
     public final void removeKey(final String key) throws MigrationException {
         checkKeyExistance(key);
@@ -130,6 +136,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     /**
      * @param key configuration key
      * @param newValue new value to set in migration
+     *
+     * @throws MigrationException If missing key
      */
     public final void changeValue(final String key, final String newValue) throws MigrationException {
         checkKeyExistance(key);
@@ -143,6 +151,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param key configuration key
      * @param newValue new value to set in migration
      * @param condition predicate that tests current value, if true sets new value
+     *
+     * @throws MigrationException If missing key
      */
     public final void changeValue(final String key, final String newValue, final Predicate<String> condition)
             throws MigrationException {
@@ -156,6 +166,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     /**
      * @param key configuration key
      * @param updater function to set new value
+     *
+     * @throws MigrationException If missing key
      */
     public final void changeValue(final String key, final Function<? super String, String> updater)
             throws MigrationException {
@@ -169,6 +181,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param key configuration key
      * @param updater function to set new value
      * @param condition predicate that tests current value, if true sets new value
+     *
+     * @throws MigrationException If missing key
      */
     public final void changeValue(final String key, final Function<? super String, String> updater,
             final Predicate<String> condition) throws MigrationException {
@@ -180,6 +194,12 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
         }
     }
 
+    /**
+     * @param oldKey configuration key
+     * @param newKeys new split keys
+     *
+     * @throws MigrationException If missing key
+     */
     public final void splitProperty(final String oldKey, final List<String> newKeys) throws MigrationException {
         checkKeyExistance(oldKey);
         doSplitProperty(oldKey, newKeys);
@@ -187,6 +207,12 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
         listeners.forEach(e -> e.onSplitProperty(configuration, oldKey, newKeys));
     }
 
+    /**
+     * @param oldKeys configuration keys
+     * @param newKey merged key
+     *
+     * @throws MigrationException If missing key
+     */
     public final void mergeProperties(final List<String> oldKeys, final String newKey) throws MigrationException {
         for (String k : oldKeys) {
             checkKeyExistance(k);
