@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
+import java.util.List;
 import java.util.Map;
 
 import org.talend.sdk.component.runtime.manager.spi.MigrationHandlerListenerExtension;
@@ -43,5 +44,15 @@ public class MigrationListener implements MigrationHandlerListenerExtension {
     public void onChangeValue(final Map<String, String> data, final String key, final String oldValue,
             final String newValue) {
         log.warn("[onChangeValue] key: {}; value: {} --> {}. {}.", key, oldValue, newValue, data);
+    }
+
+    @Override
+    public void onSplitProperty(final Map<String, String> data, final String oldKey, final List<String> newKeys) {
+        log.warn("[onSplitProperty] old: {} --> {}. {}.", oldKey, newKeys, data);
+    }
+
+    @Override
+    public void onMergeProperties(final Map<String, String> data, final List<String> oldKeys, final String newKey) {
+        log.warn("[onMergeProperties] old: {} --> {}. {}.", oldKeys, newKey, data);
     }
 }

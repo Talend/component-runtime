@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager.component;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -35,7 +36,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     private final Collection<MigrationHandlerListenerExtension> listeners = new CopyOnWriteArrayList<>();
 
     @Getter
-    private Map<String, String> configuration;
+    protected Map<String, String> configuration;
 
     /**
      * @param incomingVersion the version of associatedData values.
@@ -56,6 +57,18 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
      * @param incomingVersion the version of associated data values.
      */
     public abstract void migrate(final int incomingVersion);
+
+    /**
+     * @param oldKey
+     * @param newKeys
+     */
+    public abstract void doSplitProperty(final String oldKey, final List<String> newKeys);
+
+    /**
+     * @param oldKeys
+     * @param newKeys
+     */
+    public abstract void doMergeProperties(final List<String> oldKeys, final String newKey);
 
     /**
      * @param listener the observer that will receive changes
@@ -165,6 +178,22 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
             final String newValue = updater.apply(oldValue);
             changeValue(key, newValue);
         }
+    }
+
+    public final void splitProperty(final String oldKey, final List<String> newKeys) throws MigrationException {
+        checkKeyExistance(oldKey);
+        doSplitProperty(oldKey, newKeys);
+
+        listeners.forEach(e -> e.onSplitProperty(configuration, oldKey, newKeys));
+    }
+
+    public final void mergeProperties(final List<String> oldKeys, final String newKey) throws MigrationException {
+        for (String k : oldKeys) {
+            checkKeyExistance(k);
+        }
+        doMergeProperties(oldKeys, newKey);
+
+        listeners.forEach(e -> e.onMergeProperties(configuration, oldKeys, newKey));
     }
 
     public class MigrationException extends Exception {

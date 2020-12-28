@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.spi;
 
+import java.util.List;
 import java.util.Map;
 
 public interface MigrationHandlerListenerExtension {
@@ -26,5 +27,9 @@ public interface MigrationHandlerListenerExtension {
     void onRemoveKey(final Map<String, String> data, final String key);
 
     void onChangeValue(final Map<String, String> data, final String key, final String oldValue, final String newValue);
+
+    void onSplitProperty(final Map<String, String> data, final String oldKey, final List<String> newKeys);
+
+    void onMergeProperties(final Map<String, String> data, final List<String> oldKeys, final String newKey);
 
 }

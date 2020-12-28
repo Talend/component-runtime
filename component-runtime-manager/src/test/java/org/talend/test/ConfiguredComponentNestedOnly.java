@@ -18,6 +18,7 @@ package org.talend.test;
 import static java.util.Collections.singletonMap;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
@@ -56,6 +57,16 @@ public class ConfiguredComponentNestedOnly implements Serializable {
                 } catch (MigrationException e) {
 
                 }
+            }
+
+            @Override
+            public void doSplitProperty(final String oldKey, final List<String> newKeys) {
+                throw new UnsupportedOperationException("#doSplitProperty()");
+            }
+
+            @Override
+            public void doMergeProperties(final List<String> oldKeys, final String newKey) {
+                throw new UnsupportedOperationException("#doMergeProperties()");
             }
         }
     }

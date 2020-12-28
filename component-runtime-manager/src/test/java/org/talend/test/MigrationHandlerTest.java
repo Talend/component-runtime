@@ -16,9 +16,8 @@
 package org.talend.test;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
 
-import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
@@ -51,6 +50,16 @@ public class MigrationHandlerTest implements Serializable {
                 throw new IllegalStateException(e);
             }
         }
+
+        @Override
+        public void doSplitProperty(final String oldKey, final List<String> newKeys) {
+            throw new UnsupportedOperationException("#doSplitProperty()");
+        }
+
+        @Override
+        public void doMergeProperties(final List<String> oldKeys, final String newKey) {
+            throw new UnsupportedOperationException("#doMergeProperties()");
+        }
     }
 
     @Data
@@ -73,6 +82,16 @@ public class MigrationHandlerTest implements Serializable {
                 } catch (MigrationException e) {
                     throw new IllegalStateException(e);
                 }
+            }
+
+            @Override
+            public void doSplitProperty(final String oldKey, final List<String> newKeys) {
+                throw new UnsupportedOperationException("#doSplitProperty()");
+            }
+
+            @Override
+            public void doMergeProperties(final List<String> oldKeys, final String newKey) {
+                throw new UnsupportedOperationException("#doMergeProperties()");
             }
         }
     }
@@ -97,6 +116,16 @@ public class MigrationHandlerTest implements Serializable {
                 } catch (MigrationException e) {
                     throw new IllegalStateException(e);
                 }
+            }
+
+            @Override
+            public void doSplitProperty(final String oldKey, final List<String> newKeys) {
+                throw new UnsupportedOperationException("#doSplitProperty()");
+            }
+
+            @Override
+            public void doMergeProperties(final List<String> oldKeys, final String newKey) {
+                throw new UnsupportedOperationException("#doMergeProperties()");
             }
         }
     }

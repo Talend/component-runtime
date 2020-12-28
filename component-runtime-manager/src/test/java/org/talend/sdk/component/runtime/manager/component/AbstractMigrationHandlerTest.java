@@ -15,15 +15,24 @@
  */
 package org.talend.sdk.component.runtime.manager.component;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.runtime.manager.MigrationListener;
+import org.talend.sdk.component.runtime.manager.spi.MigrationHandlerListenerExtension;
 
 class AbstractMigrationHandlerTest {
 
     private final AbstractMigrationHandler migrationHandler = new MigrationHandlerTester();
+
+    private MigrationHandlerListenerExtension listener;
 
     private final Map<String, String> data = new HashMap<String, String>() {
 
@@ -39,10 +48,22 @@ class AbstractMigrationHandlerTest {
         }
     };
 
+    @BeforeEach
+    void setup() {
+        listener = new MigrationListener();
+        migrationHandler.registerListener(listener);
+    }
+
+    @AfterEach
+    void tearDown() {
+        migrationHandler.unRegisterListener(listener);
+    }
+
     @Test
     void testMigrate() {
         migrationHandler.migrate(2, data);
         final Map<String, String> tested = migrationHandler.getConfiguration();
+        Assertions.assertEquals(8, tested.size());
         Assertions.assertEquals("valeur", tested.get("clé"));
         Assertions.assertNull(tested.get("key0"));
         Assertions.assertEquals("value1", tested.get("config.new.sub.key1"));
@@ -84,6 +105,31 @@ class AbstractMigrationHandlerTest {
         Assertions.assertThrows(IllegalStateException.class, () -> migrationHandler.migrate(8, data));
     }
 
+    @Test
+    void testSplitProperty() {
+        final Map<String, String> tested = migrationHandler.migrate(9, data);
+        Assertions.assertEquals(9, tested.size());
+        Assertions.assertEquals(tested.get("config.new.sub.key1.val0"), "value1");
+        Assertions.assertEquals(tested.get("config.new.sub.key1.val1"), "value1");
+    }
+
+    @Test
+    void testSplitPropertyWithInexistingKey() {
+        Assertions.assertThrows(IllegalStateException.class, () -> migrationHandler.migrate(10, data));
+    }
+
+    @Test
+    void testMergeProperties() {
+        final Map<String, String> tested = migrationHandler.migrate(11, data);
+        Assertions.assertEquals(6, tested.size());
+        Assertions.assertEquals(tested.get("config.new.sub.key1"), "value1-value2-value3");
+    }
+
+    @Test
+    void testMergePropertiesWithInexistingKey() {
+        Assertions.assertThrows(IllegalStateException.class, () -> migrationHandler.migrate(12, data));
+    }
+
     public static class MigrationHandlerTester extends AbstractMigrationHandler {
 
         @Override
@@ -119,12 +165,38 @@ class AbstractMigrationHandlerTest {
                 case 8:
                     changeValue("missingkey", s -> s.replace("value", "valeur"), s -> s.endsWith("6"));
                     break;
+                case 9:
+                    splitProperty("key1", Arrays.asList("config.new.sub.key1.val0", "config.new.sub.key1.val1"));
+                    break;
+                case 10:
+                    splitProperty("config.new", Arrays.asList("config.new.val0", "config.new.val1"));
+                    break;
+                case 11:
+                    mergeProperties(Arrays.asList("key1", "key2", "key3"), "config.new.sub.key1");
+                    break;
+                case 12:
+                    mergeProperties(Arrays.asList("key1", "key22", "key3"), "config.new.sub.key1");
+                    break;
                 default:
                     //
                 }
             } catch (MigrationException e) {
                 throw new IllegalStateException(e);
             }
+        }
+
+        @Override
+        public void doSplitProperty(final String oldKey, final List<String> newKeys) {
+            final String val = configuration.get(oldKey);
+            newKeys.stream().forEach(k -> configuration.put(k, val));
+            configuration.remove(oldKey);
+        }
+
+        @Override
+        public void doMergeProperties(final List<String> oldKeys, final String newKey) {
+            List<String> vals = oldKeys.stream().map(k -> configuration.get(k)).collect(Collectors.toList());
+            configuration.put(newKey, vals.stream().collect(Collectors.joining("-")));
+            oldKeys.stream().forEach(k -> configuration.remove(k));
         }
     }
 }
