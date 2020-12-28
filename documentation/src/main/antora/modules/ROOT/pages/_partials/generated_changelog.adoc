@@ -1,11 +1,46 @@
 
 
+== Version 1.29.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1820[TCOMP-1820^]: API documentation is broken
+- link:https://jira.talendforge.org/browse/TCOMP-1839[TCOMP-1839^]: Tomcat websocket server fails to start after tomcat 9.0.40 and meecrowave 1.2.10
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1836[TCOMP-1836^]: Upgrade OpenWebBeans to 2.0.20
+- link:https://jira.talendforge.org/browse/TCOMP-1837[TCOMP-1837^]: Upgrade xbean to 4.18
+- link:https://jira.talendforge.org/browse/TCOMP-1838[TCOMP-1838^]: Upgrade cxf to 3.4.1
+- link:https://jira.talendforge.org/browse/TCOMP-1840[TCOMP-1840^]: Upgrade tomcat to 9.0.41
+
+== Version 1.28.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1827[TCOMP-1827^]: Upgrade lombok to 1.18.16
+- link:https://jira.talendforge.org/browse/TCOMP-1828[TCOMP-1828^]: Change project's versioning scheme
+- link:https://jira.talendforge.org/browse/TCOMP-1829[TCOMP-1829^]: Upgrade TSBI to 2.5.3-20201201131449
+- link:https://jira.talendforge.org/browse/TCOMP-1830[TCOMP-1830^]: Upgrade Apache Beam to 2.26.0
+- link:https://jira.talendforge.org/browse/TCOMP-1832[TCOMP-1832^]: Upgrade httpclient to 4.5.13 due to CVE-2020-13956
+- link:https://jira.talendforge.org/browse/TCOMP-1833[TCOMP-1833^]: Upgrade spark to 2.4.7
+- link:https://jira.talendforge.org/browse/TCOMP-1834[TCOMP-1834^]: Upgrade groovy to 3.0.7 due to CVE-2020-17521
+
 == Version 1.1.27
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1787[TCOMP-1787^]: ComponentManager can't be re-created after it's been closed
 - link:https://jira.talendforge.org/browse/TCOMP-1788[TCOMP-1788^]: Invalid properties validation
 - link:https://jira.talendforge.org/browse/TCOMP-1801[TCOMP-1801^]: Can't look for resources in the classpath on Windows
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1761[TCOMP-1761^]: Support of complete schema definition
 
 
 
@@ -15,6 +50,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1792[TCOMP-1792^]: Uniform error message on component validation
 - link:https://jira.talendforge.org/browse/TCOMP-1808[TCOMP-1808^]: Upgrade log4j2 to 2.14.0
 - link:https://jira.talendforge.org/browse/TCOMP-1809[TCOMP-1809^]: Update CXF to 3.3.8 due to CVE-2020-13954
+- link:https://jira.talendforge.org/browse/TCOMP-1812[TCOMP-1812^]: Upgrade junit to 4.13.1 due to CVE-2020-15250
+- link:https://jira.talendforge.org/browse/TCOMP-1813[TCOMP-1813^]: Upgrade jupiter to 5.7.0
+- link:https://jira.talendforge.org/browse/TCOMP-1816[TCOMP-1816^]: Apache Maven Shared Utils: OS Command Injection in Talend/component-runtime (master) and Talend/cloud-components
+- link:https://jira.talendforge.org/browse/TCOMP-1817[TCOMP-1817^]: Upgrade gmavenplus-plugin to 1.11.0
 
 == Version 1.1.26
 
@@ -316,24 +355,6 @@
 
 
 
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
-
-== Version 1.1.15.1
-
-=== New Feature
-
-- link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
-
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1685[TCOMP-1685^]: Provide docker images based on TSBI
-
 == Version 1.1.15
 
 === Bug
@@ -366,6 +387,24 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
+
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
+== Version 1.1.15.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1685[TCOMP-1685^]: Provide docker images based on TSBI
 
 == Version 1.1.14
 

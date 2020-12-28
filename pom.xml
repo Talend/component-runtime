@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.1.27-SNAPSHOT</version>
+  <version>1.29.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -157,18 +157,18 @@
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
-    <xbean.version>4.16</xbean.version>
+    <xbean.version>4.18</xbean.version>
     <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
     <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.28</slf4j.version>
-    <junit.version>4.13</junit.version>
+    <junit.version>4.13.1</junit.version>
     <ziplock.version>8.0.4</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.2.8</johnzon.version>
     <meecrowave.version>1.2.10</meecrowave.version>
-    <owb.version>2.0.16</owb.version>
-    <tomcat.version>9.0.40</tomcat.version>
-    <cxf.version>3.3.8</cxf.version>
+    <owb.version>2.0.20</owb.version>
+    <tomcat.version>9.0.41</tomcat.version>
+    <cxf.version>3.4.1</cxf.version>
     <log4j2.version>2.14.0</log4j2.version>
     <logback.version>1.2.3</logback.version>
     <log4j.version>1.2.17</log4j.version>
@@ -179,9 +179,6 @@
     <geronimo-jsonb.version>1.2</geronimo-jsonb.version>
     <geronimo-json.version>1.3</geronimo-json.version>
     <batik.version>1.13</batik.version>
-    <beam.version>2.25.0</beam.version>
-    <!-- should follow beam-sdk-java-core version -->
-    <joda.time.version>2.10.3</joda.time.version>
     <commons-codec.version>1.15</commons-codec.version>
     <commons-compress.version>1.20</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
@@ -201,7 +198,7 @@
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-opentracing.version>1.0.2</geronimo-opentracing.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
-    <junit5.version>5.7.0-M1</junit5.version>
+    <junit5.version>5.7.0</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
     <jackson.version>2.11.0</jackson.version>
     <jackson-databind.version>${jackson.version}</jackson-databind.version>
@@ -215,12 +212,17 @@
     <!-- for the starter -->
     <gradle.version>6.0-rc-1</gradle.version>
     <mvn.version>3.6.3</mvn.version>
+    <maven-shared-utils.version>3.3.3</maven-shared-utils.version>
 
-    <spark.version>2.4.5</spark.version>
+    <beam.version>2.26.0</beam.version>
+    <!-- should follow beam-sdk-java-core version -->
+    <joda.time.version>2.10.5</joda.time.version>
+
+    <spark.version>2.4.7</spark.version>
     <spark-scala.version>2.11</spark-scala.version>
 
-    <groovy.version>3.0.3</groovy.version>
-    <gmavenplus.version>1.8.0</gmavenplus.version>
+    <groovy.version>3.0.7</groovy.version>
+    <gmavenplus.version>1.11.0</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <javadoc-plugin.version>3.1.0</javadoc-plugin.version>
     <deploy-plugin.version>2.8.2</deploy-plugin.version>
@@ -263,7 +265,7 @@
       <dependency><!-- upgrade for jib (to not get CVE) -->
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.5.12</version>
+        <version>4.5.13</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -405,7 +407,16 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-shared-utils</artifactId>
+          </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.shared</groupId>
+        <artifactId>maven-shared-utils</artifactId>
+        <version>${maven-shared-utils.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
@@ -734,7 +745,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.12</version>
+      <version>1.18.16</version>
       <scope>provided</scope>
     </dependency>
 

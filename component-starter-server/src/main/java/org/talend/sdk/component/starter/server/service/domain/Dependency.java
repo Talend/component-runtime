@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @EqualsAndHashCode
 public class Dependency {
 
-    private static final Dependency JUNIT = new Dependency("junit", "junit", "4.12", "test");
+    private static final Dependency JUNIT = new Dependency("junit", "junit", "4.13.1", "test");
 
     private final String group;
 

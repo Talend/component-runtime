@@ -39,7 +39,7 @@ public abstract class ClassLoaderEnvironment extends BaseEnvironmentProvider {
                     .loadClass("org.jboss.shrinkwrap.resolver.api.maven.Maven");
         } catch (final ClassNotFoundException e) {
             throw new IllegalStateException("Don't forget to add to your dependencies:\n"
-                    + "  org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-impl-maven:3.1.3");
+                    + "  org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-impl-maven:3.1.4");
         }
         final Thread thread = Thread.currentThread();
         final URLClassLoader classLoader = new URLClassLoader(Stream

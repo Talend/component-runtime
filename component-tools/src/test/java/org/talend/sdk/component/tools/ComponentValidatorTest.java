@@ -571,6 +571,21 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.valid.structure", success = true, validateSvg = false)
+    void testValidStructure() {
+        // no-op
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.structure")
+    void testFailureStructure(final ExceptionSpec spec) {
+        spec
+                .expectMessage(
+                        "- class org.talend.test.failure.structure.MyComponentWithStructure$MyDataSet#incoming uses @Structure but is not a List<String> nor a List<Object>\n"
+                                + "- class org.talend.test.failure.structure.MyComponentWithStructure$MyDataSet#outgoing uses @Structure but is not a List<String> nor a List<Object>");
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid.update", success = true, validateDataSet = false)
     void testValidUpdate() {
         // no-op

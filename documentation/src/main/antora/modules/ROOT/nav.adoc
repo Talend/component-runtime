@@ -59,6 +59,7 @@
 ** xref:index-deploying-components.adoc[Studio integration overview]
 ** xref:studio.adoc[Iterating on component development]
 ** xref:studio-from-car.adoc[Installing components from a CAR file]
+** xref:studio-schema.adoc[Studio schema]
 ** xref:compatibility.adoc[Version compatibility]
 ** xref:javajet-to-componentkit.adoc[From Javajet to the Component Kit]
 * xref:index-cloud-integration.adoc[Integrating into Talend Cloud]

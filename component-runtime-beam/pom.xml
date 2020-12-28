@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.1.27-SNAPSHOT</version>
+    <version>1.29.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-beam</artifactId>
@@ -255,7 +255,7 @@
         <jdk>[11,20)</jdk>
       </activation>
       <properties>
-        <!-- requires spark with xbean-asm7 -->
+        <!-- requires spark with xbean-asm9 -->
         <invoker.skip>true</invoker.skip>
       </properties>
     </profile>

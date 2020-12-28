@@ -23,7 +23,6 @@ import org.apache.catalina.webresources.StandardRoot;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.runner.Cli;
-import org.apache.tomcat.websocket.server.WsSci;
 
 // utility to use into the studio, mainly to workaround JVM URL stream handler limitations
 public class EnhancedCli extends Cli implements AutoCloseable {
@@ -59,7 +58,6 @@ public class EnhancedCli extends Cli implements AutoCloseable {
                             // single time
                         }
                     });
-                    stdCtx.addServletContainerInitializer(new WsSci(), null);
                 }));
 
                 doWait(meecrowave, null);
