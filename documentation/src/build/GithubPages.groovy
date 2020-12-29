@@ -49,6 +49,19 @@ log.info("Using url=${url}")
 log.info("Using user=${server.username}")
 log.info("Using branch=${branch}")
 
+def printClassPath(classLoader) {
+    println "* classloader: $classLoader"
+    classLoader.getURLs().each { url ->
+        println "  - ${url.toString()}"
+    }
+    if (classLoader.parent) {
+        printClassPath(classLoader.parent)
+    }
+}
+println("---------------------------------")
+printClassPath this.class.classLoader
+println("---------------------------------")
+
 def credentialsProvider = new UsernamePasswordCredentialsProvider(server.username, server.password)
 def git = Git.cloneRepository()
         .setCredentialsProvider(credentialsProvider)

@@ -782,6 +782,7 @@
                 <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
                 <git_branch>${git.branch}</git_branch>
               </attributes>
+              <logHandler><outputToConsole>false</outputToConsole></logHandler>
             </configuration>
           </execution>
         </executions>
