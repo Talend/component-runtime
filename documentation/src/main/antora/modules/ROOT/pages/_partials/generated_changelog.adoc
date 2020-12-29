@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1837[TCOMP-1837^]: Upgrade xbean to 4.18
 - link:https://jira.talendforge.org/browse/TCOMP-1838[TCOMP-1838^]: Upgrade cxf to 3.4.1
 - link:https://jira.talendforge.org/browse/TCOMP-1840[TCOMP-1840^]: Upgrade tomcat to 9.0.41
+- link:https://jira.talendforge.org/browse/TCOMP-1842[TCOMP-1842^]: Upgrade jgit to 5.10.0.202012080955-r
 
 == Version 1.28.0
 
