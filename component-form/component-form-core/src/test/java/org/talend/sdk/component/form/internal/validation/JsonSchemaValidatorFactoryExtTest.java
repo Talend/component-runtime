@@ -130,7 +130,7 @@ class JsonSchemaValidatorFactoryExtTest {
     @Test
     void testValidationList() {
         List validations = factory.createDefaultValidations();
-        assertEquals(18, validations.size());
+        assertEquals(19, validations.size());
         assertEquals(4, validations
                 .stream()
                 .filter(v -> EnumValidationWithDefaultValue.class.isInstance(v) || MinimumValidation.class.isInstance(v)

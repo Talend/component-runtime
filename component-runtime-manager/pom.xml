@@ -63,6 +63,16 @@
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-asm9-shaded</artifactId>
       <version>${xbean.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.xbean</groupId>
+          <artifactId>xbean-asm-util</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

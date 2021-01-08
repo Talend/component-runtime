@@ -88,7 +88,7 @@ class RecordConvertersTest {
                                     () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
                                     () -> recordBuilderFactory));
             assertEquals(
-                    "{\"bd\":10.0,\"binary\":100.0,\"binary2\":100.0," + "\"character\":\"a\",\"character2\":\"a\","
+                    "{\"bd\":\"10\",\"binary\":100.0,\"binary2\":100.0," + "\"character\":\"a\",\"character2\":\"a\","
                             + "\"notLong\":100.0,\"notLong2\":100.0," + "\"today\":\"1970-01-01T00:00:00Z[UTC]\"}",
                     recordModel.toString());
             final SimpleRowStruct deserialized = SimpleRowStruct.class
