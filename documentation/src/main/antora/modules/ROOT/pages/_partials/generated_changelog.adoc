@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1840[TCOMP-1840^]: Upgrade tomcat to 9.0.41
 - link:https://jira.talendforge.org/browse/TCOMP-1842[TCOMP-1842^]: Upgrade jgit to 5.10.0.202012080955-r
 - link:https://jira.talendforge.org/browse/TCOMP-1844[TCOMP-1844^]: Upgrade johnzon to 1.2.9
+- link:https://jira.talendforge.org/browse/TCOMP-1845[TCOMP-1845^]: Upgrade guava to 30.1-jre due to CVE-2020-8908
 
 == Version 1.28.0
 
