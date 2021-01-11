@@ -60,7 +60,7 @@ public class MyComponentTest {
 
 TIP: The rule can also be defined as a `@ClassRule` to start it once per class and not per test as with `@Rule`.
 
-To go further, you can add the `ServiceInjectionRule` rule, which allows to inject all the component family services into the test class by marking test class fields with `@InjectService`:
+To go further, you can add the `ServiceInjectionRule` rule, which allows to inject all the component family services into the test class by marking test class fields with `@Service`:
 
 [source,java]
 ----
@@ -125,7 +125,7 @@ public class ComponentExtensionTest {
 NOTE: If you use JUnit 5 for the first time, keep in mind that the imports changed and that you need to use `org.junit.jupiter.api.Test` instead of `org.junit.Test`.
 Some IDE versions and `surefire` versions can also require you to install either a plugin or a specific configuration.
 
-As for JUnit 4, you can go further by injecting test class fields marked with `@InjectService`, but there is no additional extension to specify in this case:
+As for JUnit 4, you can go further by injecting test class fields marked with `@Service`, but there is no additional extension to specify in this case:
 
 [source,java]
 ----
