@@ -1,5 +1,19 @@
 
 
+== Version 1.29.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1839[TCOMP-1839^]: Tomcat websocket server fails to start after tomcat 9.0.40 and meecrowave 1.2.10
+
+
+
+== Version 1.28.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1839[TCOMP-1839^]: Tomcat websocket server fails to start after tomcat 9.0.40 and meecrowave 1.2.10
+
 == Version 1.28.0
 
 === Work Item
@@ -338,24 +352,6 @@
 
 
 
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
-
-== Version 1.1.15.1
-
-=== New Feature
-
-- link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
-
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1685[TCOMP-1685^]: Provide docker images based on TSBI
 
 == Version 1.1.15
 
