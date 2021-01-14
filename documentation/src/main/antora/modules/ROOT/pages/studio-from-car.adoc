@@ -44,7 +44,7 @@ In this command, Nexus URL and repository name are mandatory arguments. All othe
 
 Talend Studio allows you to share components you have created using Talend Component Kit to other users working on the same remote project.
 
-NOTE: Remote projects are available with Enterprise versions of Talend Studio only.
+NOTE: Remote projects are available with Enterprise versions of Talend Studio only. Also, note that *this feature has been removed* in Studio since 7.3 release.
 
 Make sure you are connected to a remote project and the artifact repository for component sharing has been properly configured.
 
