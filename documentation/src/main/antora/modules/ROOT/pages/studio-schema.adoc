@@ -1,8 +1,15 @@
 = Studio schema
 :page-partial:
 :description: How to access studio's schema in your component.
-:keywords: studio, schema, metadata, columns
+:keywords: studio, schema, metadata, dynamic, columns
 
+== Dynamic schema
+
+Since the `1.1.25` release, the https://help.talend.com/r/nsbWWUnRtCUlvlMLhaJZsQ/KLZ5B7Qk02XbA~~RvgL3xw[dynamic column] feature is supported in Studio with component-runtime components.
+
+NOTE: Dynamic column is available with Enterprise versions of Talend Studio only.
+
+== Accessing columns metadata
 
 In Studio, we can define for each component a schema with associated metadata.
 
@@ -10,7 +17,7 @@ image::studio_schema.png[Job run,window="_blank",link="https://talend.github.io/
 
 To access those informations in your component, you've to do a few things:
 
-== Using the `@Structure` annotation
+Using the `@Structure` annotation
 
 - API: `@org.talend.sdk.component.api.configuration.ui.widget.Structure`
 
@@ -46,7 +53,7 @@ public class OutputConfig implements Serializable {
 
 Then, we should have a class `SchemaInfo` as following:
 
-== Defining a specific class for holding metadata
+Defining a specific class for holding metadata
 If you don't want just only column names (using `List<String>`), you'll have to define a custom class.
 
 [source,java]
@@ -79,7 +86,7 @@ public class SchemaInfo implements Serializable {
 ----
 
 
-== Available Studio metadata informations
+Available Studio metadata informations
 [options="header",role="table-striped table-hover table-ordered"]
 |===
 |*Field name*|*Type*|*Name in Studio*
