@@ -120,9 +120,19 @@ class RecordBuilderImplTest {
     void nullSupportString() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder.withString("test", null);
+        builder.withInt("testInt", null);
+        builder.withLong("testLong", null);
+        builder.withBoolean("testBool", null);
+        builder.withFloat("testFloat", null);
+        builder.withDouble("testDouble", null);
         final Record record = builder.build();
-        assertEquals(1, record.getSchema().getEntries().size());
+        assertEquals(6, record.getSchema().getEntries().size());
         assertNull(record.getString("test"));
+        assertNull(record.getInt("testInt"));
+        assertNull(record.getLong("testLong"));
+        assertNull(record.getBoolean("testBool"));
+        assertNull(record.getFloat("testFloat"));
+        assertNull(record.getDouble("testDouble"));
     }
 
     @Test

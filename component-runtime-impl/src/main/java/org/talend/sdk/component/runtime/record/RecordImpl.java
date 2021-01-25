@@ -128,12 +128,12 @@ public final class RecordImpl implements Record {
             return entry;
         }
 
-        private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
+        private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type) {
             if (providedSchema == null) {
                 return new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName(name)
                         .withType(type)
-                        .withNullable(nullable)
+                        .withNullable(true)
                         .build();
             }
             return this.findExistingEntry(name);
@@ -176,7 +176,7 @@ public final class RecordImpl implements Record {
         // here the game is to add an entry method for each kind of type + its companion with Entry provider
         @Override
         public Builder withString(final String name, final String value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, STRING, true);
+            final Schema.Entry entry = this.findOrBuildEntry(name, STRING);
             return withString(entry, value);
         }
 
@@ -189,7 +189,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withBytes(final String name, final byte[] value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, BYTES, true);
+            final Schema.Entry entry = this.findOrBuildEntry(name, BYTES);
             return withBytes(entry, value);
         }
 
@@ -202,7 +202,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withDateTime(final String name, final Date value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, true);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME);
             return withDateTime(entry, value);
         }
 
@@ -217,7 +217,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withDateTime(final String name, final ZonedDateTime value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, true);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME);
             return withDateTime(entry, value);
         }
 
@@ -232,7 +232,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withTimestamp(final String name, final Long value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, false);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME);
             return withTimestamp(entry, value);
         }
 
@@ -245,7 +245,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withInt(final String name, final Integer value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, INT, false);
+            final Schema.Entry entry = this.findOrBuildEntry(name, INT);
             return withInt(entry, value);
         }
 
@@ -258,7 +258,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withLong(final String name, final Long value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, LONG, false);
+            final Schema.Entry entry = this.findOrBuildEntry(name, LONG);
             return withLong(entry, value);
         }
 
@@ -271,7 +271,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withFloat(final String name, final Float value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, FLOAT, false);
+            final Schema.Entry entry = this.findOrBuildEntry(name, FLOAT);
             return withFloat(entry, value);
         }
 
@@ -284,7 +284,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withDouble(final String name, final Double value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DOUBLE, false);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DOUBLE);
             return withDouble(entry, value);
         }
 
@@ -297,7 +297,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withBoolean(final String name, final Boolean value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, BOOLEAN, false);
+            final Schema.Entry entry = this.findOrBuildEntry(name, BOOLEAN);
             return withBoolean(entry, value);
         }
 
