@@ -6,6 +6,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1688[TCOMP-1688^]: Rewrite JsonSchema required rules to reflect component's validation rules
 
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1847[TCOMP-1847^]: Upgrade Apache Beam to 2.27.0
+
 == Version 1.29.0
 
 === Bug
