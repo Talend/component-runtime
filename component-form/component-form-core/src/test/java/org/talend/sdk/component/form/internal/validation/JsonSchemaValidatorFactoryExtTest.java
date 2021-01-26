@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.spi.JsonProvider;
@@ -78,6 +79,25 @@ class JsonSchemaValidatorFactoryExtTest {
             .add("maxRecords2", 1000)
             .add("maxRecordsBad0", -2)
             .add("maxRecordsBad1", 1001)
+            .add("dataStoreOk",
+                    jsonFactory
+                            .createObjectBuilder()
+                            .add("username", "test")
+                            .add("password", "test")
+                            .add("jdbcUrl", jsonFactory.createObjectBuilder().add("setRawUrl", false).build())
+                            .build())
+            .add("dataStoreKo",
+                    jsonFactory
+                            .createObjectBuilder()
+                            .add("username", JsonValue.NULL)
+                            .add("password", "test")
+                            .add("jdbcUrl",
+                                    jsonFactory
+                                            .createObjectBuilder()
+                                            .add("setRawUrl", false)
+                                            .add("rawUrl", JsonValue.NULL)
+                                            .build())
+                            .build())
             .build();
 
     private ConfigTypeNodes nodes;
@@ -102,6 +122,10 @@ class JsonSchemaValidatorFactoryExtTest {
 
     private JsonObject jsonDataset;
 
+    private JsonSchema schemaDataStore;
+
+    private JsonObject jsonDataStore;
+
     @BeforeEach
     void setup() throws Exception {
         factory = new JsonSchemaValidatorFactoryExt();
@@ -125,6 +149,8 @@ class JsonSchemaValidatorFactoryExtTest {
         jsonMaxRecords = jsonb.fromJson(jsonb.toJson(schemaMaxRecords), JsonObject.class);
         schemaDataset = jsonSchema.getProperties().get("tableDataSet");
         jsonDataset = jsonb.fromJson(jsonb.toJson(schemaDataset), JsonObject.class);
+        schemaDataStore = jsonSchema.getProperties().get("dataStore");
+        jsonDataStore = jsonb.fromJson(jsonb.toJson(schemaDataStore), JsonObject.class);
     }
 
     @Test
@@ -196,6 +222,20 @@ class JsonSchemaValidatorFactoryExtTest {
         assertEquals(1, errors.getErrors().size());
         errors = validator.apply(conf.get("maxRecordsBad2"));
         assertEquals(0, errors.getErrors().size());
+    }
+
+    @Test
+    void testRequiredOptionOk() throws Exception {
+        final JsonSchemaValidator validator = factory.newInstance(jsonDataStore);
+        final ValidationResult errors = validator.apply(conf.get("dataStoreOk"));
+        assertEquals(0, errors.getErrors().size());
+    }
+
+    @Test
+    void testRequiredOptionKo() throws Exception {
+        final JsonSchemaValidator validator = factory.newInstance(jsonDataStore);
+        final ValidationResult errors = validator.apply(conf.get("dataStoreKo"));
+        assertEquals(2, errors.getErrors().size());
     }
 
 }

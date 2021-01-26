@@ -1,5 +1,11 @@
 
 
+== Version 1.30.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1688[TCOMP-1688^]: Rewrite JsonSchema required rules to reflect component's validation rules
+
 == Version 1.29.0
 
 === Bug
