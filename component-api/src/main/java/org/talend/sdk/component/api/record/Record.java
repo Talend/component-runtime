@@ -60,7 +60,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default int getInt(final String name) {
+    default Integer getInt(final String name) {
         return get(Integer.class, name);
     }
 
@@ -70,7 +70,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default long getLong(final String name) {
+    default Long getLong(final String name) {
         return get(Long.class, name);
     }
 
@@ -80,7 +80,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default double getDouble(final String name) {
+    default Double getDouble(final String name) {
         return get(Double.class, name);
     }
 
@@ -90,7 +90,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default float getFloat(final String name) {
+    default Float getFloat(final String name) {
         return get(Float.class, name);
     }
 
@@ -100,7 +100,7 @@ public interface Record {
      * @param name entry name.
      * @return the value of the entry in this record.
      */
-    default boolean getBoolean(final String name) {
+    default Boolean getBoolean(final String name) {
         return get(Boolean.class, name);
     }
 
@@ -276,29 +276,29 @@ public interface Record {
 
         Builder withDateTime(Schema.Entry entry, ZonedDateTime value);
 
-        Builder withTimestamp(String name, long value);
+        Builder withTimestamp(String name, Long value);
 
-        Builder withTimestamp(Schema.Entry entry, long value);
+        Builder withTimestamp(Schema.Entry entry, Long value);
 
-        Builder withInt(String name, int value);
+        Builder withInt(String name, Integer value);
 
-        Builder withInt(Schema.Entry entry, int value);
+        Builder withInt(Schema.Entry entry, Integer value);
 
-        Builder withLong(String name, long value);
+        Builder withLong(String name, Long value);
 
-        Builder withLong(Schema.Entry entry, long value);
+        Builder withLong(Schema.Entry entry, Long value);
 
-        Builder withFloat(String name, float value);
+        Builder withFloat(String name, Float value);
 
-        Builder withFloat(Schema.Entry entry, float value);
+        Builder withFloat(Schema.Entry entry, Float value);
 
-        Builder withDouble(String name, double value);
+        Builder withDouble(String name, Double value);
 
-        Builder withDouble(Schema.Entry entry, double value);
+        Builder withDouble(Schema.Entry entry, Double value);
 
-        Builder withBoolean(String name, boolean value);
+        Builder withBoolean(String name, Boolean value);
 
-        Builder withBoolean(Schema.Entry entry, boolean value);
+        Builder withBoolean(Schema.Entry entry, Boolean value);
 
         Builder withRecord(Schema.Entry entry, Record value);
 

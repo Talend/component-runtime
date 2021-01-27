@@ -128,12 +128,12 @@ public final class RecordImpl implements Record {
             return entry;
         }
 
-        private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
+        private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type) {
             if (providedSchema == null) {
-                return new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName(name)
-                        .withType(type)
-                        .withNullable(nullable)
+                return new SchemaImpl.EntryImpl.BuilderImpl() //
+                        .withName(name) //
+                        .withType(type) //
+                        .withNullable(true) //
                         .build();
             }
             return this.findExistingEntry(name);
@@ -156,6 +156,7 @@ public final class RecordImpl implements Record {
             return entry;
         }
 
+        @Override
         public Record build() {
             if (providedSchema != null) {
                 final String missing = providedSchema
@@ -173,34 +174,39 @@ public final class RecordImpl implements Record {
         }
 
         // here the game is to add an entry method for each kind of type + its companion with Entry provider
-
+        @Override
         public Builder withString(final String name, final String value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, STRING, true);
+            final Schema.Entry entry = this.findOrBuildEntry(name, STRING);
             return withString(entry, value);
         }
 
+        @Override
         public Builder withString(final Schema.Entry entry, final String value) {
             assertType(entry.getType(), STRING);
             validateTypeAgainstProvidedSchema(entry.getName(), STRING, value);
             return append(entry, value);
         }
 
+        @Override
         public Builder withBytes(final String name, final byte[] value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, BYTES, true);
+            final Schema.Entry entry = this.findOrBuildEntry(name, BYTES);
             return withBytes(entry, value);
         }
 
+        @Override
         public Builder withBytes(final Schema.Entry entry, final byte[] value) {
             assertType(entry.getType(), BYTES);
             validateTypeAgainstProvidedSchema(entry.getName(), BYTES, value);
             return append(entry, value);
         }
 
+        @Override
         public Builder withDateTime(final String name, final Date value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, true);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME);
             return withDateTime(entry, value);
         }
 
+        @Override
         public Builder withDateTime(final Schema.Entry entry, final Date value) {
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
@@ -209,11 +215,13 @@ public final class RecordImpl implements Record {
             return withTimestamp(entry, value == null ? -1 : value.getTime());
         }
 
+        @Override
         public Builder withDateTime(final String name, final ZonedDateTime value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, true);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME);
             return withDateTime(entry, value);
         }
 
+        @Override
         public Builder withDateTime(final Schema.Entry entry, final ZonedDateTime value) {
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
@@ -222,72 +230,85 @@ public final class RecordImpl implements Record {
             return withTimestamp(entry, value == null ? -1 : value.toInstant().toEpochMilli());
         }
 
-        public Builder withTimestamp(final String name, final long value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, false);
+        @Override
+        public Builder withTimestamp(final String name, final Long value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME);
             return withTimestamp(entry, value);
         }
 
-        public Builder withTimestamp(final Schema.Entry entry, final long value) {
+        @Override
+        public Builder withTimestamp(final Schema.Entry entry, final Long value) {
             assertType(entry.getType(), DATETIME);
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value);
         }
 
-        public Builder withInt(final String name, final int value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, INT, false);
+        @Override
+        public Builder withInt(final String name, final Integer value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, INT);
             return withInt(entry, value);
         }
 
-        public Builder withInt(final Schema.Entry entry, final int value) {
+        @Override
+        public Builder withInt(final Schema.Entry entry, final Integer value) {
             assertType(entry.getType(), INT);
             validateTypeAgainstProvidedSchema(entry.getName(), INT, value);
             return append(entry, value);
         }
 
-        public Builder withLong(final String name, final long value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, LONG, false);
+        @Override
+        public Builder withLong(final String name, final Long value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, LONG);
             return withLong(entry, value);
         }
 
-        public Builder withLong(final Schema.Entry entry, final long value) {
+        @Override
+        public Builder withLong(final Schema.Entry entry, final Long value) {
             assertType(entry.getType(), LONG);
             validateTypeAgainstProvidedSchema(entry.getName(), LONG, value);
             return append(entry, value);
         }
 
-        public Builder withFloat(final String name, final float value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, FLOAT, false);
+        @Override
+        public Builder withFloat(final String name, final Float value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, FLOAT);
             return withFloat(entry, value);
         }
 
-        public Builder withFloat(final Schema.Entry entry, final float value) {
+        @Override
+        public Builder withFloat(final Schema.Entry entry, final Float value) {
             assertType(entry.getType(), FLOAT);
             validateTypeAgainstProvidedSchema(entry.getName(), FLOAT, value);
             return append(entry, value);
         }
 
-        public Builder withDouble(final String name, final double value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DOUBLE, false);
+        @Override
+        public Builder withDouble(final String name, final Double value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, DOUBLE);
             return withDouble(entry, value);
         }
 
-        public Builder withDouble(final Schema.Entry entry, final double value) {
+        @Override
+        public Builder withDouble(final Schema.Entry entry, final Double value) {
             assertType(entry.getType(), DOUBLE);
             validateTypeAgainstProvidedSchema(entry.getName(), DOUBLE, value);
             return append(entry, value);
         }
 
-        public Builder withBoolean(final String name, final boolean value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, BOOLEAN, false);
+        @Override
+        public Builder withBoolean(final String name, final Boolean value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, BOOLEAN);
             return withBoolean(entry, value);
         }
 
-        public Builder withBoolean(final Schema.Entry entry, final boolean value) {
+        @Override
+        public Builder withBoolean(final Schema.Entry entry, final Boolean value) {
             assertType(entry.getType(), BOOLEAN);
             validateTypeAgainstProvidedSchema(entry.getName(), BOOLEAN, value);
             return append(entry, value);
         }
 
+        @Override
         public Builder withRecord(final Schema.Entry entry, final Record value) {
             assertType(entry.getType(), RECORD);
             if (entry.getElementSchema() == null) {
@@ -297,6 +318,7 @@ public final class RecordImpl implements Record {
             return append(entry, value);
         }
 
+        @Override
         public Builder withRecord(final String name, final Record value) {
             return withRecord(new SchemaImpl.EntryImpl.BuilderImpl()
                     .withName(name)
@@ -306,6 +328,7 @@ public final class RecordImpl implements Record {
                     .build(), value);
         }
 
+        @Override
         public <T> Builder withArray(final Schema.Entry entry, final Collection<T> values) {
             assertType(entry.getType(), ARRAY);
             if (entry.getElementSchema() == null) {
