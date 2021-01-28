@@ -22,4 +22,8 @@ import java.util.Map;
 public interface ComponentMetadataEnricher {
 
     Map<String, String> onComponent(Type type, Annotation[] annotations);
+
+    default int order() {
+        return 0;
+    }
 }

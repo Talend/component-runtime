@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect;
 
+import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
@@ -62,12 +63,17 @@ public class ComponentMetadataService {
                 .ifPresent(pm -> metas.put(MAPPER_INFINITE, Boolean.toString(pm.infinite())));
         ofNullable(clazz.getAnnotation(Emitter.class)).ifPresent(e -> metas.put(MAPPER_INFINITE, "false"));
         // user defined spi
-        enrichers.stream().forEach(enricher -> enricher.onComponent(clazz, clazz.getAnnotations()).forEach((k, v) -> {
-            if (metas.containsKey(k)) {
-                log.warn("SPI {} overrides metadata {}.", enricher.getClass().getName(), k);
-            }
-            metas.put(k, v);
-        }));
+        enrichers
+                .stream()
+                .sorted(comparing(ComponentMetadataEnricher::order))
+                .forEach(enricher -> enricher.onComponent(clazz, clazz.getAnnotations()).forEach((k, v) -> {
+                    if (metas.containsKey(k)) {
+                        log
+                                .warn("SPI {} (order: {}) overrides metadata {}.", enricher.getClass().getName(),
+                                        enricher.order(), k);
+                    }
+                    metas.put(k, v);
+                }));
 
         return metas;
     }

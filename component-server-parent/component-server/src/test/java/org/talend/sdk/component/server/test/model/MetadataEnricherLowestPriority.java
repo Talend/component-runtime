@@ -22,24 +22,18 @@ import java.util.Map;
 
 import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
-public class MetadataEnricher implements ComponentMetadataEnricher {
+public class MetadataEnricherLowestPriority implements ComponentMetadataEnricher {
 
     @Override
     public Map<String, String> onComponent(final Type type, final Annotation[] annotations) {
         return new HashMap<String, String>() {
 
             {
-                put("testing::type", type.getTypeName());
-                put("testing::v2", "2");
-                put("testing::v3", "3");
-                put("testing::v4", "4");
-                put("testing::v5", "5");
+                put("testing::v2", "12");
+                put("testing::v3", "123");
+                put("testing::v4", "1234");
+                put("testing::v5", "12345");
             }
         };
-    }
-
-    @Override
-    public int order() {
-        return 100;
     }
 }
