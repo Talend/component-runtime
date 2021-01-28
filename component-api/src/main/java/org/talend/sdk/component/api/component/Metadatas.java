@@ -31,7 +31,7 @@ public @interface Metadatas {
     @Retention(RUNTIME)
     @interface Metadata {
 
-        String key() default ""; // will be prefixed by "tcomp::metadata::" by convention
+        String key() default "";
 
         String value() default "";
 
