@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.talend.sdk.component.api.component.Metadatas;
+import org.talend.sdk.component.api.component.Metadatas.Metadata;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.constraint.Max;
@@ -33,6 +35,8 @@ import org.talend.sdk.component.api.input.Producer;
 import lombok.Getter;
 
 @Emitter(family = "chain", name = "list")
+@Metadatas({ @Metadata(key = "testing::v0", value = "0"), @Metadata(key = "testing::v1", value = "1"),
+        @Metadata(key = "testing::v2", value = "2000") })
 public class ListInput implements Serializable {
 
     private final Collection<String> list;

@@ -67,8 +67,7 @@ class BeamComponentExtensionTest {
                 .unwrap(FlowsFactory.class,
                         new ComponentFamilyMeta.ProcessorMeta(
                                 new ComponentFamilyMeta("test", emptyList(), null, "test", "test"), "beam", null, 1,
-                                BeamMapper.class, Collections::emptyList, null, null, true) {
-
+                                BeamMapper.class, Collections::emptyList, null, null, true, Collections.emptyMap()) {
                         });
         assertEquals(1, factory.getInputFlows().size());
         assertEquals(asList("main1", "main2"), factory.getOutputFlows());

@@ -13,35 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.sdk.component.api.component;
 
-import java.util.Collection;
-import java.util.Map;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ComponentIndex {
+@Target(TYPE)
+@Retention(RUNTIME)
+public @interface Metadatas {
 
-    private ComponentId id;
+    Metadata[] value();
 
-    private String displayName;
+    @Target(TYPE)
+    @Retention(RUNTIME)
+    @interface Metadata {
 
-    private String familyDisplayName;
+        String key() default "";
 
-    private Icon icon;
+        String value() default "";
 
-    private Icon iconFamily;
-
-    private int version;
-
-    private Collection<String> categories;
-
-    private Collection<Link> links;
-
-    private Map<String, String> metadata;
+    }
 }

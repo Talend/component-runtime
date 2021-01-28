@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -59,6 +58,7 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
@@ -260,16 +260,15 @@ public class ComponentResourceImpl implements ComponentResource {
         return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent, query), k -> {
             final Predicate<ComponentIndex> filter = queryLanguageCompiler.compile(query, componentEvaluators);
             return new ComponentIndices(Stream
-                    .concat(findDeployedComponents(includeIconContent, locale),
-                            virtualComponents
-                                    .getDetails()
-                                    .stream()
-                                    .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
-                                            detail.getId().getFamily(), new Icon(detail.getIcon(), null, null),
-                                            new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()),
-                                                    null, null),
-                                            detail.getVersion(), singletonList(detail.getId().getFamily()),
-                                            detail.getLinks())))
+                    .concat(findDeployedComponents(includeIconContent, locale), virtualComponents
+                            .getDetails()
+                            .stream()
+                            .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
+                                    detail.getId().getFamily(), new Icon(detail.getIcon(), null, null),
+                                    new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()), null,
+                                            null),
+                                    detail.getVersion(), singletonList(detail.getId().getFamily()), detail.getLinks(),
+                                    detail.getMetadata())))
                     .filter(filter)
                     .collect(toList()));
         });
@@ -406,7 +405,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 }
 
                 final Locale locale = localeMapper.mapLocale(language);
-                final boolean isProcessor = ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta);
+                final boolean isProcessor = ProcessorMeta.class.isInstance(meta);
 
                 final ComponentDetail componentDetail = new ComponentDetail();
                 componentDetail.setLinks(emptyList() /* todo ? */);
@@ -427,13 +426,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         .setActions(actionsService
                                 .findActions(meta.getParent().getName(), container, locale, meta,
                                         meta.getParent().findBundle(container.getLoader(), locale)));
-                if (isProcessor) {
-                    componentDetail.setMetadata(emptyMap());
-                } else {
-                    componentDetail
-                            .setMetadata(singletonMap("mapper::infinite", Boolean
-                                    .toString(ComponentFamilyMeta.PartitionMapperMeta.class.cast(meta).isInfinite())));
-                }
+                componentDetail.setMetadata(meta.getMetadata());
 
                 return componentDetail;
             }).orElseGet(() -> {
@@ -525,8 +518,8 @@ public class ComponentResourceImpl implements ComponentResource {
                         .stream()
                         .map(this::normalizeCategory)
                         .map(category -> category.replace("${family}", meta.getParent().getName())) // not
-                                                                                                    // i18n-ed
-                                                                                                    // yet
+                        // i18n-ed
+                        // yet
                         .map(category -> meta
                                 .getParent()
                                 .findBundle(loader, locale)
@@ -546,7 +539,8 @@ public class ComponentResourceImpl implements ComponentResource {
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
                         !includeIcon ? null : (iconFamilyContent == null ? null : iconFamilyContent.getBytes())),
                 meta.getVersion(), categories, singletonList(new Link("Detail",
-                        "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
+                        "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)),
+                meta.getMetadata());
     }
 
     private String normalizeCategory(final String category) {
