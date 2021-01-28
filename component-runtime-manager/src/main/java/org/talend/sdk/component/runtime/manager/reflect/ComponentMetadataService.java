@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 import org.talend.sdk.component.api.component.Metadatas;
@@ -47,10 +45,7 @@ public class ComponentMetadataService {
 
     public ComponentMetadataService() {
         this.enrichers = StreamSupport
-                .stream(Spliterators
-                        .spliteratorUnknownSize(ServiceLoader.load(ComponentMetadataEnricher.class).iterator(),
-                                Spliterator.IMMUTABLE),
-                        false)
+                .stream(ServiceLoader.load(ComponentMetadataEnricher.class).spliterator(), false)
                 .collect(toList());
     }
 
