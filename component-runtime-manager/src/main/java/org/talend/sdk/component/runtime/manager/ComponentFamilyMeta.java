@@ -20,7 +20,6 @@ import static java.util.Optional.ofNullable;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -166,7 +165,7 @@ public class ComponentFamilyMeta {
         BaseMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
                 final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
                 final Supplier<MigrationHandler> migrationHandler, final Function<Map<String, String>, T> instantiator,
-                final boolean validated, final Map<String, String> metadata) {
+                final boolean validated, final Map<String, String> metas) {
             this.parent = parent;
             this.name = name;
             this.icon = icon;
@@ -177,8 +176,7 @@ public class ComponentFamilyMeta {
             this.type = type;
             this.instantiator = instantiator;
             this.validated = validated;
-
-            this.metadata = metadata;
+            this.metadata = metas;
 
             this.id = IdGenerator.get(parent.getPlugin(), parent.getName(), name);
 
@@ -231,16 +229,12 @@ public class ComponentFamilyMeta {
     @EqualsAndHashCode(callSuper = true)
     public static class PartitionMapperMeta extends BaseMeta<Mapper> {
 
-        private final boolean infinite;
-
         protected PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon,
                 final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
                 final Function<Map<String, String>, Mapper> instantiator,
-                final Supplier<MigrationHandler> migrationHandler, final boolean validated, final boolean infinite,
-                final Map<String, String> metadata) {
-            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated,
-                    metadata);
-            this.infinite = infinite;
+                final Supplier<MigrationHandler> migrationHandler, final boolean validated,
+                final Map<String, String> metas) {
+            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated, metas);
         }
     }
 
@@ -252,17 +246,8 @@ public class ComponentFamilyMeta {
                 final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
                 final Function<Map<String, String>, Processor> instantiator,
                 final Supplier<MigrationHandler> migrationHandler, final boolean validated,
-                final Map<String, String> metadata) {
-            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated,
-                    metadata);
-        }
-
-        protected ProcessorMeta(final ComponentFamilyMeta parent, final String name, final String icon,
-                final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
-                final Function<Map<String, String>, Processor> instantiator,
-                final Supplier<MigrationHandler> migrationHandler, final boolean validated) {
-            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated,
-                    Collections.emptyMap());
+                final Map<String, String> metas) {
+            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated, metas);
         }
 
         /**

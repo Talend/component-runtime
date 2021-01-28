@@ -117,9 +117,8 @@ class RepositoryModelBuilderTest {
                                 getPartitionMappers()
                                         .put("test",
                                                 new PartitionMapperMeta(this, "mapper", "noicon", 1,
-                                                                        PartitionMapper1.class, () -> singletonList(wrapper), m -> null,
-                                                                        () -> (a, b) -> null, true, false, Collections
-                                                                                .emptyMap()) {
+                                                        PartitionMapper1.class, () -> singletonList(wrapper), m -> null,
+                                                        () -> (a, b) -> null, true, Collections.emptyMap()) {
                                                 });
                             }
                         }), new MigrationHandlerFactory(

@@ -152,7 +152,7 @@ import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
-import org.talend.sdk.component.runtime.manager.reflect.ComponentModelService;
+import org.talend.sdk.component.runtime.manager.reflect.ComponentMetadataService;
 import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
@@ -1720,6 +1720,8 @@ public class ComponentManager implements AutoCloseable {
 
         private final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache;
 
+        private ComponentMetadataService metadataService = new ComponentMetadataService();
+
         private ComponentFamilyMeta component;
 
         @Override
@@ -1746,8 +1748,7 @@ public class ComponentManager implements AutoCloseable {
                                                     component.getName(), name), Mapper.class))
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
                                     doInvoke(constructor, parameterFactory.apply(config)));
-            ComponentModelService cpSvc = new ComponentModelService();
-            final Map<String, String> metadata = cpSvc.getMetadata(type);
+            final Map<String, String> metadata = metadataService.getMetadata(type);
 
             component
                     .getPartitionMappers()
@@ -1759,7 +1760,7 @@ public class ComponentManager implements AutoCloseable {
                                     Lazy
                                             .lazy(() -> migrationHandlerFactory
                                                     .findMigrationHandler(parameterMetas, type, services)),
-                                    !context.isNoValidation(), infinite, metadata));
+                                    !context.isNoValidation(), metadata));
         }
 
         @Override
@@ -1785,8 +1786,7 @@ public class ComponentManager implements AutoCloseable {
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
 
-            ComponentModelService cpSvc = new ComponentModelService();
-            final Map<String, String> metadata = cpSvc.getMetadata(type);
+            final Map<String, String> metadata = metadataService.getMetadata(type);
 
             component
                     .getPartitionMappers()
@@ -1798,7 +1798,7 @@ public class ComponentManager implements AutoCloseable {
                                     Lazy
                                             .lazy(() -> migrationHandlerFactory
                                                     .findMigrationHandler(parameterMetas, type, services)),
-                                    !context.isNoValidation(), false, metadata));
+                                    !context.isNoValidation(), metadata));
         }
 
         @Override
@@ -1839,8 +1839,7 @@ public class ComponentManager implements AutoCloseable {
                                                     .orElseGet(Collections::emptyMap),
                                             doInvoke(constructor, parameterFactory.apply(config)));
 
-            ComponentModelService cpSvc = new ComponentModelService();
-            final Map<String, String> metadata = cpSvc.getMetadata(type);
+            final Map<String, String> metadata = metadataService.getMetadata(type);
 
             component
                     .getProcessors()

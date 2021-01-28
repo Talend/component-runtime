@@ -66,6 +66,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
 // create a test m2 repo and setup the server configuration to ensure components are found
 public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
@@ -250,6 +251,15 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                                             .getContextClassLoader()
                                             .getResource("icons/logo.svg")));
                     outputStream.closeEntry();
+
+                    outputStream
+                            .putNextEntry(
+                                    new JarEntry("META-INF/services/" + ComponentMetadataEnricher.class.getName()));
+                    outputStream
+                            .write("org.talend.sdk.component.server.test.model.MetadataEnricher"
+                                    .getBytes(StandardCharsets.UTF_8));
+                    outputStream.closeEntry();
+
                 } catch (final IOException ioe) {
                     fail(ioe.getMessage());
                 }

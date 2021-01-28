@@ -17,10 +17,8 @@ package org.talend.sdk.component.runtime.manager.reflect;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,20 +31,20 @@ import org.talend.sdk.component.api.component.Metadatas;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
 import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
-public class ComponentModelService {
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class ComponentMetadataService {
 
     private List<ComponentMetadataEnricher> enrichers;
 
     private static final String DOCUMENTATION_KEY = "documentation::value";
 
-    private static final String METADATA_PREFIX = "meta::";
-
     public static final String MAPPER_INFINITE = "mapper::infinite";
 
-    public ComponentModelService() {
+    public ComponentMetadataService() {
         this.enrichers = StreamSupport
                 .stream(Spliterators
                         .spliteratorUnknownSize(ServiceLoader.load(ComponentMetadataEnricher.class).iterator(),
@@ -56,32 +54,22 @@ public class ComponentModelService {
     }
 
     public Map<String, String> getMetadata(final Class<?> clazz) {
-        Map<String, String> metas = new HashMap<>();
+        final Map<String, String> metas = new HashMap<>();
         ofNullable(clazz.getAnnotation(Documentation.class)).ifPresent(d -> metas.put(DOCUMENTATION_KEY, d.value()));
         ofNullable(clazz.getAnnotation(Metadatas.class))
-                .ifPresent(m -> Arrays
-                        .stream(m.value())
-                        .forEach(meta -> metas.put(METADATA_PREFIX + meta.key(), meta.value())));
+                .ifPresent(m -> Arrays.stream(m.value()).forEach(meta -> metas.put(meta.key(), meta.value())));
         ofNullable(clazz.getAnnotation(PartitionMapper.class))
                 .ifPresent(pm -> metas.put(MAPPER_INFINITE, Boolean.toString(pm.infinite())));
         ofNullable(clazz.getAnnotation(Emitter.class)).ifPresent(e -> metas.put(MAPPER_INFINITE, "false"));
         // user defined spi
-        enrichers
-                .stream()
-                .forEach(enricher -> enricher
-                        .onComponent(clazz, clazz.getAnnotations())
-                        .forEach((k, v) -> metas.put(METADATA_PREFIX + k, v)));
+        enrichers.stream().forEach(enricher -> enricher.onComponent(clazz, clazz.getAnnotations()).forEach((k, v) -> {
+            if (metas.containsKey(k)) {
+                log.warn("SPI {} overrides metadata {}.", enricher.getClass().getName(), k);
+            }
+            metas.put(k, v);
+        }));
 
         return metas;
     }
 
-    public static Map<String, String> sanitizeMetadata(final Map<String, String> metadata) {
-        return ofNullable(metadata)
-                .map(m -> m
-                        .entrySet()
-                        .stream()
-                        .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
-                        .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
-                .orElse(Collections.emptyMap());
-    }
 }

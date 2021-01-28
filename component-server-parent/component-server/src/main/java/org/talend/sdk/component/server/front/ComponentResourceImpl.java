@@ -62,7 +62,6 @@ import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMet
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
-import org.talend.sdk.component.runtime.manager.reflect.ComponentModelService;
 import org.talend.sdk.component.server.api.ComponentResource;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.dao.ComponentDao;
@@ -269,7 +268,7 @@ public class ComponentResourceImpl implements ComponentResource {
                                     new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()), null,
                                             null),
                                     detail.getVersion(), singletonList(detail.getId().getFamily()), detail.getLinks(),
-                                    ComponentModelService.sanitizeMetadata(detail.getMetadata()))))
+                                    detail.getMetadata())))
                     .filter(filter)
                     .collect(toList()));
         });
@@ -427,12 +426,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         .setActions(actionsService
                                 .findActions(meta.getParent().getName(), container, locale, meta,
                                         meta.getParent().findBundle(container.getLoader(), locale)));
-                final ComponentModelService cpsvc = new ComponentModelService();
-                if (isProcessor) {
-                    componentDetail.setMetadata(cpsvc.sanitizeMetadata(meta.getMetadata()));
-                } else {
-                    componentDetail.setMetadata(cpsvc.sanitizeMetadata(meta.getMetadata()));
-                }
+                componentDetail.setMetadata(meta.getMetadata());
 
                 return componentDetail;
             }).orElseGet(() -> {
