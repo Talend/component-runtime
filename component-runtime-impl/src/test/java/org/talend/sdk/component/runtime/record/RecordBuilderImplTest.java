@@ -175,9 +175,10 @@ class RecordBuilderImplTest {
         assertThrows(IllegalArgumentException.class, () -> new RecordImpl.BuilderImpl()
                 .withInt(new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build(), null));
 
-        final Entry test =  new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build();
+        final Entry test = new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build();
         final Schema schema = new SchemaImpl.BuilderImpl().withType(Schema.Type.RECORD).withEntry(test).build();
-        assertThrows(IllegalArgumentException.class, () -> new RecordImpl.BuilderImpl(schema).withInt("test", null).build());
+        assertThrows(IllegalArgumentException.class,
+                () -> new RecordImpl.BuilderImpl(schema).withInt("test", null).build());
     }
 
     @Test

@@ -10,6 +10,8 @@
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-1811[TCOMP-1811^]: Record Builder API should work with Object not primitive
+- link:https://jira.talendforge.org/browse/TCOMP-1841[TCOMP-1841^]: Add a SPI that would allow to add metadata to components
 - link:https://jira.talendforge.org/browse/TCOMP-1847[TCOMP-1847^]: Upgrade Apache Beam to 2.27.0
 
 == Version 1.29.0
