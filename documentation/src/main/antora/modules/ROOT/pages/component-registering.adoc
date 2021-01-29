@@ -118,6 +118,8 @@ public class MyProcessor {
 For any purpose, you can also add user defined metadatas to your component with the `@Metadatas` annotation.
 
 Example:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Processor(name = "my_processor")
 @Metadatas({
