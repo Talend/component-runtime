@@ -1,5 +1,11 @@
 
 
+== Version 1.30.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1848[TCOMP-1848^]: Upgrade bouncycastle to 1.68 due to CVE 2020-28052
+
 == Version 1.29.0
 
 === Bug
@@ -14,6 +20,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1837[TCOMP-1837^]: Upgrade xbean to 4.18
 
 
+
+
+
+== Version 1.28.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1848[TCOMP-1848^]: Upgrade bouncycastle to 1.68 due to CVE 2020-28052
 
 == Version 1.28.1
 
