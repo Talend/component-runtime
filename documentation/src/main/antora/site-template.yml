@@ -25,6 +25,7 @@ content:
       - '!component-runtime-0.*'
       - '!component-runtime-1.0.0'
       - '!component-runtime-1.1.15.*'
+      - '!component-runtime-1.29.*'
     branches:
       - master
       - component-runtime-*
