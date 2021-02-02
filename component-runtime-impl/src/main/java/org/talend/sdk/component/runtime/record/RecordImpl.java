@@ -130,10 +130,10 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type) {
             if (providedSchema == null) {
-                return new SchemaImpl.EntryImpl.BuilderImpl() //
-                        .withName(name) //
-                        .withType(type) //
-                        .withNullable(true) //
+                return new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName(name)
+                        .withType(type)
+                        .withNullable(true)
                         .build();
             }
             return this.findExistingEntry(name);
