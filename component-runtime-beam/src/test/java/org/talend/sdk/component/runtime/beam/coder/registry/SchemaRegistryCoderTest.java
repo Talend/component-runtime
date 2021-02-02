@@ -109,7 +109,7 @@ class SchemaRegistryCoderTest {
 
     @Test
     void codecArrayRecord() throws IOException {
-        final AvroRecord nestedRecord = new AvroRecord(new RecordImpl.BuilderImpl().withDouble("len", 2).build());
+        final AvroRecord nestedRecord = new AvroRecord(new RecordImpl.BuilderImpl().withDouble("len", 2D).build());
         final Record record = new AvroRecord(new RecordImpl.BuilderImpl()
                 .withArray(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("__default__")

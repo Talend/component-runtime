@@ -198,7 +198,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
                         .stream()
                         .filter(entry -> entry.getName().matches("hashCodeDirty|loopKey|lookKey"))
                         .count());
-        assertThrows(NullPointerException.class, () -> record.getBoolean("hashCodeDirty"));
+        assertNull(record.getBoolean("hashCodeDirty"));
         assertNull(record.getString("loopKey"));
         assertNull(record.getString("lookKey"));
     }
