@@ -10,7 +10,6 @@
 
 === Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-1811[TCOMP-1811^]: Record Builder API should work with Object not primitive
 - link:https://jira.talendforge.org/browse/TCOMP-1841[TCOMP-1841^]: Add a SPI that would allow to add metadata to components
 - link:https://jira.talendforge.org/browse/TCOMP-1847[TCOMP-1847^]: Upgrade Apache Beam to 2.27.0
 - link:https://jira.talendforge.org/browse/TCOMP-1848[TCOMP-1848^]: Upgrade bouncycastle to 1.68 due to CVE 2020-28052
@@ -41,6 +40,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1842[TCOMP-1842^]: Upgrade jgit to 5.10.0.202012080955-r
 - link:https://jira.talendforge.org/browse/TCOMP-1844[TCOMP-1844^]: Upgrade johnzon to 1.2.9
 - link:https://jira.talendforge.org/browse/TCOMP-1845[TCOMP-1845^]: Upgrade guava to 30.1-jre due to CVE-2020-8908
+
+
+
+
+
+
 
 
 
