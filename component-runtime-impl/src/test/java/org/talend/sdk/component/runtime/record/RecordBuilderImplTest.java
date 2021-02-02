@@ -32,8 +32,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.api.record.Schema.Entry;
-import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl.BuilderImpl;
 
 class RecordBuilderImplTest {
 
@@ -171,14 +169,6 @@ class RecordBuilderImplTest {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         assertThrows(IllegalArgumentException.class, () -> builder
                 .withString(new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build(), null));
-
-        assertThrows(IllegalArgumentException.class, () -> new RecordImpl.BuilderImpl()
-                .withInt(new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build(), null));
-
-        final Entry test = new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build();
-        final Schema schema = new SchemaImpl.BuilderImpl().withType(Schema.Type.RECORD).withEntry(test).build();
-        assertThrows(IllegalArgumentException.class,
-                () -> new RecordImpl.BuilderImpl(schema).withInt("test", null).build());
     }
 
     @Test
