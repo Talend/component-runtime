@@ -229,12 +229,31 @@ public class ComponentFamilyMeta {
     @EqualsAndHashCode(callSuper = true)
     public static class PartitionMapperMeta extends BaseMeta<Mapper> {
 
+        public static final String MAPPER_INFINITE = "mapper::infinite";
+
         protected PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon,
                 final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
                 final Function<Map<String, String>, Mapper> instantiator,
                 final Supplier<MigrationHandler> migrationHandler, final boolean validated,
                 final Map<String, String> metas) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated, metas);
+        }
+
+        protected PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon,
+                final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
+                final Function<Map<String, String>, Mapper> instantiator,
+                final Supplier<MigrationHandler> migrationHandler, final boolean validated, final boolean infinite) {
+            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated,
+                    new HashMap<String, String>() {
+
+                        {
+                            put(MAPPER_INFINITE, Boolean.toString(infinite));
+                        }
+                    });
+        }
+
+        public boolean isInfinite() {
+            return Boolean.parseBoolean(getMetadata().getOrDefault(MAPPER_INFINITE, "false"));
         }
     }
 
