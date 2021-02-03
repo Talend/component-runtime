@@ -41,22 +41,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1844[TCOMP-1844^]: Upgrade johnzon to 1.2.9
 - link:https://jira.talendforge.org/browse/TCOMP-1845[TCOMP-1845^]: Upgrade guava to 30.1-jre due to CVE-2020-8908
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 == Version 1.28.2
 
 === Work Item
@@ -84,11 +68,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1801[TCOMP-1801^]: Can't look for resources in the classpath on Windows
 
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1761[TCOMP-1761^]: Support of complete schema definition
-
 
 
 === Work Item
