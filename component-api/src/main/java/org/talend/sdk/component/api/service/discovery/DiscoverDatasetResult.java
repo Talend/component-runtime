@@ -22,11 +22,11 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class DatasetDiscoveryResult {
+public class DiscoverDatasetResult {
 
-    public final Response response;
+    private final Response response;
 
-    public final List<DatasetDescription> datasetDescriptionList;
+    private final List<DatasetDescription> datasetDescriptionList;
 
     @Data
     @AllArgsConstructor
@@ -40,6 +40,11 @@ public class DatasetDiscoveryResult {
     @Data
     @AllArgsConstructor
     public final static class Response {
+
+        public Response() {
+            this.status = STATUS.SUCCESS;
+            this.error = "";
+        }
 
         private final STATUS status;
 

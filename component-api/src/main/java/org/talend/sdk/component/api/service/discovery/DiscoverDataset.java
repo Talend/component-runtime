@@ -25,15 +25,15 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 
 /**
- * Mark a method as retruning the {@link DatasetDiscoveryResult} of a datastore. The only configuration
+ * Mark a method as retruning the {@link DiscoverDatasetResult} of a datastore. The only configuration
  * parameter will be an {@link org.talend.sdk.component.api.configuration.Option} named "datastore"
  * and matching the @DataStore property.
  */
-@ActionType(value = "datasetdiscovery", expectedReturnedType = DatasetDiscoveryResult.class)
+@ActionType(value = "discoverdataset", expectedReturnedType = DiscoverDatasetResult.class)
 @Target(METHOD)
 @Retention(RUNTIME)
 @Documentation("This class marks an action that explore a connection to retrieve potential datasets.")
-public @interface DatasetDiscovery {
+public @interface DiscoverDataset {
 
     /**
      * @return the value of the component family this action relates to.
