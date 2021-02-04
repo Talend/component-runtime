@@ -18,9 +18,9 @@ package org.talend.sdk.component.api.service.discovery;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class DiscoverDatasetResult {
 
@@ -28,16 +28,17 @@ public class DiscoverDatasetResult {
 
     private final List<DatasetDescription> datasetDescriptionList;
 
-    @Data
+    @Getter
     @AllArgsConstructor
     public final static class DatasetDescription {
 
         private final String name;
 
         private final String type;
+
     }
 
-    @Data
+    @Getter
     @AllArgsConstructor
     public final static class Response {
 

@@ -25,9 +25,8 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 
 /**
- * Mark a method as retruning the {@link DiscoverDatasetResult} of a datastore. The only configuration
- * parameter will be an {@link org.talend.sdk.component.api.configuration.Option} named "datastore"
- * and matching the @DataStore property.
+ * Mark a method as returning the {@link DiscoverDatasetResult} of a datastore. The only configuration
+ * parameter must be annotated with @DataStore.
  */
 @ActionType(value = "discoverdataset", expectedReturnedType = DiscoverDatasetResult.class)
 @Target(METHOD)
