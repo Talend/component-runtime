@@ -65,8 +65,18 @@ public class RequestForwarder {
         return forward(null, null);
     }
 
+    public CompletionStage<Response> forward(final String removePath) {
+        return forward(null, null, removePath);
+    }
+
     public CompletionStage<Response> forward(final InputStream payload, final Function<Response, Response> customizer) {
-        WebTarget target = client.path(uriInfo.getPath());
+        return forward(payload, customizer, null);
+    }
+
+    public CompletionStage<Response> forward(final InputStream payload, final Function<Response, Response> customizer,
+            final String removePath) {
+        WebTarget target =
+                client.path(removePath != null ? uriInfo.getPath().replace(removePath, "") : uriInfo.getPath());
         for (final Map.Entry<String, List<String>> query : uriInfo.getQueryParameters().entrySet()) {
             target = target.queryParam(query.getKey(), query.getValue().toArray(emptyObjectsArray));
         }
