@@ -1,14 +1,14 @@
 ++++
 <jsonArray>[
   {
-    "commits":2547,
+    "commits":2548,
     "description":"Apache addict I'm involved in several project (OpenWebBeans, Johnzon, Geronimo, Meecrowave, ... - http://home.apache.org/committer-index.html#rmannibucau).\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":246,
+    "commits":251,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -36,17 +36,17 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
+    "commits":30,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
+    "id":"clesaec"
+  },
+  {
     "commits":24,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",
     "name":"ypiel"
-  },
-  {
-    "commits":24,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
-    "id":"clesaec"
   },
   {
     "commits":23,
