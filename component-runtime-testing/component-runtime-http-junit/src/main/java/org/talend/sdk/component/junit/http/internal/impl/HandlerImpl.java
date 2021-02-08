@@ -138,6 +138,8 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
                         HttpsURLConnection.setDefaultSSLSocketFactory(defaultSslContext.getSocketFactory());
                         HttpsURLConnection.setDefaultHostnameVerifier(defaultHostnameVerifier);
                     }, shutdown);
+                    shutdown = decorate(
+                            () -> setProperty("jdk.internal.httpclient.disableHostnameVerification", "true"), shutdown);
 
                     SSLContext.setDefault(handler.getSslContext());
                     HttpsURLConnection.setDefaultSSLSocketFactory(handler.getSslContext().getSocketFactory());
