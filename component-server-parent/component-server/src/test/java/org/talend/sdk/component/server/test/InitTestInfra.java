@@ -66,6 +66,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
 // create a test m2 repo and setup the server configuration to ensure components are found
 public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
@@ -236,20 +237,29 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
         private File createChainPlugin(final File target) {
             final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".", "/");
-            return createRepackaging(target, "org/talend/sdk/component/server/test/model", outputStream -> {
+            return createRepackaging(target, "org/talend/sdk/component/server/test/model", out -> {
                 try {
-                    outputStream.putNextEntry(new JarEntry(packageName.replace('.', '/') + "/Messages.properties"));
-                    outputStream
-                            .write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
+                    out.putNextEntry(new JarEntry(packageName.replace('.', '/') + "/Messages.properties"));
+                    out.write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
 
-                    outputStream.putNextEntry(new JarEntry("icons/myicon.svg"));
-                    outputStream
+                    out.putNextEntry(new JarEntry("icons/myicon.svg"));
+                    out
                             .write(IO
                                     .readBytes(Thread
                                             .currentThread()
                                             .getContextClassLoader()
                                             .getResource("icons/logo.svg")));
-                    outputStream.closeEntry();
+                    out.closeEntry();
+
+                    out.putNextEntry(new JarEntry("META-INF/services/" + ComponentMetadataEnricher.class.getName()));
+                    out
+                            .write("org.talend.sdk.component.server.test.model.MetadataEnricher\n"
+                                    .getBytes(StandardCharsets.UTF_8));
+                    out
+                            .write("org.talend.sdk.component.server.test.model.MetadataEnricherLowestPriority\n"
+                                    .getBytes(StandardCharsets.UTF_8));
+                    out.closeEntry();
+
                 } catch (final IOException ioe) {
                     fail(ioe.getMessage());
                 }

@@ -43,6 +43,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
+import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
@@ -196,6 +197,7 @@ class ComponentResourceImplTest {
         assertEquals("list", detail.getId().getName());
         assertEquals("The List Component", detail.getDisplayName());
         assertEquals("false", detail.getMetadata().get("mapper::infinite"));
+        IntStream.of(0, 5).forEach(i -> assertEquals(String.valueOf(i), detail.getMetadata().get("testing::v" + i)));
 
         final Collection<ActionReference> remoteActions = detail.getActions();
         assertEquals(1, remoteActions.size());

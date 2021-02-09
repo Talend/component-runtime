@@ -13,35 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.sdk.component.spi.component;
 
-import java.util.Collection;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public interface ComponentMetadataEnricher {
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ComponentIndex {
+    Map<String, String> onComponent(Type type, Annotation[] annotations);
 
-    private ComponentId id;
-
-    private String displayName;
-
-    private String familyDisplayName;
-
-    private Icon icon;
-
-    private Icon iconFamily;
-
-    private int version;
-
-    private Collection<String> categories;
-
-    private Collection<Link> links;
-
-    private Map<String, String> metadata;
+    default int order() {
+        return 0;
+    }
 }

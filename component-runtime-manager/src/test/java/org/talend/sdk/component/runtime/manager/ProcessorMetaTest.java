@@ -19,6 +19,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -38,8 +39,8 @@ class ProcessorMetaTest {
     @Test
     void testGetListener() {
         final ComponentFamilyMeta parent = new ComponentFamilyMeta("plugin", emptyList(), "default", "name", "");
-        final ProcessorMeta meta =
-                new ProcessorMeta(parent, "name", "default", 1, TestProcessor.class, null, null, null, true);
+        final ProcessorMeta meta = new ProcessorMeta(parent, "name", "default", 1, TestProcessor.class, null, null,
+                null, true, Collections.emptyMap());
         final Method listener = meta.getListener();
         assertEquals("map", listener.getName());
         assertEquals(4, listener.getParameterCount());
