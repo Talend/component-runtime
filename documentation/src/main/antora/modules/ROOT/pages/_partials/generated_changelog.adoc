@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1852[TCOMP-1852^]: Upgrade netty to v4.1.58.Final and ensure default http testing module is java 11 friendly over ssl
+- link:https://jira.talendforge.org/browse/TCOMP-1854[TCOMP-1854^]: Upgrade netty to 4.1.59.Final due to CVE-2021-21290
 
 
 
@@ -13,6 +14,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1852[TCOMP-1852^]: Upgrade netty to v4.1.58.Final and ensure default http testing module is java 11 friendly over ssl
+- link:https://jira.talendforge.org/browse/TCOMP-1854[TCOMP-1854^]: Upgrade netty to 4.1.59.Final due to CVE-2021-21290
 
 == Version 1.29.0
 
