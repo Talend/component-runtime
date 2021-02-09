@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1848[TCOMP-1848^]: Upgrade bouncycastle to 1.68 due to CVE 2020-28052
 - link:https://jira.talendforge.org/browse/TCOMP-1849[TCOMP-1849^]: Proxify metrics component-server's endpoint
 - link:https://jira.talendforge.org/browse/TCOMP-1852[TCOMP-1852^]: Upgrade netty to v4.1.58.Final and ensure default http testing module is java 11 friendly over ssl
+- link:https://jira.talendforge.org/browse/TCOMP-1854[TCOMP-1854^]: Upgrade netty to 4.1.59.Final due to CVE-2021-21290
 
 
 
@@ -23,6 +24,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1852[TCOMP-1852^]: Upgrade netty to v4.1.58.Final and ensure default http testing module is java 11 friendly over ssl
+- link:https://jira.talendforge.org/browse/TCOMP-1854[TCOMP-1854^]: Upgrade netty to 4.1.59.Final due to CVE-2021-21290
 
 
 
