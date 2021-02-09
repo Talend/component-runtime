@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1852[TCOMP-1852^]: Upgrade netty to v4.1.58.Final and ensure default http testing module is java 11 friendly over ssl
 - link:https://jira.talendforge.org/browse/TCOMP-1854[TCOMP-1854^]: Upgrade netty to 4.1.59.Final due to CVE-2021-21290
 - link:https://jira.talendforge.org/browse/TCOMP-1855[TCOMP-1855^]: Upgrade johnzon to 1.2.10
+- link:https://jira.talendforge.org/browse/TCOMP-1856[TCOMP-1856^]: Upgrade tomcat to 9.0.43
 
 
 
@@ -53,6 +54,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1842[TCOMP-1842^]: Upgrade jgit to 5.10.0.202012080955-r
 - link:https://jira.talendforge.org/browse/TCOMP-1844[TCOMP-1844^]: Upgrade johnzon to 1.2.9
 - link:https://jira.talendforge.org/browse/TCOMP-1845[TCOMP-1845^]: Upgrade guava to 30.1-jre due to CVE-2020-8908
+
+
 
 
 
