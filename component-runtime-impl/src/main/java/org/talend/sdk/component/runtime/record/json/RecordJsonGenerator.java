@@ -19,6 +19,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.OutputStream;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -80,7 +81,19 @@ public class RecordJsonGenerator implements JsonGenerator {
 
     @Override
     public JsonGenerator writeStartObject(final String name) {
-        objectBuilder = factory.newRecordBuilder();
+        if (holder.getData() != null) {
+            try {
+                final Field f = holder.getData().getClass().getDeclaredField(name);
+                f.setAccessible(true);
+                final Object o = f.get(holder.getData());
+                final Record r = recordConverters.toRecord(mappingRegistry, o, () -> jsonb, () -> factory);
+                objectBuilder = factory.newRecordBuilder(r.getSchema(), r);
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                throw new IllegalStateException(e.getMessage());
+            }
+        } else {
+            objectBuilder = factory.newRecordBuilder();
+        }
         builders.add(new NamedBuilder<>(objectBuilder, name));
         arrayBuilder = null;
         return this;

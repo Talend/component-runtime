@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1688[TCOMP-1688^]: Rewrite JsonSchema required rules to reflect component's validation rules
+- link:https://jira.talendforge.org/browse/TCOMP-1857[TCOMP-1857^]: Pojo conversion don't support nested Objects
 
 
 
@@ -54,6 +55,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1842[TCOMP-1842^]: Upgrade jgit to 5.10.0.202012080955-r
 - link:https://jira.talendforge.org/browse/TCOMP-1844[TCOMP-1844^]: Upgrade johnzon to 1.2.9
 - link:https://jira.talendforge.org/browse/TCOMP-1845[TCOMP-1845^]: Upgrade guava to 30.1-jre due to CVE-2020-8908
+
+
+
+
 
 
 

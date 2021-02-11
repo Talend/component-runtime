@@ -28,6 +28,17 @@ public class OutputRecordHolder extends Writer {
     @Setter
     private Record record;
 
+    @Getter
+    @Setter
+    private Object data;
+
+    public OutputRecordHolder(final Object data) {
+        this.data = data;
+    }
+
+    public OutputRecordHolder() {
+    }
+
     @Override
     public void write(final char[] cbuf, final int off, final int len) {
         if (len == 0) {

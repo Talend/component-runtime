@@ -86,14 +86,16 @@ class RecordServiceImplTest {
     void mappers() {
         final Pojo pojo = new Pojo();
         pojo.name = "now";
+        pojo.obj.objName = "objName222";
 
         final Record record = service.toRecord(pojo);
         assertNotNull(record);
-        assertEquals("{\"name\":\"now\"}", record.toString());
+        assertEquals("{\"name\":\"now\",\"obj\":{\"magic\":1971,\"objName\":\"objName222\"}}", record.toString());
 
         final Pojo after = service.toObject(record, Pojo.class);
         assertNotSame(after, pojo);
         assertEquals(after.name, pojo.name);
+        assertEquals(after.obj.objName, pojo.obj.objName);
     }
 
     @Test
@@ -183,5 +185,14 @@ class RecordServiceImplTest {
     public static class Pojo {
 
         public String name;
+
+        public ObjConfiguration obj = new ObjConfiguration();
+    }
+
+    public static class ObjConfiguration {
+
+        public String objName;
+
+        public int magic = 1971;
     }
 }

@@ -103,7 +103,7 @@ public class RecordConverters implements Serializable {
         if (!String.class.isInstance(data) && !data.getClass().isPrimitive()
                 && PojoJsonbProvider.class.isInstance(jsonb)) {
             final Jsonb pojoMapper = PojoJsonbProvider.class.cast(jsonb).get();
-            final OutputRecordHolder holder = new OutputRecordHolder();
+            final OutputRecordHolder holder = new OutputRecordHolder(data);
             try (final OutputRecordHolder stream = holder) {
                 pojoMapper.toJson(data, stream);
             }
