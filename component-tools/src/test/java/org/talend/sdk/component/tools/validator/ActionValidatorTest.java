@@ -35,7 +35,6 @@ import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult;
 import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.DatasetDescription;
-import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.Response;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
@@ -132,7 +131,7 @@ class ActionValidatorTest {
 
         @DiscoverDataset("tests")
         public DiscoverDatasetResult datasetDiscover(FakeDataStore dataStore) {
-            return new DiscoverDatasetResult(new Response(), Arrays
+            return new DiscoverDatasetResult(Arrays
                     .asList(new DatasetDescription("datasetA", "typeA"), new DatasetDescription("datasetB", "typeB")));
         }
     }

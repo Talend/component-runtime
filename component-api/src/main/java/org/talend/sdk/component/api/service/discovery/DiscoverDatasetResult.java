@@ -24,8 +24,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class DiscoverDatasetResult {
 
-    private final Response response;
-
     private final List<DatasetDescription> datasetDescriptionList;
 
     @Getter
@@ -38,22 +36,4 @@ public class DiscoverDatasetResult {
 
     }
 
-    @Getter
-    @AllArgsConstructor
-    public final static class Response {
-
-        public Response() {
-            this.status = STATUS.SUCCESS;
-            this.error = "";
-        }
-
-        private final STATUS status;
-
-        private final String error;
-    }
-
-    public enum STATUS {
-        SUCCESS,
-        ERROR
-    }
 }
