@@ -16,6 +16,8 @@
 package org.talend.sdk.component.api.service.discovery;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,16 +26,22 @@ import lombok.Getter;
 @AllArgsConstructor
 public class DiscoverDatasetResult {
 
-    private final List<DatasetDescription> datasetDescriptionList;
+    private final List<DatasetDescription> datasetDescriptionList = new ;
 
     @Getter
-    @AllArgsConstructor
     public final static class DatasetDescription {
+
+        public DatasetDescription(final String name) {
+            this.name = name;
+        }
 
         private final String name;
 
-        private final String type;
+        private Map<String, String> metadata = new TreeMap<>();
 
+        public void addMetadata(final String key, final String value) {
+            this.metadata.put(key, value);
+        }
     }
 
 }
