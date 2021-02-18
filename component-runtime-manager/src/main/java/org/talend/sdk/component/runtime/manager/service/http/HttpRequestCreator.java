@@ -64,7 +64,7 @@ public class HttpRequestCreator implements BiFunction<String, Object[], HttpRequ
         return pathProvider.apply(urlProvide.apply(params), params);
     }
 
-    private String appendPaths(String p1, String p2) {
+    private String appendPaths(final String p1, final String p2) {
         if (p1.endsWith("/") && p2.startsWith("/")) {
             return p1 + p2.substring(1);
         }

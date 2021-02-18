@@ -26,7 +26,6 @@ import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -89,6 +88,7 @@ public class RequestParser {
     private final InstanceCreator instanceCreator;
 
     interface InstanceCreator {
+
         <T> T buildNew(Class<? extends T> realClass);
     }
 
@@ -100,7 +100,7 @@ public class RequestParser {
         private final Map<Class<?>, Object> services;
 
         @Override
-        public <T> T buildNew(Class<? extends T> realClass) {
+        public <T> T buildNew(final Class<? extends T> realClass) {
             try {
                 final Constructor<?> constructor = Constructors.findConstructor(realClass);
                 final Function<Map<String, String>, Object[]> paramFactory =
@@ -309,10 +309,10 @@ public class RequestParser {
             encoders
                     .putAll(stream(codec.encoder())
                             .filter(Objects::nonNull)
-                            .collect(toMap((Class<? extends Encoder> encoder) -> Optional.ofNullable(encoder.getAnnotation(ContentType.class))
-                                            .map(ContentType::value)
-                                    .orElse("*/*"),
-                                    this.instanceCreator::buildNew)));
+                            .collect(toMap((Class<? extends Encoder> encoder) -> Optional
+                                    .ofNullable(encoder.getAnnotation(ContentType.class))
+                                    .map(ContentType::value)
+                                    .orElse("*/*"), this.instanceCreator::buildNew)));
         }
 
         // keep the put order
@@ -338,13 +338,10 @@ public class RequestParser {
             decoders
                     .putAll(stream(codec.decoder())
                             .filter(Objects::nonNull)
-                            .collect(toMap(
-                                    (Class<? extends Decoder> decoder) -> Optional.ofNullable(decoder.getAnnotation(ContentType.class))
-                                            .map(ContentType::value)
-                                            .orElse("*/*"),
-                                    this.instanceCreator::buildNew)
-                            )
-                    );
+                            .collect(toMap((Class<? extends Decoder> decoder) -> Optional
+                                    .ofNullable(decoder.getAnnotation(ContentType.class))
+                                    .map(ContentType::value)
+                                    .orElse("*/*"), this.instanceCreator::buildNew)));
         }
         // add default decoders if not override by the user
         // keep the put order

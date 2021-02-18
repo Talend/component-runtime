@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.runtime.manager.service.http;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,9 +52,7 @@ class RequestParserTest {
     @Request(path = "/{path1}/p2", method = "POST")
     Integer complexe(@ConfigurerOption("connection") String connection, //
             @Header("AUTHORIZATION") String auth, //
-            @Base String newBase,
-            @Path("path1") String path1,
-            @Query("timeout") Integer timeout,
+            @Base String newBase, @Path("path1") String path1, @Query("timeout") Integer timeout,
             @QueryParams(encode = false) Map<String, String> qp1) {
         return 3;
     }
@@ -48,6 +61,7 @@ class RequestParserTest {
     void parse() throws NoSuchMethodException {
         final Jsonb jsonb = JsonbBuilder.create();
         final InstanceCreator instanceCreator = new InstanceCreator() {
+
             @Override
             public <T> T buildNew(Class<? extends T> realClass) {
                 if (Encoder.class.isAssignableFrom(realClass)) {
@@ -76,7 +90,10 @@ class RequestParserTest {
             Assertions.assertTrue(request.getQueryParams().isEmpty());
         }
 
-        final ExecutionContext complexe = parser.parse(RequestParserTest.class.getDeclaredMethod("complexe", String.class, String.class, String.class, String.class, Integer.class, Map.class));
+        final ExecutionContext complexe = parser
+                .parse(RequestParserTest.class
+                        .getDeclaredMethod("complexe", String.class, String.class, String.class, String.class,
+                                Integer.class, Map.class));
         {
             final Type responseType = complexe.getResponseType();
             final HttpRequestCreator creator = complexe.getRequestCreator();
@@ -84,14 +101,9 @@ class RequestParserTest {
             Map<String, String> queryParams = new HashMap<>();
             queryParams.put("arg1", "value1");
             queryParams.put("arg2", "value2");
-            final HttpRequest request = creator.apply("http://base", new Object[]{
-                    "MyCnx",
-                    "AuthentString",
-                    "https://custombase/",
-                    "mypath1",
-                    2355,
-                    queryParams
-            });
+            final HttpRequest request = creator
+                    .apply("http://base", new Object[] { "MyCnx", "AuthentString", "https://custombase/", "mypath1",
+                            2355, queryParams });
             Assertions.assertNotNull(request);
             Assertions.assertEquals("https://custombase/mypath1/p2", request.getUrl());
             final Collection<String> requestParams = request.getQueryParams();
@@ -103,6 +115,7 @@ class RequestParserTest {
     }
 
     public static class MyConfigurer implements Configurer {
+
         @Override
         public void configure(Connection connection, ConfigurerConfiguration configuration) {
         }
