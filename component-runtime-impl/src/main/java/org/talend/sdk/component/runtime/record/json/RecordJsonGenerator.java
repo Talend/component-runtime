@@ -71,6 +71,20 @@ public class RecordJsonGenerator implements JsonGenerator {
 
     private final RecordConverters.MappingMetaRegistry mappingRegistry = new RecordConverters.MappingMetaRegistry();
 
+    private Field getField(final Class<?> clazz, final String fieldName) {
+        Class<?> tmpClass = clazz;
+        do {
+            try {
+                Field f = tmpClass.getDeclaredField(fieldName);
+                return f;
+            } catch (NoSuchFieldException e) {
+                tmpClass = tmpClass.getSuperclass();
+            }
+        } while (tmpClass != null && tmpClass != Object.class);
+
+        return null;
+    }
+
     @Override
     public JsonGenerator writeStartObject() {
         objectBuilder = factory.newRecordBuilder();
@@ -81,18 +95,18 @@ public class RecordJsonGenerator implements JsonGenerator {
 
     @Override
     public JsonGenerator writeStartObject(final String name) {
+        objectBuilder = factory.newRecordBuilder();
         if (holder.getData() != null) {
-            try {
-                final Field f = holder.getData().getClass().getDeclaredField(name);
-                f.setAccessible(true);
-                final Object o = f.get(holder.getData());
-                final Record r = recordConverters.toRecord(mappingRegistry, o, () -> jsonb, () -> factory);
-                objectBuilder = factory.newRecordBuilder(r.getSchema(), r);
-            } catch (IllegalAccessException | NoSuchFieldException e) {
-                throw new IllegalStateException(e.getMessage());
+            final Field f = getField(holder.getData().getClass(), name);
+            if (f != null) {
+                try {
+                    f.setAccessible(true);
+                    final Object o = f.get(holder.getData());
+                    final Record r = recordConverters.toRecord(mappingRegistry, o, () -> jsonb, () -> factory);
+                    objectBuilder = factory.newRecordBuilder(r.getSchema(), r);
+                } catch (IllegalAccessException e) {
+                }
             }
-        } else {
-            objectBuilder = factory.newRecordBuilder();
         }
         builders.add(new NamedBuilder<>(objectBuilder, name));
         arrayBuilder = null;

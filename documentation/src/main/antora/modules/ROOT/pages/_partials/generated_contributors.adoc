@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":260,
+    "commits":261,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -78,7 +78,7 @@
   },
   {
     "commits":8,
-    "description":"Senior security architect at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
+    "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
     "id":"coheigea",
     "name":"Colm O hEigeartaigh"

@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import routines.system.IPersistableRow;
+
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -61,7 +63,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import routines.system.IPersistableRow;
 
 class RecordConvertersTest {
 
@@ -104,7 +105,8 @@ class RecordConvertersTest {
     }
 
     @Test
-    @Disabled // TODO move this test to runtime-di module
+    @Disabled
+    // TODO move this test to runtime-di module
     void studioTypes2(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
             final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final RowStruct rowStruct = new RowStruct();
@@ -401,14 +403,14 @@ class RecordConvertersTest {
         JsonArray aryOfDouble = jsonBuilderFactory.createArrayBuilder().add(12.0).add(15.3).build();
         JsonArray aryOfBool = jsonBuilderFactory.createArrayBuilder().add(JsonValue.TRUE).add(JsonValue.FALSE).build();
         Integer[] intAry = new Integer[] { 19, 20, 21 };
-        PojoWrapper pojo = new PojoWrapper("pojo", 19, 10.5, 2020l, jsonObj1, aryOfJsonObj, aryOfDouble, aryOfBool,
-                new JsonObject[] { jsonObj1 }, intAry);
+        PojoWrapper pojo = new PojoWrapper(new PojoWrapperBase(new PojoWrapperRoot("pojo"), 19), 10.5, 2020l, jsonObj1,
+                aryOfJsonObj, aryOfDouble, aryOfBool, new JsonObject[] { jsonObj1 }, intAry);
         //
         final Record record = converter
                 .toRecord(new RecordConverters.MappingMetaRegistry(), pojo, () -> jsonb, () -> recordBuilderFactory);
         //
-        assertEquals("pojo", record.getString("stringValue"));
-        assertEquals(19, record.getInt("intValue"));
+        assertEquals("pojo", record.getRecord("base").getRecord("root").getString("stringValue"));
+        assertEquals(19, record.getRecord("base").getInt("intValue"));
         assertEquals(10.5, record.getDouble("doubleValue"));
         assertEquals(2020l, record.getLong("longValue"));
         assertEquals("{\"string\":\"strval\",\"number\":2010.0}", record.getRecord("jsonValue").toString());
@@ -431,8 +433,8 @@ class RecordConvertersTest {
                         .toType(new RecordConverters.MappingMetaRegistry(), record, PojoWrapper.class,
                                 () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
         //
-        assertEquals("pojo", wrapper.stringValue);
-        assertEquals(19, wrapper.getIntValue());
+        assertEquals("pojo", wrapper.getBase().getRoot().getStringValue());
+        assertEquals(19, wrapper.getBase().getIntValue());
         assertEquals(10.5, wrapper.getDoubleValue());
         assertEquals(2020l, wrapper.getLongValue());
         assertEquals("{\"string\":\"strval\",\"number\":2010.0}", wrapper.getJsonValue().toString());
@@ -454,11 +456,29 @@ class RecordConvertersTest {
     @ToString
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PojoWrapper {
+    public static class PojoWrapperRoot {
 
         private String stringValue;
+    }
+
+    @Data
+    @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PojoWrapperBase {
+
+        private PojoWrapperRoot root;
 
         private Integer intValue;
+    }
+
+    @Data
+    @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PojoWrapper {
+
+        private PojoWrapperBase base;
 
         private Double doubleValue;
 
