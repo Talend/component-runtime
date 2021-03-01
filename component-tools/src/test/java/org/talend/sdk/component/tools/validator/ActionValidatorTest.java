@@ -131,8 +131,11 @@ class ActionValidatorTest {
 
         @DiscoverDataset("tests")
         public DiscoverDatasetResult datasetDiscover(FakeDataStore dataStore) {
-            return new DiscoverDatasetResult(Arrays
-                    .asList(new DatasetDescription("datasetA", "typeA"), new DatasetDescription("datasetB", "typeB")));
+            final DatasetDescription datasetA = new DatasetDescription("datasetA");
+            datasetA.addMetadata("type", "typeA");
+            final DatasetDescription datasetB = new DatasetDescription("datasetB");
+            datasetA.addMetadata("type", "typeB");
+            return new DiscoverDatasetResult(Arrays.asList(datasetA, datasetB));
         }
     }
 
