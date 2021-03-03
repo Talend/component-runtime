@@ -1,5 +1,11 @@
 
 
+== Version 1.31.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1863[TCOMP-1863^]: Upgrade batik-codec to 1.14 due to CVE-2020-11988
+
 == Version 1.30.0
 
 === Bug
