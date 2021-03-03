@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.di.record;
 import static java.time.ZoneOffset.UTC;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.AbstractMap;
@@ -85,9 +84,6 @@ public class MappingUtils {
             throw new IllegalArgumentException(String
                     .format("%s can't be converted to %s as its value is '%s' of type %s.", name, expectedType, value,
                             value.getClass()));
-        }
-        if (Double.class == expectedType) {
-            return new BigDecimal(Double.class.cast(value)).setScale(5, RoundingMode.HALF_UP).doubleValue();
         }
         // type should match so...
         return value;

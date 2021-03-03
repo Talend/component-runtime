@@ -4,6 +4,7 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1806[TCOMP-1806^]: Double values are rounded to 5 decimal places in studio
 - link:https://jira.talendforge.org/browse/TCOMP-1864[TCOMP-1864^]: JsonSchemaConverter and johnzon-jsonschema 1.2.9+ look incompatible
 
 
