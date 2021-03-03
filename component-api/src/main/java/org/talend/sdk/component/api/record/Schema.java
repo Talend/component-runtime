@@ -16,6 +16,7 @@
 package org.talend.sdk.component.api.record;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Schema {
 
@@ -33,6 +34,17 @@ public interface Schema {
      * @return the entries for records.
      */
     List<Entry> getEntries();
+
+    /**
+     * @return the metadata props
+     */
+    Map<String, String> getProps();
+
+    /**
+     * @param property
+     * @return the requested metadata prop
+     */
+    String getProp(String property);
 
     enum Type {
         RECORD,
@@ -90,6 +102,17 @@ public interface Schema {
          */
         String getComment();
 
+        /**
+         * @return the metadata props
+         */
+        Map<String, String> getProps();
+
+        /**
+         * @param property
+         * @return the requested metadata prop
+         */
+        String getProp(String property);
+
         // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
 
         /**
@@ -110,6 +133,8 @@ public interface Schema {
             Builder withElementSchema(Schema schema);
 
             Builder withComment(String comment);
+
+            Builder withProps(Map<String, String> props);
 
             Entry build();
         }
@@ -137,6 +162,12 @@ public interface Schema {
          * @return this builder.
          */
         Builder withElementSchema(Schema schema);
+
+        /**
+         * @param props schema properties
+         * @return this builder
+         */
+        Builder withProps(Map<String, String> props);
 
         /**
          * @return the described schema.
