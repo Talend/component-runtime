@@ -236,6 +236,11 @@ public class DynamicColumnsTest {
             assertNotNull(record.getString("name"));
             assertTrue(record.getString("name").startsWith("record"));
             assertEquals("value" + counter, record.getString("string0"));
+            assertEquals(Short.MAX_VALUE, record.getInt("shorty"));
+            assertEquals(Integer.MAX_VALUE, record.getInt("inty"));
+            assertEquals(Long.MAX_VALUE, record.getLong("longy"));
+            assertEquals(Float.MAX_VALUE, record.getFloat("floaty"));
+            assertEquals(Double.MAX_VALUE, record.getDouble("doubly"));
             assertEquals((counter % 2 == 0), record.getBoolean("bool0"));
             assertEquals(counter, record.getInt("int0"));
             assertEquals(Integer.MIN_VALUE, record.getInt("int_min"));
@@ -265,7 +270,7 @@ public class DynamicColumnsTest {
         private final PrimitiveIterator.OfInt stream;
 
         public InputComponentDi(@Option("count") final int count) {
-            this.stream = IntStream.range(0, count).iterator();
+            stream = IntStream.range(0, count).iterator();
         }
 
         @Producer
@@ -274,10 +279,15 @@ public class DynamicColumnsTest {
                 return null;
             }
             final Integer i = stream.next();
-            Record record = builderFactory
+            final Record record = builderFactory
                     .newRecordBuilder()
                     .withString("id", String.valueOf(i))
                     .withString("name", "record" + i)
+                    .withInt("shorty", Short.MAX_VALUE)
+                    .withInt("inty", Integer.MAX_VALUE)
+                    .withLong("longy", Long.MAX_VALUE)
+                    .withFloat("floaty", Float.MAX_VALUE)
+                    .withDouble("doubly", Double.MAX_VALUE)
                     .withString("string0", "value" + i)
                     .withBoolean("bool0", (i % 2 == 0))
                     .withInt("int0", i)
@@ -313,6 +323,16 @@ public class DynamicColumnsTest {
         public String id;
 
         public String name;
+
+        public short shorty;
+
+        public int inty;
+
+        public long longy;
+
+        public float floaty;
+
+        public double doubly;
 
         public Dynamic dynamic;
 

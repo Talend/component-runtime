@@ -65,7 +65,8 @@ public class MappingUtils {
         // non-matching types
         if (!expectedType.isInstance(value)) {
             // number classes mapping
-            if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
+            if (Number.class.isInstance(value)
+                    && Number.class.isAssignableFrom(PRIMITIVE_WRAPPER_MAP.getOrDefault(expectedType, expectedType))) {
                 return mapNumber(expectedType, Number.class.cast(value));
             }
             // mapping primitive <-> Class
