@@ -16,8 +16,10 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.sdk.component.api.record.Schema;
 
@@ -148,5 +150,20 @@ public abstract class Schemas implements Schema, Schema.Builder {
     @Override
     public List<Entry> getEntries() {
         return emptyList();
+    }
+
+    @Override
+    public Builder withProps(final Map<String, String> props) {
+        throw new UnsupportedOperationException("#withProps()");
+    }
+
+    @Override
+    public Map<String, String> getProps() {
+        return emptyMap();
+    }
+
+    @Override
+    public String getProp(final String property) {
+        throw new UnsupportedOperationException("#getProp()");
     }
 }

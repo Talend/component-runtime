@@ -18,7 +18,9 @@ package org.talend.sdk.component.runtime.record;
 import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -39,6 +41,19 @@ public class SchemaImpl implements Schema {
 
     private List<Entry> entries;
 
+    private Map<String, String> props = new LinkedHashMap<>(0);
+
+    public SchemaImpl(final Type type, final Schema schema, final List<Entry> entries) {
+        this.type = type;
+        elementSchema = schema;
+        this.entries = entries;
+    }
+
+    @Override
+    public String getProp(final String property) {
+        return props.get(property);
+    }
+
     public static class BuilderImpl implements Builder {
 
         private Type type;
@@ -47,12 +62,14 @@ public class SchemaImpl implements Schema {
 
         private List<Entry> entries = new ArrayList<>();
 
+        private Map<String, String> props = new LinkedHashMap<>(0);
+
         @Override
         public Builder withElementSchema(final Schema schema) {
             if (type != Type.ARRAY && schema != null) {
                 throw new IllegalArgumentException("elementSchema is only valid for ARRAY type of schema");
             }
-            this.elementSchema = schema;
+            elementSchema = schema;
             return this;
         }
 
@@ -75,8 +92,16 @@ public class SchemaImpl implements Schema {
         }
 
         @Override
+        public Builder withProps(final Map props) {
+            if (props != null) {
+                this.props = props;
+            }
+            return this;
+        }
+
+        @Override
         public Schema build() {
-            return new SchemaImpl(type, elementSchema, entries == null ? null : unmodifiableList(entries));
+            return new SchemaImpl(type, elementSchema, entries == null ? null : unmodifiableList(entries), props);
         }
     }
 
@@ -87,7 +112,18 @@ public class SchemaImpl implements Schema {
 
         // add this for some old code which refer this construct
         public EntryImpl(final String name, final Schema.Type type, final boolean nullable, final Object defaultValue,
-                final Schema elementSchema, final String comment) {
+                final Schema elementSchema, final String comment, final Map<String, String> props) {
+            this.name = name;
+            this.type = type;
+            this.nullable = nullable;
+            this.defaultValue = defaultValue;
+            this.elementSchema = elementSchema;
+            this.comment = comment;
+            this.props = props;
+        }
+
+        public EntryImpl(final String name, final String rawName, final Schema.Type type, final boolean nullable,
+                final Object defaultValue, final Schema elementSchema, final String comment) {
             this.name = name;
             this.type = type;
             this.nullable = nullable;
@@ -136,6 +172,16 @@ public class SchemaImpl implements Schema {
          */
         private String comment;
 
+        /**
+         * metadata
+         */
+        private Map<String, String> props = new LinkedHashMap<>(0);
+
+        @Override
+        public String getProp(final String property) {
+            return props.get(property);
+        }
+
         // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
 
         public static class BuilderImpl implements Builder {
@@ -153,6 +199,8 @@ public class SchemaImpl implements Schema {
             private Schema elementSchema;
 
             private String comment;
+
+            private Map<String, String> props = new LinkedHashMap<>(0);
 
             private static String sanitizeConnectionName(final String name) {
                 if (name.isEmpty()) {
@@ -206,13 +254,13 @@ public class SchemaImpl implements Schema {
 
             @Override
             public <T> Builder withDefaultValue(final T value) {
-                this.defaultValue = value;
+                defaultValue = value;
                 return this;
             }
 
             @Override
             public Builder withElementSchema(final Schema schema) {
-                this.elementSchema = schema;
+                elementSchema = schema;
                 return this;
             }
 
@@ -223,8 +271,16 @@ public class SchemaImpl implements Schema {
             }
 
             @Override
+            public Builder withProps(final Map props) {
+                if (props != null) {
+                    this.props = props;
+                }
+                return this;
+            }
+
+            @Override
             public Entry build() {
-                return new EntryImpl(name, rawName, type, nullable, defaultValue, elementSchema, comment);
+                return new EntryImpl(name, rawName, type, nullable, defaultValue, elementSchema, comment, props);
             }
         }
     }
