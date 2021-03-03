@@ -24,7 +24,9 @@ import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
@@ -37,8 +39,8 @@ class AvroSchemaTest {
 
     @Test
     void getRecordType() {
-        Schema.Field field = new Schema.Field("nf",
-                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)), null, null);
+        final Schema.Field field = new Schema.Field("nf",
+                                                    Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)), null, null);
         field.addProp(KeysForAvroProperty.LABEL, "n f");
 
         final Schema delegate = Schema
@@ -54,6 +56,33 @@ class AvroSchemaTest {
         assertEquals("nf", entry.getName());
         assertEquals("n f", entry.getRawName());
         assertEquals("n f", entry.getOriginalFieldName());
+    }
+    @Test
+    void schemaProps() {
+
+        final LinkedHashMap<String, String> rootProps = new LinkedHashMap<>();
+        IntStream.range(0, 10).forEach(i -> rootProps.put("key" + i, "value" + i));
+        final LinkedHashMap<String, String> fieldProps = new LinkedHashMap<>();
+        fieldProps.put("org.talend.components.metadata.one", "one_1");
+        fieldProps.put("org.talend.components.metadata.two", "two_2");
+
+        final Schema.Field field = new Schema.Field("nf",
+                                                    Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)), null, null);
+        field.addProp(KeysForAvroProperty.LABEL, "n f");
+        field.addProp("one", "_1");
+        field.addProp("two", "_2");
+
+        final Schema delegate = Schema
+                .createUnion(Schema.create(Schema.Type.NULL),
+                        Schema.createRecord("foo", null, null, false, singletonList(field)));
+        //TODO delegate.addProp("root", "toor");
+        final AvroSchema schema = new AvroSchema(delegate);
+        //TODO assertEquals("toor", schema.getProp("root"));
+        final List<org.talend.sdk.component.api.record.Schema.Entry> entries = schema.getEntries();
+        final org.talend.sdk.component.api.record.Schema.Entry entry = entries.iterator().next();
+        assertEquals("n f", entry.getProp(KeysForAvroProperty.LABEL));
+        assertEquals("_1", entry.getProp("one"));
+        assertEquals("_2", entry.getProp("two"));
     }
 
     @Test

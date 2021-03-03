@@ -20,10 +20,13 @@ import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeCon
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.avro.LogicalTypes;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 
@@ -96,6 +99,8 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private Schema.Type type;
 
     private Schema elementSchema;
+
+    private Map<String, String> props = new LinkedHashMap<>(0);
 
     @Override
     public Schema.Builder withType(final Schema.Type type) {
@@ -174,7 +179,13 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (type != Schema.Type.ARRAY && schema != null) {
             throw new IllegalArgumentException("elementSchema is only valid for ARRAY type of schema");
         }
-        this.elementSchema = schema;
+        elementSchema = schema;
+        return this;
+    }
+
+    @Override
+    public Builder withProps(final Map<String, String> props) {
+        this.props = props;
         return this;
     }
 
