@@ -2,6 +2,12 @@
 
 == Version 1.31.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1864[TCOMP-1864^]: JsonSchemaConverter and johnzon-jsonschema 1.2.9+ look incompatible
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1863[TCOMP-1863^]: Upgrade batik-codec to 1.14 due to CVE-2020-11988
