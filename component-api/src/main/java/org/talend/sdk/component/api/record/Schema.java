@@ -136,6 +136,8 @@ public interface Schema {
 
             Builder withProps(Map<String, String> props);
 
+            Builder withProp(String key, String value);
+
             Entry build();
         }
     }
@@ -168,6 +170,14 @@ public interface Schema {
          * @return this builder
          */
         Builder withProps(Map<String, String> props);
+
+        /**
+         *
+         * @param key the prop key name
+         * @param value the prop value
+         * @return this builder
+         */
+        Builder withProp(String key, String value);
 
         /**
          * @return the described schema.

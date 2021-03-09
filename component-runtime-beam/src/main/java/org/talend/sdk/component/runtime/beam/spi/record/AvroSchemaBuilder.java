@@ -100,7 +100,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     private Schema elementSchema;
 
-    private Map<String, String> props = new LinkedHashMap<>(0);
+    private final Map<String, String> props = new LinkedHashMap<>(0);
 
     @Override
     public Schema.Builder withType(final Schema.Type type) {
@@ -184,8 +184,17 @@ public class AvroSchemaBuilder implements Schema.Builder {
     }
 
     @Override
+    public Builder withProp(final String key, final String value) {
+        props.put(key, value);
+        return this;
+    }
+
+    @Override
     public Builder withProps(final Map<String, String> props) {
-        this.props = props;
+        if (props == null) {
+            return this;
+        }
+        this.props.putAll(props);
         return this;
     }
 

@@ -92,6 +92,12 @@ public class SchemaImpl implements Schema {
         }
 
         @Override
+        public Builder withProp(final String key, final String value) {
+            props.put(key, value);
+            return this;
+        }
+
+        @Override
         public Builder withProps(final Map props) {
             if (props != null) {
                 this.props = props;
@@ -200,7 +206,7 @@ public class SchemaImpl implements Schema {
 
             private String comment;
 
-            private Map<String, String> props = new LinkedHashMap<>(0);
+            private final Map<String, String> props = new LinkedHashMap<>(0);
 
             private static String sanitizeConnectionName(final String name) {
                 if (name.isEmpty()) {
@@ -271,10 +277,17 @@ public class SchemaImpl implements Schema {
             }
 
             @Override
+            public Builder withProp(final String key, final String value) {
+                props.put(key, value);
+                return this;
+            }
+
+            @Override
             public Builder withProps(final Map props) {
-                if (props != null) {
-                    this.props = props;
+                if (props == null) {
+                    return this;
                 }
+                this.props.putAll(props);
                 return this;
             }
 

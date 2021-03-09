@@ -158,6 +158,11 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
+    public Builder withProp(final String key, final String value) {
+        throw new UnsupportedOperationException("#withProp()");
+    }
+
+    @Override
     public Map<String, String> getProps() {
         return emptyMap();
     }
