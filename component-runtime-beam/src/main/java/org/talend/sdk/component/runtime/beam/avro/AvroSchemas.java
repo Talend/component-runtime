@@ -67,11 +67,4 @@ public final class AvroSchemas {
         return new String(sanitized);
     }
 
-    public static Schema.Field addProp(final Schema.Field field, final String key, final String value) {
-        if (value != null) {
-            field.addProp(key, value);
-        }
-        return field;
-    }
-
 }

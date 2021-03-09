@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.avro.LogicalTypes;
+import org.apache.avro.Schema.Field;
+import org.apache.avro.Schema.Type;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
@@ -162,15 +164,16 @@ public class AvroSchemaBuilder implements Schema.Builder {
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
-        fields
-                .add(AvroSchemas
-                        .addProp(
-                                new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
-                                        entry.isNullable() && schema.getType() != org.apache.avro.Schema.Type.UNION
-                                                ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
-                                                : schema,
-                                        entry.getComment(), (Object) entry.getDefaultValue()),
-                                KeysForAvroProperty.LABEL, entry.getRawName()));
+        final Field f = new Field(sanitizeConnectionName(entry.getName()),
+                entry.isNullable() && schema.getType() != Type.UNION
+                        ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
+                        : schema,
+                entry.getComment(), (Object) entry.getDefaultValue());
+        if (entry.getRawName() != null) {
+            f.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
+        }
+        entry.getProps().forEach((k, v) -> f.addProp(k, v));
+        fields.add(f);
         return this;
     }
 
