@@ -40,7 +40,7 @@ class AvroSchemaTest {
     @Test
     void getRecordType() {
         final Schema.Field field = new Schema.Field("nf",
-                                                    Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)), null, null);
+                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)), null, null);
         field.addProp(KeysForAvroProperty.LABEL, "n f");
 
         final Schema delegate = Schema
@@ -57,6 +57,7 @@ class AvroSchemaTest {
         assertEquals("n f", entry.getRawName());
         assertEquals("n f", entry.getOriginalFieldName());
     }
+
     @Test
     void schemaProps() {
 
@@ -67,7 +68,7 @@ class AvroSchemaTest {
         fieldProps.put("org.talend.components.metadata.two", "two_2");
 
         final Schema.Field field = new Schema.Field("nf",
-                                                    Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)), null, null);
+                Schema.createUnion(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)), null, null);
         field.addProp(KeysForAvroProperty.LABEL, "n f");
         field.addProp("one", "_1");
         field.addProp("two", "_2");
@@ -75,9 +76,9 @@ class AvroSchemaTest {
         final Schema delegate = Schema
                 .createUnion(Schema.create(Schema.Type.NULL),
                         Schema.createRecord("foo", null, null, false, singletonList(field)));
-        //TODO delegate.addProp("root", "toor");
+        // TODO delegate.addProp("root", "toor");
         final AvroSchema schema = new AvroSchema(delegate);
-        //TODO assertEquals("toor", schema.getProp("root"));
+        // TODO assertEquals("toor", schema.getProp("root"));
         final List<org.talend.sdk.component.api.record.Schema.Entry> entries = schema.getEntries();
         final org.talend.sdk.component.api.record.Schema.Entry entry = entries.iterator().next();
         assertEquals("n f", entry.getProp(KeysForAvroProperty.LABEL));

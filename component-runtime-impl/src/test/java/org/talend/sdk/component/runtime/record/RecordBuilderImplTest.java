@@ -42,10 +42,10 @@ class RecordBuilderImplTest {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                                   .withName("name")
-                                   .withNullable(true)
-                                   .withType(Schema.Type.STRING)
-                                   .build())
+                        .withName("name")
+                        .withNullable(true)
+                        .withType(Schema.Type.STRING)
+                        .build())
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
     }
@@ -55,28 +55,28 @@ class RecordBuilderImplTest {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                                   .withName("name")
-                                   .withNullable(true)
-                                   .withType(Schema.Type.STRING)
-                                   .build())
+                        .withName("name")
+                        .withNullable(true)
+                        .withType(Schema.Type.STRING)
+                        .build())
                 .build();
         assertEquals("{\"record\":{\"name\":\"ok\"}}",
-                     new RecordImpl.BuilderImpl()
-                             .withRecord("record", new RecordImpl.BuilderImpl(schema).withString("name", "ok").build())
-                             .build()
-                             .toString());
+                new RecordImpl.BuilderImpl()
+                        .withRecord("record", new RecordImpl.BuilderImpl(schema).withString("name", "ok").build())
+                        .build()
+                        .toString());
     }
 
     @Test
     void providedSchemaNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new RecordImpl.BuilderImpl(new SchemaImpl.BuilderImpl()
-                                                                                                  .withType(Schema.Type.RECORD)
-                                                                                                  .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                                                                                                                     .withName("name")
-                                                                                                                     .withNullable(true)
-                                                                                                                     .withType(Schema.Type.STRING)
-                                                                                                                     .build())
-                                                                                                  .build());
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(true)
+                        .withType(Schema.Type.STRING)
+                        .build())
+                .build());
         { // normal/valued
             final Record record = builder.get().withString("name", "ok").build();
             assertEquals(1, record.getSchema().getEntries().size());
@@ -98,13 +98,13 @@ class RecordBuilderImplTest {
     @Test
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new RecordImpl.BuilderImpl(new SchemaImpl.BuilderImpl()
-                                                                                                  .withType(Schema.Type.RECORD)
-                                                                                                  .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                                                                                                                     .withName("name")
-                                                                                                                     .withNullable(false)
-                                                                                                                     .withType(Schema.Type.STRING)
-                                                                                                                     .build())
-                                                                                                  .build());
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(false)
+                        .withType(Schema.Type.STRING)
+                        .build())
+                .build());
         { // normal/valued
             final Record record = builder.get().withString("name", "ok").build();
             assertEquals(1, record.getSchema().getEntries().size());
@@ -150,7 +150,7 @@ class RecordBuilderImplTest {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder
                 .withArray(new SchemaImpl.EntryImpl("test", "test", Schema.Type.ARRAY, true, null,
-                                                    new SchemaImpl(Schema.Type.STRING, null, null), null), null);
+                        new SchemaImpl(Schema.Type.STRING, null, null), null), null);
         final Record record = builder.build();
         assertEquals(1, record.getSchema().getEntries().size());
         assertNull(record.getArray(String.class, "test"));
@@ -168,10 +168,10 @@ class RecordBuilderImplTest {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                                   .withName("date")
-                                   .withNullable(false)
-                                   .withType(Schema.Type.DATETIME)
-                                   .build())
+                        .withName("date")
+                        .withNullable(false)
+                        .withType(Schema.Type.DATETIME)
+                        .build())
                 .build();
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
         final Record record = builder.withDateTime("date", ZonedDateTime.now()).build();
@@ -208,21 +208,12 @@ class RecordBuilderImplTest {
         final Schema schema = new BuilderImpl()
                 .withType(Type.RECORD)
                 .withProps(rootProps)
-                .withEntry(new EntryImpl.BuilderImpl()
-                                   .withName("f01")
-                                   .withType(Type.STRING)
-                                   .build())
-                .withEntry(new EntryImpl.BuilderImpl()
-                                   .withName("f02")
-                                   .withType(Type.STRING)
-                                   .withProps(fieldProps)
-                                   .build())
+                .withEntry(new EntryImpl.BuilderImpl().withName("f01").withType(Type.STRING).build())
+                .withEntry(
+                        new EntryImpl.BuilderImpl().withName("f02").withType(Type.STRING).withProps(fieldProps).build())
                 .build();
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
-        final Record record = builder
-                .withString("f01", "field-one")
-                .withString("f02", "field-two")
-                .build();
+        final Record record = builder.withString("f01", "field-one").withString("f02", "field-two").build();
         final Schema rSchema = record.getSchema();
         assertEquals("field-one", record.getString("f01"));
         assertEquals("field-two", record.getString("f02"));
