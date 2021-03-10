@@ -24,8 +24,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.component.AfterVariableContainer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -97,9 +101,8 @@ public class ModelVisitor {
             // we must do that validation
             if (Stream
                     .of(m.getParameters())
-                    .filter(p -> !p.isAnnotationPresent(PartitionSize.class)
-                            || (p.getType() != long.class && p.getType() != int.class))
-                    .count() > 0) {
+                    .anyMatch(p -> !p.isAnnotationPresent(PartitionSize.class)
+                            || (p.getType() != long.class && p.getType() != int.class))) {
                 throw new IllegalArgumentException(m + " must not have any parameter without @PartitionSize");
             }
             final Type splitReturnType = m.getGenericReturnType();
@@ -129,6 +132,8 @@ public class ModelVisitor {
                         throw new IllegalArgumentException(m + " must not have any parameter");
                     }
                 });
+
+        validateAfterVariableContainer(type);
     }
 
     private void validateEmitter(final Class<?> input) {
@@ -141,6 +146,8 @@ public class ModelVisitor {
         if (producers.get(0).getParameterCount() > 0) {
             throw new IllegalArgumentException(producers.get(0) + " must not have any parameter");
         }
+
+        validateAfterVariableContainer(input);
     }
 
     private void validateProcessor(final Class<?> input) {
@@ -167,7 +174,7 @@ public class ModelVisitor {
         if (producers.size() > 1) {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }
-        if (producers.size() == 0 && afterGroups
+        if (producers.isEmpty() && afterGroups
                 .stream()
                 .noneMatch(m -> Stream.of(m.getGenericParameterTypes()).anyMatch(Parameters::isGroupBuffer))) {
             throw new IllegalArgumentException(input
@@ -187,6 +194,8 @@ public class ModelVisitor {
                 throw new IllegalArgumentException(m + " must not have any parameter");
             }
         });
+
+        validateAfterVariableContainer(input);
     }
 
     private boolean validOutputParam(final Parameter p) {
@@ -204,4 +213,64 @@ public class ModelVisitor {
     private Stream<Class<? extends Annotation>> getSupportedComponentTypes() {
         return Stream.of(Emitter.class, PartitionMapper.class, Processor.class);
     }
+
+    private void validateAfterVariableContainer(final Class<?> type) {
+        // component can't have more then one after variable container
+        List<Method> markedMethods = Stream
+                .of(type.getMethods())
+                .filter(m -> m.isAnnotationPresent(AfterVariableContainer.class))
+                .collect(toList());
+        if (markedMethods.size() > 1) {
+            String methods = markedMethods.stream().map(Method::toGenericString).collect(Collectors.joining(","));
+            throw new IllegalArgumentException("The methods can't have more than 1 after variable container. "
+                    + "Current marked methods: " + methods);
+        }
+
+        // check parameter list
+        Optional
+                .of(markedMethods
+                        .stream()
+                        .filter(m -> m.getParameterCount() != 0)
+                        .map(Method::toGenericString)
+                        .collect(Collectors.joining(",")))
+                .filter(str -> !str.isEmpty())
+                .ifPresent(str -> {
+                    throw new IllegalArgumentException(
+                            "The method is annotated with " + AfterVariableContainer.class.getCanonicalName() + "'"
+                                    + str + "' should have parameters.");
+                });
+
+        // check incorrect return type
+        Optional
+                .of(markedMethods
+                        .stream()
+                        .filter(m -> !isValidAfterVariableContainer(m.getGenericReturnType()))
+                        .map(Method::toGenericString)
+                        .collect(Collectors.joining(",")))
+                .filter(it -> !it.isEmpty())
+                .ifPresent(methods -> {
+                    throw new IllegalArgumentException(
+                            "The method '" + methods + "' has wrong return type. It should be Map<String, Object>.");
+                });
+    }
+
+    /**
+     * Right now the valid container object for after variables is Map.
+     * Where the key is String and value is Object
+     */
+    private static boolean isValidAfterVariableContainer(final Type type) {
+        if (!(type instanceof ParameterizedType)) {
+            return false;
+        }
+
+        final ParameterizedType paramType = (ParameterizedType) type;
+        if (!(paramType.getRawType() instanceof Class) || paramType.getActualTypeArguments().length != 2) {
+            return false;
+        }
+
+        final Class<?> containerType = (Class<?>) paramType.getRawType();
+        return Map.class.isAssignableFrom(containerType) && paramType.getActualTypeArguments()[0].equals(String.class)
+                && paramType.getActualTypeArguments()[1].equals(Object.class);
+    }
+
 }
