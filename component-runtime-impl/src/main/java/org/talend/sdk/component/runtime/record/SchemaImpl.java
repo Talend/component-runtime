@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class SchemaImpl implements Schema {
             if (type != Type.ARRAY && schema != null) {
                 throw new IllegalArgumentException("elementSchema is only valid for ARRAY type of schema");
             }
-            this.elementSchema = schema;
+            elementSchema = schema;
             return this;
         }
 
@@ -154,27 +155,6 @@ public class SchemaImpl implements Schema {
 
             private String comment;
 
-            private static String sanitizeConnectionName(final String name) {
-                if (name.isEmpty()) {
-                    return name;
-                }
-                final char[] original = name.toCharArray();
-                final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
-                final int offset = skipFirstChar ? 1 : 0;
-                final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
-                if (!skipFirstChar) {
-                    sanitized[0] = original[0];
-                }
-                for (int i = 1; i < original.length; i++) {
-                    if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
-                        sanitized[i - offset] = '_';
-                    } else {
-                        sanitized[i - offset] = original[i];
-                    }
-                }
-                return new String(sanitized);
-            }
-
             @Override
             public Builder withName(final String name) {
                 this.name = sanitizeConnectionName(name);
@@ -206,13 +186,13 @@ public class SchemaImpl implements Schema {
 
             @Override
             public <T> Builder withDefaultValue(final T value) {
-                this.defaultValue = value;
+                defaultValue = value;
                 return this;
             }
 
             @Override
             public Builder withElementSchema(final Schema schema) {
-                this.elementSchema = schema;
+                elementSchema = schema;
                 return this;
             }
 

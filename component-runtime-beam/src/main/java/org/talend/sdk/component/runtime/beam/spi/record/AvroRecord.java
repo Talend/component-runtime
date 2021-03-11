@@ -21,7 +21,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
@@ -48,8 +48,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
-    private static final org.apache.avro.Schema NULL_SCHEMA =
-            org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL);
+    private static final org.apache.avro.Schema NULL_SCHEMA = org.apache.avro.Schema.create(NULL);
 
     @JsonbTransient
     private final IndexedRecord delegate;
@@ -58,16 +57,16 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private final AvroSchema schema;
 
     public AvroRecord(final IndexedRecord record) {
-        this.schema = new AvroSchema(record.getSchema());
-        this.delegate = record;
+        schema = new AvroSchema(record.getSchema());
+        delegate = record;
         // dirty fix for Avro DateTime related logicalTypes converted to org.joda.time.DateTime
-        this.delegate
+        delegate
                 .getSchema()
                 .getFields()
                 .stream()
-                .filter(f -> org.joda.time.DateTime.class.isInstance(this.delegate.get(f.pos())))
-                .forEach(f -> this.delegate
-                        .put(f.pos(), org.joda.time.DateTime.class.cast(this.delegate.get(f.pos())).getMillis()));
+                .filter(f -> org.joda.time.DateTime.class.isInstance(delegate.get(f.pos())))
+                .forEach(f -> delegate
+                        .put(f.pos(), org.joda.time.DateTime.class.cast(delegate.get(f.pos())).getMillis()));
     }
 
     public AvroRecord(final Record record) {
@@ -84,8 +83,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
         avroSchema.setFields(fields);
-        this.schema = new AvroSchema(avroSchema);
-        this.delegate = new GenericData.Record(avroSchema);
+        schema = new AvroSchema(avroSchema);
+        delegate = new GenericData.Record(avroSchema);
         entries
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {
@@ -100,7 +99,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
                                         avroSchema.getField(sanitizeConnectionName(entry.getName()));
-                                this.delegate.put(field.pos(), avroValue);
+                                delegate.put(field.pos(), avroValue);
                             }
                         }));
     }

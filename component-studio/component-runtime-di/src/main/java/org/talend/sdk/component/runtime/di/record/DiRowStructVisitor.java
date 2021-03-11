@@ -27,6 +27,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import routines.system.Dynamic;
 
@@ -106,10 +107,10 @@ public class DiRowStructVisitor {
                     onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
                     break;
                 case "routines.system.Dynamic":
-                    Dynamic dynamic = Dynamic.class.cast(raw);
+                    final Dynamic dynamic = Dynamic.class.cast(raw);
                     dynamic.metadatas.forEach(meta -> {
                         final Object value = dynamic.getColumnValue(meta.getName());
-                        final String metaName = meta.getName();
+                        final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         final String metaComment = meta.getDescription();
                         final boolean metaIsNullable = meta.isNullable();
@@ -154,7 +155,7 @@ public class DiRowStructVisitor {
                             onBoolean(metaName, value);
                             break;
                         case "id_Date":
-                            ZonedDateTime dateTime;
+                            final ZonedDateTime dateTime;
                             if (Long.class.isInstance(value)) {
                                 dateTime = ZonedDateTime.ofInstant(ofEpochMilli(Long.class.cast(value)), UTC);
                             } else {
@@ -182,7 +183,7 @@ public class DiRowStructVisitor {
                     }
                     break;
                 }
-            } catch (IllegalAccessException e) {
+            } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
         });
@@ -245,10 +246,10 @@ public class DiRowStructVisitor {
                     schema.withEntry(toEntry(name, BYTES));
                     break;
                 case "routines.system.Dynamic":
-                    Dynamic dynamic = Dynamic.class.cast(raw);
+                    final Dynamic dynamic = Dynamic.class.cast(raw);
                     dynamic.metadatas.forEach(meta -> {
                         final Object value = dynamic.getColumnValue(meta.getName());
-                        final String metaName = meta.getName();
+                        final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         final String metaComment = meta.getDescription();
                         final boolean metaIsNullable = meta.isNullable();
@@ -296,7 +297,7 @@ public class DiRowStructVisitor {
                 default:
                     log.warn("Unmanaged type: {} for {}.", type, name);
                 }
-            } catch (IllegalAccessException e) {
+            } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
         });
@@ -362,7 +363,7 @@ public class DiRowStructVisitor {
     private Entry toCollectionEntry(final String name, final String originalName, final Object value) {
         Type elementType = STRING;
         if (value != null && !Collection.class.cast(value).isEmpty()) {
-            Object coll = Collection.class.cast(value).iterator().next();
+            final Object coll = Collection.class.cast(value).iterator().next();
             elementType = getTypeFromValue(coll);
         }
         return factory

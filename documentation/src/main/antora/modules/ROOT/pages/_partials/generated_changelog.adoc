@@ -7,6 +7,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1806[TCOMP-1806^]: Double values are rounded to 5 decimal places in studio
 - link:https://jira.talendforge.org/browse/TCOMP-1864[TCOMP-1864^]: JsonSchemaConverter and johnzon-jsonschema 1.2.9+ look incompatible
 - link:https://jira.talendforge.org/browse/TCOMP-1866[TCOMP-1866^]: Invalid number coercion on primitive type
+- link:https://jira.talendforge.org/browse/TCOMP-1871[TCOMP-1871^]: Dynamic metadata name is not sanitized
 
 
 
