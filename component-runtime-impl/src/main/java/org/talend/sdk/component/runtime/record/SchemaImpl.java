@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

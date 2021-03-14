@@ -29,7 +29,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -132,7 +131,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         recordPrefix = "";
         try {
             instance = clazz.getConstructor().newInstance();
-        } catch (InstantiationException | InvocationTargetException | NoSuchMethodException
+        } catch (final InstantiationException | InvocationTargetException | NoSuchMethodException
                 | IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -188,7 +187,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         if (hasDynamic) {
             try {
                 fields.get(dynamicColumn).set(instance, dynamic);
-            } catch (IllegalAccessException e) {
+            } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
         }
@@ -275,7 +274,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     .findFirst()
                     .orElse(entry.getName());
             int index = dynamic.getIndex(name);
-            DynamicMetadata metadata;
+            final DynamicMetadata metadata;
             if (index < 0) {
                 metadata = generateMetadata(entry);
                 dynamic.metadatas.add(metadata);
@@ -346,7 +345,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     @Override
     public void onBytes(final Entry entry, final Optional<byte[]> bytes) {
         log.debug("[onBytes] visiting {}.", entry.getName());
-        onString(entry, Optional.of(Base64.getEncoder().encodeToString(bytes.orElse(new byte[] {}))));
+        bytes.ifPresent(value -> setField(entry, value));
     }
 
     @Override

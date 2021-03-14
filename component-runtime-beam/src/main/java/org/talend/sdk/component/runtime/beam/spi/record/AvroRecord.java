@@ -21,7 +21,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 

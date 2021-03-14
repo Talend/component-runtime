@@ -16,7 +16,7 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
 import java.util.ArrayList;

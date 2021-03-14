@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import java.util.Collection;
 

@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.AbstractMap;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -166,7 +165,10 @@ public class MappingUtils {
             return value.isEmpty() ? Character.MIN_VALUE : value.charAt(0);
         }
         if (byte[].class == expected) {
-            return Base64.getDecoder().decode(value);
+            log
+                    .warn("[mapString] Expecting a `byte[]` but received a `String`."
+                            + " Using `String.getBytes()`: result may be inaccurate.");
+            return value.getBytes();
         }
         if (BigDecimal.class == expected) {
             return new BigDecimal(value);
