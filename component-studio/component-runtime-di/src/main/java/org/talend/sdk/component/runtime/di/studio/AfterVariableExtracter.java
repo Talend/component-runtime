@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
-import org.talend.sdk.component.api.component.AfterVariableContainer;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder.Instance;
@@ -41,8 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 public class AfterVariableExtracter {
 
     /**
-     * Extract the after variable map from the classes annotated with {@link org.talend.sdk.component.api.input.Emitter},
-     * {@link org.talend.sdk.component.api.input.PartitionMapper}, {@link org.talend.sdk.component.api.processor.Output}.
+     * Extract the after variable map from the classes annotated with
+     * {@link org.talend.sdk.component.api.input.Emitter},
+     * {@link org.talend.sdk.component.api.input.PartitionMapper},
+     * {@link org.talend.sdk.component.api.processor.Output}.
      * After variables can appear during the job process in the map.
      *
      * @return map with after variables.

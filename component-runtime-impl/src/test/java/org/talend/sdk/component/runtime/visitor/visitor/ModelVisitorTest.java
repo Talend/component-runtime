@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.component.AfterVariableContainer;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;

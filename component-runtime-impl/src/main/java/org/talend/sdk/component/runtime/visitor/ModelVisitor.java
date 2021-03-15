@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.talend.sdk.component.api.component.AfterVariableContainer;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -215,7 +215,7 @@ public class ModelVisitor {
     }
 
     private void validateAfterVariableContainer(final Class<?> type) {
-        // component can't have more then one after variable container
+        // component can't have more than one after variable container
         List<Method> markedMethods = Stream
                 .of(type.getMethods())
                 .filter(m -> m.isAnnotationPresent(AfterVariableContainer.class))
