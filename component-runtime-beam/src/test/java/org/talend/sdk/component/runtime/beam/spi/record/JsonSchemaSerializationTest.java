@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
@@ -36,12 +37,12 @@ class JsonSchemaSerializationTest {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(RECORD)
                 .withEntry(new SchemaImpl.EntryImpl("array", "array", Schema.Type.ARRAY, true, null,
-                        new AvroSchemaBuilder().withType(STRING).build(), null))
+                        new AvroSchemaBuilder().withType(STRING).build(), null, emptyMap()))
                 .build();
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             assertEquals(
-                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"type\":\"STRING\"},\"name\":\"array\",\"nullable\":true,\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"type\":\"RECORD\"}",
+                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"props\":{},\"type\":\"STRING\"},\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"props\":{},\"type\":\"RECORD\"}",
                     jsonb.toJson(schema));
         }
     }

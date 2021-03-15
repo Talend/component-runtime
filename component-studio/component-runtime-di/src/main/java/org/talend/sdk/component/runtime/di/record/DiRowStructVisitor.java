@@ -32,9 +32,9 @@ import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import routines.system.Dynamic;
 
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 
@@ -130,8 +130,19 @@ public class DiRowStructVisitor {
                             onString(metaName, value);
                             break;
                         case "id_byte[]":
-                            final byte[] bytes =
-                                    value != null ? Base64.getDecoder().decode(String.valueOf(value)) : null;
+                            final byte[] bytes;
+                            if (byte[].class.isInstance(value)) {
+                                bytes = byte[].class.cast(value);
+                            } else if (ByteBuffer.class.isInstance(value)) {
+                                bytes = ByteBuffer.class.cast(value).array();
+                            } else {
+                                log
+                                        .warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
+                                                + " This should not happen! "
+                                                + " Wrapping `byte[]` from `String.valueOf()`: result may be inaccurate.",
+                                                metaName, value.getClass().getSimpleName());
+                                bytes = ByteBuffer.wrap(String.valueOf(value).getBytes()).array();
+                            }
                             onBytes(metaName, bytes);
                             break;
                         case "id_Byte":

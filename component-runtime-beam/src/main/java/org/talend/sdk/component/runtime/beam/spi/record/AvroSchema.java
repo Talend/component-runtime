@@ -16,12 +16,14 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -102,10 +104,27 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                         // readProp(unwrapUnion(field.schema()), KeysForAvroProperty.LABEL) is not good location in my
                         // view
                         return new SchemaImpl.EntryImpl(field.name(), field.getProp(KeysForAvroProperty.LABEL), type,
-                                field.schema().getType() == UNION, field.defaultVal(), elementSchema, field.doc());
+                                field.schema().getType() == UNION, field.defaultVal(), elementSchema, field.doc(),
+                                field.getProps());
                     }).collect(toList());
         }
         return entries;
+    }
+
+    @Override
+    public Map<String, String> getProps() {
+        if (getActualDelegate().getType() != Schema.Type.RECORD) {
+            return emptyMap();
+        }
+        return getActualDelegate().getProps();
+    }
+
+    @Override
+    public String getProp(final String property) {
+        if (getActualDelegate().getType() != Schema.Type.RECORD) {
+            return null;
+        }
+        return getActualDelegate().getProp(property);
     }
 
     @Override
