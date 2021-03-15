@@ -40,7 +40,6 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
@@ -71,17 +70,18 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     public AvroRecord(final Record record) {
         final List<Schema.Entry> entries = record.getSchema().getEntries();
-        final List<org.apache.avro.Schema.Field> fields =
-                entries
-                        .stream()
-                        .map(entry -> AvroSchemas
-                                .addProp(
-                                        new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry),
-                                                entry.getComment(), entry.getDefaultValue()),
-                                        KeysForAvroProperty.LABEL, entry.getRawName()))
-                        .collect(toList());
+        final List<org.apache.avro.Schema.Field> fields = entries.stream().map(entry -> {
+            final org.apache.avro.Schema.Field f = new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry),
+                    entry.getComment(), entry.getDefaultValue());
+            if (entry.getRawName() != null) {
+                f.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
+            }
+            entry.getProps().forEach((k, v) -> f.addProp(k, v));
+            return f;
+        }).collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
+        record.getSchema().getProps().forEach((k, v) -> avroSchema.addProp(k, v));
         avroSchema.setFields(fields);
         schema = new AvroSchema(avroSchema);
         delegate = new GenericData.Record(avroSchema);

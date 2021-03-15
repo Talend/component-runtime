@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
@@ -43,6 +44,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
@@ -151,28 +153,31 @@ class AvroRecordTest {
 
     @Test
     void testLabel() {
+        final Field f = new org.apache.avro.Schema.Field("str",
+                org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING), null, null);
+        f.addProp(KeysForAvroProperty.LABEL, "my label");
         final GenericData.Record avro = new GenericData.Record(org.apache.avro.Schema
-                .createRecord(getClass().getName() + ".StringTest", null, null, false, singletonList(AvroSchemas
-                        .addProp(
-                                new org.apache.avro.Schema.Field("str",
-                                        org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING), null, null),
-                                KeysForAvroProperty.LABEL, "my label"))));
+                .createRecord(getClass().getName() + ".StringTest", null, null, false, singletonList(f)));
         avro.put(0, new Utf8("test"));
         final Record record = new AvroRecord(avro);
 
-        Schema schema = record.getSchema();
-        List<Schema.Entry> entries = schema.getEntries();
+        final Schema schema = record.getSchema();
+        final List<Schema.Entry> entries = schema.getEntries();
         assertEquals("my label", entries.get(0).getRawName());
     }
 
     @Test
     void schemaRegistryCoder() throws Exception {
-        org.apache.avro.Schema datetime = org.apache.avro.SchemaBuilder
+        final org.apache.avro.Schema datetime = org.apache.avro.SchemaBuilder
                 .record("datetimes")
+                .prop("rootProp1", "rootValue1")
+                .prop("rootProp2", "rootValue2")
                 .fields()
                 .name("f1")
                 .prop("logicalType", "timestamp-millis")
-                .prop("talend.component.DATETIME", " true")
+                .prop("talend.component.DATETIME", "true")
+                .prop("fieldProp1", "fieldValue1")
+                .prop("fieldProp2", "fieldValue2")
                 .type()
                 .unionOf()
                 .nullType()
@@ -204,8 +209,8 @@ class AvroRecordTest {
                 .noDefault()
                 //
                 .endRecord();
-        ZonedDateTime zdt = ZonedDateTime.of(2020, 01, 24, 15, 0, 1, 0, ZoneId.of("UTC"));
-        Date date = new Date();
+        final ZonedDateTime zdt = ZonedDateTime.of(2020, 01, 24, 15, 0, 1, 0, ZoneId.of("UTC"));
+        final Date date = new Date();
         final GenericData.Record avro = new GenericData.Record(datetime);
         avro.put(0, zdt.toInstant().toEpochMilli());
         avro.put(1, date.getTime());
@@ -217,6 +222,17 @@ class AvroRecordTest {
         assertEquals(zdt, decoded.getDateTime("f1"));
         assertEquals(date.getTime(), decoded.getDateTime("f2").toInstant().toEpochMilli());
         assertNull(decoded.getDateTime("f3"));
+        // schema props
+        final Schema s = decoded.getSchema();
+        assertEquals(2, s.getProps().size());
+        assertEquals("rootValue1", s.getProp("rootProp1"));
+        assertEquals("rootValue2", s.getProp("rootProp2"));
+        // field props
+        final Entry sf = s.getEntries().get(0);
+        assertEquals("timestamp-millis", sf.getProp("logicalType"));
+        assertEquals("true", sf.getProp("talend.component.DATETIME"));
+        assertEquals("fieldValue1", sf.getProp("fieldProp1"));
+        assertEquals("fieldValue2", sf.getProp("fieldProp2"));
     }
 
     @Test
@@ -229,10 +245,10 @@ class AvroRecordTest {
         builder.withDateTime("t_date", date);
         builder.withDateTime("t_datetime", datetime);
         builder.withDateTime("t_time", time);
-        Record rec = builder.build();
+        final Record rec = builder.build();
         final Pipeline pipeline = Pipeline.create();
-        PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
-        PCollection<Record> output = input.apply(new RecordToRecord());
+        final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
+        final PCollection<Record> output = input.apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 
@@ -241,7 +257,7 @@ class AvroRecordTest {
         private final RecordBuilderFactory factory;
 
         public RecordToRecord() {
-            this.factory = new AvroRecordBuilderFactoryProvider().apply(null);
+            factory = new AvroRecordBuilderFactoryProvider().apply(null);
         }
 
         @Override

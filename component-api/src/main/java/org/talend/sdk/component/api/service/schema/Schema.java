@@ -18,6 +18,7 @@ package org.talend.sdk.component.api.service.schema;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -55,6 +56,16 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
 
     @Override
     public org.talend.sdk.component.api.record.Schema getElementSchema() {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getProps() {
+        return null;
+    }
+
+    @Override
+    public String getProp(final String property) {
         return null;
     }
 
@@ -107,6 +118,16 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
 
         @Override
         public String getComment() {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getProps() {
+            return null;
+        }
+
+        @Override
+        public String getProp(final String property) {
             return null;
         }
     }

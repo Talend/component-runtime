@@ -23,15 +23,17 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.function.Supplier;
-
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 class RecordBuilderImplTest {
 
@@ -193,6 +195,113 @@ class RecordBuilderImplTest {
 
         final Record record = builder.withArray(entry, Arrays.asList("d1", "d2")).build();
         final Collection<String> data = record.getArray(String.class, "data");
-        Assertions.assertEquals(2, data.size());
+        assertEquals(2, data.size());
+    }
+
+    @Test
+    void withProps() {
+        final LinkedHashMap<String, String> rootProps = new LinkedHashMap<>();
+        IntStream.range(0, 10).forEach(i -> rootProps.put("key" + i, "value" + i));
+        final LinkedHashMap<String, String> fieldProps = new LinkedHashMap<>();
+        fieldProps.put("org.talend.components.metadata.one", "one_1");
+        fieldProps.put("org.talend.components.metadata.two", "two_2");
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withProps(rootProps)
+                .withEntry(new EntryImpl.BuilderImpl().withName("f01").withType(Type.STRING).build())
+                .withEntry(
+                        new EntryImpl.BuilderImpl().withName("f02").withType(Type.STRING).withProps(fieldProps).build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withString("f01", "field-one").withString("f02", "field-two").build();
+        final Schema rSchema = record.getSchema();
+        assertEquals("field-one", record.getString("f01"));
+        assertEquals("field-two", record.getString("f02"));
+        assertEquals(rootProps, rSchema.getProps());
+        assertEquals(0, schema.getEntries().get(0).getProps().size());
+        assertEquals(2, schema.getEntries().get(1).getProps().size());
+        assertEquals(fieldProps, schema.getEntries().get(1).getProps());
+        assertEquals("one_1", schema.getEntries().get(1).getProp("org.talend.components.metadata.one"));
+        assertEquals("two_2", schema.getEntries().get(1).getProp("org.talend.components.metadata.two"));
+        assertEquals(schema, rSchema);
+    }
+
+    @Test
+    void withProp() {
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withProp("rootProp1", "rootPropValue1")
+                .withProp("rootProp2", "rootPropValue2")
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("f01")
+                        .withType(Type.STRING)
+                        .withProp("dqType", "semantic-test1")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("f02")
+                        .withType(Type.STRING)
+                        .withProp("dqType", "semantic-test2")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withString("f01", "field-one").withString("f02", "field-two").build();
+        final Schema rSchema = record.getSchema();
+        assertEquals(schema, rSchema);
+        assertEquals("field-one", record.getString("f01"));
+        assertEquals("field-two", record.getString("f02"));
+        assertEquals(2, rSchema.getProps().size());
+        assertEquals("rootPropValue1", rSchema.getProp("rootProp1"));
+        assertEquals("rootPropValue2", rSchema.getProp("rootProp2"));
+        assertEquals(1, rSchema.getEntries().get(0).getProps().size());
+        assertEquals("semantic-test1", rSchema.getEntries().get(0).getProp("dqType"));
+        assertEquals(1, rSchema.getEntries().get(1).getProps().size());
+        assertEquals("semantic-test2", rSchema.getEntries().get(1).getProp("dqType"));
+    }
+
+    @Test
+    void withPropsMerging() {
+        final LinkedHashMap<String, String> rootProps = new LinkedHashMap<>();
+        IntStream.range(0, 10).forEach(i -> rootProps.put("key" + i, "value" + i));
+        final LinkedHashMap<String, String> fieldProps = new LinkedHashMap<>();
+        fieldProps.put("dqType", "one_1");
+        fieldProps.put("org.talend.components.metadata.two", "two_2");
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withProp("key9", "rootPropValue9")
+                .withProps(rootProps)
+                .withProp("key1", "rootPropValue1")
+                .withProp("key2", "rootPropValue2")
+                .withProp("rootProp2", "rootPropValue2")
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("f01")
+                        .withType(Type.STRING)
+                        .withProp("dqType", "semantic-test1")
+                        .withProps(fieldProps)
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("f02")
+                        .withType(Type.STRING)
+                        .withProps(fieldProps)
+                        .withProp("dqType", "semantic-test2")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withString("f01", "field-one").withString("f02", "field-two").build();
+        final Schema rSchema = record.getSchema();
+        assertEquals(schema, rSchema);
+        assertEquals("field-one", record.getString("f01"));
+        assertEquals("field-two", record.getString("f02"));
+        assertEquals(11, rSchema.getProps().size());
+        assertEquals("rootPropValue1", rSchema.getProp("key1"));
+        assertEquals("rootPropValue2", rSchema.getProp("key2"));
+        assertEquals("value3", rSchema.getProp("key3"));
+        assertEquals("value9", rSchema.getProp("key9"));
+        assertEquals("rootPropValue2", rSchema.getProp("rootProp2"));
+        assertEquals(2, rSchema.getEntries().get(0).getProps().size());
+        assertEquals("one_1", rSchema.getEntries().get(0).getProp("dqType"));
+        assertEquals("two_2", rSchema.getEntries().get(0).getProp("org.talend.components.metadata.two"));
+        assertEquals(2, rSchema.getEntries().get(1).getProps().size());
+        assertEquals("semantic-test2", rSchema.getEntries().get(1).getProp("dqType"));
+        assertEquals("two_2", rSchema.getEntries().get(1).getProp("org.talend.components.metadata.two"));
     }
 }
