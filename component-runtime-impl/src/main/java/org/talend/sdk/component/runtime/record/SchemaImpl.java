@@ -117,10 +117,9 @@ public class SchemaImpl implements Schema {
     @AllArgsConstructor
     public static class EntryImpl implements org.talend.sdk.component.api.record.Schema.Entry {
 
-        // add this for some old code which refer this construct
         public EntryImpl(final String name, final Schema.Type type, final boolean nullable, final Object defaultValue,
                 final Schema elementSchema, final String comment, final Map<String, String> props) {
-            this.name = name;
+            initNames(name);
             this.type = type;
             this.nullable = nullable;
             this.defaultValue = defaultValue;
@@ -132,11 +131,36 @@ public class SchemaImpl implements Schema {
         public EntryImpl(final String name, final String rawName, final Schema.Type type, final boolean nullable,
                 final Object defaultValue, final Schema elementSchema, final String comment) {
             this.name = name;
+            this.rawName = rawName;
             this.type = type;
             this.nullable = nullable;
             this.defaultValue = defaultValue;
             this.elementSchema = elementSchema;
             this.comment = comment;
+        }
+
+        // add this for some old code which refer this construct
+        public EntryImpl(final String name, final Schema.Type type, final boolean nullable, final Object defaultValue,
+                final Schema elementSchema, final String comment) {
+            initNames(name);
+            this.type = type;
+            this.nullable = nullable;
+            this.defaultValue = defaultValue;
+            this.elementSchema = elementSchema;
+            this.comment = comment;
+        }
+
+        /**
+         * if raw name is changed as follow name rule, use label to store raw name
+         * if not changed, not set label to save space
+         * 
+         * @param name incoming entry name
+         */
+        private void initNames(final String name) {
+            this.name = sanitizeConnectionName(name);
+            if (!name.equals(this.name)) {
+                rawName = name;
+            }
         }
 
         @JsonbTransient
@@ -189,8 +213,6 @@ public class SchemaImpl implements Schema {
             return props.get(property);
         }
 
-        // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
-
         public static class BuilderImpl implements Builder {
 
             private String name;
@@ -208,27 +230,6 @@ public class SchemaImpl implements Schema {
             private String comment;
 
             private final Map<String, String> props = new LinkedHashMap<>(0);
-
-            private static String sanitizeConnectionName(final String name) {
-                if (name.isEmpty()) {
-                    return name;
-                }
-                final char[] original = name.toCharArray();
-                final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
-                final int offset = skipFirstChar ? 1 : 0;
-                final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
-                if (!skipFirstChar) {
-                    sanitized[0] = original[0];
-                }
-                for (int i = 1; i < original.length; i++) {
-                    if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
-                        sanitized[i - offset] = '_';
-                    } else {
-                        sanitized[i - offset] = original[i];
-                    }
-                }
-                return new String(sanitized);
-            }
 
             @Override
             public Builder withName(final String name) {
