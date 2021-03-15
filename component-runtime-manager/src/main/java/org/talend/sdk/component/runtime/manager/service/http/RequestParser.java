@@ -49,6 +49,7 @@ import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.service.http.Base;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Configurer;
 import org.talend.sdk.component.api.service.http.ConfigurerOption;
@@ -73,6 +74,7 @@ import org.talend.sdk.component.runtime.manager.service.http.codec.CodecMatcher;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JsonpDecoder;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JsonpEncoder;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -83,9 +85,34 @@ public class RequestParser {
 
     private static final String QUERY_RESERVED_CHARACTERS = "?/,";
 
-    private final ReflectionService reflections;
+    private final InstanceCreator instanceCreator;
 
-    private final Map<Class<?>, Object> services;
+    interface InstanceCreator {
+
+        <T> T buildNew(Class<? extends T> realClass);
+    }
+
+    @AllArgsConstructor
+    final static class ReflectionInstanceCreator implements InstanceCreator {
+
+        private final ReflectionService reflections;
+
+        private final Map<Class<?>, Object> services;
+
+        @Override
+        public <T> T buildNew(final Class<? extends T> realClass) {
+            try {
+                final Constructor<?> constructor = Constructors.findConstructor(realClass);
+                final Function<Map<String, String>, Object[]> paramFactory =
+                        reflections.parameterFactory(constructor, services, null);
+                return (T) constructor.newInstance(paramFactory.apply(emptyMap()));
+            } catch (final InstantiationException | IllegalAccessException e) {
+                throw new IllegalArgumentException(e);
+            } catch (final InvocationTargetException e) {
+                throw toRuntimeException(e);
+            }
+        }
+    }
 
     private final Encoder jsonpEncoder;
 
@@ -96,11 +123,13 @@ public class RequestParser {
     private volatile CodecMatcher<Encoder> codecMatcher = new CodecMatcher<>();
 
     public RequestParser(final ReflectionService reflections, final Jsonb jsonb, final Map<Class<?>, Object> services) {
-        this.reflections = reflections;
-        this.services = services;
+        this(new ReflectionInstanceCreator(reflections, services), jsonb);
+    }
+
+    public RequestParser(final InstanceCreator instanceCreator, final Jsonb jsonb) {
+        this.instanceCreator = instanceCreator;
         this.jsonpEncoder = new JsonpEncoder(jsonb);
         this.jsonpDecoder = new JsonpDecoder(jsonb);
-
     }
 
     /**
@@ -129,6 +158,7 @@ public class RequestParser {
         final Map<String, Function<Object[], Object>> configurerOptionsProvider = new HashMap<>();
         Integer httpMethod = null;
         Function<Object[], String> urlProvider = null;
+        Function<Object[], String> baseProvider = null;
         BiFunction<String, Object[], Optional<byte[]>> payloadProvider = null;
         // preCompute the execution (kind of compile phase)
         final Parameter[] parameters = method.getParameters();
@@ -161,6 +191,11 @@ public class RequestParser {
                 configurerOptionsProvider
                         .putIfAbsent(parameters[i].getAnnotation(ConfigurerOption.class).value(),
                                 params -> params[index]);
+            } else if (parameters[i].isAnnotationPresent(Base.class)) {
+                if (baseProvider != null) {
+                    throw new IllegalStateException(method + "has two Base parameters");
+                }
+                baseProvider = params -> String.valueOf(params[index]);
             } else { // payload
                 if (payloadProvider != null) {
                     throw new IllegalArgumentException(method + " has two payload parameters");
@@ -185,10 +220,9 @@ public class RequestParser {
             pathTemplate = pathTemplate.substring(0, pathTemplate.length() - 1);
         }
 
-        return new ExecutionContext(
-                new HttpRequestCreator(httpMethodProvider, urlProvider, pathTemplate, pathProvider, queryParamsProvider,
-                        headersProvider, payloadProvider, configurerInstance, configurerOptionsProvider),
-                responseType, isResponse, decoders);
+        return new ExecutionContext(new HttpRequestCreator(httpMethodProvider, urlProvider, baseProvider, pathTemplate,
+                pathProvider, queryParamsProvider, headersProvider, payloadProvider, configurerInstance,
+                configurerOptionsProvider), responseType, isResponse, decoders);
     }
 
     private BiFunction<String, Object[], Optional<byte[]>> buildPayloadProvider(final Map<String, Encoder> encoders,
@@ -275,23 +309,10 @@ public class RequestParser {
             encoders
                     .putAll(stream(codec.encoder())
                             .filter(Objects::nonNull)
-                            .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
-                                    ? encoder.getAnnotation(ContentType.class).value()
-                                    : "*/*", encoder -> {
-                                        try {
-                                            final Constructor<?> constructor = Constructors.findConstructor(encoder);
-                                            final Function<Map<String, String>, Object[]> paramFactory =
-                                                    reflections.parameterFactory(constructor, services, null);
-                                            return Encoder.class
-                                                    .cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                        } catch (final InstantiationException | IllegalAccessException e) {
-                                            throw new IllegalArgumentException(e);
-                                        } catch (final InvocationTargetException e) {
-                                            throw toRuntimeException(e);
-                                        }
-                                    }, (k, v) -> {
-                                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                                    })));
+                            .collect(toMap((Class<? extends Encoder> encoder) -> Optional
+                                    .ofNullable(encoder.getAnnotation(ContentType.class))
+                                    .map(ContentType::value)
+                                    .orElse("*/*"), this.instanceCreator::buildNew)));
         }
 
         // keep the put order
@@ -317,23 +338,10 @@ public class RequestParser {
             decoders
                     .putAll(stream(codec.decoder())
                             .filter(Objects::nonNull)
-                            .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
-                                    ? decoder.getAnnotation(ContentType.class).value()
-                                    : "*/*", decoder -> {
-                                        try {
-                                            final Constructor<?> constructor = Constructors.findConstructor(decoder);
-                                            final Function<Map<String, String>, Object[]> paramFactory =
-                                                    reflections.parameterFactory(constructor, services, null);
-                                            return Decoder.class
-                                                    .cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                        } catch (final InstantiationException | IllegalAccessException e) {
-                                            throw new IllegalArgumentException(e);
-                                        } catch (final InvocationTargetException e) {
-                                            throw toRuntimeException(e);
-                                        }
-                                    }, (k, v) -> {
-                                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                                    })));
+                            .collect(toMap((Class<? extends Decoder> decoder) -> Optional
+                                    .ofNullable(decoder.getAnnotation(ContentType.class))
+                                    .map(ContentType::value)
+                                    .orElse("*/*"), this.instanceCreator::buildNew)));
         }
         // add default decoders if not override by the user
         // keep the put order
@@ -365,7 +373,6 @@ public class RequestParser {
         private final boolean encode;
     }
 
-    @Data
     @EqualsAndHashCode(callSuper = true)
     private static class QueryEncodable extends Encodable {
 

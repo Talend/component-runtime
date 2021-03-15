@@ -15,16 +15,20 @@
  */
 package org.talend.sdk.component.api.service.http;
 
-/**
- * You can cast an injected client with this type to initialize the base.
- */
-public interface HttpClient {
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-    /**
-     * set the base URI of the http request
-     *
-     * @param base the base URI of the http client, use @Base on parameter
-     */
-    @Deprecated
-    void base(String base);
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.talend.sdk.component.api.meta.Documentation;
+
+/**
+ * Make the 'string' parameter as base of the endpoint.
+ */
+@Documentation("Make the 'string' parameter as base of the endpoint.")
+@Target(PARAMETER)
+@Retention(RUNTIME)
+public @interface Base {
+
 }
