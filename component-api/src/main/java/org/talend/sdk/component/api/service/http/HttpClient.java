@@ -23,7 +23,8 @@ public interface HttpClient {
     /**
      * set the base URI of the http request
      *
-     * @param base the base URI of the http client
+     * @param base the base URI of the http client, use @Base on parameter
      */
+    @Deprecated
     void base(String base);
 }

@@ -21,6 +21,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * Make the 'string' parameter as base of the endpoint.
+ */
 @Target(PARAMETER)
 @Retention(RUNTIME)
 public @interface Base {
