@@ -55,11 +55,7 @@ public class RecordBranchFilter extends DoFn<Record, Record> {
         if (branchValue != null) {
             final Schema.Entry entry = aggregate
                     .getSchema()
-                    .getEntries()
-                    .stream()
-                    .filter(it -> it.getName().equals(branch))
-                    .findFirst()
-                    .get();
+                    .getEntry(branch);
             context.output(factory.newRecordBuilder().withArray(entry, branchValue).build());
         }
     }

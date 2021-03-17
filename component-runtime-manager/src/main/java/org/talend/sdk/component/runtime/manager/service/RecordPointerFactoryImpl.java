@@ -176,12 +176,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
         }
 
         private Optional<Schema.Entry> getEntry(final String referenceToken, final Record record) {
-            return record
-                    .getSchema()
-                    .getEntries()
-                    .stream()
-                    .filter(it -> it.getName().equals(referenceToken))
-                    .findFirst();
+            return Optional.ofNullable(record.getSchema().getEntry(referenceToken));
         }
 
         @Override
