@@ -112,7 +112,7 @@ To create an HTTP client that is able to consume the REST API above, you need to
 
 The `HttpClient` interface lets you set the `base` for the HTTP address that the client will hit.
 
-The `base` is the part of the address that needs to be added to the request path to hit the API.
+The `base` is the part of the address that needs to be added to the request path to hit the API. It is now possible, and recommended, to use @Base annotation.
 
 Every method annotated with `@Request` in the interface defines an HTTP request.
 Every request can have a `@Codec` parameter that allows to encode or decode the request/response payloads.
@@ -125,6 +125,11 @@ public interface APIClient extends HttpClient {
     @Request(path = "api/records/{id}", method = "GET")
     @Codec(decoder = RecordDecoder.class) //decoder =  decode returned data to Record class
     Record getRecord(@Header("Authorization") String basicAuth, @Path("id") int id);
+
+    /** same with base as parameter */
+    @Request(path = "api/records/{id}", method = "GET")
+    @Codec(decoder = RecordDecoder.class) //decoder =  decode returned data to Record class
+    Record getRecord(@Header("Authorization") String basicAuth, @Base String base, @Path("id") int id);
 
     @Request(path = "api/records", method = "POST")
     @Codec(encoder = RecordEncoder.class, decoder = RecordDecoder.class) //encoder = encode record to fit request format (json in this example)
@@ -154,6 +159,8 @@ public class MyService {
     //...
     // Our get request
     Record rec =  client.getRecord("Basic MLFKG?VKFJ", 100);
+    // or
+    Record rec1 =  client.getRecord("Basic MLFKG?VKFJ", "http://localhost:8080", 100);
 
     //...
     // Our post request
