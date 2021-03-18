@@ -15,8 +15,11 @@
  */
 package org.talend.sdk.component.api.record;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public interface Schema {
 
@@ -34,6 +37,16 @@ public interface Schema {
      * @return the entries for records.
      */
     List<Entry> getEntries();
+
+    default Entry getEntry(final String name) {
+        return Optional
+                .ofNullable(this.getEntries()) //
+                .orElse(Collections.emptyList()) //
+                .stream() //
+                .filter((Entry e) -> Objects.equals(e.getName(), name)) //
+                .findFirst() //
+                .orElse(null);
+    }
 
     /**
      * @return the metadata props
