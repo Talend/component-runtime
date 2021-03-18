@@ -15,9 +15,11 @@
  */
 package org.talend.sdk.component.api.record;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public interface Schema {
 
@@ -37,15 +39,13 @@ public interface Schema {
     List<Entry> getEntries();
 
     default Entry getEntry(final String name) {
-        final List<Entry> entries = getEntries();
-        if (entries != null) {
-            return entries
-                    .stream() //
-                    .filter((Entry e) -> Objects.equals(e.getName(), name)) //
-                    .findFirst() //
-                    .orElse(null);
-        }
-        return null;
+        return Optional
+                .ofNullable(this.getEntries()) //
+                .orElse(Collections.emptyList()) //
+                .stream() //
+                .filter((Entry e) -> Objects.equals(e.getName(), name)) //
+                .findFirst() //
+                .orElse(null);
     }
 
     /**
