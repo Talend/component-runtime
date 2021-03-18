@@ -1,5 +1,11 @@
 
 
+== Version 1.32.0
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1873[TCOMP-1873^]: Add method getEntry on TCK Record Schema class
+
 == Version 1.31.0
 
 === Bug
