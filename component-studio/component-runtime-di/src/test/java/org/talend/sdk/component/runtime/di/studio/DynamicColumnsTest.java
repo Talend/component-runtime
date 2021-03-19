@@ -112,7 +112,7 @@ public class DynamicColumnsTest {
         callConnectionComponent(manager);
 
         doDi(manager, sourceData, processorData, manager.findProcessor("DynamicColumnsTest", "outputDi", 1, emptyMap()),
-            manager.findMapper("DynamicColumnsTest", "inputDi", 1, singletonMap("count", "1000")));
+                manager.findMapper("DynamicColumnsTest", "inputDi", 1, singletonMap("count", "1000")));
         assertEquals(1000, sourceData.size());
         assertEquals(1000, processorData.size());
 
