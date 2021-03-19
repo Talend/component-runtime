@@ -136,6 +136,20 @@ class SchemaTest {
     }
 
     @Test
+    void testTypes() {
+        Assertions.assertTrue(Schema.Type.INT.isCompatible(null));
+        Assertions.assertTrue(Schema.Type.INT.isCompatible(123));
+        Assertions.assertFalse(Schema.Type.INT.isCompatible(234L));
+        Assertions.assertFalse(Schema.Type.INT.isCompatible("Hello"));
+
+        Assertions.assertTrue(Type.BYTES.isCompatible("Hello".getBytes()));
+        Assertions.assertTrue(Type.BYTES.isCompatible(new Byte[] {}));
+        Assertions.assertFalse(Schema.Type.BYTES.isCompatible(new int[] {}));
+
+        Assertions.assertTrue(Type.DATETIME.isCompatible(System.currentTimeMillis()));
+    }
+
+    @Test
     void testSanitize() {
         final boolean digit = Character.isLetterOrDigit('ԋ');
         final boolean alpha = Character.isAlphabetic('ԋ');

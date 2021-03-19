@@ -19,18 +19,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
@@ -48,6 +53,38 @@ class RecordBuilderImplTest {
                         .build())
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
+    }
+
+    @Test
+    void getValue() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        Assertions.assertNull(builder.getValue("name"));
+        final Entry entry = new EntryImpl.BuilderImpl() //
+                .withName("name") //
+                .withNullable(true) //
+                .withType(Type.STRING) //
+                .build();//
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
+
+        builder.with(entry, "value");
+        Assertions.assertEquals("value", builder.getValue("name"));
+
+        final Entry entryTime = new EntryImpl.BuilderImpl() //
+                .withName("time") //
+                .withNullable(true) //
+                .withType(Type.DATETIME) //
+                .build();//
+        final ZonedDateTime now = ZonedDateTime.now();
+        builder.with(entryTime, now);
+        Assertions.assertEquals(now.toInstant().toEpochMilli(), builder.getValue("time"));
+
+        final Long next = now.toInstant().toEpochMilli() + 1000L;
+        builder.with(entryTime, next);
+        Assertions.assertEquals(next, builder.getValue("time"));
+
+        Date date = new Date(next + TimeUnit.DAYS.toMillis(1));
+        builder.with(entryTime, date);
+        Assertions.assertEquals(date.toInstant().toEpochMilli(), builder.getValue("time"));
     }
 
     @Test

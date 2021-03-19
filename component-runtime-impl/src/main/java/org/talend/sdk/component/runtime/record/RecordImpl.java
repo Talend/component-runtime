@@ -33,6 +33,8 @@ import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -51,6 +53,7 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
 
 import lombok.Getter;
 
@@ -113,6 +116,37 @@ public final class RecordImpl implements Record {
 
         public BuilderImpl(final Schema providedSchema) {
             this.providedSchema = providedSchema;
+        }
+
+        @Override
+        public Object getValue(final String name) {
+            return this.values.get(name);
+        }
+
+        @Override
+        public Builder with(final Entry entry, final Object value) {
+            validateTypeAgainstProvidedSchema(entry.getName(), entry.getType(), value);
+            if (!entry.getType().isCompatible(value)) {
+                throw new IllegalArgumentException(String
+                        .format("Entry '%s' of type %s is not compatible with value of type '%s'", entry.getName(),
+                                entry.getType(), value.getClass().getName()));
+            }
+            if (entry.getType() == Schema.Type.DATETIME) {
+                if (value == null) {
+                    return this;
+                } else if (value instanceof Long) {
+                    this.withTimestamp(entry, (Long) value);
+                } else if (value instanceof Date) {
+                    this.withDateTime(entry, (Date) value);
+                } else if (value instanceof ZonedDateTime) {
+                    this.withDateTime(entry, (ZonedDateTime) value);
+                } else if (value instanceof Temporal) {
+                    this.withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
+                }
+                return this;
+            } else {
+                return append(entry, value);
+            }
         }
 
         private Schema.Entry findExistingEntry(final String name) {

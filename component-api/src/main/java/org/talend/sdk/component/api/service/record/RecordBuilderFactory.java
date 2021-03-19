@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.api.service.record;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 
@@ -62,4 +65,27 @@ public interface RecordBuilderFactory {
      * @return a builder to create a schema entry.
      */
     Schema.Entry.Builder newEntryBuilder();
+
+    /**
+     * Build a schema.entry from another one. Useful to duplicate a column with some changes.
+     * 
+     * @param model : model of entry to copy.
+     * @return entry builder with model parameters.
+     */
+    default Schema.Entry.Builder newEntryBuilder(Schema.Entry model) {
+        final Map<String, String> props = new HashMap<>();
+        final Map<String, String> modelProps = model.getProps();
+        if (modelProps != null) {
+            props.putAll(modelProps);
+        }
+        return this
+                .newEntryBuilder()
+                .withType(model.getType())
+                .withNullable(model.isNullable())
+                .withName(model.getName())
+                .withElementSchema(model.getElementSchema())
+                .withDefaultValue(model.getDefaultValue())
+                .withComment(model.getComment())
+                .withProps(props);
+    }
 }
