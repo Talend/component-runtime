@@ -61,10 +61,12 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
             }
         }
         try (final BufferedReader reader = resource("generateDita1.xml")) {
-            assertEquals(reader.lines().collect(joining("\n")), files.get("generateDita/test/my.dita").trim());
+            assertEquals(reader.lines().collect(joining(System.lineSeparator())),
+                    files.get("generateDita/test/my.dita").trim());
         }
         try (final BufferedReader reader = resource("generateDita2.xml")) {
-            assertEquals(reader.lines().collect(joining("\n")), files.get("generateDita/test/my2.dita").trim());
+            assertEquals(reader.lines().collect(joining(System.lineSeparator())),
+                    files.get("generateDita/test/my2.dita").trim());
         }
         assertEquals(4, files.size());
         // folders
@@ -88,7 +90,7 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
         }
 
         try (final BufferedReader reader = resource("generateDitaConds_activeif.xml")) {
-            assertEquals(formatXml(reader.lines().collect(joining("\n"))),
+            assertEquals(formatXml(reader.lines().collect(joining(System.lineSeparator()))),
                     formatXml(files.get("generateDitaConds/test/activeif.dita")));
         }
     }
@@ -113,7 +115,7 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
         }
 
         try (final BufferedReader reader = resource(expectedFile)) {
-            assertEquals(formatXml(reader.lines().collect(joining("\n"))),
+            assertEquals(formatXml(reader.lines().collect(joining(System.lineSeparator()))),
                     formatXml(files.get("generateDitaAdvanced/dita/" + expectedFile).trim()));
         }
 

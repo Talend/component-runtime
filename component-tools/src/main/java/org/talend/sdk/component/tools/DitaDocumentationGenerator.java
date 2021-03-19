@@ -178,8 +178,8 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             final int refIdx = content.indexOf("<reference");
             zip
                     .write((content.substring(0, refIdx)
-                            + "<!DOCTYPE reference PUBLIC \"-//Talend//DTD DITA Composite//EN\" \"TalendDitabase.dtd\">\n"
-                            + content.substring(refIdx)).getBytes(StandardCharsets.UTF_8));
+                            + "<!DOCTYPE reference PUBLIC \"-//Talend//DTD DITA Composite//EN\" \"TalendDitabase.dtd\">"
+                            + System.lineSeparator() + content.substring(refIdx)).getBytes(StandardCharsets.UTF_8));
             zip.closeEntry();
         } catch (final IOException | TransformerException e) {
             throw new IllegalStateException(e);

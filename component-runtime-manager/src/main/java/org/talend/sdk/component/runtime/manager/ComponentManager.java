@@ -52,6 +52,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -79,6 +80,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -102,11 +104,8 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClassesArchive;
-import org.apache.xbean.finder.archive.ClasspathArchive;
-import org.apache.xbean.finder.archive.CompositeArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.FilteredArchive;
-import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.FilterList;
@@ -166,6 +165,8 @@ import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFact
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.util.Lazy;
 import org.talend.sdk.component.runtime.manager.util.LazyMap;
+import org.talend.sdk.component.runtime.manager.xbean.CloseableCompositeArchive;
+import org.talend.sdk.component.runtime.manager.xbean.CloseableJarArchive;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
@@ -1594,7 +1595,7 @@ public class ComponentManager implements AutoCloseable {
                         }
                     }
                     try {
-                        return ClasspathArchive.archive(loader, Files.toFile(nested).toURI().toURL());
+                        return archive(loader, Files.toFile(nested).toURI().toURL());
                     } catch (final MalformedURLException e) {
                         throw new IllegalStateException(e);
                     }
@@ -1602,12 +1603,38 @@ public class ComponentManager implements AutoCloseable {
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Error scanning " + module, e);
             }
-            return new CompositeArchive(archives);
+            return new CloseableCompositeArchive(archives);
+        }
+
+        private Archive archive(final ClassLoader loader, final URL location) {
+            if (location.getProtocol().equals("jar")) {
+                return new CloseableJarArchive(loader, location);
+            } else if (location.getProtocol().equals("file")) {
+                JarFile jf = null;
+                try {
+                    URL jarUrl = new URL("jar", "", location.toExternalForm() + "!/");
+                    JarURLConnection juc = (JarURLConnection) jarUrl.openConnection();
+                    jf = juc.getJarFile();
+                    return new CloseableJarArchive(loader, jarUrl);
+                } catch (IOException var4) {
+                    return new FileArchive(loader, location);
+                } finally {
+                    try {
+                        if (jf != null) {
+                            jf.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                throw new UnsupportedOperationException("unsupported archive type: " + location);
+            }
         }
 
         private URL archiveToUrl(final Archive mainArchive) {
-            if (JarArchive.class.isInstance(mainArchive)) {
-                return JarArchive.class.cast(mainArchive).getUrl();
+            if (CloseableJarArchive.class.isInstance(mainArchive)) {
+                return CloseableJarArchive.class.cast(mainArchive).getUrl();
             } else if (FileArchive.class.isInstance(mainArchive)) {
                 try {
                     return FileArchive.class.cast(mainArchive).getDir().toURI().toURL();
@@ -1626,7 +1653,7 @@ public class ComponentManager implements AutoCloseable {
                     .orElseGet(() -> container.resolve(module));
             if (java.nio.file.Files.exists(file)) {
                 try {
-                    return ClasspathArchive.archive(loader, file.toUri().toURL());
+                    return archive(loader, file.toUri().toURL());
                 } catch (final MalformedURLException e) {
                     throw new IllegalArgumentException(e);
                 }

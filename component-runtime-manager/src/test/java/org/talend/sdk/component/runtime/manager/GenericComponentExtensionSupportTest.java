@@ -28,6 +28,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,6 +44,7 @@ import org.apache.xbean.asm9.ClassReader;
 import org.apache.xbean.asm9.ClassWriter;
 import org.apache.xbean.asm9.commons.ClassRemapper;
 import org.apache.xbean.asm9.commons.Remapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.record.Record;
@@ -47,8 +52,36 @@ import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.spi.component.GenericComponentExtension;
 import org.talend.test.generic.MyGenericImpl;
+import sun.net.www.protocol.jar.Handler;
 
 class GenericComponentExtensionSupportTest {
+
+    public static class CustomURLStreamHandler extends Handler {
+
+        @Override
+        protected URLConnection openConnection(final URL u) throws IOException {
+            URLConnection connection = super.openConnection(u);
+            connection.setUseCaches(false);
+            return connection;
+        }
+    }
+
+    public static class CustomURLStreamHandlerFactory implements URLStreamHandlerFactory {
+
+        @Override
+        public URLStreamHandler createURLStreamHandler(String protocol) {
+            if ("jar".equals(protocol)) {
+                return new CustomURLStreamHandler();
+            }
+            return null;
+        }
+
+    }
+
+    @BeforeAll
+    public static void setup() {
+        URL.setURLStreamHandlerFactory(new CustomURLStreamHandlerFactory());
+    }
 
     @Test
     void run(@TempDir final Path path) throws IOException {
