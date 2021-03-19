@@ -23,11 +23,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -40,6 +43,7 @@ import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
+import org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest.Registrar.In;
 
 class ModelVisitorTest {
 
@@ -118,6 +122,54 @@ class ModelVisitorTest {
     @Test
     void mapperInvalidAssessorReturnType() {
         assertThrows(IllegalArgumentException.class, () -> visit(MapperInvalidAssessorReturnType.class));
+    }
+
+    @Test
+    void processorAfterVariableOk() {
+        assertEquals(singletonList("@Processor(" + ProcessorAfterVariableOk.Out.class.getName() + ")"),
+                visit(ProcessorAfterVariableOk.class));
+    }
+
+    @Test
+    void processorAfterVariableNokWrongReturnType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void processorAfterVariableNokWrongParamCount() {
+        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongParamCount.class));
+    }
+
+    @Test
+    void emitterAfterVariableOk() {
+        assertEquals(singletonList("@Emitter(" + EmitterAfterVariableOk.In.class.getName() + ")"),
+                visit(EmitterAfterVariableOk.class));
+    }
+
+    @Test
+    void emitterAfterVariableNokWrongReturnType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(EmitterAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void emitterAfterVariableNokWrongParamCount() {
+        assertThrows(IllegalArgumentException.class, () -> visit(EmitterAfterVariableNokWrongParamCount.class));
+    }
+
+    @Test
+    void mapperAfterVariableOk() {
+        assertEquals(singletonList("@PartitionMapper(" + MapperAfterVariableOk.Mapper.class.getName() + ")"),
+                visit(MapperAfterVariableOk.class));
+    }
+
+    @Test
+    void mapperAfterVariableNokWrongReturnType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void mapperAfterVariableNokWrongParamType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperAfterVariableNokWrongParamType.class));
     }
 
     private List<String> visit(final Class<?> type) {
@@ -403,6 +455,189 @@ class ModelVisitorTest {
 
         @Emitter(family = "comp", name = "Input")
         public static class In {
+        }
+    }
+
+    public static class ProcessorAfterVariableOk {
+
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Map<String, Object> commit() {
+                return Collections.emptyMap();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorAfterVariableNokWrongReturnType {
+
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Map<String, String> commit() {
+                return Collections.emptyMap();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorAfterVariableNokWrongParamCount {
+
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Map<String, Object> commit(String param) {
+                return Collections.emptyMap();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class EmitterAfterVariableOk {
+
+        @Emitter(family = "comp", name = "Input")
+        public static class In {
+
+            @AfterVariableContainer
+            public Map<String, Object> commit() {
+                return Collections.emptyMap();
+            }
+
+            @Producer
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class EmitterAfterVariableNokWrongReturnType {
+
+        @Emitter(family = "comp", name = "Input")
+        public static class In {
+
+            @AfterVariableContainer
+            public Map<String, String> commit() {
+                return Collections.emptyMap();
+            }
+
+            @Producer
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class EmitterAfterVariableNokWrongParamCount {
+
+        @Emitter(family = "comp", name = "Input")
+        public static class In {
+
+            @AfterVariableContainer
+            public Map<String, Object> commit(String param) {
+                return Collections.emptyMap();
+            }
+
+            @Producer
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class MapperAfterVariableOk {
+
+        @PartitionMapper(family = "comp", name = "Mapper")
+        public static class Mapper {
+
+            @Assessor
+            public long get() {
+                return 1;
+            }
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public In emit() {
+                return null;
+            }
+
+            @AfterVariableContainer
+            public Map<String, Object> oz() {
+                return Collections.emptyMap();
+            }
+        }
+    }
+
+    public static class MapperAfterVariableNokWrongReturnType {
+
+        @PartitionMapper(family = "comp", name = "Mapper")
+        public static class Mapper {
+
+            @Assessor
+            public long get() {
+                return 1;
+            }
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public In emit() {
+                return null;
+            }
+
+            @AfterVariableContainer
+            public Map<String, Class<?>> oz() {
+                return Collections.emptyMap();
+            }
+        }
+    }
+
+    public static class MapperAfterVariableNokWrongParamType {
+
+        @PartitionMapper(family = "comp", name = "Mapper")
+        public static class Mapper {
+
+            @Assessor
+            public long get() {
+                return 1;
+            }
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public In emit() {
+                return null;
+            }
+
+            @AfterVariableContainer
+            public Map<String, Object> oz(String param) {
+                return Collections.emptyMap();
+            }
         }
     }
 }

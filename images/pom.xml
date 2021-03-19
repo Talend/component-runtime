@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.31.0-SNAPSHOT</version>
+    <version>1.32.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>images</artifactId>
@@ -47,9 +47,9 @@
     <!-- TSBI -->
     <docker.registryHost>artifactory.datapwn.com</docker.registryHost>
     <docker.tsbiPath>/tlnd-docker-prod/talend/common/tsbi</docker.tsbiPath>
-    <docker.tsbiVersion>2.5.3-20201201131449</docker.tsbiVersion>
-    <docker.tsbiVersionRelease>2.5.3</docker.tsbiVersionRelease>
-    <docker.tsbiVersionDate>20201201131449</docker.tsbiVersionDate>
+    <docker.tsbiVersion>2.6.3-20210304090015</docker.tsbiVersion>
+    <docker.tsbiVersionRelease>2.6.3</docker.tsbiVersionRelease>
+    <docker.tsbiVersionDate>20210304090015</docker.tsbiVersionDate>
     <disable.dockerBuild>false</disable.dockerBuild>
     <disable.tsbiLayerspector>false</disable.tsbiLayerspector>
   </properties>

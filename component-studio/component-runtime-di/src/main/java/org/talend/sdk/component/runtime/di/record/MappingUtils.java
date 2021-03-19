@@ -18,11 +18,9 @@ package org.talend.sdk.component.runtime.di.record;
 import static java.time.ZoneOffset.UTC;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.AbstractMap;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,7 +64,8 @@ public class MappingUtils {
         // non-matching types
         if (!expectedType.isInstance(value)) {
             // number classes mapping
-            if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
+            if (Number.class.isInstance(value)
+                    && Number.class.isAssignableFrom(PRIMITIVE_WRAPPER_MAP.getOrDefault(expectedType, expectedType))) {
                 return mapNumber(expectedType, Number.class.cast(value));
             }
             // mapping primitive <-> Class
@@ -85,9 +84,6 @@ public class MappingUtils {
             throw new IllegalArgumentException(String
                     .format("%s can't be converted to %s as its value is '%s' of type %s.", name, expectedType, value,
                             value.getClass()));
-        }
-        if (Double.class == expectedType) {
-            return new BigDecimal(Double.class.cast(value)).setScale(5, RoundingMode.HALF_UP).doubleValue();
         }
         // type should match so...
         return value;
@@ -169,7 +165,10 @@ public class MappingUtils {
             return value.isEmpty() ? Character.MIN_VALUE : value.charAt(0);
         }
         if (byte[].class == expected) {
-            return Base64.getDecoder().decode(value);
+            log
+                    .warn("[mapString] Expecting a `byte[]` but received a `String`."
+                            + " Using `String.getBytes()`: result may be inaccurate.");
+            return value.getBytes();
         }
         if (BigDecimal.class == expected) {
             return new BigDecimal(value);

@@ -1,5 +1,22 @@
 
 
+= Discoverdataset
+
+This class marks an action that explore a connection to retrieve potential datasets.
+
+- Type: `discoverdataset`
+- API: `@org.talend.sdk.component.api.service.discovery.DiscoverDataset`
+- Returned type: `org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult`
+- Sample:
+
+[source,js]
+----
+{
+ "datasetDescriptionList": "..."
+}
+----
+
+
 = Dynamic Values
 
 Mark a method as being useful to fill potential values of a string option for a property denoted by its value. You can link a field as being completable using @Proposable(value). The resolution of the completion action is then done through the component family and value of the action. The callback doesn't take any parameter.
@@ -57,6 +74,9 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
       "comment":"The column 1",
       "name":"column1",
       "nullable":false,
+      "props":{
+
+      },
       "rawName":"column 1",
       "type":"STRING"
     },
@@ -64,10 +84,16 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
       "comment":"The int column",
       "name":"column2",
       "nullable":false,
+      "props":{
+
+      },
       "rawName":"column 2",
       "type":"INT"
     }
   ],
+  "props":{
+
+  },
   "type":"RECORD"
 }
 ----

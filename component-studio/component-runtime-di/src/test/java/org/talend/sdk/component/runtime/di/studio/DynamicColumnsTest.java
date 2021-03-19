@@ -112,9 +112,9 @@ public class DynamicColumnsTest {
         callConnectionComponent(manager);
 
         doDi(manager, sourceData, processorData, manager.findProcessor("DynamicColumnsTest", "outputDi", 1, emptyMap()),
-                manager.findMapper("DynamicColumnsTest", "inputDi", 1, singletonMap("count", "10")));
-        assertEquals(10, sourceData.size());
-        assertEquals(10, processorData.size());
+            manager.findMapper("DynamicColumnsTest", "inputDi", 1, singletonMap("count", "1000")));
+        assertEquals(1000, sourceData.size());
+        assertEquals(1000, processorData.size());
 
         callCloseComponent(manager);
     }
@@ -331,14 +331,26 @@ public class DynamicColumnsTest {
             assertNotNull(record.getString("id"));
             assertNotNull(record.getString("name"));
             assertTrue(record.getString("name").startsWith("record"));
-            Collection columns = record.getSchema().getEntries().stream().map(e -> e.getName()).collect(toList());
             assertEquals("value" + counter, record.getString("string0"));
+            assertEquals(Short.MAX_VALUE, record.getInt("shorty"));
+            assertEquals(Integer.MAX_VALUE, record.getInt("inty"));
+            assertEquals(Long.MAX_VALUE, record.getLong("longy"));
+            assertEquals(Float.MAX_VALUE, record.getFloat("floaty"));
+            assertEquals(Double.MAX_VALUE, record.getDouble("doubly"));
             assertEquals((counter % 2 == 0), record.getBoolean("bool0"));
             assertEquals(counter, record.getInt("int0"));
+            assertEquals(Integer.MIN_VALUE, record.getInt("int_min"));
+            assertEquals(Integer.MAX_VALUE, record.getInt("int_max"));
             assertEquals(counter, record.getLong("long0"));
-            assertEquals(1.23f * counter, record.getFloat("float0"));
-            assertEquals(new BigDecimal(12345.6789 * counter).setScale(7, RoundingMode.HALF_EVEN).doubleValue(),
-                    record.getDouble("double0"));
+            assertEquals(Long.MIN_VALUE, record.getLong("long_min"));
+            assertEquals(Long.MAX_VALUE, record.getLong("long_max"));
+            assertEquals(12345.12345f * counter, record.getFloat("float0"));
+            assertEquals(Float.MIN_VALUE, record.getFloat("float_min"));
+            assertEquals(Float.MAX_VALUE, record.getFloat("float_max"));
+            assertEquals((1234567890.6789 * counter), record.getDouble("double0"));
+            assertEquals((0.12345678912345 * counter), record.getDouble("double1"));
+            assertEquals(Double.MIN_VALUE, record.getDouble("double_min"));
+            assertEquals(Double.MAX_VALUE, record.getDouble("double_max"));
             assertEquals(String.format("zorglub-is-still-alive-%05d", counter), new String(record.getBytes("bytes0")));
             assertEquals(IntStream.range(0, counter + 1).boxed().collect(toList()),
                     record.getArray(Integer.class, "array0"));
@@ -388,7 +400,7 @@ public class DynamicColumnsTest {
         private final PrimitiveIterator.OfInt stream;
 
         public InputComponentDi(@Option("count") final int count) {
-            this.stream = IntStream.range(0, count).iterator();
+            stream = IntStream.range(0, count).iterator();
         }
 
         @Producer
@@ -397,16 +409,30 @@ public class DynamicColumnsTest {
                 return null;
             }
             final Integer i = stream.next();
-            Record record = builderFactory
+            final Record record = builderFactory
                     .newRecordBuilder()
                     .withString("id", String.valueOf(i))
                     .withString("name", "record" + i)
+                    .withInt("shorty", Short.MAX_VALUE)
+                    .withInt("inty", Integer.MAX_VALUE)
+                    .withLong("longy", Long.MAX_VALUE)
+                    .withFloat("floaty", Float.MAX_VALUE)
+                    .withDouble("doubly", Double.MAX_VALUE)
                     .withString("string0", "value" + i)
                     .withBoolean("bool0", (i % 2 == 0))
                     .withInt("int0", i)
+                    .withInt("int_min", Integer.MIN_VALUE)
+                    .withInt("int_max", Integer.MAX_VALUE)
                     .withLong("long0", (long) i)
-                    .withFloat("float0", 1.23f * i)
-                    .withDouble("double0", 12345.6789 * i)
+                    .withLong("long_min", Long.MIN_VALUE)
+                    .withLong("long_max", Long.MAX_VALUE)
+                    .withFloat("float0", 12345.12345f * i)
+                    .withFloat("float_min", Float.MIN_VALUE)
+                    .withFloat("float_max", Float.MAX_VALUE)
+                    .withDouble("double0", 1234567890.6789 * i)
+                    .withDouble("double1", 0.12345678912345 * i)
+                    .withDouble("double_min", Double.MIN_VALUE)
+                    .withDouble("double_max", Double.MAX_VALUE)
                     .withBytes("bytes0", String.format("zorglub-is-still-alive-%05d", i).getBytes())
                     .withArray(builderFactory
                             .newEntryBuilder()
@@ -427,6 +453,16 @@ public class DynamicColumnsTest {
         public String id;
 
         public String name;
+
+        public short shorty;
+
+        public int inty;
+
+        public long longy;
+
+        public float floaty;
+
+        public double doubly;
 
         public Dynamic dynamic;
 

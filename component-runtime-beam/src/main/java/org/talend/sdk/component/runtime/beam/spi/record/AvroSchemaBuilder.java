@@ -16,14 +16,19 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.avro.LogicalTypes;
+import org.apache.avro.Schema.Field;
+import org.apache.avro.Schema.Type;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 
@@ -97,6 +102,8 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     private Schema elementSchema;
 
+    private final Map<String, String> props = new LinkedHashMap<>(0);
+
     @Override
     public Schema.Builder withType(final Schema.Type type) {
         this.type = type;
@@ -157,15 +164,16 @@ public class AvroSchemaBuilder implements Schema.Builder {
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
-        fields
-                .add(AvroSchemas
-                        .addProp(
-                                new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
-                                        entry.isNullable() && schema.getType() != org.apache.avro.Schema.Type.UNION
-                                                ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
-                                                : schema,
-                                        entry.getComment(), (Object) entry.getDefaultValue()),
-                                KeysForAvroProperty.LABEL, entry.getRawName()));
+        final Field f = new Field(sanitizeConnectionName(entry.getName()),
+                entry.isNullable() && schema.getType() != Type.UNION
+                        ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
+                        : schema,
+                entry.getComment(), (Object) entry.getDefaultValue());
+        if (entry.getRawName() != null) {
+            f.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
+        }
+        entry.getProps().forEach((k, v) -> f.addProp(k, v));
+        fields.add(f);
         return this;
     }
 
@@ -174,7 +182,22 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (type != Schema.Type.ARRAY && schema != null) {
             throw new IllegalArgumentException("elementSchema is only valid for ARRAY type of schema");
         }
-        this.elementSchema = schema;
+        elementSchema = schema;
+        return this;
+    }
+
+    @Override
+    public Builder withProp(final String key, final String value) {
+        props.put(key, value);
+        return this;
+    }
+
+    @Override
+    public Builder withProps(final Map<String, String> props) {
+        if (props == null) {
+            return this;
+        }
+        this.props.putAll(props);
         return this;
     }
 

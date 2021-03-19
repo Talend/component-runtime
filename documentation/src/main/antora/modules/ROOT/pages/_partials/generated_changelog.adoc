@@ -1,5 +1,32 @@
 
 
+== Version 1.32.0
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1873[TCOMP-1873^]: Add method getEntry on TCK Record Schema class
+
+== Version 1.31.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1806[TCOMP-1806^]: Double values are rounded to 5 decimal places in studio
+- link:https://jira.talendforge.org/browse/TCOMP-1851[TCOMP-1851^]: HttpClient implementation class is a Service with State
+- link:https://jira.talendforge.org/browse/TCOMP-1864[TCOMP-1864^]: JsonSchemaConverter and johnzon-jsonschema 1.2.9+ look incompatible
+- link:https://jira.talendforge.org/browse/TCOMP-1866[TCOMP-1866^]: Invalid number coercion on primitive type
+- link:https://jira.talendforge.org/browse/TCOMP-1869[TCOMP-1869^]: byte[] handling is incorrect in dynamic column
+- link:https://jira.talendforge.org/browse/TCOMP-1871[TCOMP-1871^]: Dynamic metadata name is not sanitized
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1861[TCOMP-1861^]: Add a 'props' property in the Schema
+- link:https://jira.talendforge.org/browse/TCOMP-1863[TCOMP-1863^]: Upgrade batik-codec to 1.14 due to CVE-2020-11988
+- link:https://jira.talendforge.org/browse/TCOMP-1865[TCOMP-1865^]: Upgrade cxf to 3.4.2
+- link:https://jira.talendforge.org/browse/TCOMP-1867[TCOMP-1867^]: Upgrade Apache Beam to 2.28.0
+- link:https://jira.talendforge.org/browse/TCOMP-1878[TCOMP-1878^]: Upgrade TSBI to 2.6.3-20210304090015
+
 == Version 1.30.0
 
 === Bug

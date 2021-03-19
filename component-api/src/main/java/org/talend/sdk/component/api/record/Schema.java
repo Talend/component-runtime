@@ -15,7 +15,11 @@
  */
 package org.talend.sdk.component.api.record;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public interface Schema {
 
@@ -33,6 +37,27 @@ public interface Schema {
      * @return the entries for records.
      */
     List<Entry> getEntries();
+
+    default Entry getEntry(final String name) {
+        return Optional
+                .ofNullable(this.getEntries()) //
+                .orElse(Collections.emptyList()) //
+                .stream() //
+                .filter((Entry e) -> Objects.equals(e.getName(), name)) //
+                .findFirst() //
+                .orElse(null);
+    }
+
+    /**
+     * @return the metadata props
+     */
+    Map<String, String> getProps();
+
+    /**
+     * @param property
+     * @return the requested metadata prop
+     */
+    String getProp(String property);
 
     enum Type {
         RECORD,
@@ -90,6 +115,17 @@ public interface Schema {
          */
         String getComment();
 
+        /**
+         * @return the metadata props
+         */
+        Map<String, String> getProps();
+
+        /**
+         * @param property
+         * @return the requested metadata prop
+         */
+        String getProp(String property);
+
         // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
 
         /**
@@ -111,7 +147,12 @@ public interface Schema {
 
             Builder withComment(String comment);
 
+            Builder withProps(Map<String, String> props);
+
+            Builder withProp(String key, String value);
+
             Entry build();
+
         }
     }
 
@@ -139,8 +180,43 @@ public interface Schema {
         Builder withElementSchema(Schema schema);
 
         /**
+         * @param props schema properties
+         * @return this builder
+         */
+        Builder withProps(Map<String, String> props);
+
+        /**
+         *
+         * @param key the prop key name
+         * @param value the prop value
+         * @return this builder
+         */
+        Builder withProp(String key, String value);
+
+        /**
          * @return the described schema.
          */
         Schema build();
+    }
+
+    static String sanitizeConnectionName(final String name) {
+        if (name.isEmpty()) {
+            return name;
+        }
+        final char[] original = name.toCharArray();
+        final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
+        final int offset = skipFirstChar ? 1 : 0;
+        final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
+        if (!skipFirstChar) {
+            sanitized[0] = original[0];
+        }
+        for (int i = 1; i < original.length; i++) {
+            if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
+                sanitized[i - offset] = '_';
+            } else {
+                sanitized[i - offset] = original[i];
+            }
+        }
+        return new String(sanitized);
     }
 }

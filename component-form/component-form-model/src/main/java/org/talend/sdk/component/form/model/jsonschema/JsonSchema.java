@@ -31,6 +31,8 @@ import lombok.Data;
 @Data
 public class JsonSchema {
 
+    public static final String DEFAULT_TYPE = "object";
+
     private String id;
 
     private String title;
@@ -43,7 +45,7 @@ public class JsonSchema {
     @JsonbProperty("$ref")
     private String ref;
 
-    private String type;
+    private String type = DEFAULT_TYPE;
 
     private Integer minItems;
 
@@ -93,7 +95,7 @@ public class JsonSchema {
 
         private String ref;
 
-        private String type;
+        private String type = DEFAULT_TYPE;
 
         private Integer minItems;
 
