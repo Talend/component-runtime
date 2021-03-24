@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 
-@ActionType(value = "closeconnection", expectedReturnedType = CloseConnectionObject.class)
+@ActionType(value = "close_connection", expectedReturnedType = CloseConnectionObject.class)
 @Target(METHOD)
 @Retention(RUNTIME)
 @Documentation("This class marks an action closing a connection")

@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 
-@ActionType(value = "createconnection", expectedReturnedType = Object.class)
+@ActionType(value = "create_connection", expectedReturnedType = Object.class)
 @Target(METHOD)
 @Retention(RUNTIME)
 @Documentation("This class marks an action creating a connection")
