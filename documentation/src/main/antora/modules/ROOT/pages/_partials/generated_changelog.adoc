@@ -2,6 +2,12 @@
 
 == Version 1.32.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1886[TCOMP-1886^]: Errors on Schema.sanitizeConnectionName
+
+
+
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1873[TCOMP-1873^]: Add method getEntry on TCK Record Schema class
