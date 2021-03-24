@@ -33,8 +33,7 @@ import org.talend.sdk.component.api.meta.Documentation;
  */
 @Documentation("Declare the group of after variable `@AfterVariable`, "
         + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`."
-        + "The functionality is for the Studio only."
-)
+        + "The functionality is for the Studio only.")
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AfterVariables {
@@ -52,8 +51,7 @@ public @interface AfterVariables {
      */
     @Documentation("Declare the after variable, "
             + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`."
-            + "The functionality is for the Studio only."
-    )
+            + "The functionality is for the Studio only.")
     @Repeatable(AfterVariables.class)
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
@@ -82,8 +80,7 @@ public @interface AfterVariables {
      */
     @Documentation("Mark method that returns container with after variables map, "
             + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`."
-            + "The functionality is for the Studio only."
-    )
+            + "The functionality is for the Studio only.")
     @Target(ElementType.METHOD)
     @Retention(RUNTIME)
     @interface AfterVariableContainer {
