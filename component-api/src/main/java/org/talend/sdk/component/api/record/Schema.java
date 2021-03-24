@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.api.record;
 
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -200,21 +203,26 @@ public interface Schema {
     }
 
     static String sanitizeConnectionName(final String name) {
-        if (name.isEmpty()) {
+        if (name == null || name.isEmpty()) {
             return name;
         }
+
         final char[] original = name.toCharArray();
-        final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
-        final int offset = skipFirstChar ? 1 : 0;
-        final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
-        if (!skipFirstChar) {
-            sanitized[0] = original[0];
-        }
+        final char[] sanitized = new char[original.length];
+
+        final CharsetEncoder ascii = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder();
+
+        final boolean firstCharIsOK =
+                ascii.canEncode(original[0]) && (Character.isLetter(original[0]) || original[0] == '_');
+
+        sanitized[0] = firstCharIsOK ? original[0] : '_';
+
         for (int i = 1; i < original.length; i++) {
-            if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
-                sanitized[i - offset] = '_';
+            char current = original[i];
+            if ((!ascii.canEncode(current)) || (!Character.isLetterOrDigit(current) && current != '_')) {
+                sanitized[i] = '_';
             } else {
-                sanitized[i - offset] = original[i];
+                sanitized[i] = current;
             }
         }
         return new String(sanitized);
