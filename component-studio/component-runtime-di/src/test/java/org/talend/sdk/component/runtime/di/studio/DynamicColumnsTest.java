@@ -49,6 +49,7 @@ import javax.json.spi.JsonProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.context.RuntimeContext;
 import org.talend.sdk.component.api.context.RuntimeContextInjector;
@@ -371,13 +372,18 @@ public class DynamicColumnsTest {
         @Option
         @Documentation("parameter 2")
         private int para2;
+
+        @Option
+        @Required
+        @Documentation("parameter 3")
+        private int para3;
     }
 
     @Service
     public static class MyService implements Serializable {
 
         @CreateConnection
-        public Object createConn(@Option("conn") final TestDataStore dataStore) {
+        public Object createConn(@Option("conn") final TestDataStore dataStore) throws ComponentException {
             // create connection
             return dataStore.para1 + dataStore.para2;
         }
