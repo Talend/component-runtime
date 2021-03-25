@@ -17,8 +17,11 @@ package org.talend.sdk.component.api.record;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -137,16 +140,51 @@ class SchemaTest {
 
     @Test
     void testTypes() {
-        Assertions.assertTrue(Schema.Type.INT.isCompatible(null));
-        Assertions.assertTrue(Schema.Type.INT.isCompatible(123));
-        Assertions.assertFalse(Schema.Type.INT.isCompatible(234L));
-        Assertions.assertFalse(Schema.Type.INT.isCompatible("Hello"));
+        final Record rec = new Record() {
+            @Override
+            public Schema getSchema() {
+                return null;
+            }
+
+            @Override
+            public <T> T get(Class<T> expectedType, String name) {
+                return null;
+            }
+        };
+        Assertions.assertTrue(Type.RECORD.isCompatible(rec));
+        Assertions.assertFalse(Type.RECORD.isCompatible(1234));
+
+        Assertions.assertTrue(Type.ARRAY.isCompatible(Collections.emptyList()));
+        Assertions.assertFalse(Schema.Type.ARRAY.isCompatible(new int[] {}));
+
+        Assertions.assertTrue(Type.STRING.isCompatible("Hello"));
+        Assertions.assertFalse(Schema.Type.STRING.isCompatible(new int[] {}));
 
         Assertions.assertTrue(Type.BYTES.isCompatible("Hello".getBytes()));
         Assertions.assertTrue(Type.BYTES.isCompatible(new Byte[] {}));
         Assertions.assertFalse(Schema.Type.BYTES.isCompatible(new int[] {}));
 
+        Assertions.assertTrue(Schema.Type.INT.isCompatible(null));
+        Assertions.assertTrue(Schema.Type.INT.isCompatible(123));
+        Assertions.assertFalse(Schema.Type.INT.isCompatible(234L));
+        Assertions.assertFalse(Schema.Type.INT.isCompatible("Hello"));
+
+        Assertions.assertTrue(Schema.Type.LONG.isCompatible(123L));
+        Assertions.assertFalse(Schema.Type.LONG.isCompatible(234));
+
+        Assertions.assertTrue(Schema.Type.FLOAT.isCompatible(123.2f));
+        Assertions.assertFalse(Schema.Type.FLOAT.isCompatible(234.1d));
+
+        Assertions.assertTrue(Schema.Type.DOUBLE.isCompatible(123.2d));
+        Assertions.assertFalse(Schema.Type.DOUBLE.isCompatible(Float.valueOf(3.4f)));
+
+        Assertions.assertTrue(Schema.Type.BOOLEAN.isCompatible(Boolean.TRUE));
+        Assertions.assertFalse(Schema.Type.BOOLEAN.isCompatible(10));
+
         Assertions.assertTrue(Type.DATETIME.isCompatible(System.currentTimeMillis()));
+        Assertions.assertTrue(Type.DATETIME.isCompatible(new Date()));
+        Assertions.assertTrue(Type.DATETIME.isCompatible(ZonedDateTime.now()));
+        Assertions.assertFalse(Schema.Type.DATETIME.isCompatible(10));
     }
 
     @Test
