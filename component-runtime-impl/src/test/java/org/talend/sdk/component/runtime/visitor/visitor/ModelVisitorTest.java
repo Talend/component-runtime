@@ -41,6 +41,8 @@ import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.standalone.DriverRunner;
+import org.talend.sdk.component.api.standalone.RunAtDriver;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest.Registrar.In;
@@ -51,7 +53,8 @@ class ModelVisitorTest {
     void valid() {
         assertEquals(asList("@Emitter(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$In)",
                 "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Mapper)",
-                "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Out)"),
+                "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Out)",
+                "@DriverRunner(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Standalone)"),
                 visit(Registrar.class));
     }
 
@@ -172,6 +175,37 @@ class ModelVisitorTest {
         assertThrows(IllegalArgumentException.class, () -> visit(MapperAfterVariableNokWrongParamType.class));
     }
 
+    @Test
+    void standaloneNoRunMethod() {
+        assertThrows(IllegalArgumentException.class, () -> visit(StandaloneNoRunMethod.class));
+    }
+
+    @Test
+    void standaloneRunMethodWithArguments() {
+        assertThrows(IllegalArgumentException.class, () -> visit(StandaloneRunMethodWithParams.class));
+    }
+
+    @Test
+    void standaloneTwoRunMethods() {
+        assertThrows(IllegalArgumentException.class, () -> visit(StandaloneTwoRunMethods.class));
+    }
+
+    @Test
+    void standaloneAfterVariableOk() {
+        assertEquals(singletonList("@DriverRunner(" + StandaloneAfterVariableOk.Standalone.class.getName() + ")"),
+                visit(StandaloneAfterVariableOk.class));
+    }
+
+    @Test
+    void standaloneAfterVariableNokWrongReturnType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(StandaloneAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void standaloneAfterVariableNokWrongParamType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(StandaloneAfterVariableNokWrongParamCount.class));
+    }
+
     private List<String> visit(final Class<?> type) {
         final ModelVisitor visitor = new ModelVisitor();
         final List<String> tracker = new ArrayList<>();
@@ -193,6 +227,11 @@ class ModelVisitorTest {
                     @Override
                     public void onProcessor(final Class<?> type, final Processor processor) {
                         tracker.add("@Processor(" + type.getName() + ")");
+                    }
+
+                    @Override
+                    public void onDriverRunner(final Class<?> type, final DriverRunner runner) {
+                        tracker.add("@DriverRunner(" + type.getName() + ")");
                     }
                 }, true));
         return tracker;
@@ -241,6 +280,15 @@ class ModelVisitorTest {
 
             @ElementListener
             public void onNext(final In in) {
+                // no-op
+            }
+        }
+
+        @DriverRunner(family = "comp", name = "Standalone")
+        public static class Standalone {
+
+            @RunAtDriver
+            public void run() {
                 // no-op
             }
         }
@@ -637,6 +685,90 @@ class ModelVisitorTest {
             @AfterVariableContainer
             public Map<String, Object> oz(String param) {
                 return Collections.emptyMap();
+            }
+        }
+    }
+
+    public static class StandaloneNoRunMethod {
+
+        @DriverRunner
+        public static class Standalone {
+        }
+    }
+
+    public static class StandaloneRunMethodWithParams {
+
+        @DriverRunner(family = "comp", name = "standalone")
+        public static class Standalone {
+
+            @RunAtDriver
+            public void run(Object argument) {
+            }
+        }
+    }
+
+    public static class StandaloneTwoRunMethods {
+
+        @DriverRunner(family = "comp", name = "standalone")
+        public static class Standalone {
+
+            @RunAtDriver
+            public void run(Object argument) {
+            }
+
+            @RunAtDriver
+            public void run1(Object argument) {
+            }
+        }
+    }
+
+    public static class StandaloneAfterVariableOk {
+
+        @DriverRunner(family = "comp", name = "standalone")
+        public static class Standalone {
+
+            @AfterVariableContainer
+            public Map<String, Object> commit() {
+                return Collections.emptyMap();
+            }
+
+            @RunAtDriver
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class StandaloneAfterVariableNokWrongReturnType {
+
+        @DriverRunner(family = "comp", name = "standalone")
+        public static class Standalone {
+
+            @AfterVariableContainer
+            public Map<String, String> commit() {
+                return Collections.emptyMap();
+            }
+
+            @RunAtDriver
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class StandaloneAfterVariableNokWrongParamCount {
+
+        @DriverRunner(family = "comp", name = "standalone")
+        public static class Standalone {
+
+            @AfterVariableContainer
+            public Map<String, Object> commit(String param) {
+                return Collections.emptyMap();
+            }
+
+            @RunAtDriver
+            public Record emit() {
+                return null;
             }
         }
     }

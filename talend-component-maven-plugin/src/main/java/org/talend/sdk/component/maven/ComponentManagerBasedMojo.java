@@ -62,6 +62,9 @@ public abstract class ComponentManagerBasedMojo extends ClasspathMojoBase {
                 c
                         .getProcessors()
                         .forEach((k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
+                c
+                        .getDriverRunners()
+                        .forEach((k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
             });
 
             doWork(manager, container, registry);

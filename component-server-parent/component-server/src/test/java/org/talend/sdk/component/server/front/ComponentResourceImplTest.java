@@ -252,6 +252,19 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void getDetailsStandaloneType() {
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", client.getStandaloneId())
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
+        assertEquals(1, details.getDetails().size());
+
+        final ComponentDetail detail = details.getDetails().iterator().next();
+        assertEquals("standalone", detail.getType());
+    }
+
+    @Test
     void getDetailsMeta() {
         final ComponentDetailList details = base
                 .path("component/details")
@@ -326,7 +339,8 @@ class ComponentResourceImplTest {
             assertNotNull(data.getIcon().getCustomIcon());
             assertEquals("image/png", data.getIcon().getCustomIconType());
             assertEquals(singletonList("DB/Std/Yes"), data.getCategories());
-        } else if ("chain".equals(data.getId().getFamily()) && "file".equals(data.getId().getName())) {
+        } else if ("chain".equals(data.getId().getFamily())
+                && ("file".equals(data.getId().getName()) || "standalone".equals(data.getId().getName()))) {
             assertEquals("myicon", data.getIcon().getIcon());
             assertTrue(new String(data.getIcon().getCustomIcon(), StandardCharsets.UTF_8)
                     .startsWith("<svg xmlns=\"http://www.w3.org/2000/svg\""));
@@ -339,7 +353,7 @@ class ComponentResourceImplTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(9, index.getComponents().size());
+        assertEquals(10, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
@@ -348,6 +362,7 @@ class ComponentResourceImplTest {
         assertComponent("the-test-component", "chain", "count", "count", component, 1);
         assertComponent("the-test-component", "chain", "file", "file", component, 1);
         assertComponent("the-test-component", "chain", "list", "The List Component", component, 1);
+        assertComponent("the-test-component", "chain", "standalone", "standalone", component, 1);
         assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
         assertComponent("collection-of-object", "config", "configurationWithArrayOfObject",
                 "configurationWithArrayOfObject", component, 1);

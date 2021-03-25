@@ -31,6 +31,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.classloader.ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
+import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.DRIVER_RUNNER;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.MAPPER;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.PROCESSOR;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
@@ -130,6 +131,7 @@ import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.standalone.DriverRunner;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -169,6 +171,7 @@ import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyE
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
+import org.talend.sdk.component.runtime.standalone.DriverRunnerImpl;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
@@ -857,6 +860,12 @@ public class ComponentManager implements AutoCloseable {
         return findComponentInternal(plugin, name, MAPPER, version, configuration).map(Mapper.class::cast);
     }
 
+    public Optional<org.talend.sdk.component.runtime.standalone.DriverRunner> findDriverRunner(final String plugin,
+            final String name, final int version, final Map<String, String> configuration) {
+        return findComponentInternal(plugin, name, DRIVER_RUNNER, version, configuration)
+                .map(org.talend.sdk.component.runtime.standalone.DriverRunner.class::cast);
+    }
+
     public Optional<org.talend.sdk.component.runtime.output.Processor> findProcessor(final String plugin,
             final String name, final int version, final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, PROCESSOR, version, configuration)
@@ -1100,6 +1109,18 @@ public class ComponentManager implements AutoCloseable {
             Class<?> runtimeType() {
                 return org.talend.sdk.component.runtime.output.Processor.class;
             }
+        },
+        DRIVER_RUNNER {
+
+            @Override
+            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
+                return family.getDriverRunners();
+            }
+
+            @Override
+            Class<?> runtimeType() {
+                return org.talend.sdk.component.runtime.standalone.DriverRunner.class;
+            }
         };
 
         abstract Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
@@ -1137,7 +1158,7 @@ public class ComponentManager implements AutoCloseable {
 
         private final Collection<String> supportedAnnotations = Stream
                 .of(Internationalized.class, Service.class, Request.class, PartitionMapper.class, Processor.class,
-                        Emitter.class)
+                        Emitter.class, DriverRunner.class)
                 .map(Type::getDescriptor)
                 .collect(toSet());
 
@@ -1349,7 +1370,7 @@ public class ComponentManager implements AutoCloseable {
             container.set(ComponentContexts.class, componentContexts);
             if (!isGeneric) {
                 Stream
-                        .of(PartitionMapper.class, Processor.class, Emitter.class)
+                        .of(PartitionMapper.class, Processor.class, Emitter.class, DriverRunner.class)
                         .flatMap(a -> finder.findAnnotatedClasses(a).stream())
                         .filter(t -> Modifier.isPublic(t.getModifiers()))
                         .forEach(type -> onComponent(container, registry, services, allServices, componentDefaults,
@@ -1437,10 +1458,18 @@ public class ComponentManager implements AutoCloseable {
                             .anyMatch(k -> c.getPartitionMappers().containsKey(k))) {
                         throw new IllegalArgumentException("Conflicting mappers in " + c);
                     }
+                    if (componentFamilyMeta
+                            .getDriverRunners()
+                            .keySet()
+                            .stream()
+                            .anyMatch(k -> c.getDriverRunners().containsKey(k))) {
+                        throw new IllegalArgumentException("Conflicting driver runners in " + c);
+                    }
 
                     // if we passed validations then merge
                     componentFamilyMeta.getProcessors().putAll(c.getProcessors());
                     componentFamilyMeta.getPartitionMappers().putAll(c.getPartitionMappers());
+                    componentFamilyMeta.getDriverRunners().putAll(c.getDriverRunners());
                 }
             });
 
@@ -1901,6 +1930,46 @@ public class ComponentManager implements AutoCloseable {
                     root.getNestedParameters().add(maxBatchSize);
                 }
             }
+        }
+
+        @Override
+        public void onDriverRunner(final Class<?> type, final DriverRunner processor) {
+            final Constructor<?> constructor = findConstructor(type);
+            final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
+                    () -> parameterModelService
+                            .buildParameterMetas(constructor, getPackage(type),
+                                    new BaseParameterEnricher.Context(LocalConfiguration.class
+                                            .cast(services.getServices().get(LocalConfiguration.class))))));
+            final Function<Map<String, String>, Object[]> parameterFactory =
+                    createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
+            final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
+            final ComponentFamilyMeta component = getOrCreateComponent(processor.family());
+            final Function<Map<String, String>, org.talend.sdk.component.runtime.standalone.DriverRunner> instantiator =
+                    context.getOwningExtension() != null && context
+                            .getOwningExtension()
+                            .supports(org.talend.sdk.component.runtime.standalone.DriverRunner.class)
+                                    ? config -> executeInContainer(plugin,
+                                            () -> context
+                                                    .getOwningExtension()
+                                                    .convert(new ComponentInstanceImpl(doInvoke(
+                                                            constructor, parameterFactory.apply(config)), plugin,
+                                                            component.getName(), name),
+                                                            org.talend.sdk.component.runtime.standalone.DriverRunner.class))
+                                    : config -> new DriverRunnerImpl(this.component.getName(), name, plugin,
+                                            doInvoke(constructor, parameterFactory.apply(config)));
+            final Map<String, String> metadata = metadataService.getMetadata(type);
+
+            component
+                    .getDriverRunners()
+                    .put(name,
+                            new ComponentFamilyMeta.DriverRunnerMeta(component, name, iconFinder.findIcon(type),
+                                    findVersion(type), type, parameterMetas,
+                                    args -> propertyEditorRegistry
+                                            .withCache(xbeanConverterCache, () -> instantiator.apply(args)),
+                                    Lazy
+                                            .lazy(() -> migrationHandlerFactory
+                                                    .findMigrationHandler(parameterMetas, type, services)),
+                                    !context.isNoValidation(), metadata));
         }
 
         private String getPackage(final Class<?> type) {

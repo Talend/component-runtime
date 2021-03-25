@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -72,7 +73,7 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                 .values()
                 .stream()
                 .flatMap(c -> Stream
-                        .concat(c
+                        .of(c
                                 .getPartitionMappers()
                                 .values()
                                 .stream()
@@ -93,7 +94,19 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                                                     .orElse(p.getName()),
                                             p.getIcon(), getDesignModel(p).getInputFlows(),
                                             getDesignModel(p).getOutputFlows());
-                                })))
+                                }),
+                                c
+                                        .getDriverRunners()
+                                        .values()
+                                        .stream()
+                                        .map(p -> new Component(p.getParent().getCategories(), p.getParent().getName(),
+                                                p.getName(),
+                                                p
+                                                        .findBundle(container.getLoader(), Locale.ENGLISH)
+                                                        .displayName()
+                                                        .orElse(p.getName()),
+                                                p.getIcon(), emptyList(), emptyList())))
+                        .flatMap(Function.identity()))
                 .collect(toList());
 
         try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder)

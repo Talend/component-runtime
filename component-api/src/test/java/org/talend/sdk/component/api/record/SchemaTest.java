@@ -141,6 +141,7 @@ class SchemaTest {
     @Test
     void testTypes() {
         final Record rec = new Record() {
+
             @Override
             public Schema getSchema() {
                 return null;

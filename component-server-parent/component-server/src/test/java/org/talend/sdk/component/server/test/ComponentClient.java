@@ -56,4 +56,8 @@ public class ComponentClient {
     public String getBeamSampleId() {
         return getComponentId("beamsample", "Input");
     }
+
+    public String getStandaloneId() {
+        return getComponentId("chain", "standalone");
+    }
 }

@@ -51,6 +51,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -410,7 +411,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
         return asManager()
                 .find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
                 .flatMap(f -> Stream
-                        .concat(f.getProcessors().values().stream(), f.getPartitionMappers().values().stream()))
+                        .of(f.getProcessors().values().stream(), f.getPartitionMappers().values().stream(),
+                                f.getDriverRunners().values().stream())
+                        .flatMap(Function.identity()))
                 .filter(m -> m.getType().getName().equals(componentType.getName()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No component " + componentType));
