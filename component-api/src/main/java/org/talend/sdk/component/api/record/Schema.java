@@ -18,7 +18,10 @@ package org.talend.sdk.component.api.record;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.temporal.Temporal;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -63,16 +66,41 @@ public interface Schema {
     String getProp(String property);
 
     enum Type {
-        RECORD,
-        ARRAY,
-        STRING,
-        BYTES,
-        INT,
-        LONG,
-        FLOAT,
-        DOUBLE,
-        BOOLEAN,
-        DATETIME
+        RECORD(new Class<?>[] { Record.class }),
+        ARRAY(new Class<?>[] { Collection.class }),
+        STRING(new Class<?>[] { String.class }),
+        BYTES(new Class<?>[] { byte[].class, Byte[].class }),
+        INT(new Class<?>[] { Integer.class }),
+        LONG(new Class<?>[] { Long.class }),
+        FLOAT(new Class<?>[] { Float.class }),
+        DOUBLE(new Class<?>[] { Double.class }),
+        BOOLEAN(new Class<?>[] { Boolean.class }),
+        DATETIME(new Class<?>[] { Long.class, Date.class, Temporal.class });
+
+        /** All compatibles Java classes */
+        private final Class<?>[] classes;
+
+        Type(final Class<?>[] classes) {
+            this.classes = classes;
+        }
+
+        /**
+         * Check if input can be affected to an entry of this type.
+         * 
+         * @param input : object.
+         * @return true if input is null or ok.
+         */
+        public boolean isCompatible(final Object input) {
+            if (input == null) {
+                return true;
+            }
+            for (Class<?> clazz : classes) {
+                if (clazz.isInstance(input)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     interface Entry {

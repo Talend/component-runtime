@@ -260,6 +260,10 @@ public interface Record {
 
         Record build();
 
+        Object getValue(String name);
+
+        Builder with(Schema.Entry entry, Object value);
+
         Builder withString(String name, String value);
 
         Builder withString(Schema.Entry entry, String value);
