@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.api.context;
 
+import org.talend.sdk.component.api.meta.Documentation;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,9 +24,22 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Documentation("If expect to use existed connection for mapper or processor in runtime, need to extend this. "
+        + "Then get runtime connection object to call: this.getRuntimeContext().getConnection()."
+        + " The functionality is for the Studio only.")
 public class RuntimeContextInjector {
 
-    private RuntimeContext runtimeContext;
+    // provide default runtime context object when runtime context is not injected
+    // for example, this is used for studio only, studio will inject it auto, cloud platform will not inject it auto
+    // avoid NPE if not inject
+    private RuntimeContext runtimeContext = new RuntimeContext() {
+
+        @Override
+        public Object getConnection() {
+            return null;
+        }
+
+    };
 
     // call the hidden set method by runtime platform to inject the runtimeContext object
 

@@ -27,7 +27,8 @@ import org.talend.sdk.component.api.service.ActionType;
 @ActionType(value = "close_connection", expectedReturnedType = CloseConnectionObject.class)
 @Target(METHOD)
 @Retention(RUNTIME)
-@Documentation("This class marks an action closing a connection")
+@Documentation("Mark an action works for closing runtime connection, returning a close helper object which do real close action."
+        + " The functionality is for the Studio only, studio will use the close object to close connection for existed connection, and no effect for cloud platform.")
 public @interface CloseConnection {
 
     /**

@@ -17,6 +17,7 @@ package org.talend.sdk.component.api.service.connection;
 
 import org.talend.sdk.component.api.context.RuntimeContext;
 import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 // and close it
 @Data
 @NoArgsConstructor
+@Documentation("Close object helper, The functionality is for the Studio only.")
 public abstract class CloseConnectionObject {
 
     protected RuntimeContext runtimeContext;

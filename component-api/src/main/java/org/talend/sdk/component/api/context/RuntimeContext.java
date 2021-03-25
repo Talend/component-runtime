@@ -15,7 +15,10 @@
  */
 package org.talend.sdk.component.api.context;
 
-// provide the runtime connection object share function for one component instance
+import org.talend.sdk.component.api.meta.Documentation;
+
+@Documentation("Provide the runtime connection object share function for one component instance."
+        + " The functionality is for the Studio only.")
 public interface RuntimeContext {
 
     // implement by runtime provider in studio, like before run input or processor runtime part
