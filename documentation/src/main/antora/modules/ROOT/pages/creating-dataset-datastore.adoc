@@ -174,6 +174,52 @@ With predefined datasets and datastores, users can then quickly fill the compone
 
 image::studio_select_predefined_dataset.png[Dataset in Component,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/studio_select_predefined_dataset.png",50%]
 
+== How to create a reusable connection in Studio
+
+Studio will generate connection and close components auto for reusing connection function in input and output components, just need to do like this example:
+
+[source,java]
+----
+@Service
+public class SomeService {
+
+    @CreateConnection
+    public Object createConn(@Option("configuration") SomeDataStore dataStore) throws ComponentException {
+        Object connection = null;
+        //get conn object by dataStore
+        return conn;
+    }
+
+    @CloseConnection
+    public CloseConnectionObject closeConn() {
+        return new CloseConnectionObject() {
+
+            public boolean close() throws ComponentException {
+                Object connection = this.getRuntimeContext().getConnection();
+                //do close action
+                return true;
+            }
+
+        };
+    }
+}
+----
+
+Then the runtime mapper and processor only need to extends RuntimeContextInjector and can get the connection like this:
+
+[source,java]
+----
+@Version(1)
+@Icon(value = Icon.IconType.CUSTOM, custom = "SomeInput")
+@PartitionMapper(name = "SomeInput")
+@Documentation("the doc")
+public class SomeInputMapper extends RuntimeContextInjector implements Serializable {
+
+    ...
+    this.getRuntimeContext().getConnection()
+
+}
+----
 
 == How does the component server interact with datasets and datastores
 
