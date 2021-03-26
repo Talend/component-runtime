@@ -195,7 +195,7 @@ public class SomeService {
         return new CloseConnectionObject() {
 
             public boolean close() throws ComponentException {
-                Object connection = this.getRuntimeContext().getConnection();
+                Object connection = this.getConnection();
                 //do close action
                 return true;
             }
@@ -205,7 +205,7 @@ public class SomeService {
 }
 ----
 
-Then the runtime mapper and processor only need to extends RuntimeContextInjector and can get the connection like this:
+Then the runtime mapper and processor only need to use @Connection to get the connection like this:
 
 [source,java]
 ----
@@ -213,10 +213,10 @@ Then the runtime mapper and processor only need to extends RuntimeContextInjecto
 @Icon(value = Icon.IconType.CUSTOM, custom = "SomeInput")
 @PartitionMapper(name = "SomeInput")
 @Documentation("the doc")
-public class SomeInputMapper extends RuntimeContextInjector implements Serializable {
+public class SomeInputMapper implements Serializable {
 
-    ...
-    this.getRuntimeContext().getConnection()
+    @Connection
+    SomeConnection conn;
 
 }
 ----
