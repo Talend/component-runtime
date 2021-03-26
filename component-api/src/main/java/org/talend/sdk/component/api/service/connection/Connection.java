@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.api.context;
+package org.talend.sdk.component.api.service.connection;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 import org.talend.sdk.component.api.meta.Documentation;
 
-@Documentation("Provide the runtime connection object share function for one component instance."
-        + " The functionality is for the Studio only.")
-public interface RuntimeContext {
-
-    // implement by runtime provider in studio, like before run input or processor runtime part
-    // call by the component runtime or close component runtime which reuse the connection if exists
-    Object getConnection();
-
+@Target(FIELD)
+@Retention(RUNTIME)
+@Documentation("Auto inject the connection to field, The functionality is for the Studio only.")
+public @interface Connection {
 }
