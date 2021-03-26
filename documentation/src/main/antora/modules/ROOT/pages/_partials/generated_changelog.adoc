@@ -1,5 +1,11 @@
 
 
+== Version 1.31.2
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1899[TCOMP-1899^]: Generate a connection Component
+
 == Version 1.31.0
 
 === Bug
