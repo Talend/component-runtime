@@ -28,17 +28,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.PrimitiveIterator;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -51,8 +42,6 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.context.RuntimeContext;
-import org.talend.sdk.component.api.context.RuntimeContextInjector;
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
@@ -63,6 +52,7 @@ import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.connection.CloseConnection;
 import org.talend.sdk.component.api.service.connection.CloseConnectionObject;
+import org.talend.sdk.component.api.service.connection.Connection;
 import org.talend.sdk.component.api.service.connection.CreateConnection;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
@@ -132,17 +122,10 @@ public class DynamicColumnsTest {
                 .forEach(actionMeta -> {
                     Object result = actionMeta.getInvoker().apply(null);
                     CloseConnectionObject cco = (CloseConnectionObject) result;
+                    Object conn = globalMap.get("conn_tS3Connection_1");
 
-                    RuntimeContext runtimeContext = new RuntimeContext() {
+                    injectValue(cco, conn);
 
-                        @Override
-                        public Object getConnection() {
-                            return globalMap.get("conn_tS3Connection_1");
-                        }
-
-                    };
-
-                    cco.setRuntimeContext(runtimeContext);
                     boolean r = cco.close();
                     assertEquals(true, r);
                 });
@@ -178,21 +161,14 @@ public class DynamicColumnsTest {
 
             try {
                 Field field = processor.getClass().getSuperclass().getDeclaredField("delegate");
-                field.setAccessible(true);
-                Object v = field.get(processor);
-                if (v instanceof RuntimeContextInjector) {
-                    RuntimeContext runtimeContext = new RuntimeContext() {
-
-                        @Override
-                        public Object getConnection() {
-                            return globalMap.get("conn_tS3Connection_1");
-                        }
-
-                    };
-
-                    ((RuntimeContextInjector) v).setRuntimeContext(runtimeContext);
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
                 }
-                field.setAccessible(false);
+                Object v = field.get(processor);
+                Object conn = globalMap.get("conn_tS3Connection_1");
+
+                injectValue(v, conn);
+
             } catch (Exception e) {
                 System.out.println(e);
             }
@@ -229,6 +205,23 @@ public class DynamicColumnsTest {
                     outputHandlerProcessor, inputsProcessor, outputsProcessor, tempMapperMapper);
         } finally {
             doClose(globalMap);
+        }
+    }
+
+    private void injectValue(Object v, Object conn) {
+        Class<?> current = v.getClass();
+        while (current != null && current != Object.class) {
+            Stream.of(current.getDeclaredFields()).filter(f -> f.isAnnotationPresent(Connection.class)).forEach(f -> {
+                if (!f.isAccessible()) {
+                    f.setAccessible(true);
+                }
+                try {
+                    f.set(v, conn);
+                } catch (final IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            current = current.getSuperclass();
         }
     }
 
@@ -318,15 +311,17 @@ public class DynamicColumnsTest {
     }
 
     @org.talend.sdk.component.api.processor.Processor(name = "outputDi", family = "DynamicColumnsTest")
-    public static class OutputComponentDi extends RuntimeContextInjector implements Serializable {
+    public static class OutputComponentDi implements Serializable {
 
         int counter;
+
+        @Connection
+        Object conn;
 
         @ElementListener
         public void onElement(final Record record) {
             // can get connection, if not null, can use it directly instead of creating again
-            assertNotNull(this.getRuntimeContext());
-            assertNotNull(this.getRuntimeContext().getConnection());
+            assertNotNull(conn);
 
             assertNotNull(record);
             assertNotNull(record.getString("id"));
@@ -393,7 +388,7 @@ public class DynamicColumnsTest {
             return new CloseConnectionObject() {
 
                 public boolean close() throws ComponentException {
-                    return "v1100".equals(this.getRuntimeContext().getConnection());
+                    return "v1100".equals(this.getConnection());
                 }
 
             };
@@ -401,13 +396,16 @@ public class DynamicColumnsTest {
     }
 
     @Emitter(name = "inputDi", family = "DynamicColumnsTest")
-    public static class InputComponentDi extends RuntimeContextInjector implements Serializable {
+    public static class InputComponentDi implements Serializable {
 
         private final PrimitiveIterator.OfInt stream;
 
         public InputComponentDi(@Option("count") final int count) {
             stream = IntStream.range(0, count).iterator();
         }
+
+        @Connection
+        Object conn;
 
         @Producer
         public Record next() {
