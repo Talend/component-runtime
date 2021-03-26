@@ -195,7 +195,7 @@ public class SomeService {
         return new CloseConnectionObject() {
 
             public boolean close() throws ComponentException {
-                Object connection = this.getRuntimeContext().getConnection();
+                Object connection = this.getConnection();
                 //do close action
                 return true;
             }
