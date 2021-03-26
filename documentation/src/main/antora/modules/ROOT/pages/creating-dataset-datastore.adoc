@@ -205,7 +205,7 @@ public class SomeService {
 }
 ----
 
-Then the runtime mapper and processor only need to extends RuntimeContextInjector and can get the connection like this:
+Then the runtime mapper and processor only need to use @Connection to get the connection like this:
 
 [source,java]
 ----
