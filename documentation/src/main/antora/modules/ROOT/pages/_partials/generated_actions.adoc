@@ -1,5 +1,30 @@
 
 
+= Close Connection
+
+Mark an action works for closing runtime connection, returning a close helper object which do real close action. The functionality is for the Studio only, studio will use the close object to close connection for existed connection, and no effect for cloud platform.
+
+- Type: `close_connection`
+- API: `@org.talend.sdk.component.api.service.connection.CloseConnection`
+- Returned type: `org.talend.sdk.component.api.service.connection.CloseConnectionObject`
+- Sample:
+
+[source,js]
+----
+{
+ "connection": "..."
+}
+----
+
+
+= Create Connection
+
+Mark an action works for creating runtime connection, returning a runtime connection object like jdbc connection if database family. Its parameter MUST be a datastore. Datastore is configuration type annotated with @DataStore. The functionality is for the Studio only, studio will use the runtime connection object when use existed connection, and no effect for cloud platform.
+
+- Type: `create_connection`
+- API: `@org.talend.sdk.component.api.service.connection.CreateConnection`
+
+
 = Discoverdataset
 
 This class marks an action that explore a connection to retrieve potential datasets.

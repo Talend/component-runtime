@@ -4,6 +4,7 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1880[TCOMP-1880^]: Engine Server returns binary data instead of json (aka does not respect the compressed header ?)
 - link:https://jira.talendforge.org/browse/TCOMP-1886[TCOMP-1886^]: Errors on Schema.sanitizeConnectionName
 
 
