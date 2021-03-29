@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Assertions;
@@ -99,6 +98,16 @@ class ConfigurationTypeResourceImplTest {
         assertNotNull(error);
         assertEquals(ErrorDictionary.UNEXPECTED, error.getCode());
         assertEquals("Migration execution failed with: Error thrown for testing!", error.getDescription());
+    }
+
+    @Test
+    void migrateUnexpectedWithNPE() {
+        final ErrorPayload error = ws
+                .read(ErrorPayload.class, "post",
+                        "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-4", "{}");
+        assertNotNull(error);
+        assertEquals(ErrorDictionary.UNEXPECTED, error.getCode());
+        assertEquals("Migration execution failed with: unexpected null", error.getDescription());
     }
 
     private void assertIndex(final ConfigTypeNodes index) {

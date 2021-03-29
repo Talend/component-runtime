@@ -56,6 +56,8 @@ public class JdbcDataSet implements Serializable {
         public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
             if (incomingVersion == -3) {
                 throw new RuntimeException("Error thrown for testing!");
+            } else if (incomingVersion == -4) {
+                throw new NullPointerException();
             }
             incomingData.put("migrated", "true");
             incomingData.put("size", Integer.toString(incomingData.size()));
