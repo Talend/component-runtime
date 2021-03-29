@@ -33,7 +33,7 @@ class ExceptionValidatorTest {
     @Test
     public void test() {
         final URL resource = Thread.currentThread().getContextClassLoader().getResource(".");
-        File c1Class = new File(resource.getPath());
+        final File c1Class = new File(resource.getPath());
         final FakeHelper helper = new FakeHelper() {
 
             @Override
@@ -47,7 +47,7 @@ class ExceptionValidatorTest {
 
         final Stream<String> validate = validator.validate(null, null);
         final List<String> errors = validate.collect(Collectors.toList());
-        Assertions.assertTrue(errors.isEmpty());
+        Assertions.assertFalse(errors.isEmpty());
 
     }
 
@@ -57,7 +57,7 @@ class ExceptionValidatorTest {
 
     public static class C2 extends ComponentException {
 
-        public C2(ErrorOrigin errorOrigin, String message, Throwable cause) {
+        public C2(final ErrorOrigin errorOrigin, final String message, final Throwable cause) {
             super(errorOrigin, message, cause);
         }
     }

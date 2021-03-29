@@ -16,11 +16,13 @@
 package org.talend.test.valid.exceptions;
 
 import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.ComponentException.ErrorOrigin;
+import org.talend.sdk.component.api.service.Service;
 
-public class ValidComponentException extends ComponentException {
+@Service
+public class ValidComponentExceptionService {
 
-    public ValidComponentException(ErrorOrigin errorOrigin, String type, String message, StackTraceElement[] stackTrace,
-            Throwable cause) {
-        super(errorOrigin, type, message, stackTrace, cause);
+    public void doSomeStuff() throws ComponentException {
+        // nop
     }
 }

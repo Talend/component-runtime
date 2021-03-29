@@ -13,6 +13,12 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1873[TCOMP-1873^]: Add method getEntry on TCK Record Schema class
 
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1888[TCOMP-1888^]: Remove/change validation of ComponentException
+
 == Version 1.31.0
 
 === Bug

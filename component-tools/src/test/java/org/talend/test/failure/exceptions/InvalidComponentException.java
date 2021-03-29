@@ -15,6 +15,11 @@
  */
 package org.talend.test.failure.exceptions;
 
-public class InvalidComponentException extends RuntimeException {
+import org.talend.sdk.component.api.exception.ComponentException;
 
+public class InvalidComponentException extends ComponentException {
+
+    public InvalidComponentException(final Throwable cause) {
+        super(cause);
+    }
 }
