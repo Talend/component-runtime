@@ -11,6 +11,7 @@
 
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-1815[TCOMP-1815^]: Support of ComponentException in migration
 - link:https://jira.talendforge.org/browse/TCOMP-1873[TCOMP-1873^]: Add method getEntry on TCK Record Schema class
 
 
