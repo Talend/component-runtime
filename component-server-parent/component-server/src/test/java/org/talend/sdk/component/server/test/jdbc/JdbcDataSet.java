@@ -48,12 +48,15 @@ public class JdbcDataSet implements Serializable {
 
     @Option
     @Min(1) // not 0 == infinite
-    private int timeout = 0;
+    private int timeout;
 
     public static class Migration implements MigrationHandler {
 
         @Override
         public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
+            if (incomingVersion == -3) {
+                throw new RuntimeException("Error thrown for testing!");
+            }
             incomingData.put("migrated", "true");
             incomingData.put("size", Integer.toString(incomingData.size()));
             return incomingData;
