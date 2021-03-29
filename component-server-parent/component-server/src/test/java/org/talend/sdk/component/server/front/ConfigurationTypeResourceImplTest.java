@@ -29,6 +29,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.ErrorDictionary;
+import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig
@@ -77,6 +79,35 @@ class ConfigurationTypeResourceImplTest {
                         "{}");
         assertEquals("true", config.get("configuration.migrated"));
         assertEquals("1", config.get("configuration.size"));
+    }
+
+    @Test
+    void migrateNotFound() {
+        final ErrorPayload error =
+                ws.read(ErrorPayload.class, "post", "/configurationtype/migrate/aMissingConfig/-2", "{}");
+        assertNotNull(error);
+        assertEquals(ErrorDictionary.CONFIGURATION_MISSING, error.getCode());
+        assertEquals("Didn't find configuration aMissingConfig", error.getDescription());
+    }
+
+    @Test
+    void migrateUnexpected() {
+        final ErrorPayload error = ws
+                .read(ErrorPayload.class, "post",
+                        "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-3", "{}");
+        assertNotNull(error);
+        assertEquals(ErrorDictionary.UNEXPECTED, error.getCode());
+        assertEquals("Migration execution failed with: Error thrown for testing!", error.getDescription());
+    }
+
+    @Test
+    void migrateUnexpectedWithNPE() {
+        final ErrorPayload error = ws
+                .read(ErrorPayload.class, "post",
+                        "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-4", "{}");
+        assertNotNull(error);
+        assertEquals(ErrorDictionary.UNEXPECTED, error.getCode());
+        assertEquals("Migration execution failed with: unexpected null", error.getDescription());
     }
 
     private void assertIndex(final ConfigTypeNodes index) {
