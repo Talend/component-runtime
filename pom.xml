@@ -218,8 +218,8 @@
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.5</joda.time.version>
 
-    <spark.version>2.4.7</spark.version>
-    <spark-scala.version>2.11</spark-scala.version>
+    <spark.version>3.0.1</spark.version>
+    <spark-scala.version>2.12</spark-scala.version>
 
     <groovy.version>3.0.7</groovy.version>
     <gmavenplus.version>1.11.0</gmavenplus.version>
