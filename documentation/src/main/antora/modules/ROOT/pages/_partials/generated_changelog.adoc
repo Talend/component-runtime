@@ -20,6 +20,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1888[TCOMP-1888^]: Remove/change validation of ComponentException
+- link:https://jira.talendforge.org/browse/TCOMP-1895[TCOMP-1895^]: Enhance coercion in RecordConverters
 
 == Version 1.31.0
 

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.di.record;
-
-import static java.time.ZoneOffset.UTC;
+package org.talend.sdk.component.runtime.record;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.AbstractMap;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MappingUtils {
+
+    private static final ZoneId UTC = ZoneId.of("UTC");
 
     private static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_MAP = Stream
             .of(new AbstractMap.SimpleImmutableEntry<>(boolean.class, Boolean.class),
@@ -167,8 +169,14 @@ public class MappingUtils {
         if (byte[].class == expected) {
             log
                     .warn("[mapString] Expecting a `byte[]` but received a `String`."
-                            + " Using `String.getBytes()`: result may be inaccurate.");
-            return value.getBytes();
+                            + " Using `Base64.getDecoder().decode()` and "
+                            + "`String.getBytes()` if first fails: result may be inaccurate.");
+            // json is using Base64.getEncoder()
+            try {
+                return Base64.getDecoder().decode(value);
+            } catch (final Exception e) {
+                return value.getBytes();
+            }
         }
         if (BigDecimal.class == expected) {
             return new BigDecimal(value);
