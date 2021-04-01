@@ -8,14 +8,14 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":284,
+    "commits":285,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
     "name":"Emmanuel GALLOIS"
   },
   {
-    "commits":212,
+    "commits":214,
     "description":"Technical Writer at @Talend",
     "gravatar":"https://avatars.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",

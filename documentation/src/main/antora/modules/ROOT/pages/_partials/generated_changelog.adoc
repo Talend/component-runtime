@@ -4,7 +4,7 @@
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-1880[TCOMP-1880^]: Engine Server returns binary data instead of json (aka does not respect the compressed header ?)
+- link:https://jira.talendforge.org/browse/TCOMP-1880[TCOMP-1880^]: Engine Server returns binary data instead of json (aka does not respect the compressed header)
 - link:https://jira.talendforge.org/browse/TCOMP-1886[TCOMP-1886^]: Errors on Schema.sanitizeConnectionName
 
 
@@ -13,6 +13,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1815[TCOMP-1815^]: Support of ComponentException in migration
 - link:https://jira.talendforge.org/browse/TCOMP-1873[TCOMP-1873^]: Add method getEntry on TCK Record Schema class
+- link:https://jira.talendforge.org/browse/TCOMP-1892[TCOMP-1892^]: Upgrade Spark to 3.0.1
 
 
 
