@@ -9,7 +9,7 @@ Batch processing refers to the way execution environments process batches of dat
 
 By default, the execution environment of a component automatically decides how to process groups of records and estimates an optimal group size depending on the system capacity. With this default behavior, the size of each group could sometimes be optimized for the system to handle the load more effectively or to match business requirements.
 
-For example, real-time or near-real time processing needs often imply processing smaller batches of data, but more often. On the other hand, a one-time processing without business contraints is more effectively handled with a batch size based on the system capacity.
+For example, real-time or near real-time processing needs often imply processing smaller batches of data, but more often. On the other hand, a one-time processing without business contraints is more effectively handled with a batch size based on the system capacity.
 
 Final users of a component developed with the Talend Component Kit that integrates the batch processing logic described in this document can override this automatic size. To do that, a `maxBatchSize` option is available in the component settings and allows to set the maximum size of each group of data to process.
 

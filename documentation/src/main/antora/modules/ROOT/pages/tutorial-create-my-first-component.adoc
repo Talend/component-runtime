@@ -66,13 +66,13 @@ The logic of the component is not yet implemented at that stage. Only the config
 
 Before starting to run any command, make sure that Talend Open Studio is not running.
 
-. From the component project in IntelliJ, open a terminal and make sure that the selected directory is the root of the project. All commands shown in this tutorial are performed from this location. +
+. From the component project in IntelliJ, open a Terminal and make sure that the selected directory is the root of the project. All commands shown in this tutorial are performed from this location. +
 +
 image::tutorial_intellij_terminal_blank.png[Compile terminal,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_intellij_terminal_blank.png",70%]
 . Compile the project by running the following command: `mvnw clean install`. +
 The `mvnw` command refers to the Maven wrapper that is embedded in Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.
 . Once the command is executed and you see *BUILD SUCCESS* in the terminal, deploy the component to your local instance of Talend Open Studio using the following command: +
-`mvnw talend-component:deploy-in-studio -Dtalend.component.studioHome="<path to Talend Open Studio home>"`.+
+`mvnw talend-component:deploy-in-studio -Dtalend.component.studioHome="<path to Talend Open Studio home>"`. +
 +
 NOTE: Replace the path with your own value. If the path contains spaces (for example, `Program Files`), enclose it with double quotes.
 . Make sure the build is successful. +
@@ -118,7 +118,7 @@ The `@ElementListener` method now looks as follows: +
 [start="5"]
 . Open a Terminal again to compile the project and deploy the component again. To do that, run successively the two following commands:
 ** `mvnw clean install`
-** ``mvnw talend-component:deploy-in-studio -Dtalend.component.studioHome="<path to Talend Open Studio home>"`.
+** ``mvnw talend-component:deploy-in-studio -Dtalend.component.studioHome="<path to Talend Open Studio home>"`
 
 The update of the component logic should now be deployed. After restarting Talend Open Studio, you will be ready to build a job and use the component for the first time.
 
