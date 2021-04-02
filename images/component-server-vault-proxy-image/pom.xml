@@ -233,7 +233,7 @@
         </executions>
         <configuration>
           <repository>${image.target}</repository>
-          <tag>${image.tag}_${maven.build.timestamp}</tag>
+          <tag>${image.tag}</tag>
           <dockerfile>Dockerfile</dockerfile>
           <buildArgs>
             <PROJECT_VERSION>${project.version}</PROJECT_VERSION>
