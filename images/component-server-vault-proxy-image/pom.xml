@@ -176,12 +176,10 @@
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
                   <LD_LIBRARY_PATH>/opt/talend/component-kit/sigar</LD_LIBRARY_PATH>
                 </environment>
-                <args>
-                  <arg>--http=${boundPort}</arg>
-                </args>
                 <jvmFlags>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
+                  <jvmFlag>-Dhttp=${boundPort}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dlog4j.configurationFile=log4j2-${env:LOGGING_LAYOUT}.xml</jvmFlag>

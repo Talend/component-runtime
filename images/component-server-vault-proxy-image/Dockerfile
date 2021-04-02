@@ -43,5 +43,5 @@ ENV MEECROWAVE_BASE       ${TALEND_APP_HOME}
 ENV MEECROWAVE_PID        ${TALEND_APP_HOME}/conf/server-vault-proxy.pid
 ENV LD_LIBRARY_PATH       ${TALEND_APP_HOME}/sigar
 ENV TRACING_SAMPLING_RATE 1
-ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dlog4j.configurationFile=log4j2-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -cp ${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes:${TALEND_APP_HOME}/lib/*"
-CMD java org.apache.meecrowave.runner.Cli --http=$BOUND_PORT
+ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp --http=$BOUND_PORT -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dlog4j.configurationFile=log4j2-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -cp ${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes:${TALEND_APP_HOME}/lib/*"
+CMD java org.apache.meecrowave.runner.Cli
