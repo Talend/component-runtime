@@ -20,10 +20,13 @@ import static java.util.Optional.ofNullable;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+
+import org.talend.sdk.component.api.record.Schema.Entry;
 
 public interface Record {
 
@@ -261,6 +264,8 @@ public interface Record {
         Record build();
 
         Object getValue(String name);
+
+        List<Entry> getCurrentEntries();
 
         Builder with(Schema.Entry entry, Object value);
 
