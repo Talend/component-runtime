@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -372,7 +373,9 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
             }
             if (providedSchema == null) {
-                entries.add(entry);
+                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
+                    this.entries.add(entry);
+                }
             }
             return this;
         }
