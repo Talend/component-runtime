@@ -37,6 +37,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -147,6 +148,14 @@ public final class RecordImpl implements Record {
             } else {
                 return append(entry, value);
             }
+        }
+
+        @Override
+        public List<Entry> getCurrentEntries() {
+            if (this.providedSchema != null) {
+                return Collections.unmodifiableList(this.providedSchema.getEntries());
+            }
+            return Collections.unmodifiableList(this.entries);
         }
 
         private Schema.Entry findExistingEntry(final String name) {

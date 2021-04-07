@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -340,5 +341,26 @@ class RecordBuilderImplTest {
         assertEquals(2, rSchema.getEntries().get(1).getProps().size());
         assertEquals("semantic-test2", rSchema.getEntries().get(1).getProp("dqType"));
         assertEquals("two_2", rSchema.getEntries().get(1).getProp("org.talend.components.metadata.two"));
+    }
+
+    @Test
+    void entries() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "Hello").withInt("fieldInt", 20);
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(2, entries.size());
+        final Entry entry = entries.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
+        Assertions.assertSame(Schema.Type.STRING, entry.getType());
+
+        final Entry entry1 = entries.stream().filter((Entry e) -> "fieldInt".equals(e.getName())).findFirst().get();
+        Assertions.assertSame(Schema.Type.INT, entry1.getType());
+
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(new EntryImpl("field1", "field1", Type.INT, true, 5, null, "Comment"))
+                .build();
+        final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
+        final List<Entry> entries1 = builder1.getCurrentEntries();
+        Assertions.assertEquals(1, entries1.size());
     }
 }
