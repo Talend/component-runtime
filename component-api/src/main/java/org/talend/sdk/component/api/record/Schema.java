@@ -86,7 +86,7 @@ public interface Schema {
 
         /**
          * Check if input can be affected to an entry of this type.
-         * 
+         *
          * @param input : object.
          * @return true if input is null or ok.
          */
@@ -232,13 +232,24 @@ public interface Schema {
 
     static String sanitizeConnectionName(final String name) {
         if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Given schema field name to sanitize is null or empty.");
+        }
+
+        final CharsetEncoder ascii = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder();
+
+        final char first = name.charAt(0);
+        final boolean firstCharIsOK =
+                ascii.canEncode(first) && (Character.isLetter(first) || first == '_');
+        return avroSanitizer(ascii, firstCharIsOK ? name : name.substring(1));
+    }
+
+    static String avroSanitizer(final CharsetEncoder ascii, final String name) {
+        if (name == null || name.isEmpty()) {
             return name;
         }
 
         final char[] original = name.toCharArray();
         final char[] sanitized = new char[original.length];
-
-        final CharsetEncoder ascii = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder();
 
         final boolean firstCharIsOK =
                 ascii.canEncode(original[0]) && (Character.isLetter(original[0]) || original[0] == '_');
