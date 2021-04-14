@@ -20,6 +20,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1888[TCOMP-1888^]: Remove/change validation of ComponentException
+- link:https://jira.talendforge.org/browse/TCOMP-1894[TCOMP-1894^]: Uniformize docker images entrypoints
 - link:https://jira.talendforge.org/browse/TCOMP-1895[TCOMP-1895^]: Enhance coercion in RecordConverters
 - link:https://jira.talendforge.org/browse/TCOMP-1896[TCOMP-1896^]: Upgrade TSBI to 2.6.4-20210331133410
 
