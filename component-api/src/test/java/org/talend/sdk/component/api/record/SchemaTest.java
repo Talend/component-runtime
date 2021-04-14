@@ -29,6 +29,8 @@ import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 
@@ -190,16 +192,26 @@ class SchemaTest {
 
     @Test
     void testSanitize() {
-        final boolean digit = Character.isLetterOrDigit('ԋ');
-        final boolean alpha = Character.isAlphabetic('ԋ');
-        final boolean canEncode = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder().canEncode('ԋ');
+        try {
+            Assertions.assertNull(Schema.sanitizeConnectionName(null));
+            Assertions.fail("Exception should be raised.");
+        }
+        catch (Exception e){
+            Assertions.assertEquals(IllegalArgumentException.class, e.getClass());
+        }
 
-        Assertions.assertNull(Schema.sanitizeConnectionName(null));
-        Assertions.assertEquals("", Schema.sanitizeConnectionName(""));
+        try {
+            Assertions.assertEquals("", Schema.sanitizeConnectionName(""));
+            Assertions.fail("Exception should be raised.");
+        }
+        catch (Exception e){
+            Assertions.assertEquals(IllegalArgumentException.class, e.getClass());
+        }
+
         Assertions.assertEquals("H_lloWorld", Schema.sanitizeConnectionName("HélloWorld"));
 
-        Assertions.assertEquals("_Hello_World_", Schema.sanitizeConnectionName(" Hello World "));
-        Assertions.assertEquals("_23HelloWorld", Schema.sanitizeConnectionName("123HelloWorld"));
+        Assertions.assertEquals("Hello_World_", Schema.sanitizeConnectionName(" Hello World "));
+        Assertions.assertEquals("_3HelloWorld", Schema.sanitizeConnectionName("123HelloWorld"));
 
         final Pattern checkPattern = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
         final Random rnd = new Random();
@@ -213,5 +225,13 @@ class SchemaTest {
             final String sanitize2 = Schema.sanitizeConnectionName(sanitize);
             Assertions.assertEquals(sanitize, sanitize2);
         }
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "good,good", "_good,_good", "1xxx,xxx", "$xxx,xxx", "'#xxx',xxx", "xxx-yyy,xxx_yyy", "xxx$yyy,xxx_yyy",
+            "'xxx#yyy',xxx_yyy", "xxx@yyy,xxx_yyy" })
+    void testCompatibilityWithOldSanitize(final String inputName, final String sanitizedV1) {
+        final String sanitized = Schema.sanitizeConnectionName(inputName);
+        Assertions.assertEquals(sanitizedV1, sanitized);
     }
 }
