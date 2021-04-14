@@ -15,12 +15,16 @@
  */
 package org.talend.sdk.component.api.record;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -181,6 +185,34 @@ class SchemaTest {
         Assertions.assertTrue(Type.DATETIME.isCompatible(new Date()));
         Assertions.assertTrue(Type.DATETIME.isCompatible(ZonedDateTime.now()));
         Assertions.assertFalse(Schema.Type.DATETIME.isCompatible(10));
+    }
+
+
+    @Test
+    void testSanitize() {
+        final boolean digit = Character.isLetterOrDigit('ԋ');
+        final boolean alpha = Character.isAlphabetic('ԋ');
+        final boolean canEncode = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder().canEncode('ԋ');
+
+        Assertions.assertNull(Schema.sanitizeConnectionName(null));
+        Assertions.assertEquals("", Schema.sanitizeConnectionName(""));
+        Assertions.assertEquals("H_lloWorld", Schema.sanitizeConnectionName("HélloWorld"));
+        Assertions.assertEquals("oid", Schema.sanitizeConnectionName("$oid"));
+        Assertions.assertEquals("Hello_World_", Schema.sanitizeConnectionName(" Hello World "));
+        Assertions.assertEquals("_23HelloWorld", Schema.sanitizeConnectionName("123HelloWorld"));
+
+        final Pattern checkPattern = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
+        final Random rnd = new Random();
+        final byte[] array = new byte[20]; // length is bounded by 7
+        for (int i = 0; i < 150; i++) {
+            rnd.nextBytes(array);
+            final String randomString = new String(array, StandardCharsets.UTF_8);
+            final String sanitize = Schema.sanitizeConnectionName(randomString);
+            Assertions.assertTrue(checkPattern.matcher(sanitize).matches(), "'" + sanitize + "' don't match");
+
+            final String sanitize2 = Schema.sanitizeConnectionName(sanitize);
+            Assertions.assertEquals(sanitize, sanitize2);
+        }
     }
 
 }
