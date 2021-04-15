@@ -68,17 +68,17 @@ class SchemaTest {
 
         @Override
         public List<Entry> getEntries() {
-            return this.entries;
+            return entries;
         }
 
         @Override
         public Map<String, String> getProps() {
-            return this.props;
+            return props;
         }
 
         @Override
-        public String getProp(String property) {
-            return this.props.get(property);
+        public String getProp(final String property) {
+            return props.get(property);
         }
     }
 
@@ -89,7 +89,7 @@ class SchemaTest {
 
         @Override
         public String getName() {
-            return this.name;
+            return name;
         }
 
         @Override
@@ -133,7 +133,7 @@ class SchemaTest {
         }
 
         @Override
-        public String getProp(String property) {
+        public String getProp(final String property) {
             return null;
         }
     }
@@ -148,7 +148,7 @@ class SchemaTest {
             }
 
             @Override
-            public <T> T get(Class<T> expectedType, String name) {
+            public <T> T get(final Class<T> expectedType, final String name) {
                 return null;
             }
         };
@@ -202,11 +202,11 @@ class SchemaTest {
         Assertions.assertEquals("_23HelloWorld", Schema.sanitizeConnectionName("123HelloWorld"));
 
         final Pattern checkPattern = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
-        Random rnd = new Random();
-        byte[] array = new byte[20]; // length is bounded by 7
+        final Random rnd = new Random();
+        final byte[] array = new byte[20]; // length is bounded by 7
         for (int i = 0; i < 150; i++) {
             rnd.nextBytes(array);
-            final String randomString = new String(array, Charset.forName("UTF-8"));
+            final String randomString = new String(array, StandardCharsets.UTF_8);
             final String sanitize = Schema.sanitizeConnectionName(randomString);
             Assertions.assertTrue(checkPattern.matcher(sanitize).matches(), "'" + sanitize + "' don't match");
 

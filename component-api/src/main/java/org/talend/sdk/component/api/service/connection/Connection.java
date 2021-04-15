@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.valid.exceptions;
+package org.talend.sdk.component.api.service.connection;
 
-import org.talend.sdk.component.api.exception.ComponentException;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public class ValidComponentException extends ComponentException {
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    public ValidComponentException(ErrorOrigin errorOrigin, String type, String message, StackTraceElement[] stackTrace,
-            Throwable cause) {
-        super(errorOrigin, type, message, stackTrace, cause);
-    }
+import org.talend.sdk.component.api.meta.Documentation;
+
+@Target(FIELD)
+@Retention(RUNTIME)
+@Documentation("Auto inject the connection to field, The functionality is for the Studio only.")
+public @interface Connection {
 }

@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.api.context;
+package org.talend.test.valid.exceptions;
 
-import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.ComponentException.ErrorOrigin;
+import org.talend.sdk.component.api.service.Service;
 
-@Documentation("Provide the runtime connection object share function for one component instance."
-        + " The functionality is for the Studio only.")
-public interface RuntimeContext {
+@Service
+public class ValidComponentExceptionService {
 
-    // implement by runtime provider in studio, like before run input or processor runtime part
-    // call by the component runtime or close component runtime which reuse the connection if exists
-    Object getConnection();
-
+    public void doSomeStuff() throws ComponentException {
+        // nop
+    }
 }

@@ -7,7 +7,7 @@
 
 Datasets and datastores are configuration types that define how and where to pull the data from. They are used at design time to create shared configurations that can be stored and used at runtime.
 
-All input and output components created using Talend Component Kit must reference a valid dataset. Each dataset must reference a datastore.
+All connectors (input and output components) created using Talend Component Kit must reference a valid dataset. Each dataset must reference a datastore.
 
 - Datastore: The data you need to connect to the backend.
 - Dataset: A datastore coupled with the data you need to execute an action.
@@ -19,7 +19,8 @@ image::datastore_and_dataset_validation.png[Dataset validation,window="_blank",l
 Make sure that:
 
 - a datastore is used in each dataset.
-- each dataset has a corresponding input component (mapper or emitter) which has a configuration that is usable if the software only fills the dataset part. All other properties must not be required.
+- each dataset has a corresponding input component (mapper or emitter).
+- This input component must be able to work with only the dataset part filled by final users. Any other property implemented for that component must be optional.
 
 These rules are enforced by the `validateDataSet` validation. If the conditions are not met, the component builds will fail.
 ====
@@ -34,9 +35,9 @@ A datastore defines the information required to connect to a data source. For ex
 
 You can specify a datastore and its context of use (in which dataset, etc.) from the xref:tutorial-generate-project-using-starter.adoc[Component Kit Starter].
 
-IMPORTANT: Make sure to modelize the data your components are designed to handle before defining datasets and datastores in the Component Kit Starter.
+TIP: Make sure to modelize the data your components are designed to handle before defining datasets and datastores in the Component Kit Starter.
 
-Once you generate and import the project into an IDE, you can find your datastores under a specific `datastore` node.
+Once you generate and import the project into an IDE, you can find datastores under a specific `datastore` node.
 
 image::datastore_view_intellij.png[Datastore view,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/datastore_view_intellij.png",50%]
 
@@ -48,8 +49,8 @@ package com.mycomponent.components.datastore;
 
 @DataStore("DatastoreA") <1>
 @GridLayout({ <2>
-    // the generated layout put one configuration entry per line,
-    // customize it as much as needed
+    // The generated component layout will display one configuration entry per line.
+    // Customize it as much as needed.
     @GridLayout.Row({ "apiurl" }),
     @GridLayout.Row({ "username" }),
     @GridLayout.Row({ "password" })
@@ -100,11 +101,12 @@ public class DatastoreA implements Serializable {
 
 <1> Identifying the class as a datastore and naming it.
 <2> Defining the layout of the datastore configuration.
-<3> Defining each element of the configuration: a URL, a username, and a password. Note that the password is also marked as being a credential.
+<3> Defining each element of the configuration: a URL, a username, and a password. Note that the password is also marked as a credential.
 
 == Defining a dataset
 
 A dataset represents the inbound data. It is generally made of:
+
 * A datastore that defines the connection information needed to access the data.
 * A query.
 
@@ -112,7 +114,7 @@ You can specify a dataset and its context of use (in which input and output comp
 
 IMPORTANT: Make sure to modelize the data your components are designed to handle before defining datasets and datastores in the Component Kit Starter.
 
-Once you generate and import the project into an IDE, you can find your datastores under a specific `dataset` node.
+Once you generate and import the project into an IDE, you can find datasets under a specific `dataset` node.
 
 image::dataset_view_intellij.png[Dataset view,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/dataset_view_intellij.png",50%]
 
@@ -124,8 +126,8 @@ package com.datastorevalidation.components.dataset;
 
 @DataSet("DatasetA") <1>
 @GridLayout({
-    // the generated layout put one configuration entry per line,
-    // customize it as much as needed
+    // The generated component layout will display one configuration entry per line.
+    // Customize it as much as needed.
     @GridLayout.Row({ "datastore" })
 })
 @Documentation("A Dataset configuration containing a simple datastore") <2>
@@ -195,7 +197,7 @@ public class SomeService {
         return new CloseConnectionObject() {
 
             public boolean close() throws ComponentException {
-                Object connection = this.getRuntimeContext().getConnection();
+                Object connection = this.getConnection();
                 //do close action
                 return true;
             }
@@ -205,7 +207,7 @@ public class SomeService {
 }
 ----
 
-Then the runtime mapper and processor only need to extends RuntimeContextInjector and can get the connection like this:
+Then the runtime mapper and processor only need to use @Connection to get the connection like this:
 
 [source,java]
 ----
@@ -213,10 +215,10 @@ Then the runtime mapper and processor only need to extends RuntimeContextInjecto
 @Icon(value = Icon.IconType.CUSTOM, custom = "SomeInput")
 @PartitionMapper(name = "SomeInput")
 @Documentation("the doc")
-public class SomeInputMapper extends RuntimeContextInjector implements Serializable {
+public class SomeInputMapper implements Serializable {
 
-    ...
-    this.getRuntimeContext().getConnection()
+    @Connection
+    SomeConnection conn;
 
 }
 ----

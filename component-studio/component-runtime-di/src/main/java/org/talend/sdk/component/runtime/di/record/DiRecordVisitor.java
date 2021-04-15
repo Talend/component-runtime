@@ -52,6 +52,7 @@ import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
+import org.talend.sdk.component.runtime.record.MappingUtils;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 import lombok.Data;
