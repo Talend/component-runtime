@@ -1,0 +1,24 @@
+= Defining a standalone component logic
+:page-partial:
+:description: How to develop a standalone component with Talend Component Kit
+:keywords: standalone, driver runner, driverrunner, run at driver
+
+Standalone components are the components without input or output flows. They are designed to do actions without reading or processing any data. For example standalone components can be used to create indexes in databases.
+
+Before implementing the component logic and defining its layout and configurable fields, make sure you have specified its basic metadata, as detailed in xref:component-registering.adoc[this document].
+
+include::component-driver-runner.adoc[leveloffset=+1]
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:methodology-creating-components.adoc[Methodology for creating components]
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-registering.adoc[Registering a component]
+- xref:component-execution.adoc[General component execution logic]
+- xref:component-configuration.adoc[Defining component layout and configuration]
+- xref:component-internationalization.adoc[Internationalizing a component]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+- xref:component-implementing-streaming.adoc[Implementing streaming on a component]
+- xref:best-practices.adoc[Best practices]
+endif::[]

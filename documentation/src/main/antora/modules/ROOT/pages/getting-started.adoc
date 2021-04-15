@@ -30,7 +30,7 @@ include::methodology-creating-components.adoc[leveloffset=+1]
 
 == Component types
 
-There are three types of components, each type coming with its specificities, especially on the runtime side.
+There are four types of components, each type coming with its specificities, especially on the runtime side.
 
 * Input components: Retrieve the data to process from a defined source. An input component is made of:
 ** The execution logic of the component, represented by a `Mapper` or an `Emitter` class.
@@ -42,6 +42,9 @@ There are three types of components, each type coming with its specificities, es
 * Output components: Send the processed data to a defined destination. An output component is made of:
 ** The execution logic of the component, describing how to process each records or batches of records it receives. This logic is defined in an `Output` class. Unlike processors, output components are the last components of the execution and return no data.
 ** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class. All input components must have a dataset specified in their configuration, and every dataset must use a datastore.
+* Standalone components: Make a call to the service or run a query on the database. A standalone component is made of:
+** The execution logic of the component, represented by a `DriverRunner` class.
+** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class. All input components must have a datastore or dataset specified in their configuration, and every dataset must use a datastore.
 
 The following example shows the different classes of an input components in a multi-component development project:
 

@@ -1,0 +1,20 @@
+= Defining a driver runner
+:page-partial:
+:description: How to develop a driver runner with Talend Component Kit
+:keywords: component type, driver runner, standalone
+
+[[driver-runner]]
+
+== What is a driver runner
+
+A *Driver Runner* (`DriverRunner`) is a standalone component which doesn't process or return any data.
+
+A Driver runner must have a `@RunAtDriver` method without any parameter.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@RunAtDriver
+public void run() {
+    ...;
+}
+----
