@@ -196,6 +196,11 @@ class SchemaTest {
 
         Assertions.assertNull(Schema.sanitizeConnectionName(null));
         Assertions.assertEquals("", Schema.sanitizeConnectionName(""));
+        Assertions.assertEquals("_", Schema.sanitizeConnectionName("$"));
+        Assertions.assertEquals("_", Schema.sanitizeConnectionName("1"));
+        Assertions.assertEquals("_", Schema.sanitizeConnectionName("é"));
+        Assertions.assertEquals("H", Schema.sanitizeConnectionName("éH"));
+        Assertions.assertEquals("_1", Schema.sanitizeConnectionName("é1"));
         Assertions.assertEquals("H_lloWorld", Schema.sanitizeConnectionName("HélloWorld"));
         Assertions.assertEquals("oid", Schema.sanitizeConnectionName("$oid"));
         Assertions.assertEquals("Hello_World_", Schema.sanitizeConnectionName(" Hello World "));

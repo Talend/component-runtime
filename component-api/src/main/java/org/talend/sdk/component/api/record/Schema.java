@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 public interface Schema {
 
@@ -61,7 +60,7 @@ public interface Schema {
     Map<String, String> getProps();
 
     /**
-     * @param property
+     * @param property : property name.
      * @return the requested metadata prop
      */
     String getProp(String property);
@@ -153,7 +152,7 @@ public interface Schema {
         Map<String, String> getProps();
 
         /**
-         * @param property
+         * @param property : property name.
          * @return the requested metadata prop
          */
         String getProp(String property);
@@ -231,78 +230,37 @@ public interface Schema {
         Schema build();
     }
 
-    static String sanitizeConnectionName(final String name) {
-        return new AvroNameSanitizer().sanitizeConnectionName(name);
-    }
-
     /**
-     * Make a name satisfy Avro name https://avro.apache.org/docs/current/spec.html#names.
+     * Sanitize name to be avro compatible.
+     * 
+     * @param name : original name.
+     * @return avro compatible name.
      */
-    class AvroNameSanitizer {
-
-        private static final Pattern CHECK_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
-
-        public String sanitizeConnectionName(final String name) {
-            if (name == null || name.isEmpty()) {
-                return name;
-            }
-            final String sanitizedName = this.oldSanitizeConnectionName(name);
-            if (this.isAvroCompliant(sanitizedName)) {
-                return sanitizedName;
-            }
-            return this.newSanitizeConnectionName(name);
+    static String sanitizeConnectionName(final String name) {
+        if (name == null || name.isEmpty()) {
+            return name;
         }
-
-        /**
-         * Determine if name is Avro compliant. https://avro.apache.org/docs/current/spec.html#names
-         * 
-         * @param name : name to check.
-         * @return true if OK.
-         */
-        private boolean isAvroCompliant(final String name) {
-            return CHECK_PATTERN.matcher(name).matches();
-        }
-
-        private String newSanitizeConnectionName(final String name) {
-
-            final char[] original = name.toCharArray();
-            final char[] sanitized = new char[original.length];
-
-            final CharsetEncoder ascii = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder();
-
-            final boolean firstCharIsOK =
-                    ascii.canEncode(original[0]) && (Character.isLetter(original[0]) || original[0] == '_');
-
-            sanitized[0] = firstCharIsOK ? original[0] : '_';
-
-            for (int i = 1; i < original.length; i++) {
-                char current = original[i];
-                if ((!ascii.canEncode(current)) || (!Character.isLetterOrDigit(current) && current != '_')) {
-                    sanitized[i] = '_';
-                } else {
-                    sanitized[i] = current;
-                }
+        final char[] original = name.toCharArray();
+        final CharsetEncoder ascii = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder();
+        final boolean skipFirstChar =
+                ((!ascii.canEncode(original[0])) || (!Character.isLetter(original[0]) && original[0] != '_'))
+                        && name.length() > 1 && (!Character.isDigit(original[1]));
+        final int offset = skipFirstChar ? 1 : 0;
+        final char[] sanitized = new char[original.length - offset];
+        if (!skipFirstChar) {
+            sanitized[0] = original[0];
+            if (((!Character.isLetter(original[0])) && original[0] != '_') || (!ascii.canEncode(original[0]))) {
+                sanitized[0] = '_';
             }
-            return new String(sanitized);
         }
-
-        private String oldSanitizeConnectionName(final String name) {
-
-            final char[] original = name.toCharArray();
-            final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
-            final int offset = skipFirstChar ? 1 : 0;
-            final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
-            if (!skipFirstChar) {
-                sanitized[0] = original[0];
+        for (int i = 1; i < original.length; i++) {
+            sanitized[i - offset] = original[i];
+            if (((!Character.isLetterOrDigit(original[i])) && (original[i] != '_'))
+                    || (!ascii.canEncode(original[i]))) {
+                sanitized[i - offset] = '_';
             }
-            for (int i = 1; i < original.length; i++) {
-                if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
-                    sanitized[i - offset] = '_';
-                } else {
-                    sanitized[i - offset] = original[i];
-                }
-            }
-            return new String(sanitized);
         }
+        return new String(sanitized);
     }
+
 }
