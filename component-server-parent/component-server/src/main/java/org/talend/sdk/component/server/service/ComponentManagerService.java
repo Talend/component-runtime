@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -258,7 +259,9 @@ public class ComponentManagerService {
                     .values()
                     .stream()
                     .flatMap(c -> Stream
-                            .concat(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream()))
+                            .of(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream(),
+                                    c.getDriverRunners().values().stream())
+                            .flatMap(Function.identity()))
                     .peek(componentDao::createOrUpdate)
                     .map(ComponentFamilyMeta.BaseMeta::getId)
                     .collect(toSet());

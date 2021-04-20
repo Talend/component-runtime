@@ -27,6 +27,7 @@
 ** xref:creating-dataset-datastore.adoc[Defining datasets and datastores]
 ** xref:component-define-input.adoc[Defining an input component logic]
 ** xref:component-define-processor-output.adoc[Defining a processor/output logic]
+** xref:component-define-standalone.adoc[Defining a standalone component logic]
 ** xref:component-configuration.adoc[Defining component configuration]
 ** xref:component-execution.adoc[Component execution logic]
 ** xref:component-internationalization.adoc[Internationalizing a component]

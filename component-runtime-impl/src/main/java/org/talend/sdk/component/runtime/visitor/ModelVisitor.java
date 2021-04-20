@@ -42,6 +42,8 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.standalone.DriverRunner;
+import org.talend.sdk.component.api.standalone.RunAtDriver;
 import org.talend.sdk.component.runtime.reflect.Parameters;
 
 public class ModelVisitor {
@@ -69,6 +71,11 @@ public class ModelVisitor {
                 validateProcessor(type);
             }
             listener.onProcessor(type, type.getAnnotation(Processor.class));
+        } else if (type.isAnnotationPresent(DriverRunner.class)) {
+            if (validate) {
+                validateDriverRunner(type);
+            }
+            listener.onDriverRunner(type, type.getAnnotation(DriverRunner.class));
         }
     }
 
@@ -150,6 +157,22 @@ public class ModelVisitor {
         validateAfterVariableContainer(input);
     }
 
+    private void validateDriverRunner(final Class<?> standalone) {
+        final List<Method> driverRunners = Stream
+                .of(standalone.getMethods())
+                .filter(m -> m.isAnnotationPresent(RunAtDriver.class))
+                .collect(toList());
+        if (driverRunners.size() != 1) {
+            throw new IllegalArgumentException(standalone + " must have a single @RunAtDriver method");
+        }
+
+        if (driverRunners.get(0).getParameterCount() > 0) {
+            throw new IllegalArgumentException(driverRunners.get(0) + " must not have any parameter");
+        }
+
+        validateAfterVariableContainer(standalone);
+    }
+
     private void validateProcessor(final Class<?> input) {
         final List<Method> afterGroups =
                 Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).collect(toList());
@@ -211,7 +234,7 @@ public class ModelVisitor {
     }
 
     private Stream<Class<? extends Annotation>> getSupportedComponentTypes() {
-        return Stream.of(Emitter.class, PartitionMapper.class, Processor.class);
+        return Stream.of(Emitter.class, PartitionMapper.class, Processor.class, DriverRunner.class);
     }
 
     private void validateAfterVariableContainer(final Class<?> type) {

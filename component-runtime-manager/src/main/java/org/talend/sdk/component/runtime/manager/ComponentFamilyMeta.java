@@ -40,6 +40,7 @@ import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
 import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.standalone.DriverRunner;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -89,6 +90,8 @@ public class ComponentFamilyMeta {
     private final Map<String, PartitionMapperMeta> partitionMappers = new HashMap<>();
 
     private final Map<String, ProcessorMeta> processors = new HashMap<>();
+
+    private final Map<String, DriverRunnerMeta> driverRunners = new HashMap<>();
 
     private final ConcurrentMap<Locale, FamilyBundle> bundles = new ConcurrentHashMap<>();
 
@@ -280,6 +283,19 @@ public class ComponentFamilyMeta {
                     .filter(m -> m.isAnnotationPresent(ElementListener.class))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    public static class DriverRunnerMeta extends BaseMeta<DriverRunner> {
+
+        protected DriverRunnerMeta(final ComponentFamilyMeta parent, final String name, final String icon,
+                final int version, final Class<?> type, final Supplier<List<ParameterMeta>> parameterMetas,
+                final Function<Map<String, String>, DriverRunner> instantiator,
+                final Supplier<MigrationHandler> migrationHandler, final boolean validated,
+                final Map<String, String> metas) {
+            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated, metas);
         }
     }
 }
