@@ -55,7 +55,7 @@ class AvroRecordBuilderTest {
                 .newSchemaBuilder(baseSchema)
                 .withEntry(factory.newEntryBuilder().withName("custom").withType(STRING).build())
                 .build();
-        assertEquals("name/STRING/current name,age/INT/null,_address/RECORD/@address,custom/STRING/null",
+        assertEquals("name/STRING/current name,age/INT/null,address/RECORD/@address,custom/STRING/null",
                 custom
                         .getEntries()
                         .stream()
@@ -73,12 +73,12 @@ class AvroRecordBuilderTest {
                 .newRecordBuilder(baseSchema)
                 .withString("name", "Test")
                 .withInt("age", 33)
-                .withRecord("_address",
+                .withRecord("address",
                         factory.newRecordBuilder(address).withString("street", "here").withInt("number", 1).build())
                 .build();
         final Record output = factory.newRecordBuilder(customSchema, baseRecord).withString("custom", "added").build();
         assertEquals(
-                "AvroRecord{delegate={\"name\": \"Test\", \"age\": 33, \"_address\": {\"street\": \"here\", \"number\": 1}, \"custom\": \"added\"}}",
+                "AvroRecord{delegate={\"name\": \"Test\", \"age\": 33, \"address\": {\"street\": \"here\", \"number\": 1}, \"custom\": \"added\"}}",
                 output.toString());
     }
 }
