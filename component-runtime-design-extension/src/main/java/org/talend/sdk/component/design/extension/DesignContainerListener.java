@@ -18,6 +18,7 @@ package org.talend.sdk.component.design.extension;
 import static java.util.Optional.ofNullable;
 
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.container.Container;
@@ -64,8 +65,9 @@ public class DesignContainerListener implements ContainerListenerExtension {
         componentFamilyMetas
                 .stream()
                 .flatMap(family -> Stream
-                        .concat(family.getPartitionMappers().values().stream(),
-                                family.getProcessors().values().stream()))
+                        .of(family.getPartitionMappers().values().stream(), family.getProcessors().values().stream(),
+                                family.getDriverRunners().values().stream())
+                        .flatMap(Function.identity()))
                 .forEach(meta -> {
                     final ComponentExtension.ComponentContext context =
                             container.get(ComponentContexts.class).getContexts().get(meta.getType());

@@ -30,6 +30,7 @@ import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.standalone.DriverRunner;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
@@ -89,7 +90,7 @@ public class ModelValidator implements Validator {
 
     private boolean containsIncompatibleAnnotation(final Class<?> clazz) {
         return Stream
-                .of(PartitionMapper.class, Processor.class, Emitter.class)
+                .of(PartitionMapper.class, Processor.class, Emitter.class, DriverRunner.class)
                 .filter((Class<? extends Annotation> an) -> clazz.isAnnotationPresent(an))
                 .count() > 1;
 

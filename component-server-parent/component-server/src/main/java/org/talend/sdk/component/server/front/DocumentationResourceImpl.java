@@ -43,6 +43,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -169,8 +170,10 @@ public class DocumentationResourceImpl implements DocumentationResource {
                                     .values()
                                     .stream()
                                     .flatMap(f -> Stream
-                                            .concat(f.getPartitionMappers().values().stream(),
-                                                    f.getProcessors().values().stream()))
+                                            .of(f.getPartitionMappers().values().stream(),
+                                                    f.getProcessors().values().stream(),
+                                                    f.getDriverRunners().values().stream())
+                                            .flatMap(Function.identity()))
                                     .filter(c -> c.getId().equals(id))
                                     .findFirst()
                                     .map(c -> selectById(c.getName(), value, segment)))

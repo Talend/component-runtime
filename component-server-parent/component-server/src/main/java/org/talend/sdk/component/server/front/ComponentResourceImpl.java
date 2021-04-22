@@ -58,6 +58,7 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMapperMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -405,7 +406,14 @@ public class ComponentResourceImpl implements ComponentResource {
                 }
 
                 final Locale locale = localeMapper.mapLocale(language);
-                final boolean isProcessor = ProcessorMeta.class.isInstance(meta);
+                final String type;
+                if (ProcessorMeta.class.isInstance(meta)) {
+                    type = "processor";
+                } else if (PartitionMapperMeta.class.isInstance(meta)) {
+                    type = "input";
+                } else {
+                    type = "standalone";
+                }
 
                 final ComponentDetail componentDetail = new ComponentDetail();
                 componentDetail.setLinks(emptyList() /* todo ? */);
@@ -414,7 +422,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 componentDetail.setIcon(meta.getIcon());
                 componentDetail.setInputFlows(model.get().getInputFlows());
                 componentDetail.setOutputFlows(model.get().getOutputFlows());
-                componentDetail.setType(isProcessor ? "processor" : "input");
+                componentDetail.setType(type);
                 componentDetail
                         .setDisplayName(
                                 meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
@@ -447,7 +455,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 .find(c -> c
                         .execute(() -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
                         .flatMap(component -> Stream
-                                .concat(component
+                                .of(component
                                         .getPartitionMappers()
                                         .values()
                                         .stream()
@@ -458,8 +466,14 @@ public class ComponentResourceImpl implements ComponentResource {
                                                 .values()
                                                 .stream()
                                                 .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
-                                                        c.get(ComponentManager.OriginalId.class),
-                                                        includeIconContent)))));
+                                                        c.get(ComponentManager.OriginalId.class), includeIconContent)),
+                                        component
+                                                .getDriverRunners()
+                                                .values()
+                                                .stream()
+                                                .map(runner -> toComponentIndex(c, locale, c.getId(), runner,
+                                                        c.get(ComponentManager.OriginalId.class), includeIconContent)))
+                                .flatMap(Function.identity())));
     }
 
     private DependencyDefinition getDependenciesFor(final ComponentFamilyMeta.BaseMeta<?> meta) {

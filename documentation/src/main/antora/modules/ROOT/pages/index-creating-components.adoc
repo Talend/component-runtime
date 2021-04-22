@@ -13,6 +13,7 @@ Once you have generated a project, you can start implementing the logic and layo
 * xref:component-registering.adoc[Defining family and component metadata]
 * xref:component-define-input.adoc[Defining an input component logic]
 * xref:component-define-processor-output.adoc[Defining a processor/output logic]
+* xref:component-define-standalone.adoc[Defining a standalone component logic]
 * xref:component-configuration.adoc[Defining component layout and configuration]
 
 image:implementing-components.png[Implementing component,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/implementing-components.png",50%]
