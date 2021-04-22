@@ -363,4 +363,32 @@ class RecordBuilderImplTest {
         final List<Entry> entries1 = builder1.getCurrentEntries();
         Assertions.assertEquals(1, entries1.size());
     }
+
+    @Test
+    void removeEntries() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "Hello").withInt("fieldInt", 20);
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(2, entries.size());
+
+        final Entry entry = entries.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
+        builder.removeEntry(entry);
+        Assertions.assertEquals(1, builder.getCurrentEntries().size());
+        Assertions.assertTrue(entries.stream().anyMatch((Entry e) -> "fieldInt".equals(e.getName())));
+
+        Schema.Entry unknownEntry =
+                new EntryImpl("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", null, "Comment");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.removeEntry(unknownEntry));
+
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(new EntryImpl("field1", "field1", Type.INT, true, 5, null, "Comment"))
+                .build();
+        final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
+        final List<Entry> entries1 = builder1.getCurrentEntries();
+        Assertions.assertEquals(1, entries1.size());
+        final Entry entry1 = entries1.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
+        Record.Builder newBuilder = builder1.removeEntry(entry1);
+        Assertions.assertEquals(0, newBuilder.getCurrentEntries().size());
+    }
 }
