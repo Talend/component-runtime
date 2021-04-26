@@ -241,7 +241,7 @@
     <jib.version>1.4.0</jib.version>
     <jib-core.version>0.15.0</jib-core.version>
     <bouncycastle.version>1.68</bouncycastle.version>
-    <commons-io.version>2.6</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
 
     <jruby.version>9.2.13.0</jruby.version>
     <node.version>v12.13.0</node.version>
