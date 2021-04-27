@@ -187,6 +187,27 @@ public final class RecordImpl implements Record {
             return builder.removeEntry(schemaEntry);
         }
 
+        @Override
+        public Builder updateEntryByName(final Schema.Entry schemaEntry) {
+            if (this.providedSchema == null) {
+                Optional<Entry> entry = this.entries
+                        .stream()
+                        .filter((Entry e) -> Objects.equals(e.getName(), schemaEntry.getName()))
+                        .findFirst();
+                if (entry.isPresent()) {
+                    this.entries.remove(entry.get());
+                    this.entries.add(schemaEntry);
+                } else {
+                    throw new IllegalArgumentException(
+                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
+                }
+                return this;
+            }
+
+            final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
+            return builder.updateEntryByName(schemaEntry);
+        }
+
         private Schema.Entry findExistingEntry(final String name) {
             if (this.entryIndex == null) {
                 this.entryIndex =

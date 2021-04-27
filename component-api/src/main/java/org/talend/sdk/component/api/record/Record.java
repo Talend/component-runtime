@@ -269,6 +269,8 @@ public interface Record {
 
         Builder removeEntry(Schema.Entry schemaEntry);
 
+        Builder updateEntryByName(Schema.Entry schemaEntry);
+
         Builder with(Schema.Entry entry, Object value);
 
         Builder withString(String name, String value);
