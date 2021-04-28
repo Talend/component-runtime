@@ -19,6 +19,6 @@ public class SparkRunnerEnvironment extends BeamEnvironment {
 
     @Override
     protected String rootDependencyBase() {
-        return "org.apache.beam:beam-runners-spark";
+        return "org.apache.beam:beam-runners-spark-3";
     }
 }

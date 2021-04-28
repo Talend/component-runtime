@@ -43,7 +43,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-spark</artifactId>
+      <artifactId>beam-runners-spark-3</artifactId>
       <version>@beam.version@</version>
       <exclusions>
         <exclusion>
