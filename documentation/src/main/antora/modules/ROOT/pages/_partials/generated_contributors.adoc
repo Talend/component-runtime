@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":288,
+    "commits":290,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -36,13 +36,13 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":40,
+    "commits":41,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
     "id":"clesaec"
   },
   {
-    "commits":33,
+    "commits":36,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",
@@ -90,6 +90,13 @@
     "id":"RyanSkraba"
   },
   {
+    "commits":4,
+    "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?)\n\nBlog: https://ismaelmejia.com/",
+    "gravatar":"https://avatars.githubusercontent.com/u/79476?v=4",
+    "id":"iemejia",
+    "name":"Ismaël Mejía"
+  },
+  {
     "commits":3,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7931535?v=4",
@@ -112,10 +119,9 @@
   },
   {
     "commits":3,
-    "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?)\n\nBlog: https://ismaelmejia.com/",
-    "gravatar":"https://avatars.githubusercontent.com/u/79476?v=4",
-    "id":"iemejia",
-    "name":"Ismaël Mejía"
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/18050008?v=4",
+    "id":"chmyga"
   },
   {
     "commits":2,
@@ -191,12 +197,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/24808585?v=4",
     "id":"skermabon",
     "name":"Stéphane Kermabon"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/18050008?v=4",
-    "id":"chmyga"
   },
   {
     "commits":1,
