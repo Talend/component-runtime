@@ -39,7 +39,7 @@ def createDependenciesDescriptor = { rootDependency, output ->
     out.close()
 }
 
-['beam-runners-direct-java', 'beam-runners-spark'].each { artifactId ->
+['beam-runners-direct-java', 'beam-runners-spark-3'].each { artifactId ->
     createDependenciesDescriptor(new Dependency(
             groupId: 'org.apache.beam', artifactId: artifactId, version: project.properties['beam.version'], scope: 'compile'),
             new File(project.build.outputDirectory, "TALEND-INF/beam-runner_${artifactId}.dependencies"))

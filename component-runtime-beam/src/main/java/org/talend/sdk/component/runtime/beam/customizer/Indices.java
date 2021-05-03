@@ -60,7 +60,7 @@ enum Indices {
             return SPARK_CORE.isAvailable();
         }
     },
-    BEAM_RUNNERS_SPARK("TALEND-INF/classloader/indices/beam-runners-spark") {
+    BEAM_RUNNERS_SPARK("TALEND-INF/classloader/indices/beam-runners-spark-3") {
 
         @Override
         protected boolean isAvailable() {
