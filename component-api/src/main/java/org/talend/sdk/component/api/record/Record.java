@@ -269,7 +269,7 @@ public interface Record {
 
         Builder removeEntry(Schema.Entry schemaEntry);
 
-        Builder updateEntryByName(Schema.Entry schemaEntry);
+        Builder updateEntryByName(String name, Schema.Entry schemaEntry);
 
         Builder with(Schema.Entry entry, Object value);
 

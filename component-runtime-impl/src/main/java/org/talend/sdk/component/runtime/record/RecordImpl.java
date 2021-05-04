@@ -188,11 +188,17 @@ public final class RecordImpl implements Record {
         }
 
         @Override
-        public Builder updateEntryByName(final Schema.Entry schemaEntry) {
+        public Builder updateEntryByName(final String name, final Schema.Entry schemaEntry) {
             if (this.providedSchema == null) {
+                final Object value = this.values.get(name);
+                if (!schemaEntry.getType().isCompatible(value)) {
+                    throw new IllegalArgumentException(String
+                            .format("Entry '%s' of type %s is not compatible with value of type '%s'", schemaEntry.getName(),
+                                    schemaEntry.getType(), value.getClass().getName()));
+                }
                 Optional<Entry> entry = this.entries
                         .stream()
-                        .filter((Entry e) -> Objects.equals(e.getName(), schemaEntry.getName()))
+                        .filter((Entry e) -> Objects.equals(e.getName(), name))
                         .findFirst();
                 if (entry.isPresent()) {
                     this.entries.remove(entry.get());
@@ -201,11 +207,13 @@ public final class RecordImpl implements Record {
                     throw new IllegalArgumentException(
                             "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
                 }
+                this.values.remove(name);
+                this.values.put(schemaEntry.getName(), value);
                 return this;
             }
 
             final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
-            return builder.updateEntryByName(schemaEntry);
+            return builder.updateEntryByName(name, schemaEntry);
         }
 
         private Schema.Entry findExistingEntry(final String name) {

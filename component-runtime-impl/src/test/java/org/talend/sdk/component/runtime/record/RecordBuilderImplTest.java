@@ -65,7 +65,7 @@ class RecordBuilderImplTest {
                 .withNullable(true) //
                 .withType(Type.STRING) //
                 .build();//
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
+        assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
 
         builder.with(entry, "value");
         Assertions.assertEquals("value", builder.getValue("name"));
@@ -378,7 +378,7 @@ class RecordBuilderImplTest {
 
         Schema.Entry unknownEntry =
                 new EntryImpl("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", null, "Comment");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.removeEntry(unknownEntry));
+        assertThrows(IllegalArgumentException.class, () -> builder.removeEntry(unknownEntry));
 
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
@@ -393,38 +393,48 @@ class RecordBuilderImplTest {
     }
 
     @Test
-    void updateEntryByName() {
+    void updateEntryByName_fromEntries() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder.withString("field1", "Hello").withInt("fieldInt", 20);
         final List<Entry> entries = builder.getCurrentEntries();
         Assertions.assertEquals(2, entries.size());
 
-        final Entry entry = new EntryImpl("field1", "newFieldName", Type.STRING, true, 5, null, "Comment");
-        builder.updateEntryByName(entry);
+        final Entry entry = new EntryImpl("field2", "newFieldName", Type.STRING, true, 5, null, "Comment");
+        builder.updateEntryByName("field1", entry);
         Assertions.assertEquals(2, builder.getCurrentEntries().size());
         Assertions
                 .assertTrue(entries
                         .stream()
-                        .anyMatch((Entry e) -> "field1".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
+                        .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
+        assertEquals("Hello", builder.getValue("field2"));
+
+        final Entry entryTypeNotCompatible = new EntryImpl("field3", "newFieldName", Type.INT, true, 5, null, "Comment");
+        assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("field2", entryTypeNotCompatible));
 
         Schema.Entry unknownEntry =
                 new EntryImpl("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", null, "Comment");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName(unknownEntry));
+        assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("fieldUnknown", unknownEntry));
+    }
 
+    @Test
+    void updateEntryByName_fromProvidedSchema() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(new EntryImpl("field1", "field1", Type.INT, true, 5, null, "Comment"))
+                .withEntry(new EntryImpl("field1", "field1", Type.STRING, true, 5, null, "Comment"))
                 .build();
         final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
+        builder1.with(schema.getEntry("field1"), "10");
         final List<Entry> entries1 = builder1.getCurrentEntries();
         Assertions.assertEquals(1, entries1.size());
-        final Entry entry1 = new EntryImpl("field1", "newFieldName", Type.STRING, true, 5, null, "Comment");
-        Record.Builder newBuilder = builder1.updateEntryByName(entry1);
+        final Entry entry1 = new EntryImpl("field2", "newFieldName", Type.STRING, true, 5, null, "Comment");
+        Record.Builder newBuilder = builder1.updateEntryByName("field1", entry1);
         Assertions.assertEquals(1, newBuilder.getCurrentEntries().size());
         Assertions
-                .assertTrue(entries
+                .assertTrue(newBuilder
+                        .getCurrentEntries()
                         .stream()
-                        .anyMatch((Entry e) -> "field1".equals(e.getName()) && "newFieldName".equals(e.getRawName())
+                        .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
                                 && Type.STRING.equals(e.getType())));
+        assertEquals("10", newBuilder.getValue("field2"));
     }
 }
