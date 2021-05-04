@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -120,6 +121,12 @@ public final class RecordImpl implements Record {
             this.providedSchema = providedSchema;
         }
 
+        private BuilderImpl(final List<Schema.Entry> entries, final Map<String, Object> values) {
+            this.entries.addAll(entries);
+            this.values.putAll(values);
+            this.providedSchema = null;
+        }
+
         @Override
         public Object getValue(final String name) {
             return this.values.get(name);
@@ -157,6 +164,56 @@ public final class RecordImpl implements Record {
                 return Collections.unmodifiableList(this.providedSchema.getEntries());
             }
             return Collections.unmodifiableList(this.entries);
+        }
+
+        @Override
+        public Builder removeEntry(final Schema.Entry schemaEntry) {
+            if (this.providedSchema == null) {
+                Optional<Entry> entry = this.entries
+                        .stream()
+                        .filter((Entry e) -> Objects.equals(e.getName(), schemaEntry.getName()))
+                        .findFirst();
+                if (entry.isPresent()) {
+                    this.entries.remove(entry.get());
+                } else {
+                    throw new IllegalArgumentException(
+                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
+                }
+                this.values.remove(schemaEntry.getName());
+                return this;
+            }
+
+            final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
+            return builder.removeEntry(schemaEntry);
+        }
+
+        @Override
+        public Builder updateEntryByName(final String name, final Schema.Entry schemaEntry) {
+            if (this.providedSchema == null) {
+                final Object value = this.values.get(name);
+                if (!schemaEntry.getType().isCompatible(value)) {
+                    throw new IllegalArgumentException(String
+                            .format("Entry '%s' of type %s is not compatible with value of type '%s'", schemaEntry.getName(),
+                                    schemaEntry.getType(), value.getClass().getName()));
+                }
+                Optional<Entry> entry = this.entries
+                        .stream()
+                        .filter((Entry e) -> Objects.equals(e.getName(), name))
+                        .findFirst();
+                if (entry.isPresent()) {
+                    this.entries.remove(entry.get());
+                    this.entries.add(schemaEntry);
+                } else {
+                    throw new IllegalArgumentException(
+                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
+                }
+                this.values.remove(name);
+                this.values.put(schemaEntry.getName(), value);
+                return this;
+            }
+
+            final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
+            return builder.updateEntryByName(name, schemaEntry);
         }
 
         private Schema.Entry findExistingEntry(final String name) {

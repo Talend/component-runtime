@@ -267,6 +267,10 @@ public interface Record {
 
         List<Entry> getCurrentEntries();
 
+        Builder removeEntry(Schema.Entry schemaEntry);
+
+        Builder updateEntryByName(String name, Schema.Entry schemaEntry);
+
         Builder with(Schema.Entry entry, Object value);
 
         Builder withString(String name, String value);
