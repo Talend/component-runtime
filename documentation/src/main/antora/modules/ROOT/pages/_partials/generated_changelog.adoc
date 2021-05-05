@@ -11,7 +11,8 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1910[TCOMP-1910^]: Upgrade commons-io to 2.8.0 due to CVE-2021-29425
-- link:https://jira.talendforge.org/browse/TCOMP-1911[TCOMP-1911^]: Upgrade cxf to 3.4.3 due to  CVE-2021-22696
+- link:https://jira.talendforge.org/browse/TCOMP-1911[TCOMP-1911^]: Upgrade cxf to 3.4.3 due to CVE-2021-22696
+- link:https://jira.talendforge.org/browse/TCOMP-1912[TCOMP-1912^]: Upgrade TSBI to 2.6.7-20210503202416
 
 == Version 1.32.0
 
