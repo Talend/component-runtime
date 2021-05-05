@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -211,7 +210,7 @@ public class ComponentManagerService {
             throw new IllegalArgumentException("plugin maven GAV are required to undeploy a plugin");
         }
 
-        String pluginID = instance
+        final String pluginID = instance
                 .find(c -> pluginGAV.equals(c.get(ComponentManager.OriginalId.class).getValue()) ? Stream.of(c.getId())
                         : empty())
                 .findFirst()
@@ -261,7 +260,7 @@ public class ComponentManagerService {
                     .flatMap(c -> Stream
                             .of(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream(),
                                     c.getDriverRunners().values().stream())
-                            .flatMap(Function.identity()))
+                            .flatMap(t -> t))
                     .peek(componentDao::createOrUpdate)
                     .map(ComponentFamilyMeta.BaseMeta::getId)
                     .collect(toSet());

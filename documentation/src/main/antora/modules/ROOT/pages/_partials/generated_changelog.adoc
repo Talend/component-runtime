@@ -2,6 +2,12 @@
 
 == Version 1.33.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1905[TCOMP-1905^]: component-runtime fails to build with Java 11
+
+
+
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1893[TCOMP-1893^]: Upgrade to Beam 2.29.0 and use Beam's Spark 3 specific module

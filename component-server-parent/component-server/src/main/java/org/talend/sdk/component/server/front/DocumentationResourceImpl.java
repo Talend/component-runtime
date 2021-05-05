@@ -43,7 +43,6 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -173,7 +172,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
                                             .of(f.getPartitionMappers().values().stream(),
                                                     f.getProcessors().values().stream(),
                                                     f.getDriverRunners().values().stream())
-                                            .flatMap(Function.identity()))
+                                            .flatMap(t -> t))
                                     .filter(c -> c.getId().equals(id))
                                     .findFirst()
                                     .map(c -> selectById(c.getName(), value, segment)))
@@ -218,7 +217,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
             this.id = id;
             this.language = language;
             this.segment = segment;
-            this.hash = Objects.hash(id, language, segment);
+            hash = Objects.hash(id, language, segment);
         }
 
         @Override
@@ -365,7 +364,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
             int configStartIndex = lines.indexOf("//configuration_start");
             if (configStartIndex > 0) {
                 configStartIndex++;
-                int configEndIndex = lines.indexOf("//configuration_end");
+                final int configEndIndex = lines.indexOf("//configuration_end");
                 if (configEndIndex > configStartIndex) {
                     while (configStartIndex > 0 && configStartIndex < configEndIndex
                             && (lines.get(configStartIndex).isEmpty() || lines.get(configStartIndex).startsWith("="))) {

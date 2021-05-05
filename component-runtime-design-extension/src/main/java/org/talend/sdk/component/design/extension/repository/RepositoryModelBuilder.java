@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
@@ -96,7 +95,7 @@ public class RepositoryModelBuilder {
         return Stream
                 .of(familyMeta.getPartitionMappers().values().stream(), familyMeta.getProcessors().values().stream(),
                         familyMeta.getDriverRunners().values().stream())
-                .flatMap(Function.identity())
+                .flatMap(t -> t)
                 .flatMap(b -> b.getParameterMetas().get().stream())
                 .flatMap(this::flatten)
                 .filter(RepositoryModelBuilder::isConfiguration)

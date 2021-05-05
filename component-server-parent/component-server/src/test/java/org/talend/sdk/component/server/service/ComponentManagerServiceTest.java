@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -81,7 +80,7 @@ class ComponentManagerServiceTest {
                 .flatMap(c -> Stream
                         .of(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream(),
                                 c.getDriverRunners().values().stream())
-                        .flatMap(Function.identity()))
+                        .flatMap(t -> t))
                 .map(ComponentFamilyMeta.BaseMeta::getId)
                 .collect(toSet());
         final Set<String> familiesIds = plugin

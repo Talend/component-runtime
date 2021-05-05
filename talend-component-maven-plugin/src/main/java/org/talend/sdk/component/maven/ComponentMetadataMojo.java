@@ -27,7 +27,6 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Locale;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -106,7 +105,7 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                                                         .displayName()
                                                         .orElse(p.getName()),
                                                 p.getIcon(), emptyList(), emptyList())))
-                        .flatMap(Function.identity()))
+                        .flatMap(t -> t))
                 .collect(toList());
 
         try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder)

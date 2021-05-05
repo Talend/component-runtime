@@ -51,7 +51,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -304,7 +303,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
                 @Override
                 public T next() {
-                    T poll = records.poll();
+                    final T poll = records.poll();
                     if (poll != null) {
                         return mapRecord(state, recordType, poll);
                     }
@@ -413,7 +412,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .flatMap(f -> Stream
                         .of(f.getProcessors().values().stream(), f.getPartitionMappers().values().stream(),
                                 f.getDriverRunners().values().stream())
-                        .flatMap(Function.identity()))
+                        .flatMap(t -> t))
                 .filter(m -> m.getType().getName().equals(componentType.getName()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No component " + componentType));
