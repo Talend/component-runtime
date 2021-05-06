@@ -17,8 +17,11 @@ package org.talend.sdk.component.api.record;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -187,13 +190,8 @@ class SchemaTest {
         Assertions.assertFalse(Schema.Type.DATETIME.isCompatible(10));
     }
 
-
     @Test
     void testSanitize() {
-        final boolean digit = Character.isLetterOrDigit('ԋ');
-        final boolean alpha = Character.isAlphabetic('ԋ');
-        final boolean canEncode = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder().canEncode('ԋ');
-
         Assertions.assertNull(Schema.sanitizeConnectionName(null));
         Assertions.assertEquals("", Schema.sanitizeConnectionName(""));
         Assertions.assertEquals("_", Schema.sanitizeConnectionName("$"));
@@ -206,7 +204,18 @@ class SchemaTest {
         Assertions.assertEquals("Hello_World_", Schema.sanitizeConnectionName(" Hello World "));
         Assertions.assertEquals("_23HelloWorld", Schema.sanitizeConnectionName("123HelloWorld"));
 
+        Assertions.assertEquals("Hello_World_", Schema.sanitizeConnectionName("Hello-World$"));
+
         final Pattern checkPattern = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
+        final String nonAscii1 = Schema.sanitizeConnectionName("30_39歳");
+        Assertions.assertTrue(checkPattern.matcher(nonAscii1).matches(), "'" + nonAscii1 + "' don't match");
+
+        final String ch1 = Schema.sanitizeConnectionName("世帯数分布");
+        final String ch2 = Schema.sanitizeConnectionName("抽出率調整");
+        Assertions.assertTrue(checkPattern.matcher(ch1).matches(), "'" + ch1 + "' don't match");
+        Assertions.assertTrue(checkPattern.matcher(ch2).matches(), "'" + ch2 + "' don't match");
+        Assertions.assertNotEquals(ch1, ch2);
+
         final Random rnd = new Random();
         final byte[] array = new byte[20]; // length is bounded by 7
         for (int i = 0; i < 150; i++) {
