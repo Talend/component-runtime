@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -59,6 +60,8 @@ import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.constraint.Pattern;
 import org.talend.sdk.component.api.configuration.constraint.Required;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
@@ -67,7 +70,6 @@ import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
-import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
@@ -893,5 +895,78 @@ class ReflectionServiceTest {
         public String toString() {
             return option.toString();
         }
+    }
+
+    @Test
+    void dataset() {
+        final Map conf = new HashMap<String, String>() {
+
+            {
+                put("connection.type", "ibmdb2");
+                put("connection.url", "jdbc://hurle");
+                put("connection.active", "true");
+                put("tableName", "tableWithName");
+                put("maxCount", "30");
+                put("table", "test1"); // non existent member
+                put("listColumns[0]", "col0");
+                put("listColumns[1]", "col1");
+                put("listColumns[2]", "col2");
+                put("nestedConfigs[0].value", "value0");
+            }
+        };
+        final Object t = reflectionService.createObjectFactory(TableNameDataset.class).apply("", conf);
+        assertTrue(TableNameDataset.class.isInstance(t));
+        final TableNameDataset dataset = TableNameDataset.class.cast(t);
+        assertEquals("ibmdb2", dataset.getConnection().getType());
+        assertEquals("jdbc://hurle", dataset.getConnection().getUrl());
+        assertTrue(dataset.getConnection().isActive());
+        assertEquals(30, dataset.getMaxCount());
+        assertEquals("tableWithName", dataset.getTableName());
+        assertEquals(3, dataset.getListColumns().size());
+        assertEquals("value0", dataset.getNestedConfigs().get(0).value);
+        assertNull(dataset.getNullConfigs());
+        final Object c = reflectionService.createObjectFactory(JdbcConnection.class).apply("connection", conf);
+        assertTrue(JdbcConnection.class.isInstance(c));
+        final JdbcConnection connection = JdbcConnection.class.cast(c);
+        assertEquals("ibmdb2", dataset.getConnection().getType());
+        assertEquals("jdbc://hurle", dataset.getConnection().getUrl());
+        assertTrue(dataset.getConnection().isActive());
+    }
+
+    @Data
+    @DataStore("JdbcConnection")
+    public static class JdbcConnection implements Serializable {
+
+        @Option
+        private String type;
+
+        @Option
+        private String url;
+
+        @Option
+        private boolean active;
+    }
+
+    @Data
+    @DataSet("TableNameDataset")
+    public static class TableNameDataset implements Serializable {
+
+        @Option
+        private JdbcConnection connection;
+
+        @Option
+        private String tableName;
+
+        @Option
+        private int maxCount;
+
+        @Option
+        private List<String> listColumns;
+
+        @Option
+        private List<SomeNestedConfig> nestedConfigs;
+
+        @Option
+        private List<SomeNestedConfig> nullConfigs;
     }
 }
