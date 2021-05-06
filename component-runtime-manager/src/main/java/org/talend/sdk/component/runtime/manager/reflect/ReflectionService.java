@@ -446,10 +446,8 @@ public class ReflectionService {
         final Map<String, Object> mapEntries = specificMapping.entrySet().stream().filter(e -> {
             final String key = e.getKey();
             final int idxStart = key.indexOf('[', prefix.length());
-            return idxStart > 0 && ((idxStart > ".key".length()
-                    && key.startsWith(".key", idxStart - ".key".length()))
-                    || (idxStart > ".value".length()
-                            && key.startsWith(".value", idxStart - ".value".length())));
+            return idxStart > 0 && ((idxStart > ".key".length() && key.startsWith(".key", idxStart - ".key".length()))
+                    || (idxStart > ".value".length() && key.startsWith(".value", idxStart - ".value".length())));
         })
                 .sorted(this::sortIndexEntry)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, noMerge(), LinkedHashMap::new));
@@ -1006,29 +1004,31 @@ public class ReflectionService {
      * Helper function for creating an instance from a configuration map.
      * 
      * @param clazz Class of the wanted instance.
+     * @param <T> Type managed
      * @return function that generate the wanted instance when calling
      * {@link BiFunction#apply(java.lang.Object, java.lang.Object)} with a config name and configuration {@link Map}.
      */
-    public BiFunction<String, Map<String, Object>, Object> createObjectFactory(final Class clazz) {
+    public <T> BiFunction<String, Map<String, Object>, T> createObjectFactory(final Class<T> clazz) {
+        final Map precomputed = Collections.emptyMap();
+        if (clazz.isPrimitive() || Primitives.unwrap(clazz) != clazz || clazz == String.class) {
+            return (name, config) -> (T) doConvert(clazz, config.get(name), precomputed);
+        }
+        if (clazz.isEnum()) {
+            return (name,
+                    config) -> (T) ofNullable(config.get(name))
+                            .map(String.class::cast)
+                            .map(String::trim)
+                            .filter(it -> !it.isEmpty())
+                            .map(v -> Enum.valueOf((Class<Enum>) clazz, v))
+                            .orElse(null);
+        }
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final Function<Supplier<Object>, Object> contextualSupplier = createContextualSupplier(loader);
-        final Map precomputed = Collections.emptyMap();
         final Constructor<?> c = findConstructor(clazz);
         final ParameterModelService s = new ParameterModelService(new PropertyEditorRegistry());
         final List<ParameterMeta> metas = s.buildParameterMetas(c, c.getDeclaringClass().getPackage().getName(), null);
-        if (clazz.isPrimitive() || Primitives.unwrap(clazz) != clazz || String.class == clazz) {
-            return (name, config) -> doConvert(clazz, config.get(name), precomputed);
-        }
-        if (clazz.isEnum()) {
-            return (name, config) -> ofNullable(config.get(name))
-                    .map(String.class::cast)
-                    .map(String::trim)
-                    .filter(it -> !it.isEmpty())
-                    .map(v -> Enum.valueOf(clazz, v))
-                    .orElse(null);
-        }
         final String[] args = findArgsName(clazz);
-        return (name, config) -> contextualSupplier
+        return (name, config) -> (T) contextualSupplier
                 .apply(() -> createObject(loader, contextualSupplier, clazz, args, name, config, metas, precomputed));
     }
 }

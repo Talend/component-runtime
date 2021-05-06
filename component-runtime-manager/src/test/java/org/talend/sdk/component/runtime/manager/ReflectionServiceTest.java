@@ -898,13 +898,14 @@ class ReflectionServiceTest {
     }
 
     @Test
-    void dataset() {
+    void createObjectFactoryDataset() {
         final Map conf = new HashMap<String, String>() {
 
             {
                 put("connection.type", "ibmdb2");
                 put("connection.url", "jdbc://hurle");
                 put("connection.active", "true");
+                put("connection.state", "PENDING");
                 put("tableName", "tableWithName");
                 put("maxCount", "30");
                 put("table", "test1"); // non existent member
@@ -914,23 +915,61 @@ class ReflectionServiceTest {
                 put("nestedConfigs[0].value", "value0");
             }
         };
-        final Object t = reflectionService.createObjectFactory(TableNameDataset.class).apply("", conf);
-        assertTrue(TableNameDataset.class.isInstance(t));
-        final TableNameDataset dataset = TableNameDataset.class.cast(t);
+        final TableNameDataset dataset = reflectionService.createObjectFactory(TableNameDataset.class).apply("", conf);
         assertEquals("ibmdb2", dataset.getConnection().getType());
         assertEquals("jdbc://hurle", dataset.getConnection().getUrl());
         assertTrue(dataset.getConnection().isActive());
+        assertEquals(State.PENDING, dataset.getConnection().getState());
         assertEquals(30, dataset.getMaxCount());
         assertEquals("tableWithName", dataset.getTableName());
         assertEquals(3, dataset.getListColumns().size());
         assertEquals("value0", dataset.getNestedConfigs().get(0).value);
         assertNull(dataset.getNullConfigs());
-        final Object c = reflectionService.createObjectFactory(JdbcConnection.class).apply("connection", conf);
-        assertTrue(JdbcConnection.class.isInstance(c));
-        final JdbcConnection connection = JdbcConnection.class.cast(c);
+        // test with prefix name
+        final JdbcConnection connection =
+                reflectionService.createObjectFactory(JdbcConnection.class).apply("connection", conf);
         assertEquals("ibmdb2", dataset.getConnection().getType());
         assertEquals("jdbc://hurle", dataset.getConnection().getUrl());
         assertTrue(dataset.getConnection().isActive());
+        assertEquals(State.PENDING, connection.getState());
+    }
+
+    @Test
+    void createObjectFactoryPrimitives() {
+        final Map conf = new HashMap<String, String>() {
+
+            {
+                put("state", "PENDING");
+                put("double", "12345.6789");
+                put("boolean", "true");
+            }
+        };
+        assertEquals("PENDING", reflectionService.createObjectFactory(String.class).apply("state", conf));
+        assertEquals(12345.6789, reflectionService.createObjectFactory(Double.class).apply("double", conf));
+        assertEquals(12345.6789, reflectionService.createObjectFactory(double.class).apply("double", conf));
+        assertTrue(reflectionService.createObjectFactory(Boolean.class).apply("boolean", conf));
+        assertTrue(reflectionService.createObjectFactory(boolean.class).apply("boolean", conf));
+    }
+
+    @Test
+    void createObjectFactoryEnum() {
+        final Map conf = new HashMap<String, String>() {
+
+            {
+                put("state", "PENDING");
+                put("closed", "CLOSED");
+                put("open", "OPEN");
+            }
+        };
+        assertEquals(reflectionService.createObjectFactory(State.class).apply("state", conf), State.PENDING);
+        assertEquals(reflectionService.createObjectFactory(State.class).apply("closed", conf), State.CLOSED);
+        assertEquals(reflectionService.createObjectFactory(State.class).apply("open", conf), State.OPEN);
+    }
+
+    public enum State {
+        OPEN,
+        PENDING,
+        CLOSED
     }
 
     @Data
@@ -945,6 +984,9 @@ class ReflectionServiceTest {
 
         @Option
         private boolean active;
+
+        @Option
+        private State state;
     }
 
     @Data
