@@ -125,6 +125,7 @@
     <module>talend-component-kit-intellij-plugin</module>
     <module>singer-parent</module>
     <module>remote-engine-customizer</module>
+    <module>vault-client</module>
   </modules>
 
   <scm>

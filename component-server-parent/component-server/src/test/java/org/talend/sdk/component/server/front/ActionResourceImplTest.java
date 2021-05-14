@@ -83,7 +83,7 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(520, error.getStatus());
-        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: simulating an unexpected error", errorPayload.getDescription());
     }
@@ -98,7 +98,7 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(520, error.getStatus());
-        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: unknown exception", errorPayload.getDescription());
     }
@@ -113,7 +113,7 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(400, error.getStatus());
-        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: user exception", errorPayload.getDescription());
     }
@@ -128,7 +128,7 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(456, error.getStatus());
-        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: backend exception", errorPayload.getDescription());
     }
@@ -209,4 +209,29 @@ class ActionResourceImplTest {
         assertEquals(name, value.getName());
         assertEquals(params, value.getProperties().size());
     }
+
+    @Test
+    void executeWithEncrypted() {
+        final Response response = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "encrypted")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.username", "username0");
+                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                    }
+                }, APPLICATION_JSON_TYPE));
+        assertEquals(200, response.getStatus());
+        final Map<String, String> result = response.readEntity(Map.class);
+        assertEquals("test", result.get("url"));
+        assertEquals("username0", result.get("username"));
+        assertEquals("test", result.get("password"));
+    }
+
 }
