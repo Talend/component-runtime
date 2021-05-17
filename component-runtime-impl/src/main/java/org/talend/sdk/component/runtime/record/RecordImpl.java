@@ -193,17 +193,18 @@ public final class RecordImpl implements Record {
                 final Object value = this.values.get(name);
                 if (!schemaEntry.getType().isCompatible(value)) {
                     throw new IllegalArgumentException(String
-                            .format("Entry '%s' of type %s is not compatible with value of type '%s'", schemaEntry.getName(),
-                                    schemaEntry.getType(), value.getClass().getName()));
+                            .format("Entry '%s' of type %s is not compatible with value of type '%s'",
+                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass().getName()));
                 }
-                Optional<Entry> entry = this.entries
-                        .stream()
-                        .filter((Entry e) -> Objects.equals(e.getName(), name))
-                        .findFirst();
-                if (entry.isPresent()) {
-                    this.entries.remove(entry.get());
-                    this.entries.add(schemaEntry);
-                } else {
+                boolean found = false;
+                for (int i = 0; i < entries.size() && !found; i++) {
+                    final Schema.Entry entry = this.entries.get(i);
+                    if (Objects.equals(entry.getName(), name)) {
+                        this.entries.set(i, schemaEntry);
+                        found = true;
+                    }
+                }
+                if (!found) {
                     throw new IllegalArgumentException(
                             "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
                 }

@@ -408,7 +408,8 @@ class RecordBuilderImplTest {
                         .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
         assertEquals("Hello", builder.getValue("field2"));
 
-        final Entry entryTypeNotCompatible = new EntryImpl("field3", "newFieldName", Type.INT, true, 5, null, "Comment");
+        final Entry entryTypeNotCompatible =
+                new EntryImpl("field3", "newFieldName", Type.INT, true, 5, null, "Comment");
         assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("field2", entryTypeNotCompatible));
 
         Schema.Entry unknownEntry =
