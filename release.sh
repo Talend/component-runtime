@@ -27,7 +27,17 @@ git push --follow-tags | tee -a "$trace" && \
 echo ">> Checkouting the release tag" | tee -a "$trace" && \
 git checkout -b component-runtime-$release component-runtime-$release | tee -a "$trace" && \
 echo ">> Building and pushing docker images $release" | tee -a "$trace" && \
-cd images && mvn -DskipTests -Dinvoker.skip=true -T1C clean install jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/ -Djib.httpTimeout=60000 | tee -a "$trace" && cd - && \
+cd images && mvn -DskipTests -Dinvoker.skip=true -T1C clean install jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/ -Djib.httpTimeout=60000 | tee -a "$trace" && \
+echo ">> Building and pushing TSBI images $release" | tee -a "$trace" && \
+cd component-server-image
+mvn clean verify dockerfile:build -P dev-tsbi && \
+docker tag talend/common/tacokit/component-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release} && \
+docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release} && \
+cd ../component-server-vault-proxy-image && \
+mvn clean verify dockerfile:build -P dev-tsbi && \
+docker tag talend/common/tacokit/component-server-vault-proxy:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release} && \
+docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release} && \
+cd ../.. && \
 echo ">> Rebuilding master and updating it (doc) for next iteration" | tee -a "$trace" && \
 git reset --hard | tee -a "$trace" && \
 git checkout master | tee -a "$trace" && \

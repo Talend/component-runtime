@@ -217,8 +217,8 @@
       </plugin>
       <plugin><!--
         mvn clean verify dockerfile:build -P dev-tsbi
-        docker tag talend/common/tacokit/component-server-vault-proxy:${tag} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}
-        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}
+        docker tag talend/common/tacokit/component-server-vault-proxy:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release}
+        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release}
         -->
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
