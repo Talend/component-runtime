@@ -18,9 +18,6 @@ package org.talend.sdk.components.vault.client.vault;
 import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
-import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
-import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -41,13 +38,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.talend.sdk.components.vault.client.VaultClient;
 
 @Path("/api/v1/mock/vault")
@@ -105,19 +97,9 @@ public class VaultMock {
 
     @POST
     @Path("execute")
-    public Response
-            execute(@QueryParam("family") @Parameter(name = "family", required = true, in = QUERY,
-                    description = "the component family") final String family,
-                    @QueryParam("type") @Parameter(name = "type", required = true, in = QUERY,
-                            description = "the type of action") final String type,
-                    @QueryParam("action") @Parameter(name = "action", required = true, in = QUERY,
-                            description = "the action name") final String action,
-                    @QueryParam("lang") @DefaultValue("en") @Parameter(name = "language", in = QUERY,
-                            description = "the requested language (as in a Locale) if supported by the action",
-                            schema = @Schema(defaultValue = "en", type = STRING)) final String lang,
-                    @RequestBody(description = "the action parameters as a flat map of strings", required = true,
-                            content = @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(type = OBJECT))) final Map<String, String> params) {
+    public Response execute(@QueryParam("family") final String family, @QueryParam("type") final String type,
+            @QueryParam("action") final String action, @QueryParam("lang") @DefaultValue("en") final String lang,
+            final Map<String, String> params) {
         final Map<String, String> deciphered = client.decrypt(params, headers.getHeaderString("x-talend-tenant-id"));
 
         final Map result = new HashMap<String, String>() {

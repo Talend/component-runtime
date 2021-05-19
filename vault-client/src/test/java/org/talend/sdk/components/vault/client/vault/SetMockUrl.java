@@ -27,13 +27,19 @@ public class SetMockUrl implements Meecrowave.MeecrowaveAwareInstanceCustomizer 
 
     @Override
     public void accept(final Tomcat tomcat) {
-        final int port = meecrowave.getConfiguration().getHttpPort();
+        System.err.println("enter accept " + tomcat);
+
+        System.setProperty("geronimo.opentracing.filter.active", "false");
+        System.setProperty("geronimo.opentracing.span.converter.zipkin.logger.active", "false");
         System.setProperty("talend.vault.cache.vault.auth.roleId", "Test-Role");
         System.setProperty("talend.vault.cache.vault.auth.secretId", "Test-Secret");
-        System.setProperty("talend.vault.cache.vault.url", "http://localhost:" + port);
+        System
+                .setProperty("talend.vault.cache.vault.url",
+                        "http://localhost:" + meecrowave.getConfiguration().getHttpPort());
         System.setProperty("talend.vault.cache.vault.auth.endpoint", "/api/v1/mock/vault/login");
         System
                 .setProperty("talend.vault.cache.vault.decrypt.endpoint",
                         "/api/v1/mock/vault/decrypt/{x-talend-tenant-id}");
+        System.err.println("quit accept " + tomcat);
     }
 }

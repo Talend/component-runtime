@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +75,25 @@ class VaultClientTest {
             }
         };
         final Map<String, String> result = vault.decrypt(config, "00001");
+        assertEquals("username0", result.get("configuration.username"));
+        assertEquals("test", result.get("configuration.password"));
+    }
+
+    @Test
+    void decryptUsingCache() throws InterruptedException {
+        final HashMap<String, String> config = new HashMap<String, String>() {
+
+            {
+                put("configuration.username", "username0");
+                put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+            }
+        };
+        // first pass to fill cache with correct endpoint
+        Map<String, String> result = vault.decrypt(config, "000001");
+        assertEquals("username0", result.get("configuration.username"));
+        assertEquals("test", result.get("configuration.password"));
+        // with an invalid tenant (but w/ a valid token) we should have a 404 if cache weren't used...
+        result = vault.decrypt(config, "");
         assertEquals("username0", result.get("configuration.username"));
         assertEquals("test", result.get("configuration.password"));
     }
@@ -180,7 +200,7 @@ class VaultClientTest {
      * / # vault write -f auth/approle/role/Test-Role/secret-id                            # get secret_id
      * / # vault secrets enable transit
      * / # vault write -f transit/keys/test-tenant
-     * / # vault write transit/encrypt/test-tenant plaintext="dGVzdAo="                    # use: echo -n "test" | base64
+     * / # vault write transit/encrypt/test-tenant plaintext="dGVzdA=="                    # use: echo -n "test" | base64
      * / # vault write transit/encrypt/test-tenant plaintext="VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw==" # "The quick..."
      * add to policies:
      * path "transit/keys/test-tenant" {capabilities = ["read"]}
@@ -188,23 +208,22 @@ class VaultClientTest {
      * </code>
      */
     @Test
-    // @Disabled
+    @Disabled
     void executeWithRealVault() {
         setup.setVaultUrl("http://localhost:8200");
         final Client realClt = setup.vaultClient(setup.vaultExecutorService());
         vault.setVault(setup.vaultTarget(realClt));
         vault.setAuthEndpoint("/v1/auth/approle/login");
         vault.setDecryptEndpoint("/v1/transit/decrypt/{x-talend-tenant-id}");
-        vault.setRole(() -> "0230450d-e0fd-c5c8-d794-545e27bd3729");
-        vault.setSecret(() -> "65d03209-c644-9877-70a3-694e258d6245");
+        vault.setRole(() -> "_role-id_");
+        vault.setSecret(() -> "_secret-id_");
 
         final HashMap<String, String> config = new HashMap<String, String>() {
 
             {
                 put("configuration.username", "username0");
-                put("configuration.password", "vault:v1:OdRahcsOe/c9S5qEIfknX6o/ohqktptW81Dw7ofjCtE=");
-                put("foxy",
-                        "vault:v1:pHmJIMI5xgVJwBX/0hPJa9koa846s/ru4yOYOOUr2DAMR+M4ZcIvB3JxWpfIW+XuQv0nt0G34vhbh16LJvmbiee3Nm6Teh4=");
+                put("configuration.password", "vault:v1:_test_encrypted_");
+                put("foxy", "vault:v1:_the_quick_brown_encrypted_");
             }
         };
         Map<String, String> result = vault.decrypt(config, "test-tenant");

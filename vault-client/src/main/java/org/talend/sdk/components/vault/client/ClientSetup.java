@@ -27,7 +27,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -64,63 +63,64 @@ public class ClientSetup {
 
     @Inject
     @Documentation("HTTP connection timeout to vault server.")
-    @ConfigProperty(name = "talend.vault.cache.client.timeout.connect")
-    private Long connectTimeout = 30000l;
+    @ConfigProperty(name = "talend.vault.cache.client.timeout.connect", defaultValue = "30000")
+    private Long connectTimeout;
 
     @Inject
     @Documentation("HTTP read timeout to vault server.")
-    @ConfigProperty(name = "talend.vault.cache.client.timeout.read")
-    private Long readTimeout = 30000l;
+    @ConfigProperty(name = "talend.vault.cache.client.timeout.read", defaultValue = "30000")
+    private Long readTimeout;
 
     @Inject
     @Documentation("JAX-RS fully qualified name of the provides (message body readers/writers) for vault and component-server clients.")
     @ConfigProperty(name = "talend.vault.cache.client.providers")
-    private Optional<String> providers = ofNullable(null);
+    private Optional<String> providers;
 
     @Inject
     @Documentation("Should any certificate be accepted - only for dev purposes.")
-    @ConfigProperty(name = "talend.vault.cache.client.certificate.acceptAny")
-    private Boolean acceptAnyCertificate = Boolean.FALSE;
+    @ConfigProperty(name = "talend.vault.cache.client.certificate.acceptAny", defaultValue = "false")
+    private Boolean acceptAnyCertificate;
 
     @Inject
     @Documentation("Where the keystore to use to connect to vault is located.")
     @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.keystore.location")
-    private Optional<String> vaultKeystoreLocation = ofNullable(null);
+    private Optional<String> vaultKeystoreLocation;
 
     @Inject
     @Documentation("The keystore type for `talend.vault.cache.client.vault.certificate.keystore.location`.")
     @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.keystore.type")
-    private Optional<String> vaultKeystoreType = ofNullable(null);
+    private Optional<String> vaultKeystoreType;
 
     @Inject
     @Documentation("The keystore password for `talend.vault.cache.client.vault.certificate.keystore.location`.")
-    @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.keystore.password")
-    private String vaultKeystorePassword = "changeit";
+    @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.keystore.password", defaultValue = "changeit")
+    private String vaultKeystorePassword;
 
     @Inject
     @Documentation("Valid hostnames for the Vault certificates (see `java.net.ssl.HostnameVerifier`).")
-    @ConfigProperty(name = "talend.vault.cache.client.vault.hostname.accepted")
-    private List<String> vaultHostnames = Arrays.asList("localhost", "127.0.0.1", "0:0:0:0:0:0:0:1");
+    @ConfigProperty(name = "talend.vault.cache.client.vault.hostname.accepted",
+            defaultValue = "localhost,127.0.0.1,0:0:0:0:0:0:0:1")
+    private List<String> vaultHostnames;
 
     @Inject
     @Documentation("The truststore type for `talend.vault.cache.client.vault.certificate.keystore.location`.")
     @ConfigProperty(name = "talend.vault.cache.client.vault.certificate.truststore.type")
-    private Optional<String> vaultTruststoreType = ofNullable(null);
+    private Optional<String> vaultTruststoreType;
 
     @Inject
     @Documentation("Thread pool max size for Vault client.")
-    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.max")
-    private Integer vaultExecutorMaxSize = 256;
+    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.max", defaultValue = "256")
+    private Integer vaultExecutorMaxSize;
 
     @Inject
     @Documentation("Thread pool core size for Vault client.")
-    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.core")
-    private Integer vaultExecutorCoreSize = 64;
+    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.core", defaultValue = "64")
+    private Integer vaultExecutorCoreSize;
 
     @Inject
     @Documentation("Thread keep alive (in ms) for Vault client thread pool.")
-    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.keepAlive")
-    private Integer vaultExecutorKeepAlive = 60000;
+    @ConfigProperty(name = "talend.vault.cache.client.executor.vault.keepAlive", defaultValue = "60000")
+    private Integer vaultExecutorKeepAlive;
 
     @Inject
     @Documentation("Base URL to connect to Vault.")
@@ -202,12 +202,7 @@ public class ClientSetup {
                 return null;
             }
         }).filter(Objects::nonNull)).ifPresent(it -> it.forEach(builder::register));
-        try {
-          //  return ClientTracingRegistrar.configure(builder);
-            return builder;
-        } catch (final IllegalStateException e) {
-            return builder;
-        }
+        return ClientTracingRegistrar.configure(builder);
     }
 
     private SSLContext createUnsafeSSLContext() {

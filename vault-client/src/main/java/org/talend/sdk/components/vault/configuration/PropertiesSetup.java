@@ -24,6 +24,7 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
 
     @Override
     public void accept(final Configuration configuration) {
+        System.err.println("enter config " + configuration);
         configuration.loadFromProperties(System.getProperties());
         if (configuration.getProperties() == null) {
             configuration.setProperties(new Properties());
@@ -35,5 +36,6 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
                 .stream()
                 .filter(k -> System.getProperty(k) == null)
                 .forEach(k -> System.setProperty(k, configuration.getProperties().getProperty(k)));
+        System.err.println("quit config " + configuration);
     }
 }

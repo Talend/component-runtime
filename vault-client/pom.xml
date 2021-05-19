@@ -28,32 +28,17 @@
     <description>Vault Client.</description>
 
     <properties>
-        <org.apache.tomcat.Logger>org.apache.meecrowave.logging.tomcat.Log4j2Log</org.apache.tomcat.Logger>
-        <talend.build.name>${talend.build.name.base}.server</talend.build.name>
-        <talend.component.server.enableDumps>false</talend.component.server.enableDumps>
-        <talend.component.server.tomcat.valve.error.debug>true</talend.component.server.tomcat.valve.error.debug>
+        <talend.build.name>${talend.build.name.base}.vault.client</talend.build.name>
     </properties>
 
     <dependencies>
-        <dependency><!-- override until we upgrade meecrowave -->
-            <groupId>org.apache.johnzon</groupId>
-            <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.meecrowave</groupId>
             <artifactId>meecrowave-core</artifactId>
-            <version>${meecrowave.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.config</groupId>
             <artifactId>microprofile-config-api</artifactId>
-        </dependency>
-        <dependency><!-- just to generate the openapi.json -->
-            <groupId>org.eclipse.microprofile.openapi</groupId>
-            <artifactId>microprofile-openapi-api</artifactId>
-            <version>${microprofile-openapi-api.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.config</groupId>
@@ -63,72 +48,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>${log4j2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-web</artifactId>
-            <version>${log4j2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jul</artifactId>
-            <version>${log4j2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-websocket</artifactId>
-            <version>${tomcat.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.meecrowave</groupId>
-            <artifactId>meecrowave-junit</artifactId>
-            <version>${meecrowave.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomee</groupId>
-            <artifactId>ziplock</artifactId>
-            <version>${ziplock.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>component-runtime-junit-base</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-features-logging</artifactId>
-            <version>${cxf.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- specific deps -->
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jcache_1.0_spec</artifactId>
-            <version>1.0-alpha-1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo</groupId>
-            <artifactId>geronimo-jcache-simple</artifactId>
-            <version>1.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opentracing</groupId>
-            <artifactId>opentracing-api</artifactId>
-            <version>${opentracing.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.opentracing</groupId>
@@ -146,42 +65,23 @@
             <artifactId>geronimo-opentracing</artifactId>
             <version>${geronimo-opentracing.version}</version>
         </dependency>
-    </dependencies>
-
-    <build>
-    <plugins>
-        <plugin>
+        <!-- specific deps -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jcache_1.0_spec</artifactId>
+            <version>1.0-alpha-1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo</groupId>
+            <artifactId>geronimo-jcache-simple</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <!-- tests -->
+        <dependency>
             <groupId>org.apache.meecrowave</groupId>
-            <artifactId>meecrowave-maven-plugin</artifactId>
+            <artifactId>meecrowave-junit</artifactId>
             <version>${meecrowave.version}</version>
-            <executions>
-                <execution>
-                    <id>bundle</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>bundle</goal>
-                    </goals>
-                    <configuration>
-                        <attach>true</attach>
-                    </configuration>
-                </execution>
-            </executions>
-            <configuration>
-                <cdiConversation>false</cdiConversation>
-                <watcherBouncing>-1</watcherBouncing>
-                <scanningExcludes>
-                    apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket
-                </scanningExcludes>
-                <!--<webapp>${project.basedir}/src/dev/webapp</webapp>-->
-                <!--
-                <systemProperties>
-                  <talend.component.server.documentation.active>true</talend.component.server.documentation.active>
-                  <talend.component.server.tomcat.valve.error.debug>${talend.component.server.tomcat.valve.error.debug}</talend.component.server.tomcat.valve.error.debug>
-                  <talend.component.server.component.coordinates>${talend.component.server.component.coordinates.samples}</talend.component.server.component.coordinates>
-                </systemProperties>
-                -->
-            </configuration>
-        </plugin>
-    </plugins>
-    </build>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

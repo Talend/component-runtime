@@ -28,11 +28,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +51,7 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.cache.Cache;
+import javax.cache.annotation.CacheDefaults;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -61,14 +59,14 @@ import javax.inject.Inject;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.servlet.ServletContext;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.components.vault.configuration.Documentation;
-import org.talend.sdk.components.vault.jcache.JCacheSetup;
+import org.talend.sdk.components.vault.jcache.VaultCacheKeyGenerator;
+import org.talend.sdk.components.vault.jcache.VaultCacheResolver;
 import org.talend.sdk.components.vault.server.error.ErrorPayload;
 
 import lombok.AllArgsConstructor;
@@ -78,11 +76,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-// todo: the suppliers should probably be replaced by invalidating a config bean
-// and become plain String or Optional<String>
 @Slf4j
 @Data
 @ApplicationScoped
+@CacheDefaults(cacheKeyGenerator = VaultCacheKeyGenerator.class, cacheResolverFactory = VaultCacheResolver.class)
 public class VaultClient {
 
     @Inject
@@ -90,48 +87,49 @@ public class VaultClient {
 
     @Inject
     @Documentation("The vault path to retrieve a token.")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.endpoint")
-    private String authEndpoint= "v1/auth/engines/login";
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.endpoint", defaultValue = "v1/auth/engines/login")
+    private String authEndpoint;
 
     @Inject
     @Documentation("The vault path to decrypt values. You can use the variable `{x-talend-tenant-id}` to replace by `x-talend-tenant-id` header value.")
-    @ConfigProperty(name = "talend.vault.cache.vault.decrypt.endpoint")
-    private String decryptEndpoint= "v1/tenants-keyrings/decrypt/{x-talend-tenant-id}";
+    @ConfigProperty(name = "talend.vault.cache.vault.decrypt.endpoint",
+            defaultValue = "v1/tenants-keyrings/decrypt/{x-talend-tenant-id}")
+    private String decryptEndpoint;
 
     @Inject
     @Documentation("The vault token to use to log in (will make roleId and secretId ignored). `-` means it is ignored.")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.token")
-    private Supplier<String> token = () -> "-";
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.token", defaultValue = "-")
+    private Supplier<String> token;
 
     @Inject
     @Documentation("The vault role identifier to use to log in (if token is not set). `-` means it is ignored.")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId")
-    private Supplier<String> role = () -> "-";
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.roleId", defaultValue = "-")
+    private Supplier<String> role;
 
     @Inject
     @Documentation("The vault secret identifier to use to log in (if token is not set). `-` means it is ignored.")
-    @ConfigProperty(name = "talend.vault.cache.vault.auth.secretId")
-    private Supplier<String> secret = () -> "-";
+    @ConfigProperty(name = "talend.vault.cache.vault.auth.secretId", defaultValue = "-")
+    private Supplier<String> secret;
 
     @Inject
     @Documentation("How often (in ms) to refresh the vault token.")
-    @ConfigProperty(name = "talend.vault.cache.service.auth.refreshDelayMargin")
-    private Long refreshDelayMargin = 600000l;
+    @ConfigProperty(name = "talend.vault.cache.service.auth.refreshDelayMargin", defaultValue = "600000")
+    private Long refreshDelayMargin;
 
     @Inject
     @Documentation("How often (in ms) to refresh the vault token in case of an authentication failure.")
-    @ConfigProperty(name = "talend.vault.cache.service.auth.refreshDelayOnFailure")
-    private Long refreshDelayOnFailure = 10000l;
+    @ConfigProperty(name = "talend.vault.cache.service.auth.refreshDelayOnFailure", defaultValue = "10000")
+    private Long refreshDelayOnFailure;
 
     @Inject
     @Documentation("Status code sent when vault can't decipher some values.")
-    @ConfigProperty(name = "talend.vault.cache.service.auth.cantDecipherStatusCode")
-    private Integer cantDecipherStatusCode = 422;
+    @ConfigProperty(name = "talend.vault.cache.service.auth.cantDecipherStatusCode", defaultValue = "422")
+    private Integer cantDecipherStatusCode;
 
     @Inject
     @Documentation("The regex to whitelist ciphered keys, others will be passthrough in the output without going to vault.")
-    @ConfigProperty(name = "talend.vault.cache.service.decipher.skip.regex")
-    private String passthroughRegex = "vault\\:v[0-9]+\\:.*";
+    @ConfigProperty(name = "talend.vault.cache.service.decipher.skip.regex", defaultValue = "vault\\:v[0-9]+\\:.*")
+    private String passthroughRegex;
 
     @Inject
     private Cache<String, DecryptedValue> cache;
@@ -145,49 +143,9 @@ public class VaultClient {
 
     private Pattern compiledPassthroughRegex;
 
-    public static void main(final String[] args) {
-        System.setProperty("talend.vault.cache.vault.auth.roleId", "Test-Role");
-        System.setProperty("talend.vault.cache.vault.auth.secretId", "Test-Secret");
-        System.setProperty("talend.vault.cache.vault.url", "http://localhost:8200");
-        System.setProperty("talend.vault.cache.vault.auth.endpoint", "/api/v1/mock/vault/login");
-        System
-                .setProperty("talend.vault.cache.vault.decrypt.endpoint",
-                        "/api/v1/mock/vault/decrypt/{x-talend-tenant-id}");
-
-        final ClientSetup setup = new ClientSetup();
-        setup.setVaultUrl("http://localhost:8200");
-        final Client realClt = setup.vaultClient(setup.vaultExecutorService());
-        final VaultClient vault = new VaultClient();
-        vault.setVault(setup.vaultTarget(realClt));
-        vault.setAuthEndpoint("/v1/auth/approle/login");
-        vault.setDecryptEndpoint("/v1/transit/decrypt/{x-talend-tenant-id}");
-        vault.setRole(() -> "0230450d-e0fd-c5c8-d794-545e27bd3729");
-        vault.setSecret(() -> "65d03209-c644-9877-70a3-694e258d6245");
-
-        vault.init();
-
-        final HashMap<String, String> config = new HashMap<String, String>() {
-
-            {
-                put("configuration.username", "username0");
-                put("configuration.password", "vault:v1:OdRahcsOe/c9S5qEIfknX6o/ohqktptW81Dw7ofjCtE=");
-                put("foxy",
-                        "vault:v1:pHmJIMI5xgVJwBX/0hPJa9koa846s/ru4yOYOOUr2DAMR+M4ZcIvB3JxWpfIW+XuQv0nt0G34vhbh16LJvmbiee3Nm6Teh4=");
-            }
-        };
-        final Map<String, String> result = vault.decrypt(config, "test-tenant");
-        System.out.println(result);
-    }
-
     @PostConstruct
     private void init() {
         compiledPassthroughRegex = Pattern.compile(passthroughRegex);
-    }
-
-    private void initStandalone(final ClientSetup client) {
-        compiledPassthroughRegex = Pattern.compile(passthroughRegex);
-        cache = new JCacheSetup().cachingProvider().getCacheManager().getCache("vault");
-        clock = new ClockSetup().clock();
     }
 
     @SneakyThrows
