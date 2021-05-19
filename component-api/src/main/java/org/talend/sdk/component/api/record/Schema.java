@@ -15,7 +15,11 @@
  */
 package org.talend.sdk.component.api.record;
 
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -57,7 +61,7 @@ public interface Schema {
     Map<String, String> getProps();
 
     /**
-     * @param property
+     * @param property : property name.
      * @return the requested metadata prop
      */
     String getProp(String property);
@@ -149,7 +153,7 @@ public interface Schema {
         Map<String, String> getProps();
 
         /**
-         * @param property
+         * @param property : property name.
          * @return the requested metadata prop
          */
         String getProp(String property);
@@ -227,24 +231,58 @@ public interface Schema {
         Schema build();
     }
 
+    /**
+     * Sanitize name to be avro compatible.
+     * 
+     * @param name : original name.
+     * @return avro compatible name.
+     */
     static String sanitizeConnectionName(final String name) {
-        if (name.isEmpty()) {
+        if (name == null || name.isEmpty()) {
             return name;
         }
-        final char[] original = name.toCharArray();
-        final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
-        final int offset = skipFirstChar ? 1 : 0;
-        final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
+
+        char current = name.charAt(0);
+        final CharsetEncoder ascii = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder();
+        final boolean skipFirstChar = ((!ascii.canEncode(current)) || (!Character.isLetter(current) && current != '_'))
+                && name.length() > 1 && (!Character.isDigit(name.charAt(1)));
+
+        final StringBuilder sanitizedBuilder = new StringBuilder();
+
         if (!skipFirstChar) {
-            sanitized[0] = original[0];
-        }
-        for (int i = 1; i < original.length; i++) {
-            if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
-                sanitized[i - offset] = '_';
+            if (((!Character.isLetter(current)) && current != '_') || (!ascii.canEncode(current))) {
+                sanitizedBuilder.append('_');
             } else {
-                sanitized[i - offset] = original[i];
+                sanitizedBuilder.append(current);
             }
         }
-        return new String(sanitized);
+        for (int i = 1; i < name.length(); i++) {
+            current = name.charAt(i);
+            if (!ascii.canEncode(current)) {
+                if (Character.isLowerCase(current) || Character.isUpperCase(current)) {
+                    sanitizedBuilder.append('_');
+                } else {
+                    final byte[] encoded = Base64.getEncoder().encode(name.substring(i, i + 1).getBytes());
+                    final String enc = new String(encoded);
+                    if (sanitizedBuilder.length() == 0 && Character.isDigit(enc.charAt(0))) {
+                        sanitizedBuilder.append('_');
+                    }
+                    for (int iter = 0; iter < enc.length(); iter++) {
+                        if (Character.isLetterOrDigit(enc.charAt(iter))) {
+                            sanitizedBuilder.append(enc.charAt(iter));
+                        } else {
+                            sanitizedBuilder.append('_');
+                        }
+                    }
+                }
+            } else if (Character.isLetterOrDigit(current)) {
+                sanitizedBuilder.append(current);
+            } else {
+                sanitizedBuilder.append('_');
+            }
+
+        }
+        return sanitizedBuilder.toString();
     }
+
 }
