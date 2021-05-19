@@ -37,10 +37,13 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -118,6 +121,12 @@ public final class RecordImpl implements Record {
             this.providedSchema = providedSchema;
         }
 
+        private BuilderImpl(final List<Schema.Entry> entries, final Map<String, Object> values) {
+            this.entries.addAll(entries);
+            this.values.putAll(values);
+            this.providedSchema = null;
+        }
+
         @Override
         public Object getValue(final String name) {
             return this.values.get(name);
@@ -147,6 +156,65 @@ public final class RecordImpl implements Record {
             } else {
                 return append(entry, value);
             }
+        }
+
+        @Override
+        public List<Entry> getCurrentEntries() {
+            if (this.providedSchema != null) {
+                return Collections.unmodifiableList(this.providedSchema.getEntries());
+            }
+            return Collections.unmodifiableList(this.entries);
+        }
+
+        @Override
+        public Builder removeEntry(final Schema.Entry schemaEntry) {
+            if (this.providedSchema == null) {
+                Optional<Entry> entry = this.entries
+                        .stream()
+                        .filter((Entry e) -> Objects.equals(e.getName(), schemaEntry.getName()))
+                        .findFirst();
+                if (entry.isPresent()) {
+                    this.entries.remove(entry.get());
+                } else {
+                    throw new IllegalArgumentException(
+                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
+                }
+                this.values.remove(schemaEntry.getName());
+                return this;
+            }
+
+            final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
+            return builder.removeEntry(schemaEntry);
+        }
+
+        @Override
+        public Builder updateEntryByName(final String name, final Schema.Entry schemaEntry) {
+            if (this.providedSchema == null) {
+                final Object value = this.values.get(name);
+                if (!schemaEntry.getType().isCompatible(value)) {
+                    throw new IllegalArgumentException(String
+                            .format("Entry '%s' of type %s is not compatible with value of type '%s'",
+                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass().getName()));
+                }
+                boolean found = false;
+                for (int i = 0; i < entries.size() && !found; i++) {
+                    final Schema.Entry entry = this.entries.get(i);
+                    if (Objects.equals(entry.getName(), name)) {
+                        this.entries.set(i, schemaEntry);
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    throw new IllegalArgumentException(
+                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
+                }
+                this.values.remove(name);
+                this.values.put(schemaEntry.getName(), value);
+                return this;
+            }
+
+            final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
+            return builder.updateEntryByName(name, schemaEntry);
         }
 
         private Schema.Entry findExistingEntry(final String name) {
@@ -363,7 +431,9 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
             }
             if (providedSchema == null) {
-                entries.add(entry);
+                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
+                    this.entries.add(entry);
+                }
             }
             return this;
         }

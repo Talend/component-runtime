@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.33.0-SNAPSHOT</version>
+    <version>1.34.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-image</artifactId>
@@ -260,8 +260,8 @@
       </plugin>
       <plugin><!--
         mvn clean verify dockerfile:build -P dev-tsbi
-        docker tag talend/common/tacokit/component-server:${tag} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}
-        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}
+        docker tag talend/common/tacokit/component-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release}
+        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release}
         -->
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
