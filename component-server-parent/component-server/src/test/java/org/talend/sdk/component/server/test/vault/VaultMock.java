@@ -45,7 +45,7 @@ public class VaultMock {
     @POST
     @Path("login")
     public VaultClient.AuthResponse login(final VaultClient.AuthRequest request) {
-        log.warn("[login] Role {} / Secret {}", request.getRoleId() , request.getSecretId());
+        log.warn("[login] Role {} / Secret {}", request.getRoleId(), request.getSecretId());
         if (!"Test-Role".equals(request.getRoleId()) || !"Test-Secret".equals(request.getSecretId())) {
             log.error("[login] Invalid Role {} or Secret {}");
             throw new ForbiddenException();
@@ -65,7 +65,9 @@ public class VaultMock {
     @Path("decrypt/{tenant}")
     public VaultClient.DecryptResponse decrypt(@HeaderParam("X-Vault-Token") final String token,
             @PathParam("tenant") final String tenant, final VaultClient.DecryptRequest request) {
-        log.warn("[decrypt] token: {} tenant: {} request: {}.", token, tenant, request.getBatchInput().iterator().next().getCiphertext());
+        log
+                .warn("[decrypt] token: {} tenant: {} request: {}.", token, tenant,
+                        request.getBatchInput().iterator().next().getCiphertext());
         if (!"client-test-token".equals(token) || tenant == null || tenant.isEmpty()
                 || "x-talend-tenant-id".equals(tenant)) {
             throw new ForbiddenException();

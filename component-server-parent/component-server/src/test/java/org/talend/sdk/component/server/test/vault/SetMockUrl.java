@@ -31,7 +31,7 @@ public class SetMockUrl implements Meecrowave.MeecrowaveAwareInstanceCustomizer 
         System.setProperty("talend.vault.cache.vault.auth.roleId", "Test-Role");
         System.setProperty("talend.vault.cache.vault.auth.secretId", "Test-Secret");
         System.setProperty("talend.vault.cache.vault.url", "http://localhost:" + port);
-        System.setProperty("talend.vault.cache.vault.auth.endpoint", "mock/vault/login");
-        System.setProperty("talend.vault.cache.vault.decrypt.endpoint", "mock/vault/decrypt/{x-talend-tenant-id}");
+        System.setProperty("talend.vault.cache.vault.auth.endpoint", "/api/v1/mock/vault/login");
+        System.setProperty("talend.vault.cache.vault.decrypt.endpoint", "/api/v1/mock/vault/decrypt/{x-talend-tenant-id}");
     }
 }

@@ -59,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 @ApplicationScoped
-public class ClientSetup {
+public class VaultClientSetup {
 
     @Inject
     @Documentation("HTTP connection timeout to vault server.")
@@ -129,28 +129,33 @@ public class ClientSetup {
 
     @Produces
     @ApplicationScoped
-    public WebTarget vaultTarget(final Client client) {
+    @VaultService
+    public WebTarget vaultTarget(@VaultService final Client client) {
         return client.target(vaultUrl);
     }
 
     @Produces
     @ApplicationScoped
+    @VaultService
     public ExecutorService vaultExecutorService() {
         return createExecutor(vaultExecutorCoreSize, vaultExecutorMaxSize, vaultExecutorKeepAlive, "vault");
     }
 
-    public void releaseVaultExecutor(@Disposes final ExecutorService executorService) {
+    @VaultService
+    public void releaseVaultExecutor(@Disposes @VaultService final ExecutorService executorService) {
         executorService.shutdownNow();
     }
 
     @Produces
     @ApplicationScoped
-    public Client vaultClient(final ExecutorService executor) {
+    @VaultService
+    public Client vaultClient(@VaultService final ExecutorService executor) {
         return createClient(executor, vaultKeystoreLocation, vaultKeystoreType, vaultKeystorePassword,
                 vaultTruststoreType, vaultHostnames).build();
     }
 
-    public void releaseVaultClient(@Disposes final Client client) {
+    @VaultService
+    public void releaseVaultClient(@Disposes @VaultService final Client client) {
         client.close();
     }
 

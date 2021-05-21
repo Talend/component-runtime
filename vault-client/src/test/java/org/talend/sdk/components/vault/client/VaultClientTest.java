@@ -43,19 +43,22 @@ class VaultClientTest {
     private Meecrowave meecrowave;
 
     @Inject
-    private ClientSetup setup;
+    @VaultService
+    private VaultClientSetup setup;
 
     @Inject
+    @VaultService
     private Client client;
 
     @Inject
+    @VaultService
     private VaultClient vault;
 
-    private WebTarget base() {
-        return base(meecrowave.getConfiguration().getHttpPort());
+    private WebTarget vaultBase() {
+        return vaultBase(meecrowave.getConfiguration().getHttpPort());
     }
 
-    private WebTarget base(final int port) {
+    private WebTarget vaultBase(final int port) {
         return client.target("http://localhost:" + port);
     }
 
@@ -115,7 +118,7 @@ class VaultClientTest {
 
     @Test
     void executeWithEncrypted() {
-        final Response response = base()
+        final Response response = vaultBase()
                 .path("/api/v1/mock/vault/execute")
                 .queryParam("family", "vault")
                 .queryParam("type", "auth")
@@ -142,7 +145,7 @@ class VaultClientTest {
 
     @Test
     void executeWithEncryptedAndInvalidTenant() {
-        final Response response = base()
+        final Response response = vaultBase()
                 .path("/api/v1/mock/vault/execute")
                 .queryParam("family", "vault")
                 .queryParam("type", "auth")
@@ -162,7 +165,7 @@ class VaultClientTest {
 
     @Test
     void executeWithNothingEncrypted() {
-        final Response response = base()
+        final Response response = vaultBase()
                 .path("/api/v1/mock/vault/execute")
                 .queryParam("family", "vault")
                 .queryParam("type", "auth")
@@ -230,7 +233,7 @@ class VaultClientTest {
         assertEquals("test", result.get("configuration.password"));
         assertEquals("The quick brown fox jumps over the lazy dog", result.get("foxy"));
 
-        final Response response = base()
+        final Response response = vaultBase()
                 .path("/api/v1/mock/vault/execute")
                 .queryParam("family", "vault")
                 .queryParam("type", "auth")

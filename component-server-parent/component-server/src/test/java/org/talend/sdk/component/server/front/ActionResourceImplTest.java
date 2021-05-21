@@ -50,7 +50,7 @@ class ActionResourceImplTest {
     @Test
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(10, index.getItems().size());
+        assertEquals(11, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));

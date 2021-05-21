@@ -33,7 +33,6 @@ import javax.cache.annotation.CacheResult;
 import javax.cache.configuration.Configuration;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.WebTarget;
 
 import org.apache.geronimo.jcache.simple.cdi.CacheResolverImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -55,9 +54,6 @@ public class VaultCacheResolver implements CacheResolverFactory {
     @Documentation("How often (in ms) should we invalidate the credentials caches.")
     @ConfigProperty(name = "talend.vault.cache.jcache.refresh.period", defaultValue = "30000")
     private Long refreshPeriod;
-
-    @Inject
-    private WebTarget client;
 
     private long lastUpdated;
 

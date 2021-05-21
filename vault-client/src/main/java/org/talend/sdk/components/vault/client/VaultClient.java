@@ -83,6 +83,7 @@ import lombok.extern.slf4j.Slf4j;
 public class VaultClient {
 
     @Inject
+    @VaultService
     private WebTarget vault;
 
     @Inject
