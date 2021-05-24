@@ -83,7 +83,7 @@ import lombok.extern.slf4j.Slf4j;
 public class VaultClient {
 
     @Inject
-    @VaultService
+    @VaultHttp
     private WebTarget vault;
 
     @Inject
@@ -150,43 +150,40 @@ public class VaultClient {
     }
 
     @SneakyThrows
-    public Map<String, String> decrypt(final Map<String, String> original, final String tenantId) {
-        log
-                .warn("[decrypt] decrypting {} for tenant {} Role: {} Secret: {}", original, tenantId, role.get(),
-                        secret.get());
-        final List<String> cipheredKeys = original
+    public Map<String, String> decrypt(final Map<String, String> values) {
+        return decrypt(values, null);
+    }
+
+    @SneakyThrows
+    public Map<String, String> decrypt(final Map<String, String> values, final String tenantId) {
+        final List<String> cipheredKeys = values
                 .entrySet()
                 .stream()
-                .peek(e -> log.warn("[decrypt#cipheredKeys#peeking] {}", e))
                 .filter(entry -> compiledPassthroughRegex.matcher(entry.getValue()).matches())
                 .map(cyphered -> cyphered.getKey())
-                .peek(r -> log.warn("[decrypt] selecting {}", r))
                 .collect(toList());
         final CompletableFuture<Map<String, String>> t =
-                get(cipheredKeys.stream().map(original::get).collect(toList()), clock.millis(), tenantId)
-                        .thenApply(decrypted -> original
+                get(cipheredKeys.stream().map(values::get).collect(toList()), clock.millis(), tenantId)
+                        .thenApply(decrypted -> values
                                 .entrySet()
                                 .stream()
-                                .peek(e -> log.warn("[decrypt#peeking] {}", e))
                                 .collect(toMap(Entry::getKey,
                                         e -> of(cipheredKeys.indexOf(e.getKey()))
                                                 .filter(idx -> idx >= 0)
                                                 .map(decrypted::get)
                                                 .map(DecryptedValue::getValue)
-                                                .orElseGet(() -> original.get(e.getKey())))));
+                                                .orElseGet(() -> values.get(e.getKey())))));
         return t.get();
     }
 
     public CompletableFuture<List<DecryptedValue>> get(final Collection<String> values, final long currentTime,
             final String tenantId) {
         final AtomicInteger index = new AtomicInteger();
-        log.warn("[get] values {}", values);
         final Collection<EntryWithIndex<String>> clearValues = values
                 .stream()
                 .map(it -> new EntryWithIndex<>(index.getAndIncrement(), it))
                 .filter(it -> it.entry != null && !compiledPassthroughRegex.matcher(it.entry).matches())
                 .collect(toList());
-        log.warn("[get] clearValues {}", clearValues);
         if (clearValues.isEmpty()) {
             return doDecipher(values, currentTime, tenantId).toCompletableFuture();
         }
@@ -212,14 +209,10 @@ public class VaultClient {
                 .map(Map.Entry::getKey)
                 .collect(toList());
         if (missing.isEmpty()) { // no remote call, yeah
-            log
-                    .warn("[doDecipher] already cached: {}",
-                            values.stream().map(alreadyCached::get).map(Optional::get).collect(toList()));
             return completedFuture(values.stream().map(alreadyCached::get).map(Optional::get).collect(toList()));
         }
         return getOrRequestAuth()
                 .thenCompose(auth -> ofNullable(auth.getAuth()).map(Auth::getClientToken).map(clientToken -> {
-                    log.warn("[doDecipher] decryptEndpoint: {} auth: {}.", decryptEndpoint, auth);
                     WebTarget path = vault.path(decryptEndpoint);
                     if (decryptEndpoint.contains("x-talend-tenant-id")) {
                         path = path
@@ -364,7 +357,6 @@ public class VaultClient {
 
     private CompletionStage<Authentication> doAuth(final String role) {
         log.info("Authenticating to vault");
-        log.warn("[doAuth] authEndpoint: {} with Role {} and Secret {}", authEndpoint, role, secret.get());
         return vault
                 .path(authEndpoint)
                 .request(APPLICATION_JSON_TYPE)
