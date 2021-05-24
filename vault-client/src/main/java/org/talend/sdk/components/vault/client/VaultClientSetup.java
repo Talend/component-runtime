@@ -129,33 +129,33 @@ public class VaultClientSetup {
 
     @Produces
     @ApplicationScoped
-    @VaultService
-    public WebTarget vaultTarget(@VaultService final Client client) {
+    @VaultHttp
+    public WebTarget vaultTarget(@VaultHttp final Client client) {
         return client.target(vaultUrl);
     }
 
     @Produces
     @ApplicationScoped
-    @VaultService
+    @VaultHttp
     public ExecutorService vaultExecutorService() {
         return createExecutor(vaultExecutorCoreSize, vaultExecutorMaxSize, vaultExecutorKeepAlive, "vault");
     }
 
-    @VaultService
-    public void releaseVaultExecutor(@Disposes @VaultService final ExecutorService executorService) {
+    @VaultHttp
+    public void releaseVaultExecutor(@Disposes @VaultHttp final ExecutorService executorService) {
         executorService.shutdownNow();
     }
 
     @Produces
     @ApplicationScoped
-    @VaultService
-    public Client vaultClient(@VaultService final ExecutorService executor) {
+    @VaultHttp
+    public Client vaultClient(@VaultHttp final ExecutorService executor) {
         return createClient(executor, vaultKeystoreLocation, vaultKeystoreType, vaultKeystorePassword,
                 vaultTruststoreType, vaultHostnames).build();
     }
 
-    @VaultService
-    public void releaseVaultClient(@Disposes @VaultService final Client client) {
+    @VaultHttp
+    public void releaseVaultClient(@Disposes @VaultHttp final Client client) {
         client.close();
     }
 

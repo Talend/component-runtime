@@ -28,7 +28,7 @@ import javax.inject.Qualifier;
 @Qualifier
 @Target({ METHOD, FIELD, PARAMETER })
 @Retention(RUNTIME)
-public @interface VaultService {
+public @interface VaultHttp {
 
     String value() default "";
 
