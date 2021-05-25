@@ -110,7 +110,8 @@ public class DatasetValidator implements Validator {
                 .stream()
                 .filter(it -> flatten(it.getValue())
                         .noneMatch((ParameterMeta prop) -> "dataset"
-                                .equals(prop.getMetadata().get("tcomp::configurationtype::type"))))
+                                .equals(prop.getMetadata().get("tcomp::configurationtype::type"))
+                                || "datasetDiscovery".equals(prop.getMetadata().get("tcomp::configurationtype::type"))))
                 .map(it -> "The component " + it.getKey().getName()
                         + " is missing a dataset in its configuration (see @DataSet)")
                 .sorted();
