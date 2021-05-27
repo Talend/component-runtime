@@ -52,7 +52,7 @@ public class CacheConfigurationFactory {
     @ConfigProperty(name = "talend.vault.cache.jcache.maxCacheSize", defaultValue = "100000")
     private Integer maxCacheSize; // not strict constraint - for perf - but we ensure it is bound to avoid issues
 
-    <K, T> Configuration<K, T> createConfiguration(final CacheSizeManager<K, T> listener) {
+    public <K, T> Configuration<K, T> createConfiguration(final CacheSizeManager<K, T> listener) {
         return new MutableConfiguration<K, T>()
                 .setStoreByValue(false)
                 .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(SECONDS, cacheExpiry)))
@@ -62,7 +62,7 @@ public class CacheConfigurationFactory {
                         new FactoryBuilder.SingletonFactory<>(listener), null, false, false));
     }
 
-    int maxSize() {
+    public int maxSize() {
         return maxCacheSize;
     }
 }

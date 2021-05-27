@@ -31,6 +31,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -53,6 +55,8 @@ import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 import org.talend.sdk.component.server.service.httpurlconnection.IgnoreNetAuthenticator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 import org.talend.sdk.components.vault.client.VaultClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +64,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 @IgnoreNetAuthenticator
+@CacheDefaults(cacheResolverFactory = FrontCacheResolver.class, cacheKeyGenerator = FrontCacheKeyGenerator.class)
 public class ActionResourceImpl implements ActionResource {
 
     @Inject
@@ -77,6 +82,7 @@ public class ActionResourceImpl implements ActionResource {
     @Inject
     private ExtensionComponentMetadataManager virtualActions;
 
+    @Inject
     @Context
     private HttpHeaders headers;
 
@@ -93,7 +99,9 @@ public class ActionResourceImpl implements ActionResource {
     }
 
     @Override
+    @CacheResult
     public ActionList getIndex(final String[] types, final String[] families, final String language) {
+        log.warn("[getIndex] with lang: {}", language);
         final Predicate<String> typeMatcher = new Predicate<String>() {
 
             private final Collection<String> accepted = new HashSet<>(asList(types));

@@ -47,6 +47,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -65,11 +67,14 @@ import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
 import org.talend.sdk.component.server.service.LocaleMapper;
+import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
+@CacheDefaults(cacheResolverFactory = FrontCacheResolver.class, cacheKeyGenerator = FrontCacheKeyGenerator.class)
 public class DocumentationResourceImpl implements DocumentationResource {
 
     private static final DocumentationContent NO_DOC = new DocumentationContent("asciidoc", "");
@@ -103,6 +108,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
     }
 
     @Override
+    @CacheResult
     public DocumentationContent getDocumentation(final String id, final String language,
             final DocumentationSegment segment) {
         if (virtualComponents.isExtensionEntity(id)) {

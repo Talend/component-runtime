@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.components.vault.jcache;
+package org.talend.sdk.component.server.service.jcache;
 
 import static java.util.Optional.ofNullable;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.lang.annotation.Annotation;
 import java.util.concurrent.TimeUnit;
@@ -33,16 +34,20 @@ import javax.cache.annotation.CacheResult;
 import javax.cache.configuration.Configuration;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.client.WebTarget;
 
 import org.apache.geronimo.jcache.simple.cdi.CacheResolverImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.talend.sdk.components.vault.configuration.Documentation;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.server.front.model.Environment;
+import org.talend.sdk.components.vault.jcache.CacheConfigurationFactory;
+import org.talend.sdk.components.vault.jcache.CacheSizeManager;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class VaultCacheResolver implements CacheResolverFactory {
+public class FrontCacheResolver implements CacheResolverFactory {
 
     @Inject
     private CacheManager cacheManager;
@@ -52,8 +57,11 @@ public class VaultCacheResolver implements CacheResolverFactory {
 
     @Inject
     @Documentation("How often (in ms) should we invalidate the credentials caches.")
-    @ConfigProperty(name = "talend.vault.cache.jcache.refresh.period", defaultValue = "30000")
+    @ConfigProperty(name = "talend.vault.cache.jcache.refresh.period", defaultValue = "30")
     private Long refreshPeriod;
+
+    @Inject
+    private WebTarget client;
 
     private long lastUpdated;
 
@@ -63,6 +71,7 @@ public class VaultCacheResolver implements CacheResolverFactory {
 
     @PostConstruct
     private void startRefresh() {
+        lastUpdated = System.currentTimeMillis();
         thread = new Thread(() -> refreshThread(refreshPeriod));
         thread.setName(getClass().getName() + "-refresher");
         thread.setPriority(Thread.NORM_PRIORITY);
@@ -89,7 +98,7 @@ public class VaultCacheResolver implements CacheResolverFactory {
         try {
             while (running) {
                 try {
-                    clearCaches();
+                    updateIfNeeded();
                 } catch (final Exception e) {
                     log.warn(e.getMessage(), e);
                 }
@@ -100,10 +109,23 @@ public class VaultCacheResolver implements CacheResolverFactory {
         }
     }
 
+    private void updateIfNeeded() {
+        final Environment environment =
+                client.path("environment").request(APPLICATION_JSON_TYPE).get(Environment.class);
+        log.warn("[updateIfNeeded] Environment {} / lastUpdated: {} vs {}", environment, environment.getLastUpdated().getTime(),lastUpdated);
+        // assumes time are synch-ed but not a high assumption
+        if (lastUpdated < environment.getLastUpdated().getTime()) {
+            clearCaches();
+            lastUpdated = System.currentTimeMillis();
+        }
+    }
+
     private void clearCaches() {
         StreamSupport
                 .stream(cacheManager.getCacheNames().spliterator(), false)
-                .filter(name -> name.startsWith("org.talend.sdk.component.runtime.server.vault."))
+                .peek(c -> log.warn("[clearCaches] {}", c))
+                .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))
+                .peek(c -> log.warn("[clearCaches] deleted {}  ", c))
                 .forEach(r -> cacheManager.getCache(r).clear());
     }
 
@@ -130,6 +152,7 @@ public class VaultCacheResolver implements CacheResolverFactory {
     }
 
     private Cache<?, ?> createCache(final String exceptionCacheName) {
+        log.error("[createCache] {}", exceptionCacheName);
         final CacheSizeManager<Object, Object> listener = new CacheSizeManager<>(cacheConfiguration.maxSize());
         final Configuration<Object, Object> configuration = cacheConfiguration.createConfiguration(listener);
         final Cache<Object, Object> instance = cacheManager.createCache(exceptionCacheName, configuration);

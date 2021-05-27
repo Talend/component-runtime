@@ -51,7 +51,6 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.cache.Cache;
-import javax.cache.annotation.CacheDefaults;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -65,8 +64,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.components.vault.configuration.Documentation;
-import org.talend.sdk.components.vault.jcache.VaultCacheKeyGenerator;
-import org.talend.sdk.components.vault.jcache.VaultCacheResolver;
 import org.talend.sdk.components.vault.server.error.ErrorPayload;
 
 import lombok.AllArgsConstructor;
@@ -79,7 +76,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 @ApplicationScoped
-@CacheDefaults(cacheKeyGenerator = VaultCacheKeyGenerator.class, cacheResolverFactory = VaultCacheResolver.class)
 public class VaultClient {
 
     @Inject
@@ -173,6 +169,12 @@ public class VaultClient {
                                                 .map(decrypted::get)
                                                 .map(DecryptedValue::getValue)
                                                 .orElseGet(() -> values.get(e.getKey())))));
+
+        cache.getCacheManager().getCacheNames().forEach(c-> log.warn("[destroy] cache {}", c));
+        log.error("[destroy] {}", cache.getName());
+        cache.spliterator().forEachRemaining(v -> log.warn("[destroy] {}={}", v.getKey(), v.getValue()));
+
+
         return t.get();
     }
 

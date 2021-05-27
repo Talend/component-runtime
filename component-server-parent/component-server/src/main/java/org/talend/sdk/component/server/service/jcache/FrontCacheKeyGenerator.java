@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.components.vault.jcache;
+package org.talend.sdk.component.server.service.jcache;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
 @ApplicationScoped
-public class VaultCacheKeyGenerator implements CacheKeyGenerator {
+public class FrontCacheKeyGenerator implements CacheKeyGenerator {
 
     @Inject
     @Context
