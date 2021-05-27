@@ -59,7 +59,8 @@ public class InternationalizationServiceFactory {
             if (Stream
                     .of(api.getMethods())
                     .flatMap(m -> Stream.of(m.getParameters()))
-                    .anyMatch(p -> p.isAnnotationPresent(Language.class) && p.getType() != Locale.class)) {
+                    .anyMatch(p -> p.isAnnotationPresent(Language.class)
+                            && (p.getType() != Locale.class && p.getType() != String.class))) {
                 throw new IllegalArgumentException("@Language can only be used with Locales");
             }
         }
@@ -87,7 +88,7 @@ public class InternationalizationServiceFactory {
 
         private final ConcurrentMap<Locale, ResourceBundle> bundles = new ConcurrentHashMap<>();
 
-        private transient final ConcurrentMap<Method, MethodMeta> methods = new ConcurrentHashMap<>();
+        private final transient ConcurrentMap<Method, MethodMeta> methods = new ConcurrentHashMap<>();
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -146,9 +147,9 @@ public class InternationalizationServiceFactory {
         }
 
         private Function<Object[], Locale> createLocaleExtractor(final Method method) {
-            Parameter[] parameters = method.getParameters();
+            final Parameter[] parameters = method.getParameters();
             for (int i = 0; i < method.getParameterCount(); i++) {
-                Parameter p = parameters[i];
+                final Parameter p = parameters[i];
                 if (p.isAnnotationPresent(Language.class)) {
                     final int idx = i;
                     if (String.class == p.getType()) {
