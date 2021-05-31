@@ -367,7 +367,7 @@ public class VaultClient {
                     if (token.getAuth() == null || token.getAuth().getClientToken() == null) {
                         log.error("Vault didn't return a token");
                         throw new WebApplicationException(
-                                Response.serverError().entity(new ErrorPayload(null, "Vault not available")).build());
+                                 Response.serverError().entity(new ErrorPayload(null, "Vault not available")).build());
                     } else {
                         log.info("Authenticated to vault");
                     }
