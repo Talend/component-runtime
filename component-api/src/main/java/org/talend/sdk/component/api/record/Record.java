@@ -36,6 +36,13 @@ public interface Record {
     Schema getSchema();
 
     /**
+     * Get record metadatas
+     * 
+     * @return metadatas of record
+     */
+    Metadatas getMetadatas();
+
+    /**
      * Access a record field value.
      *
      * IMPORTANT: it is always better to use the typed accessors and the optional flavor when the entry is nullable.
@@ -264,6 +271,8 @@ public interface Record {
         Record build();
 
         Object getValue(String name);
+
+        Builder withMetadatas(Metadatas metadatas);
 
         List<Entry> getCurrentEntries();
 

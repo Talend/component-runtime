@@ -150,6 +150,11 @@ class SchemaTest {
             }
 
             @Override
+            public Metadatas getMetadatas() {
+                return null;
+            }
+
+            @Override
             public <T> T get(final Class<T> expectedType, final String name) {
                 return null;
             }

@@ -262,7 +262,8 @@ public interface Schema {
                 if (Character.isLowerCase(current) || Character.isUpperCase(current)) {
                     sanitizedBuilder.append('_');
                 } else {
-                    final byte[] encoded = Base64.getEncoder().encode(name.substring(i, i + 1).getBytes(StandardCharsets.UTF_8));
+                    final byte[] encoded =
+                            Base64.getEncoder().encode(name.substring(i, i + 1).getBytes(StandardCharsets.UTF_8));
                     final String enc = new String(encoded);
                     if (sanitizedBuilder.length() == 0 && Character.isDigit(enc.charAt(0))) {
                         sanitizedBuilder.append('_');

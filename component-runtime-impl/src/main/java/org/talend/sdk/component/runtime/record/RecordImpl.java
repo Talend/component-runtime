@@ -54,12 +54,16 @@ import javax.json.bind.annotation.JsonbTransient;
 import javax.json.bind.config.PropertyOrderStrategy;
 import javax.json.spi.JsonProvider;
 
+import org.talend.sdk.component.api.record.Metadatas;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RecordImpl implements Record {
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
@@ -70,10 +74,8 @@ public final class RecordImpl implements Record {
     @JsonbTransient
     private final Schema schema;
 
-    private RecordImpl(final Map<String, Object> values, final Schema schema) {
-        this.values = values;
-        this.schema = schema;
-    }
+    @Getter
+    private final Metadatas metadatas;
 
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
@@ -113,6 +115,8 @@ public final class RecordImpl implements Record {
 
         private Map<String, Schema.Entry> entryIndex;
 
+        private Metadatas metadatas = Metadatas.EMPTY_METADATAS;
+
         public BuilderImpl() {
             this(null);
         }
@@ -130,6 +134,12 @@ public final class RecordImpl implements Record {
         @Override
         public Object getValue(final String name) {
             return this.values.get(name);
+        }
+
+        @Override
+        public Builder withMetadatas(final Metadatas metadatas) {
+            this.metadatas = metadatas;
+            return this;
         }
 
         @Override
@@ -271,7 +281,8 @@ public final class RecordImpl implements Record {
                 }
             }
             return new RecordImpl(unmodifiableMap(values),
-                    providedSchema == null ? new SchemaImpl(RECORD, null, unmodifiableList(entries)) : providedSchema);
+                    providedSchema == null ? new SchemaImpl(RECORD, null, unmodifiableList(entries)) : providedSchema,
+                    this.metadatas);
         }
 
         // here the game is to add an entry method for each kind of type + its companion with Entry provider
