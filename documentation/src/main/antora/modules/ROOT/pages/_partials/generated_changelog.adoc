@@ -1,5 +1,26 @@
 
 
+== Version 1.34.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1919[TCOMP-1919^]: Sanitize must force encoding file
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1707[TCOMP-1707^]: Upgrade Geronimo :: Simple JCache to 1.0.5
+- link:https://jira.talendforge.org/browse/TCOMP-1921[TCOMP-1921^]: Upgrade TSBI to 2.7.0-20210527090437
+
+
+
+== Version 1.33.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1919[TCOMP-1919^]: Sanitize must force encoding file
+
 == Version 1.33.0
 
 === Bug

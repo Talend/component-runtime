@@ -47,7 +47,7 @@ public interface Schema {
 
     default Entry getEntry(final String name) {
         return Optional
-                .ofNullable(this.getEntries()) //
+                .ofNullable(getEntries()) //
                 .orElse(Collections.emptyList()) //
                 .stream() //
                 .filter((Entry e) -> Objects.equals(e.getName(), name)) //
@@ -95,7 +95,7 @@ public interface Schema {
             if (input == null) {
                 return true;
             }
-            for (Class<?> clazz : classes) {
+            for (final Class<?> clazz : classes) {
                 if (clazz.isInstance(input)) {
                     return true;
                 }
@@ -262,7 +262,8 @@ public interface Schema {
                 if (Character.isLowerCase(current) || Character.isUpperCase(current)) {
                     sanitizedBuilder.append('_');
                 } else {
-                    final byte[] encoded = Base64.getEncoder().encode(name.substring(i, i + 1).getBytes(StandardCharsets.UTF_8));
+                    final byte[] encoded =
+                            Base64.getEncoder().encode(name.substring(i, i + 1).getBytes(StandardCharsets.UTF_8));
                     final String enc = new String(encoded);
                     if (sanitizedBuilder.length() == 0 && Character.isDigit(enc.charAt(0))) {
                         sanitizedBuilder.append('_');
