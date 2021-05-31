@@ -169,12 +169,6 @@ public class VaultClient {
                                                 .map(decrypted::get)
                                                 .map(DecryptedValue::getValue)
                                                 .orElseGet(() -> values.get(e.getKey())))));
-
-        cache.getCacheManager().getCacheNames().forEach(c-> log.warn("[destroy] cache {}", c));
-        log.error("[destroy] {}", cache.getName());
-        cache.spliterator().forEachRemaining(v -> log.warn("[destroy] {}={}", v.getKey(), v.getValue()));
-
-
         return t.get();
     }
 

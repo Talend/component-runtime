@@ -101,7 +101,6 @@ public class ActionResourceImpl implements ActionResource {
     @Override
     @CacheResult
     public ActionList getIndex(final String[] types, final String[] families, final String language) {
-        log.warn("[getIndex] with lang: {}", language);
         final Predicate<String> typeMatcher = new Predicate<String>() {
 
             private final Collection<String> accepted = new HashSet<>(asList(types));

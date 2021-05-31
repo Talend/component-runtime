@@ -318,7 +318,7 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                                             "No plugin '" + meta.getPlugin() + "' for identifier: " + id))
+                            "No plugin '" + meta.getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -361,7 +361,7 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                                             "No plugin '" + meta.getParent().getPlugin() + "' for identifier: " + id))
+                            "No plugin '" + meta.getParent().getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }

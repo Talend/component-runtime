@@ -30,6 +30,7 @@ import javax.json.spi.JsonProvider;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -43,21 +44,21 @@ class ConfigurationTypeResourceImplTest {
     @Inject
     private WebsocketClient ws;
 
-    @Test
+    @RepeatedTest(2)
     void webSocketGetIndex() {
         final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index", "");
         assertIndex(index);
         validateJdbcHierarchy(index);
     }
 
-    @Test
+    @RepeatedTest(2)
     void ensureConsistencyBetweenPathsAndNames() {
         final ConfigTypeNodes index =
                 ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index?lightPayload=false", "");
         validateConsistencyBetweenNamesAndKeys(index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM"));
     }
 
-    @Test
+    @RepeatedTest(2)
     void webSocketDetail() {
         final ConfigTypeNodes index = ws
                 .read(ConfigTypeNodes.class, "get",

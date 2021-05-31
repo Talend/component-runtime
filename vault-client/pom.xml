@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.apache.geronimo</groupId>
             <artifactId>geronimo-jcache-simple</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.5</version>
         </dependency>
         <!-- tests -->
         <dependency>

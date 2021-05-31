@@ -118,6 +118,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
 
     @PostConstruct
     private void init() {
+        log.info("Initializing " + getClass());
         configNodeEvaluators.put("id", ConfigTypeNode::getId);
         configNodeEvaluators.put("type", ConfigTypeNode::getConfigurationType);
         configNodeEvaluators.put("name", ConfigTypeNode::getName);

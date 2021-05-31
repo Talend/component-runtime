@@ -16,7 +16,6 @@
 package org.talend.sdk.component.server.service.jcache;
 
 import static java.util.Optional.ofNullable;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.lang.annotation.Annotation;
 import java.util.concurrent.TimeUnit;
@@ -34,11 +33,11 @@ import javax.cache.annotation.CacheResult;
 import javax.cache.configuration.Configuration;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.WebTarget;
 
 import org.apache.geronimo.jcache.simple.cdi.CacheResolverImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.server.front.EnvironmentResourceImpl;
 import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.components.vault.jcache.CacheConfigurationFactory;
 import org.talend.sdk.components.vault.jcache.CacheSizeManager;
@@ -57,11 +56,11 @@ public class FrontCacheResolver implements CacheResolverFactory {
 
     @Inject
     @Documentation("How often (in ms) should we invalidate the credentials caches.")
-    @ConfigProperty(name = "talend.vault.cache.jcache.refresh.period", defaultValue = "30")
+    @ConfigProperty(name = "talend.vault.cache.jcache.refresh.period", defaultValue = "30000")
     private Long refreshPeriod;
 
     @Inject
-    private WebTarget client;
+    EnvironmentResourceImpl env;
 
     private long lastUpdated;
 
@@ -110,9 +109,7 @@ public class FrontCacheResolver implements CacheResolverFactory {
     }
 
     private void updateIfNeeded() {
-        final Environment environment =
-                client.path("environment").request(APPLICATION_JSON_TYPE).get(Environment.class);
-        log.warn("[updateIfNeeded] Environment {} / lastUpdated: {} vs {}", environment, environment.getLastUpdated().getTime(),lastUpdated);
+        final Environment environment = env.get();
         // assumes time are synch-ed but not a high assumption
         if (lastUpdated < environment.getLastUpdated().getTime()) {
             clearCaches();
@@ -123,9 +120,8 @@ public class FrontCacheResolver implements CacheResolverFactory {
     private void clearCaches() {
         StreamSupport
                 .stream(cacheManager.getCacheNames().spliterator(), false)
-                .peek(c -> log.warn("[clearCaches] {}", c))
                 .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))
-                .peek(c -> log.warn("[clearCaches] deleted {}  ", c))
+                .peek(c -> log.warn("[clearCaches] clear cache {}."))
                 .forEach(r -> cacheManager.getCache(r).clear());
     }
 
