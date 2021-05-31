@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class DiscoverDatasetResult {
@@ -49,7 +50,11 @@ public class DiscoverDatasetResult {
             this.metadata.put(key, value);
         }
 
-        public Object dataset;
+        @Setter
+        private String datasetType;
+
+        @Setter
+        private Object dataset;
     }
 
 }

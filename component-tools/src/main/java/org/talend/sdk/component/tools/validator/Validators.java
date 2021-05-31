@@ -112,6 +112,8 @@ public class Validators {
         if (configuration.isValidateDataSet()) {
             final DatasetValidator validator = new DatasetValidator(helper);
             activeValidators.add(validator);
+            final DatasetDiscoveryValidator discoveryValidator = new DatasetDiscoveryValidator(helper);
+            activeValidators.add(discoveryValidator);
         }
 
         if (configuration.isValidateActions()) {
