@@ -40,7 +40,7 @@ public interface Record {
      * 
      * @return metadatas of record
      */
-    Metadatas getMetadatas();
+    Metadata getMetadata();
 
     /**
      * Access a record field value.
@@ -272,7 +272,9 @@ public interface Record {
 
         Object getValue(String name);
 
-        Builder withMetadatas(Metadatas metadatas);
+        Builder withMetadata(Metadata metadata);
+
+        Metadata getMetadata();
 
         List<Entry> getCurrentEntries();
 

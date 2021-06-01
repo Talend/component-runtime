@@ -38,7 +38,7 @@ import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
-import org.talend.sdk.component.api.record.Metadatas;
+import org.talend.sdk.component.api.record.Metadata;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
@@ -59,12 +59,12 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private final AvroSchema schema;
 
     @Getter
-    private final Metadatas metadatas;
+    private final Metadata metadata;
 
     public AvroRecord(final IndexedRecord record) {
         schema = new AvroSchema(record.getSchema());
         delegate = record;
-        this.metadatas = Metadatas.EMPTY_METADATAS;
+        this.metadata = Metadata.EMPTY_METADATAS;
         // dirty fix for Avro DateTime related logicalTypes converted to org.joda.time.DateTime
         delegate
                 .getSchema()
@@ -92,7 +92,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         avroSchema.setFields(fields);
         schema = new AvroSchema(avroSchema);
         delegate = new GenericData.Record(avroSchema);
-        this.metadatas = record.getMetadatas();
+        this.metadata = record.getMetadata();
         entries
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {

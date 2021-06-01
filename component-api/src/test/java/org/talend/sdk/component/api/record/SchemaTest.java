@@ -15,13 +15,9 @@
  */
 package org.talend.sdk.component.api.record;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -150,7 +146,7 @@ class SchemaTest {
             }
 
             @Override
-            public Metadatas getMetadatas() {
+            public Metadata getMetadata() {
                 return null;
             }
 

@@ -26,9 +26,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
-public class Metadatas implements Serializable {
+public class Metadata implements Serializable {
 
-    public static final Metadatas EMPTY_METADATAS = new Metadatas(JsonValue.NULL);
+    public static final Metadata EMPTY_METADATAS = new Metadata(JsonValue.NULL);
 
     private final JsonValue value;
 }

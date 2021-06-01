@@ -73,7 +73,7 @@ class RecordTest {
         }
 
         @Override
-        public Metadatas getMetadatas() {
+        public Metadata getMetadata() {
             return null;
         }
 

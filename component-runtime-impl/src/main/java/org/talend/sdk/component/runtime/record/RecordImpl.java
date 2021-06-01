@@ -54,7 +54,7 @@ import javax.json.bind.annotation.JsonbTransient;
 import javax.json.bind.config.PropertyOrderStrategy;
 import javax.json.spi.JsonProvider;
 
-import org.talend.sdk.component.api.record.Metadatas;
+import org.talend.sdk.component.api.record.Metadata;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
@@ -75,7 +75,7 @@ public final class RecordImpl implements Record {
     private final Schema schema;
 
     @Getter
-    private final Metadatas metadatas;
+    private final Metadata metadata;
 
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
@@ -115,7 +115,8 @@ public final class RecordImpl implements Record {
 
         private Map<String, Schema.Entry> entryIndex;
 
-        private Metadatas metadatas = Metadatas.EMPTY_METADATAS;
+        @Getter
+        private Metadata metadata = Metadata.EMPTY_METADATAS;
 
         public BuilderImpl() {
             this(null);
@@ -137,8 +138,8 @@ public final class RecordImpl implements Record {
         }
 
         @Override
-        public Builder withMetadatas(final Metadatas metadatas) {
-            this.metadatas = metadatas;
+        public Builder withMetadata(final Metadata metadatas) {
+            this.metadata = metadatas;
             return this;
         }
 
@@ -282,7 +283,7 @@ public final class RecordImpl implements Record {
             }
             return new RecordImpl(unmodifiableMap(values),
                     providedSchema == null ? new SchemaImpl(RECORD, null, unmodifiableList(entries)) : providedSchema,
-                    this.metadatas);
+                    this.metadata);
         }
 
         // here the game is to add an entry method for each kind of type + its companion with Entry provider
