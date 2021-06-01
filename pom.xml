@@ -255,8 +255,9 @@
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
     <java11.jaxb.version>2.3.0</java11.jaxb.version>
-    <!-- minimal code coverage ration -->
+    <!-- minimal code coverage ratio -->
     <coverage.min>0.75</coverage.min>
+    <coverage.fail>false</coverage.fail>
   </properties>
 
   <dependencyManagement>
@@ -1388,7 +1389,7 @@
               <goal>check</goal>
             </goals>
             <configuration>
-              <haltOnFailure>false</haltOnFailure>
+              <haltOnFailure>${coverage.fail}</haltOnFailure>
               <rules>
                 <rule>
                   <element>BUNDLE</element>
