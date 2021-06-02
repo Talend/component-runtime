@@ -27,5 +27,19 @@ public class Startup {
 
     public void onStart(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         log.info("Starting...");
+        if (log.isDebugEnabled()) {
+            log.debug("System properties:");
+            System
+                    .getProperties()
+                    .entrySet()
+                    .stream()
+                    .forEach(e -> log.debug(String.format("===> %s=%s", e, e.getValue())));
+            log.debug("Environment:");
+            System
+                    .getenv()
+                    .entrySet()
+                    .stream()
+                    .forEach(e -> log.debug(String.format("===> %s=%s", e.getKey(), e.getValue())));
+        }
     }
 }
