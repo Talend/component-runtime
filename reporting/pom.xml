@@ -99,6 +99,11 @@
         </dependency>
         <dependency>
             <groupId>org.talend.sdk.component</groupId>
+            <artifactId>vault-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-server</artifactId>
             <version>${project.version}</version>
         </dependency>
