@@ -55,7 +55,7 @@ public class DatasetDiscoveryValidator implements Validator {
                 .stream()
                 .map(entry -> this.helper
                         .validateFamilyI18nKey(entry.getKey(),
-                                "${family}.dataset." + entry.getValue() + "._displayName"))
+                                "${family}.datasetdiscovery." + entry.getValue() + "._displayName"))
                 .filter(Objects::nonNull);
 
         // "cloud" rule - ensure all datasetDiscoveries have a datastore
@@ -70,7 +70,7 @@ public class DatasetDiscoveryValidator implements Validator {
         // A datasetDiscovery must implement interface DatasetDiscoveryConfiguration
         final Stream<String> implementationError = datasetDiscoveryClasses
                 .stream()
-                .filter((Class<?> ds) -> !(ds.isAssignableFrom(DatasetDiscoveryConfiguration.class)))
+                .filter((Class<?> ds) -> !(DatasetDiscoveryConfiguration.class.isAssignableFrom(ds)))
                 .map((Class<?> ds) -> "Class " + ds.getName() + " must implement "
                         + DatasetDiscoveryConfiguration.class)
                 .sorted();
