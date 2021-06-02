@@ -64,7 +64,6 @@ import org.talend.sdk.component.server.front.model.BulkRequests;
 import org.talend.sdk.component.server.front.model.BulkResponses;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
-import org.talend.sdk.component.server.front.security.web.EndpointSecurityService;
 import org.talend.sdk.component.server.service.qualifier.ComponentServer;
 
 import lombok.extern.slf4j.Slf4j;
@@ -101,9 +100,6 @@ public class BulkReadResourceImpl implements BulkReadResource {
     @ComponentServer
     private Jsonb defaultMapper;
 
-    @Inject
-    private EndpointSecurityService endpointSecurityService;
-
     private ServletController controller;
 
     private final String appPrefix = "/api/v1";
@@ -139,10 +135,6 @@ public class BulkReadResourceImpl implements BulkReadResource {
                 ofNullable(requests.getRequests()).map(Collection::stream).orElseGet(Stream::empty).map(request -> {
                     if (isBlacklisted(request)) {
                         return completedFuture(forbiddenInBulkModeResponse);
-                    }
-                    if ("/api/v1/environment".equals(request.getPath())
-                            && !endpointSecurityService.isAllowed(httpServletRequest)) {
-                        return completedFuture(forbiddenResponse);
                     }
                     if (request.getPath() == null || !request.getPath().startsWith(appPrefix)
                             || request.getPath().contains("?")) {
