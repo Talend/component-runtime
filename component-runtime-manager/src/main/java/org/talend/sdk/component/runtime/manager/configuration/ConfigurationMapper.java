@@ -80,7 +80,7 @@ public class ConfigurationMapper {
                     return res;
                 }).flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                indexes.clear();// clear index after the end of array handling
+                indexes.remove(arrayIndex); // clear index after the end of array handling
                 return config;
 
             default: // primitives

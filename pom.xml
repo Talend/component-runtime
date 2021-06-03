@@ -1494,6 +1494,31 @@
               <fail>true</fail>
             </configuration>
           </execution>
+          <execution>
+            <id>mandatory-checks-on-project</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <banDistributionManagement />
+                <banDuplicatePomDependencyVersions />
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+          <execution>
+            <id>warning-checks-on-project</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <dependencyConvergence />
+              </rules>
+              <fail>false</fail>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>
