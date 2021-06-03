@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1919[TCOMP-1919^]: Sanitize must force encoding file
+- link:https://jira.talendforge.org/browse/TCOMP-1925[TCOMP-1925^]: Incorrect mapping of the parameters after arrays
 
 
 

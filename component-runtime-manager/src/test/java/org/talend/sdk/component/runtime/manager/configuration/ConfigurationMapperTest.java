@@ -197,6 +197,7 @@ class ConfigurationMapperTest {
         child1Level1.object = child1Level2;
 
         assertEquals(new HashMap<String, String>() {
+
             {
                 put("configuration.array[0].object.array[0].nested.name", "a");
                 put("configuration.array[0].object.array[0].nested.age", "1");
