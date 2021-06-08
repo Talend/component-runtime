@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariable;
 import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
@@ -45,6 +46,7 @@ import org.talend.sdk.component.api.standalone.DriverRunner;
 import org.talend.sdk.component.api.standalone.RunAtDriver;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
+import org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest.MapperAfterVariableNokWrongDeclaredType.Mapper;
 import org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest.Registrar.In;
 
 class ModelVisitorTest {
@@ -141,6 +143,11 @@ class ModelVisitorTest {
     @Test
     void processorAfterVariableNokWrongParamCount() {
         assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongParamCount.class));
+
+    }
+    @Test
+    void processorAfterVariableNokWrongDeclaredType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongDeclaredType.class));
     }
 
     @Test
@@ -152,6 +159,11 @@ class ModelVisitorTest {
     @Test
     void emitterAfterVariableNokWrongReturnType() {
         assertThrows(IllegalArgumentException.class, () -> visit(EmitterAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void emitterAfterVariableNokWrongDeclaredType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(EmitterAfterVariableNokWrongDeclaredType.class));
     }
 
     @Test
@@ -168,6 +180,11 @@ class ModelVisitorTest {
     @Test
     void mapperAfterVariableNokWrongReturnType() {
         assertThrows(IllegalArgumentException.class, () -> visit(MapperAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void mapperAfterVariableNokWrongDeclaredType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperAfterVariableNokWrongDeclaredType.class));
     }
 
     @Test
@@ -199,6 +216,11 @@ class ModelVisitorTest {
     @Test
     void standaloneAfterVariableNokWrongReturnType() {
         assertThrows(IllegalArgumentException.class, () -> visit(StandaloneAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void standaloneAfterVariableNokWrongDeclaredType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(StandaloneAfterVariableNokWrongDeclaredType.class));
     }
 
     @Test
@@ -557,6 +579,24 @@ class ModelVisitorTest {
         }
     }
 
+    public static class ProcessorAfterVariableNokWrongDeclaredType {
+
+        @AfterVariable(value = "Name", type = Mapper.class)
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Map<String, Object> container() {
+                return Collections.emptyMap();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
     public static class EmitterAfterVariableOk {
 
         @Emitter(family = "comp", name = "Input")
@@ -598,6 +638,24 @@ class ModelVisitorTest {
 
             @AfterVariableContainer
             public Map<String, Object> commit(String param) {
+                return Collections.emptyMap();
+            }
+
+            @Producer
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class EmitterAfterVariableNokWrongDeclaredType {
+
+        @AfterVariable(value = "Name", type = Mapper.class)
+        @Emitter(family = "comp", name = "Input")
+        public static class In {
+
+            @AfterVariableContainer
+            public Map<String, Object> container() {
                 return Collections.emptyMap();
             }
 
@@ -689,6 +747,34 @@ class ModelVisitorTest {
         }
     }
 
+    public static class MapperAfterVariableNokWrongDeclaredType {
+
+        @AfterVariable(value = "Name", type = Mapper.class)
+        @PartitionMapper(family = "comp", name = "Mapper")
+        public static class Mapper {
+
+            @Assessor
+            public long get() {
+                return 1;
+            }
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public In emit() {
+                return null;
+            }
+
+            @AfterVariableContainer
+            public Map<String, Object> container() {
+                return Collections.emptyMap();
+            }
+        }
+    }
+
     public static class StandaloneNoRunMethod {
 
         @DriverRunner
@@ -746,6 +832,24 @@ class ModelVisitorTest {
 
             @AfterVariableContainer
             public Map<String, String> commit() {
+                return Collections.emptyMap();
+            }
+
+            @RunAtDriver
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class StandaloneAfterVariableNokWrongDeclaredType {
+
+        @AfterVariable(value = "Name", type = Mapper.class)
+        @DriverRunner(family = "comp", name = "standalone")
+        public static class Standalone {
+
+            @AfterVariableContainer
+            public Map<String, Object> container() {
                 return Collections.emptyMap();
             }
 
