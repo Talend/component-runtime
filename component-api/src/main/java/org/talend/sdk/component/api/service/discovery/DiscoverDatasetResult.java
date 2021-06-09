@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import lombok.Data;
 import lombok.Getter;
 
 @Getter
@@ -35,7 +34,7 @@ public class DiscoverDatasetResult {
         this.datasetDescriptionList.addAll(datasetDescriptionList);
     }
 
-    @Data
+    @Getter
     public final static class DatasetDescription {
 
         public DatasetDescription(final String name) {
@@ -50,9 +49,6 @@ public class DiscoverDatasetResult {
             this.metadata.put(key, value);
         }
 
-        private String datasetType;
-
-        private Object dataset;
     }
 
 }

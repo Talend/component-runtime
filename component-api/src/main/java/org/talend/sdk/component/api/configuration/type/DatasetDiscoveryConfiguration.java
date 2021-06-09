@@ -26,14 +26,7 @@ import lombok.Data;
  */
 public class DatasetDiscoveryConfiguration {
 
-    public static enum ResponseData {
-        MINIMAL,
-        METADATA, // MIMNIMAL + METADATA
-        DATASET, // MINIMAL + DATASET
-        FULL// MINIMAL + METADATA + DATASET
-    }
-
     @Option
-    @DefaultValue("MINIMAL")
-    ResponseData responseData = ResponseData.MINIMAL;
+    @DefaultValue("false")
+    boolean retrieveDataset = false;
 }
