@@ -34,6 +34,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -174,6 +175,7 @@ class ActionResourceImplTest {
         }).get("value"));
     }
 
+    @Disabled
     @ParameterizedTest
     @ValueSource(strings = { "en", "fr" })
     void i18nParameterized(final String lang) {
