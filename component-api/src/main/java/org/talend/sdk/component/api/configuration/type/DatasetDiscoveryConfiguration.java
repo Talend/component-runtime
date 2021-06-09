@@ -15,10 +15,25 @@
  */
 package org.talend.sdk.component.api.configuration.type;
 
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
+
+import lombok.Data;
+
+@Data
 /**
  * Base interface for Dataset Discovery configuration
  */
-public interface DatasetDiscoveryConfiguration {
+public class DatasetDiscoveryConfiguration {
 
-    boolean isGetDataset();
+    public static enum ResponseData {
+        MINIMAL,
+        METADATA, // MIMNIMAL + METADATA
+        DATASET, // MINIMAL + DATASET
+        FULL// MINIMAL + METADATA + DATASET
+    }
+
+    @Option
+    @DefaultValue("MINIMAL")
+    ResponseData responseData = ResponseData.MINIMAL;
 }
