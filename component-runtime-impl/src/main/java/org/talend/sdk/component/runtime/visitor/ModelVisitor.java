@@ -54,10 +54,9 @@ import org.talend.sdk.component.runtime.reflect.Parameters;
 
 public class ModelVisitor {
 
-    private static final Set<Class<?>> SUPPORTED_AFTER_VARIABLES_TYPES = new HashSet<>(
-            Arrays.asList(Boolean.class, Byte.class, byte[].class, Character.class, Date.class, Double.class, Float.class,
-                    BigDecimal.class, Integer.class, Long.class, Object.class, Short.class, String.class, List.class)
-    );
+    private static final Set<Class<?>> SUPPORTED_AFTER_VARIABLES_TYPES = new HashSet<>(Arrays
+            .asList(Boolean.class, Byte.class, byte[].class, Character.class, Date.class, Double.class, Float.class,
+                    BigDecimal.class, Integer.class, Long.class, Object.class, Short.class, String.class, List.class));
 
     public void visit(final Class<?> type, final ModelListener listener, final boolean validate) {
         if (getSupportedComponentTypes().noneMatch(type::isAnnotationPresent)) { // unlikely but just in case
@@ -312,12 +311,15 @@ public class ModelVisitor {
     }
 
     private static void validateAfterVariableAnnotationDeclaration(final Class<?> type) {
-        List<String> incorrectDeclarations = Stream.of(type.getAnnotationsByType(AfterVariable.class))
+        List<String> incorrectDeclarations = Stream
+                .of(type.getAnnotationsByType(AfterVariable.class))
                 .filter(annotation -> !SUPPORTED_AFTER_VARIABLES_TYPES.contains(annotation.type()))
-                .map(annotation -> "Key '" + annotation.value() + "' has incorrect type: '" + annotation.type() + "'")
+                .map(annotation -> "The after variable with name '" + annotation.value() + "' has incorrect type: '"
+                        + annotation.type() + "'")
                 .collect(toList());
         if (!incorrectDeclarations.isEmpty()) {
-            String message = incorrectDeclarations.stream()
+            String message = incorrectDeclarations
+                    .stream()
                     .collect(Collectors.joining(",", "The after variables declared incorrectly. ", ""));
             throw new IllegalArgumentException(message);
         }

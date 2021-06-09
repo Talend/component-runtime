@@ -136,8 +136,26 @@ class ModelVisitorTest {
     }
 
     @Test
-    void processorAfterVariableNokWrongReturnType() {
-        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongReturnType.class));
+    void processorAfterVariableNokWrongContainerReturnType() {
+        assertThrows(IllegalArgumentException.class,
+                () -> visit(ProcessorAfterVariableNokWrongContainerReturnType.class));
+    }
+
+    @Test
+    void processorAfterVariableNokWrongContainerReturnParameterizedDimension() {
+        assertThrows(IllegalArgumentException.class,
+                () -> visit(ProcessorAfterVariableNokWrongContainerReturnParameterizedDimension.class));
+    }
+
+    @Test
+    void processorAfterVariableNokWrongContainerReturnParameterizedType() {
+        assertThrows(IllegalArgumentException.class,
+                () -> visit(ProcessorAfterVariableNokWrongContainerReturnParameterizedType.class));
+    }
+
+    @Test
+    void processorAfterVariableNokMoreThanOneContainer() {
+        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokMoreThanOneContainer.class));
     }
 
     @Test
@@ -145,6 +163,7 @@ class ModelVisitorTest {
         assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongParamCount.class));
 
     }
+
     @Test
     void processorAfterVariableNokWrongDeclaredType() {
         assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongDeclaredType.class));
@@ -530,6 +549,7 @@ class ModelVisitorTest {
 
     public static class ProcessorAfterVariableOk {
 
+        @AfterVariable(value = "NAME", type = Integer.class)
         @Processor(family = "comp", name = "Output")
         public static class Out {
 
@@ -545,13 +565,71 @@ class ModelVisitorTest {
         }
     }
 
-    public static class ProcessorAfterVariableNokWrongReturnType {
+    public static class ProcessorAfterVariableNokWrongContainerReturnType {
+
+        @AfterVariable(value = "NAME", type = Integer.class)
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public String commit() {
+                return "It should be Map<String, Object>";
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorAfterVariableNokWrongContainerReturnParameterizedDimension {
+
+        @AfterVariable(value = "NAME", type = Integer.class)
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Collection<String> commit() {
+                return Collections.emptyList();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorAfterVariableNokWrongContainerReturnParameterizedType {
 
         @Processor(family = "comp", name = "Output")
         public static class Out {
 
             @AfterVariableContainer
             public Map<String, String> commit() {
+                return Collections.emptyMap();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorAfterVariableNokMoreThanOneContainer {
+
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Map<String, Object> container1() {
+                return Collections.emptyMap();
+            }
+
+            @AfterVariableContainer
+            public Map<String, Object> container2() {
                 return Collections.emptyMap();
             }
 
@@ -599,6 +677,7 @@ class ModelVisitorTest {
 
     public static class EmitterAfterVariableOk {
 
+        @AfterVariable(value = "NAME", type = Integer.class)
         @Emitter(family = "comp", name = "Input")
         public static class In {
 
@@ -668,6 +747,7 @@ class ModelVisitorTest {
 
     public static class MapperAfterVariableOk {
 
+        @AfterVariable(value = "NAME", type = Integer.class)
         @PartitionMapper(family = "comp", name = "Mapper")
         public static class Mapper {
 
@@ -810,6 +890,7 @@ class ModelVisitorTest {
 
     public static class StandaloneAfterVariableOk {
 
+        @AfterVariable(value = "NAME", type = Integer.class)
         @DriverRunner(family = "comp", name = "standalone")
         public static class Standalone {
 
