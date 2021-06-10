@@ -13,6 +13,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1707[TCOMP-1707^]: Upgrade Geronimo :: Simple JCache to 1.0.5
 - link:https://jira.talendforge.org/browse/TCOMP-1921[TCOMP-1921^]: Upgrade TSBI to 2.7.0-20210527090437
+- link:https://jira.talendforge.org/browse/TCOMP-1930[TCOMP-1930^]: Remove jsoup 1.7.x transitive dependency due to CVE-2015-6748
 
 
 
