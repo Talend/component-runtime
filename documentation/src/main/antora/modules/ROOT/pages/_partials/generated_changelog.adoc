@@ -1,5 +1,52 @@
 
 
+== Version 1.34.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
+
+
+
+== Version 1.33.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
+
+
+
+== Version 1.33.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1886[TCOMP-1886^]: Errors on Schema.sanitizeConnectionName
+- link:https://jira.talendforge.org/browse/TCOMP-1905[TCOMP-1905^]: component-runtime fails to build with Java 11
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1893[TCOMP-1893^]: Upgrade to Beam 2.29.0 and use Beam's Spark 3 specific module
+- link:https://jira.talendforge.org/browse/TCOMP-705[TCOMP-705^]: Support After variables
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1898[TCOMP-1898^]: Add method to Record.Builder
+- link:https://jira.talendforge.org/browse/TCOMP-1910[TCOMP-1910^]: Upgrade commons-io to 2.8.0 due to CVE-2021-29425
+- link:https://jira.talendforge.org/browse/TCOMP-1911[TCOMP-1911^]: Upgrade cxf to 3.4.3 due to CVE-2021-22696
+- link:https://jira.talendforge.org/browse/TCOMP-1912[TCOMP-1912^]: Upgrade TSBI to 2.6.7-20210503202416
+
+
+
+== Version 1.32.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
+
 == Version 1.32.0
 
 === Bug
