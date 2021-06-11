@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1919[TCOMP-1919^]: Sanitize must force encoding file
 - link:https://jira.talendforge.org/browse/TCOMP-1925[TCOMP-1925^]: Incorrect mapping of the parameters after arrays
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
 
 
 
@@ -14,6 +15,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1707[TCOMP-1707^]: Upgrade Geronimo :: Simple JCache to 1.0.5
 - link:https://jira.talendforge.org/browse/TCOMP-1921[TCOMP-1921^]: Upgrade TSBI to 2.7.0-20210527090437
 - link:https://jira.talendforge.org/browse/TCOMP-1930[TCOMP-1930^]: Remove jsoup 1.7.x transitive dependency due to CVE-2015-6748
+
+
+
+== Version 1.33.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
 
 
 
@@ -45,6 +54,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1910[TCOMP-1910^]: Upgrade commons-io to 2.8.0 due to CVE-2021-29425
 - link:https://jira.talendforge.org/browse/TCOMP-1911[TCOMP-1911^]: Upgrade cxf to 3.4.3 due to CVE-2021-22696
 - link:https://jira.talendforge.org/browse/TCOMP-1912[TCOMP-1912^]: Upgrade TSBI to 2.6.7-20210503202416
+
+
+
+== Version 1.32.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
 
 == Version 1.32.0
 
