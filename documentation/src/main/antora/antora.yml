@@ -13,6 +13,6 @@
 #  limitations under the License.
 name: main
 title: Talend Component Kit Developer Reference Guide
-version: '1.32.1'
+version: '1.32.2'
 nav:
 - modules/ROOT/nav.adoc
