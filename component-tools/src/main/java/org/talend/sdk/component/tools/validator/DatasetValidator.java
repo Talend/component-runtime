@@ -110,7 +110,8 @@ public class DatasetValidator implements Validator {
                 .stream()
                 .filter(it -> flatten(it.getValue())
                         .noneMatch((ParameterMeta prop) -> "dataset"
-                                .equals(prop.getMetadata().get("tcomp::configurationtype::type"))))
+                                .equals(prop.getMetadata().get("tcomp::configurationtype::type"))
+                                || "datasetDiscovery".equals(prop.getMetadata().get("tcomp::configurationtype::type"))))
                 .map(it -> "The component " + it.getKey().getName()
                         + " is missing a dataset in its configuration (see @DataSet)")
                 .sorted();
@@ -142,7 +143,7 @@ public class DatasetValidator implements Validator {
         return null;
     }
 
-    private Stream<String> duplicatedDataset(final Collection<String> datasets) {
+    protected static Stream<String> duplicatedDataset(final Collection<String> datasets) {
 
         final Set<String> uniqueDatasets = new HashSet<>(datasets);
         if (datasets.size() != uniqueDatasets.size()) {
@@ -159,7 +160,7 @@ public class DatasetValidator implements Validator {
         return Stream.empty();
     }
 
-    private Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
+    protected static Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
         return options
                 .stream()
                 .flatMap(it -> Stream
