@@ -164,7 +164,8 @@ public class ComponentServerConfiguration {
             + "This mapping enables that by whitelisting allowed locales, default being `en`. "
             + "If the key ends with `*` it means all string starting with the prefix will match. "
             + "For instance `fr*` will match `fr_FR` but also `fr_CA`.")
-    @ConfigProperty(name = "talend.component.server.locale.mapping", defaultValue = "en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja")
+    @ConfigProperty(name = "talend.component.server.locale.mapping",
+            defaultValue = "en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de")
     private String localeMapping;
 
     @PostConstruct
