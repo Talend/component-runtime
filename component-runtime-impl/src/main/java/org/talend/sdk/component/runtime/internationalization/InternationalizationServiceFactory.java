@@ -61,7 +61,7 @@ public class InternationalizationServiceFactory {
                     .flatMap(m -> Stream.of(m.getParameters()))
                     .anyMatch(p -> p.isAnnotationPresent(Language.class)
                             && (p.getType() != Locale.class && p.getType() != String.class))) {
-                throw new IllegalArgumentException("@Language can only be used with Locales");
+                throw new IllegalArgumentException("@Language can only be used with Locale or String.");
             }
         }
         final String pck = api.getPackage().getName();
