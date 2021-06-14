@@ -37,6 +37,12 @@ class LocaleMapperTest {
     }
 
     @Test
+    void mapDe() {
+        assertEquals(Locale.GERMAN, mapper.mapLocale(Locale.GERMANY.toString()));
+        assertEquals(Locale.GERMAN, mapper.mapLocale("de_AU"));
+    }
+
+    @Test
     void mapDefault() {
         assertEquals(Locale.ENGLISH, mapper.mapLocale(null));
     }

@@ -93,7 +93,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         System
                 .setProperty("talend.component.server.icon.paths",
                         "icons/%s.svg,icons/svg/%s.svg,%s.svg,%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png");
-        System.setProperty("talend.component.server.locale.mapping", "en*=en\nfr*=fr\ntest=test");
+        System.setProperty("talend.component.server.locale.mapping", "en*=en\nfr*=fr\ntest=test\nde*=de");
         System.setProperty("talend.component.server.gridlayout.translation.support", "true");
 
         final String skipLogs = System.getProperty("component.server.test.logging.skip", "true");
