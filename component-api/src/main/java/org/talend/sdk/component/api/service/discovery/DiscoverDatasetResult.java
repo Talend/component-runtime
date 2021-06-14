@@ -48,7 +48,6 @@ public class DiscoverDatasetResult {
         public void addMetadata(final String key, final String value) {
             this.metadata.put(key, value);
         }
-
     }
 
 }
