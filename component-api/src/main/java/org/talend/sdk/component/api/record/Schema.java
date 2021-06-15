@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.api.record;
 
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import javax.json.Json;
+import javax.json.JsonValue;
 
 public interface Schema {
 
@@ -65,6 +69,24 @@ public interface Schema {
      * @return the requested metadata prop
      */
     String getProp(String property);
+
+    /**
+     * Get a property values from schema with its name.
+     * @param name : property's name.
+     * @return property's value.
+     */
+    default JsonValue getJsonProp(final String name) {
+        final String prop = this.getProp(name);
+        if (prop == null) {
+            return null;
+        }
+        try {
+            return Json.createParser(new StringReader(prop)).getValue();
+        }
+        catch (RuntimeException ex) {
+            return Json.createValue(prop);
+        }
+    }
 
     enum Type {
         RECORD(new Class<?>[] { Record.class }),
@@ -157,6 +179,24 @@ public interface Schema {
          * @return the requested metadata prop
          */
         String getProp(String property);
+
+        /**
+         * Get a property values from entry with its name.
+         * @param name : property's name.
+         * @return property's value.
+         */
+        default JsonValue getJsonProp(final String name) {
+            final String prop = this.getProp(name);
+            if (prop == null) {
+                return null;
+            }
+            try {
+                return Json.createParser(new StringReader(prop)).getValue();
+            }
+            catch (RuntimeException ex) {
+                return Json.createValue(prop);
+            }
+        }
 
         // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
 
