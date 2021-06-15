@@ -72,6 +72,7 @@ public interface Schema {
 
     /**
      * Get a property values from schema with its name.
+     * 
      * @param name : property's name.
      * @return property's value.
      */
@@ -82,8 +83,7 @@ public interface Schema {
         }
         try {
             return Json.createParser(new StringReader(prop)).getValue();
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             return Json.createValue(prop);
         }
     }
@@ -182,6 +182,7 @@ public interface Schema {
 
         /**
          * Get a property values from entry with its name.
+         * 
          * @param name : property's name.
          * @return property's value.
          */
@@ -192,8 +193,7 @@ public interface Schema {
             }
             try {
                 return Json.createParser(new StringReader(prop)).getValue();
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 return Json.createValue(prop);
             }
         }
