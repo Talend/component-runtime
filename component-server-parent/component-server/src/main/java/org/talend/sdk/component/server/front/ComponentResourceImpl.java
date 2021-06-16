@@ -46,10 +46,14 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -90,12 +94,16 @@ import org.talend.sdk.component.server.service.PropertiesService;
 import org.talend.sdk.component.server.service.SimpleQueryLanguageCompiler;
 import org.talend.sdk.component.server.service.VirtualDependenciesService;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
+import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 import org.talend.sdk.component.spi.component.ComponentExtension;
+import org.talend.sdk.components.vault.client.VaultClient;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
+@CacheDefaults(cacheResolverFactory = FrontCacheResolver.class, cacheKeyGenerator = FrontCacheKeyGenerator.class)
 public class ComponentResourceImpl implements ComponentResource {
 
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
@@ -139,7 +147,14 @@ public class ComponentResourceImpl implements ComponentResource {
     @Inject
     private SimpleQueryLanguageCompiler queryLanguageCompiler;
 
-    private Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
+    @Inject
+    @Context
+    private HttpHeaders headers;
+
+    @Inject
+    private VaultClient vault;
+
+    private final Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
 
     @PostConstruct
     private void setupRuntime() {
@@ -163,7 +178,7 @@ public class ComponentResourceImpl implements ComponentResource {
             if (iterator.hasNext()) {
                 return iterator.next().getMetadata();
             }
-            return Collections.emptyMap();
+            return emptyMap();
         });
     }
 
@@ -172,6 +187,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public Dependencies getDependencies(final String[] ids) {
         if (ids.length == 0) {
             return new Dependencies(emptyMap());
@@ -191,6 +207,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public StreamingOutput getDependency(final String id) {
         final ComponentFamilyMeta.BaseMeta<?> component = componentDao.findById(id);
         final Supplier<InputStream> streamProvider;
@@ -255,6 +272,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public ComponentIndices getIndex(final String language, final boolean includeIconContent, final String query) {
         final Locale locale = localeMapper.mapLocale(language);
         caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
@@ -276,6 +294,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public Response familyIcon(final String id) {
         if (virtualComponents.isExtensionEntity(id)) { // todo or just use front bundle?
             return Response
@@ -298,7 +317,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (!plugin.isPresent()) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.PLUGIN_MISSING,
+                    .entity(new ErrorPayload(PLUGIN_MISSING,
                             "No plugin '" + meta.getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
@@ -317,6 +336,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public Response icon(final String id) {
         if (virtualComponents.isExtensionEntity(id)) { // todo if the front bundle is not sufficient
             return Response
@@ -331,7 +351,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
+                    .entity(new ErrorPayload(COMPONENT_MISSING, "No component for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -340,7 +360,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (!plugin.isPresent()) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.PLUGIN_MISSING,
+                    .entity(new ErrorPayload(PLUGIN_MISSING,
                             "No plugin '" + meta.getParent().getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
@@ -360,20 +380,22 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
+        final Map<String, String> decrypted = vault.decrypt(config, headers.getHeaderString("x-talend-tenant-id"));
         if (virtualComponents.isExtensionEntity(id)) {
-            return config;
+            return decrypted;
         }
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
-                        .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "Didn't find component " + id))
+                        .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find component " + id))
                         .build()))
                 .getMigrationHandler()
                 .get()
-                .migrate(version, config);
+                .migrate(version, decrypted);
     }
 
     @Override // TODO: max ids.length
+    @CacheResult
     public ComponentDetailList getDetail(final String language, final String[] ids) {
         if (ids == null || ids.length == 0) {
             return new ComponentDetailList(emptyList());

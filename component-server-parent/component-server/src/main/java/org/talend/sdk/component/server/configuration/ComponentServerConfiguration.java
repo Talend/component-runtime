@@ -96,12 +96,6 @@ public class ComponentServerConfiguration {
     private Boolean supportsEnvironment;
 
     @Inject
-    @Documentation("Accepted tokens in Authorization header for remote calls to secured endpoints "
-            + "(/api/v1/environment or /documentation).")
-    @ConfigProperty(name = "talend.component.server.filter.secured.tokens", defaultValue = "-")
-    private String securedEndpointsTokens;
-
-    @Inject
     @Documentation("A folder available for the server - don't forget to mount it in docker if you are using the "
             + "image - which accepts subfolders named as component plugin id "
             + "(generally the artifactId or jar name without the version, ex: jdbc). Each family folder can contain:\n\n"

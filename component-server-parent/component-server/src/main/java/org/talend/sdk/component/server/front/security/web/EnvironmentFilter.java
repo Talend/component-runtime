@@ -15,22 +15,36 @@
  */
 package org.talend.sdk.component.server.front.security.web;
 
+import java.io.IOException;
+
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletResponse;
 
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 @Dependent
 @WebFilter(urlPatterns = { "/api/v1/environment", "/api/v1/environment/" })
-public class EnvironmentFilter extends SecuredFilter {
+public class EnvironmentFilter implements Filter {
 
     @Inject
     private ComponentServerConfiguration configuration;
 
     @Override
-    protected boolean canCall(final ServletRequest servletRequest) {
-        return configuration.getSupportsEnvironment();
+    public final void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
+            final FilterChain filterChain) throws IOException, ServletException {
+        if (configuration.getSupportsEnvironment()) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
+        final HttpServletResponse response = HttpServletResponse.class.cast(servletResponse);
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 }

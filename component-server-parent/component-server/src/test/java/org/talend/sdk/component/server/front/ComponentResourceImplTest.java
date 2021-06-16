@@ -52,6 +52,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.ziplock.IO;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
@@ -86,7 +88,7 @@ class ComponentResourceImplTest {
         assertIndex(ws.read(ComponentIndices.class, "get", "/component/index?includeIconContent=true", ""));
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDependencies() {
         final String compId = client.getJdbcId();
         final Dependencies dependencies = base
@@ -101,7 +103,7 @@ class ComponentResourceImplTest {
         assertEquals("org.apache.tomee:ziplock:jar:7.0.5", definition.getDependencies().iterator().next());
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDependency(final TestInfo info, @TempDir final File folder) {
         final Function<String, File> download = id -> {
             final InputStream stream = base
@@ -134,12 +136,12 @@ class ComponentResourceImplTest {
         jarValidator.accept(component);
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getIndex() {
         assertIndex(client.fetchIndex());
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getIndexWithQuery() {
         final List<ComponentIndex> components = base
                 .path("component/index")
@@ -175,6 +177,30 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void migrateWithEncrypted() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 1)
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.username", "username0");
+                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(4, migrated.size());
+        assertEquals("true", migrated.get("migrated"));
+        assertEquals("test", migrated.get("configuration.url"));
+        assertEquals("username0", migrated.get("configuration.username"));
+        assertEquals("test", migrated.get("configuration.password"));
+    }
+
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDetails() {
         final ComponentDetailList details = base
                 .path("component/details")
@@ -223,7 +249,7 @@ class ComponentResourceImplTest {
          */
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void enumDisplayName() {
         final ComponentDetailList details = base
                 .path("component/details")
@@ -251,7 +277,7 @@ class ComponentResourceImplTest {
         }, next.getProposalDisplayNames());
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDetailsStandaloneType() {
         final ComponentDetailList details = base
                 .path("component/details")
@@ -264,7 +290,7 @@ class ComponentResourceImplTest {
         assertEquals("standalone", detail.getType());
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDetailsMeta() {
         final ComponentDetailList details = base
                 .path("component/details")

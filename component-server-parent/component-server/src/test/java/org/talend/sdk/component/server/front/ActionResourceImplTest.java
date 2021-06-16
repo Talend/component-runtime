@@ -34,7 +34,11 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
@@ -47,10 +51,28 @@ class ActionResourceImplTest {
     @Inject
     private WebTarget base;
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
+    void actionIndex() {
+        { // default
+            final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
+            assertEquals(11, index.getItems().size());
+            assertEquals("jdbc", index.getItems().iterator().next().getComponent());
+        }
+        { // change the family
+            final ActionList index = base
+                    .path("action/index")
+                    .queryParam("family", "jdbc")
+                    .request(APPLICATION_JSON_TYPE)
+                    .get(ActionList.class);
+            assertEquals(4, index.getItems().size());
+            assertEquals("jdbc", index.getItems().iterator().next().getComponent());
+        }
+    }
+
+    @RepeatedTest(2)
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(10, index.getItems().size());
+        assertEquals(11, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
@@ -62,12 +84,13 @@ class ActionResourceImplTest {
         assertAction("chain", "healthcheck", "default", 6, it.next());
     }
 
-    @Test
+    @RepeatedTest(2)
     void indexFiltered() {
         final ActionList index = base
                 .path("action/index")
                 .queryParam("type", "healthcheck")
                 .queryParam("family", "chain")
+                .queryParam("language", "fr")
                 .request(APPLICATION_JSON_TYPE)
                 .get(ActionList.class);
         assertEquals(2, index.getItems().size());
@@ -83,7 +106,7 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(520, error.getStatus());
-        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: simulating an unexpected error", errorPayload.getDescription());
     }
@@ -98,7 +121,7 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(520, error.getStatus());
-        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: unknown exception", errorPayload.getDescription());
     }
@@ -113,7 +136,7 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(400, error.getStatus());
-        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: user exception", errorPayload.getDescription());
     }
@@ -128,7 +151,7 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
         assertEquals(456, error.getStatus());
-        ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: backend exception", errorPayload.getDescription());
     }
@@ -152,22 +175,22 @@ class ActionResourceImplTest {
         }).get("value"));
     }
 
-    @Test
-    void i18n() {
-        final Function<String, String> call = lang -> {
-            final Response error = base
-                    .path("action/execute")
-                    .queryParam("type", "user")
-                    .queryParam("family", "jdbc")
-                    .queryParam("action", "i18n")
-                    .queryParam("lang", lang)
-                    .request(APPLICATION_JSON_TYPE)
-                    .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE));
-            return error.readEntity(new GenericType<Map<String, String>>() {
-            }).get("value");
-        };
-        assertEquals("God save the queen", call.apply("en"));
-        assertEquals("Liberté, égalité, fraternité", call.apply("fr"));
+    @Disabled
+    @ParameterizedTest
+    @ValueSource(strings = { "en", "fr" })
+    void i18nParameterized(final String lang) {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "i18n")
+                .queryParam("lang", lang)
+                .request(APPLICATION_JSON_TYPE)
+                .header("Content-Language", lang)
+                .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE));
+        final String value = error.readEntity(new GenericType<Map<String, String>>() {
+        }).get("value");
+        assertEquals(lang.equals("en") ? "God save the queen" : "Liberté, égalité, fraternité", value);
     }
 
     @Test
@@ -209,4 +232,49 @@ class ActionResourceImplTest {
         assertEquals(name, value.getName());
         assertEquals(params, value.getProperties().size());
     }
+
+    @Test
+    void executeWithEncrypted() {
+        final Response response = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "encrypted")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.username", "username0");
+                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                    }
+                }, APPLICATION_JSON_TYPE));
+        assertEquals(200, response.getStatus());
+        final Map<String, String> result = response.readEntity(Map.class);
+        assertEquals("test", result.get("url"));
+        assertEquals("username0", result.get("username"));
+        assertEquals("test", result.get("password"));
+    }
+
+    @Test
+    void executeFailWithBadEncrypted() {
+        final Response response = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "encrypted")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tent")
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.url", "https://vault:8200/fail");
+                        put("configuration.username", "username0");
+                        put("configuration.password", "vault:v1:hccc");
+                    }
+                }, APPLICATION_JSON_TYPE));
+        assertEquals(500, response.getStatus());
+    }
+
 }

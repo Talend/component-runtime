@@ -111,6 +111,7 @@
     <module>component-runtime-manager</module>
     <module>component-runtime-testing</module>
     <module>component-runtime-design-extension</module>
+    <module>vault-client</module>
     <module>component-server-parent</module>
     <module>component-form</module>
     <module>talend-component-maven-plugin</module>

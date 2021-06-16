@@ -17,8 +17,6 @@ package org.talend.sdk.component.server.front.error;
 
 import static javax.ws.rs.core.MediaType.WILDCARD_TYPE;
 
-import java.util.logging.Level;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -31,9 +29,9 @@ import org.talend.sdk.component.server.configuration.ComponentServerConfiguratio
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
-@Log
+@Slf4j
 @Dependent
 @Provider
 public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
@@ -50,7 +48,7 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(final Throwable exception) {
-        log.log(Level.SEVERE, exception.getMessage(), exception);
+        log.error(exception.getMessage(), exception);
         if (WebApplicationException.class.isInstance(exception)) {
             return WebApplicationException.class.cast(exception).getResponse();
         }
