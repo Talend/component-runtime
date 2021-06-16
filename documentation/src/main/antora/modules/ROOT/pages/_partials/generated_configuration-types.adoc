@@ -31,3 +31,19 @@ Mark a model (complex object) as being a datastore (connection to a backend).
 ----
 
 
+= DatasetDiscovery
+
+Mark a model (complex object) as being a dataset discovery configuration.
+
+- API: @org.talend.sdk.component.api.configuration.type.DatasetDiscovery
+- Sample:
+
+[source,js]
+----
+{
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"datasetDiscovery"
+}
+----
+
+
