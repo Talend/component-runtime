@@ -24,10 +24,16 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.regex.Pattern;
+
+import javax.json.Json;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -43,12 +49,60 @@ class SchemaTest {
         final Schema sc1 = new SchemaExample(null, Collections.emptyMap());
         Assertions.assertNull(sc1.getEntry("unknown"));
 
-        final Entry e1 = new EntryExample("e1");
-        final Entry e2 = new EntryExample("e2");
+        final Entry e1 = new EntryExample("e1", Collections.emptyMap());
+        final Entry e2 = new EntryExample("e2", Collections.emptyMap());
         final Schema sc2 = new SchemaExample(Arrays.asList(e1, e2), Collections.emptyMap());
         Assertions.assertNull(sc2.getEntry("unknown"));
         Assertions.assertSame(e1, sc2.getEntry("e1"));
         Assertions.assertSame(e2, sc2.getEntry("e2"));
+    }
+
+    @Test
+    void testJsonProp() {
+        final Map<String, String> testMap = new HashMap<>(3);
+        testMap.put("key1", "value1");
+        testMap.put("key2", Json.createObjectBuilder().add("Hello", 5).build().toString());
+        testMap.put("key3", Json.createArrayBuilder().add(1).add(2).build().toString());
+
+        final Schema sc1 = new SchemaExample(null, testMap);
+        Assertions.assertNull(sc1.getJsonProp("unexist"));
+
+        final JsonValue value1 = sc1.getJsonProp("key1");
+        Assertions.assertEquals(ValueType.STRING, value1.getValueType());
+        Assertions.assertEquals("value1", ((JsonString) value1).getString());
+
+        final JsonValue value2 = sc1.getJsonProp("key2");
+        Assertions.assertEquals(ValueType.OBJECT, value2.getValueType());
+        Assertions.assertEquals(5, value2.asJsonObject().getJsonNumber("Hello").intValue());
+
+        final JsonValue value3 = sc1.getJsonProp("key3");
+        Assertions.assertEquals(ValueType.ARRAY, value3.getValueType());
+        Assertions.assertEquals(1, value3.asJsonArray().getJsonNumber(0).intValue());
+        Assertions.assertEquals(2, value3.asJsonArray().getJsonNumber(1).intValue());
+    }
+
+    @Test
+    void testJsonPropForEntry() {
+        final Map<String, String> testMap = new HashMap<>(3);
+        testMap.put("key1", "value1");
+        testMap.put("key2", Json.createObjectBuilder().add("Hello", 5).build().toString());
+        testMap.put("key3", Json.createArrayBuilder().add(1).add(2).build().toString());
+
+        final Entry entry = new EntryExample(null, testMap);
+        Assertions.assertNull(entry.getJsonProp("unexist"));
+
+        final JsonValue value1 = entry.getJsonProp("key1");
+        Assertions.assertEquals(ValueType.STRING, value1.getValueType());
+        Assertions.assertEquals("value1", ((JsonString) value1).getString());
+
+        final JsonValue value2 = entry.getJsonProp("key2");
+        Assertions.assertEquals(ValueType.OBJECT, value2.getValueType());
+        Assertions.assertEquals(5, value2.asJsonObject().getJsonNumber("Hello").intValue());
+
+        final JsonValue value3 = entry.getJsonProp("key3");
+        Assertions.assertEquals(ValueType.ARRAY, value3.getValueType());
+        Assertions.assertEquals(1, value3.asJsonArray().getJsonNumber(0).intValue());
+        Assertions.assertEquals(2, value3.asJsonArray().getJsonNumber(1).intValue());
     }
 
     @RequiredArgsConstructor
@@ -88,6 +142,8 @@ class SchemaTest {
     class EntryExample implements Schema.Entry {
 
         private final String name;
+
+        private final Map<String, String> props;
 
         @Override
         public String getName() {
@@ -131,12 +187,12 @@ class SchemaTest {
 
         @Override
         public Map<String, String> getProps() {
-            return null;
+            return this.props;
         }
 
         @Override
         public String getProp(final String property) {
-            return null;
+            return this.props.get(property);
         }
     }
 
