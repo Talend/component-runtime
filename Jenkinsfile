@@ -127,8 +127,7 @@ spec:
         }
         stage('Master/Maintenance Build Tasks') {
             when {
-                expression { params.Action != 'RELEASE' }
-                isStdBranch
+                expression { params.Action != 'RELEASE' AND isStdBranch}
             }
             steps {
                 container('main') {
@@ -186,8 +185,7 @@ spec:
         }
         stage('Release') {
             when {
-                expression { params.Action == 'RELEASE' }
-                isStdBranch
+                expression { params.Action == 'RELEASE' AND isStdBranch}
             }
             steps {
                 withCredentials([gitCredentials, dockerCredentials, ossrhCredentials ]) {
