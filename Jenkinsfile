@@ -86,10 +86,10 @@ spec:
     }
 
     environment {
-        MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=256 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dinvoker.streamLogs=false"
+        MAVEN_OPTS="--settings .jenkins/settings.xml --batch-mode --errors -Dformatter.skip=true -Dmaven.artifact.threads=256"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS --batch-mode -Possrh -Prelease"
-        BUILD_ARGS="clean install -B -q -e -Possrh -Prelease -Dgpg.skip=true "
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease"
+        BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
         GPG_DIR="$HOME/.gpg"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
@@ -120,7 +120,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml "
+                        sh "mvn clean install $BUILD_ARGS"
                     }
                 }
             }
@@ -135,7 +135,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn deploy -e -q $DEPLOY_OPTS -s .jenkins/settings.xml"
+                        sh "mvn deploy $DEPLOY_OPTS"
                     }
                 }
             }
@@ -171,12 +171,12 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
-                        sh "cd documentation && mvn verify pre-site -e -Pgh-pages -Dgpg.skip=true -s .jenkins/settings.xml $SKIP_OPTS && cd -"
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -"
                     }
                 }
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn ossindex:audit -B -s .jenkins/settings.xml"
+                        sh "mvn ossindex:audit"
                     }
                 }
                 container('main') {
