@@ -86,10 +86,10 @@ spec:
     }
 
     environment {
-        MAVEN_OPTS="-s .jenkins/settings.xml --batch-mode --errors -Dformatter.skip=true -Dmaven.artifact.threads=256"
+        MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
+        BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
         DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease"
-        BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
         GPG_DIR="$HOME/.gpg"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
@@ -120,7 +120,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn clean install $BUILD_ARGS"
+                        sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -135,7 +135,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn deploy $DEPLOY_OPTS"
+                        sh "mvn deploy $DEPLOY_OPTS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -171,12 +171,12 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
-                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -"
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s .jenkins/settings.xml && cd -"
                     }
                 }
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn ossindex:audit"
+                        sh "mvn ossindex:audit -s .jenkins/settings.xml"
                     }
                 }
                 container('main') {
