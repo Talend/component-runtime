@@ -86,7 +86,7 @@ spec:
     }
 
     environment {
-        MAVEN_OPTS="--settings .jenkins/settings.xml --batch-mode --errors -Dformatter.skip=true -Dmaven.artifact.threads=256"
+        MAVEN_OPTS="-s .jenkins/settings.xml --batch-mode --errors -Dformatter.skip=true -Dmaven.artifact.threads=256"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
         DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease"
         BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
