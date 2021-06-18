@@ -127,9 +127,9 @@ spec:
         }
         stage('Master/Maintenance Build Tasks') {
             when {
-                allof {
+                allOf {
                     expression { params.Action != 'RELEASE' }
-                    isStdBranch
+                    expression { isStdBranch }
                 }
             }
             steps {
@@ -188,9 +188,9 @@ spec:
         }
         stage('Release') {
                 when {
-                    allof {
+                    allOf {
                         expression { params.Action == 'RELEASE' }
-                        isStdBranch
+                        expression { isStdBranch }
                     }
                 }
             steps {
