@@ -91,7 +91,7 @@ spec:
         BUILD_ARGS="clean install -B -q -e -Possrh -Prelease -Dgpg.skip=true "
         GPG_DIR="$HOME/.gpg"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
-        #
+
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
         APP_ID = '579232'
