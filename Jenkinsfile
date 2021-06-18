@@ -49,7 +49,8 @@ def escapedBranch = branchName.toLowerCase().replaceAll("/", "_")
 def deploymentSuffix = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/")) ? "snapshots" : "dev_branch_snapshots/branch_${escapedBranch}"
 def deploymentRepository = "https://artifacts-zl.talend.com/nexus/content/repositories/${deploymentSuffix}"
 def m2 = "/tmp/jenkins/tdi/m2/${deploymentSuffix}"
-def talendRepositoryArg = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/")) ? "" : "-Dtalend_oss_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix} -Dtalend_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix}"
+def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+def talendRepositoryArg = isStdBranch ? "" : "-Dtalend_oss_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix} -Dtalend_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix}"
 def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
 pipeline {
@@ -67,7 +68,7 @@ spec:
             command: [cat]
             tty: true
             volumeMounts: [{name: docker, mountPath: /var/run/docker.sock}, {name: m2main, mountPath: /root/.m2/repository}, {name: dockercache, mountPath: /root/.dockercache}]
-            resources: {requests: {memory: 3G, cpu: '2.5'}, limits: {memory: 3G, cpu: '2.5'}}
+            resources: {requests: {memory: 4G, cpu: '2.5'}, limits: {memory: 8G, cpu: '3.5'}}
     volumes:
         -
             name: docker
@@ -91,7 +92,6 @@ spec:
         BUILD_ARGS="clean install -B -q -e -Possrh -Prelease -Dgpg.skip=true "
         GPG_DIR="$HOME/.gpg"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
-
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
         APP_ID = '579232'
@@ -99,7 +99,7 @@ spec:
 
     options {
         buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: env.BRANCH_NAME == 'master' ? '10' : '2'))
-        timeout(time: 60, unit: 'MINUTES')
+        timeout(time: 80, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
 
@@ -118,7 +118,7 @@ spec:
         stage('Standard maven build') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
-                container('Main build') {
+                container('main') {
                     withCredentials([ossrhCredentials]) {
                         sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml "
                     }
@@ -127,16 +127,11 @@ spec:
         }
         stage('Master/Maintenance Build Tasks') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                }
-                anyOf {
-                    branch 'master'
-                    expression { env.BRANCH_NAME.startsWith('maintenance/') }
-                }
+                expression { params.Action != 'RELEASE' }
+                isStdBranch
             }
             steps {
-                container('Deploy artifacts') {
+                container('main') {
                     withCredentials([ossrhCredentials]) {
                         sh "mvn deploy -e -q $DEPLOY_OPTS -s .jenkins/settings.xml"
                     }
@@ -168,23 +163,21 @@ spec:
         }
         stage('Master Post Build Tasks') {
             when {
-                allOf{
                     expression { params.Action != 'RELEASE' }
                     branch 'master'
-                }
             }
             steps {
-                container('Update Documentation') {
+                container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
                         sh "cd documentation && mvn verify pre-site -e -Pgh-pages -Dgpg.skip=true -s .jenkins/settings.xml $SKIP_OPTS && cd -"
                     }
                 }
-                container('Sonatype Audit') {
+                container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn install -B -q -e $SKIP_OPTS && travis_wait 50 mvn ossindex:audit -B -s .jenkins/settings.xml"
+                        sh "mvn ossindex:audit -B -s .jenkins/settings.xml"
                     }
                 }
-                container('Sonar Audit') {
+                container('main') {
                     withCredentials([sonarCredentials]) {
                         sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_LOGIN' -Dsonar.password='$SONAR_PASSWORD' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
                     }
@@ -194,10 +187,7 @@ spec:
         stage('Release') {
             when {
                 expression { params.Action == 'RELEASE' }
-                anyOf {
-                    branch 'master'
-                    expression { BRANCH_NAME.startsWith('maintenance/') }
-                }
+                isStdBranch
             }
             steps {
                 withCredentials([gitCredentials, dockerCredentials, ossrhCredentials ]) {
