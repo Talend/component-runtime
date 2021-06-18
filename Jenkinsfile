@@ -52,6 +52,7 @@ def m2 = "/tmp/jenkins/tdi/m2/${deploymentSuffix}"
 def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 def talendRepositoryArg = isStdBranch ? "" : "-Dtalend_oss_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix} -Dtalend_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix}"
 def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:1.14.0-2.1-20191203093421"
 
 pipeline {
     agent {
@@ -64,7 +65,7 @@ spec:
     containers:
         -
             name: main
-            image: '${env.TSBI_IMAGE}'
+            image: '${tsbiImage}'
             command: [cat]
             tty: true
             volumeMounts: [{name: docker, mountPath: /var/run/docker.sock}, {name: m2main, mountPath: /root/.m2/repository}, {name: dockercache, mountPath: /root/.dockercache}]
@@ -125,7 +126,7 @@ spec:
                 }
             }
         }
-        stage('Master/Maintenance Build Tasks') {
+        stage('Deploy artifacts') {
             when {
                 allOf {
                     expression { params.Action != 'RELEASE' }
