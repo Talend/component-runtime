@@ -126,13 +126,14 @@ spec:
             }
         }
         stage('Master/Maintenance Build Tasks') {
-            when { allOf{
-                when { expression { params.Action != 'RELEASE' }}
-                        anyOf {
-                            branch 'master'
-                            expression { env.BRANCH_NAME.startsWith('maintenance/') }
-                        }
-                    }
+            when {
+                allOf {
+                    expression { params.Action != 'RELEASE' }
+                }
+                anyOf {
+                    branch 'master'
+                    expression { env.BRANCH_NAME.startsWith('maintenance/') }
+                }
             }
             steps {
                 container('Deploy artifacts') {
@@ -141,29 +142,29 @@ spec:
                     }
                 }
             }
-            steps {
-                container('main') {
-                    withCredentials([dockerCredentials]) {
-                        sh '''#!/bin/bash
-                              env|sort
-                              docker version
-                              echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
-                              env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
-                              echo ">> Building and pushing TSBI images ${PROJECT_VERSION}"
-                              cd images/component-server-image
-                              mvn clean verify dockerfile:build -P ci-tsbi
-                              docker tag talend/common/tacokit/component-server:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
-                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
-                              cd ../component-server-vault-proxy-image
-                              mvn clean verify dockerfile:build -P ci-tsbi
-                              docker tag talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
-                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
-                              cd ../..
-                              #TODO starter and remote-engine-customizer
-                           '''
-                    }
-                }
-            }
+//            steps {
+//                container('main') {
+//                    withCredentials([dockerCredentials]) {
+//                        sh '''#!/bin/bash
+//                              env|sort
+//                              docker version
+//                              echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
+//                              env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
+//                              echo ">> Building and pushing TSBI images ${PROJECT_VERSION}"
+//                              cd images/component-server-image
+//                              mvn clean verify dockerfile:build -P ci-tsbi
+//                              docker tag talend/common/tacokit/component-server:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
+//                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
+//                              cd ../component-server-vault-proxy-image
+//                              mvn clean verify dockerfile:build -P ci-tsbi
+//                              docker tag talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
+//                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
+//                              cd ../..
+//                              #TODO starter and remote-engine-customizer
+//                           '''
+//                    }
+//                }
+//            }
         }
         stage('Master Post Build Tasks') {
             when {
