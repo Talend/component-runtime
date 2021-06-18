@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.json.Json;
 import javax.json.JsonValue;
@@ -45,9 +46,14 @@ public interface Schema {
     Schema getElementSchema();
 
     /**
-     * @return the entries for records.
+     * @return the data entries for records (not contains meta data entries).
      */
     List<Entry> getEntries();
+
+    /**
+     * @return All entries, including data and metadata, of this schema.
+     */
+    Stream<Entry> getAllEntries();
 
     default Entry getEntry(final String name) {
         return Optional
@@ -154,6 +160,11 @@ public interface Schema {
         boolean isNullable();
 
         /**
+         * @return true if this entry is for metadata; false for ordinary data.
+         */
+        boolean isMetadata();
+
+        /**
          * @param <T> the default value type.
          * @return Default value for this entry.
          */
@@ -212,6 +223,8 @@ public interface Schema {
             Builder withType(Type type);
 
             Builder withNullable(boolean nullable);
+
+            Builder withMetadata(boolean metadata);
 
             <T> Builder withDefaultValue(T value);
 

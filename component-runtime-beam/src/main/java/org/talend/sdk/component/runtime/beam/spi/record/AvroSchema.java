@@ -24,13 +24,16 @@ import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 import lombok.Data;
 import lombok.ToString;
@@ -39,12 +42,18 @@ import lombok.ToString;
 @ToString(of = "delegate")
 public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
 
+    // alias that indicate field is metadata if present.
+    static final String METADATA_ALIAS_NAME = "__METADATA__";
+
     @JsonbTransient
     private final Schema delegate;
 
     private volatile AvroSchema elementSchema;
 
     private volatile List<Entry> entries;
+
+    @JsonbTransient
+    private volatile List<Entry> metadataEntries;
 
     private volatile Type type;
 
@@ -96,19 +105,61 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             if (entries != null) {
                 return entries;
             }
-            entries =
-                    getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL).map(field -> {
-                        final Type type = mapType(field.schema());
-                        final AvroSchema elementSchema = new AvroSchema(
-                                type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
-                        // readProp(unwrapUnion(field.schema()), KeysForAvroProperty.LABEL) is not good location in my
-                        // view
-                        return new SchemaImpl.EntryImpl(field.name(), field.getProp(KeysForAvroProperty.LABEL), type,
-                                field.schema().getType() == UNION, field.defaultVal(), elementSchema, field.doc(),
-                                field.getProps());
-                    }).collect(toList());
+            entries = this
+                    .getNonNullFields() //
+                    .filter(f -> !AvroSchema.isMetadata(f)) // only data fields
+                    .map(this::fromAvro) //
+                    .collect(toList());
         }
         return entries;
+    }
+
+    @Override
+    @JsonbTransient
+    public Stream<Entry> getAllEntries() {
+        if (this.metadataEntries == null) {
+            synchronized (this) {
+                if (entries != null) {
+                    this.metadataEntries = this
+                            .getNonNullFields() //
+                            .filter(AvroSchema::isMetadata) // only metadata fields
+                            .map(this::fromAvro) //
+                            .collect(Collectors.toList());
+                }
+            }
+        }
+
+        return Stream.concat(this.getEntries().stream(), this.metadataEntries.stream());
+    }
+
+    private Stream<Field> getNonNullFields() {
+        return getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL);
+    }
+
+    private static boolean isMetadata(final Field f) {
+        return f.aliases() != null && f.aliases().contains(AvroSchema.METADATA_ALIAS_NAME);
+    }
+
+    private Entry fromAvro(final Field field) {
+        final Type type = mapType(field.schema());
+        final AvroSchema elementSchema =
+                new AvroSchema(type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
+
+        return AvroSchema.buildFromAvro(field, type, elementSchema);
+    }
+
+    private static Entry buildFromAvro(final Field field, final Type type, final AvroSchema elementSchema) {
+        return new EntryImpl.BuilderImpl() //
+                .withName(field.name()) //
+                .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
+                .withType(type) //
+                .withNullable(field.schema().getType() == UNION) //
+                .withMetadata(AvroSchema.isMetadata(field)) //
+                .withDefaultValue(field.defaultVal()) //
+                .withElementSchema(elementSchema) //
+                .withComment(field.doc()) //
+                .withProps(field.getProps()) //
+                .build();
     }
 
     @Override

@@ -19,9 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -34,7 +32,6 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
@@ -186,9 +183,15 @@ class RecordBuilderImplTest {
     @Test
     void nullSupportCollections() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
-        builder
-                .withArray(new SchemaImpl.EntryImpl("test", "test", Schema.Type.ARRAY, true, null,
-                        new SchemaImpl(Schema.Type.STRING, null, null), null), null);
+        final Schema innerArray = new BuilderImpl().withType(Type.STRING).build();
+        final Entry arrayEntry = new EntryImpl.BuilderImpl() //
+                .withName("test") //
+                .withRawName("test") //
+                .withType(Type.ARRAY) //
+                .withNullable(true) //
+                .withElementSchema(innerArray) //
+                .build();
+        builder.withArray(arrayEntry, null);
         final Record record = builder.build();
         assertEquals(1, record.getSchema().getEntries().size());
         assertNull(record.getArray(String.class, "test"));
@@ -357,7 +360,14 @@ class RecordBuilderImplTest {
 
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(new EntryImpl("field1", "field1", Type.INT, true, 5, null, "Comment"))
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("field1")
+                        .withRawName("field1")
+                        .withType(Type.INT)
+                        .withNullable(true)
+                        .withDefaultValue(5)
+                        .withComment("Comment")
+                        .build())
                 .build();
         final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
         final List<Entry> entries1 = builder1.getCurrentEntries();
@@ -376,13 +386,12 @@ class RecordBuilderImplTest {
         Assertions.assertEquals(1, builder.getCurrentEntries().size());
         Assertions.assertTrue(entries.stream().anyMatch((Entry e) -> "fieldInt".equals(e.getName())));
 
-        Schema.Entry unknownEntry =
-                new EntryImpl("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", null, "Comment");
+        Schema.Entry unknownEntry = newEntry("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", "Comment");
         assertThrows(IllegalArgumentException.class, () -> builder.removeEntry(unknownEntry));
 
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(new EntryImpl("field1", "field1", Type.INT, true, 5, null, "Comment"))
+                .withEntry(newEntry("field1", "field1", Type.INT, true, 5, "Comment"))
                 .build();
         final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
         final List<Entry> entries1 = builder1.getCurrentEntries();
@@ -399,7 +408,7 @@ class RecordBuilderImplTest {
         final List<Entry> entries = builder.getCurrentEntries();
         Assertions.assertEquals(2, entries.size());
 
-        final Entry entry = new EntryImpl("field2", "newFieldName", Type.STRING, true, 5, null, "Comment");
+        final Entry entry = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
         builder.updateEntryByName("field1", entry);
         Assertions.assertEquals(2, builder.getCurrentEntries().size());
         Assertions
@@ -408,12 +417,10 @@ class RecordBuilderImplTest {
                         .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
         assertEquals("Hello", builder.getValue("field2"));
 
-        final Entry entryTypeNotCompatible =
-                new EntryImpl("field3", "newFieldName", Type.INT, true, 5, null, "Comment");
+        final Entry entryTypeNotCompatible = newEntry("field3", "newFieldName", Type.INT, true, 5, "Comment");
         assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("field2", entryTypeNotCompatible));
 
-        Schema.Entry unknownEntry =
-                new EntryImpl("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", null, "Comment");
+        Schema.Entry unknownEntry = newEntry("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", "Comment");
         assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("fieldUnknown", unknownEntry));
     }
 
@@ -421,13 +428,13 @@ class RecordBuilderImplTest {
     void updateEntryByName_fromProvidedSchema() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(new EntryImpl("field1", "field1", Type.STRING, true, 5, null, "Comment"))
+                .withEntry(newEntry("field1", "field1", Type.STRING, true, 5, "Comment"))
                 .build();
         final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
         builder1.with(schema.getEntry("field1"), "10");
         final List<Entry> entries1 = builder1.getCurrentEntries();
         Assertions.assertEquals(1, entries1.size());
-        final Entry entry1 = new EntryImpl("field2", "newFieldName", Type.STRING, true, 5, null, "Comment");
+        final Entry entry1 = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
         Record.Builder newBuilder = builder1.updateEntryByName("field1", entry1);
         Assertions.assertEquals(1, newBuilder.getCurrentEntries().size());
         Assertions
@@ -437,5 +444,17 @@ class RecordBuilderImplTest {
                         .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
                                 && Type.STRING.equals(e.getType())));
         assertEquals("10", newBuilder.getValue("field2"));
+    }
+
+    private Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable, Object defaultValue,
+            String comment) {
+        return new EntryImpl.BuilderImpl()
+                .withName(name)
+                .withRawName(rawname)
+                .withType(type)
+                .withNullable(nullable)
+                .withDefaultValue(defaultValue)
+                .withComment(comment)
+                .build();
     }
 }

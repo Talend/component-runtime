@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
@@ -272,8 +271,15 @@ public final class RecordImpl implements Record {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
             }
-            return new RecordImpl(unmodifiableMap(values),
-                    providedSchema == null ? new SchemaImpl(RECORD, null, unmodifiableList(entries)) : providedSchema);
+            final Schema currentSchema;
+            if (providedSchema == null) {
+                final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
+                this.entries.stream().forEach(builder::withEntry);
+                currentSchema = builder.build();
+            } else {
+                currentSchema = this.providedSchema;
+            }
+            return new RecordImpl(unmodifiableMap(values), currentSchema);
         }
 
         // here the game is to add an entry method for each kind of type + its companion with Entry provider

@@ -36,13 +36,19 @@ class JsonSchemaSerializationTest {
     void toJson() throws Exception {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(RECORD)
-                .withEntry(new SchemaImpl.EntryImpl("array", "array", Schema.Type.ARRAY, true, null,
-                        new AvroSchemaBuilder().withType(STRING).build(), null, emptyMap()))
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("array")
+                        .withRawName("array")
+                        .withType(Schema.Type.ARRAY)
+                        .withNullable(true)
+                        .withElementSchema(new AvroSchemaBuilder().withType(STRING).build())
+                        .withProps(emptyMap())
+                        .build())
                 .build();
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             assertEquals(
-                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"props\":{},\"type\":\"STRING\"},\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"props\":{},\"type\":\"RECORD\"}",
+                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"props\":{},\"type\":\"STRING\"},\"metadata\":false,\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"props\":{},\"type\":\"RECORD\"}",
                     jsonb.toJson(schema));
         }
     }

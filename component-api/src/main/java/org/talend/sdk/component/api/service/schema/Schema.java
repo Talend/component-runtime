@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -69,6 +71,11 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         return null;
     }
 
+    @Override
+    public Stream<org.talend.sdk.component.api.record.Schema.Entry> getAllEntries() {
+        return Optional.ofNullable(this.entries).map(List::stream).orElse(Stream.empty());
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -104,6 +111,11 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         @Override
         public boolean isNullable() {
             return true;
+        }
+
+        @Override
+        public boolean isMetadata() {
+            return false;
         }
 
         @Override

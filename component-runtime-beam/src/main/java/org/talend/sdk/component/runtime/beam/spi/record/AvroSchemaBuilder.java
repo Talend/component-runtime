@@ -169,6 +169,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
                         ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
                         : schema,
                 entry.getComment(), (Object) entry.getDefaultValue());
+        if (entry.isMetadata()) {
+            f.addAlias(AvroSchema.METADATA_ALIAS_NAME);
+        }
         if (entry.getRawName() != null) {
             f.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
         }

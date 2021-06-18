@@ -20,6 +20,9 @@ import static java.util.Collections.emptyMap;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.Schema;
 
@@ -150,6 +153,12 @@ public abstract class Schemas implements Schema, Schema.Builder {
     @Override
     public List<Entry> getEntries() {
         return emptyList();
+    }
+
+    @Override
+    @JsonbTransient
+    public Stream<Entry> getAllEntries() {
+        return Stream.empty();
     }
 
     @Override
