@@ -49,8 +49,10 @@ def escapedBranch = branchName.toLowerCase().replaceAll("/", "_")
 def deploymentSuffix = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/")) ? "snapshots" : "dev_branch_snapshots/branch_${escapedBranch}"
 def deploymentRepository = "https://artifacts-zl.talend.com/nexus/content/repositories/${deploymentSuffix}"
 def m2 = "/tmp/jenkins/tdi/m2/${deploymentSuffix}"
-def talendRepositoryArg = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/")) ? "" : "-Dtalend_oss_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix} -Dtalend_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix}"
+def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+def talendRepositoryArg = isStdBranch ? "" : "-Dtalend_oss_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix} -Dtalend_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix}"
 def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:1.14.0-2.1-20191203093421"
 
 pipeline {
     agent {
@@ -63,11 +65,11 @@ spec:
     containers:
         -
             name: main
-            image: '${env.TSBI_IMAGE}'
+            image: '${tsbiImage}'
             command: [cat]
             tty: true
             volumeMounts: [{name: docker, mountPath: /var/run/docker.sock}, {name: m2main, mountPath: /root/.m2/repository}, {name: dockercache, mountPath: /root/.dockercache}]
-            resources: {requests: {memory: 3G, cpu: '2.5'}, limits: {memory: 3G, cpu: '2.5'}}
+            resources: {requests: {memory: 4G, cpu: '2.5'}, limits: {memory: 8G, cpu: '3.5'}}
     volumes:
         -
             name: docker
@@ -85,13 +87,12 @@ spec:
     }
 
     environment {
-        MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=256 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dinvoker.streamLogs=false"
+        MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
+        BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS --batch-mode -Possrh -Prelease"
-        BUILD_ARGS="clean install -B -q -e -Possrh -Prelease -Dgpg.skip=true "
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease"
         GPG_DIR="$HOME/.gpg"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
-        #
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
         APP_ID = '579232'
@@ -99,7 +100,7 @@ spec:
 
     options {
         buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: env.BRANCH_NAME == 'master' ? '10' : '2'))
-        timeout(time: 60, unit: 'MINUTES')
+        timeout(time: 80, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
 
@@ -118,72 +119,68 @@ spec:
         stage('Standard maven build') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
-                container('Main build') {
+                container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml "
+                        sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
         }
-        stage('Master/Maintenance Build Tasks') {
-            when { allOf{
-                when { expression { params.Action != 'RELEASE' }}
-                        anyOf {
-                            branch 'master'
-                            expression { env.BRANCH_NAME.startsWith('maintenance/') }
-                        }
-                    }
-            }
-            steps {
-                container('Deploy artifacts') {
-                    withCredentials([ossrhCredentials]) {
-                        sh "mvn deploy -e -q $DEPLOY_OPTS -s .jenkins/settings.xml"
-                    }
+        stage('Deploy artifacts') {
+            when {
+                allOf {
+                    expression { params.Action != 'RELEASE' }
+                    expression { isStdBranch }
                 }
             }
             steps {
                 container('main') {
-                    withCredentials([dockerCredentials]) {
-                        sh '''#!/bin/bash
-                              env|sort
-                              docker version
-                              echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
-                              env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
-                              echo ">> Building and pushing TSBI images ${PROJECT_VERSION}"
-                              cd images/component-server-image
-                              mvn clean verify dockerfile:build -P ci-tsbi
-                              docker tag talend/common/tacokit/component-server:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
-                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
-                              cd ../component-server-vault-proxy-image
-                              mvn clean verify dockerfile:build -P ci-tsbi
-                              docker tag talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
-                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
-                              cd ../..
-                              #TODO starter and remote-engine-customizer
-                           '''
+                    withCredentials([ossrhCredentials]) {
+                        sh "mvn deploy $DEPLOY_OPTS -s .jenkins/settings.xml"
                     }
                 }
             }
+//            steps {
+//                container('main') {
+//                    withCredentials([dockerCredentials]) {
+//                        sh '''#!/bin/bash
+//                              env|sort
+//                              docker version
+//                              echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
+//                              env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
+//                              echo ">> Building and pushing TSBI images ${PROJECT_VERSION}"
+//                              cd images/component-server-image
+//                              mvn clean verify dockerfile:build -P ci-tsbi
+//                              docker tag talend/common/tacokit/component-server:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
+//                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
+//                              cd ../component-server-vault-proxy-image
+//                              mvn clean verify dockerfile:build -P ci-tsbi
+//                              docker tag talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
+//                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
+//                              cd ../..
+//                              #TODO starter and remote-engine-customizer
+//                           '''
+//                    }
+//                }
+//            }
         }
         stage('Master Post Build Tasks') {
             when {
-                allOf{
                     expression { params.Action != 'RELEASE' }
                     branch 'master'
-                }
             }
             steps {
-                container('Update Documentation') {
+                container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
-                        sh "cd documentation && mvn verify pre-site -e -Pgh-pages -Dgpg.skip=true -s .jenkins/settings.xml $SKIP_OPTS && cd -"
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s .jenkins/settings.xml && cd -"
                     }
                 }
-                container('Sonatype Audit') {
+                container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn install -B -q -e $SKIP_OPTS && travis_wait 50 mvn ossindex:audit -B -s .jenkins/settings.xml"
+                        sh "mvn ossindex:audit -s .jenkins/settings.xml"
                     }
                 }
-                container('Sonar Audit') {
+                container('main') {
                     withCredentials([sonarCredentials]) {
                         sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_LOGIN' -Dsonar.password='$SONAR_PASSWORD' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
                     }
@@ -191,13 +188,12 @@ spec:
             }
         }
         stage('Release') {
-            when {
-                expression { params.Action == 'RELEASE' }
-                anyOf {
-                    branch 'master'
-                    expression { BRANCH_NAME.startsWith('maintenance/') }
+                when {
+                    allOf {
+                        expression { params.Action == 'RELEASE' }
+                        expression { isStdBranch }
+                    }
                 }
-            }
             steps {
                 withCredentials([gitCredentials, dockerCredentials, ossrhCredentials ]) {
                     container('main') {
@@ -210,7 +206,7 @@ spec:
             }
         }
     }
-   post {
+    post {
         success {
             slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
         }
