@@ -129,6 +129,7 @@ spec:
                             sh '''#!/bin/bash
                               env|sort
                               docker version
+                              export MAVEN_SETTINGS=${MAVEN_OPTS}
                               echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
                               echo ">> Building and pushing TSBI images ${PROJECT_VERSION}"
                               cd images/component-server-image
