@@ -13,45 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-def slackChannel = 'components-ci'
-
-def ossrhCredentials = usernamePassword(
-	credentialsId: 'ossrh-credentials',
-    usernameVariable: 'OSSRH_USER',
-    passwordVariable: 'OSSRH_PASS')
-def jetbrainsCredentials = usernamePassword(
-	credentialsId: 'jetbrains-credentials',
-    usernameVariable: 'JETBRAINS_USER',
-    passwordVariable: 'JETBRAINS_PASS')
-def jiraCredentials = usernamePassword(
-	credentialsId: 'jira-credentials',
-    usernameVariable: 'JIRA_USER',
-    passwordVariable: 'JIRA_PASS')
-def gitCredentials = usernamePassword(
-	credentialsId: 'github-credentials',
-    usernameVariable: 'GITHUB_USER',
-    passwordVariable: 'GITHUB_PASS')
-def dockerCredentials = usernamePassword(
-	credentialsId: 'artifactory-datapwn-credentials',
-    passwordVariable: 'DOCKER_PASS',
-    usernameVariable: 'DOCKER_USER')
-def sonarCredentials = usernamePassword(
-    credentialsId: 'sonar-credentials',
-    passwordVariable: 'SONAR_PASS',
-    usernameVariable: 'SONAR_USER')
-
-def branchName = env.BRANCH_NAME
-if (BRANCH_NAME.startsWith("PR-")) {
-    branchName = env.CHANGE_BRANCH
-}
-def escapedBranch = branchName.toLowerCase().replaceAll("/", "_")
-def deploymentSuffix = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/")) ? "snapshots" : "dev_branch_snapshots/branch_${escapedBranch}"
-def deploymentRepository = "https://artifacts-zl.talend.com/nexus/content/repositories/${deploymentSuffix}"
-def m2 = "/tmp/jenkins/tdi/m2/${deploymentSuffix}"
-def talendRepositoryArg = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/")) ? "" : "-Dtalend_oss_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix} -Dtalend_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix}"
-def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
-
+final def slackChannel = 'components-ci'
+final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
+final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
+final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
+final def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
+final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datapwn-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
+final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
+final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.7.2-2.3-20210616074048"
+final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 pipeline {
     agent {
         kubernetes {
@@ -63,21 +34,26 @@ spec:
     containers:
         -
             name: main
-            image: '${env.TSBI_IMAGE}'
+            image: '${tsbiImage}'
             command: [cat]
             tty: true
-            volumeMounts: [{name: docker, mountPath: /var/run/docker.sock}, {name: m2main, mountPath: /root/.m2/repository}, {name: dockercache, mountPath: /root/.dockercache}]
-            resources: {requests: {memory: 3G, cpu: '2.5'}, limits: {memory: 3G, cpu: '2.5'}}
+            volumeMounts: [
+                { name: docker, mountPath: /var/run/docker.sock }, 
+                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2}, 
+                { name: dockercache, mountPath: /root/.dockercache}
+            ]
+            resources: {requests: {memory: 8G, cpu: '6.0'}, limits: {memory: 12G, cpu: '6.5'}}
     volumes:
         -
             name: docker
             hostPath: {path: /var/run/docker.sock}
         -
-            name: m2main
-            hostPath: {path: ${m2} }
+            name: efs-jenkins-component-runtime-m2
+            persistentVolumeClaim: 
+                claimName: efs-jenkins-component-runtime-m2
         -
             name: dockercache
-            hostPath: {path: /tmp/jenkins/tdi/docker}
+            hostPath: {path: /tmp/jenkins/component-runtime/docker}
     imagePullSecrets:
         - name: talend-registry
 """
@@ -85,21 +61,19 @@ spec:
     }
 
     environment {
-        MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=256 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dinvoker.streamLogs=false"
+        MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
+        BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS --batch-mode -Possrh -Prelease"
-        BUILD_ARGS="clean install -B -q -e -Possrh -Prelease -Dgpg.skip=true "
-        GPG_DIR="$HOME/.gpg"
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
-
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
         APP_ID = '579232'
     }
 
     options {
-        buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: env.BRANCH_NAME == 'master' ? '10' : '2'))
-        timeout(time: 60, unit: 'MINUTES')
+        buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '15' : '10'))
+        timeout(time: 120, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
 
@@ -115,75 +89,86 @@ spec:
     }
 
     stages {
-        stage('Standard maven build') {
-            when { expression { params.Action != 'RELEASE' } }
+        stage('Preliminary steps') {
             steps {
-                container('Main build') {
-                    withCredentials([ossrhCredentials]) {
-                        sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml "
+                container('main') {
+                    script {
+                        withCredentials([gitCredentials]) {
+                            sh """
+                               bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
+                               """
+                        }
+                        withCredentials([dockerCredentials]) {
+                            sh """
+                               bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
+                               """
+                        }
+                        env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
                     }
                 }
             }
         }
-        stage('Master/Maintenance Build Tasks') {
-            when { allOf{
-                when { expression { params.Action != 'RELEASE' }}
-                        anyOf {
-                            branch 'master'
-                            expression { env.BRANCH_NAME.startsWith('maintenance/') }
-                        }
-                    }
-            }
+        stage('Standard maven build') {
+            when { expression { params.Action != 'RELEASE' } }
             steps {
-                container('Deploy artifacts') {
+                container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn deploy -e -q $DEPLOY_OPTS -s .jenkins/settings.xml"
+                        sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml"
                     }
+                }
+            }
+        }
+        stage('Deploy artifacts') {
+            when {
+                allOf {
+                    expression { params.Action != 'RELEASE' }
+                    expression { isStdBranch }
                 }
             }
             steps {
                 container('main') {
-                    withCredentials([dockerCredentials]) {
-                        sh '''#!/bin/bash
-                              env|sort
-                              docker version
-                              echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
-                              env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
-                              echo ">> Building and pushing TSBI images ${PROJECT_VERSION}"
-                              cd images/component-server-image
-                              mvn clean verify dockerfile:build -P ci-tsbi
-                              docker tag talend/common/tacokit/component-server:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
-                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
-                              cd ../component-server-vault-proxy-image
-                              mvn clean verify dockerfile:build -P ci-tsbi
-                              docker tag talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
-                              docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
-                              cd ../..
-                              #TODO starter and remote-engine-customizer
-                           '''
+                    withCredentials([ossrhCredentials]) {
+                        sh "mvn deploy $DEPLOY_OPTS -s .jenkins/settings.xml"
+                    }
+                }
+            }
+        }
+        stage('Docker images') {
+            when {
+                allOf {
+                    expression { params.Action != 'RELEASE' }
+                    expression { isStdBranch }
+                }
+            }
+            steps {
+                container('main') {
+                    script {
+                        configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                            sh """
+                               bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}
+                               """
+                        }
                     }
                 }
             }
         }
         stage('Master Post Build Tasks') {
             when {
-                allOf{
                     expression { params.Action != 'RELEASE' }
                     branch 'master'
-                }
             }
             steps {
-                container('Update Documentation') {
+                container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
-                        sh "cd documentation && mvn verify pre-site -e -Pgh-pages -Dgpg.skip=true -s .jenkins/settings.xml $SKIP_OPTS && cd -"
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s .jenkins/settings.xml && cd -"
                     }
                 }
-                container('Sonatype Audit') {
+                container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn install -B -q -e $SKIP_OPTS && travis_wait 50 mvn ossindex:audit -B -s .jenkins/settings.xml"
+                        sh "mvn ossindex:audit -s .jenkins/settings.xml"
                     }
                 }
-                container('Sonar Audit') {
+                container('main') {
                     withCredentials([sonarCredentials]) {
                         sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_LOGIN' -Dsonar.password='$SONAR_PASSWORD' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
                     }
@@ -191,26 +176,28 @@ spec:
             }
         }
         stage('Release') {
-            when {
-                expression { params.Action == 'RELEASE' }
-                anyOf {
-                    branch 'master'
-                    expression { BRANCH_NAME.startsWith('maintenance/') }
+                when {
+                    allOf {
+                        expression { params.Action == 'RELEASE' }
+                        expression { isStdBranch }
+                    }
                 }
-            }
             steps {
-                withCredentials([gitCredentials, dockerCredentials, ossrhCredentials ]) {
-                    container('main') {
-                        script {
-                            env.RELEASE_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout|cut -d- -f1").trim()
-                            sh "sh .jenkins/release.sh"
+                container('main') {
+                    script {
+                        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials]) {
+                            configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                                sh """
+                                   bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
+                                   """
+                            }
                         }
                     }
                 }
             }
         }
     }
-   post {
+    post {
         success {
             slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
         }
