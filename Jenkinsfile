@@ -123,9 +123,10 @@ spec:
             }
             steps {
                 container('main') {
-                    withCredentials([dockerCredentials]) {
+                    script {
                         env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
-                        sh '''#!/bin/bash
+                        withCredentials([dockerCredentials]) {
+                            sh '''#!/bin/bash
                               env|sort
                               docker version
                               echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
@@ -141,6 +142,7 @@ spec:
                               #TODO starter and remote-engine-customizer
                               cd ../..
                            '''
+                        }
                     }
                 }
             }
