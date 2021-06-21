@@ -124,11 +124,11 @@ spec:
             steps {
                 container('main') {
                     withCredentials([dockerCredentials]) {
+                        env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
                         sh '''#!/bin/bash
                               env|sort
                               docker version
                               echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
-                              env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
                               echo ">> Building and pushing TSBI images ${PROJECT_VERSION}"
                               cd images/component-server-image
                               mvn verify dockerfile:build -P ci-tsbi
