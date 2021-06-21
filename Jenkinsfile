@@ -22,10 +22,11 @@ def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datapwn-cre
 def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:1.14.0-2.1-20191203093421"
-
+def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 pipeline {
     agent {
         kubernetes {
+            label podLabel
             yaml """
 apiVersion: v1
 kind: Pod
