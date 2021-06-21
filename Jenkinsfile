@@ -13,51 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 def slackChannel = 'components-ci'
-
-def ossrhCredentials = usernamePassword(
-	credentialsId: 'ossrh-credentials',
-    usernameVariable: 'OSSRH_USER',
-    passwordVariable: 'OSSRH_PASS')
-def jetbrainsCredentials = usernamePassword(
-	credentialsId: 'jetbrains-credentials',
-    usernameVariable: 'JETBRAINS_USER',
-    passwordVariable: 'JETBRAINS_PASS')
-def jiraCredentials = usernamePassword(
-	credentialsId: 'jira-credentials',
-    usernameVariable: 'JIRA_USER',
-    passwordVariable: 'JIRA_PASS')
-def gitCredentials = usernamePassword(
-	credentialsId: 'github-credentials',
-    usernameVariable: 'GITHUB_USER',
-    passwordVariable: 'GITHUB_PASS')
-def dockerCredentials = usernamePassword(
-	credentialsId: 'artifactory-datapwn-credentials',
-    passwordVariable: 'DOCKER_PASS',
-    usernameVariable: 'DOCKER_USER')
-def sonarCredentials = usernamePassword(
-    credentialsId: 'sonar-credentials',
-    passwordVariable: 'SONAR_PASS',
-    usernameVariable: 'SONAR_USER')
-
-def branchName = env.BRANCH_NAME
-if (BRANCH_NAME.startsWith("PR-")) {
-    branchName = env.CHANGE_BRANCH
-}
-def escapedBranch = branchName.toLowerCase().replaceAll("/", "_")
-def deploymentSuffix = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/")) ? "snapshots" : "dev_branch_snapshots/branch_${escapedBranch}"
-def deploymentRepository = "https://artifacts-zl.talend.com/nexus/content/repositories/${deploymentSuffix}"
-def m2 = "/tmp/jenkins/tdi/m2/${deploymentSuffix}"
+def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
+def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
+def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
+def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
+def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datapwn-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
+def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
-def talendRepositoryArg = isStdBranch ? "" : "-Dtalend_oss_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix} -Dtalend_snapshots=https://nexus-smart-branch.datapwn.com/nexus/content/repositories/${deploymentSuffix}"
-def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:1.14.0-2.1-20191203093421"
 
 pipeline {
     agent {
         kubernetes {
-            label podLabel
             yaml """
 apiVersion: v1
 kind: Pod
@@ -68,15 +36,19 @@ spec:
             image: '${tsbiImage}'
             command: [cat]
             tty: true
-            volumeMounts: [{name: docker, mountPath: /var/run/docker.sock}, {name: m2main, mountPath: /root/.m2/repository}, {name: dockercache, mountPath: /root/.dockercache}]
+            volumeMounts: [
+                { name: docker, mountPath: /var/run/docker.sock }, 
+                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2}, 
+                { name: dockercache, mountPath: /root/.dockercache}
+            ]
             resources: {requests: {memory: 4G, cpu: '2.5'}, limits: {memory: 8G, cpu: '3.5'}}
     volumes:
         -
             name: docker
             hostPath: {path: /var/run/docker.sock}
         -
-            name: m2main
-            hostPath: {path: ${m2} }
+            name: efs-jenkins-component-runtime-m2
+            persistentVolumeClaim: [ claimName: efs-jenkins-component-runtime-m2 ]
         -
             name: dockercache
             hostPath: {path: /tmp/jenkins/tdi/docker}
@@ -91,7 +63,6 @@ spec:
         BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
         DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease"
-        GPG_DIR="$HOME/.gpg"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
@@ -99,8 +70,8 @@ spec:
     }
 
     options {
-        buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: env.BRANCH_NAME == 'master' ? '10' : '2'))
-        timeout(time: 80, unit: 'MINUTES')
+        buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '10' : '5'))
+        timeout(time: 120, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
 
