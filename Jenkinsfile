@@ -52,7 +52,7 @@ spec:
                 claimName: efs-jenkins-component-runtime-m2
         -
             name: dockercache
-            hostPath: {path: /tmp/jenkins/tdi/docker}
+            hostPath: {path: /tmp/jenkins/component-runtime/docker}
     imagePullSecrets:
         - name: talend-registry
 """
