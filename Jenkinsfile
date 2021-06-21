@@ -72,7 +72,7 @@ spec:
     }
 
     options {
-        buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '10' : '5'))
+        buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '15' : '10'))
         timeout(time: 120, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
