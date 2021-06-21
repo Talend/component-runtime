@@ -48,7 +48,8 @@ spec:
             hostPath: {path: /var/run/docker.sock}
         -
             name: efs-jenkins-component-runtime-m2
-            persistentVolumeClaim: [ claimName: efs-jenkins-component-runtime-m2 ]
+            persistentVolumeClaim: 
+                claimName: efs-jenkins-component-runtime-m2
         -
             name: dockercache
             hostPath: {path: /tmp/jenkins/tdi/docker}
