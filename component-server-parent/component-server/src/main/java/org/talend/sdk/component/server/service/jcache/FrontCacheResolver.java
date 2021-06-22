@@ -148,7 +148,7 @@ public class FrontCacheResolver implements CacheResolverFactory {
     }
 
     private Cache<?, ?> createCache(final String exceptionCacheName) {
-        log.error("[createCache] {}", exceptionCacheName);
+        log.debug("[createCache] {}", exceptionCacheName);
         final CacheSizeManager<Object, Object> listener = new CacheSizeManager<>(cacheConfiguration.maxSize());
         final Configuration<Object, Object> configuration = cacheConfiguration.createConfiguration(listener);
         final Cache<Object, Object> instance = cacheManager.createCache(exceptionCacheName, configuration);
