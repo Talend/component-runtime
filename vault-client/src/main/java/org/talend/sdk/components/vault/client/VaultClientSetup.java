@@ -124,7 +124,7 @@ public class VaultClientSetup {
 
     @Inject
     @Documentation("Base URL to connect to Vault.")
-    @ConfigProperty(name = "talend.vault.cache.vault.url")
+    @ConfigProperty(name = "talend.vault.cache.vault.url", defaultValue = "no-vault")
     private String vaultUrl;
 
     @Produces

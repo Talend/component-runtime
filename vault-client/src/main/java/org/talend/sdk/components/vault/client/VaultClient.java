@@ -79,6 +79,9 @@ import lombok.extern.slf4j.Slf4j;
 public class VaultClient {
 
     @Inject
+    private VaultClientSetup setup;
+
+    @Inject
     @VaultHttp
     private WebTarget vault;
 
@@ -152,6 +155,9 @@ public class VaultClient {
 
     @SneakyThrows
     public Map<String, String> decrypt(final Map<String, String> values, final String tenantId) {
+        if ("no-vault".equals(setup.getVaultUrl())) {
+            return values;
+        }
         final List<String> cipheredKeys = values
                 .entrySet()
                 .stream()
