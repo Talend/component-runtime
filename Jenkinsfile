@@ -42,7 +42,7 @@ spec:
                 { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2}, 
                 { name: dockercache, mountPath: /root/.dockercache}
             ]
-            resources: {requests: {memory: 4G, cpu: '2.5'}, limits: {memory: 8G, cpu: '3.5'}}
+            resources: {requests: {memory: 8G, cpu: '6.0'}, limits: {memory: 12G, cpu: '6.5'}}
     volumes:
         -
             name: docker
@@ -127,22 +127,13 @@ spec:
                         env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
                         withCredentials([dockerCredentials]) {
                             configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                                sh '''#!/bin/bash
-                                    env|sort
-                                    docker version
-                                    echo $DOCKER_PASS | docker login $ARTIFACTORY_REGISTRY -u $DOCKER_USER --password-stdin
-                                    echo ">> Building and pushing TSBI images ${PROJECT_VERSION}"
-                                    cd images/component-server-image
-                                    mvn verify dockerfile:build -P ci-tsbi
-                                    docker tag talend/common/tacokit/component-server:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
-                                    docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${PROJECT_VERSION}
-                                    cd ../component-server-vault-proxy-image
-                                    mvn verify dockerfile:build -P ci-tsbi
-                                    docker tag talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
-                                    docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${PROJECT_VERSION}
-                                    #TODO starter and remote-engine-customizer
-                                    cd ../..
-                                   '''
+                                sh """
+                                    bash .jenkins/scripts/docker.sh \
+                                         ${ARTIFACTORY_REGISTRY} \
+                                         ${DOCKER_USER} \
+                                         ${DOCKER_PASS} \
+                                         ${env.PROJECT_VERSION}
+                                   """
                             }
                         }
                     }
