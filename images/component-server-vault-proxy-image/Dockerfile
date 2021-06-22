@@ -46,7 +46,4 @@ ENV TRACING_SAMPLING_RATE 1
 ENV CLASSPATH ${TALEND_HOME}/component-kit/custom/*:${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes
 ENV JAVA_OPTS " -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dhttp=$BOUND_PORT -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dlog4j.configurationFile=log4j2-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 "
 
-COPY --chown=talend:talend entrypoint.sh /
-RUN chmod 755 /entrypoint.sh
-
 CMD java org.apache.meecrowave.runner.Cli
