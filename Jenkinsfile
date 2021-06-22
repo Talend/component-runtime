@@ -145,7 +145,7 @@ spec:
                     script {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """
-                               bash .jenkins/scripts/docker.sh ${env.PROJECT_VERSION}
+                               bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}
                                """
                         }
                     }
