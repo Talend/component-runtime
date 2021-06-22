@@ -89,6 +89,25 @@ spec:
     }
 
     stages {
+        stage('Preliminary steps') {
+            steps {
+                container('main') {
+                    script {
+                        withCredentials([gitCredentials]) {
+                            sh """
+                               bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
+                               """
+                        }
+                        withCredentials([dockerCredentials]) {
+                            sh """
+                               bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
+                               """
+                        }
+                        env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
+                    }
+                }
+            }
+        }
         stage('Standard maven build') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
@@ -124,17 +143,10 @@ spec:
             steps {
                 container('main') {
                     script {
-                        env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
-                        withCredentials([dockerCredentials]) {
-                            configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                                sh """
-                                    bash .jenkins/scripts/docker.sh \
-                                         ${ARTIFACTORY_REGISTRY} \
-                                         ${DOCKER_USER} \
-                                         ${DOCKER_PASS} \
-                                         ${env.PROJECT_VERSION}
-                                   """
-                            }
+                        configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                            sh """
+                               bash .jenkins/scripts/docker.sh ${env.PROJECT_VERSION}
+                               """
                         }
                     }
                 }
@@ -171,11 +183,14 @@ spec:
                     }
                 }
             steps {
-                withCredentials([gitCredentials, dockerCredentials, ossrhCredentials ]) {
-                    container('main') {
-                        script {
-                            env.RELEASE_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout|cut -d- -f1").trim()
-                            sh "sh .jenkins/release.sh"
+                container('main') {
+                    script {
+                        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials]) {
+                            configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                                sh """
+                                   bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
+                                   """
+                            }
                         }
                     }
                 }

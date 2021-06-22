@@ -1,5 +1,4 @@
 #! /bin/bash
-
 #
 #  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
 #
@@ -16,31 +15,58 @@
 #  limitations under the License.
 #
 
-release=$(grep version pom.xml | grep -v xml | head -n 1 | sed 's/.*<version>\(.*\)<\/version>.*/\1/' | sed 's/-SNAPSHOT//')
-trace=${TRACE_FILE:-/tmp/release.log}
+set -xe
 
-echo ">> Maven release $release" | tee "$trace" && \
-mvn release:prepare release:perform | tee -a "$trace" && \
-echo ">> Reset repo" | tee -a "$trace" &&
-git reset --hard | tee -a "$trace" && \
-git push --follow-tags | tee -a "$trace" && \
-echo ">> Checkouting the release tag" | tee -a "$trace" && \
-git checkout -b component-runtime-$release component-runtime-$release | tee -a "$trace" && \
-echo ">> Building and pushing docker images $release" | tee -a "$trace" && \
-cd images && mvn -DskipTests -Dinvoker.skip=true -T1C clean install jib:build@build -Dimage.currentVersion=$release -Dtalend.server.image.registry=registry.hub.docker.com/ -Djib.httpTimeout=60000 | tee -a "$trace" && \
-echo ">> Building and pushing TSBI images $release" | tee -a "$trace" && \
-cd component-server-image
-mvn clean verify dockerfile:build -P dev-tsbi && \
-docker tag talend/common/tacokit/component-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release} && \
-docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release} && \
-cd ../component-server-vault-proxy-image && \
-mvn clean verify dockerfile:build -P dev-tsbi && \
-docker tag talend/common/tacokit/component-server-vault-proxy:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release} && \
-docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release} && \
-cd ../.. && \
-echo ">> Rebuilding master and updating it (doc) for next iteration" | tee -a "$trace" && \
-git reset --hard | tee -a "$trace" && \
-git checkout master | tee -a "$trace" && \
-mvn clean install -DskipTests -Dinvoker.skip=true -T1C | tee -a "$trace" && \
-git commit -a -m ">> Updating doc for next iteration" | tee -a "$trace" && \
-git push | tee -a "$trace"
+# Parameters:
+# $1: Branch
+# $2: current version
+main() {
+  local branch="${1?Missing branch}"
+  local currentVersion="${2?Missing project version}"
+  local release="${currentVersion/-SNAPSHOT/}"
+  # bump
+  local maj
+  local min
+  local rev
+  local maintenance_branch
+  maj=$(echo "${release}" | cut -d. -f1)
+  min=$(echo "${release}" | cut -d. -f2)
+  rev=$(echo "${release}" | cut -d. -f3)
+  # variables according branch
+  if [[ ${branch} == 'master' ]]; then
+    maintenance_branch="maintenance/${maj}.${min}"
+    min=$(("${min}" + 1))
+    rev="0"
+  else
+    rev=$(("${rev}"+ 1))
+  fi
+  local dev_version=${maj}.${min}.${rev}-SNAPSHOT
+  ###
+  echo ">> Maven prepare release $release (next-dev: ${dev_version}; future: ${maintenance_branch})"
+  mvn release:prepare \
+      --batch-mode \
+      --errors \
+      --define tag=component-runtime-"${release}" \
+      --define releaseVersion="${release}" \
+      --define developmentVersion="${dev_version}" \
+      --settings .jenkins/settings.xml
+  echo ">> Maven perform release $release"
+  mvn release:perform --batch-mode --errors --settings .jenkins/settings.xml
+  ###
+  echo ">> Reset repo"
+  git reset --hard
+  git push --follow-tags
+  echo ">> Checkout the release tag"
+  git checkout -b component-runtime-"${release}" component-runtime-"${release}"
+  ### docker build call
+  bash .jenkins/scripts/docker_build.sh "${release}"
+  ###
+  echo ">> Rebuilding ${branch} and updating it (doc) for next iteration"
+  git reset --hard
+  git checkout "${branch}"
+  mvn clean install -DskipTests -Dinvoker.skip=true -T1C
+  git commit -a -m ">> Updating doc for next iteration"
+  git push
+}
+
+main "$@"

@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-def slackChannel = 'components-ci'
-def veracodeCredentials = usernamePassword(credentialsId: 'veracode-api-credentials', usernameVariable: 'VERACODE_ID', passwordVariable: 'VERACODE_KEY')
-def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')
-def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:1.14.0-2.1-20191203093421"
-
+final def slackChannel = 'components-ci'
+final def veracodeCredentials = usernamePassword(credentialsId: 'veracode-api-credentials', usernameVariable: 'VERACODE_ID', passwordVariable: 'VERACODE_KEY')
+final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.7.2-2.3-20210616074048"
 pipeline {
     agent {
         kubernetes {
@@ -37,7 +36,7 @@ spec:
                 { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2}, 
                 { name: dockercache, mountPath: /root/.dockercache}
             ]
-            resources: {requests: {memory: 3G, cpu: '2'}, limits: {memory: 8G, cpu: '2'}}
+            resources: {requests: {memory: 8G, cpu: '6.0'}, limits: {memory: 12G, cpu: '6.5'}}
     volumes:
         -
             name: docker

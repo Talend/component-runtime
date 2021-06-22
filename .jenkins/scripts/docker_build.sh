@@ -17,23 +17,10 @@
 
 set -xe
 
-# $1: Docker registry
-# $2: Docker username
-# $3: Docker password
-# $4: docker tag version
+# Parameters:
+# $1: docker tag version
 main() {
-  local registry="${1?Missing artifactory registry host}"
-  local username="${2?Missing artifactory login environment}"
-  local password="${3?Missing artifactory password environment}"
-  local tag="${4?Missing tag}"
-
-  echo ">> Docker build environment:"
-  env|sort
-  docker version
-  printf ">> Docker Login to %s\n" "${registry}"
-  docker login "${registry}" \
-    --username "${username}" \
-    --password-stdin <<<"${password}"
+  local tag="${1?Missing tag}"
 
   echo ">> Building and pushing component-server:${tag}"
   cd images/component-server-image
