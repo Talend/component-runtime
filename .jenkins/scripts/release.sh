@@ -35,21 +35,22 @@ main() {
   # variables according branch
   if [[ ${branch} == 'master' ]]; then
     maintenance_branch="maintenance/${maj}.${min}"
+    maintenance_version="${maj}.${min}.$(("${rev}" + 1))-SNAPSHOT"
     min=$(("${min}" + 1))
     rev="0"
   else
-    rev=$(("${rev}"+ 1))
+    rev=$(("${rev}" + 1))
   fi
   local dev_version=${maj}.${min}.${rev}-SNAPSHOT
   ###
   echo ">> Maven prepare release $release (next-dev: ${dev_version}; future: ${maintenance_branch})"
   mvn release:prepare \
-      --batch-mode \
-      --errors \
-      --define tag=component-runtime-"${release}" \
-      --define releaseVersion="${release}" \
-      --define developmentVersion="${dev_version}" \
-      --settings .jenkins/settings.xml
+    --batch-mode \
+    --errors \
+    --define tag=component-runtime-"${release}" \
+    --define releaseVersion="${release}" \
+    --define developmentVersion="${dev_version}" \
+    --settings .jenkins/settings.xml
   echo ">> Maven perform release $release"
   mvn release:perform --batch-mode --errors --settings .jenkins/settings.xml
   ###
@@ -67,6 +68,18 @@ main() {
   mvn clean install -DskipTests -Dinvoker.skip=true -T1C
   git commit -a -m ">> Updating doc for next iteration"
   git push
+  ###
+  if [[ ${branch} == 'master' ]]; then
+    echo ">> Creating ${maintenance_branch?Missing branch} with ${maintenance_version?Missing version}"
+    git checkout -b "${maintenance_branch}"
+    # downgrade to maintenance version
+    mvn versions:set \
+      --batch-mode \
+      --settings .jenkins/settings.xml \
+      --define newVersion="${maintenance_version}"
+    git commit -a -m "[jenkins-release] prepare for next development iteration ${maintenance_branch}"
+    git push -u origin "${maintenance_branch}"
+  fi
 }
 
 main "$@"
