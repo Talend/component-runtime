@@ -66,12 +66,12 @@ spec:
 
     options {
         buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: '5'))
-        timeout(time: 60, unit: 'MINUTES')
+        timeout(time: 180, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
 
     triggers {
-        cron('0 9 * * 0')
+        cron('0 6 * * 0')
     }
 
     stages {
