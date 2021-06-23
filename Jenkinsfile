@@ -170,17 +170,17 @@ spec:
                 expression { params.Action != 'RELEASE' }
                 branch 'master'
             }
-            container('main') {
-                withCredentials([ossrhCredentials]) {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        sh "mvn ossindex:audit -s .jenkins/settings.xml"
+            steps {
+                container('main') {
+                    withCredentials([ossrhCredentials]) {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh "mvn ossindex:audit -s .jenkins/settings.xml"
+                        }
                     }
-                }
-            }
-            container('main') {
-                withCredentials([sonarCredentials]) {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASSW' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
+                    withCredentials([sonarCredentials]) {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASSW' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
+                        }
                     }
                 }
             }
