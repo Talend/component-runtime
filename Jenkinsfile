@@ -160,7 +160,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
-                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s .jenkins/settings.xml && cd -"
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s ../.jenkins/settings.xml && cd -"
                     }
                 }
                 container('main') {
