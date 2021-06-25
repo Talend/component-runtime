@@ -46,6 +46,6 @@ ENV TRACING_SAMPLING_RATE 1
 ARG TALEND_JDK_SERIAL_FILTER
 ENV TALEND_JDK_SERIAL_FILTER ${TALEND_JDK_SERIAL_FILTER:-!*}
 ENV CLASSPATH ${TALEND_HOME}/component-kit/custom/*:${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes
-ENV JAVA_OPTS " -Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER} -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dhttp=${BOUND_PORT} -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2-component-server-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -Dtalend.component.exit-on-destroy=true -Dtalend.component.manager.services.cache.eviction.defaultEvictionTimeout=30_000 -Dtalend.component.manager.services.cache.eviction.defaultMaxSize=5_000 -Dtalend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun=-1 "
+ENV JAVA_OPTS " -Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER} -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dhttp=${BOUND_PORT} -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dmeecrowave-properties=${TALEND_APP_HOME}/conf/meecrowave.properties -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2-component-server-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -Dtalend.component.exit-on-destroy=true -Dtalend.component.manager.services.cache.eviction.defaultEvictionTimeout=30_000 -Dtalend.component.manager.services.cache.eviction.defaultMaxSize=5_000 -Dtalend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun=-1 "
 
-CMD java org.apache.meecrowave.runner.Cli
+CMD ["java", "org.apache.meecrowave.runner.Cli"]
