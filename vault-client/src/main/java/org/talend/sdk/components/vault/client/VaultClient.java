@@ -65,6 +65,7 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.components.vault.configuration.Documentation;
 import org.talend.sdk.components.vault.server.error.ErrorPayload;
+import org.talend.sdk.components.vault.server.error.ErrorPayload.ErrorDictionary;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -222,7 +223,8 @@ public class VaultClient {
                                         ofNullable(tenantId)
                                                 .orElseThrow(() -> new WebApplicationException(Response
                                                         .status(Status.BAD_REQUEST)
-                                                        .entity("{\"message\":\"No header x-talend-tenant-id\"}")
+                                                        .entity(new ErrorPayload(ErrorDictionary.BAD_FORMAT,
+                                                                "No header x-talend-tenant-id"))
                                                         .build())));
                     }
                     return path
@@ -246,7 +248,8 @@ public class VaultClient {
                                 if (!errors.isEmpty()) {
                                     throw new WebApplicationException(Response
                                             .status(cantDecipherStatusCode)
-                                            .entity(new ErrorPayload(null, "Can't decipher properties: " + errors))
+                                            .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
+                                                    "Can't decipher properties: " + errors))
                                             .build());
                                 }
 
@@ -299,7 +302,10 @@ public class VaultClient {
                                     }
                                 }
                                 log.error("Failed to decrypt, debug='" + debug + "'", e);
-                                throw new WebApplicationException(cantDecipherStatusCode);
+                                throw new WebApplicationException(Response
+                                        .status(cantDecipherStatusCode)
+                                        .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR, debug))
+                                        .build());
                             });
                 }).orElseThrow(() -> new WebApplicationException(Response.Status.FORBIDDEN)));
     }
@@ -347,8 +353,10 @@ public class VaultClient {
             final String role = of(this.role.get()).filter(this::isReloadableConfigSet).orElse(null);
             if (role == null) {
                 log.error("No vault token or role available, authentication will not be possible");
-                throw new WebApplicationException(
-                        Response.serverError().entity(new ErrorPayload(null, "Vault not reachable")).build());
+                throw new WebApplicationException(Response
+                        .serverError()
+                        .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, "Vault not reachable"))
+                        .build());
             }
             return ofNullable(authToken.get())
                     .filter(auth -> (auth.getExpiresAt() - clock.millis()) <= refreshDelayMargin) // is expired
@@ -372,8 +380,10 @@ public class VaultClient {
 
                     if (token.getAuth() == null || token.getAuth().getClientToken() == null) {
                         log.error("Vault didn't return a token");
-                        throw new WebApplicationException(
-                                Response.serverError().entity(new ErrorPayload(null, "Vault not available")).build());
+                        throw new WebApplicationException(Response
+                                .serverError()
+                                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, "Vault not available"))
+                                .build());
                     } else {
                         log.info("Authenticated to vault");
                     }

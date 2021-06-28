@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1941[TCOMP-1941^]: Maven goal talend-component:web fails on startup
+- link:https://jira.talendforge.org/browse/TCOMP-1948[TCOMP-1948^]: Raised exception in component-server(s) should be serialized in json
 
 
 

@@ -17,6 +17,8 @@ package org.talend.sdk.component.server.front.error;
 
 import static javax.ws.rs.core.MediaType.WILDCARD_TYPE;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -51,6 +53,19 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
         log.error(exception.getMessage(), exception);
         if (WebApplicationException.class.isInstance(exception)) {
             return WebApplicationException.class.cast(exception).getResponse();
+        }
+        final Optional<Throwable> optCause = Optional.ofNullable(exception.getCause());
+        if (optCause.isPresent()) {
+            final Throwable cause = optCause.get();
+            if (WebApplicationException.class.isInstance(cause)) {
+                return WebApplicationException.class.cast(cause).getResponse();
+            }
+            return Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                            replaceException ? configuration.getDefaultExceptionMessage() : cause.getMessage()))
+                    .type(WILDCARD_TYPE)
+                    .build();
         }
         return Response
                 .status(Response.Status.INTERNAL_SERVER_ERROR)

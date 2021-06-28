@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,9 @@ public class IllegalArgumentMapper implements ExceptionMapper<IllegalArgumentExc
     @Override
     public Response toResponse(final IllegalArgumentException exception) {
         log.error(exception.getMessage(), exception);
-        return Response.serverError().entity(new ErrorPayload(null, exception.getMessage())).build();
+        return Response
+                .serverError()
+                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, exception.getMessage()))
+                .build();
     }
 }
