@@ -128,6 +128,7 @@ spec:
                                bash .jenkins/scripts/setup_gpg.sh
                                """
                         }
+
                         def pom = readMavenPom file: 'pom.xml'
                         env.PROJECT_VERSION = pom.version
                         try {

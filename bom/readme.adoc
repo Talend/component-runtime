@@ -1,0 +1,2 @@
+This folder https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[contains BOM file] for connectors using this TCK component.
+
