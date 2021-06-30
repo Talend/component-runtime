@@ -39,7 +39,7 @@ spec:
             tty: true
             volumeMounts: [
                 { name: docker, mountPath: /var/run/docker.sock }, 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2}, 
+                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
                 { name: dockercache, mountPath: /root/.dockercache}
             ]
             resources: {requests: {memory: 8G, cpu: '6.0'}, limits: {memory: 12G, cpu: '6.5'}}
