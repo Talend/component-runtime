@@ -73,7 +73,7 @@ spec:
 
     options {
         buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '15' : '10'))
-        timeout(time: 120, unit: 'MINUTES')
+        timeout(time: 180, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
 
@@ -152,36 +152,46 @@ spec:
                 }
             }
         }
-        stage('Master Post Build Tasks') {
+        stage('Documentation') {
             when {
-                    expression { params.Action != 'RELEASE' }
-                    branch 'master'
+                expression { params.Action != 'RELEASE' }
+                branch 'master'
             }
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
-                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s .jenkins/settings.xml && cd -"
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s ../.jenkins/settings.xml && cd -"
                     }
                 }
+            }
+        }
+        stage('Master Post Build Tasks') {
+            when {
+                expression { params.Action != 'RELEASE' }
+                branch 'master'
+            }
+            steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn ossindex:audit -s .jenkins/settings.xml"
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh "mvn ossindex:audit -s .jenkins/settings.xml"
+                        }
                     }
-                }
-                container('main') {
                     withCredentials([sonarCredentials]) {
-                        sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_LOGIN' -Dsonar.password='$SONAR_PASSWORD' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
+                        }
                     }
                 }
             }
         }
         stage('Release') {
-                when {
-                    allOf {
-                        expression { params.Action == 'RELEASE' }
-                        expression { isStdBranch }
-                    }
+            when {
+                allOf {
+                    expression { params.Action == 'RELEASE' }
+                    expression { isStdBranch }
                 }
+            }
             steps {
                 container('main') {
                     script {
