@@ -23,6 +23,9 @@ final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials
 final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.7.2-2.3-20210616074048"
 final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+
+def EXTRA_BUILD_ARGS = ""
+
 pipeline {
     agent {
         kubernetes {
@@ -86,6 +89,8 @@ spec:
                 choices: ['STANDARD', 'RELEASE'],
                 description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
         booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
+        string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
+        string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
     }
 
     stages {
@@ -104,6 +109,22 @@ spec:
                                """
                         }
                         env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
+                        try {
+                            EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
+                        } catch (error) {
+                            EXTRA_BUILD_ARGS = ""
+                        }
+                    }
+                }
+            }
+        }
+        stage('Post login') {
+            steps {
+                script {
+                    try {
+                        sh "${params.POST_LOGIN_SCRIPT}"
+                    } catch (error) {
+                        //
                     }
                 }
             }
@@ -113,7 +134,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml"
+                        sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -128,7 +149,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn deploy $DEPLOY_OPTS -s .jenkins/settings.xml"
+                        sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -160,7 +181,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
-                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s ../.jenkins/settings.xml && cd -"
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -"
                     }
                 }
             }
