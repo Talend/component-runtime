@@ -274,7 +274,7 @@ class ActionResourceImplTest {
                         put("configuration.password", "vault:v1:hccc");
                     }
                 }, APPLICATION_JSON_TYPE));
-        assertEquals(500, response.getStatus());
+        assertEquals(422, response.getStatus());
     }
 
 }
