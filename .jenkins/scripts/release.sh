@@ -39,7 +39,7 @@ main() {
     min=$(("${min}" + 1))
     rev="0"
   else
-    rev=$(("${rev}" + 1))
+    rev=$((${rev} + 1))
   fi
   local dev_version=${maj}.${min}.${rev}-SNAPSHOT
   ###
