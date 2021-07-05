@@ -150,7 +150,7 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(toMap(e -> e, urlConnection.getHeaderFields()::get, (k, v) -> {
-                    throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                    throw new IllegalArgumentException("Duplicated header key for value: '" + k + "'");
                 }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
     }
 
