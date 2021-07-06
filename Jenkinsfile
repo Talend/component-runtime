@@ -62,9 +62,9 @@ spec:
 
     environment {
         MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
-        BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
+        BUILD_ARGS="-Dgpg.skip=true"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease"
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
