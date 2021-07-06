@@ -50,9 +50,14 @@ main() {
     --define tag=component-runtime-"${release}" \
     --define releaseVersion="${release}" \
     --define developmentVersion="${dev_version}" \
+    --define arguments="-DskipTests -DskipITs" \
     --settings .jenkins/settings.xml
   echo ">> Maven perform release $release"
-  mvn release:perform --batch-mode --errors --settings .jenkins/settings.xml
+  mvn release:perform \
+    --batch-mode \
+    --errors \
+    --define arguments="-DskipTests -DskipITs" \
+    --settings .jenkins/settings.xml
   ###
   echo ">> Reset repo"
   git reset --hard

@@ -195,7 +195,7 @@ spec:
             steps {
                 container('main') {
                     script {
-                        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials]) {
+                        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials]) {
                             configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                                 sh """
                                    bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
