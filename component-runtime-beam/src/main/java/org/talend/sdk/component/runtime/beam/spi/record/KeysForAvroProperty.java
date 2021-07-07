@@ -19,4 +19,6 @@ public interface KeysForAvroProperty {
 
     String LABEL = "talend.component.label";
 
+    // alias that indicate field is metadata if present.
+    String METADATA_ALIAS_NAME = "talend.field.__METADATA__";
 }

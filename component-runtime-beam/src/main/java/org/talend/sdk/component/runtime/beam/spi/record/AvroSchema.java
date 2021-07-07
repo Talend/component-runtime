@@ -42,9 +42,6 @@ import lombok.ToString;
 @ToString(of = "delegate")
 public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
 
-    // alias that indicate field is metadata if present.
-    static final String METADATA_ALIAS_NAME = "__METADATA__";
-
     @JsonbTransient
     private final Schema delegate;
 
@@ -137,7 +134,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     private static boolean isMetadata(final Field f) {
-        return f.aliases() != null && f.aliases().contains(AvroSchema.METADATA_ALIAS_NAME);
+        return f.aliases() != null && f.aliases().contains(KeysForAvroProperty.METADATA_ALIAS_NAME);
     }
 
     private Entry fromAvro(final Field field) {

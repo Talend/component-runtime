@@ -132,7 +132,7 @@ class RecordBuilderFactoryTest {
 
         @Override
         public Entry.Builder withMetadata(boolean metadata) {
-            this.builder.withNullable(metadata);
+            this.builder.withMetadata(metadata);
             return this;
         }
 
