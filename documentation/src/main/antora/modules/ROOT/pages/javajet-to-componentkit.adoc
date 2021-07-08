@@ -399,6 +399,11 @@ Component Kit
 import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.api.component.AfterVariables.AfterVariable;
 
+/**
+* Possible types:
+* Boolean.class, Byte.class, byte[].class, Character.class, Date.class, Double.class, Float.class,
+* BigDecimal.class, Integer.class, Long.class, Object.class, Short.class, String.class, List.class
+*/
 @AfterVariable(value = "NAME_1_OF_AFTER_VARIABLE", description = "Some description", type = Integer.class)
 @AfterVariable(value = "NAME_2_OF_AFTER_VARIABLE", description = "Custom variable description", type = String.class)
 class Emitter {
