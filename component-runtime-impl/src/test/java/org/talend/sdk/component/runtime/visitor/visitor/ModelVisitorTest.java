@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariable;
 import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
@@ -45,6 +46,7 @@ import org.talend.sdk.component.api.standalone.DriverRunner;
 import org.talend.sdk.component.api.standalone.RunAtDriver;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
+import org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest.MapperAfterVariableNokWrongDeclaredType.Mapper;
 import org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest.Registrar.In;
 
 class ModelVisitorTest {
@@ -134,13 +136,37 @@ class ModelVisitorTest {
     }
 
     @Test
-    void processorAfterVariableNokWrongReturnType() {
-        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongReturnType.class));
+    void processorAfterVariableNokWrongContainerReturnType() {
+        assertThrows(IllegalArgumentException.class,
+                () -> visit(ProcessorAfterVariableNokWrongContainerReturnType.class));
+    }
+
+    @Test
+    void processorAfterVariableNokWrongContainerReturnParameterizedDimension() {
+        assertThrows(IllegalArgumentException.class,
+                () -> visit(ProcessorAfterVariableNokWrongContainerReturnParameterizedDimension.class));
+    }
+
+    @Test
+    void processorAfterVariableNokWrongContainerReturnParameterizedType() {
+        assertThrows(IllegalArgumentException.class,
+                () -> visit(ProcessorAfterVariableNokWrongContainerReturnParameterizedType.class));
+    }
+
+    @Test
+    void processorAfterVariableNokMoreThanOneContainer() {
+        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokMoreThanOneContainer.class));
     }
 
     @Test
     void processorAfterVariableNokWrongParamCount() {
         assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongParamCount.class));
+
+    }
+
+    @Test
+    void processorAfterVariableNokWrongDeclaredType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorAfterVariableNokWrongDeclaredType.class));
     }
 
     @Test
@@ -152,6 +178,11 @@ class ModelVisitorTest {
     @Test
     void emitterAfterVariableNokWrongReturnType() {
         assertThrows(IllegalArgumentException.class, () -> visit(EmitterAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void emitterAfterVariableNokWrongDeclaredType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(EmitterAfterVariableNokWrongDeclaredType.class));
     }
 
     @Test
@@ -168,6 +199,11 @@ class ModelVisitorTest {
     @Test
     void mapperAfterVariableNokWrongReturnType() {
         assertThrows(IllegalArgumentException.class, () -> visit(MapperAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void mapperAfterVariableNokWrongDeclaredType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperAfterVariableNokWrongDeclaredType.class));
     }
 
     @Test
@@ -199,6 +235,11 @@ class ModelVisitorTest {
     @Test
     void standaloneAfterVariableNokWrongReturnType() {
         assertThrows(IllegalArgumentException.class, () -> visit(StandaloneAfterVariableNokWrongReturnType.class));
+    }
+
+    @Test
+    void standaloneAfterVariableNokWrongDeclaredType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(StandaloneAfterVariableNokWrongDeclaredType.class));
     }
 
     @Test
@@ -508,6 +549,7 @@ class ModelVisitorTest {
 
     public static class ProcessorAfterVariableOk {
 
+        @AfterVariable(value = "NAME", type = Integer.class)
         @Processor(family = "comp", name = "Output")
         public static class Out {
 
@@ -523,13 +565,71 @@ class ModelVisitorTest {
         }
     }
 
-    public static class ProcessorAfterVariableNokWrongReturnType {
+    public static class ProcessorAfterVariableNokWrongContainerReturnType {
+
+        @AfterVariable(value = "NAME", type = Integer.class)
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public String commit() {
+                return "It should be Map<String, Object>";
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorAfterVariableNokWrongContainerReturnParameterizedDimension {
+
+        @AfterVariable(value = "NAME", type = Integer.class)
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Collection<String> commit() {
+                return Collections.emptyList();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorAfterVariableNokWrongContainerReturnParameterizedType {
 
         @Processor(family = "comp", name = "Output")
         public static class Out {
 
             @AfterVariableContainer
             public Map<String, String> commit() {
+                return Collections.emptyMap();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorAfterVariableNokMoreThanOneContainer {
+
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Map<String, Object> container1() {
+                return Collections.emptyMap();
+            }
+
+            @AfterVariableContainer
+            public Map<String, Object> container2() {
                 return Collections.emptyMap();
             }
 
@@ -557,8 +657,27 @@ class ModelVisitorTest {
         }
     }
 
+    public static class ProcessorAfterVariableNokWrongDeclaredType {
+
+        @AfterVariable(value = "Name", type = Mapper.class)
+        @Processor(family = "comp", name = "Output")
+        public static class Out {
+
+            @AfterVariableContainer
+            public Map<String, Object> container() {
+                return Collections.emptyMap();
+            }
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
     public static class EmitterAfterVariableOk {
 
+        @AfterVariable(value = "NAME", type = Integer.class)
         @Emitter(family = "comp", name = "Input")
         public static class In {
 
@@ -608,8 +727,27 @@ class ModelVisitorTest {
         }
     }
 
+    public static class EmitterAfterVariableNokWrongDeclaredType {
+
+        @AfterVariable(value = "Name", type = Mapper.class)
+        @Emitter(family = "comp", name = "Input")
+        public static class In {
+
+            @AfterVariableContainer
+            public Map<String, Object> container() {
+                return Collections.emptyMap();
+            }
+
+            @Producer
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
     public static class MapperAfterVariableOk {
 
+        @AfterVariable(value = "NAME", type = Integer.class)
         @PartitionMapper(family = "comp", name = "Mapper")
         public static class Mapper {
 
@@ -689,6 +827,34 @@ class ModelVisitorTest {
         }
     }
 
+    public static class MapperAfterVariableNokWrongDeclaredType {
+
+        @AfterVariable(value = "Name", type = Mapper.class)
+        @PartitionMapper(family = "comp", name = "Mapper")
+        public static class Mapper {
+
+            @Assessor
+            public long get() {
+                return 1;
+            }
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public In emit() {
+                return null;
+            }
+
+            @AfterVariableContainer
+            public Map<String, Object> container() {
+                return Collections.emptyMap();
+            }
+        }
+    }
+
     public static class StandaloneNoRunMethod {
 
         @DriverRunner
@@ -724,6 +890,7 @@ class ModelVisitorTest {
 
     public static class StandaloneAfterVariableOk {
 
+        @AfterVariable(value = "NAME", type = Integer.class)
         @DriverRunner(family = "comp", name = "standalone")
         public static class Standalone {
 
@@ -746,6 +913,24 @@ class ModelVisitorTest {
 
             @AfterVariableContainer
             public Map<String, String> commit() {
+                return Collections.emptyMap();
+            }
+
+            @RunAtDriver
+            public Record emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class StandaloneAfterVariableNokWrongDeclaredType {
+
+        @AfterVariable(value = "Name", type = Mapper.class)
+        @DriverRunner(family = "comp", name = "standalone")
+        public static class Standalone {
+
+            @AfterVariableContainer
+            public Map<String, Object> container() {
                 return Collections.emptyMap();
             }
 

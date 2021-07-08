@@ -22,13 +22,19 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariable;
 import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
@@ -47,6 +53,10 @@ import org.talend.sdk.component.api.standalone.RunAtDriver;
 import org.talend.sdk.component.runtime.reflect.Parameters;
 
 public class ModelVisitor {
+
+    private static final Set<Class<?>> SUPPORTED_AFTER_VARIABLES_TYPES = new HashSet<>(Arrays
+            .asList(Boolean.class, Byte.class, byte[].class, Character.class, Date.class, Double.class, Float.class,
+                    BigDecimal.class, Integer.class, Long.class, Object.class, Short.class, String.class, List.class));
 
     public void visit(final Class<?> type, final ModelListener listener, final boolean validate) {
         if (getSupportedComponentTypes().noneMatch(type::isAnnotationPresent)) { // unlikely but just in case
@@ -140,6 +150,7 @@ public class ModelVisitor {
                     }
                 });
 
+        validateAfterVariableAnnotationDeclaration(type);
         validateAfterVariableContainer(type);
     }
 
@@ -154,6 +165,7 @@ public class ModelVisitor {
             throw new IllegalArgumentException(producers.get(0) + " must not have any parameter");
         }
 
+        validateAfterVariableAnnotationDeclaration(input);
         validateAfterVariableContainer(input);
     }
 
@@ -170,6 +182,7 @@ public class ModelVisitor {
             throw new IllegalArgumentException(driverRunners.get(0) + " must not have any parameter");
         }
 
+        validateAfterVariableAnnotationDeclaration(standalone);
         validateAfterVariableContainer(standalone);
     }
 
@@ -218,6 +231,7 @@ public class ModelVisitor {
             }
         });
 
+        validateAfterVariableAnnotationDeclaration(input);
         validateAfterVariableContainer(input);
     }
 
@@ -296,4 +310,18 @@ public class ModelVisitor {
                 && paramType.getActualTypeArguments()[1].equals(Object.class);
     }
 
+    private static void validateAfterVariableAnnotationDeclaration(final Class<?> type) {
+        List<String> incorrectDeclarations = Stream
+                .of(type.getAnnotationsByType(AfterVariable.class))
+                .filter(annotation -> !SUPPORTED_AFTER_VARIABLES_TYPES.contains(annotation.type()))
+                .map(annotation -> "The after variable with name '" + annotation.value() + "' has incorrect type: '"
+                        + annotation.type() + "'")
+                .collect(toList());
+        if (!incorrectDeclarations.isEmpty()) {
+            String message = incorrectDeclarations
+                    .stream()
+                    .collect(Collectors.joining(",", "The after variables declared incorrectly. ", ""));
+            throw new IllegalArgumentException(message);
+        }
+    }
 }
