@@ -17,6 +17,7 @@ package org.talend.sdk.component.api.service.schema;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +50,11 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
     // 1.0 compat
     public void setEntries(final Collection<org.talend.sdk.component.api.record.Schema.Entry> entries) {
         this.entries = new ArrayList<>(entries);
+    }
+
+    @Override
+    public List<org.talend.sdk.component.api.record.Schema.Entry> getMetadata() {
+        return Collections.emptyList();
     }
 
     @Override

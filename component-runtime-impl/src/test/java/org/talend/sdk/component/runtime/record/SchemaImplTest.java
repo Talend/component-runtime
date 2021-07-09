@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
@@ -103,4 +104,34 @@ class SchemaImplTest {
         Assertions.assertNotEquals(schema, schemaDiff);
     }
 
+    @Test
+    void testRecordWithMetadataFields() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("field1", Type.STRING)
+                        .withNullable(true)
+                        .withRawName("field1")
+                        .withDefaultValue(5)
+                        .withComment("Comment")
+                        .build())
+                .withEntry(newEntry("record_id", Type.INT).withMetadata(true).withProp("method", "FIFO").build())
+                .withEntry(newEntry("field2", Type.STRING).withMetadata(true).build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        Record record = builder //
+                .withInt("record_id", 34) //
+                .withString("field1", "Aloa") //
+                .withString("field2", "Hallo, wie gehst du ?") //
+                .build();
+        Schema recordSchema = record.getSchema();
+        Assertions.assertEquals(1, recordSchema.getEntries().size());
+        Assertions.assertEquals(2, recordSchema.getAllEntries().filter(e -> e.isMetadata()).count());
+        Assertions.assertEquals(34, record.getInt("record_id"));
+        Assertions.assertEquals("Aloa", record.getString("field1"));
+        Assertions.assertEquals("Hallo, wie gehst du ?", record.getString("field2"));
+    }
+
+    private Schema.Entry.Builder newEntry(final String name, final Schema.Type type) {
+        return new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(type);
+    }
 }

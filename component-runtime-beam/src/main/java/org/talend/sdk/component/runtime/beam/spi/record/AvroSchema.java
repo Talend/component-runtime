@@ -36,9 +36,11 @@ import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(of = "delegate")
 @ToString(of = "delegate")
 public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
 
@@ -112,11 +114,13 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     @Override
-    @JsonbTransient
-    public Stream<Entry> getAllEntries() {
+    public List<Entry> getMetadata() {
+        if (getActualDelegate().getType() != Schema.Type.RECORD) {
+            return emptyList();
+        }
         if (this.metadataEntries == null) {
             synchronized (this) {
-                if (entries != null) {
+                if (this.metadataEntries == null) {
                     this.metadataEntries = this
                             .getNonNullFields() //
                             .filter(AvroSchema::isMetadata) // only metadata fields
@@ -125,8 +129,13 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 }
             }
         }
+        return this.metadataEntries;
+    }
 
-        return Stream.concat(this.getEntries().stream(), this.metadataEntries.stream());
+    @Override
+    @JsonbTransient
+    public Stream<Entry> getAllEntries() {
+        return Stream.concat(this.getEntries().stream(), this.getMetadata().stream());
     }
 
     private Stream<Field> getNonNullFields() {

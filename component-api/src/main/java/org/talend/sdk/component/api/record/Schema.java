@@ -51,6 +51,11 @@ public interface Schema {
     List<Entry> getEntries();
 
     /**
+     * @return the metadata entries for records (not contains ordinary data entries).
+     */
+    List<Entry> getMetadata();
+
+    /**
      * @return All entries, including data and metadata, of this schema.
      */
     Stream<Entry> getAllEntries();

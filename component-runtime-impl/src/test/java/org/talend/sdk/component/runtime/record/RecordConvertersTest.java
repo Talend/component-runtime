@@ -50,6 +50,7 @@ import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.bind.config.PropertyOrderStrategy;
 import javax.json.spi.JsonProvider;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -340,6 +341,30 @@ class RecordConvertersTest {
                                     .build(),
                             () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<Record> list = record.getArray(Record.class, "list");
+            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
+        }
+    }
+
+    @Test
+    void convertListVaryingObject(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final Record record = converter
+                    .toRecord(new RecordConverters.MappingMetaRegistry(),
+                            Json
+                                    .createObjectBuilder()
+                                    .add("list", Json
+                                            .createArrayBuilder()
+                                            .add(Json.createObjectBuilder().add("name", "a").add("name1", "a1").build())
+                                            .add(Json.createObjectBuilder().add("name", "b").add("name2", "b2").build())
+                                            .build())
+                                    .build(),
+                            () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
+            final Collection<Record> list = record.getArray(Record.class, "list");
+            final Schema schema = record.getSchema().getEntries().get(0).getElementSchema();
+            // // FIXME: 7/9/21 : record -> schema -> entry(list) -> elementSchema != record -> list[x] -> schema
+            Assertions.assertNotNull(schema.getEntry("name1"));
+            Assertions.assertNotNull(schema.getEntry("name2"));
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }
     }

@@ -130,6 +130,11 @@ class SchemaTest {
         }
 
         @Override
+        public List<Entry> getMetadata() {
+            return Collections.emptyList();
+        }
+
+        @Override
         public Stream<Entry> getAllEntries() {
             return Optional.ofNullable(this.entries).map(List::stream).orElse(Stream.empty());
         }

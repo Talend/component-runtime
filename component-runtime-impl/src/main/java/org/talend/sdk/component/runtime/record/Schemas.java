@@ -156,6 +156,11 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
+    public List<Entry> getMetadata() {
+        return emptyList();
+    }
+
+    @Override
     @JsonbTransient
     public Stream<Entry> getAllEntries() {
         return Stream.empty();

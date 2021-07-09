@@ -64,6 +64,11 @@ public class SchemaImpl implements Schema {
     }
 
     @Override
+    public List<Entry> getMetadata() {
+        return this.metadataEntries;
+    }
+
+    @Override
     @JsonbTransient
     public Stream<Entry> getAllEntries() {
         return Stream.concat(this.metadataEntries.stream(), this.entries.stream());

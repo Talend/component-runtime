@@ -392,13 +392,16 @@ class RecordBuilderImplTest {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
                 .withEntry(newEntry("field1", "field1", Type.INT, true, 5, "Comment"))
+                .withEntry(newMetaEntry("meta1", "meta1", Type.INT, true, 5, "Comment"))
                 .build();
         final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
         final List<Entry> entries1 = builder1.getCurrentEntries();
-        Assertions.assertEquals(1, entries1.size());
+        Assertions.assertEquals(2, entries1.size());
         final Entry entry1 = entries1.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
         Record.Builder newBuilder = builder1.removeEntry(entry1);
-        Assertions.assertEquals(0, newBuilder.getCurrentEntries().size());
+        final Entry meta1 = entries1.stream().filter((Entry e) -> "meta1".equals(e.getName())).findFirst().get();
+        Record.Builder newBuilder2 = newBuilder.removeEntry(meta1);
+        Assertions.assertEquals(0, newBuilder2.getCurrentEntries().size());
     }
 
     @Test
@@ -455,6 +458,19 @@ class RecordBuilderImplTest {
                 .withNullable(nullable)
                 .withDefaultValue(defaultValue)
                 .withComment(comment)
+                .build();
+    }
+
+    private Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
+            Object defaultValue, String comment) {
+        return new EntryImpl.BuilderImpl()
+                .withName(name)
+                .withRawName(rawname)
+                .withType(type)
+                .withNullable(nullable)
+                .withDefaultValue(defaultValue)
+                .withComment(comment)
+                .withMetadata(true)
                 .build();
     }
 }

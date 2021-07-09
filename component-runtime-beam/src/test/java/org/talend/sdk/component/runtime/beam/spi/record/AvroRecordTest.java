@@ -56,6 +56,7 @@ import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
@@ -82,7 +83,8 @@ class AvroRecordTest {
                         .withType(Schema.Type.STRING)
                         .build())
                 .build();
-        assertEquals(schema, new AvroRecordBuilder(schema).withString("name", "ok").build().getSchema());
+        final Record record = new AvroRecordBuilder(schema).withString("name", "ok").build();
+        assertEquals(schema, record.getSchema());
     }
 
     @Test
@@ -354,5 +356,52 @@ class AvroRecordTest {
         public PCollection<Record> expand(final PCollection<Record> input) {
             return input.apply("RecordToRecord", ParDo.of(new RecordNormalizer(factory)));
         }
+    }
+
+    @Test
+    void testConstructor() {
+        // Preparation
+        final RecordBuilderFactory stdFactory = new RecordBuilderFactoryImpl("test");
+        final Schema.Entry field = stdFactory
+                .newEntryBuilder() //
+                .withName("field1") //
+                .withType(Schema.Type.STRING) //
+                .withNullable(true) //
+                .withRawName("raw") //
+                .build();
+        final Schema.Entry oid = stdFactory
+                .newEntryBuilder() //
+                .withName("$oid") //
+                .withType(Schema.Type.STRING) //
+                .withNullable(true) //
+                .build();
+        final Schema.Entry meta = stdFactory
+                .newEntryBuilder() //
+                .withName("meta1") //
+                .withType(Schema.Type.STRING) //
+                .withNullable(true) //
+                .withMetadata(true)
+                .withRawName("metaRaw") //
+                .build();
+
+        final Schema schema =
+                stdFactory.newSchemaBuilder(Schema.Type.RECORD).withEntry(field).withEntry(oid).withEntry(meta).build();
+
+        final Record record = stdFactory
+                .newRecordBuilder(schema) //
+                .withString(field, "Hello") //
+                .withString(meta, "myMeta") //
+                .withString(oid, "oidValue") //
+                .build();
+
+        // Test
+        final AvroRecord avrRec = new AvroRecord(record);
+
+        // Check
+        final Schema schemaAvro = avrRec.getSchema();
+        Assertions.assertEquals(3, schemaAvro.getAllEntries().count());
+        Assertions.assertEquals("Hello", avrRec.getString("field1"));
+        Assertions.assertEquals("myMeta", avrRec.getString("meta1"));
+        Assertions.assertEquals("oidValue", avrRec.getString(oid.getRawName()));
     }
 }
