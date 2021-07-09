@@ -24,13 +24,13 @@ main() {
   # work folders
   mkdir -p .build .build_source
   # decrypt keys
-  openssl enc -d -aes256                       \
-          -iv  "${encrypted_f13b410addf6_iv}"  \
-          -K   "${encrypted_f13b410addf6_key}" \
-          -in  .travis/encrypted.tar.gz.enc    \
+  openssl enc -aes256 -d -v \
+          -iv  "$KEY_USER" \
+          -K   "$KEY_PASS" \
+          -in  .travis/encrypted.tar.gz.enc \
           -out .build_source/encrypted.tar.gz
-  tar -xzf .build_source/encrypted.tar.gz -C .build
-  cp  -v   .build/gpg/travis.* "$GPG_DIR/"
+  tar xvzf .build_source/encrypted.tar.gz -C .build
+  cp  -v  .build/gpg/travis.* "$GPG_DIR/"
   # import key
   gpg --import --no-tty --batch --yes "$GPG_DIR/travis.priv.bin"
 }
