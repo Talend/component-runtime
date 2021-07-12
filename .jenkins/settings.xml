@@ -101,8 +101,8 @@
         <gpg.defaultKeyring>false</gpg.defaultKeyring>
         <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
         <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
-        <gpg.publicKeyring>${env.GPG_DIR}/travis.pub.bin</gpg.publicKeyring>
-        <gpg.secretKeyring>${env.GPG_DIR}/travis.priv.bin</gpg.secretKeyring>
+        <gpg.publicKeyring>${env.HOME}/.gnupg/travis.pub.bin</gpg.publicKeyring>
+        <gpg.secretKeyring>${env.HOME}/.gnupg/travis.priv.bin</gpg.secretKeyring>
       </properties>
     </profile>
   </profiles>

@@ -20,9 +20,14 @@ final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', 
 final def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
 final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datapwn-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
 final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
+final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
+final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
 final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.7.2-2.3-20210616074048"
 final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+
+def EXTRA_BUILD_ARGS = ""
+
 pipeline {
     agent {
         kubernetes {
@@ -62,9 +67,9 @@ spec:
 
     environment {
         MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
-        BUILD_ARGS="-Possrh -Prelease -Dgpg.skip=true"
+        BUILD_ARGS="-Dgpg.skip=true"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease"
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
@@ -86,6 +91,8 @@ spec:
                 choices: ['STANDARD', 'RELEASE'],
                 description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
         booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
+        string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
+        string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
     }
 
     stages {
@@ -103,7 +110,30 @@ spec:
                                bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
                                """
                         }
+                        withCredentials([keyImportCredentials]) {
+                            sh """
+                               bash .jenkins/scripts/setup_gpg.sh
+                               """
+                        }
                         env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
+                        try {
+                            EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
+                        } catch (error) {
+                            EXTRA_BUILD_ARGS = ""
+                        }
+                    }
+                }
+            }
+        }
+        stage('Post login') {
+            steps {
+                container('main') {
+                    script {
+                        try {
+                            sh "${params.POST_LOGIN_SCRIPT}"
+                        } catch (error) {
+                            //
+                        }
                     }
                 }
             }
@@ -113,7 +143,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn clean install $BUILD_ARGS -s .jenkins/settings.xml"
+                        sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -127,8 +157,8 @@ spec:
             }
             steps {
                 container('main') {
-                    withCredentials([ossrhCredentials]) {
-                        sh "mvn deploy $DEPLOY_OPTS -s .jenkins/settings.xml"
+                    withCredentials([ossrhCredentials, gpgCredentials]) {
+                        sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -160,7 +190,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gitCredentials]) {
-                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS -s ../.jenkins/settings.xml && cd -"
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -"
                     }
                 }
             }
@@ -195,7 +225,7 @@ spec:
             steps {
                 container('main') {
                     script {
-                        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials]) {
+                        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                             configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                                 sh """
                                    bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
