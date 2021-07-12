@@ -23,11 +23,13 @@ import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
+import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
 import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import javax.json.bind.annotation.JsonbTransient;
@@ -73,25 +75,59 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             this.schema = avr.schema;
             return;
         }
-        final Schema.Builder builder = new AvroSchemaBuilder().withType(Schema.Type.RECORD);
-        record.getSchema().getAllEntries().forEach(builder::withEntry);
-        this.schema = (AvroSchema) builder.build();
-
-        final org.apache.avro.Schema delegateSchema = this.schema.getDelegate();
-        this.delegate = new GenericData.Record(delegateSchema);
+        final List<org.apache.avro.Schema.Field> fields = record.getSchema().getAllEntries().map(entry -> {
+            final org.apache.avro.Schema avroSchema = toSchema(entry);
+            final org.apache.avro.Schema.Field f = AvroSchemaBuilder.AvroHelper.toField(avroSchema, entry);
+            return f;
+        }).collect(toList());
+        final org.apache.avro.Schema avroSchema =
+                org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
+        record.getSchema().getProps().forEach((k, v) -> avroSchema.addProp(k, v));
+        avroSchema.setFields(fields);
+        schema = new AvroSchema(avroSchema);
+        delegate = new GenericData.Record(avroSchema);
         record
                 .getSchema()
                 .getAllEntries()
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {
-                            final Object avroValue = directMapping(v);
-
+                            Object avroValue = directMapping(v);
+                            if (Collection.class.isInstance(avroValue)) {
+                                avroValue = Collection.class
+                                        .cast(avroValue)
+                                        .stream()
+                                        .map(this::directMapping)
+                                        .collect(toList());
+                            }
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
-                                        delegateSchema.getField(sanitizeConnectionName(entry.getName()));
-                                this.delegate.put(field.pos(), avroValue);
+                                        avroSchema.getField(sanitizeConnectionName(entry.getName()));
+                                delegate.put(field.pos(), avroValue);
                             }
                         }));
+        /*
+         * final Schema.Builder builder = new AvroSchemaBuilder().withType(Schema.Type.RECORD);
+         * record.getSchema().getAllEntries().forEach(builder::withEntry);
+         * this.schema = (AvroSchema) builder.build();
+         * 
+         * final org.apache.avro.Schema delegateSchema = this.schema.getDelegate();
+         * this.delegate = new GenericData.Record(delegateSchema);
+         * record
+         * .getSchema()
+         * .getAllEntries()
+         * .forEach(entry -> ofNullable(record.get(Object.class, entry.getName())).ifPresent(v -> {
+         * Object avroValue = directMapping(v);
+         * if (Collection.class.isInstance(avroValue)) {
+         * avroValue =
+         * Collection.class.cast(avroValue).stream().map(this::directMapping).collect(toList());
+         * }
+         * if (avroValue != null) {
+         * final org.apache.avro.Schema.Field field =
+         * delegateSchema.getField(sanitizeConnectionName(entry.getName()));
+         * this.delegate.put(field.pos(), avroValue);
+         * }
+         * }));
+         */
     }
 
     private Object directMapping(final Object value) {
@@ -245,7 +281,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             ofNullable(entry.getElementSchema()).ifPresent(builder::withElementSchema);
             break;
         case RECORD:
-            ofNullable(entry.getElementSchema()).ifPresent(s -> s.getEntries().forEach(builder::withEntry));
+            ofNullable(entry.getElementSchema()).ifPresent(s -> s.getAllEntries().forEach(builder::withEntry));
             break;
         default:
             // no-op

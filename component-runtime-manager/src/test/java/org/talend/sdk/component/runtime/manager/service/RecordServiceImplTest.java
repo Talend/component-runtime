@@ -139,7 +139,13 @@ class RecordServiceImplTest {
     void buildRecord() {
         final Schema customSchema = factory
                 .newSchemaBuilder(baseSchema)
-                .withEntry(factory.newEntryBuilder().withName("custom").withType(STRING).withNullable(true).build())
+                .withEntry(factory
+                        .newEntryBuilder()
+                        .withName("custom")
+                        .withType(STRING)
+                        .withNullable(true)
+                        .withMetadata(true)
+                        .build())
                 .build();
 
         final List<Collection<String>> spy = asList(new LinkedList<>(), new LinkedList<>());
@@ -167,17 +173,16 @@ class RecordServiceImplTest {
         Stream
                 .of(noCustomRecord, customRecord)
                 .forEach(record -> assertEquals(
-                        "name=Test,age=33,address={\"street\":\"here\",\"number\":1},custom=yes", toString(record)));
+                        "custom=yes,name=Test,age=33,address={\"street\":\"here\",\"number\":1}", toString(record)));
         assertEquals(asList("visited=name", "visited=age", "visited=address", "done=false"), spy.get(0));
-        assertEquals(asList("visited=name", "visited=age", "visited=address", "visited=custom", "done=true"),
+        assertEquals(asList("visited=custom", "visited=name", "visited=age", "visited=address", "done=true"),
                 spy.get(1));
     }
 
     private String toString(final Record record) {
         return record
                 .getSchema()
-                .getEntries()
-                .stream()
+                .getAllEntries()
                 .map(e -> e.getName() + '=' + record.get(Object.class, e.getName()))
                 .collect(joining(","));
     }

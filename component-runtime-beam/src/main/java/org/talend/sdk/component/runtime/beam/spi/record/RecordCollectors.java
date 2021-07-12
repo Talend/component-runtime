@@ -27,7 +27,7 @@ public final class RecordCollectors {
 
     public static void merge(final Record.Builder b1, final Record.Builder b2) {
         final Record toInclude = b2.build();
-        toInclude.getSchema().getEntries().forEach(e -> {
+        toInclude.getSchema().getAllEntries().forEach(e -> {
             switch (e.getType()) {
             case RECORD:
                 b1.withRecord(e, toInclude.getRecord(e.getName()));

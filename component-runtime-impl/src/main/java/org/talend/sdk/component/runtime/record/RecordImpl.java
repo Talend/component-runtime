@@ -216,7 +216,8 @@ public final class RecordImpl implements Record {
                 return this;
             }
 
-            final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
+            final BuilderImpl builder =
+                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
             return builder.updateEntryByName(name, schemaEntry);
         }
 

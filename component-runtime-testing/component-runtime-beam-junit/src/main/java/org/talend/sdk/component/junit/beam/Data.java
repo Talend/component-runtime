@@ -172,7 +172,7 @@ public class Data {
             if (registry == null) {
                 registry = new RecordConverters.MappingMetaRegistry();
             }
-            return object.getSchema().getEntries().stream().collect(toMap(Schema.Entry::getName, e -> {
+            return object.getSchema().getAllEntries().collect(toMap(Schema.Entry::getName, e -> {
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     final Record record = object.getArray(Record.class, e.getName()).iterator().next();
