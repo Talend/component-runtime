@@ -1,0 +1,12 @@
+{
+    "preset": "@talend/scripts-preset-react",
+    "html": {
+      "title": "Talend Components Dev Tester"
+    },
+    "copy": [{ "from": "src/assets", "to": "assets" }],
+    "webpack": {
+      "config": {
+          "development": "./webpack.config.dev.js"
+      }
+    }
+  }
