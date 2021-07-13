@@ -105,29 +105,6 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                                 delegate.put(field.pos(), avroValue);
                             }
                         }));
-        /*
-         * final Schema.Builder builder = new AvroSchemaBuilder().withType(Schema.Type.RECORD);
-         * record.getSchema().getAllEntries().forEach(builder::withEntry);
-         * this.schema = (AvroSchema) builder.build();
-         * 
-         * final org.apache.avro.Schema delegateSchema = this.schema.getDelegate();
-         * this.delegate = new GenericData.Record(delegateSchema);
-         * record
-         * .getSchema()
-         * .getAllEntries()
-         * .forEach(entry -> ofNullable(record.get(Object.class, entry.getName())).ifPresent(v -> {
-         * Object avroValue = directMapping(v);
-         * if (Collection.class.isInstance(avroValue)) {
-         * avroValue =
-         * Collection.class.cast(avroValue).stream().map(this::directMapping).collect(toList());
-         * }
-         * if (avroValue != null) {
-         * final org.apache.avro.Schema.Field field =
-         * delegateSchema.getField(sanitizeConnectionName(entry.getName()));
-         * this.delegate.put(field.pos(), avroValue);
-         * }
-         * }));
-         */
     }
 
     private Object directMapping(final Object value) {

@@ -362,7 +362,7 @@ class RecordConvertersTest {
                             () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<Record> list = record.getArray(Record.class, "list");
             final Schema schema = record.getSchema().getEntries().get(0).getElementSchema();
-            // // FIXME: 7/9/21 : record -> schema -> entry(list) -> elementSchema != record -> list[x] -> schema
+            // // FIXME: 7/9/21 : TCOMP-1956
             Assertions.assertNotNull(schema.getEntry("name1"));
             Assertions.assertNotNull(schema.getEntry("name2"));
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));

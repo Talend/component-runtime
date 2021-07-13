@@ -224,8 +224,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
             if (elementSchema == null) {
                 throw new IllegalStateException("No elementSchema set for this ARRAY schema");
             }
-            // FIXME: 7/12/21 => Here, it assumes that elementSchema inherit from Unwrappable<avro.Schema>
-            // (instance of AvroSchema). But if not, it fails.
+            // FIXME: 7/12/21 => TCOMP-1957
             final org.apache.avro.Schema elementType = elementSchema == EMPTY_RECORD ? AvroSchemas.getEmptySchema()
                     : Unwrappable.class.cast(elementSchema).unwrap(org.apache.avro.Schema.class);
             return new AvroSchema(org.apache.avro.Schema.createArray(elementType));
