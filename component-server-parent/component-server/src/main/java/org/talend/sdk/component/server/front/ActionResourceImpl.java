@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -154,7 +155,40 @@ public class ActionResourceImpl implements ActionResource {
             }
             // synchronous, if needed we can move to async with timeout later but currently we don't want.
             // check org.talend.sdk.component.server.service.ComponentManagerService.readCurrentLocale if you change it
-        }, Runnable::run);
+        }, Runnable::run).exceptionally(e -> {
+            final Throwable cause;
+            if (ExecutionException.class.isInstance(e.getCause())) {
+                cause = e.getCause().getCause();
+            } else {
+                cause = e.getCause();
+            }
+            if (WebApplicationException.class.isInstance(cause)) {
+                final WebApplicationException wae = WebApplicationException.class.cast(cause);
+                final Response response = wae.getResponse();
+                String message = "";
+                if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
+                    throw wae; // already logged and setup broken so just rethrow
+                } else {
+                    try {
+                        message = response.readEntity(String.class);
+                    } catch (final Exception ignored) {
+                        // no-op
+                    }
+                    if (message.isEmpty()) {
+                        message = cause.getMessage();
+                    }
+                    throw new WebApplicationException(message,
+                            Response
+                                    .status(response.getStatus())
+                                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, message))
+                                    .build());
+                }
+            }
+            throw new WebApplicationException(Response
+                    .status(500)
+                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, cause.getMessage()))
+                    .build());
+        });
     }
 
     private Response onError(final Throwable re) {

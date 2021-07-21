@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":335,
+    "commits":340,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -124,6 +124,13 @@
     "id":"chmyga"
   },
   {
+    "commits":3,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
+    "id":"ozhelezniak-talend",
+    "name":"Oleksandr Zhelezniak"
+  },
+  {
     "commits":2,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/31616269?v=4",
@@ -142,13 +149,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/1133383?v=4",
     "id":"rdubois",
     "name":"Rémy DUBOIS"
-  },
-  {
-    "commits":2,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
-    "id":"ozhelezniak-talend",
-    "name":"Oleksandr Zhelezniak"
   },
   {
     "commits":1,

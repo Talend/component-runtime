@@ -265,7 +265,7 @@ class ActionResourceImplTest {
                 .queryParam("family", "jdbc")
                 .queryParam("action", "encrypted")
                 .request(APPLICATION_JSON_TYPE)
-                .header("x-talend-tenant-id", "test-tent")
+                .header("x-talend-tenant-id", "test-tenant")
                 .post(Entity.entity(new HashMap<String, String>() {
 
                     {
@@ -274,7 +274,9 @@ class ActionResourceImplTest {
                         put("configuration.password", "vault:v1:hccc");
                     }
                 }, APPLICATION_JSON_TYPE));
-        assertEquals(422, response.getStatus());
+        assertEquals(400, response.getStatus());
+        assertEquals("{\"errors\":[\"wrong vault_encrypt\"]}",
+                response.readEntity(ErrorPayload.class).getDescription());
     }
 
 }

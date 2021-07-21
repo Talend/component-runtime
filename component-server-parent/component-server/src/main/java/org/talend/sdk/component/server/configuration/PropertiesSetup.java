@@ -24,7 +24,7 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
 
     @Override
     public void accept(final Configuration configuration) {
-        // By default we want to skip vault calls zipkin logs, we can still overide it...
+        // By default we want to skip vault calls zipkin logs, we can still override it...
         System.setProperty("geronimo.opentracing.client.filter.request.skip", "true");
         System.setProperty("geronimo.opentracing.filter.skippedTracing.urls", ".*/login$,.*/decrypt/.*");
         System.setProperty("geronimo.opentracing.filter.skippedTracing.matcherType", "regex");

@@ -4,7 +4,9 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1935[TCOMP-1935^]: After Variables doesn't support custom object types
 - link:https://jira.talendforge.org/browse/TCOMP-1941[TCOMP-1941^]: Maven goal talend-component:web fails on startup
+- link:https://jira.talendforge.org/browse/TCOMP-1947[TCOMP-1947^]: Implement a retry strategy on failure in vault-client
 - link:https://jira.talendforge.org/browse/TCOMP-1948[TCOMP-1948^]: Raised exception in component-server(s) should be serialized in json
 - link:https://jira.talendforge.org/browse/TCOMP-1952[TCOMP-1952^]: IllegalArgumentException when the http response return duplicated header.
 
