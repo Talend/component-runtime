@@ -51,12 +51,14 @@ main() {
     --define releaseVersion="${release}" \
     --define developmentVersion="${dev_version}" \
     --define arguments="-DskipTests -DskipITs" \
+    --activate-profiles ossrh,release,gpg2 \
     --settings .jenkins/settings.xml
   echo ">> Maven perform release $release"
   mvn release:perform \
     --batch-mode \
     --errors \
     --define arguments="-DskipTests -DskipITs" \
+    --activate-profiles ossrh,release,gpg2 \
     --settings .jenkins/settings.xml
   ###
   echo ">> Reset repo"
