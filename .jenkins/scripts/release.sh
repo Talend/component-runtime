@@ -53,7 +53,7 @@ main() {
     --define developmentVersion="${dev_version}" \
     --define arguments="-DskipTests -DskipITs" \
     --activate-profiles ossrh,release,gpg2 \
-    "$EXTRA_BUILD_ARGS" \
+    $EXTRA_BUILD_ARGS \
     --settings .jenkins/settings.xml
   echo ">> Maven perform release $release"
   mvn release:perform \
@@ -61,7 +61,7 @@ main() {
     --errors \
     --define arguments="-DskipTests -DskipITs" \
     --activate-profiles ossrh,release,gpg2 \
-    "$EXTRA_BUILD_ARGS" \
+    $EXTRA_BUILD_ARGS \
     --settings .jenkins/settings.xml
   ###
   echo ">> Reset repo"
@@ -75,7 +75,7 @@ main() {
   echo ">> Rebuilding ${branch} and updating it (doc) for next iteration"
   git reset --hard
   git checkout "${branch}"
-  mvn clean install -DskipTests -Dinvoker.skip=true -T1C "$EXTRA_BUILD_ARGS"
+  mvn clean install -DskipTests -Dinvoker.skip=true -T1C $EXTRA_BUILD_ARGS
   git commit -a -m ">> Updating doc for next iteration"
   git push -u origin "${branch}"
   ###
