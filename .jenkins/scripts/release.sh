@@ -36,7 +36,7 @@ main() {
   if [[ ${branch} == 'master' ]]; then
     maintenance_branch="maintenance/${maj}.${min}"
     maintenance_version="${maj}.${min}.$((rev + 1))-SNAPSHOT"
-    min=$(("${min}" + 1))
+    min=$((min + 1))
     rev="0"
   else
     rev=$((rev + 1))
