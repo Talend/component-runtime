@@ -35,15 +35,15 @@ main() {
   # variables according branch
   if [[ ${branch} == 'master' ]]; then
     maintenance_branch="maintenance/${maj}.${min}"
-    maintenance_version="${maj}.${min}.$(("${rev}" + 1))-SNAPSHOT"
+    maintenance_version="${maj}.${min}.$((rev + 1))-SNAPSHOT"
     min=$(("${min}" + 1))
     rev="0"
   else
-    rev=$((${rev} + 1))
+    rev=$((rev + 1))
   fi
   local dev_version=${maj}.${min}.${rev}-SNAPSHOT
   ###
-  echo ">> Maven prepare release $release (next-dev: ${dev_version}; future: ${maintenance_branch})"
+  echo ">> Maven prepare release $release (next-dev: ${dev_version}; maintenance: ${maintenance_branch} with ${maintenance_version})"
   mvn release:prepare \
     --batch-mode \
     --errors \
