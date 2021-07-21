@@ -24,6 +24,7 @@ main() {
   local branch="${1?Missing branch}"
   local currentVersion="${2?Missing project version}"
   local release="${currentVersion/-SNAPSHOT/}"
+  local tag=component-runtime-"${release}"
   # bump
   local maj
   local min
@@ -47,7 +48,7 @@ main() {
   mvn release:prepare \
     --batch-mode \
     --errors \
-    --define tag=component-runtime-"${release}" \
+    --define tag="${tag}" \
     --define releaseVersion="${release}" \
     --define developmentVersion="${dev_version}" \
     --define arguments="-DskipTests -DskipITs" \
@@ -63,9 +64,9 @@ main() {
   ###
   echo ">> Reset repo"
   git reset --hard
-  git push --follow-tags
+  git push -u origin "${tag}"
   echo ">> Checkout the release tag"
-  git checkout -b component-runtime-"${release}" component-runtime-"${release}"
+  git checkout -b "${tag}" "${tag}"
   ### docker build call
   bash .jenkins/scripts/docker_build.sh "${release}"
   ###
@@ -74,7 +75,7 @@ main() {
   git checkout "${branch}"
   mvn clean install -DskipTests -Dinvoker.skip=true -T1C
   git commit -a -m ">> Updating doc for next iteration"
-  git push
+  git push -u origin "${branch}"
   ###
   if [[ ${branch} == 'master' ]]; then
     echo ">> Creating ${maintenance_branch?Missing branch} with ${maintenance_version?Missing version}"
