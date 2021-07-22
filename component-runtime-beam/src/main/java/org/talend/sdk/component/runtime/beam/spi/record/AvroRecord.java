@@ -88,16 +88,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         entries
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {
-                            Object avroValue = directMapping(v);
-                            /*
-                             * if (Collection.class.isInstance(avroValue)) {
-                             * avroValue = Collection.class
-                             * .cast(avroValue)
-                             * .stream()
-                             * .map(this::directMapping)
-                             * .collect(toList());
-                             * }
-                             */
+                            final Object avroValue = this.directMapping(v);
+
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
                                         avroSchema.getField(sanitizeConnectionName(entry.getName()));
