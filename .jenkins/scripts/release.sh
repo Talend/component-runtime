@@ -66,7 +66,7 @@ main() {
   ###
   echo ">> Reset repo"
   git reset --hard
-  git push -u origin "${tag}"
+  git push -u origin --follow-tags
   echo ">> Checkout the release tag"
   git checkout -b "${tag}" "${tag}"
   ### docker build call
