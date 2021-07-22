@@ -27,6 +27,18 @@ main() {
   git config --global credential.username ${username}
   git config --global credential.helper '!echo password=${password}; echo'
   git config --global credential.name "jenkins-build"
+
+  {
+    printf "machine github.com\n"
+    printf "login %s\n" "${username}"
+    printf "password %s\n" "${password}"
+
+    printf "machine api.github.com\n"
+    printf "login %s\n" "${username}"
+    printf "password %s\n" "${password}"
+  } > ~/.netrc
+
+  chmod 600 ~/.netrc
 }
 
 main "$@"
