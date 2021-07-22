@@ -1619,7 +1619,7 @@
       </build>
     </profile>
     <profile>
-      <id>nostaging</id>
+      <id>no-staging</id>
       <build>
         <plugins>
           <plugin>
