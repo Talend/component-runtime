@@ -147,6 +147,19 @@ spec:
                     }
                 }
             }
+            post {
+                always {
+                    publishHTML(
+                            target: [
+                                    allowMissing         : false,
+                                    alwaysLinkToLastBuild: false,
+                                    keepAll              : true,
+                                    reportDir            : 'reporting/target/site/jacoco-aggregate',
+                                    reportFiles          : 'index.html',
+                                    reportName           : "Coverage report"
+                            ])
+                }
+            }
         }
         stage('Deploy artifacts') {
             when {
