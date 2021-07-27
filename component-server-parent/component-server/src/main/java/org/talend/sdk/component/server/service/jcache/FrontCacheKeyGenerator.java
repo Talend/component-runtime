@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.service.jcache;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.cache.annotation.CacheInvocationParameter;
@@ -55,10 +56,14 @@ public class FrontCacheKeyGenerator implements CacheKeyGenerator {
     }
 
     private Stream<Object> getContextualKeys() {
-        return Stream
-                .of(uriInfo.getPath(), uriInfo.getQueryParameters(), headers.getLanguage(),
-                        headers.getHeaderString(HttpHeaders.ACCEPT),
-                        headers.getHeaderString(HttpHeaders.ACCEPT_ENCODING));
+        try {
+            return Stream
+                    .of(uriInfo.getPath(), uriInfo.getQueryParameters(), headers.getLanguage(),
+                            headers.getHeaderString(HttpHeaders.ACCEPT),
+                            headers.getHeaderString(HttpHeaders.ACCEPT_ENCODING));
+        } catch (NullPointerException npe) {
+            return Stream.of(UUID.randomUUID());
+        }
     }
 
     private static class GeneratedCacheKeyImpl implements GeneratedCacheKey {
