@@ -116,7 +116,7 @@ spec:
                                """
                         }
                         def pom = readMavenPom file: 'pom.xml'
-                        env.PROJECT_VERSION = pom.version.split('-')[0]
+                        env.PROJECT_VERSION = pom.version
                         try {
                             EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
                         } catch (error) {
