@@ -19,6 +19,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1974[TCOMP-1974^]: Upgrade commons-compress to 1.21 due to CVE-2021-36090
 - link:https://jira.talendforge.org/browse/TCOMP-1976[TCOMP-1976^]: Upgrade meecrowave to 1.2.11
 - link:https://jira.talendforge.org/browse/TCOMP-1978[TCOMP-1978^]: Upgrade tomcat to 9.0.44
+- link:https://jira.talendforge.org/browse/TCOMP-1979[TCOMP-1979^]: Upgrade xbean to 4.20
 
 
 
