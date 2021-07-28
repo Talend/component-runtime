@@ -115,7 +115,8 @@ spec:
                                bash .jenkins/scripts/setup_gpg.sh
                                """
                         }
-                        env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
+                        def pom = readMavenPom file: 'pom.xml'
+                        env.PROJECT_VERSION = pom.version
                         try {
                             EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
                         } catch (error) {
