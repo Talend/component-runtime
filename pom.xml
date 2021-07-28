@@ -213,8 +213,8 @@
 
     <!-- for the starter -->
     <gradle.version>6.0-rc-1</gradle.version>
-    <mvn.version>3.6.3</mvn.version>
-    <maven-shared-utils.version>3.3.3</maven-shared-utils.version>
+    <mvn.version>3.8.1</mvn.version>
+    <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
     <beam.version>2.30.0</beam.version>
     <!-- should follow beam-sdk-java-core version -->
@@ -224,9 +224,10 @@
     <spark-scala.version>2.12</spark-scala.version>
 
     <groovy.version>3.0.7</groovy.version>
-    <gmavenplus.version>1.11.0</gmavenplus.version>
+    <gmavenplus.version>1.12.1</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
-    <javadoc-plugin.version>3.1.0</javadoc-plugin.version>
+    <assembly-plugin.version>3.1.1</assembly-plugin.version>
+    <javadoc-plugin.version>3.2.0</javadoc-plugin.version>
     <deploy-plugin.version>2.8.2</deploy-plugin.version>
     <clean-plugin.version>3.1.0</clean-plugin.version>
     <download-plugin.version>1.4.2</download-plugin.version>
@@ -237,7 +238,7 @@
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>5.10.0.202012080955-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
-    <surefire-plugin.version>3.0.0-M4</surefire-plugin.version>
+    <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
     <jacoco.version>0.8.5</jacoco.version>
     <gpg-plugin.version>1.6</gpg-plugin.version>
     <spotless.version>1.23.0</spotless.version>
