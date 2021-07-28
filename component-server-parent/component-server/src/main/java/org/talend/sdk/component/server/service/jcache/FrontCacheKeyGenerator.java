@@ -31,6 +31,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @ApplicationScoped
 public class FrontCacheKeyGenerator implements CacheKeyGenerator {
 
@@ -61,7 +64,8 @@ public class FrontCacheKeyGenerator implements CacheKeyGenerator {
                     .of(uriInfo.getPath(), uriInfo.getQueryParameters(), headers.getLanguage(),
                             headers.getHeaderString(HttpHeaders.ACCEPT),
                             headers.getHeaderString(HttpHeaders.ACCEPT_ENCODING));
-        } catch (NullPointerException npe) {
+        } catch (Exception e) {
+            log.debug("[getContextualKeys] context not applicable: {}", e.getMessage());
             return Stream.of(UUID.randomUUID());
         }
     }
