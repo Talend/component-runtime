@@ -169,7 +169,7 @@
     <johnzon.version>1.2.10</johnzon.version>
     <meecrowave.version>1.2.11</meecrowave.version>
     <owb.version>2.0.20</owb.version>
-    <tomcat.version>9.0.43</tomcat.version>
+    <tomcat.version>9.0.44</tomcat.version>
     <cxf.version>3.4.3</cxf.version>
     <log4j2.version>2.14.1</log4j2.version>
     <logback.version>1.2.5</logback.version>
