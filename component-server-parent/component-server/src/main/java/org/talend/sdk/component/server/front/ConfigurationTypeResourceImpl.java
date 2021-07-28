@@ -163,7 +163,14 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
-        final Map<String, String> decrypted = vault.decrypt(config, headers.getHeaderString("x-talend-tenant-id"));
+        String tenant;
+        try {
+            tenant = headers.getHeaderString("x-talend-tenant-id");
+        } catch (Exception e) {
+            log.debug("[migrate] context not applicable: {}", e.getMessage());
+            tenant = null;
+        }
+        final Map<String, String> decrypted = vault.decrypt(config, tenant);
         if (virtualComponents.isExtensionEntity(id)) {
             return decrypted;
         }

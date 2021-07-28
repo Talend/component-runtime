@@ -17,16 +17,20 @@ package org.talend.sdk.component.server.front;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.spi.JsonProvider;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Assertions;
@@ -43,6 +47,9 @@ class ConfigurationTypeResourceImplTest {
 
     @Inject
     private WebsocketClient ws;
+
+    @Inject
+    private WebTarget base;
 
     @RepeatedTest(2)
     void webSocketGetIndex() {
@@ -124,9 +131,18 @@ class ConfigurationTypeResourceImplTest {
                 .add("configuration.username", "username0")
                 .add("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==")
                 .build();
-        final Map<String, String> config = ws
-                .read(Map.class, "post", "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-2",
-                        json.toString());
+        final Map<String, String> config = base
+                .path("/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-2")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.username", "username0");
+                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                    }
+                }, APPLICATION_JSON_TYPE))
+                .readEntity(Map.class);
         assertEquals("true", config.get("configuration.migrated"));
         assertEquals("4", config.get("configuration.size"));
         assertEquals("test", config.get("configuration.url"));
