@@ -1,5 +1,30 @@
 
 
+== Version 1.36.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1967[TCOMP-1967^]: goal uispec generation failure
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1968[TCOMP-1968^]: Upgrade maven to 3.8.1
+- link:https://jira.talendforge.org/browse/TCOMP-1969[TCOMP-1969^]: Upgrade Beam to 2.31.0
+- link:https://jira.talendforge.org/browse/TCOMP-1970[TCOMP-1970^]: Upgrade jackson to 2.12.0
+- link:https://jira.talendforge.org/browse/TCOMP-1971[TCOMP-1971^]: Upgrade Junit to 5.8.0-M1
+- link:https://jira.talendforge.org/browse/TCOMP-1972[TCOMP-1972^]: Upgrade slf4j to 1.7.32
+- link:https://jira.talendforge.org/browse/TCOMP-1973[TCOMP-1973^]: Upgrade log4j to 2.14.1
+
+
+
+== Version 1.35.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1967[TCOMP-1967^]: goal uispec generation failure
+
 == Version 1.35.0
 
 === Bug
