@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1972[TCOMP-1972^]: Upgrade slf4j to 1.7.32
 - link:https://jira.talendforge.org/browse/TCOMP-1973[TCOMP-1973^]: Upgrade log4j to 2.14.1
 - link:https://jira.talendforge.org/browse/TCOMP-1974[TCOMP-1974^]: Upgrade commons-compress to 1.21 due to CVE-2021-36090
+- link:https://jira.talendforge.org/browse/TCOMP-1975[TCOMP-1975^]: Upgrade TSBI to 2.8.2-20210722144648
 - link:https://jira.talendforge.org/browse/TCOMP-1976[TCOMP-1976^]: Upgrade meecrowave to 1.2.11
 - link:https://jira.talendforge.org/browse/TCOMP-1978[TCOMP-1978^]: Upgrade tomcat to 9.0.44
 - link:https://jira.talendforge.org/browse/TCOMP-1979[TCOMP-1979^]: Upgrade xbean to 4.20

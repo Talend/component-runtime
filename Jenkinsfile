@@ -23,7 +23,7 @@ final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
 final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.7.2-2.3-20210616074048"
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.8.2-2.3-20210722144648"
 final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
 def EXTRA_BUILD_ARGS = ""
