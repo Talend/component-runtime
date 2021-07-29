@@ -36,7 +36,7 @@ public class OpenTracingConfigSource implements ConfigSource {
             try {
                 tracingRate = ofNullable(getenv("TRACING_SAMPLING_RATE")).map(Integer::parseInt).orElse(1);
             } catch (final NumberFormatException e) {
-                LOGGER.warn("Can't parse value of environment property TRACING_SAMPLING_RATE", e);
+                LOGGER.warn("Can't parse value of environment property TRACING_SAMPLING_RATE", e.getMessage());
                 tracingRate = 1;
             }
 
