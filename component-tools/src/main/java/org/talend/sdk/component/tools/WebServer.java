@@ -82,7 +82,7 @@ public class WebServer implements Runnable {
                                 // no-op - gradle supports to reuse the same JVM so it would be broken
                             }
                         });
-                    }));
+                    }, null));
 
                     ref.set(meecrowave);
                     latch.countDown();

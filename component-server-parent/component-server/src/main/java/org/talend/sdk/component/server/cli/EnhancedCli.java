@@ -58,7 +58,7 @@ public class EnhancedCli extends Cli implements AutoCloseable {
                             // single time
                         }
                     });
-                }));
+                }, null));
 
                 doWait(meecrowave, null);
             }
