@@ -19,7 +19,10 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -34,12 +37,28 @@ public abstract class DependencyAwareMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
 
+    @Parameter(defaultValue = ",", property = "talend.bundle.exclude.artifacts")
+    private String excludeArtifactsFilter;
+
     protected Map<String, File> artifacts() {
+        final Predicate<String> excluded = (test -> Arrays
+                .stream(excludeArtifactsFilter.split(","))
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .anyMatch(s -> {
+                    if (test.startsWith(s)) {
+                        getLog().info("Removing artifact " + test + " from car file due to filter " + s);
+                        return true;
+                    }
+                    return false;
+                }));
         final Map<String, File> artifacts = project
                 .getArtifacts()
                 .stream()
                 .filter(a -> !"org.talend.sdk.component".equals(a.getGroupId())
-                        && ("compile".equals(a.getScope()) || "runtime".equals(a.getScope())))
+                        && ("compile".equals(a.getScope()) || "runtime".equals(a.getScope()))
+                        && !excluded.test(String.format("%s:%s:%s", a.getGroupId(), a.getArtifactId(), a.getVersion())))
                 .collect(toMap(a -> String
                         .format("%s:%s:%s%s:%s:%s", a.getGroupId(), a.getArtifactId(),
                                 ofNullable(a.getType()).orElse("jar"),

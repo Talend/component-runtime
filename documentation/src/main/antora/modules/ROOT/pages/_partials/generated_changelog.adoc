@@ -8,6 +8,12 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1981[TCOMP-1981^]: Allow to filter artifacts in car file generation
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1968[TCOMP-1968^]: Upgrade maven to 3.8.1
