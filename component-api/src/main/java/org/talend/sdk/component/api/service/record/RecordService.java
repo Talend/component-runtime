@@ -86,6 +86,7 @@ public interface RecordService {
      * Visit a record with a custom visitor.
      *
      * @param visitor the visitor to use to browse the record.
+     * @param record record to visit.
      * @param <T> the visitor returned type.
      * @return the visitor value.
      */

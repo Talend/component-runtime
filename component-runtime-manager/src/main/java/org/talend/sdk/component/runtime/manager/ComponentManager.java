@@ -133,6 +133,7 @@ import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.standalone.DriverRunner;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.classloader.ThreadHelper;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
@@ -151,7 +152,6 @@ import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamBuilder;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
-import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ComponentMetadataService;
@@ -161,6 +161,7 @@ import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
+import org.talend.sdk.component.runtime.manager.service.ServiceHelper;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.util.Lazy;
@@ -1068,15 +1069,6 @@ public class ComponentManager implements AutoCloseable {
         return ofNullable(type.getPackage().getName()).orElse("");
     }
 
-    private Class<?> handleProxy(final Container container, final Class<?> type) {
-        if (!proxyGenerator.hasInterceptors(type) && proxyGenerator.isSerializable(type)) {
-            return type;
-        }
-        return container
-                .execute(() -> proxyGenerator
-                        .generateProxy(container.getLoader(), type, container.getId(), type.getName()));
-    }
-
     private Function<Map<String, String>, Object[]> createParametersFactory(final String plugin,
             final Executable method, final Map<Class<?>, Object> services, final Supplier<List<ParameterMeta>> metas) {
         // it is "slow" for cold boots so let's delay it
@@ -1317,35 +1309,16 @@ public class ComponentManager implements AutoCloseable {
                         services.put(proxy, instance);
                         registry.getServices().add(new ServiceMeta(instance, emptyList()));
                     });
+            final ServiceHelper serviceHelper = new ServiceHelper(ComponentManager.this.proxyGenerator, services);
             final Map<Class<?>, Object> userServices = finder
                     .findAnnotatedClasses(Service.class)
                     .stream()
                     .filter(s -> !services.containsKey(s))
-                    .collect(toMap(identity(), service -> {
-                        try {
-                            final Object instance;
-                            final Thread thread = Thread.currentThread();
-                            final ClassLoader old = thread.getContextClassLoader();
-                            thread.setContextClassLoader(container.getLoader());
-                            try {
-                                instance = handleProxy(container, service).getConstructor().newInstance();
-                                if (proxyGenerator.hasInterceptors(service)) {
-                                    proxyGenerator
-                                            .initialize(instance, new InterceptorHandlerFacade(
-                                                    service.getConstructor().newInstance(), services));
-                                }
-                                return instance;
-                            } catch (final InstantiationException | IllegalAccessException e) {
-                                throw new IllegalArgumentException(e);
-                            } catch (final InvocationTargetException e) {
-                                throw toRuntimeException(e);
-                            } finally {
-                                thread.setContextClassLoader(old);
-                            }
-                        } catch (final NoSuchMethodException e) {
-                            throw new IllegalArgumentException("No default constructor for " + service);
-                        }
-                    }));
+                    .collect(toMap(identity(), (Class<?> service) -> ThreadHelper
+                            .runWithClassLoader(
+                                    () -> serviceHelper
+                                            .createServiceInstance(container.getLoader(), container.getId(), service),
+                                    container.getLoader())));
             // now we created all instances we can inject *then* postconstruct
             final Injector injector = Injector.class.cast(services.get(Injector.class));
             services.putAll(userServices);

@@ -20,15 +20,18 @@ import static java.util.Optional.ofNullable;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import org.talend.sdk.component.api.service.serialization.Serial;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SerializableService implements Serializable {
+public class SerializableService implements Serializable, Serial {
 
     private final String plugin;
 
     private final String type;
 
+    @Override
     public Object readResolve() throws ObjectStreamException {
         final ContainerFinder containerFinder = ContainerFinder.Instance.get();
         final LightContainer container = containerFinder.find(plugin);

@@ -81,6 +81,8 @@ public interface Configurer {
 
         /**
          * Prevents the client to follow redirections.
+         * 
+         * @return connection.
          */
         Connection withoutFollowRedirects();
     }
