@@ -58,8 +58,10 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@EqualsAndHashCode
 public final class RecordImpl implements Record {
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
