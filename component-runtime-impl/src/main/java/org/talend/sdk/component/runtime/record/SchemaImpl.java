@@ -19,6 +19,7 @@ import static java.util.Collections.unmodifiableList;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,27 +28,25 @@ import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.Schema;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class SchemaImpl implements Schema {
 
-    private Type type;
+    private final Type type;
 
-    private Schema elementSchema;
+    private final Schema elementSchema;
 
-    private List<Entry> entries;
+    private final List<Entry> entries;
 
-    private Map<String, String> props = new LinkedHashMap<>(0);
+    private final Map<String, String> props;
 
-    public SchemaImpl(final Type type, final Schema schema, final List<Entry> entries) {
-        this.type = type;
-        elementSchema = schema;
-        this.entries = entries;
+    SchemaImpl(final Type type, final Schema schema, final List<Entry> entries) {
+        this(type, schema, entries, new HashMap<>(0));
     }
 
     @Override
