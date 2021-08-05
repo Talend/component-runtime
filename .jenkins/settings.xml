@@ -117,6 +117,13 @@
           <url>https://repository.apache.org/content/groups/staging/</url>
         </repository>
       </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>apache_staging</id>
+          <name>Apache staging Repository</name>
+          <url>https://repository.apache.org/content/groups/staging/</url>
+        </pluginRepository>
+      </pluginRepositories>
     </profile>
   </profiles>
 </settings>
