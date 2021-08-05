@@ -21,6 +21,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1876[TCOMP-1876^]: Make schemaImpl immutable
 - link:https://jira.talendforge.org/browse/TCOMP-1885[TCOMP-1885^]: Service Serializable
 - link:https://jira.talendforge.org/browse/TCOMP-1906[TCOMP-1906^]: Redefine equals on RecordImpl
+- link:https://jira.talendforge.org/browse/TCOMP-1955[TCOMP-1955^]: Upgrade cxf to 3.4.4 due to CVE-2021-30468
+- link:https://jira.talendforge.org/browse/TCOMP-1966[TCOMP-1966^]: Upgrade Tomcat to 9.0.50 due to CVE-2021-33037
 - link:https://jira.talendforge.org/browse/TCOMP-1968[TCOMP-1968^]: Upgrade maven to 3.8.1
 - link:https://jira.talendforge.org/browse/TCOMP-1969[TCOMP-1969^]: Upgrade Beam to 2.31.0
 - link:https://jira.talendforge.org/browse/TCOMP-1970[TCOMP-1970^]: Upgrade jackson to 2.12.1
@@ -33,6 +35,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1977[TCOMP-1977^]: Upgrade OpenWebBeans to 2.0.23
 - link:https://jira.talendforge.org/browse/TCOMP-1978[TCOMP-1978^]: Upgrade tomcat to 9.0.44
 - link:https://jira.talendforge.org/browse/TCOMP-1979[TCOMP-1979^]: Upgrade xbean to 4.20
+- link:https://jira.talendforge.org/browse/TCOMP-1980[TCOMP-1980^]: Upgrade meecrowave to 1.2.12
 
 
 

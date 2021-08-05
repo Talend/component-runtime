@@ -105,25 +105,5 @@
         <gpg.secretKeyring>${env.HOME}/.gnupg/travis.priv.bin</gpg.secretKeyring>
       </properties>
     </profile>
-    <profile> <!-- TODO: remove profile after meecrowave 1.2.12 official release -->
-      <id>use-staging</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <repositories>
-        <repository>
-          <id>apache_staging</id>
-          <name>Apache staging Repository</name>
-          <url>https://repository.apache.org/content/groups/staging/</url>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>apache_staging</id>
-          <name>Apache staging Repository</name>
-          <url>https://repository.apache.org/content/groups/staging/</url>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
   </profiles>
 </settings>
