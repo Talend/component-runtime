@@ -129,11 +129,13 @@ spec:
         stage('Post login') {
             steps {
                 container('main') {
-                    script {
-                        try {
-                            sh "${params.POST_LOGIN_SCRIPT}"
-                        } catch (error) {
-                            //
+                    withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+                        script {
+                            try {
+                                sh "${params.POST_LOGIN_SCRIPT}"
+                            } catch (error) {
+                                //
+                            }
                         }
                     }
                 }
