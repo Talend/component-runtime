@@ -115,7 +115,8 @@ spec:
                                bash .jenkins/scripts/setup_gpg.sh
                                """
                         }
-                        env.PROJECT_VERSION = sh(returnStdout: true, script: "mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout").trim()
+                        def pom = readMavenPom file: 'pom.xml'
+                        env.PROJECT_VERSION = pom.version
                         try {
                             EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
                         } catch (error) {
@@ -128,11 +129,13 @@ spec:
         stage('Post login') {
             steps {
                 container('main') {
-                    script {
-                        try {
-                            sh "${params.POST_LOGIN_SCRIPT}"
-                        } catch (error) {
-                            //
+                    withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+                        script {
+                            try {
+                                sh "${params.POST_LOGIN_SCRIPT}"
+                            } catch (error) {
+                                //
+                            }
                         }
                     }
                 }
@@ -145,6 +148,19 @@ spec:
                     withCredentials([ossrhCredentials]) {
                         sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
+                }
+            }
+            post {
+                always {
+                    publishHTML(
+                            target: [
+                                    allowMissing         : false,
+                                    alwaysLinkToLastBuild: false,
+                                    keepAll              : true,
+                                    reportDir            : 'reporting/target/site/jacoco-aggregate',
+                                    reportFiles          : 'index.html',
+                                    reportName           : "Coverage"
+                            ])
                 }
             }
         }
@@ -204,7 +220,10 @@ spec:
                 container('main') {
                     withCredentials([ossrhCredentials]) {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            sh "mvn ossindex:audit -s .jenkins/settings.xml"
+                            sh """
+                                mvn ossindex:audit-aggregate -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
+                                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report
+                               """
                         }
                     }
                     withCredentials([sonarCredentials]) {
@@ -212,6 +231,46 @@ spec:
                             sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
                         }
                     }
+                }
+            }
+            post {
+                always {
+                    publishHTML(
+                            target: [
+                                    allowMissing         : true,
+                                    alwaysLinkToLastBuild: false,
+                                    keepAll              : true,
+                                    reportDir            : 'target/',
+                                    reportFiles          : 'audit.txt',
+                                    reportName           : "security::audit"
+                            ])
+                    publishHTML(
+                            target: [
+                                    allowMissing         : true,
+                                    alwaysLinkToLastBuild: false,
+                                    keepAll              : true,
+                                    reportDir            : 'target/site/',
+                                    reportFiles          : 'property-updates-report.html',
+                                    reportName           : "outdated::property"
+                            ])
+                    publishHTML(
+                            target: [
+                                    allowMissing         : true,
+                                    alwaysLinkToLastBuild: false,
+                                    keepAll              : true,
+                                    reportDir            : 'target/site/',
+                                    reportFiles          : 'dependency-updates-report.html',
+                                    reportName           : "outdated::dependency"
+                            ])
+                    publishHTML(
+                            target: [
+                                    allowMissing         : true,
+                                    alwaysLinkToLastBuild: false,
+                                    keepAll              : true,
+                                    reportDir            : 'target/site/',
+                                    reportFiles          : 'plugin-updates-report.html',
+                                    reportName           : "outdated::plugins"
+                            ])
                 }
             }
         }
