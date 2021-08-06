@@ -92,16 +92,16 @@ spec:
                 container('main') {
                     withCredentials([veracodeCredentials, nexusCredentials]) {
                         sh "mvn -B -s .jenkins/settings.xml package $SKIP_OPTS"
-                        veracode applicationName: "$VERACODE_APP_NAME",
+                        veracode applicationName: "$VERACODE_SANDBOX",
+                            teams: "Components",
                             canFailJob: true,
-                            createProfile: false,
+                            createProfile: true,
+                            criticality: "High",
                             debug: true,
                             copyRemoteFiles: true,
                             fileNamePattern: '',
                             useProxy: false,
                             replacementPattern: '',
-                            sandboxName: "$VERACODE_SANDBOX",
-                            createSandbox: true,
                             scanExcludesPattern: '',
                             scanIncludesPattern: '',
                             scanName: "master-${currentBuild.number}-${currentBuild.startTimeInMillis}",
