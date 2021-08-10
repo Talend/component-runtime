@@ -344,6 +344,25 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>cleanup-TALEND-INF/dependencies.txt</id>
+            <phase>prepare-package</phase> <!-- cleanup asap -->
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target> <!-- TCOMP-1983 -->
+                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/server/dependencies.txt"
+                    match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
         <version>${meecrowave.version}</version>

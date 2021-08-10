@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1904[TCOMP-1904^]: Delegate Avro record in AvroRecord seems to be invalid
 - link:https://jira.talendforge.org/browse/TCOMP-1967[TCOMP-1967^]: goal uispec generation failure
+- link:https://jira.talendforge.org/browse/TCOMP-1983[TCOMP-1983^]: fix module inclusion in dependencies.txt when build is java9+
 
 
 
