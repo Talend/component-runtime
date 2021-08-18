@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.36.0-SNAPSHOT</version>
+    <version>1.36.0</version>
   </parent>
 
   <artifactId>sample-parent</artifactId>
@@ -87,8 +87,7 @@
             </goals>
             <configuration>
               <target> <!-- TCOMP-1983 -->
-                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/dependencies.txt"
-                    match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true"/>
+                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true" />
               </target>
             </configuration>
           </execution>
