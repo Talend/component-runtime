@@ -34,6 +34,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 @TestInstance(PER_CLASS)
 class AvroRecordBuilderTest {
@@ -170,5 +171,25 @@ class AvroRecordBuilderTest {
                 });
         Assertions.assertTrue(allMatch);
         Assertions.assertEquals(4, counter.get());
+    }
+
+    @Test
+    void mixedRecordTest() {
+        final AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
+        System.setProperty("talend.component.beam.record.factory.impl", "avro");
+        final RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
+
+        final RecordBuilderFactory otherFactory = new RecordBuilderFactoryImpl("test");
+        final Schema schema = otherFactory
+                .newSchemaBuilder(RECORD)
+                .withEntry(otherFactory.newEntryBuilder().withName("e1").withType(INT).build())
+                .build();
+
+        final Schema arrayType = recordBuilderFactory //
+                .newSchemaBuilder(Schema.Type.ARRAY) //
+                .withElementSchema(schema)
+                .build();
+        Assertions.assertNotNull(arrayType);
+
     }
 }
