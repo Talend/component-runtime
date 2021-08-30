@@ -166,7 +166,7 @@ class AvroRecordBuilderTest {
                 .flatMap(Collection::stream) //
                 .allMatch((Object rec) -> {
                     counter.incrementAndGet();
-                    return rec instanceof IndexedRecord;
+                    return rec instanceof Record;
                 });
         Assertions.assertTrue(allMatch);
         Assertions.assertEquals(4, counter.get());
