@@ -152,7 +152,6 @@ import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamB
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.input.MapperBuilder;
-import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ComponentMetadataService;
@@ -1729,11 +1728,9 @@ public class ComponentManager implements AutoCloseable {
 
         private final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache;
 
-
         private ComponentMetadataService metadataService = new ComponentMetadataService();
 
         private final Supplier<MapperBuilder> mapperBuilder;
-
 
         private ComponentFamilyMeta component;
 
@@ -1754,14 +1751,16 @@ public class ComponentManager implements AutoCloseable {
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
 
-                       /*     ? config -> executeInContainer(plugin,
-                                    () -> context
-                                            .getOwningExtension()
-                                            .convert(new ComponentInstanceImpl(
-                                                    doInvoke(constructor, parameterFactory.apply(config)), plugin,
-                                                    component.getName(), name), Mapper.class))
-                            : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
-                                    doInvoke(constructor, parameterFactory.apply(config)));*/
+                            /*
+                             * ? config -> executeInContainer(plugin,
+                             * () -> context
+                             * .getOwningExtension()
+                             * .convert(new ComponentInstanceImpl(
+                             * doInvoke(constructor, parameterFactory.apply(config)), plugin,
+                             * component.getName(), name), Mapper.class))
+                             * : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
+                             * doInvoke(constructor, parameterFactory.apply(config)));
+                             */
 
                             ? (Map<String, String> config) -> executeInContainer(plugin, () -> {
                                 final Serializable instance = doInvoke(constructor, parameterFactory.apply(config));
@@ -1770,12 +1769,12 @@ public class ComponentManager implements AutoCloseable {
                                 return context.getOwningExtension().convert(componentInstance, Mapper.class);
                             })
                             : (Map<String, String> config) -> {
-                                final Serializable instance = this.doInvoke(constructor, parameterFactory.apply(config));
+                                final Serializable instance =
+                                        this.doInvoke(constructor, parameterFactory.apply(config));
                                 return this.mapperBuilder
                                         .get()
                                         .forPartitionMapper(type, partitionMapper, component, plugin, instance);
                             };
-
 
             final Map<String, String> metadata = metadataService.getMetadata(type);
             component
@@ -1818,7 +1817,7 @@ public class ComponentManager implements AutoCloseable {
                                         .get()
                                         .forEmitter(type, emitter, component, this.plugin, instance);
                             };
-//>>>>>>> TCOMP-1791 : allow direct producer
+            // >>>>>>> TCOMP-1791 : allow direct producer
             final Map<String, String> metadata = metadataService.getMetadata(type);
             component
                     .getPartitionMappers()
