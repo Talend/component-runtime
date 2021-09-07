@@ -1,5 +1,13 @@
 
 
+== Version 1.37.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1990[TCOMP-1990^]: Update jsoup to 1.14.2 due to CVE-2021-37714
+- link:https://jira.talendforge.org/browse/TCOMP-1991[TCOMP-1991^]: Update groovy to 3.0.9 due to CVE-2021-36373 / CVE-2021-36374
+- link:https://jira.talendforge.org/browse/TCOMP-1992[TCOMP-1992^]: Update lombok to 1.18.20
+
 == Version 1.36.0
 
 === Bug
