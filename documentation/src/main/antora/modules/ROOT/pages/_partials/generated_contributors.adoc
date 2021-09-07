@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":383,
+    "commits":385,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -179,7 +179,7 @@
   },
   {
     "commits":1,
-    "description":"",
+    "description":"Information Architect\n\nBlog: TBD",
     "gravatar":"https://avatars.githubusercontent.com/u/19730806?v=4",
     "id":"fviolette",
     "name":"François Violette"
