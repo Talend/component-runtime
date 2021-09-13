@@ -15,31 +15,22 @@
  */
 package org.talend.sdk.component.runtime.record;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
+
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class RecordBuilderImplTest {
 
@@ -160,9 +151,19 @@ class RecordBuilderImplTest {
     void nullSupportString() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder.withString("test", null);
+        builder.withInt("testInt", null);
+        builder.withLong("testLong", null);
+        builder.withBoolean("testBool", null);
+        builder.withFloat("testFloat", null);
+        builder.withDouble("testDouble", null);
         final Record record = builder.build();
-        assertEquals(1, record.getSchema().getEntries().size());
+        assertEquals(6, record.getSchema().getEntries().size());
         assertNull(record.getString("test"));
+        assertNull(record.getInt("testInt"));
+        assertNull(record.getLong("testLong"));
+        assertNull(record.getBoolean("testBool"));
+        assertNull(record.getFloat("testFloat"));
+        assertNull(record.getDouble("testDouble"));
     }
 
     @Test
@@ -199,6 +200,14 @@ class RecordBuilderImplTest {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         assertThrows(IllegalArgumentException.class, () -> builder
                 .withString(new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build(), null));
+
+        assertThrows(IllegalArgumentException.class, () -> new RecordImpl.BuilderImpl()
+                .withInt(new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build(), null));
+
+        final Entry test = new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build();
+        final Schema schema = new SchemaImpl.BuilderImpl().withType(Schema.Type.RECORD).withEntry(test).build();
+        assertThrows(IllegalArgumentException.class,
+                () -> new RecordImpl.BuilderImpl(schema).withInt("test", null).build());
     }
 
     @Test

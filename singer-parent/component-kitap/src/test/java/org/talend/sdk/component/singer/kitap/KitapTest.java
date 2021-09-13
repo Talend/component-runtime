@@ -108,8 +108,8 @@ class KitapTest {
         kitap.run();
         flushIO.run();
         assertEquals("{\"streams\":[" + "{\"tap_stream_id\":\"default\",\"stream\":\"default\","
-                + "\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"integer\"]}}},"
-                + "\"metadata\":[{\"metadata\":{\"inclusion\":\"automatic\",\"selected-by-default\":true},\"breadcrumb\":[\"properties\",\"record_number\"]}]}]}\n",
+                        + "\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"null\",\"integer\"]}}},"
+                        + "\"metadata\":[{\"metadata\":{\"inclusion\":\"automatic\",\"selected-by-default\":true},\"breadcrumb\":[\"properties\",\"record_number\"]}]}]}\n",
                 stdout.toString("UTF-8"));
     }
 
@@ -123,7 +123,7 @@ class KitapTest {
         try (final BufferedReader reader = new BufferedReader(new StringReader(stdout.toString("UTF-8")))) {
             final List<String> actuals = reader.lines().collect(toList());
             assertLinesMatch(asList(
-                    "{\"type\":\"SCHEMA\",\"stream\":\"default\",\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"integer\"]}}},\"key_properties\":[],\"bookmark_properties\":[]}",
+                    "{\"type\":\"SCHEMA\",\"stream\":\"default\",\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"null\",\"integer\"]}}},\"key_properties\":[],\"bookmark_properties\":[]}",
                     "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":1}}",
                     "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":2}}",
                     "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":3}}",

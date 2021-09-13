@@ -32,6 +32,36 @@ import lombok.RequiredArgsConstructor;
 class RecordTest {
 
     @Test
+    void fieldInt() {
+        assertEquals(3, new MockRecord(3).getInt("field"));
+        assertEquals(null, new MockRecord(null).getInt("field"));
+    }
+
+    @Test
+    void fieldLong() {
+        assertEquals(3L, new MockRecord(3L).getLong("field"));
+        assertEquals(null, new MockRecord(null).getLong("field"));
+    }
+
+    @Test
+    void fieldBoolean() {
+        assertEquals(Boolean.TRUE, new MockRecord(Boolean.TRUE).getBoolean("field"));
+        assertEquals(null, new MockRecord(null).getBoolean("field"));
+    }
+
+    @Test
+    void fieldFloat() {
+        assertEquals(3.4F, new MockRecord(3.4F).getFloat("field"));
+        assertEquals(null, new MockRecord(null).getFloat("field"));
+    }
+
+    @Test
+    void fieldDouble() {
+        assertEquals(4.5D, new MockRecord(4.5D).getDouble("field"));
+        assertEquals(null, new MockRecord(null).getDouble("field"));
+    }
+
+    @Test
     void optionalString() {
         final Optional<String> opt = new MockRecord("ok").getOptionalString("dd");
         assertTrue(opt.isPresent());
