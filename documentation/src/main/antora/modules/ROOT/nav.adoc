@@ -15,7 +15,7 @@
 ** xref:tutorial-handle-talend-component-migration.adoc[Handling component version migration]
 * xref:index-setup-environment.adoc[Setting up your environment]
 ** xref:index-setup-environment.adoc[Setup overview]
-** xref:system-prerequisites.adoc.adoc[System requirements]
+** xref:system-prerequisites.adoc[System requirements]
 ** xref:installing-talend-intellij-plugin.adoc[Installing the IntelliJ plugin]
 * xref:index-generating-project.adoc[Generating a project]
 ** xref:index-generating-project.adoc[Project generation overview]
