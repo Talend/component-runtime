@@ -215,6 +215,18 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (Utf8.class.isInstance(value) && Object.class == expectedType) {
             return expectedType.cast(value.toString());
         }
+        if (Collection.class.isAssignableFrom(expectedType) && value instanceof Collection) {
+            final org.apache.avro.Schema elementType = fieldSchema.getElementType();
+            final org.apache.avro.Schema elementSchema = unwrapUnion(elementType);
+            Class<?> toType = Object.class;
+            if (elementSchema.getType() == org.apache.avro.Schema.Type.RECORD) {
+                toType = Record.class;
+            } else if (elementSchema.getType() == org.apache.avro.Schema.Type.ARRAY) {
+                toType = Collection.class;
+            }
+            final Collection<?> objects = this.doMapCollection(toType, Collection.class.cast(value), elementType);
+            return expectedType.cast(objects);
+        }
         return expectedType.cast(value);
     }
 
