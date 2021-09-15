@@ -78,6 +78,8 @@ class RecordBuilderFactoryTest {
 
         private final boolean nullable;
 
+        private final boolean metadata;
+
         private final Object defaultVal;
 
         @Override
@@ -125,6 +127,12 @@ class RecordBuilderFactoryTest {
         @Override
         public Entry.Builder withNullable(boolean nullable) {
             this.builder.withNullable(nullable);
+            return this;
+        }
+
+        @Override
+        public Entry.Builder withMetadata(boolean metadata) {
+            this.builder.withMetadata(metadata);
             return this;
         }
 

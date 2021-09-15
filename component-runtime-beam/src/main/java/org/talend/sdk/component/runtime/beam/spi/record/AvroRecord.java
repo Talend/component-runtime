@@ -69,14 +69,15 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     public AvroRecord(final Record record) {
-        final List<Schema.Entry> entries = record.getSchema().getEntries();
-        final List<org.apache.avro.Schema.Field> fields = entries.stream().map(entry -> {
-            final org.apache.avro.Schema.Field f = new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry),
-                    entry.getComment(), entry.getDefaultValue());
-            if (entry.getRawName() != null) {
-                f.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
-            }
-            entry.getProps().forEach((k, v) -> f.addProp(k, v));
+        if (record instanceof AvroRecord) {
+            final AvroRecord avr = (AvroRecord) record;
+            this.delegate = avr.delegate;
+            this.schema = avr.schema;
+            return;
+        }
+        final List<org.apache.avro.Schema.Field> fields = record.getSchema().getAllEntries().map(entry -> {
+            final org.apache.avro.Schema avroSchema = toSchema(entry);
+            final org.apache.avro.Schema.Field f = AvroSchemaBuilder.AvroHelper.toField(avroSchema, entry);
             return f;
         }).collect(toList());
         final org.apache.avro.Schema avroSchema =
@@ -85,10 +86,12 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         avroSchema.setFields(fields);
         schema = new AvroSchema(avroSchema);
         delegate = new GenericData.Record(avroSchema);
-        entries
+        record
+                .getSchema()
+                .getAllEntries()
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {
-                            final Object avroValue = this.directMapping(v);
+                            final Object avroValue = directMapping(v);
 
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
@@ -249,7 +252,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             ofNullable(entry.getElementSchema()).ifPresent(builder::withElementSchema);
             break;
         case RECORD:
-            ofNullable(entry.getElementSchema()).ifPresent(s -> s.getEntries().forEach(builder::withEntry));
+            ofNullable(entry.getElementSchema()).ifPresent(s -> s.getAllEntries().forEach(builder::withEntry));
             break;
         default:
             // no-op

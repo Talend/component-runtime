@@ -27,8 +27,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.json.Json;
 import javax.json.JsonString;
@@ -128,6 +130,16 @@ class SchemaTest {
         }
 
         @Override
+        public List<Entry> getMetadata() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Stream<Entry> getAllEntries() {
+            return Optional.ofNullable(this.entries).map(List::stream).orElse(Stream.empty());
+        }
+
+        @Override
         public Map<String, String> getProps() {
             return props;
         }
@@ -167,6 +179,11 @@ class SchemaTest {
 
         @Override
         public boolean isNullable() {
+            return false;
+        }
+
+        @Override
+        public boolean isMetadata() {
             return false;
         }
 

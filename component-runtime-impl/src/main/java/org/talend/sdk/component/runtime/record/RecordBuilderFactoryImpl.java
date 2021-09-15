@@ -50,7 +50,7 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
         final Schema.Builder builder = newSchemaBuilder(schema.getType());
         switch (schema.getType()) {
         case RECORD:
-            schema.getEntries().forEach(builder::withEntry);
+            schema.getAllEntries().forEach(builder::withEntry);
             break;
         case ARRAY:
             builder.withElementSchema(schema.getElementSchema());
@@ -64,8 +64,8 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
     public Record.Builder newRecordBuilder(final Schema schema, final Record record) {
         final Record.Builder builder = newRecordBuilder(schema);
         final Map<String, Schema.Entry> entriesIndex =
-                schema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
-        record.getSchema().getEntries().stream().filter(e -> entriesIndex.containsKey(e.getName())).forEach(entry -> {
+                schema.getAllEntries().collect(toMap(Schema.Entry::getName, identity()));
+        record.getSchema().getAllEntries().filter(e -> entriesIndex.containsKey(e.getName())).forEach(entry -> {
             switch (entry.getType()) {
             case STRING:
                 record

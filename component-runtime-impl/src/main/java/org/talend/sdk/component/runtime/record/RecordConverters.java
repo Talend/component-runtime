@@ -153,17 +153,14 @@ public class RecordConverters implements Serializable {
                 if (s2 == null) { // unlikely
                     return s1;
                 }
-                final List<Schema.Entry> entries1 = s1.getEntries();
-                final List<Schema.Entry> entries2 = s2.getEntries();
-                final Set<String> names1 = entries1.stream().map(Schema.Entry::getName).collect(toSet());
-                final Set<String> names2 = entries2.stream().map(Schema.Entry::getName).collect(toSet());
+                final Set<String> names1 = s1.getAllEntries().map(Schema.Entry::getName).collect(toSet());
+                final Set<String> names2 = s2.getAllEntries().map(Schema.Entry::getName).collect(toSet());
                 if (!names1.equals(names2)) {
                     // here we are not good since values will not be right anymore,
                     // forbidden for current version anyway but potentially supported later
                     final Schema.Builder builder = factory.newSchemaBuilder(Schema.Type.RECORD);
-                    entries1.forEach(builder::withEntry);
-                    names2.removeAll(names1);
-                    entries2.stream().filter(it -> names2.contains(it.getName())).forEach(builder::withEntry);
+                    s1.getAllEntries().forEach(builder::withEntry);
+                    s2.getAllEntries().filter(it -> !(names1.contains(it.getName()))).forEach(builder::withEntry);
                     return builder.build();
                 }
                 return s1;

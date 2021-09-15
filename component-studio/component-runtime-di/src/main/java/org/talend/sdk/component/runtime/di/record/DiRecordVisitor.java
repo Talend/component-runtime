@@ -140,39 +140,29 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             dynamic.metadatas.clear();
             dynamic.clearColumnValues();
         }
-        recordFields =
-                record.getSchema().getEntries().stream().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
-                    final String root = rcdEntry.getName() + ".";
-                    final List<String> names = new ArrayList<>();
-                    rcdEntry
-                            .getElementSchema()
-                            .getEntries()
-                            .stream()
-                            .filter(e -> e.getType().equals(Type.RECORD))
-                            .map(sr -> {
-                                final String sub = root + sr.getName() + ".";
-                                return sr
-                                        .getElementSchema()
-                                        .getEntries()
-                                        .stream()
-                                        .map(entry -> sub + entry.getName())
-                                        .collect(Collectors.toList());
-                            })
-                            .forEach(l -> l.stream().forEach(m -> names.add(m)));
-                    rcdEntry
-                            .getElementSchema()
-                            .getEntries()
-                            .stream()
-                            .filter(e -> !e.getType().equals(Type.RECORD))
-                            .map(entry -> root + entry.getName())
-                            .forEach(sre -> names.add(sre));
-                    return names;
-                }).flatMap(liststream -> liststream.stream()).collect(Collectors.toSet());
+        recordFields = record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
+            final String root = rcdEntry.getName() + ".";
+            final List<String> names = new ArrayList<>();
+            rcdEntry.getElementSchema().getAllEntries().filter(e -> e.getType().equals(Type.RECORD)).map(sr -> {
+                final String sub = root + sr.getName() + ".";
+                return sr
+                        .getElementSchema()
+                        .getAllEntries()
+                        .map(entry -> sub + entry.getName())
+                        .collect(Collectors.toList());
+            }).forEach(l -> l.stream().forEach(m -> names.add(m)));
+            rcdEntry
+                    .getElementSchema()
+                    .getAllEntries()
+                    .filter(e -> !e.getType().equals(Type.RECORD))
+                    .map(entry -> root + entry.getName())
+                    .forEach(sre -> names.add(sre));
+            return names;
+        }).flatMap(liststream -> liststream.stream()).collect(Collectors.toSet());
         recordFields
                 .addAll(record
                         .getSchema()
-                        .getEntries()
-                        .stream()
+                        .getAllEntries()
                         .filter(t -> !t.getType().equals(Type.RECORD))
                         .map(entry -> entry.getName())
                         .collect(Collectors.toSet()));
@@ -202,10 +192,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
      */
     private void prefillDynamic(final Schema schema) {
         schema
-                .getEntries()
-                .stream()
-                .filter(entry -> fields.keySet().stream().noneMatch(field -> field.equals(entry.getName()))
-                        || dynamicColumn.equals(entry.getName()))
+                .getAllEntries()
+                .filter(entry -> (!fields.containsKey(entry.getName())) || dynamicColumn.equals(entry.getName()))
                 .forEach(entry -> {
                     dynamic.metadatas.add(generateMetadata(entry));
                     dynamic.addColumnValue(null);

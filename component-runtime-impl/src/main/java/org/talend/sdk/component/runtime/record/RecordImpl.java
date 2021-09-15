@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
@@ -44,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -163,7 +163,7 @@ public final class RecordImpl implements Record {
         @Override
         public List<Entry> getCurrentEntries() {
             if (this.providedSchema != null) {
-                return Collections.unmodifiableList(this.providedSchema.getEntries());
+                return Collections.unmodifiableList(this.providedSchema.getAllEntries().collect(Collectors.toList()));
             }
             return Collections.unmodifiableList(this.entries);
         }
@@ -185,7 +185,8 @@ public final class RecordImpl implements Record {
                 return this;
             }
 
-            final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
+            final BuilderImpl builder =
+                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
             return builder.removeEntry(schemaEntry);
         }
 
@@ -215,14 +216,14 @@ public final class RecordImpl implements Record {
                 return this;
             }
 
-            final BuilderImpl builder = new BuilderImpl(this.providedSchema.getEntries(), this.values);
+            final BuilderImpl builder =
+                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
             return builder.updateEntryByName(name, schemaEntry);
         }
 
         private Schema.Entry findExistingEntry(final String name) {
             if (this.entryIndex == null) {
-                this.entryIndex =
-                        providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
+                this.entryIndex = providedSchema.getAllEntries().collect(toMap(Schema.Entry::getName, identity()));
             }
             final Schema.Entry entry = this.entryIndex.get(name);
             if (entry == null) {
@@ -263,8 +264,7 @@ public final class RecordImpl implements Record {
         public Record build() {
             if (providedSchema != null) {
                 final String missing = providedSchema
-                        .getEntries()
-                        .stream()
+                        .getAllEntries()
                         .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
                         .map(Schema.Entry::getName)
                         .collect(joining(", "));
@@ -272,8 +272,15 @@ public final class RecordImpl implements Record {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
             }
-            return new RecordImpl(unmodifiableMap(values),
-                    providedSchema == null ? new SchemaImpl(RECORD, null, unmodifiableList(entries)) : providedSchema);
+            final Schema currentSchema;
+            if (providedSchema == null) {
+                final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
+                this.entries.forEach(builder::withEntry);
+                currentSchema = builder.build();
+            } else {
+                currentSchema = this.providedSchema;
+            }
+            return new RecordImpl(unmodifiableMap(values), currentSchema);
         }
 
         // here the game is to add an entry method for each kind of type + its companion with Entry provider

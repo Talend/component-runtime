@@ -17,8 +17,11 @@ package org.talend.sdk.component.api.service.schema;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -50,6 +53,11 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
     }
 
     @Override
+    public List<org.talend.sdk.component.api.record.Schema.Entry> getMetadata() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public Type getType() {
         return Type.RECORD;
     }
@@ -67,6 +75,11 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
     @Override
     public String getProp(final String property) {
         return null;
+    }
+
+    @Override
+    public Stream<org.talend.sdk.component.api.record.Schema.Entry> getAllEntries() {
+        return Optional.ofNullable(this.entries).map(List::stream).orElse(Stream.empty());
     }
 
     @Data
@@ -104,6 +117,11 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         @Override
         public boolean isNullable() {
             return true;
+        }
+
+        @Override
+        public boolean isMetadata() {
+            return false;
         }
 
         @Override

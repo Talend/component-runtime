@@ -21,14 +21,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -178,5 +184,94 @@ class DiRecordVisitorTest extends VisitorsTest {
             assertEquals("one", r.getString("str"));
         });
 
+    }
+
+    @Test
+    void visitWithMeta() {
+        // preparation
+        final Schema.Entry field1 =
+                VisitorsTest.factory.newEntryBuilder().withName("field1").withType(Type.STRING).build();
+        final Schema.Entry meta1 = VisitorsTest.factory
+                .newEntryBuilder()
+                .withName("meta1")
+                .withType(Type.STRING)
+                .withMetadata(true)
+                .build();
+
+        final Schema.Entry subField1 =
+                VisitorsTest.factory.newEntryBuilder().withName("subField").withType(Type.STRING).build();
+        final Schema subRecord = VisitorsTest.factory.newSchemaBuilder(Type.RECORD).withEntry(subField1).build();
+
+        final Schema.Entry sub1 = VisitorsTest.factory.newEntryBuilder().withName("s1").withType(Type.STRING).build();
+        final Schema.Entry sub2 = VisitorsTest.factory
+                .newEntryBuilder()
+                .withName("s2") //
+                .withType(Type.RECORD) //
+                .withElementSchema(subRecord)
+                .build();
+
+        final Schema subRecord2 = VisitorsTest.factory
+                .newSchemaBuilder(Type.RECORD) //
+                .withEntry(sub1) //
+                .withEntry(sub2) //
+                .build();
+
+        final Schema.Entry subRecordEntry = VisitorsTest.factory
+                .newEntryBuilder()
+                .withName("sub") //
+                .withType(Type.RECORD) //
+                .withMetadata(true) //
+                .withElementSchema(subRecord2) //
+                .build();
+
+        final Schema schema = VisitorsTest.factory
+                .newSchemaBuilder(Type.RECORD) //
+                .withEntry(field1) //
+                .withEntry(meta1) //
+                .withEntry(subRecordEntry)
+                .build();
+
+        final Record internalRecord =
+                VisitorsTest.factory.newRecordBuilder(subRecord).withString("subField", "subFieldValue").build();
+
+        final Record sub = VisitorsTest.factory
+                .newRecordBuilder(subRecord2)
+                .withString("s1", "values1")
+                .withRecord(sub2, internalRecord)
+                .build();
+
+        final Record record = VisitorsTest.factory
+                .newRecordBuilder(schema) //
+                .withString("field1", "value1") //
+                .withString("meta1", "valueMeta") //
+                .withRecord(subRecordEntry, sub)
+                .build();
+        final DiRecordVisitor visitor = new DiRecordVisitor(RowStruct2.class, Collections.emptyMap());
+
+        // call tested method
+        final Object visit = visitor.visit(record);
+
+        // Check
+        Assertions.assertTrue(visit instanceof RowStruct2);
+        RowStruct2 row = (RowStruct2) visit;
+        Assertions.assertEquals("value1", row.field1);
+        Assertions.assertEquals("valueMeta", row.meta1);
+    }
+
+    public static class RowStruct2 implements routines.system.IPersistableRow {
+
+        public String field1;
+
+        public String meta1;
+
+        public Object sub;
+
+        @Override
+        public void writeData(ObjectOutputStream objectOutputStream) {
+        }
+
+        @Override
+        public void readData(ObjectInputStream objectInputStream) {
+        }
     }
 }

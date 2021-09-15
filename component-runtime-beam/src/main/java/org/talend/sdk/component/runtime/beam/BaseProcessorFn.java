@@ -147,8 +147,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
             final Record element = context.element();
             objects = element
                     .getSchema()
-                    .getEntries()
-                    .stream()
+                    .getAllEntries()
                     .filter(e -> !e.getName().startsWith("__talend_internal"))
                     .collect(toMap(Schema.Entry::getName, e -> element.getArray(Record.class, e.getName()).iterator()));
         }

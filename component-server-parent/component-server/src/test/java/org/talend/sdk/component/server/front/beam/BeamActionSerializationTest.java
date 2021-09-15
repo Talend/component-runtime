@@ -43,10 +43,11 @@ class BeamActionSerializationTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE), String.class);
         assertEquals("{\n" + "  \"entries\":[\n" + "    {\n" + "      \"elementSchema\":{\n" + "        \"entries\":[\n"
-                + "        ],\n" + "        \"props\":{\n" + "\n" + "        },\n" + "        \"type\":\"STRING\"\n"
-                + "      },\n" + "      \"name\":\"array\",\n" + "      \"nullable\":false,\n" + "      \"props\":{\n"
-                + "\n" + "      },\n" + "      \"type\":\"ARRAY\"\n" + "    }\n" + "  ],\n" + "  \"props\":{\n" + "\n"
-                + "  },\n" + "  \"type\":\"RECORD\"\n" + "}",
+                + "        ],\n" + "        \"metadata\":[\n        ],\n" + "        \"props\":{\n" + "\n"
+                + "        },\n" + "        \"type\":\"STRING\"\n" + "      },\n" + "      \"metadata\":false,\n"
+                + "      \"name\":\"array\",\n" + "      \"nullable\":false,\n" + "      \"props\":{\n" + "\n"
+                + "      },\n" + "      \"type\":\"ARRAY\"\n" + "    }\n" + "  ],\n" + "  \"metadata\":[\n  ],\n"
+                + "  \"props\":{\n" + "\n" + "  },\n" + "  \"type\":\"RECORD\"\n" + "}",
                 schema
                         .replace("        \"declaringClass\":\"org.talend.sdk.component.runtime.record.Schemas\",\n",
                                 ""));

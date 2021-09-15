@@ -85,15 +85,14 @@ public class RecordServiceImpl implements RecordService, Serializable {
             final BiConsumer<Record.Builder, Boolean> beforeFinish) {
         return fallbackRecord
                 .getSchema()
-                .getEntries()
-                .stream()
+                .getAllEntries()
                 .collect(toRecord(schema, fallbackRecord, customHandler, beforeFinish));
     }
 
     @Override
     public <T> T visit(final RecordVisitor<T> visitor, final Record record) {
         final AtomicReference<T> out = new AtomicReference<>();
-        record.getSchema().getEntries().forEach(entry -> {
+        record.getSchema().getAllEntries().forEach(entry -> {
             switch (entry.getType()) {
             case INT:
                 visitor.onInt(entry, record.getOptionalInt(entry.getName()));
