@@ -31,6 +31,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 public class AvroSchemaBuilder implements Schema.Builder {
 
@@ -174,8 +175,51 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (type != Schema.Type.ARRAY && schema != null) {
             throw new IllegalArgumentException("elementSchema is only valid for ARRAY type of schema");
         }
-        elementSchema = schema;
+        // Check schema is Avro Schema, otherwise, convert it.
+        final Schema avroSchema = this.toAvroSchema(schema);
+        this.elementSchema = avroSchema;
         return this;
+    }
+
+    /**
+     * Convert a non avro schema to schema.
+     * 
+     * @param schema : Non Avro schema.
+     * @return Avro schema.
+     */
+    private Schema toAvroSchema(final Schema schema) {
+        if (schema == null || schema instanceof AvroSchema) {
+            return schema;
+        }
+        final Builder builder = new AvroSchemaBuilder().withType(schema.getType());
+
+        final Schema elementSchema = schema.getElementSchema();
+        if (elementSchema != null) {
+            final Schema avroSchema = this.toAvroSchema(elementSchema);
+            builder.withElementSchema(avroSchema);
+        }
+        builder.withProps(schema.getProps());
+        schema.getEntries().stream().map(this::convertEntry).forEach(builder::withEntry);
+
+        return builder.build();
+    }
+
+    private Schema.Entry convertEntry(final Schema.Entry entry) {
+        final Schema elementSchema = entry.getElementSchema();
+        if (elementSchema == null || elementSchema instanceof AvroSchema) {
+            return entry;
+        }
+        final Schema avroSchema = this.toAvroSchema(elementSchema);
+        return new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withName(entry.getName()) //
+                .withRawName(entry.getRawName()) //
+                .withNullable(entry.isNullable()) //
+                .withType(entry.getType()) //
+                .withDefaultValue(entry.getDefaultValue()) //
+                .withElementSchema(avroSchema) //
+                .withComment(entry.getComment()) //
+                .withProps(entry.getProps()) //
+                .build();
     }
 
     @Override
