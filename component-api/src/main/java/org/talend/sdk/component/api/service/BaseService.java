@@ -20,16 +20,18 @@ import java.io.Serializable;
 
 import org.talend.sdk.component.api.service.serialization.Serial;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Classe base for services to be declared Serializable and use Component Manager serialization system.
  */
-@Data
 public class BaseService implements Serializable {
 
     private static final long serialVersionUID = -5486791400889992135L;
 
+    @Getter
+    @Setter
     private Serial serializationHelper;
 
     protected final Object writeReplace() throws ObjectStreamException {
