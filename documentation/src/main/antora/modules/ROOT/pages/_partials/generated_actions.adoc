@@ -97,6 +97,7 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
   "entries":[
     {
       "comment":"The column 1",
+      "metadata":false,
       "name":"column1",
       "nullable":false,
       "props":{
@@ -107,6 +108,7 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
     },
     {
       "comment":"The int column",
+      "metadata":false,
       "name":"column2",
       "nullable":false,
       "props":{
@@ -115,6 +117,8 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
       "rawName":"column 2",
       "type":"INT"
     }
+  ],
+  "metadata":[
   ],
   "props":{
 

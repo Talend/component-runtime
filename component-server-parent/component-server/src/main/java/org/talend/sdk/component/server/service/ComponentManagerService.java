@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -108,6 +109,8 @@ public class ComponentManagerService {
 
     private volatile Date lastUpdated = new Date();
 
+    private String connectorsVersion;
+
     private boolean started;
 
     public void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
@@ -168,6 +171,17 @@ public class ComponentManagerService {
                             .filter(gav -> !coords.contains(gav))
                             .forEach(this::deploy);
                 });
+        // check if we find a connectors version information file on top of the m2
+        connectorsVersion = Optional.of(m2.resolve("CONNECTORS_VERSION")).filter(Files::exists).map(p -> {
+            try {
+                return Files.lines(p).findFirst().get();
+            } catch (IOException e) {
+                log.info("Failed reading connectors version {}", e.getMessage());
+                return "unknown";
+            }
+        }).orElse("unknown");
+        log.info("Using connectors version: '{}'", connectorsVersion);
+
         started = true;
     }
 
@@ -222,6 +236,10 @@ public class ComponentManagerService {
 
     public Date findLastUpdated() {
         return lastUpdated;
+    }
+
+    public String getConnectorsVersion() {
+        return connectorsVersion;
     }
 
     @AllArgsConstructor

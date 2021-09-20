@@ -4,7 +4,14 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1957[TCOMP-1957^]: Avro schema builder issue
 - link:https://jira.talendforge.org/browse/TCOMP-1994[TCOMP-1994^]: WebSocketClient$ClientException when executing action in Studio
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1923[TCOMP-1923^]: Record : add metadata
 
 
 
@@ -14,6 +21,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1991[TCOMP-1991^]: Update groovy to 3.0.9 due to CVE-2021-36373 / CVE-2021-36374
 - link:https://jira.talendforge.org/browse/TCOMP-1992[TCOMP-1992^]: Update lombok to 1.18.20
 - link:https://jira.talendforge.org/browse/TCOMP-1993[TCOMP-1993^]: Update TSBI to 2.9.0-20210907155713
+- link:https://jira.talendforge.org/browse/TCOMP-1995[TCOMP-1995^]: Expose the connectors (global) version in the "Environment" response
+- link:https://jira.talendforge.org/browse/TCOMP-1996[TCOMP-1996^]: BaseService must not define equals & hashcode
 
 
 

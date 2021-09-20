@@ -35,4 +35,6 @@ public class Environment {
     private String time;
 
     private Date lastUpdated;
+
+    private String connectors;
 }

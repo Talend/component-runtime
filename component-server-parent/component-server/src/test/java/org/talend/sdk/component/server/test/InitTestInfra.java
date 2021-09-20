@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -140,6 +141,16 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         // reusing tempDir we don't need to delete it, done by meecrowave
         // reusing tempDir we don't need to delete it, done by meecrowave
         final File m2 = new File(tempDir, ".m2/repository");
+
+        try {
+            final Path conn = m2.toPath().resolve("CONNECTORS_VERSION");
+            if (!conn.toFile().exists()) {
+                conn.toFile().getParentFile().mkdirs();
+                java.nio.file.Files.write(conn, "1.2.3".getBytes());
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
 
         final PluginGenerator generator = new PluginGenerator();
 

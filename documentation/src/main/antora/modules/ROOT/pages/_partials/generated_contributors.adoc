@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":389,
+    "commits":391,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -16,7 +16,7 @@
   },
   {
     "commits":218,
-    "description":"Technical Writer at @Talend",
+    "description":"Technical Writer ",
     "gravatar":"https://avatars.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",
     "name":"Florent LB"
@@ -36,7 +36,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":49,
+    "commits":53,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
     "id":"clesaec"

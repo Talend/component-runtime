@@ -90,7 +90,7 @@ public class ComponentServerMock {
     @GET
     @Path("environment")
     public Environment environment() {
-        return new Environment(1, "test", "test", null, new Date(0));
+        return new Environment(1, "test", "test", null, new Date(0), "1.2.3");
     }
 
     @POST

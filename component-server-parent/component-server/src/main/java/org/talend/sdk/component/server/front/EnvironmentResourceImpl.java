@@ -80,7 +80,8 @@ public class EnvironmentResourceImpl implements EnvironmentResource {
     @Override
     public Environment get() {
         return new Environment(latestApiVersion, version, commit, time,
-                configuration.getChangeLastUpdatedAtStartup() ? findLastUpdated() : service.findLastUpdated());
+                configuration.getChangeLastUpdatedAtStartup() ? findLastUpdated() : service.findLastUpdated(),
+                service.getConnectorsVersion());
     }
 
     private Date findLastUpdated() {
