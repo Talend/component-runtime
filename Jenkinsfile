@@ -200,8 +200,10 @@ spec:
         }
         stage('Documentation') {
             when {
-                expression { params.Action != 'RELEASE' }
-                branch 'master'
+                allOf {
+                    expression { params.Action != 'RELEASE' }
+                    expression { isStdBranch }
+                }
             }
             steps {
                 container('main') {
