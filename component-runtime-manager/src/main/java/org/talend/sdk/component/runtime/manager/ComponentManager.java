@@ -1616,7 +1616,7 @@ public class ComponentManager implements AutoCloseable {
                     JarURLConnection juc = (JarURLConnection) jarUrl.openConnection();
                     jf = juc.getJarFile();
                     return new CloseableJarArchive(loader, jarUrl);
-                } catch (IOException var4) {
+                } catch (IOException e) {
                     return new FileArchive(loader, location);
                 } finally {
                     try {

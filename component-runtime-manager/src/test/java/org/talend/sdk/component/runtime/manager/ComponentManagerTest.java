@@ -38,9 +38,6 @@ import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +57,6 @@ import javax.management.ReflectionException;
 
 import org.apache.xbean.finder.util.Files;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.opentest4j.AssertionFailedError;
@@ -71,43 +67,12 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
-import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
-import sun.net.www.protocol.jar.Handler;
 
-class ComponentManagerTest {
-
-    static class NoCacheJarUrlStreamHandler extends Handler {
-
-        public NoCacheJarUrlStreamHandler() {
-            super();
-        }
-
-        protected URLConnection openConnection(URL var1) throws IOException {
-            URLConnection connection = super.openConnection(var1);
-            connection.setUseCaches(false);
-            return connection;
-        }
-    }
-
-    static class NoCacheUrlStreamHandlerFactory implements URLStreamHandlerFactory {
-
-        @Override
-        public URLStreamHandler createURLStreamHandler(final String protocol) {
-            if (protocol.equalsIgnoreCase("jar")) {
-                return new NoCacheJarUrlStreamHandler();
-            }
-            return null;
-        }
-    }
-
-    @BeforeAll
-    public static void setup() {
-        URL.setURLStreamHandlerFactory(new NoCacheUrlStreamHandlerFactory());
-    }
+class ComponentManagerTest extends JarNoCacheTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
@@ -567,7 +532,7 @@ class ComponentManagerTest {
             assertNull(envConf.get("talend.compmgr.exists"));
             assertNull(envConf.get("HOMER"));
             // Not running correctly on Windows machines. Do we need this test at all?
-            if(!System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+            if (!System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
                 assertNull(envConf.get("TALEND_LOCALCONFIG_USER_HOME"));
             }
         } finally { // clean temp files

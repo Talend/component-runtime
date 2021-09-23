@@ -128,7 +128,7 @@ class DitaDocumentationGeneratorTest extends GeneratorBase {
 
     private String formatXml(String xml) {
         return xml
-                .replace("\n", "")
+                .replace(System.lineSeparator(), "")
                 .replaceAll(" +", " ")
                 .replace(": ", ":")
                 .replace("> ", ">")
