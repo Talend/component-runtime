@@ -16,9 +16,12 @@
 
 // if you use npm directly instead of mvn frontend:npm@watch
 
-const config = require('./webpack.config');
+// const config = require('./webpack.config');
 const webpack = require('webpack');
 
+const config = {
+	plugins: []
+};
 config.devtool = 'inline-source-map';
 config.plugins.push(new webpack.DefinePlugin({
 	'process.env.NODE_ENV': JSON.stringify('development'),
