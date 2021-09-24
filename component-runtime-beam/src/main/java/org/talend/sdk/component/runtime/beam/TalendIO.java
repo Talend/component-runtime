@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -45,10 +46,15 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
+import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
+import org.talend.sdk.component.runtime.beam.spi.record.AvroRecord;
+import org.talend.sdk.component.runtime.beam.spi.record.AvroSchema;
+import org.talend.sdk.component.runtime.beam.transformer.TalendAvroRecordTransformer;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -352,9 +358,15 @@ public final class TalendIO {
 
         private volatile Converter converter;
 
+        private AvroSchema avroSchema;
+
+        private TalendAvroRecordTransformer talendAvroRecordTransformer;
+
         BoundedReaderImpl(final BoundedSource<T> source, final Input input) {
             this.source = source;
             this.input = input;
+            this.talendAvroRecordTransformer =
+                    new TalendAvroRecordTransformer(new AvroRecordBuilderFactoryProvider().apply("AvroTransformWrapper"));
         }
 
         @Override
@@ -378,7 +390,30 @@ public final class TalendIO {
             } else {
                 current = next;
             }
+
+            Optional
+                    .ofNullable(current)
+                    .ifPresent(currentRecord -> alignRecordWithFirstRecordSchema());
+
             return current != null;
+        }
+
+        private void alignRecordWithFirstRecordSchema() {
+            T currentRecord = (T) current;
+            //TODO Check if it's Avro format record, it should skip the transform step not like JSON, Text etc.
+            if (currentRecord instanceof AvroRecord) {
+                AvroRecord currentAvroRecord = (AvroRecord) currentRecord;
+                if (avroSchema == null) {
+                    avroSchema = (AvroSchema) currentAvroRecord.getSchema();
+                    talendAvroRecordTransformer.setUnwrapFromFixedAvroSchema(avroSchema.unwrap(Schema.class));
+                } else {
+                    if (!talendAvroRecordTransformer.checkIsSameAvroSchema((AvroSchema) currentAvroRecord.getSchema())) {
+                        Record.Builder builder = talendAvroRecordTransformer
+                                .transformToAlignedRecordWithFixedAvroSchema(avroSchema, currentAvroRecord);
+                        current = builder.build();
+                    }
+                }
+            }
         }
 
         @Override
@@ -407,9 +442,15 @@ public final class TalendIO {
 
         private volatile Converter converter;
 
+        private AvroSchema avroSchema;
+
+        private TalendAvroRecordTransformer talendAvroRecordTransformer;
+
         UnBoundedReaderImpl(final UnboundedSource<T, ?> source, final Input input) {
             this.source = source;
             this.input = input;
+            this.talendAvroRecordTransformer =
+                    new TalendAvroRecordTransformer(new AvroRecordBuilderFactoryProvider().apply("AvroTransformWrapper"));
         }
 
         @Override
@@ -433,7 +474,30 @@ public final class TalendIO {
             } else {
                 current = next;
             }
+
+            Optional
+                    .ofNullable(current)
+                    .ifPresent(currentRecord -> alignRecordWithFirstRecordSchema());
+
             return current != null;
+        }
+
+        private void alignRecordWithFirstRecordSchema() {
+            T currentRecord = (T) current;
+            //TODO Check if it's Avro format record, it should skip the transform step not like JSON, Text etc.
+            if (currentRecord instanceof AvroRecord) {
+                AvroRecord currentAvroRecord = (AvroRecord) currentRecord;
+                if (avroSchema == null) {
+                    avroSchema = (AvroSchema) currentAvroRecord.getSchema();
+                    talendAvroRecordTransformer.setUnwrapFromFixedAvroSchema(avroSchema.unwrap(Schema.class));
+                } else {
+                    if (!talendAvroRecordTransformer.checkIsSameAvroSchema((AvroSchema) currentAvroRecord.getSchema())) {
+                        Record.Builder builder = talendAvroRecordTransformer
+                                .transformToAlignedRecordWithFixedAvroSchema(avroSchema, currentAvroRecord);
+                        current = builder.build();
+                    }
+                }
+            }
         }
 
         @Override
