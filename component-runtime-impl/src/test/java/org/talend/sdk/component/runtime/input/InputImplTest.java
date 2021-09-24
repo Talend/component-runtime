@@ -41,7 +41,7 @@ class InputImplTest {
     @Test
     void lifecycle() {
         final Component delegate = new Component();
-        final Input input = new InputImpl("Root", "Test", "Plugin", delegate);
+        final Input input = new InputImpl("Root", "Test", "Plugin", delegate, new ObjectToRecordConverter());
         assertFalse(delegate.start);
         assertFalse(delegate.stop);
         assertEquals(0, delegate.count);
@@ -75,7 +75,7 @@ class InputImplTest {
     @Test
     void serialization() throws IOException, ClassNotFoundException {
         final Component delegate = new Component();
-        final Input input = new InputImpl("Root", "Test", "Plugin", delegate);
+        final Input input = new InputImpl("Root", "Test", "Plugin", delegate, ObjectConverter.IDENTITY);
         final Input copy = Serializer.roundTrip(input);
         assertNotSame(copy, input);
         assertEquals("Root", copy.rootName());

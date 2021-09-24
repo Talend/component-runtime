@@ -23,13 +23,9 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import javax.json.bind.Jsonb;
-
 import org.talend.sdk.component.api.input.Producer;
-import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
-import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
@@ -40,20 +36,16 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient Method next;
 
-    private transient RecordConverters converters;
+    private final ObjectConverter converter;
 
-    private transient RecordConverters.MappingMetaRegistry registry;
-
-    private transient Jsonb jsonb;
-
-    private transient RecordBuilderFactory recordBuilderFactory;
-
-    public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
+    public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance,
+            final ObjectConverter converter) {
         super(instance, rootName, name, plugin);
+        this.converter = converter;
     }
 
-    protected InputImpl() {
-        // no-op
+    protected final ObjectConverter getConverter() {
+        return this.converter;
     }
 
     @Override
@@ -62,15 +54,12 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
             init();
         }
         final Object record = readNext();
-        if (record == null) {
-            return null;
-        }
-        final Class<?> recordClass = record.getClass();
-        if (recordClass.isPrimitive() || String.class == recordClass) {
-            // mainly for tests, can be dropped while build is green
-            return record;
-        }
-        return converters.toRecord(registry, record, this::jsonb, this::recordBuilderFactory);
+        return this.converter.convert(this::findService, record);
+    }
+
+    private <T> T findService(final Class<T> type) {
+        final LightContainer container = ContainerFinder.Instance.get().find(this.plugin());
+        return container.findService(type);
     }
 
     @Override
@@ -84,40 +73,16 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     protected void init() {
         next = findMethods(Producer.class).findFirst().get();
-        converters = new RecordConverters();
-        registry = new RecordConverters.MappingMetaRegistry();
-    }
-
-    private Jsonb jsonb() {
-        if (jsonb == null) {
-            synchronized (this) {
-                if (jsonb == null) {
-                    final LightContainer container = ContainerFinder.Instance.get().find(plugin());
-                    jsonb = container.findService(Jsonb.class);
-                }
-            }
-        }
-        return jsonb;
-    }
-
-    private RecordBuilderFactory recordBuilderFactory() {
-        if (recordBuilderFactory == null) {
-            synchronized (this) {
-                if (recordBuilderFactory == null) {
-                    final LightContainer container = ContainerFinder.Instance.get().find(plugin());
-                    recordBuilderFactory = container.findService(RecordBuilderFactory.class);
-                }
-            }
-        }
-        return recordBuilderFactory;
     }
 
     protected Object writeReplace() throws ObjectStreamException {
-        return new SerializationReplacer(plugin(), rootName(), name(), serializeDelegate());
+        return new SerializationReplacer(this.converter, plugin(), rootName(), name(), serializeDelegate());
     }
 
     @AllArgsConstructor
     protected static class SerializationReplacer implements Serializable {
+
+        protected ObjectConverter converter;
 
         protected String plugin;
 
@@ -129,7 +94,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
         protected Object readResolve() throws ObjectStreamException {
             try {
-                return new InputImpl(component, name, plugin, loadDelegate());
+                return new InputImpl(component, name, plugin, loadDelegate(), this.converter);
             } catch (final IOException | ClassNotFoundException e) {
                 final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
                 invalidObjectException.initCause(e);

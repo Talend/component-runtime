@@ -44,9 +44,10 @@ import org.talend.sdk.component.junit.component.BatchTransform;
 import org.talend.sdk.component.junit.component.DuplicateEmitTransform;
 import org.talend.sdk.component.junit.component.Source;
 import org.talend.sdk.component.junit.component.Transform;
-import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.InputImpl;
+import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.input.ObjectConverter;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.output.Processor;
 
@@ -96,34 +97,42 @@ class ComponentExtensionTest {
     @Test
     void sourceCollectorParallel() {
         final CountDownLatch latch = new CountDownLatch(1);
-        final Mapper mapper = new PartitionMapperImpl() {
-
-            @Override
-            public long assess() {
-                return 2;
-            }
-
-            @Override
-            public List<Mapper> split(final long desiredSize) {
-                assertEquals(1, desiredSize);
-                return asList(this, this);
-            }
-
-            @Override
-            public Input create() {
-                return new InputImpl() {
-
-                    private final AtomicBoolean done = new AtomicBoolean();
+        final Mapper mapper =
+                new PartitionMapperImpl("rootName", "name", null, "plugin", false, null, ObjectConverter.IDENTITY) {
 
                     @Override
-                    public Object next() {
-                        try {
-                            latch.await(1, MINUTES);
-                        } catch (final InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            fail();
-                        }
-                        return done.compareAndSet(false, true) ? Thread.currentThread().getName() : null;
+                    public long assess() {
+                        return 2;
+                    }
+
+                    @Override
+                    public List<Mapper> split(final long desiredSize) {
+                        assertEquals(1, desiredSize);
+                        return asList(this, this);
+                    }
+
+                    @Override
+                    public Input create() {
+                        return new InputImpl("rootName", "name", "plugin", null, ObjectConverter.IDENTITY) {
+
+                            private final AtomicBoolean done = new AtomicBoolean();
+
+                            @Override
+                            public Object next() {
+                                try {
+                                    latch.await(1, MINUTES);
+                                } catch (final InterruptedException e) {
+                                    Thread.currentThread().interrupt();
+                                    fail();
+                                }
+                                return done.compareAndSet(false, true) ? Thread.currentThread().getName() : null;
+                            }
+
+                            @Override
+                            protected Stream<Method> findMethods(final Class<? extends Annotation> marker) {
+                                return Stream.empty();
+                            }
+                        };
                     }
 
                     @Override
@@ -131,13 +140,6 @@ class ComponentExtensionTest {
                         return Stream.empty();
                     }
                 };
-            }
-
-            @Override
-            protected Stream<Method> findMethods(final Class<? extends Annotation> marker) {
-                return Stream.empty();
-            }
-        };
         latch.countDown();
 
         final Stream<String> collect = handler.collect(String.class, mapper, 2, 2);

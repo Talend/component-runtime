@@ -39,7 +39,8 @@ public class PartitionMapperImplTest {
 
     @Test
     void split() {
-        final Mapper mapper = new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper());
+        final Mapper mapper = new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper(),
+                new ObjectToRecordConverter());
         assertEquals(10, mapper.assess());
 
         final List<Mapper> split = mapper.split(3);
@@ -53,20 +54,22 @@ public class PartitionMapperImplTest {
 
     @Test
     void create() {
-        assertInput(new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper()));
+        assertInput(new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper(),
+                new ObjectToRecordConverter()));
     }
 
     @Test
     void createStreaming() {
-        final PartitionMapperImpl mapper =
-                new PartitionMapperImpl("Root", "Test", null, "Plugin", true, new SampleMapper());
+        final PartitionMapperImpl mapper = new PartitionMapperImpl("Root", "Test", null, "Plugin", true,
+                new SampleMapper(), ObjectConverter.IDENTITY);
         final Input input = mapper.create();
         assertTrue(StreamingInputImpl.class.isInstance(input));
     }
 
     @Test
     void serialization() throws IOException, ClassNotFoundException {
-        final Mapper mapper = new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper());
+        final Mapper mapper = new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper(),
+                ObjectConverter.IDENTITY);
         final Mapper copy = Serializer.roundTrip(mapper);
         assertNotSame(copy, mapper);
         assertEquals("Root", copy.rootName());

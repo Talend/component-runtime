@@ -59,15 +59,14 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
     private transient Function<Long, Object[]> splitArgSupplier;
 
+    private final ObjectConverter converter;
+
     public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
-            final boolean stream, final Serializable instance) {
+            final boolean stream, final Serializable instance, final ObjectConverter converter) {
         super(instance, rootName, name, plugin);
         this.stream = stream;
         this.inputName = inputName;
-    }
-
-    protected PartitionMapperImpl() {
-        // no-op
+        this.converter = converter;
     }
 
     @Override
@@ -85,7 +84,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         return ((Collection<?>) doInvoke(split, splitArgSupplier.apply(desiredSize)))
                 .stream()
                 .map(Serializable.class::cast)
-                .map(mapper -> new PartitionMapperImpl(rootName(), name(), inputName, plugin(), stream, mapper))
+                .map(mapper -> new PartitionMapperImpl(rootName(), name(), inputName, plugin(), stream, mapper,
+                        this.converter))
                 .collect(toList());
     }
 
@@ -97,9 +97,9 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         // java 7/8 made enough progress to probably make it smooth OOTB
         final Serializable input = Serializable.class.cast(doInvoke(inputFactory));
         if (isStream()) {
-            return new StreamingInputImpl(rootName(), inputName, plugin(), input, loadRetryConfiguration());
+            return new StreamingInputImpl(rootName(), inputName, plugin(), input, loadRetryConfiguration(), converter);
         }
-        return new InputImpl(rootName(), inputName, plugin(), input);
+        return new InputImpl(rootName(), inputName, plugin(), input, converter);
     }
 
     private StreamingInputImpl.RetryConfiguration loadRetryConfiguration() {
@@ -185,7 +185,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new SerializationReplacer(plugin(), rootName(), name(), inputName, stream, serializeDelegate());
+        return new SerializationReplacer(plugin(), rootName(), name(), inputName, stream, serializeDelegate(),
+                this.converter);
     }
 
     @AllArgsConstructor
@@ -203,9 +204,11 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
         private final byte[] value;
 
+        private final ObjectConverter converter;
+
         Object readResolve() throws ObjectStreamException {
             try {
-                return new PartitionMapperImpl(component, name, input, plugin, stream, loadDelegate());
+                return new PartitionMapperImpl(component, name, input, plugin, stream, loadDelegate(), this.converter);
             } catch (final IOException | ClassNotFoundException e) {
                 final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
                 invalidObjectException.initCause(e);

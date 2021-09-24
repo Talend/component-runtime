@@ -39,14 +39,13 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
 
     private Serializable input;
 
-    protected LocalPartitionMapper() {
-        // no-op
-    }
+    private final ObjectConverter converter;
 
     public LocalPartitionMapper(final String rootName, final String name, final String plugin,
-            final Serializable instance) {
+            final Serializable instance, final ObjectConverter converter) {
         super(rootName, name, plugin);
         this.input = instance;
+        this.converter = converter;
     }
 
     @Override
@@ -62,7 +61,7 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
     @Override
     public Input create() {
         return Input.class.isInstance(input) ? Input.class.cast(input)
-                : new InputImpl(rootName(), name(), plugin(), input);
+                : new InputImpl(rootName(), name(), plugin(), input, converter);
     }
 
     @Override
@@ -97,7 +96,7 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
         } finally {
             thread.setContextClassLoader(old);
         }
-        return new SerializationReplacer(plugin(), rootName(), name(), baos.toByteArray());
+        return new SerializationReplacer(plugin(), rootName(), name(), baos.toByteArray(), this.converter);
     }
 
     @AllArgsConstructor
@@ -111,9 +110,11 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
 
         private final byte[] input;
 
+        private final ObjectConverter converter;
+
         Object readResolve() throws ObjectStreamException {
             try {
-                return new LocalPartitionMapper(component, name, plugin, loadDelegate());
+                return new LocalPartitionMapper(component, name, plugin, loadDelegate(), this.converter);
             } catch (final IOException | ClassNotFoundException e) {
                 final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
                 invalidObjectException.initCause(e);

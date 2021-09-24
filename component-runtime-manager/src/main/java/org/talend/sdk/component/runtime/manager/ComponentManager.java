@@ -144,14 +144,14 @@ import org.talend.sdk.component.jmx.JmxManager;
 import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.impl.Mode;
-import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
-import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
+import org.talend.sdk.component.runtime.input.ObjectToRecordConverter;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamBuilder;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
+import org.talend.sdk.component.runtime.manager.input.MapperBuilder;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ComponentMetadataService;
@@ -182,6 +182,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -231,7 +232,7 @@ public class ComponentManager implements AutoCloseable {
                     }
                 }
 
-                Object readResolve() throws ObjectStreamException {
+                Object readResolve() {
                     return new SerializationReplacer();
                 }
             };
@@ -322,6 +323,9 @@ public class ComponentManager implements AutoCloseable {
     private final JsonbProvider jsonbProvider;
 
     private final ProxyGenerator proxyGenerator = new ProxyGenerator();
+
+    @Setter
+    private MapperBuilder mapperBuilder = new MapperBuilder(new ObjectToRecordConverter());
 
     private final JavaProxyEnricherFactory javaProxyEnricherFactory = new JavaProxyEnricherFactory();
 
@@ -464,7 +468,7 @@ public class ComponentManager implements AutoCloseable {
                         .orElseGet(() -> super.resolve(path));
             }
         };
-        this.container.registerListener(new Updater(dependenciesResource));
+        this.container.registerListener(new Updater(dependenciesResource, () -> this.mapperBuilder));
         if (!Boolean.getBoolean("talend.component.manager.jmx.skip")) {
             ofNullable(jmxNamePattern)
                     .map(String::trim)
@@ -1146,6 +1150,8 @@ public class ComponentManager implements AutoCloseable {
 
         private final String dependenciesResource;
 
+        private final Supplier<MapperBuilder> mapperBuilder;
+
         private final ModelVisitor visitor = new ModelVisitor();
 
         private final Collection<String> supportedAnnotations = Stream
@@ -1398,7 +1404,7 @@ public class ComponentManager implements AutoCloseable {
 
             final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), allServices, components,
                     componentDefaults.get(getAnnotatedElementCacheKey(type)), context, migrationHandlerFactory,
-                    iconFinder, xbeanConverterCache);
+                    iconFinder, xbeanConverterCache, this.mapperBuilder);
 
             final Thread thread = Thread.currentThread();
             final ClassLoader old = thread.getContextClassLoader();
@@ -1724,6 +1730,8 @@ public class ComponentManager implements AutoCloseable {
 
         private ComponentMetadataService metadataService = new ComponentMetadataService();
 
+        private final Supplier<MapperBuilder> mapperBuilder;
+
         private ComponentFamilyMeta component;
 
         @Override
@@ -1742,16 +1750,33 @@ public class ComponentManager implements AutoCloseable {
             final boolean infinite = partitionMapper.infinite();
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
-                            ? config -> executeInContainer(plugin,
-                                    () -> context
-                                            .getOwningExtension()
-                                            .convert(new ComponentInstanceImpl(
-                                                    doInvoke(constructor, parameterFactory.apply(config)), plugin,
-                                                    component.getName(), name), Mapper.class))
-                            : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
-                                    doInvoke(constructor, parameterFactory.apply(config)));
-            final Map<String, String> metadata = metadataService.getMetadata(type);
 
+                            /*
+                             * ? config -> executeInContainer(plugin,
+                             * () -> context
+                             * .getOwningExtension()
+                             * .convert(new ComponentInstanceImpl(
+                             * doInvoke(constructor, parameterFactory.apply(config)), plugin,
+                             * component.getName(), name), Mapper.class))
+                             * : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
+                             * doInvoke(constructor, parameterFactory.apply(config)));
+                             */
+
+                            ? (Map<String, String> config) -> executeInContainer(plugin, () -> {
+                                final Serializable instance = doInvoke(constructor, parameterFactory.apply(config));
+                                final ComponentExtension.ComponentInstance componentInstance =
+                                        new ComponentInstanceImpl(instance, plugin, component.getName(), name);
+                                return context.getOwningExtension().convert(componentInstance, Mapper.class);
+                            })
+                            : (Map<String, String> config) -> {
+                                final Serializable instance =
+                                        this.doInvoke(constructor, parameterFactory.apply(config));
+                                return this.mapperBuilder
+                                        .get()
+                                        .forPartitionMapper(type, partitionMapper, component, plugin, instance);
+                            };
+
+            final Map<String, String> metadata = metadataService.getMetadata(type);
             component
                     .getPartitionMappers()
                     .put(name,
@@ -1779,17 +1804,21 @@ public class ComponentManager implements AutoCloseable {
             final ComponentFamilyMeta component = getOrCreateComponent(emitter.family());
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
-                            ? config -> executeInContainer(plugin,
-                                    () -> context
-                                            .getOwningExtension()
-                                            .convert(new ComponentInstanceImpl(
-                                                    doInvoke(constructor, parameterFactory.apply(config)), plugin,
-                                                    component.getName(), name), Mapper.class))
-                            : config -> new LocalPartitionMapper(component.getName(), name, plugin,
-                                    doInvoke(constructor, parameterFactory.apply(config)));
-
+                            ? config -> executeInContainer(plugin, () -> {
+                                final Serializable instance = doInvoke(constructor, parameterFactory.apply(config));
+                                final ComponentExtension.ComponentInstance componentInstance =
+                                        new ComponentInstanceImpl(instance, plugin, component.getName(), name);
+                                return context.getOwningExtension().convert(componentInstance, Mapper.class);
+                            })
+                            : (Map<String, String> config) -> {
+                                final Serializable instance =
+                                        this.doInvoke(constructor, parameterFactory.apply(config));
+                                return this.mapperBuilder
+                                        .get()
+                                        .forEmitter(type, emitter, component, this.plugin, instance);
+                            };
+            // >>>>>>> TCOMP-1791 : allow direct producer
             final Map<String, String> metadata = metadataService.getMetadata(type);
-
             component
                     .getPartitionMappers()
                     .put(name,
