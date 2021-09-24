@@ -258,5 +258,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateExceptions;
 
         private boolean failOnValidateExceptions;
+
+        private boolean validateMigrations;
     }
 }

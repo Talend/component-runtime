@@ -99,6 +99,11 @@ public class Validators {
             activeValidators.add(modelValidator);
         }
 
+        if (configuration.isValidateMigrations()) {
+            final MigrationValidator migrationValidator = new MigrationValidator();
+            activeValidators.add(migrationValidator);
+        }
+
         if (configuration.isValidateMetadata()) {
             final MetadataValidator metaValidator = new MetadataValidator(helper);
             activeValidators.add(metaValidator);

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -38,6 +39,8 @@ import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.component.AbstractMigrationHandler;
+import org.talend.sdk.component.runtime.manager.spi.MigrationHandlerListenerExtension;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,10 +99,19 @@ public class MigrationHandlerFactory {
                         .min((o1, o2) -> o2.getParameterCount() - o1.getParameterCount()))
                 .map(t -> services.getServices().computeIfAbsent(t.getDeclaringClass(), k -> {
                     try {
-                        return t
+                        final Object hndlr = t
                                 .newInstance(reflections
                                         .parameterFactory(t, services.getServices(), null)
                                         .apply(emptyMap()));
+                        if (AbstractMigrationHandler.class.isInstance(hndlr)) {
+                            ServiceLoader
+                                    .load(MigrationHandlerListenerExtension.class)
+                                    .forEach(listener -> AbstractMigrationHandler.class
+                                            .cast(hndlr)
+                                            .registerListener(listener));
+                        }
+
+                        return hndlr;
                     } catch (final InstantiationException | IllegalAccessException e) {
                         throw new IllegalArgumentException(e);
                     } catch (final InvocationTargetException e) {
