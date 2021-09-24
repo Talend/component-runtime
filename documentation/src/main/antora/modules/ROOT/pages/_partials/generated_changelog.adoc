@@ -1,5 +1,11 @@
 
 
+== Version 1.38.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2000[TCOMP-2000^]: Upgrade netty to 4.1.68.Final
+
 == Version 1.37.0
 
 === Bug
