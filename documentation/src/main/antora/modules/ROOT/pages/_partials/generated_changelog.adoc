@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2000[TCOMP-2000^]: Upgrade netty to 4.1.68.Final
+- link:https://jira.talendforge.org/browse/TCOMP-2001[TCOMP-2001^]: Upgrade Beam to 2.32.0
 
 == Version 1.37.0
 
