@@ -115,7 +115,8 @@ spec:
                                bash .jenkins/scripts/setup_gpg.sh
                                """
                         }
-                        def pom = readMavenPom file: 'pom.xml'
+
+                        def pom = readMavenPom file: 'bom/pom.xml'
                         env.PROJECT_VERSION = pom.version
                         try {
                             EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
@@ -146,7 +147,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                        sh "mvn install -f ./bom/pom.xml && mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -174,7 +175,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gpgCredentials]) {
-                        sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                        sh "mvn deploy -f ./bom/pom.xml -s .jenkins/settings.xml; mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
