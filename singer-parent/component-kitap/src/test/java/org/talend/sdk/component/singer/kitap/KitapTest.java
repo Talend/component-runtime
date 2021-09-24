@@ -109,8 +109,8 @@ class KitapTest {
         flushIO.run();
         assertEquals("{\"streams\":[" + "{\"tap_stream_id\":\"default\",\"stream\":\"default\","
                 + "\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"integer\"]}}},"
-                + "\"metadata\":[{\"metadata\":{\"inclusion\":\"automatic\",\"selected-by-default\":true},\"breadcrumb\":[\"properties\",\"record_number\"]}]}]}\n",
-                stdout.toString("UTF-8"));
+                + "\"metadata\":[{\"metadata\":{\"inclusion\":\"automatic\",\"selected-by-default\":true},\"breadcrumb\":[\"properties\",\"record_number\"]}]}]}"
+                + System.lineSeparator(), stdout.toString("UTF-8"));
     }
 
     @Test

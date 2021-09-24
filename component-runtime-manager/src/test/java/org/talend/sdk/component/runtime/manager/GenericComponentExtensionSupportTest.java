@@ -48,7 +48,7 @@ import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.spi.component.GenericComponentExtension;
 import org.talend.test.generic.MyGenericImpl;
 
-class GenericComponentExtensionSupportTest {
+class GenericComponentExtensionSupportTest extends JarNoCacheTest {
 
     @Test
     void run(@TempDir final Path path) throws IOException {

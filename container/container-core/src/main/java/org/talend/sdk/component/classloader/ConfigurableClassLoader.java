@@ -153,6 +153,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 urlConnection = url.openConnection();
                 if (JarURLConnection.class.isInstance(urlConnection)) {
                     final JarURLConnection juc = JarURLConnection.class.cast(urlConnection);
+                    juc.setUseCaches(false);
                     manifest = juc.getManifest();
 
                     final Certificate[] certificates = juc.getCertificates();

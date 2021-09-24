@@ -64,6 +64,7 @@ class NestedJarArchiveTest {
             assertEquals("org.talend.test.generated." + info.getTestMethod().get().getName() + ".Components",
                     annotatedClasses.iterator().next().getName());
         } finally {
+            configurableClassLoader.close();
             URLClassLoader.class.cast(configurableClassLoader.getParent()).close();
         }
     }
