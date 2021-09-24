@@ -31,8 +31,10 @@ import org.talend.sdk.component.api.record.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @EqualsAndHashCode
+@ToString
 public class SchemaImpl implements Schema {
 
     @Getter
