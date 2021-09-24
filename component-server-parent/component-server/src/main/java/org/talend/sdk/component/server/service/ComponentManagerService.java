@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
@@ -25,12 +26,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -113,6 +121,12 @@ public class ComponentManagerService {
 
     private boolean started;
 
+    private Path m2;
+
+    private Long latestPluginUpdate;
+
+    private ScheduledExecutorService scheduledExecutorService;
+
     public void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // no-op
     }
@@ -127,7 +141,7 @@ public class ComponentManagerService {
         }
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
-        final Path m2 = configuration
+        m2 = configuration
                 .getMavenRepository()
                 .map(PathFactory::get)
                 .filter(Files::exists)
@@ -143,7 +157,120 @@ public class ComponentManagerService {
         deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao, configurationDao,
                 virtualDependenciesService);
         instance.getContainer().registerListener(deploymentListener);
+        // deploy plugins
+        deployPlugins();
+        // check if we find a connectors version information file on top of the m2
+        connectorsVersion = readConnectorsVersion();
+        // auto-reload plugins executor service
+        if (configuration.getPluginsReloadActive()) {
+            latestPluginUpdate = readPluginsTimestamp();
+            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+            scheduledExecutorService
+                    .scheduleWithFixedDelay(() -> checkPlugins(), configuration.getPluginsReloadInterval(),
+                            configuration.getPluginsReloadInterval(), SECONDS);
+            log
+                    .info("[init] plugin reloading enabled with interval check of {}s.",
+                            configuration.getPluginsReloadInterval());
+        }
 
+        started = true;
+    }
+
+    @PreDestroy
+    private void destroy() {
+        started = false;
+        instance.getContainer().unregisterListener(deploymentListener);
+        instance.close();
+        // shutdown auto-reload service
+        if (scheduledExecutorService != null) {
+            scheduledExecutorService.shutdownNow();
+            try {
+                scheduledExecutorService.awaitTermination(10, SECONDS);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private Locale readCurrentLocale() {
+        try {
+            return ofNullable(uriInfo.getQueryParameters().getFirst("lang"))
+                    .map(localeMapper::mapLocale)
+                    .orElseGet(Locale::getDefault);
+        } catch (final RuntimeException ex) {
+            log.debug("Can't get the locale from current request in thread '{}'", Thread.currentThread().getName(), ex);
+            return Locale.getDefault();
+        }
+    }
+
+    private CompletionStage<Void> checkPlugins() {
+        if (configuration.getPluginsReloadUseTimestamp()) {
+            final long checked = readPluginsTimestamp();
+            log
+                    .info("checkPlugins w/ timestamp {} vs {}.", Instant.ofEpochMilli(latestPluginUpdate),
+                            Instant.ofEpochMilli(checked), checked > latestPluginUpdate);
+            if (checked <= latestPluginUpdate) {
+                return null;
+            }
+        } else {
+            // connectors version used
+            final String cv = readConnectorsVersion();
+            log.info("checkPlugins w/ connectors {} vs {}.", connectorsVersion, cv);
+            if (getConnectorsVersion().equals(cv)) {
+                return null;
+            }
+        }
+        // undeploy plugins
+        log.info("Un-deploying plugins...");
+        manager().getContainer().findAll().forEach(container -> container.close());
+        // redeploy plugins
+        log.info("Re-deploying plugins...");
+        deployPlugins();
+        // reset connectors' version
+        connectorsVersion = readConnectorsVersion();
+
+        return null;
+    }
+
+    private String readConnectorsVersion() {
+        // check if we find a connectors version information file on top of the m2
+        final String version = Optional.of(m2.resolve("CONNECTORS_VERSION")).filter(Files::exists).map(p -> {
+            try {
+                return Files.lines(p).findFirst().get();
+            } catch (IOException e) {
+                log.info("Failed reading connectors version {}", e.getMessage());
+                return "unknown";
+            }
+        }).orElse("unknown");
+        log.info("Using connectors version: '{}'", version);
+
+        return version;
+    }
+
+    private Long readPluginsTimestamp() {
+        final Long last = Stream
+                .concat(Stream.of(configuration.getPluginsReloadFileMarker().get()),
+                        configuration.getComponentRegistry().map(Collection::stream).get())
+                .map(cr -> Paths.get(cr))
+                .filter(Files::exists)
+                .peek(f -> log.info("[readPluginsTimestamp] getting {} timestamp.", f))
+                .map(f -> {
+                    try {
+                        return Files.getAttribute(f, "lastModifiedTime");
+                    } catch (IOException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+
+                .findFirst()
+                .map(ts -> FileTime.class.cast(ts).toMillis())
+                .orElse(0L);
+        log.info("[readPluginsTimestamp] Latest: {}.", Instant.ofEpochMilli(last));
+        return last;
+    }
+
+    private void deployPlugins() {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
@@ -171,36 +298,6 @@ public class ComponentManagerService {
                             .filter(gav -> !coords.contains(gav))
                             .forEach(this::deploy);
                 });
-        // check if we find a connectors version information file on top of the m2
-        connectorsVersion = Optional.of(m2.resolve("CONNECTORS_VERSION")).filter(Files::exists).map(p -> {
-            try {
-                return Files.lines(p).findFirst().get();
-            } catch (IOException e) {
-                log.info("Failed reading connectors version {}", e.getMessage());
-                return "unknown";
-            }
-        }).orElse("unknown");
-        log.info("Using connectors version: '{}'", connectorsVersion);
-
-        started = true;
-    }
-
-    private Locale readCurrentLocale() {
-        try {
-            return ofNullable(uriInfo.getQueryParameters().getFirst("lang"))
-                    .map(localeMapper::mapLocale)
-                    .orElseGet(Locale::getDefault);
-        } catch (final RuntimeException ex) {
-            log.debug("Can't get the locale from current request in thread '{}'", Thread.currentThread().getName(), ex);
-            return Locale.getDefault();
-        }
-    }
-
-    @PreDestroy
-    private void destroy() {
-        started = false;
-        instance.getContainer().unregisterListener(deploymentListener);
-        instance.close();
     }
 
     public String deploy(final String pluginGAV) {
@@ -209,7 +306,6 @@ public class ComponentManagerService {
                 .map(Artifact::toPath)
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
 
-        final Path m2 = instance.getContainer().getRootRepositoryLocationPath();
         final String plugin =
                 instance.addWithLocationPlugin(pluginGAV, m2.resolve(pluginPath).toAbsolutePath().toString());
         lastUpdated = new Date();

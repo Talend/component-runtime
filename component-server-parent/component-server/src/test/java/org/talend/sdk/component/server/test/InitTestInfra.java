@@ -99,6 +99,14 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
         final String skipLogs = System.getProperty("component.server.test.logging.skip", "true");
         System.setProperty("talend.component.server.request.log", Boolean.toString("false".equals(skipLogs)));
+
+        //
+        System.setProperty("talend.component.server.plugins.reloading.active", "true");
+        System.setProperty("talend.component.server.plugins.reloading.interval", "5");
+        System
+                .setProperty("talend.component.server.plugins.reloading.marker",
+                        "target/InitTestInfra/.m2/repository/CONNECTORS_VERSION");
+
     }
 
     private String createUserJars(final String tempDir) {

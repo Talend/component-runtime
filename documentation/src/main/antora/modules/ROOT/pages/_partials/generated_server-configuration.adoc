@@ -20,6 +20,10 @@ zh*=zh_CN
 ja*=ja
 de*=de`. For caching reasons the goal is to reduce the locales to the minimum required numbers. For instance we avoid `fr` and `fr_FR` which would lead to the same entries but x2 in terms of memory. This mapping enables that by whitelisting allowed locales, default being `en`. If the key ends with `*` it means all string starting with the prefix will match. For instance `fr*` will match `fr_FR` but also `fr_CA`.
 talend.component.server.maven.repository:: The local maven repository used to locate components and their dependencies
+talend.component.server.plugins.reloading.active:: Default value: `false`. Should the plugins be un-deployed and re-deployed.
+talend.component.server.plugins.reloading.interval:: Default value: `600`. Interval in seconds between each check if plugins re-loading is enabled.
+talend.component.server.plugins.reloading.marker:: If plugins discovery is done via file resolution through m2 and re-loading use timestamp.
+talend.component.server.plugins.reloading.timestamp:: Default value: `true`. Do we re-deploy on a timestamp change or connectors version change.
 talend.component.server.request.log:: Default value: `false`. Should the all requests/responses be logged (debug purposes - only work when running with CXF).
 talend.component.server.security.command.handler:: Default value: `securityNoopHandler`. How to validate a command/request. Accepted values: securityNoopHandler.
 talend.component.server.security.connection.handler:: Default value: `securityNoopHandler`. How to validate a connection. Accepted values: securityNoopHandler.
