@@ -163,13 +163,17 @@ public class ComponentManagerService {
         connectorsVersion = readConnectorsVersion();
         // auto-reload plugins executor service
         if (configuration.getPluginsReloadActive()) {
-            latestPluginUpdate = readPluginsTimestamp();
+            final boolean useTimestamp = configuration.getPluginsReloadUseTimestamp();
+            if (useTimestamp) {
+                latestPluginUpdate = readPluginsTimestamp();
+            }
             scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
             scheduledExecutorService
                     .scheduleWithFixedDelay(() -> checkPlugins(), configuration.getPluginsReloadInterval(),
                             configuration.getPluginsReloadInterval(), SECONDS);
             log
-                    .info("[init] plugin reloading enabled with interval check of {}s.",
+                    .info("Plugin reloading enabled with {} method and interval check of {}s.",
+                            useTimestamp ? "timestamp" : "connectors version",
                             configuration.getPluginsReloadInterval());
         }
 
@@ -204,21 +208,22 @@ public class ComponentManagerService {
     }
 
     private CompletionStage<Void> checkPlugins() {
+        boolean reload;
         if (configuration.getPluginsReloadUseTimestamp()) {
             final long checked = readPluginsTimestamp();
+            reload = checked > latestPluginUpdate;
             log
-                    .info("checkPlugins w/ timestamp {} vs {}.", Instant.ofEpochMilli(latestPluginUpdate),
-                            Instant.ofEpochMilli(checked), checked > latestPluginUpdate);
-            if (checked <= latestPluginUpdate) {
-                return null;
-            }
+                    .info("checkPlugins w/ timestamp {} vs {}. Reloading: {}.",
+                            Instant.ofEpochMilli(latestPluginUpdate), Instant.ofEpochMilli(checked), reload);
+            latestPluginUpdate = checked;
         } else {
             // connectors version used
             final String cv = readConnectorsVersion();
-            log.info("checkPlugins w/ connectors {} vs {}.", connectorsVersion, cv);
-            if (getConnectorsVersion().equals(cv)) {
-                return null;
-            }
+            reload = !getConnectorsVersion().equals(cv);
+            log.info("checkPlugins w/ connectors {} vs {}. Reloading: {}.", connectorsVersion, cv, reload);
+        }
+        if (!reload) {
+            return null;
         }
         // undeploy plugins
         log.info("Un-deploying plugins...");
@@ -226,34 +231,36 @@ public class ComponentManagerService {
         // redeploy plugins
         log.info("Re-deploying plugins...");
         deployPlugins();
+        log.info("Plugins deployed.");
         // reset connectors' version
         connectorsVersion = readConnectorsVersion();
 
         return null;
     }
 
-    private String readConnectorsVersion() {
+    private synchronized String readConnectorsVersion() {
         // check if we find a connectors version information file on top of the m2
         final String version = Optional.of(m2.resolve("CONNECTORS_VERSION")).filter(Files::exists).map(p -> {
             try {
                 return Files.lines(p).findFirst().get();
             } catch (IOException e) {
-                log.info("Failed reading connectors version {}", e.getMessage());
+                log.warn("Failed reading connectors version {}", e.getMessage());
                 return "unknown";
             }
         }).orElse("unknown");
-        log.info("Using connectors version: '{}'", version);
+        log.debug("Using connectors version: '{}'", version);
 
         return version;
     }
 
-    private Long readPluginsTimestamp() {
+    private synchronized Long readPluginsTimestamp() {
         final Long last = Stream
-                .concat(Stream.of(configuration.getPluginsReloadFileMarker().get()),
-                        configuration.getComponentRegistry().map(Collection::stream).get())
+                .concat(Stream.of(configuration.getPluginsReloadFileMarker().orElse("")),
+                        configuration.getComponentRegistry().map(Collection::stream).orElse(Stream.empty()))
+                .filter(s -> !s.isEmpty())
                 .map(cr -> Paths.get(cr))
                 .filter(Files::exists)
-                .peek(f -> log.info("[readPluginsTimestamp] getting {} timestamp.", f))
+                .peek(f -> log.debug("[readPluginsTimestamp] getting {} timestamp.", f))
                 .map(f -> {
                     try {
                         return Files.getAttribute(f, "lastModifiedTime");
@@ -262,15 +269,14 @@ public class ComponentManagerService {
                     }
                 })
                 .filter(Objects::nonNull)
-
                 .findFirst()
                 .map(ts -> FileTime.class.cast(ts).toMillis())
                 .orElse(0L);
-        log.info("[readPluginsTimestamp] Latest: {}.", Instant.ofEpochMilli(last));
+        log.debug("[readPluginsTimestamp] Latest: {}.", Instant.ofEpochMilli(last));
         return last;
     }
 
-    private void deployPlugins() {
+    private synchronized void deployPlugins() {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
@@ -315,7 +321,7 @@ public class ComponentManagerService {
         return plugin;
     }
 
-    public void undeploy(final String pluginGAV) {
+    public synchronized void undeploy(final String pluginGAV) {
         if (pluginGAV == null || pluginGAV.isEmpty()) {
             throw new IllegalArgumentException("plugin maven GAV are required to undeploy a plugin");
         }

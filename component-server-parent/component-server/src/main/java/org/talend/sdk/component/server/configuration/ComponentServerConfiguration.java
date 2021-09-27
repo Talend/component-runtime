@@ -168,7 +168,8 @@ public class ComponentServerConfiguration {
     private Boolean pluginsReloadActive;
 
     @Inject
-    @Documentation("Do we re-deploy on a timestamp change or connectors version change.")
+    @Documentation("Do we re-deploy on a timestamp change or connectors version change. By default, the timestamp is "
+            + "checked otherwise we inspect the content of the `CONNECTORS_VERSION` file.")
     @ConfigProperty(name = "talend.component.server.plugins.reloading.timestamp", defaultValue = "true")
     private Boolean pluginsReloadUseTimestamp;
 
@@ -178,7 +179,8 @@ public class ComponentServerConfiguration {
     private Long pluginsReloadInterval;
 
     @Inject
-    @Documentation("If plugins discovery is done via file resolution through m2 and re-loading use timestamp.")
+    @Documentation("Specify a file to check its timestamp on the filesystem. This file will take precedence of the default "
+            + "ones provided by the `talend.component.server.component.registry` property (used for timestamp method).")
     @ConfigProperty(name = "talend.component.server.plugins.reloading.marker")
     private Optional<String> pluginsReloadFileMarker;
 
