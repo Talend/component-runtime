@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.server.front.model;
 
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,17 +22,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Environment {
-
-    private int latestApiVersion;
+public class Connectors {
 
     private String version;
 
-    private String commit;
-
-    private String time;
-
-    private Date lastUpdated;
-
-    private Connectors connectors;
 }

@@ -68,6 +68,7 @@ import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.dao.ConfigurationDao;
+import org.talend.sdk.component.server.front.model.Connectors;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
 
 import lombok.AllArgsConstructor;
@@ -117,7 +118,7 @@ public class ComponentManagerService {
 
     private volatile Date lastUpdated = new Date();
 
-    private String connectorsVersion;
+    private Connectors connectors;
 
     private boolean started;
 
@@ -160,7 +161,7 @@ public class ComponentManagerService {
         // deploy plugins
         deployPlugins();
         // check if we find a connectors version information file on top of the m2
-        connectorsVersion = readConnectorsVersion();
+        connectors = new Connectors(readConnectorsVersion());
         // auto-reload plugins executor service
         if (configuration.getPluginsReloadActive()) {
             final boolean useTimestamp = configuration.getPluginsReloadUseTimestamp();
@@ -219,8 +220,8 @@ public class ComponentManagerService {
         } else {
             // connectors version used
             final String cv = readConnectorsVersion();
-            reload = !getConnectorsVersion().equals(cv);
-            log.info("checkPlugins w/ connectors {} vs {}. Reloading: {}.", connectorsVersion, cv, reload);
+            reload = !getConnectors().equals(cv);
+            log.info("checkPlugins w/ connectors {} vs {}. Reloading: {}.", connectors.getVersion(), cv, reload);
         }
         if (!reload) {
             return null;
@@ -233,7 +234,7 @@ public class ComponentManagerService {
         deployPlugins();
         log.info("Plugins deployed.");
         // reset connectors' version
-        connectorsVersion = readConnectorsVersion();
+        connectors = new Connectors(readConnectorsVersion());
 
         return null;
     }
@@ -340,8 +341,8 @@ public class ComponentManagerService {
         return lastUpdated;
     }
 
-    public String getConnectorsVersion() {
-        return connectorsVersion;
+    public Connectors getConnectors() {
+        return connectors;
     }
 
     @AllArgsConstructor

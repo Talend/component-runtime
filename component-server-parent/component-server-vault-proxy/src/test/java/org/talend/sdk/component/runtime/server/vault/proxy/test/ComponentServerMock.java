@@ -46,6 +46,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.Connectors;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -90,7 +91,7 @@ public class ComponentServerMock {
     @GET
     @Path("environment")
     public Environment environment() {
-        return new Environment(1, "test", "test", null, new Date(0), "1.2.3");
+        return new Environment(1, "test", "test", null, new Date(0), new Connectors("1.2.3"));
     }
 
     @POST

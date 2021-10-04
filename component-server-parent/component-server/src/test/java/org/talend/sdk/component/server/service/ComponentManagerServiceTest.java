@@ -131,7 +131,7 @@ class ComponentManagerServiceTest {
     @Test
     @Order(1)
     void checkPluginsNotReloaded() throws Exception {
-        assertEquals("1.2.3", componentManagerService.getConnectorsVersion());
+        assertEquals("1.2.3", componentManagerService.getConnectors().getVersion());
         assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
         Thread.sleep(6000);
         assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
@@ -140,7 +140,7 @@ class ComponentManagerServiceTest {
     @Test
     @Order(10)
     void checkPluginsReloaded() throws Exception {
-        assertEquals("1.2.3", componentManagerService.getConnectorsVersion());
+        assertEquals("1.2.3", componentManagerService.getConnectors().getVersion());
         assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
         writeVersion("1.26.0-SNAPSHOT");
         Thread.sleep(6000);

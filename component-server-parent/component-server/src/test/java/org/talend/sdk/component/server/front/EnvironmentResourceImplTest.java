@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.json.JsonObject;
 import javax.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
@@ -44,7 +45,7 @@ class EnvironmentResourceImplTest {
                 .of(environment.getCommit(), environment.getTime(), environment.getVersion())
                 .forEach(Assertions::assertNotNull);
         assertTrue(environment.getLastUpdated().compareTo(new Date(0)) > 0);
-        assertTrue(("1.2.3").equals(environment.getConnectors())
-                || ("1.26.0-SNAPSHOT").equals(environment.getConnectors()));
+        final String cversion = environment.getConnectors().getVersion();
+        assertTrue(("1.2.3").equals(cversion) || ("1.26.0-SNAPSHOT").equals(cversion));
     }
 }
