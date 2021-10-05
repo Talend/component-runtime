@@ -220,7 +220,7 @@ public class ComponentManagerService {
         } else {
             // connectors version used
             final String cv = readConnectorsVersion();
-            reload = !getConnectors().equals(cv);
+            reload = !cv.equals(getConnectors().getVersion());
             log.info("checkPlugins w/ connectors {} vs {}. Reloading: {}.", connectors.getVersion(), cv, reload);
         }
         if (!reload) {
