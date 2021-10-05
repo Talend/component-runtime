@@ -168,10 +168,12 @@ public class ComponentServerConfiguration {
     private Boolean pluginsReloadActive;
 
     @Inject
-    @Documentation("Do we re-deploy on a timestamp change or connectors version change. By default, the timestamp is "
-            + "checked otherwise we inspect the content of the `CONNECTORS_VERSION` file.")
-    @ConfigProperty(name = "talend.component.server.plugins.reloading.timestamp", defaultValue = "true")
-    private Boolean pluginsReloadUseTimestamp;
+    @Documentation("Re-deploy method on a `timestamp` or `connectors` version change. By default, the timestamp is"
+            + " checked on the file pointed by `talend.component.server.component.registry` or "
+            + "`talend.component.server.plugins.reloading.marker` variable, otherwise we inspect the content of the "
+            + "`CONNECTORS_VERSION` file. Accepted values: `timestamp`, anything else defaults to `connectors`.")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.method", defaultValue = "timestamp")
+    private Boolean pluginsReloadMethod;
 
     @Inject
     @Documentation("Interval in seconds between each check if plugins re-loading is enabled.")

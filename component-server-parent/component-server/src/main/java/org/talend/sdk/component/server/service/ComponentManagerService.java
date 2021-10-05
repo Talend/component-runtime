@@ -164,7 +164,7 @@ public class ComponentManagerService {
         connectors = new Connectors(readConnectorsVersion());
         // auto-reload plugins executor service
         if (configuration.getPluginsReloadActive()) {
-            final boolean useTimestamp = configuration.getPluginsReloadUseTimestamp();
+            final boolean useTimestamp = "timestamp".equals(configuration.getPluginsReloadMethod());
             if (useTimestamp) {
                 latestPluginUpdate = readPluginsTimestamp();
             }
@@ -210,7 +210,7 @@ public class ComponentManagerService {
 
     private CompletionStage<Void> checkPlugins() {
         boolean reload;
-        if (configuration.getPluginsReloadUseTimestamp()) {
+        if ("timestamp".equals(configuration.getPluginsReloadMethod())) {
             final long checked = readPluginsTimestamp();
             reload = checked > latestPluginUpdate;
             log
