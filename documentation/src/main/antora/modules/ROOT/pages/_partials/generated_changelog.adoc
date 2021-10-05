@@ -1,5 +1,19 @@
 
 
+== Version 1.38.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
+
+
+
+== Version 1.37.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
+
 == Version 1.37.0
 
 === Bug

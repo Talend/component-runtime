@@ -44,6 +44,7 @@ class EnvironmentResourceImplTest {
                 .of(environment.getCommit(), environment.getTime(), environment.getVersion())
                 .forEach(Assertions::assertNotNull);
         assertTrue(environment.getLastUpdated().compareTo(new Date(0)) > 0);
-        assertEquals("1.2.3", environment.getConnectors());
+        final String cversion = environment.getConnectors().getVersion();
+        assertTrue(("1.2.3").equals(cversion));
     }
 }

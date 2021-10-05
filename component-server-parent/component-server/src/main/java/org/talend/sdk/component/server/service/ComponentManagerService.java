@@ -60,6 +60,7 @@ import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.dao.ConfigurationDao;
+import org.talend.sdk.component.server.front.model.Connectors;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
 
 import lombok.AllArgsConstructor;
@@ -109,9 +110,11 @@ public class ComponentManagerService {
 
     private volatile Date lastUpdated = new Date();
 
-    private String connectorsVersion;
+    private Connectors connectors;
 
     private boolean started;
+
+    private Path m2;
 
     public void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // no-op
@@ -127,7 +130,7 @@ public class ComponentManagerService {
         }
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
-        final Path m2 = configuration
+        m2 = configuration
                 .getMavenRepository()
                 .map(PathFactory::get)
                 .filter(Files::exists)
@@ -172,15 +175,7 @@ public class ComponentManagerService {
                             .forEach(this::deploy);
                 });
         // check if we find a connectors version information file on top of the m2
-        connectorsVersion = Optional.of(m2.resolve("CONNECTORS_VERSION")).filter(Files::exists).map(p -> {
-            try {
-                return Files.lines(p).findFirst().get();
-            } catch (IOException e) {
-                log.info("Failed reading connectors version {}", e.getMessage());
-                return "unknown";
-            }
-        }).orElse("unknown");
-        log.info("Using connectors version: '{}'", connectorsVersion);
+        connectors = new Connectors(readConnectorsVersion());
 
         started = true;
     }
@@ -194,6 +189,21 @@ public class ComponentManagerService {
             log.debug("Can't get the locale from current request in thread '{}'", Thread.currentThread().getName(), ex);
             return Locale.getDefault();
         }
+    }
+
+    private synchronized String readConnectorsVersion() {
+        // check if we find a connectors version information file on top of the m2
+        final String version = Optional.of(m2.resolve("CONNECTORS_VERSION")).filter(Files::exists).map(p -> {
+            try {
+                return Files.lines(p).findFirst().get();
+            } catch (IOException e) {
+                log.warn("Failed reading connectors version {}", e.getMessage());
+                return "unknown";
+            }
+        }).orElse("unknown");
+        log.debug("Using connectors version: '{}'", version);
+
+        return version;
     }
 
     @PreDestroy
@@ -238,8 +248,8 @@ public class ComponentManagerService {
         return lastUpdated;
     }
 
-    public String getConnectorsVersion() {
-        return connectorsVersion;
+    public Connectors getConnectors() {
+        return connectors;
     }
 
     @AllArgsConstructor
