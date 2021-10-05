@@ -14,6 +14,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2001[TCOMP-2001^]: Upgrade Beam to 2.32.0
 - link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
 
+
+
+== Version 1.37.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
+
 == Version 1.37.0
 
 === Bug
