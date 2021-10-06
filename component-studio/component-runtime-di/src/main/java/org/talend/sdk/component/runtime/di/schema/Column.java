@@ -36,9 +36,9 @@ public class Column {
 
     private Boolean nullable;
 
-    private Integer length;
+    private Integer length = 0;
 
-    private Integer precision;
+    private Integer precision = 0;
 
     private String defaut;
 
@@ -65,4 +65,12 @@ public class Column {
     private Boolean usefulColumn;
 
     private Map<String, String> additionalField;
+
+    public String getDefault() {
+        return defaut;
+    }
+
+    public void setDefault(final String value) {
+        defaut = value;
+    }
 }
