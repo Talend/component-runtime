@@ -2,6 +2,13 @@
 
 == Version 1.38.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1987[TCOMP-1987^]: Avro record : Array of Array of records issue
+- link:https://jira.talendforge.org/browse/TCOMP-2006[TCOMP-2006^]: Support empty values for Numbers case
+
+
+
 === Epic
 
 - link:https://jira.talendforge.org/browse/TCOMP-1900[TCOMP-1900^]: Create jenkins release process for component-runtime

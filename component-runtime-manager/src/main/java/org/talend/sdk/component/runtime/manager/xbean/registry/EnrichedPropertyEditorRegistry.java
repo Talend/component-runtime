@@ -74,6 +74,9 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
 
                     @Override
                     protected Object toObjectImpl(final String text) {
+                        if (text.isEmpty()) {
+                            return null;
+                        }
                         final Object o = doubleEditor.toObject(text);
                         return mapper.apply(Double.class.cast(o));
                     }
