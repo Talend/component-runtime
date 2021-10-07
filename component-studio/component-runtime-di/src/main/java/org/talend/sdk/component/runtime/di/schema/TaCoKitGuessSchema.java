@@ -403,7 +403,7 @@ public class TaCoKitGuessSchema {
             }
             if (entry.getDefaultValue() != null) {
                 try {
-                    column.setDefault(String.valueOf((Object) entry.getDefaultValue()));
+                    column.setDefault(entry.getDefaultValue().toString());
                 } catch (Exception e) {
                     // nevermind as it's almost useless...
                 }
