@@ -398,7 +398,7 @@ public class TaCoKitGuessSchema {
                     column.setPattern(STRING_ESCAPE + pattern + STRING_ESCAPE);
                 } else {
                     // studio default pattern
-                    column.setPattern(STRING_ESCAPE + "yyyy-MM-dd" + STRING_ESCAPE);
+                    column.setPattern(STRING_ESCAPE + "dd-MM-yyyy" + STRING_ESCAPE);
                 }
             }
             if (entry.getDefaultValue() != null) {
