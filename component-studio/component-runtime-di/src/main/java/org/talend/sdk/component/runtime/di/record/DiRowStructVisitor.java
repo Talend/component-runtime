@@ -37,6 +37,9 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.spi.JsonbProvider;
@@ -60,6 +63,8 @@ public class DiRowStructVisitor {
 
     private final Jsonb jsonb = JsonbProvider.provider().create().build();
 
+    private Set<String> allowedFields;
+
     public void visit(final Object data) {
         log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
@@ -69,7 +74,11 @@ public class DiRowStructVisitor {
                 final Object raw = field.get(data);
                 log.debug("[visit] Field {} ({}) ==> {}.", name, type.getName(), raw);
                 if (raw == null) {
-                    log.debug("[visit] Skipping Field {} with null value.", name);
+                    log.debug("[visit] Skipping field {} with null value.", name);
+                    return;
+                }
+                if (!allowedFields.contains(name)) {
+                    log.debug("[visit] Skipping technical field {}.", name);
                     return;
                 }
                 switch (type.getName()) {
@@ -209,12 +218,24 @@ public class DiRowStructVisitor {
     }
 
     private Schema inferSchema(final Object data, final RecordBuilderFactory factory) {
+        // all standard rowStruct fields have accessors, not technical fields.
+        allowedFields = Arrays
+                .stream(data.getClass().getDeclaredMethods())
+                .map(method -> method.getName())
+                .filter(m -> m.matches("^(get|is).*"))
+                .map(n -> n.replaceAll("^(get|is)", ""))
+                .map(n -> n.substring(0, 1).toLowerCase(Locale.ROOT) + n.substring(1))
+                .collect(Collectors.toSet());
         final Schema.Builder schema = factory.newSchemaBuilder(RECORD);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
                 final Class<?> type = field.getType();
                 final String name = field.getName();
                 final Object raw = field.get(data);
+                if (!allowedFields.contains(name)) {
+                    log.debug("[inferSchema] Skipping technical field {}.", name);
+                    return;
+                }
                 switch (type.getName()) {
                 case "java.util.List":
                     schema.withEntry(toCollectionEntry(name, "", raw));
