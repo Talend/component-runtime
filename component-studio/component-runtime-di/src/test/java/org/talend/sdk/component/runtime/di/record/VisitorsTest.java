@@ -30,6 +30,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -133,6 +134,19 @@ public class VisitorsTest {
         public Object object0;
 
         public Dynamic dynamic;
+
+        public String h;
+
+        public boolean hAshcOdEdIrtY;
+
+        @Getter(value = AccessLevel.NONE)
+        public boolean hashCodeDirty = true;
+
+        @Getter(value = AccessLevel.NONE)
+        public String loopKey = "loopyyyy";
+
+        @Getter(value = AccessLevel.NONE)
+        public String lookKey = "lookKIIII";
 
         @Override
         public void writeData(final ObjectOutputStream objectOutputStream) {

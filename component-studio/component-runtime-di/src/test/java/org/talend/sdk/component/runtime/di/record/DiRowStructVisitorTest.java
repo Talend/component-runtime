@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import routines.system.Dynamic;
@@ -31,6 +32,7 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,6 +69,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.bool1 = Boolean.TRUE;
         rowStruct.array0 = INTEGERS;
         rowStruct.object0 = new Rcd();
+        rowStruct.hAshcOdEdIrtY = Boolean.TRUE;
+        rowStruct.h = NAME;
         // dynamic
         final Dynamic dynamic = new Dynamic();
         createMetadata(dynamic, "dynString", "id_String", "stringy");
@@ -90,6 +94,9 @@ class DiRowStructVisitorTest extends VisitorsTest {
         //
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
         final Record record = visitor.get(rowStruct, factory);
+        final Schema schema = record.getSchema();
+        // should have 3 excluded fields
+        assertEquals(42, schema.getEntries().size());
         // asserts Record
         log.info("[visit] values: {}", record);
         assertEquals(":testing:", record.getString("id"));
@@ -120,6 +127,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals(BIGDEC.toString(), record.getString("dynBigDecimal"));
         assertEquals(BIGDEC, new BigDecimal(record.getString("dynBigDecimal")));
         assertEquals(RECORD.toString(), record.getString("object0"));
+        assertTrue(record.getBoolean("hAshcOdEdIrtY"));
+        assertEquals(NAME, record.getString("h"));
         assertEquals(RECORD.toString(), record.getString("dynObject"));
         assertEquals(INTEGERS, record.getArray(Integer.class, "array0"));
         assertEquals(STRINGS, record.getArray(String.class, "STRINGS"));
@@ -134,6 +143,18 @@ class DiRowStructVisitorTest extends VisitorsTest {
             assertEquals(1, r.getInt("ntgr"));
             assertEquals("one", r.getString("str"));
         });
+        assertEquals(3,
+                schema.getEntries().stream().filter(entry -> entry.getName().matches("hAshcOdEdIrtY|h|id")).count());
+        // check we don't have any technical field in our schema/record
+        assertEquals(0,
+                schema
+                        .getEntries()
+                        .stream()
+                        .filter(entry -> entry.getName().matches("hashCodeDirty|loopKey|lookKey"))
+                        .count());
+        assertThrows(NullPointerException.class, () -> record.getBoolean("hashCodeDirty"));
+        assertNull(record.getString("loopKey"));
+        assertNull(record.getString("lookKey"));
     }
 
     public static class Rcd {
