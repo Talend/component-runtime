@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,10 @@ public class VaultProxyCacheKeyGenerator implements CacheKeyGenerator {
     }
 
     private Stream<Object> getContextualKeys() {
-        return Stream.of(uriInfo.getPath(), uriInfo.getQueryParameters(), headers.getLanguage());
+        return Stream
+                .of(uriInfo.getPath(), uriInfo.getQueryParameters(), headers.getLanguage(),
+                        headers.getHeaderString(HttpHeaders.ACCEPT),
+                        headers.getHeaderString(HttpHeaders.ACCEPT_ENCODING));
     }
 
     private static class GeneratedCacheKeyImpl implements GeneratedCacheKey {
@@ -65,8 +68,8 @@ public class VaultProxyCacheKeyGenerator implements CacheKeyGenerator {
         private final int hash;
 
         private GeneratedCacheKeyImpl(final Object[] parameters) {
-            this.params = parameters;
-            this.hash = Arrays.deepHashCode(parameters);
+            params = parameters;
+            hash = Arrays.deepHashCode(parameters);
         }
 
         @Override

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,14 +86,16 @@ class RecordServiceImplTest {
     void mappers() {
         final Pojo pojo = new Pojo();
         pojo.name = "now";
+        pojo.obj.objName = "objName222";
 
         final Record record = service.toRecord(pojo);
         assertNotNull(record);
-        assertEquals("{\"name\":\"now\"}", record.toString());
+        assertEquals("{\"name\":\"now\",\"obj\":{\"magic\":1971,\"objName\":\"objName222\"}}", record.toString());
 
         final Pojo after = service.toObject(record, Pojo.class);
         assertNotSame(after, pojo);
         assertEquals(after.name, pojo.name);
+        assertEquals(after.obj.objName, pojo.obj.objName);
     }
 
     @Test
@@ -137,7 +139,13 @@ class RecordServiceImplTest {
     void buildRecord() {
         final Schema customSchema = factory
                 .newSchemaBuilder(baseSchema)
-                .withEntry(factory.newEntryBuilder().withName("custom").withType(STRING).withNullable(true).build())
+                .withEntry(factory
+                        .newEntryBuilder()
+                        .withName("custom")
+                        .withType(STRING)
+                        .withNullable(true)
+                        .withMetadata(true)
+                        .build())
                 .build();
 
         final List<Collection<String>> spy = asList(new LinkedList<>(), new LinkedList<>());
@@ -165,17 +173,16 @@ class RecordServiceImplTest {
         Stream
                 .of(noCustomRecord, customRecord)
                 .forEach(record -> assertEquals(
-                        "name=Test,age=33,address={\"street\":\"here\",\"number\":1},custom=yes", toString(record)));
+                        "custom=yes,name=Test,age=33,address={\"street\":\"here\",\"number\":1}", toString(record)));
         assertEquals(asList("visited=name", "visited=age", "visited=address", "done=false"), spy.get(0));
-        assertEquals(asList("visited=name", "visited=age", "visited=address", "visited=custom", "done=true"),
+        assertEquals(asList("visited=custom", "visited=name", "visited=age", "visited=address", "done=true"),
                 spy.get(1));
     }
 
     private String toString(final Record record) {
         return record
                 .getSchema()
-                .getEntries()
-                .stream()
+                .getAllEntries()
                 .map(e -> e.getName() + '=' + record.get(Object.class, e.getName()))
                 .collect(joining(","));
     }
@@ -183,5 +190,14 @@ class RecordServiceImplTest {
     public static class Pojo {
 
         public String name;
+
+        public ObjConfiguration obj = new ObjConfiguration();
+    }
+
+    public static class ObjConfiguration {
+
+        public String objName;
+
+        public int magic = 1971;
     }
 }

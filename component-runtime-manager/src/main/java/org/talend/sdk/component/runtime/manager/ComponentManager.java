@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.classloader.ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
+import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.DRIVER_RUNNER;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.MAPPER;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.PROCESSOR;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
@@ -130,7 +131,9 @@ import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.standalone.DriverRunner;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.classloader.ThreadHelper;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
@@ -149,15 +152,16 @@ import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamBuilder;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
-import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
+import org.talend.sdk.component.runtime.manager.reflect.ComponentMetadataService;
 import org.talend.sdk.component.runtime.manager.reflect.IconFinder;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
+import org.talend.sdk.component.runtime.manager.service.ServiceHelper;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.util.Lazy;
@@ -168,6 +172,7 @@ import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyE
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
+import org.talend.sdk.component.runtime.standalone.DriverRunnerImpl;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
@@ -856,6 +861,12 @@ public class ComponentManager implements AutoCloseable {
         return findComponentInternal(plugin, name, MAPPER, version, configuration).map(Mapper.class::cast);
     }
 
+    public Optional<org.talend.sdk.component.runtime.standalone.DriverRunner> findDriverRunner(final String plugin,
+            final String name, final int version, final Map<String, String> configuration) {
+        return findComponentInternal(plugin, name, DRIVER_RUNNER, version, configuration)
+                .map(org.talend.sdk.component.runtime.standalone.DriverRunner.class::cast);
+    }
+
     public Optional<org.talend.sdk.component.runtime.output.Processor> findProcessor(final String plugin,
             final String name, final int version, final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, PROCESSOR, version, configuration)
@@ -1058,15 +1069,6 @@ public class ComponentManager implements AutoCloseable {
         return ofNullable(type.getPackage().getName()).orElse("");
     }
 
-    private Class<?> handleProxy(final Container container, final Class<?> type) {
-        if (!proxyGenerator.hasInterceptors(type) && proxyGenerator.isSerializable(type)) {
-            return type;
-        }
-        return container
-                .execute(() -> proxyGenerator
-                        .generateProxy(container.getLoader(), type, container.getId(), type.getName()));
-    }
-
     private Function<Map<String, String>, Object[]> createParametersFactory(final String plugin,
             final Executable method, final Map<Class<?>, Object> services, final Supplier<List<ParameterMeta>> metas) {
         // it is "slow" for cold boots so let's delay it
@@ -1098,6 +1100,18 @@ public class ComponentManager implements AutoCloseable {
             @Override
             Class<?> runtimeType() {
                 return org.talend.sdk.component.runtime.output.Processor.class;
+            }
+        },
+        DRIVER_RUNNER {
+
+            @Override
+            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
+                return family.getDriverRunners();
+            }
+
+            @Override
+            Class<?> runtimeType() {
+                return org.talend.sdk.component.runtime.standalone.DriverRunner.class;
             }
         };
 
@@ -1136,7 +1150,7 @@ public class ComponentManager implements AutoCloseable {
 
         private final Collection<String> supportedAnnotations = Stream
                 .of(Internationalized.class, Service.class, Request.class, PartitionMapper.class, Processor.class,
-                        Emitter.class)
+                        Emitter.class, DriverRunner.class)
                 .map(Type::getDescriptor)
                 .collect(toSet());
 
@@ -1295,35 +1309,16 @@ public class ComponentManager implements AutoCloseable {
                         services.put(proxy, instance);
                         registry.getServices().add(new ServiceMeta(instance, emptyList()));
                     });
+            final ServiceHelper serviceHelper = new ServiceHelper(ComponentManager.this.proxyGenerator, services);
             final Map<Class<?>, Object> userServices = finder
                     .findAnnotatedClasses(Service.class)
                     .stream()
                     .filter(s -> !services.containsKey(s))
-                    .collect(toMap(identity(), service -> {
-                        try {
-                            final Object instance;
-                            final Thread thread = Thread.currentThread();
-                            final ClassLoader old = thread.getContextClassLoader();
-                            thread.setContextClassLoader(container.getLoader());
-                            try {
-                                instance = handleProxy(container, service).getConstructor().newInstance();
-                                if (proxyGenerator.hasInterceptors(service)) {
-                                    proxyGenerator
-                                            .initialize(instance, new InterceptorHandlerFacade(
-                                                    service.getConstructor().newInstance(), services));
-                                }
-                                return instance;
-                            } catch (final InstantiationException | IllegalAccessException e) {
-                                throw new IllegalArgumentException(e);
-                            } catch (final InvocationTargetException e) {
-                                throw toRuntimeException(e);
-                            } finally {
-                                thread.setContextClassLoader(old);
-                            }
-                        } catch (final NoSuchMethodException e) {
-                            throw new IllegalArgumentException("No default constructor for " + service);
-                        }
-                    }));
+                    .collect(toMap(identity(), (Class<?> service) -> ThreadHelper
+                            .runWithClassLoader(
+                                    () -> serviceHelper
+                                            .createServiceInstance(container.getLoader(), container.getId(), service),
+                                    container.getLoader())));
             // now we created all instances we can inject *then* postconstruct
             final Injector injector = Injector.class.cast(services.get(Injector.class));
             services.putAll(userServices);
@@ -1348,7 +1343,7 @@ public class ComponentManager implements AutoCloseable {
             container.set(ComponentContexts.class, componentContexts);
             if (!isGeneric) {
                 Stream
-                        .of(PartitionMapper.class, Processor.class, Emitter.class)
+                        .of(PartitionMapper.class, Processor.class, Emitter.class, DriverRunner.class)
                         .flatMap(a -> finder.findAnnotatedClasses(a).stream())
                         .filter(t -> Modifier.isPublic(t.getModifiers()))
                         .forEach(type -> onComponent(container, registry, services, allServices, componentDefaults,
@@ -1436,10 +1431,18 @@ public class ComponentManager implements AutoCloseable {
                             .anyMatch(k -> c.getPartitionMappers().containsKey(k))) {
                         throw new IllegalArgumentException("Conflicting mappers in " + c);
                     }
+                    if (componentFamilyMeta
+                            .getDriverRunners()
+                            .keySet()
+                            .stream()
+                            .anyMatch(k -> c.getDriverRunners().containsKey(k))) {
+                        throw new IllegalArgumentException("Conflicting driver runners in " + c);
+                    }
 
                     // if we passed validations then merge
                     componentFamilyMeta.getProcessors().putAll(c.getProcessors());
                     componentFamilyMeta.getPartitionMappers().putAll(c.getPartitionMappers());
+                    componentFamilyMeta.getDriverRunners().putAll(c.getDriverRunners());
                 }
             });
 
@@ -1719,6 +1722,8 @@ public class ComponentManager implements AutoCloseable {
 
         private final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache;
 
+        private ComponentMetadataService metadataService = new ComponentMetadataService();
+
         private ComponentFamilyMeta component;
 
         @Override
@@ -1745,6 +1750,7 @@ public class ComponentManager implements AutoCloseable {
                                                     component.getName(), name), Mapper.class))
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
                                     doInvoke(constructor, parameterFactory.apply(config)));
+            final Map<String, String> metadata = metadataService.getMetadata(type);
 
             component
                     .getPartitionMappers()
@@ -1756,7 +1762,7 @@ public class ComponentManager implements AutoCloseable {
                                     Lazy
                                             .lazy(() -> migrationHandlerFactory
                                                     .findMigrationHandler(parameterMetas, type, services)),
-                                    !context.isNoValidation(), infinite));
+                                    !context.isNoValidation(), metadata));
         }
 
         @Override
@@ -1781,6 +1787,9 @@ public class ComponentManager implements AutoCloseable {
                                                     component.getName(), name), Mapper.class))
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
+
+            final Map<String, String> metadata = metadataService.getMetadata(type);
+
             component
                     .getPartitionMappers()
                     .put(name,
@@ -1791,7 +1800,7 @@ public class ComponentManager implements AutoCloseable {
                                     Lazy
                                             .lazy(() -> migrationHandlerFactory
                                                     .findMigrationHandler(parameterMetas, type, services)),
-                                    !context.isNoValidation(), false));
+                                    !context.isNoValidation(), metadata));
         }
 
         @Override
@@ -1831,6 +1840,9 @@ public class ComponentManager implements AutoCloseable {
                                                             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
                                                     .orElseGet(Collections::emptyMap),
                                             doInvoke(constructor, parameterFactory.apply(config)));
+
+            final Map<String, String> metadata = metadataService.getMetadata(type);
+
             component
                     .getProcessors()
                     .put(name,
@@ -1841,7 +1853,7 @@ public class ComponentManager implements AutoCloseable {
                                     Lazy
                                             .lazy(() -> migrationHandlerFactory
                                                     .findMigrationHandler(parameterMetas, type, services)),
-                                    !context.isNoValidation()));
+                                    !context.isNoValidation(), metadata));
         }
 
         private void addProcessorsBuiltInParameters(final Class<?> type, final List<ParameterMeta> parameterMetas) {
@@ -1891,6 +1903,46 @@ public class ComponentManager implements AutoCloseable {
                     root.getNestedParameters().add(maxBatchSize);
                 }
             }
+        }
+
+        @Override
+        public void onDriverRunner(final Class<?> type, final DriverRunner processor) {
+            final Constructor<?> constructor = findConstructor(type);
+            final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
+                    () -> parameterModelService
+                            .buildParameterMetas(constructor, getPackage(type),
+                                    new BaseParameterEnricher.Context(LocalConfiguration.class
+                                            .cast(services.getServices().get(LocalConfiguration.class))))));
+            final Function<Map<String, String>, Object[]> parameterFactory =
+                    createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
+            final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
+            final ComponentFamilyMeta component = getOrCreateComponent(processor.family());
+            final Function<Map<String, String>, org.talend.sdk.component.runtime.standalone.DriverRunner> instantiator =
+                    context.getOwningExtension() != null && context
+                            .getOwningExtension()
+                            .supports(org.talend.sdk.component.runtime.standalone.DriverRunner.class)
+                                    ? config -> executeInContainer(plugin,
+                                            () -> context
+                                                    .getOwningExtension()
+                                                    .convert(new ComponentInstanceImpl(doInvoke(
+                                                            constructor, parameterFactory.apply(config)), plugin,
+                                                            component.getName(), name),
+                                                            org.talend.sdk.component.runtime.standalone.DriverRunner.class))
+                                    : config -> new DriverRunnerImpl(this.component.getName(), name, plugin,
+                                            doInvoke(constructor, parameterFactory.apply(config)));
+            final Map<String, String> metadata = metadataService.getMetadata(type);
+
+            component
+                    .getDriverRunners()
+                    .put(name,
+                            new ComponentFamilyMeta.DriverRunnerMeta(component, name, iconFinder.findIcon(type),
+                                    findVersion(type), type, parameterMetas,
+                                    args -> propertyEditorRegistry
+                                            .withCache(xbeanConverterCache, () -> instantiator.apply(args)),
+                                    Lazy
+                                            .lazy(() -> migrationHandlerFactory
+                                                    .findMigrationHandler(parameterMetas, type, services)),
+                                    !context.isNoValidation(), metadata));
         }
 
         private String getPackage(final Class<?> type) {

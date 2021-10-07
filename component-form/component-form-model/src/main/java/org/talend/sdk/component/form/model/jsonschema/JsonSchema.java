@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import lombok.Data;
 @Data
 public class JsonSchema {
 
+    public static final String DEFAULT_TYPE = "object";
+
     private String id;
 
     private String title;
@@ -43,7 +45,7 @@ public class JsonSchema {
     @JsonbProperty("$ref")
     private String ref;
 
-    private String type;
+    private String type = DEFAULT_TYPE;
 
     private Integer minItems;
 
@@ -93,7 +95,7 @@ public class JsonSchema {
 
         private String ref;
 
-        private String type;
+        private String type = DEFAULT_TYPE;
 
         private Integer minItems;
 

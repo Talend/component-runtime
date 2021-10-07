@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.talend.sdk.component.form.internal.validation.spi.ext.EnumValidationWithDefaultValue;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MaximumValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MinimumValidation;
+import org.talend.sdk.component.form.internal.validation.spi.ext.RequiredValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.TypeValidation;
 
 public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema.JsonSchemaValidatorFactory {
@@ -33,11 +34,13 @@ public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.EnumValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MinimumValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MaximumValidation.class.isInstance(v))
+                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.RequiredValidation.class.isInstance(v))
                 .collect(Collectors.toList());
         validatons.add(new TypeValidation());
         validatons.add(new EnumValidationWithDefaultValue());
         validatons.add(new MinimumValidation());
         validatons.add(new MaximumValidation());
+        validatons.add(new RequiredValidation());
 
         return validatons;
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.visitor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.standalone.DriverRunner;
 
 public interface ModelListener {
 
@@ -30,6 +31,10 @@ public interface ModelListener {
     }
 
     default void onProcessor(final Class<?> type, final Processor processor) {
+        // no-op
+    }
+
+    default void onDriverRunner(final Class<?> type, final DriverRunner processor) {
         // no-op
     }
 }

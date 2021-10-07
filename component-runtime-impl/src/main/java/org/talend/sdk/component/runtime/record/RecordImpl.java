@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
@@ -33,12 +32,18 @@ import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -51,9 +56,12 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@EqualsAndHashCode
 public final class RecordImpl implements Record {
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
@@ -115,10 +123,107 @@ public final class RecordImpl implements Record {
             this.providedSchema = providedSchema;
         }
 
+        private BuilderImpl(final List<Schema.Entry> entries, final Map<String, Object> values) {
+            this.entries.addAll(entries);
+            this.values.putAll(values);
+            this.providedSchema = null;
+        }
+
+        @Override
+        public Object getValue(final String name) {
+            return this.values.get(name);
+        }
+
+        @Override
+        public Builder with(final Entry entry, final Object value) {
+            validateTypeAgainstProvidedSchema(entry.getName(), entry.getType(), value);
+            if (!entry.getType().isCompatible(value)) {
+                throw new IllegalArgumentException(String
+                        .format("Entry '%s' of type %s is not compatible with value of type '%s'", entry.getName(),
+                                entry.getType(), value.getClass().getName()));
+            }
+            if (entry.getType() == Schema.Type.DATETIME) {
+                if (value == null) {
+                    return this;
+                } else if (value instanceof Long) {
+                    this.withTimestamp(entry, (Long) value);
+                } else if (value instanceof Date) {
+                    this.withDateTime(entry, (Date) value);
+                } else if (value instanceof ZonedDateTime) {
+                    this.withDateTime(entry, (ZonedDateTime) value);
+                } else if (value instanceof Temporal) {
+                    this.withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
+                }
+                return this;
+            } else {
+                return append(entry, value);
+            }
+        }
+
+        @Override
+        public List<Entry> getCurrentEntries() {
+            if (this.providedSchema != null) {
+                return Collections.unmodifiableList(this.providedSchema.getAllEntries().collect(Collectors.toList()));
+            }
+            return Collections.unmodifiableList(this.entries);
+        }
+
+        @Override
+        public Builder removeEntry(final Schema.Entry schemaEntry) {
+            if (this.providedSchema == null) {
+                Optional<Entry> entry = this.entries
+                        .stream()
+                        .filter((Entry e) -> Objects.equals(e.getName(), schemaEntry.getName()))
+                        .findFirst();
+                if (entry.isPresent()) {
+                    this.entries.remove(entry.get());
+                } else {
+                    throw new IllegalArgumentException(
+                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
+                }
+                this.values.remove(schemaEntry.getName());
+                return this;
+            }
+
+            final BuilderImpl builder =
+                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
+            return builder.removeEntry(schemaEntry);
+        }
+
+        @Override
+        public Builder updateEntryByName(final String name, final Schema.Entry schemaEntry) {
+            if (this.providedSchema == null) {
+                final Object value = this.values.get(name);
+                if (!schemaEntry.getType().isCompatible(value)) {
+                    throw new IllegalArgumentException(String
+                            .format("Entry '%s' of type %s is not compatible with value of type '%s'",
+                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass().getName()));
+                }
+                boolean found = false;
+                for (int i = 0; i < entries.size() && !found; i++) {
+                    final Schema.Entry entry = this.entries.get(i);
+                    if (Objects.equals(entry.getName(), name)) {
+                        this.entries.set(i, schemaEntry);
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    throw new IllegalArgumentException(
+                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
+                }
+                this.values.remove(name);
+                this.values.put(schemaEntry.getName(), value);
+                return this;
+            }
+
+            final BuilderImpl builder =
+                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
+            return builder.updateEntryByName(name, schemaEntry);
+        }
+
         private Schema.Entry findExistingEntry(final String name) {
             if (this.entryIndex == null) {
-                this.entryIndex =
-                        providedSchema.getEntries().stream().collect(toMap(Schema.Entry::getName, identity()));
+                this.entryIndex = providedSchema.getAllEntries().collect(toMap(Schema.Entry::getName, identity()));
             }
             final Schema.Entry entry = this.entryIndex.get(name);
             if (entry == null) {
@@ -159,8 +264,7 @@ public final class RecordImpl implements Record {
         public Record build() {
             if (providedSchema != null) {
                 final String missing = providedSchema
-                        .getEntries()
-                        .stream()
+                        .getAllEntries()
                         .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
                         .map(Schema.Entry::getName)
                         .collect(joining(", "));
@@ -168,8 +272,15 @@ public final class RecordImpl implements Record {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
             }
-            return new RecordImpl(unmodifiableMap(values),
-                    providedSchema == null ? new SchemaImpl(RECORD, null, unmodifiableList(entries)) : providedSchema);
+            final Schema currentSchema;
+            if (providedSchema == null) {
+                final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
+                this.entries.forEach(builder::withEntry);
+                currentSchema = builder.build();
+            } else {
+                currentSchema = this.providedSchema;
+            }
+            return new RecordImpl(unmodifiableMap(values), currentSchema);
         }
 
         // here the game is to add an entry method for each kind of type + its companion with Entry provider
@@ -329,7 +440,9 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
             }
             if (providedSchema == null) {
-                entries.add(entry);
+                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
+                    this.entries.add(entry);
+                }
             }
             return this;
         }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.beans.ConstructorProperties;
 import java.io.Reader;
@@ -430,7 +431,7 @@ public class ReflectionService {
             }
         }
 
-        final String prefix = name + ".";
+        final String prefix = name.isEmpty() ? "" : name + ".";
         final ObjectRecipe recipe = newRecipe(clazz);
         recipe.setProperty("rawProperties", new UnsetPropertiesRecipe()); // todo: log unused props?
         ofNullable(args).ifPresent(recipe::setConstructorArgNames);
@@ -438,17 +439,15 @@ public class ReflectionService {
         final Map<String, Object> specificMapping = config
                 .entrySet()
                 .stream()
-                .filter(e -> e.getKey().startsWith(prefix))
+                .filter(e -> e.getKey().startsWith(prefix) || prefix.isEmpty())
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // extract map configuration
         final Map<String, Object> mapEntries = specificMapping.entrySet().stream().filter(e -> {
             final String key = e.getKey();
             final int idxStart = key.indexOf('[', prefix.length());
-            return idxStart > 0 && ((idxStart > ".key".length()
-                    && key.substring(idxStart - ".key".length(), idxStart).equals(".key"))
-                    || (idxStart > ".value".length()
-                            && key.substring(idxStart - ".value".length(), idxStart).equals(".value")));
+            return idxStart > 0 && ((idxStart > ".key".length() && key.startsWith(".key", idxStart - ".key".length()))
+                    || (idxStart > ".value".length() && key.startsWith(".value", idxStart - ".value".length())));
         })
                 .sorted(this::sortIndexEntry)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, noMerge(), LinkedHashMap::new));
@@ -839,14 +838,14 @@ public class ReflectionService {
                 final int end = regex.lastIndexOf('/');
                 if (end < 0) {
                     this.regex = regex;
-                    this.indicators = "";
+                    indicators = "";
                 } else {
                     this.regex = regex.substring(1, end);
-                    this.indicators = regex.substring(end + 1);
+                    indicators = regex.substring(end + 1);
                 }
             } else {
                 this.regex = regex;
-                this.indicators = "";
+                indicators = "";
             }
         }
 
@@ -999,5 +998,37 @@ public class ReflectionService {
                 throw new IllegalArgumentException("- " + String.join("\n- ", errors));
             }
         }
+    }
+
+    /**
+     * Helper function for creating an instance from a configuration map.
+     * 
+     * @param clazz Class of the wanted instance.
+     * @param <T> Type managed
+     * @return function that generate the wanted instance when calling
+     * {@link BiFunction#apply(java.lang.Object, java.lang.Object)} with a config name and configuration {@link Map}.
+     */
+    public <T> BiFunction<String, Map<String, Object>, T> createObjectFactory(final Class<T> clazz) {
+        final Map precomputed = Collections.emptyMap();
+        if (clazz.isPrimitive() || Primitives.unwrap(clazz) != clazz || clazz == String.class) {
+            return (name, config) -> (T) doConvert(clazz, config.get(name), precomputed);
+        }
+        if (clazz.isEnum()) {
+            return (name,
+                    config) -> (T) ofNullable(config.get(name))
+                            .map(String.class::cast)
+                            .map(String::trim)
+                            .filter(it -> !it.isEmpty())
+                            .map(v -> Enum.valueOf((Class<Enum>) clazz, v))
+                            .orElse(null);
+        }
+        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        final Function<Supplier<Object>, Object> contextualSupplier = createContextualSupplier(loader);
+        final Constructor<?> c = findConstructor(clazz);
+        final ParameterModelService s = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = s.buildParameterMetas(c, c.getDeclaringClass().getPackage().getName(), null);
+        final String[] args = findArgsName(clazz);
+        return (name, config) -> (T) contextualSupplier
+                .apply(() -> createObject(loader, contextualSupplier, clazz, args, name, config, metas, precomputed));
     }
 }

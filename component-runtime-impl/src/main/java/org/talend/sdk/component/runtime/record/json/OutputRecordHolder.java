@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,17 @@ public class OutputRecordHolder extends Writer {
     @Getter
     @Setter
     private Record record;
+
+    @Getter
+    @Setter
+    private Object data;
+
+    public OutputRecordHolder(final Object data) {
+        this.data = data;
+    }
+
+    public OutputRecordHolder() {
+    }
 
     @Override
     public void write(final char[] cbuf, final int off, final int len) {

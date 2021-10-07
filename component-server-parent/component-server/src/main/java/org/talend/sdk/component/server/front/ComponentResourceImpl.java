@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -47,10 +46,14 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -59,6 +62,8 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMapperMeta;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
@@ -89,12 +94,16 @@ import org.talend.sdk.component.server.service.PropertiesService;
 import org.talend.sdk.component.server.service.SimpleQueryLanguageCompiler;
 import org.talend.sdk.component.server.service.VirtualDependenciesService;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
+import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 import org.talend.sdk.component.spi.component.ComponentExtension;
+import org.talend.sdk.components.vault.client.VaultClient;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
+@CacheDefaults(cacheResolverFactory = FrontCacheResolver.class, cacheKeyGenerator = FrontCacheKeyGenerator.class)
 public class ComponentResourceImpl implements ComponentResource {
 
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
@@ -138,7 +147,14 @@ public class ComponentResourceImpl implements ComponentResource {
     @Inject
     private SimpleQueryLanguageCompiler queryLanguageCompiler;
 
-    private Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
+    @Inject
+    @Context
+    private HttpHeaders headers;
+
+    @Inject
+    private VaultClient vault;
+
+    private final Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
 
     @PostConstruct
     private void setupRuntime() {
@@ -162,7 +178,7 @@ public class ComponentResourceImpl implements ComponentResource {
             if (iterator.hasNext()) {
                 return iterator.next().getMetadata();
             }
-            return Collections.emptyMap();
+            return emptyMap();
         });
     }
 
@@ -171,6 +187,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public Dependencies getDependencies(final String[] ids) {
         if (ids.length == 0) {
             return new Dependencies(emptyMap());
@@ -190,6 +207,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public StreamingOutput getDependency(final String id) {
         final ComponentFamilyMeta.BaseMeta<?> component = componentDao.findById(id);
         final Supplier<InputStream> streamProvider;
@@ -254,28 +272,29 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public ComponentIndices getIndex(final String language, final boolean includeIconContent, final String query) {
         final Locale locale = localeMapper.mapLocale(language);
         caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
         return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent, query), k -> {
             final Predicate<ComponentIndex> filter = queryLanguageCompiler.compile(query, componentEvaluators);
             return new ComponentIndices(Stream
-                    .concat(findDeployedComponents(includeIconContent, locale),
-                            virtualComponents
-                                    .getDetails()
-                                    .stream()
-                                    .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
-                                            detail.getId().getFamily(), new Icon(detail.getIcon(), null, null),
-                                            new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()),
-                                                    null, null),
-                                            detail.getVersion(), singletonList(detail.getId().getFamily()),
-                                            detail.getLinks())))
+                    .concat(findDeployedComponents(includeIconContent, locale), virtualComponents
+                            .getDetails()
+                            .stream()
+                            .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
+                                    detail.getId().getFamily(), new Icon(detail.getIcon(), null, null),
+                                    new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()), null,
+                                            null),
+                                    detail.getVersion(), singletonList(detail.getId().getFamily()), detail.getLinks(),
+                                    detail.getMetadata())))
                     .filter(filter)
                     .collect(toList()));
         });
     }
 
     @Override
+    @CacheResult
     public Response familyIcon(final String id) {
         if (virtualComponents.isExtensionEntity(id)) { // todo or just use front bundle?
             return Response
@@ -298,7 +317,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (!plugin.isPresent()) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.PLUGIN_MISSING,
+                    .entity(new ErrorPayload(PLUGIN_MISSING,
                             "No plugin '" + meta.getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
@@ -317,6 +336,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
     public Response icon(final String id) {
         if (virtualComponents.isExtensionEntity(id)) { // todo if the front bundle is not sufficient
             return Response
@@ -331,7 +351,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
+                    .entity(new ErrorPayload(COMPONENT_MISSING, "No component for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -340,7 +360,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (!plugin.isPresent()) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.PLUGIN_MISSING,
+                    .entity(new ErrorPayload(PLUGIN_MISSING,
                             "No plugin '" + meta.getParent().getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
@@ -360,20 +380,29 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
+        String tenant;
+        try {
+            tenant = headers.getHeaderString("x-talend-tenant-id");
+        } catch (Exception e) {
+            log.debug("[migrate] context not applicable: {}", e.getMessage());
+            tenant = null;
+        }
+        final Map<String, String> decrypted = vault.decrypt(config, tenant);
         if (virtualComponents.isExtensionEntity(id)) {
-            return config;
+            return decrypted;
         }
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
-                        .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "Didn't find component " + id))
+                        .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find component " + id))
                         .build()))
                 .getMigrationHandler()
                 .get()
-                .migrate(version, config);
+                .migrate(version, decrypted);
     }
 
     @Override // TODO: max ids.length
+    @CacheResult
     public ComponentDetailList getDetail(final String language, final String[] ids) {
         if (ids == null || ids.length == 0) {
             return new ComponentDetailList(emptyList());
@@ -406,7 +435,14 @@ public class ComponentResourceImpl implements ComponentResource {
                 }
 
                 final Locale locale = localeMapper.mapLocale(language);
-                final boolean isProcessor = ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta);
+                final String type;
+                if (ProcessorMeta.class.isInstance(meta)) {
+                    type = "processor";
+                } else if (PartitionMapperMeta.class.isInstance(meta)) {
+                    type = "input";
+                } else {
+                    type = "standalone";
+                }
 
                 final ComponentDetail componentDetail = new ComponentDetail();
                 componentDetail.setLinks(emptyList() /* todo ? */);
@@ -415,7 +451,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 componentDetail.setIcon(meta.getIcon());
                 componentDetail.setInputFlows(model.get().getInputFlows());
                 componentDetail.setOutputFlows(model.get().getOutputFlows());
-                componentDetail.setType(isProcessor ? "processor" : "input");
+                componentDetail.setType(type);
                 componentDetail
                         .setDisplayName(
                                 meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
@@ -427,13 +463,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         .setActions(actionsService
                                 .findActions(meta.getParent().getName(), container, locale, meta,
                                         meta.getParent().findBundle(container.getLoader(), locale)));
-                if (isProcessor) {
-                    componentDetail.setMetadata(emptyMap());
-                } else {
-                    componentDetail
-                            .setMetadata(singletonMap("mapper::infinite", Boolean
-                                    .toString(ComponentFamilyMeta.PartitionMapperMeta.class.cast(meta).isInfinite())));
-                }
+                componentDetail.setMetadata(meta.getMetadata());
 
                 return componentDetail;
             }).orElseGet(() -> {
@@ -454,7 +484,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 .find(c -> c
                         .execute(() -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
                         .flatMap(component -> Stream
-                                .concat(component
+                                .of(component
                                         .getPartitionMappers()
                                         .values()
                                         .stream()
@@ -465,8 +495,14 @@ public class ComponentResourceImpl implements ComponentResource {
                                                 .values()
                                                 .stream()
                                                 .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
-                                                        c.get(ComponentManager.OriginalId.class),
-                                                        includeIconContent)))));
+                                                        c.get(ComponentManager.OriginalId.class), includeIconContent)),
+                                        component
+                                                .getDriverRunners()
+                                                .values()
+                                                .stream()
+                                                .map(runner -> toComponentIndex(c, locale, c.getId(), runner,
+                                                        c.get(ComponentManager.OriginalId.class), includeIconContent)))
+                                .flatMap(Function.identity())));
     }
 
     private DependencyDefinition getDependenciesFor(final ComponentFamilyMeta.BaseMeta<?> meta) {
@@ -525,8 +561,8 @@ public class ComponentResourceImpl implements ComponentResource {
                         .stream()
                         .map(this::normalizeCategory)
                         .map(category -> category.replace("${family}", meta.getParent().getName())) // not
-                                                                                                    // i18n-ed
-                                                                                                    // yet
+                        // i18n-ed
+                        // yet
                         .map(category -> meta
                                 .getParent()
                                 .findBundle(loader, locale)
@@ -546,7 +582,8 @@ public class ComponentResourceImpl implements ComponentResource {
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
                         !includeIcon ? null : (iconFamilyContent == null ? null : iconFamilyContent.getBytes())),
                 meta.getVersion(), categories, singletonList(new Link("Detail",
-                        "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
+                        "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)),
+                meta.getMetadata());
     }
 
     private String normalizeCategory(final String category) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,12 +176,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
         }
 
         private Optional<Schema.Entry> getEntry(final String referenceToken, final Record record) {
-            return record
-                    .getSchema()
-                    .getEntries()
-                    .stream()
-                    .filter(it -> it.getName().equals(referenceToken))
-                    .findFirst();
+            return Optional.ofNullable(record.getSchema().getEntry(referenceToken));
         }
 
         @Override

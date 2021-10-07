@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.runtime.server.vault.proxy.configuration.Documentation;
 import org.talend.sdk.component.runtime.server.vault.proxy.service.http.Http;
+import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
 import lombok.AllArgsConstructor;
@@ -213,7 +214,8 @@ public class VaultService {
                                 if (!errors.isEmpty()) {
                                     throw new WebApplicationException(Response
                                             .status(cantDecipherStatusCode)
-                                            .entity(new ErrorPayload(null, "Can't decipher properties: " + errors))
+                                            .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                                                    "Can't decipher properties: " + errors))
                                             .build());
                                 }
 
@@ -314,8 +316,10 @@ public class VaultService {
             final String role = of(this.role.get()).filter(this::isReloadableConfigSet).orElse(null);
             if (role == null) {
                 log.error("No vault token or role available, authentication will not be possible");
-                throw new WebApplicationException(
-                        Response.serverError().entity(new ErrorPayload(null, "Vault not reachable")).build());
+                throw new WebApplicationException(Response
+                        .serverError()
+                        .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, "Vault not reachable"))
+                        .build());
             }
             return ofNullable(authToken.get())
                     .filter(auth -> (auth.getExpiresAt() - clock.millis()) <= refreshDelayMargin) // is expired
@@ -339,8 +343,10 @@ public class VaultService {
 
                     if (token.getAuth() == null || token.getAuth().getClientToken() == null) {
                         log.error("Vault didn't return a token");
-                        throw new WebApplicationException(
-                                Response.serverError().entity(new ErrorPayload(null, "Vault not available")).build());
+                        throw new WebApplicationException(Response
+                                .serverError()
+                                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, "Vault not available"))
+                                .build());
                     } else {
                         log.info("Authenticated to vault");
                     }

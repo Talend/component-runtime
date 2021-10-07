@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.http.Request;
+import org.talend.sdk.component.api.standalone.DriverRunner;
 
 import lombok.RequiredArgsConstructor;
 
@@ -77,7 +78,7 @@ public class ScanTask implements Runnable {
         final Filter filter = newFilter();
         return Stream
                 .concat(Stream
-                        .of(PartitionMapper.class, Processor.class, Emitter.class, Service.class,
+                        .of(PartitionMapper.class, Processor.class, Emitter.class, DriverRunner.class, Service.class,
                                 Internationalized.class)
                         .flatMap(it -> finder.findAnnotatedClasses(it).stream()),
                         Stream

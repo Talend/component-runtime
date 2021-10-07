@@ -45,7 +45,8 @@
       "bugtracker",
       "documentation",
       "description"
-    ]
+    ],
+    "type":"object"
   },
   "properties":{
 

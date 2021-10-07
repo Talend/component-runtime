@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.talend.sdk.component.server.front.error;
 
 import static javax.ws.rs.core.MediaType.WILDCARD_TYPE;
 
-import java.util.logging.Level;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
@@ -31,9 +31,9 @@ import org.talend.sdk.component.server.configuration.ComponentServerConfiguratio
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
-@Log
+@Slf4j
 @Dependent
 @Provider
 public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
@@ -50,15 +50,33 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(final Throwable exception) {
-        log.log(Level.SEVERE, exception.getMessage(), exception);
+        final Response response;
         if (WebApplicationException.class.isInstance(exception)) {
-            return WebApplicationException.class.cast(exception).getResponse();
+            response = WebApplicationException.class.cast(exception).getResponse();
+        } else {
+            final Optional<Throwable> optCause = Optional.ofNullable(exception.getCause());
+            if (optCause.isPresent()) {
+                final Throwable cause = optCause.get();
+                if (WebApplicationException.class.isInstance(cause)) {
+                    response = WebApplicationException.class.cast(cause).getResponse();
+                } else {
+                    response = Response
+                            .status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                                    replaceException ? configuration.getDefaultExceptionMessage() : cause.getMessage()))
+                            .type(WILDCARD_TYPE)
+                            .build();
+                }
+            } else {
+                response = Response
+                        .status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                                replaceException ? configuration.getDefaultExceptionMessage() : exception.getMessage()))
+                        .type(WILDCARD_TYPE)
+                        .build();
+            }
         }
-        return Response
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
-                        replaceException ? configuration.getDefaultExceptionMessage() : exception.getMessage()))
-                .type(WILDCARD_TYPE)
-                .build();
+        return response;
     }
+
 }

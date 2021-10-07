@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
  */
 package org.talend.sdk.component.tools.validator;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +24,6 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
@@ -36,13 +32,28 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.completion.Values;
+import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
+import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult;
+import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.DatasetDescription;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
-import org.talend.sdk.component.tools.validator.PlaceHolderValidatorTest.MyClass;
 
 class ActionValidatorTest {
+
+    @Test
+    void validateDatasetDiscoverAction() {
+        final ActionValidator validator = new ActionValidator(new FakeHelper());
+        AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionDatasetDiscoveryKo.class));
+        final Stream<String> errorsStreamKO =
+                validator.validate(finderKO, Arrays.asList(ActionDatasetDiscoveryKo.class));
+
+        final String error = errorsStreamKO.collect(Collectors.joining(" / "));
+        final String expected =
+                "public java.lang.String org.talend.sdk.component.tools.validator.ActionValidatorTest$ActionDatasetDiscoveryKo.discoverBadReturnType() should have a datastore as first parameter (marked with @DataStore)";
+        Assertions.assertEquals(expected, error);
+    }
 
     @Test
     void validate() {
@@ -117,6 +128,15 @@ class ActionValidatorTest {
         public FakeData updatable() {
             return new FakeData();
         }
+
+        @DiscoverDataset("tests")
+        public DiscoverDatasetResult datasetDiscover(FakeDataStore dataStore) {
+            final DatasetDescription datasetA = new DatasetDescription("datasetA");
+            datasetA.addMetadata("type", "typeA");
+            final DatasetDescription datasetB = new DatasetDescription("datasetB");
+            datasetA.addMetadata("type", "typeB");
+            return new DiscoverDatasetResult(Arrays.asList(datasetA, datasetB));
+        }
     }
 
     static class ActionClassKO {
@@ -134,6 +154,14 @@ class ActionValidatorTest {
         @Update("updatable")
         public String updatable() {
             return "";
+        }
+    }
+
+    static class ActionDatasetDiscoveryKo {
+
+        @DiscoverDataset
+        public String discoverBadReturnType() {
+            return "Should return " + DiscoverDatasetResult.class;
         }
     }
 }

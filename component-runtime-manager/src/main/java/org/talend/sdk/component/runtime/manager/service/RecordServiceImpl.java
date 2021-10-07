@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,15 +85,14 @@ public class RecordServiceImpl implements RecordService, Serializable {
             final BiConsumer<Record.Builder, Boolean> beforeFinish) {
         return fallbackRecord
                 .getSchema()
-                .getEntries()
-                .stream()
+                .getAllEntries()
                 .collect(toRecord(schema, fallbackRecord, customHandler, beforeFinish));
     }
 
     @Override
     public <T> T visit(final RecordVisitor<T> visitor, final Record record) {
         final AtomicReference<T> out = new AtomicReference<>();
-        record.getSchema().getEntries().forEach(entry -> {
+        record.getSchema().getAllEntries().forEach(entry -> {
             switch (entry.getType()) {
             case INT:
                 visitor.onInt(entry, record.getOptionalInt(entry.getName()));

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.json.JsonObject;
 import javax.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
@@ -44,5 +45,7 @@ class EnvironmentResourceImplTest {
                 .of(environment.getCommit(), environment.getTime(), environment.getVersion())
                 .forEach(Assertions::assertNotNull);
         assertTrue(environment.getLastUpdated().compareTo(new Date(0)) > 0);
+        final String cversion = environment.getConnectors().getVersion();
+        assertTrue(("1.2.3").equals(cversion) || ("1.26.0-SNAPSHOT").equals(cversion));
     }
 }

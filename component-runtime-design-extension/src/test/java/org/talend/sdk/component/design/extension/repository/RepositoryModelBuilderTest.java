@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -117,7 +118,7 @@ class RepositoryModelBuilderTest {
                                         .put("test",
                                                 new PartitionMapperMeta(this, "mapper", "noicon", 1,
                                                         PartitionMapper1.class, () -> singletonList(wrapper), m -> null,
-                                                        () -> (a, b) -> null, true, false) {
+                                                        () -> (a, b) -> null, true, Collections.emptyMap()) {
                                                 });
                             }
                         }), new MigrationHandlerFactory(

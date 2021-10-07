@@ -1,0 +1,162 @@
+/**
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.runtime.di.record;
+
+import routines.system.Dynamic;
+
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.ToString;
+
+public class VisitorsTest {
+
+    protected static RecordBuilderFactory factory = new RecordBuilderFactoryImpl("rowStruct");
+
+    protected static final String NAME = "rowStructName::챵::®";
+
+    protected static final short SHORT = Short.MAX_VALUE;
+
+    protected static final int INT = Integer.MAX_VALUE;
+
+    protected static final long LONG = Long.MAX_VALUE;
+
+    protected static final float FLOAT = Float.MAX_VALUE;
+
+    protected static final double DOUBLE = Double.MAX_VALUE;
+
+    protected static final Date DATE = new Date(2021, 2, 11, 14, 00, 19);
+
+    protected static final BigDecimal BIGDEC = new BigDecimal("123485789748.8480275637");
+
+    protected static final ZonedDateTime ZONED_DATE_TIME =
+            ZonedDateTime.of(1946, 02, 03, 11, 6, 9, 0, ZoneId.of("UTC"));
+
+    protected static final byte[] BYTES0 =
+            { -2, -1, 0, 72, 0, 101, 0, 108, 0, 108, 0, 111, 0, 32, 0, 87, 0, 111, 0, 114, 0, 108, 0, 100, 0, 33 };
+
+    protected static final byte[] BYTES1 = "Hello RowStruct !".getBytes();
+
+    protected static final Record RECORD =
+            factory.newRecordBuilder().withInt("ntgr", 1).withString("str", "one").build();
+
+    protected static final List<String> STRINGS = Arrays.asList("one", "two", "three", "four", "five");
+
+    protected static final List<Integer> INTEGERS = Arrays.asList(1, 2, 3, 4, 5);
+
+    protected static final List<Long> LONGS = Arrays.asList(1l, 2l, 3l, 4l, 5l);
+
+    protected static final List<Float> FLOATS = Arrays.asList(1.1f, 2.2f, 3.3f, 4.4f, 5.5f);
+
+    protected static final List<Double> DOUBLES = Arrays.asList(1.1, 2.2, 3.3, 4.4, 5.5);
+
+    protected static final List<Boolean> BOOLEANS = Arrays.asList(true, false, true);
+
+    protected static final List<byte[]> BYTES = Arrays.asList(BYTES0, BYTES1);
+
+    protected static final List<ZonedDateTime> DATES = Arrays.asList(ZONED_DATE_TIME, ZONED_DATE_TIME);
+
+    protected static final List<Record> RECORDS = Arrays.asList(RECORD, RECORD);
+
+    @Getter
+    @ToString
+    public static class RowStruct implements routines.system.IPersistableRow {
+
+        public String id;
+
+        public String name;
+
+        public short shortP;
+
+        public Short shortC;
+
+        public int intP;
+
+        public Integer intC;
+
+        public long longP;
+
+        public Long longC;
+
+        public float floatP;
+
+        public Float floatC;
+
+        public double doubleP;
+
+        public Double doubleC;
+
+        public Date date0;
+
+        public Date date1;
+
+        public Date date2;
+
+        public Date date3;
+
+        public byte[] bytes0;
+
+        public byte[] bytes1;
+
+        public BigDecimal bigDecimal0;
+
+        public boolean bool0;
+
+        public Boolean bool1;
+
+        public List<Integer> array0;
+
+        public Object object0;
+
+        public Dynamic dynamic;
+
+        public String h;
+
+        public boolean hAshcOdEdIrtY;
+
+        @Getter(value = AccessLevel.NONE)
+        public boolean hashCodeDirty = true;
+
+        @Getter(value = AccessLevel.NONE)
+        public String loopKey = "loopyyyy";
+
+        @Getter(value = AccessLevel.NONE)
+        public String lookKey = "lookKIIII";
+
+        @Override
+        public void writeData(final ObjectOutputStream objectOutputStream) {
+            throw new UnsupportedOperationException("#writeData()");
+        }
+
+        @Override
+        public void readData(final ObjectInputStream objectInputStream) {
+            throw new UnsupportedOperationException("#readData()");
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,35 +43,6 @@ public final class AvroSchemas {
 
     public static Schema getEmptySchema() {
         return EMPTY_SCHEMA;
-    }
-
-    // TOOD remove it as org.talend.sdk.component.runtime.record.SchemaImpl also do this 100% same work
-    public static String sanitizeConnectionName(final String name) {
-        if (name.isEmpty()) {
-            return name;
-        }
-        final char[] original = name.toCharArray();
-        final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
-        final int offset = skipFirstChar ? 1 : 0;
-        final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
-        if (!skipFirstChar) {
-            sanitized[0] = original[0];
-        }
-        for (int i = 1; i < original.length; i++) {
-            if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
-                sanitized[i - offset] = '_';
-            } else {
-                sanitized[i - offset] = original[i];
-            }
-        }
-        return new String(sanitized);
-    }
-
-    public static Schema.Field addProp(final Schema.Field field, final String key, final String value) {
-        if (value != null) {
-            field.addProp(key, value);
-        }
-        return field;
     }
 
 }

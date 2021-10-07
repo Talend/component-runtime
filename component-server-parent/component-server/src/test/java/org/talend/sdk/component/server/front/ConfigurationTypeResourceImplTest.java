@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,31 @@
  */
 package org.talend.sdk.component.server.front;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.spi.JsonProvider;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.ErrorDictionary;
+import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig
@@ -37,21 +48,24 @@ class ConfigurationTypeResourceImplTest {
     @Inject
     private WebsocketClient ws;
 
-    @Test
+    @Inject
+    private WebTarget base;
+
+    @RepeatedTest(2)
     void webSocketGetIndex() {
         final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index", "");
         assertIndex(index);
         validateJdbcHierarchy(index);
     }
 
-    @Test
+    @RepeatedTest(2)
     void ensureConsistencyBetweenPathsAndNames() {
         final ConfigTypeNodes index =
                 ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index?lightPayload=false", "");
         validateConsistencyBetweenNamesAndKeys(index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM"));
     }
 
-    @Test
+    @RepeatedTest(2)
     void webSocketDetail() {
         final ConfigTypeNodes index = ws
                 .read(ConfigTypeNodes.class, "get",
@@ -77,6 +91,63 @@ class ConfigurationTypeResourceImplTest {
                         "{}");
         assertEquals("true", config.get("configuration.migrated"));
         assertEquals("1", config.get("configuration.size"));
+    }
+
+    @Test
+    void migrateNotFound() {
+        final ErrorPayload error =
+                ws.read(ErrorPayload.class, "post", "/configurationtype/migrate/aMissingConfig/-2", "{}");
+        assertNotNull(error);
+        assertEquals(ErrorDictionary.CONFIGURATION_MISSING, error.getCode());
+        assertEquals("Didn't find configuration aMissingConfig", error.getDescription());
+    }
+
+    @Test
+    void migrateUnexpected() {
+        final ErrorPayload error = ws
+                .read(ErrorPayload.class, "post",
+                        "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-3", "{}");
+        assertNotNull(error);
+        assertEquals(ErrorDictionary.UNEXPECTED, error.getCode());
+        assertEquals("Migration execution failed with: Error thrown for testing!", error.getDescription());
+    }
+
+    @Test
+    void migrateUnexpectedWithNPE() {
+        final ErrorPayload error = ws
+                .read(ErrorPayload.class, "post",
+                        "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-4", "{}");
+        assertNotNull(error);
+        assertEquals(ErrorDictionary.UNEXPECTED, error.getCode());
+        assertEquals("Migration execution failed with: unexpected null", error.getDescription());
+    }
+
+    @Test
+    void migrateWithEncrypted() {
+        final JsonBuilderFactory factory = JsonProvider.provider().createBuilderFactory(emptyMap());
+        final JsonObject json = factory
+                .createObjectBuilder()
+                .add("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==")
+                .add("configuration.username", "username0")
+                .add("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==")
+                .build();
+        final Map<String, String> config = base
+                .path("/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-2")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.username", "username0");
+                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                    }
+                }, APPLICATION_JSON_TYPE))
+                .readEntity(Map.class);
+        assertEquals("true", config.get("configuration.migrated"));
+        assertEquals("4", config.get("configuration.size"));
+        assertEquals("test", config.get("configuration.url"));
+        assertEquals("username0", config.get("configuration.username"));
+        assertEquals("test", config.get("configuration.password"));
     }
 
     private void assertIndex(final ConfigTypeNodes index) {

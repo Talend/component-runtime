@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ public class HttpRequestCreator implements BiFunction<String, Object[], HttpRequ
 
     private final Function<Object[], String> urlProvide;
 
+    private final Function<Object[], String> baseProvider;
+
     private final String pathTemplate;
 
     private final BiFunction<String, Object[], String> pathProvider;
@@ -55,10 +57,20 @@ public class HttpRequestCreator implements BiFunction<String, Object[], HttpRequ
 
     private String buildUrl(final String base, final Object[] params) {
         if (urlProvide == null) {
-            String path = pathProvider.apply(pathTemplate, params);
-            return base + (path.isEmpty() ? "" : "/" + path);
+            final String path = pathProvider.apply(pathTemplate, params);
+            final String realBase = this.baseProvider != null ? this.baseProvider.apply(params) : base;
+            return this.appendPaths(realBase, path);
         }
         return pathProvider.apply(urlProvide.apply(params), params);
     }
 
+    private String appendPaths(final String p1, final String p2) {
+        if (p1.endsWith("/") && p2.startsWith("/")) {
+            return p1 + p2.substring(1);
+        }
+        if (p1.endsWith("/") || p1.isEmpty() || p2.startsWith("/") || p2.isEmpty()) {
+            return p1 + p2;
+        }
+        return p1 + "/" + p2;
+    }
 }

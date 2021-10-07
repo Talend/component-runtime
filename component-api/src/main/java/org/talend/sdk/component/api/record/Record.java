@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,13 @@ import static java.util.Optional.ofNullable;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+
+import org.talend.sdk.component.api.record.Schema.Entry;
 
 public interface Record {
 
@@ -259,6 +262,16 @@ public interface Record {
     interface Builder {
 
         Record build();
+
+        Object getValue(String name);
+
+        List<Entry> getCurrentEntries();
+
+        Builder removeEntry(Schema.Entry schemaEntry);
+
+        Builder updateEntryByName(String name, Schema.Entry schemaEntry);
+
+        Builder with(Schema.Entry entry, Object value);
 
         Builder withString(String name, String value);
 

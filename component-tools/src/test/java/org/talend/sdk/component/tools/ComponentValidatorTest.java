@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -214,7 +214,8 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.exceptions", validateExceptions = true)
     void testFailureException(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("- Component should declare a custom Exception that inherits from ComponentException.");
+                .expectMessage(
+                        "org.talend.test.failure.exceptions.InvalidComponentException inherits from ComponentException, this will lead to ClassNotFound errors in some environments. Use instead ComponentException directly!");
     }
 
     @Test
@@ -501,7 +502,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.failure.inputmissingdataset")
+    @ComponentPackage("org.talend.test.failure.inputmissingdataset")
     void testFailureMissingDataSetInInput(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("- The component org.talend.test.failure.inputmissingdataset.MyComponent "
@@ -509,7 +510,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.failure.outputmissingdataset")
+    @ComponentPackage("org.talend.test.failure.outputmissingdataset")
     void testFailureMissingDataSetInOutput(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("- The component org.talend.test.failure.outputmissingdataset.MyComponent "
@@ -577,7 +578,7 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.failure.structure")
+    @ComponentPackage("org.talend.test.failure.structure")
     void testFailureStructure(final ExceptionSpec spec) {
         spec
                 .expectMessage(
@@ -659,7 +660,7 @@ class ComponentValidatorTest {
         }
     }
 
-    private static Stream<File> files(File root) {
+    private static Stream<File> files(final File root) {
         return ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty);
     }
 }

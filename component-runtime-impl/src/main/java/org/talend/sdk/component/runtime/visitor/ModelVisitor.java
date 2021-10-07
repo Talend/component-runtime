@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,20 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariable;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -38,9 +48,15 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.standalone.DriverRunner;
+import org.talend.sdk.component.api.standalone.RunAtDriver;
 import org.talend.sdk.component.runtime.reflect.Parameters;
 
 public class ModelVisitor {
+
+    private static final Set<Class<?>> SUPPORTED_AFTER_VARIABLES_TYPES = new HashSet<>(Arrays
+            .asList(Boolean.class, Byte.class, byte[].class, Character.class, Date.class, Double.class, Float.class,
+                    BigDecimal.class, Integer.class, Long.class, Object.class, Short.class, String.class, List.class));
 
     public void visit(final Class<?> type, final ModelListener listener, final boolean validate) {
         if (getSupportedComponentTypes().noneMatch(type::isAnnotationPresent)) { // unlikely but just in case
@@ -65,6 +81,11 @@ public class ModelVisitor {
                 validateProcessor(type);
             }
             listener.onProcessor(type, type.getAnnotation(Processor.class));
+        } else if (type.isAnnotationPresent(DriverRunner.class)) {
+            if (validate) {
+                validateDriverRunner(type);
+            }
+            listener.onDriverRunner(type, type.getAnnotation(DriverRunner.class));
         }
     }
 
@@ -97,9 +118,8 @@ public class ModelVisitor {
             // we must do that validation
             if (Stream
                     .of(m.getParameters())
-                    .filter(p -> !p.isAnnotationPresent(PartitionSize.class)
-                            || (p.getType() != long.class && p.getType() != int.class))
-                    .count() > 0) {
+                    .anyMatch(p -> !p.isAnnotationPresent(PartitionSize.class)
+                            || (p.getType() != long.class && p.getType() != int.class))) {
                 throw new IllegalArgumentException(m + " must not have any parameter without @PartitionSize");
             }
             final Type splitReturnType = m.getGenericReturnType();
@@ -129,6 +149,9 @@ public class ModelVisitor {
                         throw new IllegalArgumentException(m + " must not have any parameter");
                     }
                 });
+
+        validateAfterVariableAnnotationDeclaration(type);
+        validateAfterVariableContainer(type);
     }
 
     private void validateEmitter(final Class<?> input) {
@@ -141,6 +164,26 @@ public class ModelVisitor {
         if (producers.get(0).getParameterCount() > 0) {
             throw new IllegalArgumentException(producers.get(0) + " must not have any parameter");
         }
+
+        validateAfterVariableAnnotationDeclaration(input);
+        validateAfterVariableContainer(input);
+    }
+
+    private void validateDriverRunner(final Class<?> standalone) {
+        final List<Method> driverRunners = Stream
+                .of(standalone.getMethods())
+                .filter(m -> m.isAnnotationPresent(RunAtDriver.class))
+                .collect(toList());
+        if (driverRunners.size() != 1) {
+            throw new IllegalArgumentException(standalone + " must have a single @RunAtDriver method");
+        }
+
+        if (driverRunners.get(0).getParameterCount() > 0) {
+            throw new IllegalArgumentException(driverRunners.get(0) + " must not have any parameter");
+        }
+
+        validateAfterVariableAnnotationDeclaration(standalone);
+        validateAfterVariableContainer(standalone);
     }
 
     private void validateProcessor(final Class<?> input) {
@@ -167,7 +210,7 @@ public class ModelVisitor {
         if (producers.size() > 1) {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }
-        if (producers.size() == 0 && afterGroups
+        if (producers.isEmpty() && afterGroups
                 .stream()
                 .noneMatch(m -> Stream.of(m.getGenericParameterTypes()).anyMatch(Parameters::isGroupBuffer))) {
             throw new IllegalArgumentException(input
@@ -187,6 +230,9 @@ public class ModelVisitor {
                 throw new IllegalArgumentException(m + " must not have any parameter");
             }
         });
+
+        validateAfterVariableAnnotationDeclaration(input);
+        validateAfterVariableContainer(input);
     }
 
     private boolean validOutputParam(final Parameter p) {
@@ -202,6 +248,80 @@ public class ModelVisitor {
     }
 
     private Stream<Class<? extends Annotation>> getSupportedComponentTypes() {
-        return Stream.of(Emitter.class, PartitionMapper.class, Processor.class);
+        return Stream.of(Emitter.class, PartitionMapper.class, Processor.class, DriverRunner.class);
+    }
+
+    private void validateAfterVariableContainer(final Class<?> type) {
+        // component can't have more than one after variable container
+        List<Method> markedMethods = Stream
+                .of(type.getMethods())
+                .filter(m -> m.isAnnotationPresent(AfterVariableContainer.class))
+                .collect(toList());
+        if (markedMethods.size() > 1) {
+            String methods = markedMethods.stream().map(Method::toGenericString).collect(Collectors.joining(","));
+            throw new IllegalArgumentException("The methods can't have more than 1 after variable container. "
+                    + "Current marked methods: " + methods);
+        }
+
+        // check parameter list
+        Optional
+                .of(markedMethods
+                        .stream()
+                        .filter(m -> m.getParameterCount() != 0)
+                        .map(Method::toGenericString)
+                        .collect(Collectors.joining(",")))
+                .filter(str -> !str.isEmpty())
+                .ifPresent(str -> {
+                    throw new IllegalArgumentException(
+                            "The method is annotated with " + AfterVariableContainer.class.getCanonicalName() + "'"
+                                    + str + "' should have parameters.");
+                });
+
+        // check incorrect return type
+        Optional
+                .of(markedMethods
+                        .stream()
+                        .filter(m -> !isValidAfterVariableContainer(m.getGenericReturnType()))
+                        .map(Method::toGenericString)
+                        .collect(Collectors.joining(",")))
+                .filter(it -> !it.isEmpty())
+                .ifPresent(methods -> {
+                    throw new IllegalArgumentException(
+                            "The method '" + methods + "' has wrong return type. It should be Map<String, Object>.");
+                });
+    }
+
+    /**
+     * Right now the valid container object for after variables is Map.
+     * Where the key is String and value is Object
+     */
+    private static boolean isValidAfterVariableContainer(final Type type) {
+        if (!(type instanceof ParameterizedType)) {
+            return false;
+        }
+
+        final ParameterizedType paramType = (ParameterizedType) type;
+        if (!(paramType.getRawType() instanceof Class) || paramType.getActualTypeArguments().length != 2) {
+            return false;
+        }
+
+        final Class<?> containerType = (Class<?>) paramType.getRawType();
+        return Map.class.isAssignableFrom(containerType) && paramType.getActualTypeArguments()[0].equals(String.class)
+                && paramType.getActualTypeArguments()[1].equals(Object.class);
+    }
+
+    private static void validateAfterVariableAnnotationDeclaration(final Class<?> type) {
+        List<String> incorrectDeclarations = Stream
+                .of(type.getAnnotationsByType(AfterVariable.class))
+                .filter(annotation -> !SUPPORTED_AFTER_VARIABLES_TYPES.contains(annotation.type()))
+                .map(annotation -> "The after variable with name '" + annotation.value() + "' has incorrect type: '"
+                        + annotation.type() + "'")
+                .collect(toList());
+        if (!incorrectDeclarations.isEmpty()) {
+            String message = incorrectDeclarations
+                    .stream()
+                    .collect(Collectors.joining(",", "The after variables declared incorrectly. ", ""));
+            throw new IllegalArgumentException(message);
+        }
     }
 }

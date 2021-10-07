@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,14 @@ import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.standalone.DriverRunner;
 
 import lombok.RequiredArgsConstructor;
 
 public class ComponentHelper {
 
     public static Stream<Class<? extends Annotation>> componentMarkers() {
-        return Stream.of(PartitionMapper.class, Processor.class, Emitter.class);
+        return Stream.of(PartitionMapper.class, Processor.class, Emitter.class, DriverRunner.class);
     }
 
     public static Class<?> findPackageOrFail(final Class<?> component, final Predicate<Class<?>> tester,

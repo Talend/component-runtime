@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
@@ -51,11 +48,8 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         requestModel.setMethod(request.method().name().toString());
         requestModel.setUri(requestUri);
         requestModel
-                .setHeaders(filterHeaders(StreamSupport
-                        .stream(Spliterators
-                                .spliteratorUnknownSize(request.headers().iteratorConverted(), Spliterator.IMMUTABLE),
-                                false)
-                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue))));
+                .setHeaders(filterHeaders(
+                        request.headers().entries().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue))));
         final DefaultResponseLocator.Model model = new DefaultResponseLocator.Model();
         model.setRequest(requestModel);
 

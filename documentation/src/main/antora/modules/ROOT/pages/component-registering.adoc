@@ -1,7 +1,7 @@
 = Registering components
 :page-partial:
 :description: How to define component and component family metadata
-:keywords: icon, component version, component name, family, category
+:keywords: icon, component version, component name, family, category, metadata
 
 Before implementing a component logic and configuration, you need to specify the family and the category it belongs to, the component type and name, as well as its name and a few other generic parameters. This set of metadata, and more particularly the family, categories and component type, is mandatory to recognize and load the component to Talend Studio or Cloud applications.
 
@@ -79,12 +79,15 @@ The component type is declared in the component class. When you import your proj
 - A processor. `@Processor` is the default for output components. A method decorated with `@Processor` is considered as a producer factory.
 - Combiners are not supported by the framework. Combiners allow to aggregate results in a single partition.
 
+*Standalone* component can be only a driver runner.
+
 The name of the component is defined there as well as a parameter of the component type.
 
 Once the component type is defined, you can start implementing its specific logic:
 
 - xref:component-define-input.adoc[Defining an input component]
 - xref:component-define-processor-output.adoc[Defining a processor or output component]
+- xref:component-define-standalone.adoc[Defining an standalone component]
 
 Partition mapper example:
 
@@ -113,6 +116,34 @@ public class MyProcessor {
 }
 ----
 
+Driver runner example:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@DriverRunner(name = "my_standalone")
+public class MyStandalone {
+}
+----
+
+== Component extra metadatas
+
+For any purpose, you can also add user defined metadatas to your component with the `@Metadatas` annotation.
+
+Example:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Processor(name = "my_processor")
+@Metadatas({
+        @Metadata(key = "user::value0", value = "myValue0"),
+        @Metadata(key = "user::value1", value = "myValue1")
+})
+public class MyProcessor {
+}
+----
+
+You can also use a SPI implementing `org.talend.sdk.component.spi.component.ComponentMetadataEnricher`.
+
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
@@ -121,6 +152,7 @@ ifeval::["{backend}" == "html5"]
 - xref:component-versions-and-migration.adoc[Managing component versions]
 - xref:component-define-input.adoc[Defining an input component]
 - xref:component-define-processor-output.adoc[Defining a processor or output component]
+- xref:component-define-standalone.adoc[Defining a driver runner component]
 - xref:component-configuration.adoc[Defining component layout and configuration]
 - xref:best-practices.adoc[Best practices]
 endif::[]

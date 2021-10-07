@@ -23,7 +23,7 @@
   </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="${jsonLayout}"/>
+      <PatternLayout pattern="${jsonLayout}" alwaysWriteExceptions="false"/>
     </Console>
     <Routing name="KafkaTracing">
       <Routes pattern="$${env:TRACING_KAFKA_URL:-none}">

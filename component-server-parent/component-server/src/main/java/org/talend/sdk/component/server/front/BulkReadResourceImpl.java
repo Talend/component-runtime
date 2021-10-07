@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,6 @@ import org.talend.sdk.component.server.front.model.BulkRequests;
 import org.talend.sdk.component.server.front.model.BulkResponses;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
-import org.talend.sdk.component.server.front.security.web.EndpointSecurityService;
 import org.talend.sdk.component.server.service.qualifier.ComponentServer;
 
 import lombok.extern.slf4j.Slf4j;
@@ -101,9 +100,6 @@ public class BulkReadResourceImpl implements BulkReadResource {
     @ComponentServer
     private Jsonb defaultMapper;
 
-    @Inject
-    private EndpointSecurityService endpointSecurityService;
-
     private ServletController controller;
 
     private final String appPrefix = "/api/v1";
@@ -139,10 +135,6 @@ public class BulkReadResourceImpl implements BulkReadResource {
                 ofNullable(requests.getRequests()).map(Collection::stream).orElseGet(Stream::empty).map(request -> {
                     if (isBlacklisted(request)) {
                         return completedFuture(forbiddenInBulkModeResponse);
-                    }
-                    if ("/api/v1/environment".equals(request.getPath())
-                            && !endpointSecurityService.isAllowed(httpServletRequest)) {
-                        return completedFuture(forbiddenResponse);
                     }
                     if (request.getPath() == null || !request.getPath().startsWith(appPrefix)
                             || request.getPath().contains("?")) {

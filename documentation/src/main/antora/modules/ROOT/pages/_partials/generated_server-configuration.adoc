@@ -10,7 +10,6 @@ talend.component.server.component.extension.startup.timeout:: Default value: `18
 talend.component.server.component.registry:: A property file (or multiple comma separated) where the value is a gav of a component to register(complementary with `coordinates`). Note that the path can end up with `*` or `*.properties` to take into account all properties in a folder.
 talend.component.server.documentation.active:: Default value: `true`. Should the /documentation endpoint be activated. Note that when called on localhost the doc is always available.
 talend.component.server.environment.active:: Default value: `true`. Should the /api/v1/environment endpoint be activated. It shows some internal versions and git commit which are not always desirable over the wire.
-talend.component.server.filter.secured.tokens:: Default value: `-`. Accepted tokens in Authorization header for remote calls to secured endpoints (/api/v1/environment or /documentation).
 talend.component.server.gridlayout.translation.support:: Default value: `false`. Should the components using a `@GridLayout` support tab translation. Studio does not suppot that feature yet so this is not enabled by default.
 talend.component.server.icon.paths:: Default value: `icons/%s.svg,icons/svg/%s.svg,icons/%s_icon32.png,icons/png/%s_icon32.png`. These patterns are used to find the icons in the classpath(s).
 talend.component.server.jaxrs.exceptionhandler.defaultMessage:: Default value: `false`. If set it will replace any message for exceptions. Set to `false` to use the actual exception message.
@@ -18,8 +17,13 @@ talend.component.server.lastUpdated.useStartTime:: Default value: `false`. Shoul
 talend.component.server.locale.mapping:: Default value: `en*=en
 fr*=fr
 zh*=zh_CN
-ja*=ja`. For caching reasons the goal is to reduce the locales to the minimum required numbers. For instance we avoid `fr` and `fr_FR` which would lead to the same entries but x2 in terms of memory. This mapping enables that by whitelisting allowed locales, default being `en`. If the key ends with `*` it means all string starting with the prefix will match. For instance `fr*` will match `fr_FR` but also `fr_CA`.
+ja*=ja
+de*=de`. For caching reasons the goal is to reduce the locales to the minimum required numbers. For instance we avoid `fr` and `fr_FR` which would lead to the same entries but x2 in terms of memory. This mapping enables that by whitelisting allowed locales, default being `en`. If the key ends with `*` it means all string starting with the prefix will match. For instance `fr*` will match `fr_FR` but also `fr_CA`.
 talend.component.server.maven.repository:: The local maven repository used to locate components and their dependencies
+talend.component.server.plugins.reloading.active:: Default value: `false`. Should the plugins be un-deployed and re-deployed.
+talend.component.server.plugins.reloading.interval:: Default value: `600`. Interval in seconds between each check if plugins re-loading is enabled.
+talend.component.server.plugins.reloading.marker:: Specify a file to check its timestamp on the filesystem. This file will take precedence of the default ones provided by the `talend.component.server.component.registry` property (used for timestamp method).
+talend.component.server.plugins.reloading.method:: Default value: `timestamp`. Re-deploy method on a `timestamp` or `connectors` version change. By default, the timestamp is checked on the file pointed by `talend.component.server.component.registry` or `talend.component.server.plugins.reloading.marker` variable, otherwise we inspect the content of the `CONNECTORS_VERSION` file. Accepted values: `timestamp`, anything else defaults to `connectors`.
 talend.component.server.request.log:: Default value: `false`. Should the all requests/responses be logged (debug purposes - only work when running with CXF).
 talend.component.server.security.command.handler:: Default value: `securityNoopHandler`. How to validate a command/request. Accepted values: securityNoopHandler.
 talend.component.server.security.connection.handler:: Default value: `securityNoopHandler`. How to validate a connection. Accepted values: securityNoopHandler.

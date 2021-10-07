@@ -79,6 +79,6 @@ image::intellij/plugin/suggestion_1.png[Keys suggestion,window="_blank",link="ht
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
-- xref:system-prerequisites.adoc.adoc[System requirements]
+- xref:system-prerequisites.adoc[System requirements]
 - xref:generate-project-using-intellij-plugin.adoc[Generating a project using the IntelliJ plugin]
 endif::[]

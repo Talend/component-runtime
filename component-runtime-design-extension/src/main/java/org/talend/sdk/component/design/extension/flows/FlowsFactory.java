@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.talend.sdk.component.design.extension.flows;
 import java.util.Collection;
 
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.BaseMeta;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.DriverRunnerMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMapperMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 
@@ -43,6 +44,9 @@ public interface FlowsFactory {
         }
         if (ProcessorMeta.class.isInstance(meta)) {
             return new ProcessorFlowsFactory(meta.getType());
+        }
+        if (DriverRunnerMeta.class.isInstance(meta)) {
+            return new DriverRunnerFlowsFactory();
         }
         throw new IllegalArgumentException("unknown meta type " + meta.getClass().getName());
     }

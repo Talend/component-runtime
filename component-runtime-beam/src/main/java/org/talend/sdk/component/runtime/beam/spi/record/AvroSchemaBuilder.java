@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,22 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.avro.LogicalTypes;
+import org.apache.avro.Schema.Field;
+import org.apache.avro.Schema.Type;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 public class AvroSchemaBuilder implements Schema.Builder {
 
@@ -97,6 +103,8 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     private Schema elementSchema;
 
+    private final Map<String, String> props = new LinkedHashMap<>(0);
+
     @Override
     public Schema.Builder withType(final Schema.Type type) {
         this.type = type;
@@ -157,15 +165,8 @@ public class AvroSchemaBuilder implements Schema.Builder {
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
-        fields
-                .add(AvroSchemas
-                        .addProp(
-                                new org.apache.avro.Schema.Field(sanitizeConnectionName(entry.getName()),
-                                        entry.isNullable() && schema.getType() != org.apache.avro.Schema.Type.UNION
-                                                ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
-                                                : schema,
-                                        entry.getComment(), (Object) entry.getDefaultValue()),
-                                KeysForAvroProperty.LABEL, entry.getRawName()));
+        final Field f = AvroHelper.toField(schema, entry);
+        fields.add(f);
         return this;
     }
 
@@ -174,7 +175,65 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (type != Schema.Type.ARRAY && schema != null) {
             throw new IllegalArgumentException("elementSchema is only valid for ARRAY type of schema");
         }
-        this.elementSchema = schema;
+        // Check schema is Avro Schema, otherwise, convert it.
+        final Schema avroSchema = this.toAvroSchema(schema);
+        this.elementSchema = avroSchema;
+        return this;
+    }
+
+    /**
+     * Convert a non avro schema to schema.
+     * 
+     * @param schema : Non Avro schema.
+     * @return Avro schema.
+     */
+    private Schema toAvroSchema(final Schema schema) {
+        if (schema == null || schema instanceof AvroSchema) {
+            return schema;
+        }
+        final Builder builder = new AvroSchemaBuilder().withType(schema.getType());
+
+        final Schema elementSchema = schema.getElementSchema();
+        if (elementSchema != null) {
+            final Schema avroSchema = this.toAvroSchema(elementSchema);
+            builder.withElementSchema(avroSchema);
+        }
+        builder.withProps(schema.getProps());
+        schema.getEntries().stream().map(this::convertEntry).forEach(builder::withEntry);
+
+        return builder.build();
+    }
+
+    private Schema.Entry convertEntry(final Schema.Entry entry) {
+        final Schema elementSchema = entry.getElementSchema();
+        if (elementSchema == null || elementSchema instanceof AvroSchema) {
+            return entry;
+        }
+        final Schema avroSchema = this.toAvroSchema(elementSchema);
+        return new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withName(entry.getName()) //
+                .withRawName(entry.getRawName()) //
+                .withNullable(entry.isNullable()) //
+                .withType(entry.getType()) //
+                .withDefaultValue(entry.getDefaultValue()) //
+                .withElementSchema(avroSchema) //
+                .withComment(entry.getComment()) //
+                .withProps(entry.getProps()) //
+                .build();
+    }
+
+    @Override
+    public Builder withProp(final String key, final String value) {
+        props.put(key, value);
+        return this;
+    }
+
+    @Override
+    public Builder withProps(final Map<String, String> props) {
+        if (props == null) {
+            return this;
+        }
+        this.props.putAll(props);
         return this;
     }
 
@@ -209,11 +268,32 @@ public class AvroSchemaBuilder implements Schema.Builder {
             if (elementSchema == null) {
                 throw new IllegalStateException("No elementSchema set for this ARRAY schema");
             }
+            // FIXME: 7/12/21 => TCOMP-1957
             final org.apache.avro.Schema elementType = elementSchema == EMPTY_RECORD ? AvroSchemas.getEmptySchema()
                     : Unwrappable.class.cast(elementSchema).unwrap(org.apache.avro.Schema.class);
             return new AvroSchema(org.apache.avro.Schema.createArray(elementType));
         default:
             throw new IllegalArgumentException("Unsupported: " + type);
+        }
+    }
+
+    public static class AvroHelper {
+
+        public static Field toField(final org.apache.avro.Schema schema, final Schema.Entry entry) {
+            final Field field = new Field(sanitizeConnectionName(entry.getName()),
+                    entry.isNullable() && schema.getType() != Type.UNION
+                            ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
+                            : schema,
+                    entry.getComment(), (Object) entry.getDefaultValue());
+            if (entry.isMetadata()) {
+                field.addAlias(KeysForAvroProperty.METADATA_ALIAS_NAME);
+            }
+            if (entry.getRawName() != null) {
+                field.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
+            }
+            entry.getProps().forEach((k, v) -> field.addProp(k, v));
+
+            return field;
         }
     }
 }

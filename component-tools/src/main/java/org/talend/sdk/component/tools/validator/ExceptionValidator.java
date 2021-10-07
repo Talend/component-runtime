@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,20 +42,18 @@ public class ExceptionValidator implements Validator {
     @Override
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        boolean exceptionFound = helper
+        final Stream<String> errorsException = helper
                 .componentClassFiles()
                 .flatMap(f -> streamClassesInDirectory(classLoader, null, f))
                 .filter(ComponentException.class::isAssignableFrom)
-                .findFirst()
-                .isPresent();
-
-        if (!exceptionFound) {
-            if (configuration.isFailOnValidateExceptions()) {
-                return Stream.of("Component should declare a custom Exception that inherits from ComponentException.");
-            } else {
-                log.info("Component should declare a custom Exception that inherits from ComponentException.");
-            }
+                .map(e -> e.getName()
+                        + " inherits from ComponentException, this will lead to ClassNotFound errors in some environments. Use instead ComponentException directly!");
+        if (configuration.isFailOnValidateExceptions()) {
+            return errorsException;
+        } else {
+            errorsException.forEach(e -> log.error(e));
         }
+
         return Stream.empty();
     }
 
@@ -71,7 +69,7 @@ public class ExceptionValidator implements Validator {
             final String completeName = pckg + className;
             try {
                 return Stream.of(loader.loadClass(completeName));
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 log.error("Could not load class : " + completeName + "=>" + e.getMessage());
             }
         }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,19 @@ import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import routines.system.Dynamic;
 
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.spi.JsonbProvider;
@@ -46,6 +50,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.MappingUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,6 +63,8 @@ public class DiRowStructVisitor {
 
     private final Jsonb jsonb = JsonbProvider.provider().create().build();
 
+    private Set<String> allowedFields;
+
     public void visit(final Object data) {
         log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
@@ -67,7 +74,11 @@ public class DiRowStructVisitor {
                 final Object raw = field.get(data);
                 log.debug("[visit] Field {} ({}) ==> {}.", name, type.getName(), raw);
                 if (raw == null) {
-                    log.debug("[visit] Skipping Field {} with null value.", name);
+                    log.debug("[visit] Skipping field {} with null value.", name);
+                    return;
+                }
+                if (!allowedFields.contains(name)) {
+                    log.debug("[visit] Skipping technical field {}.", name);
                     return;
                 }
                 switch (type.getName()) {
@@ -106,10 +117,10 @@ public class DiRowStructVisitor {
                     onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
                     break;
                 case "routines.system.Dynamic":
-                    Dynamic dynamic = Dynamic.class.cast(raw);
+                    final Dynamic dynamic = Dynamic.class.cast(raw);
                     dynamic.metadatas.forEach(meta -> {
                         final Object value = dynamic.getColumnValue(meta.getName());
-                        final String metaName = meta.getName();
+                        final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         final String metaComment = meta.getDescription();
                         final boolean metaIsNullable = meta.isNullable();
@@ -129,8 +140,19 @@ public class DiRowStructVisitor {
                             onString(metaName, value);
                             break;
                         case "id_byte[]":
-                            final byte[] bytes =
-                                    value != null ? Base64.getDecoder().decode(String.valueOf(value)) : null;
+                            final byte[] bytes;
+                            if (byte[].class.isInstance(value)) {
+                                bytes = byte[].class.cast(value);
+                            } else if (ByteBuffer.class.isInstance(value)) {
+                                bytes = ByteBuffer.class.cast(value).array();
+                            } else {
+                                log
+                                        .warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
+                                                + " This should not happen! "
+                                                + " Wrapping `byte[]` from `String.valueOf()`: result may be inaccurate.",
+                                                metaName, value.getClass().getSimpleName());
+                                bytes = ByteBuffer.wrap(String.valueOf(value).getBytes()).array();
+                            }
                             onBytes(metaName, bytes);
                             break;
                         case "id_Byte":
@@ -154,7 +176,7 @@ public class DiRowStructVisitor {
                             onBoolean(metaName, value);
                             break;
                         case "id_Date":
-                            ZonedDateTime dateTime;
+                            final ZonedDateTime dateTime;
                             if (Long.class.isInstance(value)) {
                                 dateTime = ZonedDateTime.ofInstant(ofEpochMilli(Long.class.cast(value)), UTC);
                             } else {
@@ -182,7 +204,7 @@ public class DiRowStructVisitor {
                     }
                     break;
                 }
-            } catch (IllegalAccessException e) {
+            } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
         });
@@ -196,12 +218,24 @@ public class DiRowStructVisitor {
     }
 
     private Schema inferSchema(final Object data, final RecordBuilderFactory factory) {
+        // all standard rowStruct fields have accessors, not technical fields.
+        allowedFields = Arrays
+                .stream(data.getClass().getDeclaredMethods())
+                .map(method -> method.getName())
+                .filter(m -> m.matches("^(get|is).*"))
+                .map(n -> n.replaceAll("^(get|is)", ""))
+                .map(n -> n.substring(0, 1).toLowerCase(Locale.ROOT) + n.substring(1))
+                .collect(Collectors.toSet());
         final Schema.Builder schema = factory.newSchemaBuilder(RECORD);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
                 final Class<?> type = field.getType();
                 final String name = field.getName();
                 final Object raw = field.get(data);
+                if (!allowedFields.contains(name)) {
+                    log.debug("[inferSchema] Skipping technical field {}.", name);
+                    return;
+                }
                 switch (type.getName()) {
                 case "java.util.List":
                     schema.withEntry(toCollectionEntry(name, "", raw));
@@ -245,10 +279,10 @@ public class DiRowStructVisitor {
                     schema.withEntry(toEntry(name, BYTES));
                     break;
                 case "routines.system.Dynamic":
-                    Dynamic dynamic = Dynamic.class.cast(raw);
+                    final Dynamic dynamic = Dynamic.class.cast(raw);
                     dynamic.metadatas.forEach(meta -> {
                         final Object value = dynamic.getColumnValue(meta.getName());
-                        final String metaName = meta.getName();
+                        final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         final String metaComment = meta.getDescription();
                         final boolean metaIsNullable = meta.isNullable();
@@ -296,7 +330,7 @@ public class DiRowStructVisitor {
                 default:
                     log.warn("Unmanaged type: {} for {}.", type, name);
                 }
-            } catch (IllegalAccessException e) {
+            } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
         });
@@ -362,7 +396,7 @@ public class DiRowStructVisitor {
     private Entry toCollectionEntry(final String name, final String originalName, final Object value) {
         Type elementType = STRING;
         if (value != null && !Collection.class.cast(value).isEmpty()) {
-            Object coll = Collection.class.cast(value).iterator().next();
+            final Object coll = Collection.class.cast(value).iterator().next();
             elementType = getTypeFromValue(coll);
         }
         return factory

@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ def createDependenciesDescriptor = { rootDependency, output ->
     out.close()
 }
 
-['beam-runners-direct-java', 'beam-runners-spark'].each { artifactId ->
+['beam-runners-direct-java', 'beam-runners-spark-3'].each { artifactId ->
     createDependenciesDescriptor(new Dependency(
             groupId: 'org.apache.beam', artifactId: artifactId, version: project.properties['beam.version'], scope: 'compile'),
             new File(project.build.outputDirectory, "TALEND-INF/beam-runner_${artifactId}.dependencies"))

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ public interface HttpClient {
     /**
      * set the base URI of the http request
      *
-     * @param base the base URI of the http client
+     * @param base the base URI of the http client, use @Base on parameter
      */
+    @Deprecated
     void base(String base);
 }

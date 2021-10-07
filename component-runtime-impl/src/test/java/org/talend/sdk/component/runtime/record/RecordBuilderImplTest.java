@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,20 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 class RecordBuilderImplTest {
 
@@ -46,6 +51,38 @@ class RecordBuilderImplTest {
                         .build())
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
+    }
+
+    @Test
+    void getValue() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        Assertions.assertNull(builder.getValue("name"));
+        final Entry entry = new EntryImpl.BuilderImpl() //
+                .withName("name") //
+                .withNullable(true) //
+                .withType(Type.STRING) //
+                .build();//
+        assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
+
+        builder.with(entry, "value");
+        Assertions.assertEquals("value", builder.getValue("name"));
+
+        final Entry entryTime = new EntryImpl.BuilderImpl() //
+                .withName("time") //
+                .withNullable(true) //
+                .withType(Type.DATETIME) //
+                .build();//
+        final ZonedDateTime now = ZonedDateTime.now();
+        builder.with(entryTime, now);
+        Assertions.assertEquals(now.toInstant().toEpochMilli(), builder.getValue("time"));
+
+        final Long next = now.toInstant().toEpochMilli() + 1000L;
+        builder.with(entryTime, next);
+        Assertions.assertEquals(next, builder.getValue("time"));
+
+        Date date = new Date(next + TimeUnit.DAYS.toMillis(1));
+        builder.with(entryTime, date);
+        Assertions.assertEquals(date.toInstant().toEpochMilli(), builder.getValue("time"));
     }
 
     @Test
@@ -146,9 +183,15 @@ class RecordBuilderImplTest {
     @Test
     void nullSupportCollections() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
-        builder
-                .withArray(new SchemaImpl.EntryImpl("test", "test", Schema.Type.ARRAY, true, null,
-                        new SchemaImpl(Schema.Type.STRING, null, null), null), null);
+        final Schema innerArray = new BuilderImpl().withType(Type.STRING).build();
+        final Entry arrayEntry = new EntryImpl.BuilderImpl() //
+                .withName("test") //
+                .withRawName("test") //
+                .withType(Type.ARRAY) //
+                .withNullable(true) //
+                .withElementSchema(innerArray) //
+                .build();
+        builder.withArray(arrayEntry, null);
         final Record record = builder.build();
         assertEquals(1, record.getSchema().getEntries().size());
         assertNull(record.getArray(String.class, "test"));
@@ -193,6 +236,241 @@ class RecordBuilderImplTest {
 
         final Record record = builder.withArray(entry, Arrays.asList("d1", "d2")).build();
         final Collection<String> data = record.getArray(String.class, "data");
-        Assertions.assertEquals(2, data.size());
+        assertEquals(2, data.size());
+    }
+
+    @Test
+    void withProps() {
+        final LinkedHashMap<String, String> rootProps = new LinkedHashMap<>();
+        IntStream.range(0, 10).forEach(i -> rootProps.put("key" + i, "value" + i));
+        final LinkedHashMap<String, String> fieldProps = new LinkedHashMap<>();
+        fieldProps.put("org.talend.components.metadata.one", "one_1");
+        fieldProps.put("org.talend.components.metadata.two", "two_2");
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withProps(rootProps)
+                .withEntry(new EntryImpl.BuilderImpl().withName("f01").withType(Type.STRING).build())
+                .withEntry(
+                        new EntryImpl.BuilderImpl().withName("f02").withType(Type.STRING).withProps(fieldProps).build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withString("f01", "field-one").withString("f02", "field-two").build();
+        final Schema rSchema = record.getSchema();
+        assertEquals("field-one", record.getString("f01"));
+        assertEquals("field-two", record.getString("f02"));
+        assertEquals(rootProps, rSchema.getProps());
+        assertEquals(0, schema.getEntries().get(0).getProps().size());
+        assertEquals(2, schema.getEntries().get(1).getProps().size());
+        assertEquals(fieldProps, schema.getEntries().get(1).getProps());
+        assertEquals("one_1", schema.getEntries().get(1).getProp("org.talend.components.metadata.one"));
+        assertEquals("two_2", schema.getEntries().get(1).getProp("org.talend.components.metadata.two"));
+        assertEquals(schema, rSchema);
+    }
+
+    @Test
+    void withProp() {
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withProp("rootProp1", "rootPropValue1")
+                .withProp("rootProp2", "rootPropValue2")
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("f01")
+                        .withType(Type.STRING)
+                        .withProp("dqType", "semantic-test1")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("f02")
+                        .withType(Type.STRING)
+                        .withProp("dqType", "semantic-test2")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withString("f01", "field-one").withString("f02", "field-two").build();
+        final Schema rSchema = record.getSchema();
+        assertEquals(schema, rSchema);
+        assertEquals("field-one", record.getString("f01"));
+        assertEquals("field-two", record.getString("f02"));
+        assertEquals(2, rSchema.getProps().size());
+        assertEquals("rootPropValue1", rSchema.getProp("rootProp1"));
+        assertEquals("rootPropValue2", rSchema.getProp("rootProp2"));
+        assertEquals(1, rSchema.getEntries().get(0).getProps().size());
+        assertEquals("semantic-test1", rSchema.getEntries().get(0).getProp("dqType"));
+        assertEquals(1, rSchema.getEntries().get(1).getProps().size());
+        assertEquals("semantic-test2", rSchema.getEntries().get(1).getProp("dqType"));
+    }
+
+    @Test
+    void withPropsMerging() {
+        final LinkedHashMap<String, String> rootProps = new LinkedHashMap<>();
+        IntStream.range(0, 10).forEach(i -> rootProps.put("key" + i, "value" + i));
+        final LinkedHashMap<String, String> fieldProps = new LinkedHashMap<>();
+        fieldProps.put("dqType", "one_1");
+        fieldProps.put("org.talend.components.metadata.two", "two_2");
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withProp("key9", "rootPropValue9")
+                .withProps(rootProps)
+                .withProp("key1", "rootPropValue1")
+                .withProp("key2", "rootPropValue2")
+                .withProp("rootProp2", "rootPropValue2")
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("f01")
+                        .withType(Type.STRING)
+                        .withProp("dqType", "semantic-test1")
+                        .withProps(fieldProps)
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("f02")
+                        .withType(Type.STRING)
+                        .withProps(fieldProps)
+                        .withProp("dqType", "semantic-test2")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withString("f01", "field-one").withString("f02", "field-two").build();
+        final Schema rSchema = record.getSchema();
+        assertEquals(schema, rSchema);
+        assertEquals("field-one", record.getString("f01"));
+        assertEquals("field-two", record.getString("f02"));
+        assertEquals(11, rSchema.getProps().size());
+        assertEquals("rootPropValue1", rSchema.getProp("key1"));
+        assertEquals("rootPropValue2", rSchema.getProp("key2"));
+        assertEquals("value3", rSchema.getProp("key3"));
+        assertEquals("value9", rSchema.getProp("key9"));
+        assertEquals("rootPropValue2", rSchema.getProp("rootProp2"));
+        assertEquals(2, rSchema.getEntries().get(0).getProps().size());
+        assertEquals("one_1", rSchema.getEntries().get(0).getProp("dqType"));
+        assertEquals("two_2", rSchema.getEntries().get(0).getProp("org.talend.components.metadata.two"));
+        assertEquals(2, rSchema.getEntries().get(1).getProps().size());
+        assertEquals("semantic-test2", rSchema.getEntries().get(1).getProp("dqType"));
+        assertEquals("two_2", rSchema.getEntries().get(1).getProp("org.talend.components.metadata.two"));
+    }
+
+    @Test
+    void entries() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "Hello").withInt("fieldInt", 20);
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(2, entries.size());
+        final Entry entry = entries.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
+        Assertions.assertSame(Schema.Type.STRING, entry.getType());
+
+        final Entry entry1 = entries.stream().filter((Entry e) -> "fieldInt".equals(e.getName())).findFirst().get();
+        Assertions.assertSame(Schema.Type.INT, entry1.getType());
+
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("field1")
+                        .withRawName("field1")
+                        .withType(Type.INT)
+                        .withNullable(true)
+                        .withDefaultValue(5)
+                        .withComment("Comment")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
+        final List<Entry> entries1 = builder1.getCurrentEntries();
+        Assertions.assertEquals(1, entries1.size());
+    }
+
+    @Test
+    void removeEntries() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "Hello").withInt("fieldInt", 20);
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(2, entries.size());
+
+        final Entry entry = entries.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
+        builder.removeEntry(entry);
+        Assertions.assertEquals(1, builder.getCurrentEntries().size());
+        Assertions.assertTrue(entries.stream().anyMatch((Entry e) -> "fieldInt".equals(e.getName())));
+
+        Schema.Entry unknownEntry = newEntry("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", "Comment");
+        assertThrows(IllegalArgumentException.class, () -> builder.removeEntry(unknownEntry));
+
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("field1", "field1", Type.INT, true, 5, "Comment"))
+                .withEntry(newMetaEntry("meta1", "meta1", Type.INT, true, 5, "Comment"))
+                .build();
+        final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
+        final List<Entry> entries1 = builder1.getCurrentEntries();
+        Assertions.assertEquals(2, entries1.size());
+        final Entry entry1 = entries1.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
+        Record.Builder newBuilder = builder1.removeEntry(entry1);
+        final Entry meta1 = entries1.stream().filter((Entry e) -> "meta1".equals(e.getName())).findFirst().get();
+        Record.Builder newBuilder2 = newBuilder.removeEntry(meta1);
+        Assertions.assertEquals(0, newBuilder2.getCurrentEntries().size());
+    }
+
+    @Test
+    void updateEntryByName_fromEntries() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "Hello").withInt("fieldInt", 20);
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(2, entries.size());
+
+        final Entry entry = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
+        builder.updateEntryByName("field1", entry);
+        Assertions.assertEquals(2, builder.getCurrentEntries().size());
+        Assertions
+                .assertTrue(entries
+                        .stream()
+                        .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
+        assertEquals("Hello", builder.getValue("field2"));
+
+        final Entry entryTypeNotCompatible = newEntry("field3", "newFieldName", Type.INT, true, 5, "Comment");
+        assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("field2", entryTypeNotCompatible));
+
+        Schema.Entry unknownEntry = newEntry("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", "Comment");
+        assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("fieldUnknown", unknownEntry));
+    }
+
+    @Test
+    void updateEntryByName_fromProvidedSchema() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("field1", "field1", Type.STRING, true, 5, "Comment"))
+                .build();
+        final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
+        builder1.with(schema.getEntry("field1"), "10");
+        final List<Entry> entries1 = builder1.getCurrentEntries();
+        Assertions.assertEquals(1, entries1.size());
+        final Entry entry1 = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
+        Record.Builder newBuilder = builder1.updateEntryByName("field1", entry1);
+        Assertions.assertEquals(1, newBuilder.getCurrentEntries().size());
+        Assertions
+                .assertTrue(newBuilder
+                        .getCurrentEntries()
+                        .stream()
+                        .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
+                                && Type.STRING.equals(e.getType())));
+        assertEquals("10", newBuilder.getValue("field2"));
+    }
+
+    private Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable, Object defaultValue,
+            String comment) {
+        return new EntryImpl.BuilderImpl()
+                .withName(name)
+                .withRawName(rawname)
+                .withType(type)
+                .withNullable(nullable)
+                .withDefaultValue(defaultValue)
+                .withComment(comment)
+                .build();
+    }
+
+    private Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
+            Object defaultValue, String comment) {
+        return new EntryImpl.BuilderImpl()
+                .withName(name)
+                .withRawName(rawname)
+                .withType(type)
+                .withNullable(nullable)
+                .withDefaultValue(defaultValue)
+                .withComment(comment)
+                .withMetadata(true)
+                .build();
     }
 }

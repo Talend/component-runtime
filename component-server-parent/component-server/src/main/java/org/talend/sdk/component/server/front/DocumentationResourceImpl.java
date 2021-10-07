@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -65,11 +67,14 @@ import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
 import org.talend.sdk.component.server.service.LocaleMapper;
+import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
+@CacheDefaults(cacheResolverFactory = FrontCacheResolver.class, cacheKeyGenerator = FrontCacheKeyGenerator.class)
 public class DocumentationResourceImpl implements DocumentationResource {
 
     private static final DocumentationContent NO_DOC = new DocumentationContent("asciidoc", "");
@@ -103,6 +108,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
     }
 
     @Override
+    @CacheResult
     public DocumentationContent getDocumentation(final String id, final String language,
             final DocumentationSegment segment) {
         if (virtualComponents.isExtensionEntity(id)) {
@@ -169,8 +175,10 @@ public class DocumentationResourceImpl implements DocumentationResource {
                                     .values()
                                     .stream()
                                     .flatMap(f -> Stream
-                                            .concat(f.getPartitionMappers().values().stream(),
-                                                    f.getProcessors().values().stream()))
+                                            .of(f.getPartitionMappers().values().stream(),
+                                                    f.getProcessors().values().stream(),
+                                                    f.getDriverRunners().values().stream())
+                                            .flatMap(t -> t))
                                     .filter(c -> c.getId().equals(id))
                                     .findFirst()
                                     .map(c -> selectById(c.getName(), value, segment)))
@@ -215,7 +223,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
             this.id = id;
             this.language = language;
             this.segment = segment;
-            this.hash = Objects.hash(id, language, segment);
+            hash = Objects.hash(id, language, segment);
         }
 
         @Override
@@ -362,7 +370,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
             int configStartIndex = lines.indexOf("//configuration_start");
             if (configStartIndex > 0) {
                 configStartIndex++;
-                int configEndIndex = lines.indexOf("//configuration_end");
+                final int configEndIndex = lines.indexOf("//configuration_end");
                 if (configEndIndex > configStartIndex) {
                     while (configStartIndex > 0 && configStartIndex < configEndIndex
                             && (lines.get(configStartIndex).isEmpty() || lines.get(configStartIndex).startsWith("="))) {

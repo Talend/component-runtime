@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,6 @@ public class SparkRunnerEnvironment extends BeamEnvironment {
 
     @Override
     protected String rootDependencyBase() {
-        return "org.apache.beam:beam-runners-spark";
+        return "org.apache.beam:beam-runners-spark-3";
     }
 }

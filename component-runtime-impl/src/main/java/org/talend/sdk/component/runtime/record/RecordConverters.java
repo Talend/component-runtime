@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -64,24 +62,6 @@ import lombok.Data;
 
 public class RecordConverters implements Serializable {
 
-    private static final ZoneId UTC = ZoneId.of("UTC");
-
-    public <T> T mapNumber(final Class<T> expected, final Number from) {
-        if (expected == Double.class || expected == double.class) {
-            return expected.cast(from.doubleValue());
-        }
-        if (expected == Float.class || expected == float.class) {
-            return expected.cast(from.floatValue());
-        }
-        if (expected == Integer.class || expected == int.class) {
-            return expected.cast(from.intValue());
-        }
-        if (expected == Long.class || expected == long.class) {
-            return expected.cast(from.longValue());
-        }
-        throw new IllegalArgumentException("Can't convert " + from + " to " + expected);
-    }
-
     public <T> Record toRecord(final MappingMetaRegistry registry, final T data, final Supplier<Jsonb> jsonbProvider,
             final Supplier<RecordBuilderFactory> recordBuilderProvider) {
         if (data == null) {
@@ -103,7 +83,7 @@ public class RecordConverters implements Serializable {
         if (!String.class.isInstance(data) && !data.getClass().isPrimitive()
                 && PojoJsonbProvider.class.isInstance(jsonb)) {
             final Jsonb pojoMapper = PojoJsonbProvider.class.cast(jsonb).get();
-            final OutputRecordHolder holder = new OutputRecordHolder();
+            final OutputRecordHolder holder = new OutputRecordHolder(data);
             try (final OutputRecordHolder stream = holder) {
                 pojoMapper.toJson(data, stream);
             }
@@ -173,17 +153,14 @@ public class RecordConverters implements Serializable {
                 if (s2 == null) { // unlikely
                     return s1;
                 }
-                final List<Schema.Entry> entries1 = s1.getEntries();
-                final List<Schema.Entry> entries2 = s2.getEntries();
-                final Set<String> names1 = entries1.stream().map(Schema.Entry::getName).collect(toSet());
-                final Set<String> names2 = entries2.stream().map(Schema.Entry::getName).collect(toSet());
+                final Set<String> names1 = s1.getAllEntries().map(Schema.Entry::getName).collect(toSet());
+                final Set<String> names2 = s2.getAllEntries().map(Schema.Entry::getName).collect(toSet());
                 if (!names1.equals(names2)) {
                     // here we are not good since values will not be right anymore,
                     // forbidden for current version anyway but potentially supported later
                     final Schema.Builder builder = factory.newSchemaBuilder(Schema.Type.RECORD);
-                    entries1.forEach(builder::withEntry);
-                    names2.removeAll(names1);
-                    entries2.stream().filter(it -> names2.contains(it.getName())).forEach(builder::withEntry);
+                    s1.getAllEntries().forEach(builder::withEntry);
+                    s2.getAllEntries().filter(it -> !(names1.contains(it.getName()))).forEach(builder::withEntry);
                     return builder.build();
                 }
                 return s1;
@@ -460,35 +437,8 @@ public class RecordConverters implements Serializable {
         if (value == null) {
             return null;
         }
-
-        // datetime cases
-        if (Long.class.isInstance(value) && expectedType != Long.class) {
-            if (expectedType == ZonedDateTime.class) {
-                final long epochMilli = Number.class.cast(value).longValue();
-                if (epochMilli == -1L) { // not <0 which can be a bug
-                    return null;
-                }
-                return expectedType.cast(ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC));
-            }
-            if (expectedType == Date.class) {
-                return expectedType.cast(new Date(Number.class.cast(value).longValue()));
-            }
-        }
-
         if (!expectedType.isInstance(value)) {
-            if (Number.class.isInstance(value) && Number.class.isAssignableFrom(expectedType)) {
-                return mapNumber(expectedType, Number.class.cast(value));
-            }
-            if (String.class.isInstance(value)) {
-                if (ZonedDateTime.class == expectedType) {
-                    return expectedType.cast(ZonedDateTime.parse(String.valueOf(value)));
-                }
-                if (byte[].class == expectedType) {
-                    return expectedType.cast(Base64.getDecoder().decode(String.valueOf(value)));
-                }
-            }
-
-            throw new IllegalArgumentException(name + " can't be converted to " + expectedType);
+            return expectedType.cast(MappingUtils.coerce(expectedType, value, name));
         }
 
         return expectedType.cast(value);
@@ -521,20 +471,20 @@ public class RecordConverters implements Serializable {
         public Object newInstance(final Record record, final java.util.Map<String, String> metadata) {
             if (recordVisitor == null) {
                 try {
-                    String className = "org.talend.sdk.component.runtime.di.record.DiRecordVisitor";
-                    Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
+                    final String className = "org.talend.sdk.component.runtime.di.record.DiRecordVisitor";
+                    final Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
                     final Constructor<?> constructor = visitorClass.getDeclaredConstructors()[0];
                     constructor.setAccessible(true);
                     recordVisitor = constructor.newInstance(rowStruct, metadata);
                     visitRecord = visitorClass.getDeclaredMethod("visit", Record.class);
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
                         | InvocationTargetException | NoSuchMethodException e) {
                     throw new IllegalStateException(e);
                 }
             }
             try {
                 return visitRecord.invoke(recordVisitor, record);
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (final IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalStateException(e);
             }
         }
@@ -542,20 +492,20 @@ public class RecordConverters implements Serializable {
         public <T> Record newRecord(final T data, final RecordBuilderFactory factory) {
             if (rowStructVisitor == null) {
                 try {
-                    String className = "org.talend.sdk.component.runtime.di.record.DiRowStructVisitor";
-                    Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
+                    final String className = "org.talend.sdk.component.runtime.di.record.DiRowStructVisitor";
+                    final Class<?> visitorClass = getClass().getClassLoader().loadClass(className);
                     final Constructor<?> constructor = visitorClass.getConstructors()[0];
                     constructor.setAccessible(true);
                     rowStructVisitor = constructor.newInstance();
                     visitRowStruct = visitorClass.getDeclaredMethod("get", Object.class, RecordBuilderFactory.class);
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
                         | InvocationTargetException | NoSuchMethodException e) {
                     throw new IllegalStateException(e);
                 }
             }
             try {
                 return Record.class.cast(visitRowStruct.invoke(rowStructVisitor, data, factory));
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (final IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalStateException(e);
             }
         }

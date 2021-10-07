@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 import java.io.File;
 import java.util.Map;
 
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -70,7 +71,7 @@ public class CarMojo extends DependencyAwareMojo {
     private MavenProjectHelper helper;
 
     @Override
-    public void execute() {
+    public void execute() throws MojoFailureException {
         if (skip) {
             return;
         }

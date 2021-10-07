@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ log.info("Using url=${url}")
 log.info("Using user=${server.username}")
 log.info("Using branch=${branch}")
 
-def credentialsProvider = new UsernamePasswordCredentialsProvider(server.username, server.password)
+def credentialsProvider = new UsernamePasswordCredentialsProvider(server.password, "")
 def git = Git.cloneRepository()
         .setCredentialsProvider(credentialsProvider)
         .setURI(url)

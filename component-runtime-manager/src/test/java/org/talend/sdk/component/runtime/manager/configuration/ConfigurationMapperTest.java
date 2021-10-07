@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,6 +180,36 @@ class ConfigurationMapperTest {
         }, configurationByExample(root));
     }
 
+    @Test
+    void listOfListObjectWithParameter() {
+        ListOfObjectOfListOfObjectWithNestedAndParam root = new ListOfObjectOfListOfObjectWithNestedAndParam();
+        ObjectOfListOfObjectWithNestedAndParam child1Level1 = new ObjectOfListOfObjectWithNestedAndParam();
+
+        root.list = new ArrayList<>();
+        root.list.add(child1Level1);
+
+        ListOfObjectWithNestedAndParam child1Level2 = new ListOfObjectWithNestedAndParam();
+        child1Level2.list = new ArrayList<>();
+        child1Level2.list.add(new WithNested(new Flat("a", 1)));
+        child1Level2.list.add(new WithNested(new Flat("b", 2)));
+        child1Level2.stringValue = "value1";
+
+        child1Level1.object = child1Level2;
+
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("configuration.array[0].object.array[0].nested.name", "a");
+                put("configuration.array[0].object.array[0].nested.age", "1");
+
+                put("configuration.array[0].object.array[1].nested.name", "b");
+                put("configuration.array[0].object.array[1].nested.age", "2");
+
+                put("configuration.array[0].object.string", "value1");
+            }
+        }, configurationByExample(root));
+    }
+
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Flat {
@@ -221,6 +251,27 @@ class ConfigurationMapperTest {
 
         @Option("array")
         List<ListOfObjectWithNested> list;
+    }
+
+    public static class ListOfObjectWithNestedAndParam {
+
+        @Option("array")
+        private List<WithNested> list;
+
+        @Option("string")
+        private String stringValue;
+    }
+
+    public static class ObjectOfListOfObjectWithNestedAndParam {
+
+        @Option("object")
+        ListOfObjectWithNestedAndParam object;
+    }
+
+    public static class ListOfObjectOfListOfObjectWithNestedAndParam {
+
+        @Option("array")
+        List<ObjectOfListOfObjectWithNestedAndParam> list;
     }
 
     private static class SimpleParameterModelService extends ParameterModelService {

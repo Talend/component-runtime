@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,15 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
 
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
+    @Parameter(defaultValue = "true", property = "talend.connectors.write")
+    private Boolean writeVersion;
+
+    @Parameter(defaultValue = "${project.version}", property = "talend.connectors.version")
+    private String version;
+
+    @Parameter(defaultValue = "CONNECTORS_VERSION", property = "talend.connectors.file")
+    private String connectorsVersionFile;
+
     @Parameter(property = "talend-m2.registryBase")
     private File componentRegistryBase;
 
@@ -106,6 +115,11 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
             writeDigest(getDigests());
         }
 
+        if (writeVersion) {
+            writeConnectorsVersion();
+            getLog().info(connectorsVersionFile + " set to " + version);
+        }
+
         getLog().info("Created component repository at " + m2Root);
     }
 
@@ -123,6 +137,15 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
 
     protected void writeRegistry(final Properties components) {
         writeProperties(components, getRegistry());
+    }
+
+    protected void writeConnectorsVersion() {
+        try (final Writer output = new FileWriter(getConnectorsVersionFile())) {
+            output.write(version);
+            output.flush();
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     protected File copyFile(final ZipEntry entry, final InputStream read, final String depPath) {
@@ -238,6 +261,10 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
             throw new IllegalArgumentException(e);
         }
         return gav;
+    }
+
+    protected File getConnectorsVersionFile() {
+        return new File(m2Root, connectorsVersionFile);
     }
 
     protected File getRegistry() {

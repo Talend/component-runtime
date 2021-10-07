@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                 .values()
                 .stream()
                 .flatMap(c -> Stream
-                        .concat(c
+                        .of(c
                                 .getPartitionMappers()
                                 .values()
                                 .stream()
@@ -93,7 +93,19 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                                                     .orElse(p.getName()),
                                             p.getIcon(), getDesignModel(p).getInputFlows(),
                                             getDesignModel(p).getOutputFlows());
-                                })))
+                                }),
+                                c
+                                        .getDriverRunners()
+                                        .values()
+                                        .stream()
+                                        .map(p -> new Component(p.getParent().getCategories(), p.getParent().getName(),
+                                                p.getName(),
+                                                p
+                                                        .findBundle(container.getLoader(), Locale.ENGLISH)
+                                                        .displayName()
+                                                        .orElse(p.getName()),
+                                                p.getIcon(), emptyList(), emptyList())))
+                        .flatMap(t -> t))
                 .collect(toList());
 
         try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder)

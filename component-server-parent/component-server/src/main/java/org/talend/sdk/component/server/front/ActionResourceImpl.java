@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.api.exception.ComponentException;
@@ -51,12 +56,16 @@ import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 import org.talend.sdk.component.server.service.httpurlconnection.IgnoreNetAuthenticator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
+import org.talend.sdk.components.vault.client.VaultClient;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
 @IgnoreNetAuthenticator
+@CacheDefaults(cacheResolverFactory = FrontCacheResolver.class, cacheKeyGenerator = FrontCacheKeyGenerator.class)
 public class ActionResourceImpl implements ActionResource {
 
     @Inject
@@ -74,6 +83,13 @@ public class ActionResourceImpl implements ActionResource {
     @Inject
     private ExtensionComponentMetadataManager virtualActions;
 
+    @Inject
+    @Context
+    private HttpHeaders headers;
+
+    @Inject
+    private VaultClient vault;
+
     @Override
     public CompletionStage<Response> execute(final String family, final String type, final String action,
             final String lang, final Map<String, String> params) {
@@ -84,6 +100,7 @@ public class ActionResourceImpl implements ActionResource {
     }
 
     @Override
+    @CacheResult
     public ActionList getIndex(final String[] types, final String[] families, final String language) {
         final Predicate<String> typeMatcher = new Predicate<String>() {
 
@@ -129,14 +146,55 @@ public class ActionResourceImpl implements ActionResource {
             try {
                 final Map<String, String> runtimeParams = ofNullable(params).map(HashMap::new).orElseGet(HashMap::new);
                 runtimeParams.put("$lang", localeMapper.mapLocale(lang).getLanguage());
-                final Object result = actionMeta.getInvoker().apply(runtimeParams);
+                String tenant;
+                try {
+                    tenant = headers.getHeaderString("x-talend-tenant-id");
+                } catch (Exception e) {
+                    log.debug("[doExecuteLocalAction] context not applicable: {}", e.getMessage());
+                    tenant = null;
+                }
+                final Map<String, String> deciphered = vault.decrypt(runtimeParams, tenant);
+                final Object result = actionMeta.getInvoker().apply(deciphered);
                 return Response.ok(result).type(APPLICATION_JSON_TYPE).build();
             } catch (final RuntimeException re) {
                 return onError(re);
             }
             // synchronous, if needed we can move to async with timeout later but currently we don't want.
             // check org.talend.sdk.component.server.service.ComponentManagerService.readCurrentLocale if you change it
-        }, Runnable::run);
+        }, Runnable::run).exceptionally(e -> {
+            final Throwable cause;
+            if (ExecutionException.class.isInstance(e.getCause())) {
+                cause = e.getCause().getCause();
+            } else {
+                cause = e.getCause();
+            }
+            if (WebApplicationException.class.isInstance(cause)) {
+                final WebApplicationException wae = WebApplicationException.class.cast(cause);
+                final Response response = wae.getResponse();
+                String message = "";
+                if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
+                    throw wae; // already logged and setup broken so just rethrow
+                } else {
+                    try {
+                        message = response.readEntity(String.class);
+                    } catch (final Exception ignored) {
+                        // no-op
+                    }
+                    if (message.isEmpty()) {
+                        message = cause.getMessage();
+                    }
+                    throw new WebApplicationException(message,
+                            Response
+                                    .status(response.getStatus())
+                                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, message))
+                                    .build());
+                }
+            }
+            throw new WebApplicationException(Response
+                    .status(500)
+                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, cause.getMessage()))
+                    .build());
+        });
     }
 
     private Response onError(final Throwable re) {
@@ -146,7 +204,7 @@ public class ActionResourceImpl implements ActionResource {
         }
 
         if (ComponentException.class.isInstance(re)) {
-            ComponentException ce = (ComponentException) re;
+            final ComponentException ce = (ComponentException) re;
             throw new WebApplicationException(Response
                     .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
                             : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,

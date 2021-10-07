@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,8 +64,9 @@ public class DesignContainerListener implements ContainerListenerExtension {
         componentFamilyMetas
                 .stream()
                 .flatMap(family -> Stream
-                        .concat(family.getPartitionMappers().values().stream(),
-                                family.getProcessors().values().stream()))
+                        .of(family.getPartitionMappers().values().stream(), family.getProcessors().values().stream(),
+                                family.getDriverRunners().values().stream())
+                        .flatMap(t -> t))
                 .forEach(meta -> {
                     final ComponentExtension.ComponentContext context =
                             container.get(ComponentContexts.class).getContexts().get(meta.getType());

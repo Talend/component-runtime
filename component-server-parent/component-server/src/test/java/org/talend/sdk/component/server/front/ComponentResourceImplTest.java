@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
+import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
@@ -51,6 +52,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.ziplock.IO;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
@@ -85,7 +88,7 @@ class ComponentResourceImplTest {
         assertIndex(ws.read(ComponentIndices.class, "get", "/component/index?includeIconContent=true", ""));
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDependencies() {
         final String compId = client.getJdbcId();
         final Dependencies dependencies = base
@@ -100,7 +103,7 @@ class ComponentResourceImplTest {
         assertEquals("org.apache.tomee:ziplock:jar:7.0.5", definition.getDependencies().iterator().next());
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDependency(final TestInfo info, @TempDir final File folder) {
         final Function<String, File> download = id -> {
             final InputStream stream = base
@@ -133,12 +136,12 @@ class ComponentResourceImplTest {
         jarValidator.accept(component);
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getIndex() {
         assertIndex(client.fetchIndex());
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getIndexWithQuery() {
         final List<ComponentIndex> components = base
                 .path("component/index")
@@ -174,6 +177,30 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void migrateWithEncrypted() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 1)
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.username", "username0");
+                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(4, migrated.size());
+        assertEquals("true", migrated.get("migrated"));
+        assertEquals("test", migrated.get("configuration.url"));
+        assertEquals("username0", migrated.get("configuration.username"));
+        assertEquals("test", migrated.get("configuration.password"));
+    }
+
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDetails() {
         final ComponentDetailList details = base
                 .path("component/details")
@@ -196,6 +223,7 @@ class ComponentResourceImplTest {
         assertEquals("list", detail.getId().getName());
         assertEquals("The List Component", detail.getDisplayName());
         assertEquals("false", detail.getMetadata().get("mapper::infinite"));
+        IntStream.of(0, 5).forEach(i -> assertEquals(String.valueOf(i), detail.getMetadata().get("testing::v" + i)));
 
         final Collection<ActionReference> remoteActions = detail.getActions();
         assertEquals(1, remoteActions.size());
@@ -221,7 +249,7 @@ class ComponentResourceImplTest {
          */
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void enumDisplayName() {
         final ComponentDetailList details = base
                 .path("component/details")
@@ -249,7 +277,20 @@ class ComponentResourceImplTest {
         }, next.getProposalDisplayNames());
     }
 
-    @Test
+    @RepeatedTest(2) // this also checks the cache and queries usage
+    void getDetailsStandaloneType() {
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", client.getStandaloneId())
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
+        assertEquals(1, details.getDetails().size());
+
+        final ComponentDetail detail = details.getDetails().iterator().next();
+        assertEquals("standalone", detail.getType());
+    }
+
+    @RepeatedTest(2) // this also checks the cache and queries usage
     void getDetailsMeta() {
         final ComponentDetailList details = base
                 .path("component/details")
@@ -324,7 +365,8 @@ class ComponentResourceImplTest {
             assertNotNull(data.getIcon().getCustomIcon());
             assertEquals("image/png", data.getIcon().getCustomIconType());
             assertEquals(singletonList("DB/Std/Yes"), data.getCategories());
-        } else if ("chain".equals(data.getId().getFamily()) && "file".equals(data.getId().getName())) {
+        } else if ("chain".equals(data.getId().getFamily())
+                && ("file".equals(data.getId().getName()) || "standalone".equals(data.getId().getName()))) {
             assertEquals("myicon", data.getIcon().getIcon());
             assertTrue(new String(data.getIcon().getCustomIcon(), StandardCharsets.UTF_8)
                     .startsWith("<svg xmlns=\"http://www.w3.org/2000/svg\""));
@@ -337,7 +379,7 @@ class ComponentResourceImplTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(9, index.getComponents().size());
+        assertEquals(10, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
@@ -346,6 +388,7 @@ class ComponentResourceImplTest {
         assertComponent("the-test-component", "chain", "count", "count", component, 1);
         assertComponent("the-test-component", "chain", "file", "file", component, 1);
         assertComponent("the-test-component", "chain", "list", "The List Component", component, 1);
+        assertComponent("the-test-component", "chain", "standalone", "standalone", component, 1);
         assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
         assertComponent("collection-of-object", "config", "configurationWithArrayOfObject",
                 "configurationWithArrayOfObject", component, 1);

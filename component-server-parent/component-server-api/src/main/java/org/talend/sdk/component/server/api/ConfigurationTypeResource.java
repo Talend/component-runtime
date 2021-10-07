@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,11 +95,12 @@ public interface ConfigurationTypeResource {
     @APIResponse(responseCode = "200",
             description = "the new values for that configuration (or the same if no migration was needed).",
             content = @Content(mediaType = APPLICATION_JSON))
-    @APIResponse(responseCode = "400",
+    @APIResponse(responseCode = "404",
             description = "If the configuration is missing, payload will be an ErrorPayload with the code CONFIGURATION_MISSING.",
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
-    @APIResponse(responseCode = "404", description = "The configuration is not found",
+    @APIResponse(responseCode = "520",
+            description = "An unexpected error occurred during migration, payload will be an ErrorPayload with the code UNEXPECTED.",
             content = @Content(mediaType = APPLICATION_JSON))
     Map<String, String> migrate(
             @PathParam("id") @Parameter(name = "id", description = "the configuration identifier", in = PATH) String id,

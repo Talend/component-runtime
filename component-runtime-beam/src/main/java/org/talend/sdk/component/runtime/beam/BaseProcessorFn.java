@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.beam;
 
 import static java.util.Collections.emptyIterator;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,7 +57,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
     @Setter
     protected int maxBatchSize = -1; // ui enforces it so we set it to -1 to enable to deactivate it
 
-    protected int currentCount = 0;
+    protected int currentCount;
 
     protected volatile RecordBuilderFactory recordFactory;
 
@@ -147,8 +147,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
             final Record element = context.element();
             objects = element
                     .getSchema()
-                    .getEntries()
-                    .stream()
+                    .getAllEntries()
                     .filter(e -> !e.getName().startsWith("__talend_internal"))
                     .collect(toMap(Schema.Entry::getName, e -> element.getArray(Record.class, e.getName()).iterator()));
         }
@@ -161,7 +160,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
     }
 
     @RequiredArgsConstructor
-    protected static abstract class BeamOutputFactory implements OutputFactory {
+    protected abstract static class BeamOutputFactory implements OutputFactory {
 
         protected final Consumer<Record> emit;
 
@@ -169,7 +168,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
         protected final Jsonb jsonb;
 
-        private Map<String, Collection<Record>> outputs = new HashMap<>();
+        private final Map<String, Collection<Record>> outputs = new HashMap<>();
 
         @Override
         public OutputEmitter create(final String name) {
@@ -182,7 +181,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
     protected static final class BeamSingleOutputFactory extends BeamOutputFactory {
 
-        private Map<String, Collection<Record>> outputs = new HashMap<>();
+        private final Map<String, Collection<Record>> outputs = new HashMap<>();
 
         protected BeamSingleOutputFactory(final Consumer<Record> emit, final RecordBuilderFactory factory,
                 final Jsonb jsonb) {

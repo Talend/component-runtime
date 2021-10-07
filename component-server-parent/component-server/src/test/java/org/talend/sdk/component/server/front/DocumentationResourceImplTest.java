@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.api.DocumentationResource;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
@@ -45,7 +46,7 @@ class DocumentationResourceImplTest {
     @Inject
     private WebsocketClient ws;
 
-    @Test
+    @RepeatedTest(2)
     void selectById() {
         final String foo = new DocumentationResourceImpl()
                 .selectById("Foo1",
@@ -56,7 +57,7 @@ class DocumentationResourceImplTest {
         assertEquals("The description", foo.trim());
     }
 
-    @Test
+    @RepeatedTest(2)
     void selectByIdUsingComments() {
         final String content = "//component_start:my\n" + "\n" + "== my\n" + "\n" + "super my component\n" + "\n"
                 + "//configuration_start\n" + "\n" + "=== Configuration\n" + "\n"
@@ -133,14 +134,14 @@ class DocumentationResourceImplTest {
                 impl.selectById("my3", content, DocumentationResourceImpl.DocumentationSegment.ALL).trim());
     }
 
-    @Test
+    @RepeatedTest(2)
     void wsDoc() {
         final DocumentationContent content =
                 ws.read(DocumentationContent.class, "GET", "/documentation/component/" + client.getJdbcId(), null);
         assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1", content.getSource());
     }
 
-    @Test
+    @RepeatedTest(2)
     void getDoc() {
         final DocumentationContent content = base
                 .path("documentation/component/{id}")
@@ -151,7 +152,7 @@ class DocumentationResourceImplTest {
         assertEquals("== input\n\ndesc\n\n=== Configuration\n\nSomething1", content.getSource());
     }
 
-    @Test
+    @RepeatedTest(2)
     void getDocDescription() {
         final DocumentationContent content = base
                 .path("documentation/component/{id}")
@@ -163,7 +164,7 @@ class DocumentationResourceImplTest {
         assertEquals("desc", content.getSource().trim());
     }
 
-    @Test
+    @RepeatedTest(2)
     void getDocConfig() {
         final DocumentationContent content = base
                 .path("documentation/component/{id}")
@@ -175,7 +176,7 @@ class DocumentationResourceImplTest {
         assertEquals("Something1", content.getSource().trim());
     }
 
-    @Test
+    @RepeatedTest(2)
     void missingDoc() {
         final String id = client.getComponentId("chain", "list");
         final Response response = base
@@ -189,7 +190,7 @@ class DocumentationResourceImplTest {
         assertEquals("No component '" + id + "'", payload.getDescription());
     }
 
-    @Test
+    @RepeatedTest(2)
     void selectDocByName() {
         {
             final String id = client.getComponentId("jdbc", "input");
@@ -213,7 +214,7 @@ class DocumentationResourceImplTest {
         }
     }
 
-    @Test
+    @RepeatedTest(2)
     void preferredLocaleDoc() {
         final String componentId = client.getComponentId("custom", "noop");
         final Function<String, String> get = lang -> base
@@ -228,7 +229,7 @@ class DocumentationResourceImplTest {
         assertEquals("= Fr doc", get.apply("fr"));
     }
 
-    @Test
+    @RepeatedTest(2)
     void overridenDoc() {
         final String id = client.getComponentId("chain", "list");
         final String response = base

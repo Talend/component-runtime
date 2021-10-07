@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,31 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(of = "delegate")
 @ToString(of = "delegate")
 public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
 
@@ -43,6 +50,9 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     private volatile AvroSchema elementSchema;
 
     private volatile List<Entry> entries;
+
+    @JsonbTransient
+    private volatile List<Entry> metadataEntries;
 
     private volatile Type type;
 
@@ -94,18 +104,84 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             if (entries != null) {
                 return entries;
             }
-            entries =
-                    getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL).map(field -> {
-                        final Type type = mapType(field.schema());
-                        final AvroSchema elementSchema = new AvroSchema(
-                                type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
-                        // readProp(unwrapUnion(field.schema()), KeysForAvroProperty.LABEL) is not good location in my
-                        // view
-                        return new SchemaImpl.EntryImpl(field.name(), field.getProp(KeysForAvroProperty.LABEL), type,
-                                field.schema().getType() == UNION, field.defaultVal(), elementSchema, field.doc());
-                    }).collect(toList());
+            entries = this
+                    .getNonNullFields() //
+                    .filter(f -> !AvroSchema.isMetadata(f)) // only data fields
+                    .map(this::fromAvro) //
+                    .collect(toList());
         }
         return entries;
+    }
+
+    @Override
+    public List<Entry> getMetadata() {
+        if (getActualDelegate().getType() != Schema.Type.RECORD) {
+            return emptyList();
+        }
+        if (this.metadataEntries == null) {
+            synchronized (this) {
+                if (this.metadataEntries == null) {
+                    this.metadataEntries = this
+                            .getNonNullFields() //
+                            .filter(AvroSchema::isMetadata) // only metadata fields
+                            .map(this::fromAvro) //
+                            .collect(Collectors.toList());
+                }
+            }
+        }
+        return this.metadataEntries;
+    }
+
+    @Override
+    @JsonbTransient
+    public Stream<Entry> getAllEntries() {
+        return Stream.concat(this.getEntries().stream(), this.getMetadata().stream());
+    }
+
+    private Stream<Field> getNonNullFields() {
+        return getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL);
+    }
+
+    private static boolean isMetadata(final Field f) {
+        return f.aliases() != null && f.aliases().contains(KeysForAvroProperty.METADATA_ALIAS_NAME);
+    }
+
+    private Entry fromAvro(final Field field) {
+        final Type type = mapType(field.schema());
+        final AvroSchema elementSchema =
+                new AvroSchema(type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
+
+        return AvroSchema.buildFromAvro(field, type, elementSchema);
+    }
+
+    private static Entry buildFromAvro(final Field field, final Type type, final AvroSchema elementSchema) {
+        return new EntryImpl.BuilderImpl() //
+                .withName(field.name()) //
+                .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
+                .withType(type) //
+                .withNullable(field.schema().getType() == UNION) //
+                .withMetadata(AvroSchema.isMetadata(field)) //
+                .withDefaultValue(field.defaultVal()) //
+                .withElementSchema(elementSchema) //
+                .withComment(field.doc()) //
+                .withProps(field.getProps()) //
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getProps() {
+        if (getActualDelegate().getType() != Schema.Type.RECORD) {
+            return emptyMap();
+        }
+        return getActualDelegate().getProps();
+    }
+
+    @Override
+    public String getProp(final String property) {
+        if (getActualDelegate().getType() != Schema.Type.RECORD) {
+            return null;
+        }
+        return getActualDelegate().getProp(property);
     }
 
     @Override

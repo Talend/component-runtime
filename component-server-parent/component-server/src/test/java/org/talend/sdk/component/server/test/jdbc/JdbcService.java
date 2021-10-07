@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
@@ -47,7 +48,7 @@ public class JdbcService {
         }
         try {
             return DriverManager.getConnection(dataStore.getUrl(), dataStore.getUsername(), dataStore.getPassword());
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new IllegalStateException("Didn't manage to connect driver using " + dataStore, e);
         }
     }
@@ -63,6 +64,19 @@ public class JdbcService {
             throw new IllegalArgumentException("this action failed intentionally");
         }
         return singletonMap("value", myEnum.name());
+    }
+
+    @Action("encrypted")
+    public Map<String, String> testEncrypted(@Option("configuration") final JdbcDataStore conf) {
+
+        return new HashMap<String, String>() {
+
+            {
+                put("url", conf.getUrl());
+                put("username", conf.getUsername());
+                put("password", conf.getPassword());
+            }
+        };
     }
 
     @DiscoverSchema("jdbc_discover_schema")

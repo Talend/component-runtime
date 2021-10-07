@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,10 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
 
     @Override
     public void accept(final Configuration configuration) {
+        // By default we want to skip vault calls zipkin logs, we can still override it...
+        System.setProperty("geronimo.opentracing.client.filter.request.skip", "true");
+        System.setProperty("geronimo.opentracing.filter.skippedTracing.urls", ".*/login$,.*/decrypt/.*");
+        System.setProperty("geronimo.opentracing.filter.skippedTracing.matcherType", "regex");
         configuration.loadFromProperties(System.getProperties());
         if (configuration.getProperties() == null) {
             configuration.setProperties(new Properties());

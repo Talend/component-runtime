@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ enum Indices {
             return SPARK_CORE.isAvailable();
         }
     },
-    BEAM_RUNNERS_SPARK("TALEND-INF/classloader/indices/beam-runners-spark") {
+    BEAM_RUNNERS_SPARK("TALEND-INF/classloader/indices/beam-runners-spark-3") {
 
         @Override
         protected boolean isAvailable() {

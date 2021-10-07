@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,65 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
+import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.Schema;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class SchemaImpl implements Schema {
 
-    private Type type;
+    @Getter
+    private final Type type;
 
-    private Schema elementSchema;
+    @Getter
+    private final Schema elementSchema;
 
-    private List<Entry> entries;
+    @Getter
+    private final List<Entry> entries;
+
+    @JsonbTransient
+    private final List<Entry> metadataEntries;
+
+    @Getter
+    private final Map<String, String> props;
+
+    SchemaImpl(final SchemaImpl.BuilderImpl builder) {
+        this.type = builder.type;
+        this.elementSchema = builder.elementSchema;
+        this.entries = unmodifiableList(builder.entries);
+        this.metadataEntries = unmodifiableList(builder.metadataEntries);
+        this.props = builder.props;
+    }
+
+    @Override
+    public String getProp(final String property) {
+        return props.get(property);
+    }
+
+    @Override
+    public List<Entry> getMetadata() {
+        return this.metadataEntries;
+    }
+
+    @Override
+    @JsonbTransient
+    public Stream<Entry> getAllEntries() {
+        return Stream.concat(this.metadataEntries.stream(), this.entries.stream());
+    }
 
     public static class BuilderImpl implements Builder {
 
@@ -45,14 +82,18 @@ public class SchemaImpl implements Schema {
 
         private Schema elementSchema;
 
-        private List<Entry> entries = new ArrayList<>();
+        private final List<Entry> entries = new ArrayList<>();
+
+        private final List<Entry> metadataEntries = new ArrayList<>();
+
+        private Map<String, String> props = new LinkedHashMap<>(0);
 
         @Override
         public Builder withElementSchema(final Schema schema) {
             if (type != Type.ARRAY && schema != null) {
                 throw new IllegalArgumentException("elementSchema is only valid for ARRAY type of schema");
             }
-            this.elementSchema = schema;
+            elementSchema = schema;
             return this;
         }
 
@@ -67,33 +108,63 @@ public class SchemaImpl implements Schema {
             if (type != Type.RECORD) {
                 throw new IllegalArgumentException("entry is only valid for RECORD type of schema");
             }
-            if (entries == null) {
-                entries = new ArrayList<>();
+            if (entry.isMetadata()) {
+                this.metadataEntries.add(entry);
+            } else {
+                entries.add(entry);
             }
-            entries.add(entry);
+            return this;
+        }
+
+        @Override
+        public Builder withProp(final String key, final String value) {
+            props.put(key, value);
+            return this;
+        }
+
+        @Override
+        public Builder withProps(final Map<String, String> props) {
+            if (props != null) {
+                this.props = props;
+            }
             return this;
         }
 
         @Override
         public Schema build() {
-            return new SchemaImpl(type, elementSchema, entries == null ? null : unmodifiableList(entries));
+            return new SchemaImpl(this);
         }
     }
 
     @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class EntryImpl implements org.talend.sdk.component.api.record.Schema.Entry {
 
-        // add this for some old code which refer this construct
-        public EntryImpl(final String name, final Schema.Type type, final boolean nullable, final Object defaultValue,
-                final Schema elementSchema, final String comment) {
-            this.name = name;
-            this.type = type;
-            this.nullable = nullable;
-            this.defaultValue = defaultValue;
-            this.elementSchema = elementSchema;
-            this.comment = comment;
+        EntryImpl(final EntryImpl.BuilderImpl builder) {
+            this.name = builder.name;
+            this.rawName = builder.rawName;
+            this.type = builder.type;
+            this.nullable = builder.nullable;
+            this.metadata = builder.metadata;
+            this.defaultValue = builder.defaultValue;
+            this.elementSchema = builder.elementSchema;
+            this.comment = builder.comment;
+
+            if (builder.props != null) {
+                this.props.putAll(builder.props);
+            }
+        }
+
+        /**
+         * if raw name is changed as follow name rule, use label to store raw name
+         * if not changed, not set label to save space
+         * 
+         * @param name incoming entry name
+         */
+        private void initNames(final String name) {
+            this.name = sanitizeConnectionName(name);
+            if (!name.equals(this.name)) {
+                rawName = name;
+            }
         }
 
         @JsonbTransient
@@ -121,6 +192,8 @@ public class SchemaImpl implements Schema {
          */
         private boolean nullable;
 
+        private final boolean metadata;
+
         /**
          * Default value for this entry.
          */
@@ -136,7 +209,15 @@ public class SchemaImpl implements Schema {
          */
         private String comment;
 
-        // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
+        /**
+         * metadata
+         */
+        private Map<String, String> props = new LinkedHashMap<>(0);
+
+        @Override
+        public String getProp(final String property) {
+            return props.get(property);
+        }
 
         public static class BuilderImpl implements Builder {
 
@@ -148,32 +229,15 @@ public class SchemaImpl implements Schema {
 
             private boolean nullable;
 
+            private boolean metadata = false;
+
             private Object defaultValue;
 
             private Schema elementSchema;
 
             private String comment;
 
-            private static String sanitizeConnectionName(final String name) {
-                if (name.isEmpty()) {
-                    return name;
-                }
-                final char[] original = name.toCharArray();
-                final boolean skipFirstChar = !Character.isLetter(original[0]) && original[0] != '_';
-                final int offset = skipFirstChar ? 1 : 0;
-                final char[] sanitized = skipFirstChar ? new char[original.length - offset] : new char[original.length];
-                if (!skipFirstChar) {
-                    sanitized[0] = original[0];
-                }
-                for (int i = 1; i < original.length; i++) {
-                    if (!Character.isLetterOrDigit(original[i]) && original[i] != '_') {
-                        sanitized[i - offset] = '_';
-                    } else {
-                        sanitized[i - offset] = original[i];
-                    }
-                }
-                return new String(sanitized);
-            }
+            private final Map<String, String> props = new LinkedHashMap<>(0);
 
             @Override
             public Builder withName(final String name) {
@@ -205,14 +269,20 @@ public class SchemaImpl implements Schema {
             }
 
             @Override
+            public Builder withMetadata(final boolean metadata) {
+                this.metadata = metadata;
+                return this;
+            }
+
+            @Override
             public <T> Builder withDefaultValue(final T value) {
-                this.defaultValue = value;
+                defaultValue = value;
                 return this;
             }
 
             @Override
             public Builder withElementSchema(final Schema schema) {
-                this.elementSchema = schema;
+                elementSchema = schema;
                 return this;
             }
 
@@ -223,8 +293,23 @@ public class SchemaImpl implements Schema {
             }
 
             @Override
+            public Builder withProp(final String key, final String value) {
+                props.put(key, value);
+                return this;
+            }
+
+            @Override
+            public Builder withProps(final Map props) {
+                if (props == null) {
+                    return this;
+                }
+                this.props.putAll(props);
+                return this;
+            }
+
+            @Override
             public Entry build() {
-                return new EntryImpl(name, rawName, type, nullable, defaultValue, elementSchema, comment);
+                return new EntryImpl(this);
             }
         }
     }

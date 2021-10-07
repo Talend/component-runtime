@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.29.0-SNAPSHOT</version>
+    <version>1.38.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-vault-proxy-image</artifactId>
@@ -176,12 +176,10 @@
                   <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
                   <LD_LIBRARY_PATH>/opt/talend/component-kit/sigar</LD_LIBRARY_PATH>
                 </environment>
-                <args>
-                  <arg>--http=${boundPort}</arg>
-                </args>
                 <jvmFlags>
                   <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
                   <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
+                  <jvmFlag>-Dhttp=${boundPort}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
                   <jvmFlag>-Dlog4j.configurationFile=log4j2-${env:LOGGING_LAYOUT}.xml</jvmFlag>
@@ -219,8 +217,8 @@
       </plugin>
       <plugin><!--
         mvn clean verify dockerfile:build -P dev-tsbi
-        docker tag talend/common/tacokit/component-server-vault-proxy:${tag} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}
-        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}
+        docker tag talend/common/tacokit/component-server-vault-proxy:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release}
+        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release}
         -->
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
@@ -235,7 +233,7 @@
         </executions>
         <configuration>
           <repository>${image.target}</repository>
-          <tag>${image.tag}_${maven.build.timestamp}</tag>
+          <tag>${image.tag}</tag>
           <dockerfile>Dockerfile</dockerfile>
           <buildArgs>
             <PROJECT_VERSION>${project.version}</PROJECT_VERSION>

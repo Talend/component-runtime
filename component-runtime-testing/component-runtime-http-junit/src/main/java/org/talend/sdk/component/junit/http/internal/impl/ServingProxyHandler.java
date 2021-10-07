@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderUtil;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.Attribute;
@@ -63,7 +63,7 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
     private final HttpApiHandler api;
 
     @Override
-    protected void messageReceived(final ChannelHandlerContext ctx, final FullHttpRequest request) {
+    protected void channelRead0(final ChannelHandlerContext ctx, final FullHttpRequest request) {
         if (!request.decoderResult().isSuccess()) {
             sendError(ctx, HttpResponseStatus.BAD_REQUEST);
             return;
@@ -74,8 +74,7 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
         api.getExecutor().execute(() -> {
             final Map<String, String> headers = StreamSupport
                     .stream(Spliterators
-                            .spliteratorUnknownSize(request.headers().iteratorConverted(), Spliterator.IMMUTABLE),
-                            false)
+                            .spliteratorUnknownSize(request.headers().iteratorAsString(), Spliterator.IMMUTABLE), false)
                     .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
             final Attribute<String> baseAttr = ctx.channel().attr(Handlers.BASE);
             Optional<Response> matching = api
@@ -115,7 +114,7 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
             final ByteBuf bytes = ofNullable(resp.payload()).map(Unpooled::copiedBuffer).orElse(Unpooled.EMPTY_BUFFER);
             final HttpResponse response =
                     new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);
-            HttpHeaderUtil.setContentLength(response, bytes.array().length);
+            HttpUtil.setContentLength(response, bytes.array().length);
 
             if (!api.isSkipProxyHeaders()) {
                 response.headers().set("X-Talend-Proxy-JUnit", "true");

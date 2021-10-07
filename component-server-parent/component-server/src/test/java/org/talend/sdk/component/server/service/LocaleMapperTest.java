@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,12 @@ class LocaleMapperTest {
     void mapFr() {
         assertEquals(Locale.FRENCH, mapper.mapLocale(Locale.FRANCE.toString()));
         assertEquals(Locale.FRENCH, mapper.mapLocale(Locale.CANADA_FRENCH.toString()));
+    }
+
+    @Test
+    void mapDe() {
+        assertEquals(Locale.GERMAN, mapper.mapLocale(Locale.GERMANY.toString()));
+        assertEquals(Locale.GERMAN, mapper.mapLocale("de_AU"));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -303,7 +303,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
                 @Override
                 public T next() {
-                    T poll = records.poll();
+                    final T poll = records.poll();
                     if (poll != null) {
                         return mapRecord(state, recordType, poll);
                     }
@@ -410,7 +410,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
         return asManager()
                 .find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
                 .flatMap(f -> Stream
-                        .concat(f.getProcessors().values().stream(), f.getPartitionMappers().values().stream()))
+                        .of(f.getProcessors().values().stream(), f.getPartitionMappers().values().stream(),
+                                f.getDriverRunners().values().stream())
+                        .flatMap(t -> t))
                 .filter(m -> m.getType().getName().equals(componentType.getName()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No component " + componentType));

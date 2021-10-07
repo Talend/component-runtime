@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,9 @@ class ScanTaskTest {
                 + "org.talend.test.valid.datasetassourceconfig.MyComponent,"
                 + "org.talend.test.valid.datasetintwosourceswithonewithadditionalrequired.MyComponent,"
                 + "org.talend.test.valid.datasetintwosourceswithonewithadditionalrequired.MyComponent2,"
-                + "org.talend.test.valid.datastore.MyService," + "org.talend.test.valid.localconfiguration.MyComponent,"
+                + "org.talend.test.valid.datastore.MyService,"
+                + "org.talend.test.valid.exceptions.ValidComponentExceptionService,"
+                + "org.talend.test.valid.localconfiguration.MyComponent,"
                 + "org.talend.test.valid.nestedconfigtypes.WithNestedConfigTypes,"
                 + "org.talend.test.valid.nesteddataset.MyComponent,"
                 + "org.talend.test.valid.structure.MyComponentWithStructure,"

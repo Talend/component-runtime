@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,21 +53,21 @@ class JsonSchemaConverterTest {
             final JsonSchema schema = new JsonSchema();
 
             schema.setDefaultValue(5);
-            assertEquals("{\"default\":5}", jsonb.toJson(schema));
+            assertEquals("{\"default\":5,\"type\":\"object\"}", jsonb.toJson(schema));
 
             schema.setDefaultValue("yes");
-            assertEquals("{\"default\":\"yes\"}", jsonb.toJson(schema));
+            assertEquals("{\"default\":\"yes\",\"type\":\"object\"}", jsonb.toJson(schema));
 
             schema.setDefaultValue(asList("a", "b"));
-            assertEquals("{\"default\":[\"a\",\"b\"]}", jsonb.toJson(schema));
+            assertEquals("{\"default\":[\"a\",\"b\"],\"type\":\"object\"}", jsonb.toJson(schema));
 
             final Model model = new Model();
             model.id = "1";
             schema.setDefaultValue(model);
-            assertEquals("{\"default\":{\"id\":\"1\"}}", jsonb.toJson(schema));
+            assertEquals("{\"default\":{\"id\":\"1\"},\"type\":\"object\"}", jsonb.toJson(schema));
 
             schema.setDefaultValue(singletonList(model));
-            assertEquals("{\"default\":[{\"id\":\"1\"}]}", jsonb.toJson(schema));
+            assertEquals("{\"default\":[{\"id\":\"1\"}],\"type\":\"object\"}", jsonb.toJson(schema));
         }
     }
 

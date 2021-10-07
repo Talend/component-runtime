@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
@@ -25,11 +26,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -59,6 +68,7 @@ import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.dao.ConfigurationDao;
+import org.talend.sdk.component.server.front.model.Connectors;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
 
 import lombok.AllArgsConstructor;
@@ -108,7 +118,15 @@ public class ComponentManagerService {
 
     private volatile Date lastUpdated = new Date();
 
+    private Connectors connectors;
+
     private boolean started;
+
+    private Path m2;
+
+    private Long latestPluginUpdate;
+
+    private ScheduledExecutorService scheduledExecutorService;
 
     public void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // no-op
@@ -124,7 +142,7 @@ public class ComponentManagerService {
         }
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
-        final Path m2 = configuration
+        m2 = configuration
                 .getMavenRepository()
                 .map(PathFactory::get)
                 .filter(Files::exists)
@@ -140,7 +158,126 @@ public class ComponentManagerService {
         deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao, configurationDao,
                 virtualDependenciesService);
         instance.getContainer().registerListener(deploymentListener);
+        // deploy plugins
+        deployPlugins();
+        // check if we find a connectors version information file on top of the m2
+        connectors = new Connectors(readConnectorsVersion());
+        // auto-reload plugins executor service
+        if (configuration.getPluginsReloadActive()) {
+            final boolean useTimestamp = "timestamp".equals(configuration.getPluginsReloadMethod());
+            if (useTimestamp) {
+                latestPluginUpdate = readPluginsTimestamp();
+            }
+            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+            scheduledExecutorService
+                    .scheduleWithFixedDelay(() -> checkPlugins(), configuration.getPluginsReloadInterval(),
+                            configuration.getPluginsReloadInterval(), SECONDS);
+            log
+                    .info("Plugin reloading enabled with {} method and interval check of {}s.",
+                            useTimestamp ? "timestamp" : "connectors version",
+                            configuration.getPluginsReloadInterval());
+        }
 
+        started = true;
+    }
+
+    @PreDestroy
+    private void destroy() {
+        started = false;
+        instance.getContainer().unregisterListener(deploymentListener);
+        instance.close();
+        // shutdown auto-reload service
+        if (scheduledExecutorService != null) {
+            scheduledExecutorService.shutdownNow();
+            try {
+                scheduledExecutorService.awaitTermination(10, SECONDS);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private Locale readCurrentLocale() {
+        try {
+            return ofNullable(uriInfo.getQueryParameters().getFirst("lang"))
+                    .map(localeMapper::mapLocale)
+                    .orElseGet(Locale::getDefault);
+        } catch (final RuntimeException ex) {
+            log.debug("Can't get the locale from current request in thread '{}'", Thread.currentThread().getName(), ex);
+            return Locale.getDefault();
+        }
+    }
+
+    private CompletionStage<Void> checkPlugins() {
+        boolean reload;
+        if ("timestamp".equals(configuration.getPluginsReloadMethod())) {
+            final long checked = readPluginsTimestamp();
+            reload = checked > latestPluginUpdate;
+            log
+                    .info("checkPlugins w/ timestamp {} vs {}. Reloading: {}.",
+                            Instant.ofEpochMilli(latestPluginUpdate), Instant.ofEpochMilli(checked), reload);
+            latestPluginUpdate = checked;
+        } else {
+            // connectors version used
+            final String cv = readConnectorsVersion();
+            reload = !cv.equals(getConnectors().getVersion());
+            log.info("checkPlugins w/ connectors {} vs {}. Reloading: {}.", connectors.getVersion(), cv, reload);
+        }
+        if (!reload) {
+            return null;
+        }
+        // undeploy plugins
+        log.info("Un-deploying plugins...");
+        manager().getContainer().findAll().forEach(container -> container.close());
+        // redeploy plugins
+        log.info("Re-deploying plugins...");
+        deployPlugins();
+        log.info("Plugins deployed.");
+        // reset connectors' version
+        connectors = new Connectors(readConnectorsVersion());
+
+        return null;
+    }
+
+    private synchronized String readConnectorsVersion() {
+        // check if we find a connectors version information file on top of the m2
+        final String version = Optional.of(m2.resolve("CONNECTORS_VERSION")).filter(Files::exists).map(p -> {
+            try {
+                return Files.lines(p).findFirst().get();
+            } catch (IOException e) {
+                log.warn("Failed reading connectors version {}", e.getMessage());
+                return "unknown";
+            }
+        }).orElse("unknown");
+        log.debug("Using connectors version: '{}'", version);
+
+        return version;
+    }
+
+    private synchronized Long readPluginsTimestamp() {
+        final Long last = Stream
+                .concat(Stream.of(configuration.getPluginsReloadFileMarker().orElse("")),
+                        configuration.getComponentRegistry().map(Collection::stream).orElse(Stream.empty()))
+                .filter(s -> !s.isEmpty())
+                .map(cr -> Paths.get(cr))
+                .filter(Files::exists)
+                .peek(f -> log.debug("[readPluginsTimestamp] getting {} timestamp.", f))
+                .map(f -> {
+                    try {
+                        return Files.getAttribute(f, "lastModifiedTime");
+                    } catch (IOException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(ts -> FileTime.class.cast(ts).toMillis())
+                .orElse(0L);
+        log.debug("[readPluginsTimestamp] Latest: {}.", Instant.ofEpochMilli(last));
+        return last;
+    }
+
+    private synchronized void deployPlugins() {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
@@ -168,25 +305,6 @@ public class ComponentManagerService {
                             .filter(gav -> !coords.contains(gav))
                             .forEach(this::deploy);
                 });
-        started = true;
-    }
-
-    private Locale readCurrentLocale() {
-        try {
-            return ofNullable(uriInfo.getQueryParameters().getFirst("lang"))
-                    .map(localeMapper::mapLocale)
-                    .orElseGet(Locale::getDefault);
-        } catch (final RuntimeException ex) {
-            log.debug("Can't get the locale from current request in thread '{}'", Thread.currentThread().getName(), ex);
-            return Locale.getDefault();
-        }
-    }
-
-    @PreDestroy
-    private void destroy() {
-        started = false;
-        instance.getContainer().unregisterListener(deploymentListener);
-        instance.close();
     }
 
     public String deploy(final String pluginGAV) {
@@ -195,7 +313,6 @@ public class ComponentManagerService {
                 .map(Artifact::toPath)
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
 
-        final Path m2 = instance.getContainer().getRootRepositoryLocationPath();
         final String plugin =
                 instance.addWithLocationPlugin(pluginGAV, m2.resolve(pluginPath).toAbsolutePath().toString());
         lastUpdated = new Date();
@@ -205,12 +322,12 @@ public class ComponentManagerService {
         return plugin;
     }
 
-    public void undeploy(final String pluginGAV) {
+    public synchronized void undeploy(final String pluginGAV) {
         if (pluginGAV == null || pluginGAV.isEmpty()) {
             throw new IllegalArgumentException("plugin maven GAV are required to undeploy a plugin");
         }
 
-        String pluginID = instance
+        final String pluginID = instance
                 .find(c -> pluginGAV.equals(c.get(ComponentManager.OriginalId.class).getValue()) ? Stream.of(c.getId())
                         : empty())
                 .findFirst()
@@ -222,6 +339,10 @@ public class ComponentManagerService {
 
     public Date findLastUpdated() {
         return lastUpdated;
+    }
+
+    public Connectors getConnectors() {
+        return connectors;
     }
 
     @AllArgsConstructor
@@ -258,7 +379,9 @@ public class ComponentManagerService {
                     .values()
                     .stream()
                     .flatMap(c -> Stream
-                            .concat(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream()))
+                            .of(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream(),
+                                    c.getDriverRunners().values().stream())
+                            .flatMap(t -> t))
                     .peek(componentDao::createOrUpdate)
                     .map(ComponentFamilyMeta.BaseMeta::getId)
                     .collect(toSet());

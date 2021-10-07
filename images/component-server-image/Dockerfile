@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+# Copyright (C) 2006-2021 Talend Inc. - www.talend.com
 #  Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -45,5 +45,7 @@ ENV LD_LIBRARY_PATH       ${TALEND_APP_HOME}/sigar
 ENV TRACING_SAMPLING_RATE 1
 ARG TALEND_JDK_SERIAL_FILTER
 ENV TALEND_JDK_SERIAL_FILTER ${TALEND_JDK_SERIAL_FILTER:-!*}
-ENV JAVA_OPTS="-Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER} -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2-component-server-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -Dtalend.component.exit-on-destroy=true -Dtalend.component.manager.services.cache.eviction.defaultEvictionTimeout=30_000 -Dtalend.component.manager.services.cache.eviction.defaultMaxSize=5_000 -Dtalend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun=-1 -cp ${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes:${TALEND_APP_HOME}/lib/*"
-CMD java org.apache.meecrowave.runner.Cli --http=$BOUND_PORT
+ENV CLASSPATH ${TALEND_HOME}/component-kit/custom/*:${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes
+ENV JAVA_OPTS " -Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER} -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dhttp=${BOUND_PORT} -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dmeecrowave-properties=${TALEND_APP_HOME}/conf/meecrowave.properties -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2-component-server-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -Dtalend.component.exit-on-destroy=true -Dtalend.component.manager.services.cache.eviction.defaultEvictionTimeout=30_000 -Dtalend.component.manager.services.cache.eviction.defaultMaxSize=5_000 -Dtalend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun=-1 "
+
+CMD ["java", "org.apache.meecrowave.runner.Cli"]

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,11 @@
  */
 package org.talend.test.failure.exceptions;
 
-public class InvalidComponentException extends RuntimeException {
+import org.talend.sdk.component.api.exception.ComponentException;
 
+public class InvalidComponentException extends ComponentException {
+
+    public InvalidComponentException(final Throwable cause) {
+        super(cause);
+    }
 }

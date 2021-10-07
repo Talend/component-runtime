@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,9 @@ public abstract class ComponentManagerBasedMojo extends ClasspathMojoBase {
                         .forEach((k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
                 c
                         .getProcessors()
+                        .forEach((k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
+                c
+                        .getDriverRunners()
                         .forEach((k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
             });
 

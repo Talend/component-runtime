@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -93,8 +93,9 @@ public class RepositoryModelBuilder {
     private Map<Type, Config> extractConfigurations(final ComponentManager.AllServices services,
             final MigrationHandlerFactory migrationHandlerFactory, final ComponentFamilyMeta familyMeta) {
         return Stream
-                .concat(familyMeta.getPartitionMappers().values().stream(),
-                        familyMeta.getProcessors().values().stream())
+                .of(familyMeta.getPartitionMappers().values().stream(), familyMeta.getProcessors().values().stream(),
+                        familyMeta.getDriverRunners().values().stream())
+                .flatMap(t -> t)
                 .flatMap(b -> b.getParameterMetas().get().stream())
                 .flatMap(this::flatten)
                 .filter(RepositoryModelBuilder::isConfiguration)

@@ -71,24 +71,6 @@ jobs:
 
     - stage: master_build
       env:
-      - STEP=Docker Server Deployment
-      before_script: ./.travis/setup_keys.sh
-      script: travis_wait 50 mvn clean install -pl images/component-server-image -am $DEPLOY_OPTS && cd images/component-server-image && mvn clean install jib:build@build -Dtalend.server.image.registry=registry.hub.docker.com/ $DEPLOY_OPTS
-
-    - stage: master_build
-      env:
-      - STEP=Docker Server Proxy Deployment
-      before_script: ./.travis/setup_keys.sh
-      script: travis_wait 50 mvn clean install -pl images/component-server-vault-proxy-image -am $DEPLOY_OPTS && cd images/component-server-vault-proxy-image && mvn clean install jib:build@build -Dtalend.server.image.registry=registry.hub.docker.com/ $DEPLOY_OPTS
-
-    - stage: master_build
-      env:
-      - STEP=Docker Remote Engine Customizer
-      before_script: ./.travis/setup_keys.sh
-      script: travis_wait 50 mvn clean install -pl images/remote-engine-customizer-image -am $DEPLOY_OPTS && cd images/remote-engine-customizer-image && mvn clean install jib:build@build -Dtalend.server.image.registry=registry.hub.docker.com/ $DEPLOY_OPTS
-
-    - stage: master_build
-      env:
       - STEP=Sonatype Audit
       script: travis_wait 50 mvn clean install -B -q -e $SKIP_OPTS && travis_wait 50 mvn ossindex:audit -B
 
@@ -97,8 +79,22 @@ jobs:
       - STEP=SourceClear Audit
       script: travis_wait 50 ./.travis/source-clear.sh
 
+    # maintenance profile
+    - stage: maintenance_build
+      env:
+        - STEP=Build OpenJDK 8 JVM
+      script: mvn $BUILD_ARGS
+
+    - stage: maintenance_build
+      env:
+        - STEP=Deploy Artifacts
+      before_script: ./.travis/setup_keys.sh
+      script: travis_wait 50 mvn clean deploy -e -q $DEPLOY_OPTS
+
 stages:
   - name: master_build
     if: branch = master AND type != pull_request
   - name: pullrequest_build
     if: type = pull_request
+  - name: maintenance_build
+    if: branch =~ ^maintenance\/.*$

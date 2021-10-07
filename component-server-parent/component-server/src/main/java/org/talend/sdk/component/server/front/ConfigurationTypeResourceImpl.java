@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,17 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
+import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.design.extension.repository.Config;
@@ -62,11 +67,15 @@ import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 import org.talend.sdk.component.server.service.SimpleQueryLanguageCompiler;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
+import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
+import org.talend.sdk.components.vault.client.VaultClient;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
+@CacheDefaults(cacheResolverFactory = FrontCacheResolver.class, cacheKeyGenerator = FrontCacheKeyGenerator.class)
 public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource {
 
     private final ConcurrentMap<RequestKey, ConfigTypeNodes> indicesPerRequest = new ConcurrentHashMap<>();
@@ -98,10 +107,18 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
     @Inject
     private SimpleQueryLanguageCompiler queryLanguageCompiler;
 
-    private Map<String, Function<ConfigTypeNode, Object>> configNodeEvaluators = new HashMap<>();
+    @Inject
+    @Context
+    private HttpHeaders headers;
+
+    @Inject
+    private VaultClient vault;
+
+    private final Map<String, Function<ConfigTypeNode, Object>> configNodeEvaluators = new HashMap<>();
 
     @PostConstruct
     private void init() {
+        log.info("Initializing " + getClass());
         configNodeEvaluators.put("id", ConfigTypeNode::getId);
         configNodeEvaluators.put("type", ConfigTypeNode::getConfigurationType);
         configNodeEvaluators.put("name", ConfigTypeNode::getName);
@@ -119,6 +136,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
     }
 
     @Override
+    @CacheResult
     public ConfigTypeNodes getRepositoryModel(final String language, final boolean lightPayload, final String query) {
         final Locale locale = localeMapper.mapLocale(language);
         caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
@@ -128,6 +146,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
     }
 
     @Override
+    @CacheResult
     public ConfigTypeNodes getDetail(final String language, final String[] ids) {
         final Predicate<String> filter = ids == null ? s -> false : new Predicate<String>() {
 
@@ -144,8 +163,16 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
+        String tenant;
+        try {
+            tenant = headers.getHeaderString("x-talend-tenant-id");
+        } catch (Exception e) {
+            log.debug("[migrate] context not applicable: {}", e.getMessage());
+            tenant = null;
+        }
+        final Map<String, String> decrypted = vault.decrypt(config, tenant);
         if (virtualComponents.isExtensionEntity(id)) {
-            return config;
+            return decrypted;
         }
         final Config configuration = ofNullable(configurations.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
@@ -153,14 +180,37 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                         .entity(new ErrorPayload(ErrorDictionary.CONFIGURATION_MISSING,
                                 "Didn't find configuration " + id))
                         .build()));
-        final Map<String, String> configToMigrate = new HashMap<>(config);
+        final Map<String, String> configToMigrate = new HashMap<>(decrypted);
         final String versionKey = configuration.getMeta().getPath() + ".__version";
         final boolean addedVersion = configToMigrate.putIfAbsent(versionKey, Integer.toString(version)) == null;
-        final Map<String, String> migrated = configuration.getMigrationHandler().migrate(version, configToMigrate);
-        if (addedVersion) {
-            migrated.remove(versionKey);
+        try {
+            final Map<String, String> migrated = configuration.getMigrationHandler().migrate(version, configToMigrate);
+            if (addedVersion) {
+                migrated.remove(versionKey);
+            }
+            return migrated;
+        } catch (final Exception e) {
+            // contract of migrate() do not impose to throw a ComponentException, so not likely to happen...
+            if (ComponentException.class.isInstance(e)) {
+                final ComponentException ce = (ComponentException) e;
+                throw new WebApplicationException(Response
+                        .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
+                                : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,
+                                "Unexpected migration error")
+                        .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                                "Migration execution failed with: " + ofNullable(e.getMessage())
+                                        .orElseGet(() -> NullPointerException.class.isInstance(e) ? "unexpected null"
+                                                : "no error message")))
+                        .build());
+            }
+            throw new WebApplicationException(Response
+                    .status(520, "Unexpected migration error")
+                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                            "Migration execution failed with: " + ofNullable(e.getMessage())
+                                    .orElseGet(() -> NullPointerException.class.isInstance(e) ? "unexpected null"
+                                            : "no error message")))
+                    .build());
         }
-        return migrated;
     }
 
     private Stream<ConfigTypeNode> createNode(final String parentId, final String family, final Stream<Config> configs,

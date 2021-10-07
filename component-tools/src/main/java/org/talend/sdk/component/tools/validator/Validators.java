@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,6 +117,8 @@ public class Validators {
         if (configuration.isValidateDataSet()) {
             final DatasetValidator validator = new DatasetValidator(helper);
             activeValidators.add(validator);
+            final DatasetDiscoveryValidator discoveryValidator = new DatasetDiscoveryValidator(helper);
+            activeValidators.add(discoveryValidator);
         }
 
         if (configuration.isValidateActions()) {

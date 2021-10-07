@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,9 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
 
                     @Override
                     protected Object toObjectImpl(final String text) {
+                        if (text.isEmpty()) {
+                            return null;
+                        }
                         final Object o = doubleEditor.toObject(text);
                         return mapper.apply(Double.class.cast(o));
                     }

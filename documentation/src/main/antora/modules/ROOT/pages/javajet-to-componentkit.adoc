@@ -383,6 +383,57 @@ private String login;
 private String password;
 ----
 
+=== After Variables
+
+Javajet
+[source,XML]
+----
+   <RETURN NAME="NAME_1_OF_AFTER_VARIABLE" TYPE="id_Integer" AVAILABILITY="AFTER"/>
+   <RETURN NAME="NAME_2_OF_AFTER_VARIABLE" TYPE="id_String" AVAILABILITY="AFTER"/>
+----
+
+Component Kit
+
+[source,java]
+----
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariable;
+
+/**
+* Possible types:
+* Boolean.class, Byte.class, byte[].class, Character.class, Date.class, Double.class, Float.class,
+* BigDecimal.class, Integer.class, Long.class, Object.class, Short.class, String.class, List.class
+*/
+@AfterVariable(value = "NAME_1_OF_AFTER_VARIABLE", description = "Some description", type = Integer.class)
+@AfterVariable(value = "NAME_2_OF_AFTER_VARIABLE", description = "Custom variable description", type = String.class)
+class Emitter {
+
+    @AfterVariableContainer
+    public Map<String, Object> afterVariables() {
+        // .. code
+    }
+
+}
+----
+or
+[source,java]
+----
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
+import org.talend.sdk.component.api.component.AfterVariables.AfterVariable;
+import org.talend.sdk.component.api.component.AfterVariables;
+
+@AfterVariables({
+    @AfterVariable(value = "NAME_1_OF_AFTER_VARIABLE", description = "Some description", type = Integer.class),
+    @AfterVariable(value = "NAME_2_OF_AFTER_VARIABLE", description = "Custom variable description", type = String.class)
+})
+class Emitter {
+    @AfterVariableContainer
+    public Map<String, Object> afterVariables() {
+        // .. code
+    }
+}
+----
+
 == Defining the runtime
 
 Previously, the execution of a custom component was described through several Javajet files:

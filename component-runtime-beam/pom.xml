@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.29.0-SNAPSHOT</version>
+    <version>1.38.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-beam</artifactId>
@@ -68,7 +68,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-spark</artifactId>
+      <artifactId>beam-runners-spark-3</artifactId>
       <version>${beam.version}</version>
       <scope>test</scope>
       <exclusions>
@@ -197,8 +197,26 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>cleanup-TALEND-INF/dependencies.txt</id>
+            <phase>compile</phase> <!-- cleanup asap -->
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target> <!-- TCOMP-1983 -->
+                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/beam.dependencies" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true" />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>${assembly-plugin.version}</version>
         <executions>
           <execution>
             <id>dependencies</id>

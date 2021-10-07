@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,36 @@
  */
 package org.talend.sdk.component.server.front.security.web;
 
+import java.io.IOException;
+
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletResponse;
 
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 @Dependent
 @WebFilter(urlPatterns = { "/documentation", "/documentation/*" })
-public class DocumentationToggle extends SecuredFilter {
+public class DocumentationToggle implements Filter {
 
     @Inject
     private ComponentServerConfiguration configuration;
 
     @Override
-    protected boolean canCall(final ServletRequest servletRequest) {
-        return configuration.getSupportsDocumentation();
+    public final void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
+            final FilterChain filterChain) throws IOException, ServletException {
+        if (configuration.getSupportsDocumentation()) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
+        final HttpServletResponse response = HttpServletResponse.class.cast(servletResponse);
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 }

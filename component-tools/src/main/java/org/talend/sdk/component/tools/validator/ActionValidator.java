@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
+import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
@@ -71,6 +72,14 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should have its first parameter being a datastore (marked with @DataStore)")
                 .sorted();
 
+        // Discover dataset
+        final Stream<String> datasetDiscover = finder
+                .findAnnotatedMethods(DiscoverDataset.class)
+                .stream()
+                .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
+                .map(m -> m + " should have a datastore as first parameter (marked with @DataStore)")
+                .sorted();
+
         // parameters for @DiscoverSchema
         final Stream<String> discover = finder
                 .findAnnotatedMethods(DiscoverSchema.class)
@@ -100,15 +109,18 @@ public class ActionValidator implements Validator {
                 .map(f -> f.getAnnotation(DynamicValues.class).value())
                 .collect(Collectors.toSet());
         proposables.removeAll(dynamicValues);
+
         final Stream<String> proposableWithoutDynamic = proposables
                 .stream()
                 .map(p -> "No @DynamicValues(\"" + p + "\"), add a service with this method: " + "@DynamicValues(\"" + p
                         + "\") Values proposals();")
                 .sorted();
+
         return Stream
                 .of(actionType, //
                         actionWithoutParameter, //
                         health, //
+                        datasetDiscover, //
                         discover, //
                         updatesErrors, //
                         enumProposable, //

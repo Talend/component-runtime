@@ -1,10 +1,323 @@
 
 
+== Version 1.38.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1987[TCOMP-1987^]: Avro record : Array of Array of records issue
+- link:https://jira.talendforge.org/browse/TCOMP-2006[TCOMP-2006^]: Support empty values for Numbers case
+
+
+
+=== Epic
+
+- link:https://jira.talendforge.org/browse/TCOMP-1900[TCOMP-1900^]: Create jenkins release process for component-runtime
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2000[TCOMP-2000^]: Upgrade netty to 4.1.68.Final
+- link:https://jira.talendforge.org/browse/TCOMP-2001[TCOMP-2001^]: Upgrade Beam to 2.32.0
+- link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
+
+
+
+== Version 1.37.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
+
+== Version 1.37.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1957[TCOMP-1957^]: Avro schema builder issue
+- link:https://jira.talendforge.org/browse/TCOMP-1994[TCOMP-1994^]: WebSocketClient$ClientException when executing action in Studio
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1923[TCOMP-1923^]: Record : add metadata
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1990[TCOMP-1990^]: Update jsoup to 1.14.2 due to CVE-2021-37714
+- link:https://jira.talendforge.org/browse/TCOMP-1991[TCOMP-1991^]: Update groovy to 3.0.9 due to CVE-2021-36373 / CVE-2021-36374
+- link:https://jira.talendforge.org/browse/TCOMP-1992[TCOMP-1992^]: Update lombok to 1.18.20
+- link:https://jira.talendforge.org/browse/TCOMP-1993[TCOMP-1993^]: Update TSBI to 2.9.0-20210907155713
+- link:https://jira.talendforge.org/browse/TCOMP-1995[TCOMP-1995^]: Expose the connectors (global) version in the "Environment" response
+- link:https://jira.talendforge.org/browse/TCOMP-1996[TCOMP-1996^]: BaseService must not define equals & hashcode
+
+
+
+== Version 1.36.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1994[TCOMP-1994^]: WebSocketClient$ClientException when executing action in Studio
+
+== Version 1.36.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1904[TCOMP-1904^]: Delegate Avro record in AvroRecord seems to be invalid
+- link:https://jira.talendforge.org/browse/TCOMP-1967[TCOMP-1967^]: goal uispec generation failure
+- link:https://jira.talendforge.org/browse/TCOMP-1983[TCOMP-1983^]: fix module inclusion in dependencies.txt when build is java9+
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1981[TCOMP-1981^]: Allow to filter artifacts in car file generation
+- link:https://jira.talendforge.org/browse/TCOMP-1982[TCOMP-1982^]: Allow to include extra artifacts in car file generation
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1876[TCOMP-1876^]: Make schemaImpl immutable
+- link:https://jira.talendforge.org/browse/TCOMP-1885[TCOMP-1885^]: Service Serializable
+- link:https://jira.talendforge.org/browse/TCOMP-1906[TCOMP-1906^]: Redefine equals on RecordImpl
+- link:https://jira.talendforge.org/browse/TCOMP-1955[TCOMP-1955^]: Upgrade cxf to 3.4.4 due to CVE-2021-30468
+- link:https://jira.talendforge.org/browse/TCOMP-1966[TCOMP-1966^]: Upgrade Tomcat to 9.0.50 due to CVE-2021-33037
+- link:https://jira.talendforge.org/browse/TCOMP-1968[TCOMP-1968^]: Upgrade maven to 3.8.1
+- link:https://jira.talendforge.org/browse/TCOMP-1969[TCOMP-1969^]: Upgrade Beam to 2.31.0
+- link:https://jira.talendforge.org/browse/TCOMP-1970[TCOMP-1970^]: Upgrade jackson to 2.12.1
+- link:https://jira.talendforge.org/browse/TCOMP-1971[TCOMP-1971^]: Upgrade Junit to 5.8.0-M1
+- link:https://jira.talendforge.org/browse/TCOMP-1972[TCOMP-1972^]: Upgrade slf4j to 1.7.32
+- link:https://jira.talendforge.org/browse/TCOMP-1973[TCOMP-1973^]: Upgrade log4j to 2.14.1
+- link:https://jira.talendforge.org/browse/TCOMP-1974[TCOMP-1974^]: Upgrade commons-compress to 1.21 due to CVE-2021-36090
+- link:https://jira.talendforge.org/browse/TCOMP-1975[TCOMP-1975^]: Upgrade TSBI to 2.8.2-20210722144648
+- link:https://jira.talendforge.org/browse/TCOMP-1976[TCOMP-1976^]: Upgrade meecrowave to 1.2.11
+- link:https://jira.talendforge.org/browse/TCOMP-1977[TCOMP-1977^]: Upgrade OpenWebBeans to 2.0.23
+- link:https://jira.talendforge.org/browse/TCOMP-1978[TCOMP-1978^]: Upgrade tomcat to 9.0.44
+- link:https://jira.talendforge.org/browse/TCOMP-1979[TCOMP-1979^]: Upgrade xbean to 4.20
+- link:https://jira.talendforge.org/browse/TCOMP-1980[TCOMP-1980^]: Upgrade meecrowave to 1.2.12
+
+
+
+== Version 1.35.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1967[TCOMP-1967^]: goal uispec generation failure
+
+== Version 1.35.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1935[TCOMP-1935^]: After Variables doesn't support custom object types
+- link:https://jira.talendforge.org/browse/TCOMP-1941[TCOMP-1941^]: Maven goal talend-component:web fails on startup
+- link:https://jira.talendforge.org/browse/TCOMP-1947[TCOMP-1947^]: Implement a retry strategy on failure in vault-client
+- link:https://jira.talendforge.org/browse/TCOMP-1948[TCOMP-1948^]: Raised exception in component-server(s) should be serialized in json
+- link:https://jira.talendforge.org/browse/TCOMP-1952[TCOMP-1952^]: IllegalArgumentException when the http response return duplicated header.
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1939[TCOMP-1939^]: Upgrade TSBI to Talend 2.7.2-20210616074048
+- link:https://jira.talendforge.org/browse/TCOMP-1940[TCOMP-1940^]: Upgrade Beam to 2.30.0
+
+
+
+== Version 1.34.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1941[TCOMP-1941^]: Maven goal talend-component:web fails on startup
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1939[TCOMP-1939^]: Upgrade TSBI to Talend 2.7.2-20210616074048
+
+== Version 1.34.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1919[TCOMP-1919^]: Sanitize must force encoding file
+- link:https://jira.talendforge.org/browse/TCOMP-1925[TCOMP-1925^]: Incorrect mapping of the parameters after arrays
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1917[TCOMP-1917^]: Add DatasetDiscovery annotation
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1707[TCOMP-1707^]: Upgrade Geronimo :: Simple JCache to 1.0.5
+- link:https://jira.talendforge.org/browse/TCOMP-1850[TCOMP-1850^]: component-server with vault feature
+- link:https://jira.talendforge.org/browse/TCOMP-1907[TCOMP-1907^]: Service monitor implementation & cleaning of grafana dashboard
+- link:https://jira.talendforge.org/browse/TCOMP-1921[TCOMP-1921^]: Upgrade TSBI to 2.7.0-20210527090437
+- link:https://jira.talendforge.org/browse/TCOMP-1930[TCOMP-1930^]: Remove jsoup 1.7.x transitive dependency due to CVE-2015-6748
+- link:https://jira.talendforge.org/browse/TCOMP-1936[TCOMP-1936^]: Extend properties in Schema to use JsonValue
+- link:https://jira.talendforge.org/browse/TCOMP-1938[TCOMP-1938^]: Add the german locale in the locale mapping
+
+
+
+== Version 1.33.3
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1938[TCOMP-1938^]: Add the german locale in the locale mapping
+
+
+
+== Version 1.33.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
+
+
+
+== Version 1.33.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1919[TCOMP-1919^]: Sanitize must force encoding file
+
+== Version 1.33.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1886[TCOMP-1886^]: Errors on Schema.sanitizeConnectionName
+- link:https://jira.talendforge.org/browse/TCOMP-1905[TCOMP-1905^]: component-runtime fails to build with Java 11
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1893[TCOMP-1893^]: Upgrade to Beam 2.29.0 and use Beam's Spark 3 specific module
+- link:https://jira.talendforge.org/browse/TCOMP-705[TCOMP-705^]: Support After variables
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1898[TCOMP-1898^]: Add method to Record.Builder
+- link:https://jira.talendforge.org/browse/TCOMP-1910[TCOMP-1910^]: Upgrade commons-io to 2.8.0 due to CVE-2021-29425
+- link:https://jira.talendforge.org/browse/TCOMP-1911[TCOMP-1911^]: Upgrade cxf to 3.4.3 due to CVE-2021-22696
+- link:https://jira.talendforge.org/browse/TCOMP-1912[TCOMP-1912^]: Upgrade TSBI to 2.6.7-20210503202416
+
+
+
+
+
+
+
+== Version 1.32.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1938[TCOMP-1938^]: Add the german locale in the locale mapping
+
+
+
+== Version 1.32.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1937[TCOMP-1937^]: Classpath not fully parsed in TSBI images
+
+== Version 1.32.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1880[TCOMP-1880^]: Engine Server returns binary data instead of json (aka does not respect the compressed header)
+- link:https://jira.talendforge.org/browse/TCOMP-1886[TCOMP-1886^]: Errors on Schema.sanitizeConnectionName
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1815[TCOMP-1815^]: Support of ComponentException in migration
+- link:https://jira.talendforge.org/browse/TCOMP-1873[TCOMP-1873^]: Add method getEntry on TCK Record Schema class
+- link:https://jira.talendforge.org/browse/TCOMP-1892[TCOMP-1892^]: Upgrade Spark to 3.0.1
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1888[TCOMP-1888^]: Remove/change validation of ComponentException
+- link:https://jira.talendforge.org/browse/TCOMP-1894[TCOMP-1894^]: Uniformize docker images entrypoints
+- link:https://jira.talendforge.org/browse/TCOMP-1895[TCOMP-1895^]: Enhance coercion in RecordConverters
+- link:https://jira.talendforge.org/browse/TCOMP-1896[TCOMP-1896^]: Upgrade TSBI to 2.6.4-20210331133410
+
+== Version 1.31.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1806[TCOMP-1806^]: Double values are rounded to 5 decimal places in studio
+- link:https://jira.talendforge.org/browse/TCOMP-1851[TCOMP-1851^]: HttpClient implementation class is a Service with State
+- link:https://jira.talendforge.org/browse/TCOMP-1864[TCOMP-1864^]: JsonSchemaConverter and johnzon-jsonschema 1.2.9+ look incompatible
+- link:https://jira.talendforge.org/browse/TCOMP-1866[TCOMP-1866^]: Invalid number coercion on primitive type
+- link:https://jira.talendforge.org/browse/TCOMP-1869[TCOMP-1869^]: byte[] handling is incorrect in dynamic column
+- link:https://jira.talendforge.org/browse/TCOMP-1871[TCOMP-1871^]: Dynamic metadata name is not sanitized
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1861[TCOMP-1861^]: Add a 'props' property in the Schema
+- link:https://jira.talendforge.org/browse/TCOMP-1863[TCOMP-1863^]: Upgrade batik-codec to 1.14 due to CVE-2020-11988
+- link:https://jira.talendforge.org/browse/TCOMP-1865[TCOMP-1865^]: Upgrade cxf to 3.4.2
+- link:https://jira.talendforge.org/browse/TCOMP-1867[TCOMP-1867^]: Upgrade Apache Beam to 2.28.0
+- link:https://jira.talendforge.org/browse/TCOMP-1878[TCOMP-1878^]: Upgrade TSBI to 2.6.3-20210304090015
+
+== Version 1.30.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1688[TCOMP-1688^]: Rewrite JsonSchema required rules to reflect component's validation rules
+- link:https://jira.talendforge.org/browse/TCOMP-1857[TCOMP-1857^]: Pojo conversion don't support nested Objects
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1841[TCOMP-1841^]: Add a SPI that would allow to add metadata to components
+- link:https://jira.talendforge.org/browse/TCOMP-1847[TCOMP-1847^]: Upgrade Apache Beam to 2.27.0
+- link:https://jira.talendforge.org/browse/TCOMP-1848[TCOMP-1848^]: Upgrade bouncycastle to 1.68 due to CVE 2020-28052
+- link:https://jira.talendforge.org/browse/TCOMP-1849[TCOMP-1849^]: Proxify metrics component-server's endpoint
+- link:https://jira.talendforge.org/browse/TCOMP-1852[TCOMP-1852^]: Upgrade netty to v4.1.58.Final and ensure default http testing module is java 11 friendly over ssl
+- link:https://jira.talendforge.org/browse/TCOMP-1854[TCOMP-1854^]: Upgrade netty to 4.1.59.Final due to CVE-2021-21290
+- link:https://jira.talendforge.org/browse/TCOMP-1855[TCOMP-1855^]: Upgrade johnzon to 1.2.10
+- link:https://jira.talendforge.org/browse/TCOMP-1856[TCOMP-1856^]: Upgrade tomcat to 9.0.43
+
+
+
+== Version 1.29.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1841[TCOMP-1841^]: Add a SPI that would allow to add metadata to components
+- link:https://jira.talendforge.org/browse/TCOMP-1852[TCOMP-1852^]: Upgrade netty to v4.1.58.Final and ensure default http testing module is java 11 friendly over ssl
+- link:https://jira.talendforge.org/browse/TCOMP-1854[TCOMP-1854^]: Upgrade netty to 4.1.59.Final due to CVE-2021-21290
+
+
+
+== Version 1.29.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1848[TCOMP-1848^]: Upgrade bouncycastle to 1.68 due to CVE 2020-28052
+
 == Version 1.29.0
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-1820[TCOMP-1820^]: API documentation is broken
 - link:https://jira.talendforge.org/browse/TCOMP-1839[TCOMP-1839^]: Tomcat websocket server fails to start after tomcat 9.0.40 and meecrowave 1.2.10
 
 
@@ -15,6 +328,40 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1837[TCOMP-1837^]: Upgrade xbean to 4.18
 - link:https://jira.talendforge.org/browse/TCOMP-1838[TCOMP-1838^]: Upgrade cxf to 3.4.1
 - link:https://jira.talendforge.org/browse/TCOMP-1840[TCOMP-1840^]: Upgrade tomcat to 9.0.41
+- link:https://jira.talendforge.org/browse/TCOMP-1842[TCOMP-1842^]: Upgrade jgit to 5.10.0.202012080955-r
+- link:https://jira.talendforge.org/browse/TCOMP-1844[TCOMP-1844^]: Upgrade johnzon to 1.2.9
+- link:https://jira.talendforge.org/browse/TCOMP-1845[TCOMP-1845^]: Upgrade guava to 30.1-jre due to CVE-2020-8908
+
+
+
+
+
+
+
+
+
+
+
+
+
+== Version 1.28.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1848[TCOMP-1848^]: Upgrade bouncycastle to 1.68 due to CVE 2020-28052
+
+== Version 1.28.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1839[TCOMP-1839^]: Tomcat websocket server fails to start after tomcat 9.0.40 and meecrowave 1.2.10
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1836[TCOMP-1836^]: Upgrade OpenWebBeans to 2.0.20
+- link:https://jira.talendforge.org/browse/TCOMP-1837[TCOMP-1837^]: Upgrade xbean to 4.18
 
 == Version 1.28.0
 
@@ -37,11 +384,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1801[TCOMP-1801^]: Can't look for resources in the classpath on Windows
 
 
-
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1761[TCOMP-1761^]: Support of complete schema definition
-
 
 
 === Work Item

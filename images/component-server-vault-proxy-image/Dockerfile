@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+# Copyright (C) 2006-2021 Talend Inc. - www.talend.com
 #  Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -43,5 +43,7 @@ ENV MEECROWAVE_BASE       ${TALEND_APP_HOME}
 ENV MEECROWAVE_PID        ${TALEND_APP_HOME}/conf/server-vault-proxy.pid
 ENV LD_LIBRARY_PATH       ${TALEND_APP_HOME}/sigar
 ENV TRACING_SAMPLING_RATE 1
-ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dlog4j.configurationFile=log4j2-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -cp ${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes:${TALEND_APP_HOME}/lib/*"
-CMD java org.apache.meecrowave.runner.Cli --http=$BOUND_PORT
+ENV CLASSPATH ${TALEND_HOME}/component-kit/custom/*:${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes
+ENV JAVA_OPTS " -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dhttp=$BOUND_PORT -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dlog4j.configurationFile=log4j2-${LOGGING_LAYOUT}.xml -Dgeronimo.metrics.sigar.refreshInterval=0 "
+
+CMD java org.apache.meecrowave.runner.Cli

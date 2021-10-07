@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class WebServer implements Runnable {
                                 // no-op - gradle supports to reuse the same JVM so it would be broken
                             }
                         });
-                    }));
+                    }, null));
 
                     ref.set(meecrowave);
                     latch.countDown();

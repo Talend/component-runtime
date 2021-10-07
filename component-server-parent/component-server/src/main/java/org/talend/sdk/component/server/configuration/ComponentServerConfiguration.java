@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,12 +96,6 @@ public class ComponentServerConfiguration {
     private Boolean supportsEnvironment;
 
     @Inject
-    @Documentation("Accepted tokens in Authorization header for remote calls to secured endpoints "
-            + "(/api/v1/environment or /documentation).")
-    @ConfigProperty(name = "talend.component.server.filter.secured.tokens", defaultValue = "-")
-    private String securedEndpointsTokens;
-
-    @Inject
     @Documentation("A folder available for the server - don't forget to mount it in docker if you are using the "
             + "image - which accepts subfolders named as component plugin id "
             + "(generally the artifactId or jar name without the version, ex: jdbc). Each family folder can contain:\n\n"
@@ -164,8 +158,33 @@ public class ComponentServerConfiguration {
             + "This mapping enables that by whitelisting allowed locales, default being `en`. "
             + "If the key ends with `*` it means all string starting with the prefix will match. "
             + "For instance `fr*` will match `fr_FR` but also `fr_CA`.")
-    @ConfigProperty(name = "talend.component.server.locale.mapping", defaultValue = "en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja")
+    @ConfigProperty(name = "talend.component.server.locale.mapping",
+            defaultValue = "en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de")
     private String localeMapping;
+
+    @Inject
+    @Documentation("Should the plugins be un-deployed and re-deployed.")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.active", defaultValue = "false")
+    private Boolean pluginsReloadActive;
+
+    @Inject
+    @Documentation("Re-deploy method on a `timestamp` or `connectors` version change. By default, the timestamp is"
+            + " checked on the file pointed by `talend.component.server.component.registry` or "
+            + "`talend.component.server.plugins.reloading.marker` variable, otherwise we inspect the content of the "
+            + "`CONNECTORS_VERSION` file. Accepted values: `timestamp`, anything else defaults to `connectors`.")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.method", defaultValue = "timestamp")
+    private Boolean pluginsReloadMethod;
+
+    @Inject
+    @Documentation("Interval in seconds between each check if plugins re-loading is enabled.")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.interval", defaultValue = "600")
+    private Long pluginsReloadInterval;
+
+    @Inject
+    @Documentation("Specify a file to check its timestamp on the filesystem. This file will take precedence of the default "
+            + "ones provided by the `talend.component.server.component.registry` property (used for timestamp method).")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.marker")
+    private Optional<String> pluginsReloadFileMarker;
 
     @PostConstruct
     private void init() {

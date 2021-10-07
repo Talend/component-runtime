@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -66,6 +67,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
 // create a test m2 repo and setup the server configuration to ensure components are found
 public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
@@ -92,11 +94,19 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         System
                 .setProperty("talend.component.server.icon.paths",
                         "icons/%s.svg,icons/svg/%s.svg,%s.svg,%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png");
-        System.setProperty("talend.component.server.locale.mapping", "en*=en\nfr*=fr\ntest=test");
+        System.setProperty("talend.component.server.locale.mapping", "en*=en\nfr*=fr\ntest=test\nde*=de");
         System.setProperty("talend.component.server.gridlayout.translation.support", "true");
 
         final String skipLogs = System.getProperty("component.server.test.logging.skip", "true");
         System.setProperty("talend.component.server.request.log", Boolean.toString("false".equals(skipLogs)));
+
+        //
+        System.setProperty("talend.component.server.plugins.reloading.active", "true");
+        System.setProperty("talend.component.server.plugins.reloading.interval", "5");
+        System
+                .setProperty("talend.component.server.plugins.reloading.marker",
+                        "target/InitTestInfra/.m2/repository/CONNECTORS_VERSION");
+
     }
 
     private String createUserJars(final String tempDir) {
@@ -139,6 +149,16 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         // reusing tempDir we don't need to delete it, done by meecrowave
         // reusing tempDir we don't need to delete it, done by meecrowave
         final File m2 = new File(tempDir, ".m2/repository");
+
+        try {
+            final Path conn = m2.toPath().resolve("CONNECTORS_VERSION");
+            if (!conn.toFile().exists()) {
+                conn.toFile().getParentFile().mkdirs();
+                java.nio.file.Files.write(conn, "1.2.3".getBytes());
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
 
         final PluginGenerator generator = new PluginGenerator();
 
@@ -236,20 +256,29 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
         private File createChainPlugin(final File target) {
             final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".", "/");
-            return createRepackaging(target, "org/talend/sdk/component/server/test/model", outputStream -> {
+            return createRepackaging(target, "org/talend/sdk/component/server/test/model", out -> {
                 try {
-                    outputStream.putNextEntry(new JarEntry(packageName.replace('.', '/') + "/Messages.properties"));
-                    outputStream
-                            .write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
+                    out.putNextEntry(new JarEntry(packageName.replace('.', '/') + "/Messages.properties"));
+                    out.write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
 
-                    outputStream.putNextEntry(new JarEntry("icons/myicon.svg"));
-                    outputStream
+                    out.putNextEntry(new JarEntry("icons/myicon.svg"));
+                    out
                             .write(IO
                                     .readBytes(Thread
                                             .currentThread()
                                             .getContextClassLoader()
                                             .getResource("icons/logo.svg")));
-                    outputStream.closeEntry();
+                    out.closeEntry();
+
+                    out.putNextEntry(new JarEntry("META-INF/services/" + ComponentMetadataEnricher.class.getName()));
+                    out
+                            .write("org.talend.sdk.component.server.test.model.MetadataEnricher\n"
+                                    .getBytes(StandardCharsets.UTF_8));
+                    out
+                            .write("org.talend.sdk.component.server.test.model.MetadataEnricherLowestPriority\n"
+                                    .getBytes(StandardCharsets.UTF_8));
+                    out.closeEntry();
+
                 } catch (final IOException ioe) {
                     fail(ioe.getMessage());
                 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2020 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,7 @@ class BeamComponentExtensionTest {
                 .unwrap(FlowsFactory.class,
                         new ComponentFamilyMeta.ProcessorMeta(
                                 new ComponentFamilyMeta("test", emptyList(), null, "test", "test"), "beam", null, 1,
-                                BeamMapper.class, Collections::emptyList, null, null, true) {
-
+                                BeamMapper.class, Collections::emptyList, null, null, true, Collections.emptyMap()) {
                         });
         assertEquals(1, factory.getInputFlows().size());
         assertEquals(asList("main1", "main2"), factory.getOutputFlows());
