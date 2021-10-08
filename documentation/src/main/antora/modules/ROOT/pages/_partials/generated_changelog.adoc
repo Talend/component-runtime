@@ -20,6 +20,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2000[TCOMP-2000^]: Upgrade netty to 4.1.68.Final
 - link:https://jira.talendforge.org/browse/TCOMP-2001[TCOMP-2001^]: Upgrade Beam to 2.32.0
 - link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
+- link:https://jira.talendforge.org/browse/TCOMP-2009[TCOMP-2009^]: Upgrade dockerfile-maven-plugin to 1.4.13
 
 
 

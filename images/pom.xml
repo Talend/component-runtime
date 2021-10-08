@@ -37,7 +37,7 @@
   <properties>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
-    <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
+    <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
     <!-- -->
     <boundPort>8080</boundPort>
     <talend.server.image.registry />
