@@ -288,13 +288,6 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
-        <configuration>
-          <environmentVariables>
-            <!-- if you experiment trouble during documentation build, export manually these vars -->
-            <NOCOLOR>true</NOCOLOR> <!-- no escape codes -->
-            <NOLESS>true</NOLESS> <!--do not use less, this will hang build -->
-          </environmentVariables>
-        </configuration>
         <executions>
           <execution>
             <id>generated-doc</id>

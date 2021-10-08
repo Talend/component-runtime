@@ -47,11 +47,30 @@ public final class Cli {
         final Map<Class<?>, Object> services = new HashMap<>();
         services.put(ConnectorLoader.class, new ConnectorLoader());
         services.put(RemoteEngineCustomizer.class, new RemoteEngineCustomizer());
-        Environment.ENVIRONMENT_THREAD_LOCAL.set(new SystemEnvironment(services));
+        Map<String, String> env = new HashMap<>();
+        env.putAll(System.getenv());
+        env.put("NOCOLOR", "true");
+        env.put("NOLESS", "true");
+        Environment.ENVIRONMENT_THREAD_LOCAL.set(new MyEnv(services, env));
         try {
             return new Main(Cli.class).exec(args);
         } finally {
             Environment.ENVIRONMENT_THREAD_LOCAL.remove();
+        }
+    }
+
+    public static class MyEnv extends SystemEnvironment {
+
+        final Map<String, String> env;
+
+        public MyEnv(final Map<Class<?>, Object> services, final Map<String, String> env) {
+            super(services);
+            this.env = env;
+        }
+
+        @Override
+        public Map<String, String> getEnv() {
+            return env;
         }
     }
 
