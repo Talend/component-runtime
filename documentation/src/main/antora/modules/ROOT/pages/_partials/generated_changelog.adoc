@@ -4,7 +4,9 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1963[TCOMP-1963^]: Missing IMetaDataColumn fields in guess schema
 - link:https://jira.talendforge.org/browse/TCOMP-1987[TCOMP-1987^]: Avro record : Array of Array of records issue
+- link:https://jira.talendforge.org/browse/TCOMP-2005[TCOMP-2005^]: Non defined columns appear in schema
 - link:https://jira.talendforge.org/browse/TCOMP-2006[TCOMP-2006^]: Support empty values for Numbers case
 - link:https://jira.talendforge.org/browse/TCOMP-2010[TCOMP-2010^]: Error on Documentation build on "less" usage
 
