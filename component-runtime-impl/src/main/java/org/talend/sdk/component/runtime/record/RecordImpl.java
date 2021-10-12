@@ -121,12 +121,17 @@ public final class RecordImpl implements Record {
 
         public BuilderImpl(final Schema providedSchema) {
             this.providedSchema = providedSchema;
+            if (providedSchema != null) {
+                this.entries.addAll(this.providedSchema.getEntries());
+            }
+            this.entryIndex = entries.stream().collect(toMap(Schema.Entry::getName, identity()));
         }
 
         private BuilderImpl(final List<Schema.Entry> entries, final Map<String, Object> values) {
             this.entries.addAll(entries);
             this.values.putAll(values);
             this.providedSchema = null;
+            this.entryIndex = entries.stream().collect(toMap(Schema.Entry::getName, identity()));
         }
 
         @Override
@@ -162,9 +167,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public List<Entry> getCurrentEntries() {
-            if (this.providedSchema != null) {
-                return Collections.unmodifiableList(this.providedSchema.getAllEntries().collect(Collectors.toList()));
-            }
+            // entries should represent provided schema also...
             return Collections.unmodifiableList(this.entries);
         }
 
@@ -262,6 +265,8 @@ public final class RecordImpl implements Record {
         }
 
         public Record build() {
+            final Schema currentSchema;
+            final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
             if (providedSchema != null) {
                 final String missing = providedSchema
                         .getAllEntries()
@@ -271,15 +276,11 @@ public final class RecordImpl implements Record {
                 if (!missing.isEmpty()) {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
+                builder.withProps(providedSchema.getProps());
             }
-            final Schema currentSchema;
-            if (providedSchema == null) {
-                final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
-                this.entries.forEach(builder::withEntry);
-                currentSchema = builder.build();
-            } else {
-                currentSchema = this.providedSchema;
-            }
+            this.entries.forEach(builder::withEntry);
+            currentSchema = builder.build();
+
             return new RecordImpl(unmodifiableMap(values), currentSchema);
         }
 
@@ -440,11 +441,94 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
             }
             if (providedSchema == null) {
-                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
-                    this.entries.add(entry);
+                if (entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
+                    entries.add(entry);
                 }
             }
+            if (entryIndex == null) {
+                entryIndex = new HashMap<>();
+            }
+            entryIndex.put(entry.getName(), entry);
             return this;
         }
+
+        public <T> Builder insertBefore(final String before, final Schema.Entry entry, final T value) {
+            int index = getEntryIndex(before);
+            return insert(index, entry, value);
+        }
+
+        public <T> Builder insertAfter(final String after, final Schema.Entry entry, final T value) {
+            int index = getEntryIndex(after);
+            return insert(index + 1, entry, value); // no array out of bound w/ add(index, val)
+        }
+
+        private <T> Builder insert(final int index, final Schema.Entry entry, final T value) {
+            assertType(entry.getType(), entry.getType());
+            if (entries.stream().anyMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
+                throw new IllegalArgumentException("Entry already exists: " + entry.getName());
+            }
+            //
+            if (value != null) {
+                values.put(entry.getName(), value);
+            } else if (!entry.isNullable()) {
+                throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
+            }
+            entries.add(index, entry);
+            entryIndex.put(entry.getName(), entry);
+            values.put(entry.getName(), value);
+
+            return this;
+        }
+
+        public Builder moveBefore(final String before, final String name) {
+            final Entry moving = entryIndex.get(name);
+            final int source = getEntryIndex(moving);
+            final int destination = getEntryIndex(before);
+            if (source == destination) {
+                return this;
+            }
+            entries.remove(moving);
+            entries.add(destination, moving);
+
+            return this;
+        }
+
+        public Builder moveAfter(final String after, final String name) {
+            final Entry moving = entryIndex.get(name);
+            final int source = getEntryIndex(moving);
+            int destination = getEntryIndex(after);
+            if (source == destination) {
+                return this;
+            }
+            if (!(destination + 1 == entries.size())) {
+                destination += 1;
+            }
+            final Entry replaced = entries.get(destination);
+            entries.remove(source);
+            entries.add(destination, moving);
+
+            return this;
+        }
+
+        public Builder swap(final String name, final String with) {
+            final int source = getEntryIndex(name);
+            final int destination = getEntryIndex(with);
+            Collections.swap(entries, source, destination);
+
+            return this;
+        }
+
+        private int getEntryIndex(final String name) {
+            return getEntryIndex(entryIndex.get(name));
+        }
+
+        private int getEntryIndex(final Entry entry) {
+            final int index = this.entries.indexOf(entry);
+            if (index == -1) {
+                throw new IllegalStateException("Index out of bound!");
+            }
+            return index;
+        }
+
     }
 }

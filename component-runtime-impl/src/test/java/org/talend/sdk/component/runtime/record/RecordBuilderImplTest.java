@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.record;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
@@ -379,12 +381,12 @@ class RecordBuilderImplTest {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder.withString("field1", "Hello").withInt("fieldInt", 20);
         final List<Entry> entries = builder.getCurrentEntries();
-        Assertions.assertEquals(2, entries.size());
+        assertEquals(2, entries.size());
 
         final Entry entry = entries.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
         builder.removeEntry(entry);
-        Assertions.assertEquals(1, builder.getCurrentEntries().size());
-        Assertions.assertTrue(entries.stream().anyMatch((Entry e) -> "fieldInt".equals(e.getName())));
+        assertEquals(1, builder.getCurrentEntries().size());
+        assertTrue(entries.stream().anyMatch((Entry e) -> "fieldInt".equals(e.getName())));
 
         Schema.Entry unknownEntry = newEntry("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", "Comment");
         assertThrows(IllegalArgumentException.class, () -> builder.removeEntry(unknownEntry));
@@ -396,12 +398,12 @@ class RecordBuilderImplTest {
                 .build();
         final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
         final List<Entry> entries1 = builder1.getCurrentEntries();
-        Assertions.assertEquals(2, entries1.size());
+        assertEquals(2, entries1.size());
         final Entry entry1 = entries1.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
         Record.Builder newBuilder = builder1.removeEntry(entry1);
         final Entry meta1 = entries1.stream().filter((Entry e) -> "meta1".equals(e.getName())).findFirst().get();
         Record.Builder newBuilder2 = newBuilder.removeEntry(meta1);
-        Assertions.assertEquals(0, newBuilder2.getCurrentEntries().size());
+        assertEquals(0, newBuilder2.getCurrentEntries().size());
     }
 
     @Test
@@ -409,13 +411,12 @@ class RecordBuilderImplTest {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         builder.withString("field1", "Hello").withInt("fieldInt", 20);
         final List<Entry> entries = builder.getCurrentEntries();
-        Assertions.assertEquals(2, entries.size());
+        assertEquals(2, entries.size());
 
         final Entry entry = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
         builder.updateEntryByName("field1", entry);
         Assertions.assertEquals(2, builder.getCurrentEntries().size());
-        Assertions
-                .assertTrue(entries
+        assertTrue(entries
                         .stream()
                         .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
         assertEquals("Hello", builder.getValue("field2"));
@@ -440,8 +441,7 @@ class RecordBuilderImplTest {
         final Entry entry1 = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
         Record.Builder newBuilder = builder1.updateEntryByName("field1", entry1);
         Assertions.assertEquals(1, newBuilder.getCurrentEntries().size());
-        Assertions
-                .assertTrue(newBuilder
+        assertTrue(newBuilder
                         .getCurrentEntries()
                         .stream()
                         .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
@@ -473,4 +473,147 @@ class RecordBuilderImplTest {
                 .withMetadata(true)
                 .build();
     }
+
+    @Test
+    void testInsertBeforeWithProvidedSchema() {
+        testInsertBefore(createInsertSchema());
+    }
+
+    @Test
+    void testInsertBeforeWithoutProvidedSchema() {
+        testInsertBefore(null);
+    }
+
+    @Test
+    void testInsertAfterWithProvidedSchema() {
+        testInsertAfter(createInsertSchema());
+    }
+
+    @Test
+    void testInsertAfterWithoutProvidedSchema() {
+        testInsertAfter(null);
+    }
+
+    @Test
+    void testMoveBefore() {
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(null);
+        assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
+        builder.moveBefore("f1", "f4");
+        assertEquals("f4,f1,f2,f3", getCurrentSchema(builder));
+        builder.moveBefore("f1", "f3");
+        assertEquals("f4,f3,f1,f2", getCurrentSchema(builder));
+        builder.moveBefore("f1", "f2");
+        assertEquals("f4,f3,f2,f1", getCurrentSchema(builder));
+        // self move
+        builder.moveBefore("f1", "f1");
+        assertEquals("f4,f3,f2,f1", getCurrentSchema(builder));
+        builder.moveBefore("f4", "f4");
+        assertEquals("f4,f3,f2,f1", getCurrentSchema(builder));
+        Record record = builder.build();
+        assertEquals("4,3,2,1", getRecordValues(record));
+    }
+
+    @Test
+    void testMoveAfter() {
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(createInsertSchema());
+        assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
+        builder.moveAfter("f1", "f4");
+        assertEquals("f1,f4,f2,f3", getCurrentSchema(builder));
+        builder.moveAfter("f1", "f3");
+        assertEquals("f1,f3,f4,f2", getCurrentSchema(builder));
+        builder.moveAfter("f1", "f2");
+        assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
+        // self move
+        builder.moveAfter("f1", "f1");
+        assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
+        builder.moveAfter("f4", "f1");
+        assertEquals("f2,f3,f4,f1", getCurrentSchema(builder));
+        Record record = builder.build();
+        assertEquals("2,3,4,1", getRecordValues(record));
+    }
+
+    @Test
+    void testSwap() {
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(createInsertSchema());
+        assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
+        builder.swap("f1", "f4");
+        assertEquals("f4,f2,f3,f1", getCurrentSchema(builder));
+        builder.swap("f1", "f3");
+        assertEquals("f4,f2,f1,f3", getCurrentSchema(builder));
+        builder.swap("f1", "f2");
+        assertEquals("f4,f1,f2,f3", getCurrentSchema(builder));
+        // self move
+        builder.swap("f1", "f1");
+        assertEquals("f4,f1,f2,f3", getCurrentSchema(builder));
+        builder.swap("f4", "f1");
+        assertEquals("f1,f4,f2,f3", getCurrentSchema(builder));
+        Record record = builder.build();
+        assertEquals("1,4,2,3", getRecordValues(record));
+    }
+
+    private String getCurrentSchema(final RecordImpl.BuilderImpl builder) {
+        return builder.getCurrentEntries().stream().map(entry -> entry.getName()).collect(Collectors.joining(","));
+    }
+
+    private String getRecordValues(final Record record) {
+        return record
+                .getSchema()
+                .getEntries()
+                .stream()
+                .map(e -> e.getName())
+                .map(f -> record.getString(f))
+                .collect(Collectors.joining(","));
+    }
+
+    private Schema createInsertSchema() {
+        return new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("f1", "f1", Type.STRING, true, 5, "Comment"))
+                .withEntry(newEntry("f2", "f2", Type.STRING, true, 5, "Comment"))
+                .withEntry(newEntry("f3", "f3", Type.STRING, true, 5, "Comment"))
+                .withEntry(newEntry("f4", "f4", Type.STRING, true, 5, "Comment"))
+                .build();
+    }
+
+    private RecordImpl.BuilderImpl createDefaultBuilder(final Schema schema) {
+        final RecordImpl.BuilderImpl builder =
+                schema == null ? new RecordImpl.BuilderImpl() : new RecordImpl.BuilderImpl(schema);
+        builder.withString("f1", "1");
+        builder.withString("f2", "2");
+        builder.withString("f3", "3");
+        builder.withString("f4", "4");
+
+        return builder;
+    }
+
+    void testInsertBefore(final Schema schema) {
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(schema);
+        final Entry e5 = new EntryImpl.BuilderImpl().withName("f5").withType(Type.STRING).build();
+        final Entry e6 = new EntryImpl.BuilderImpl().withName("f6").withType(Type.STRING).build();
+        builder.insertBefore("f1", e5, "5");
+        builder.insertBefore("f5", e6, "6");
+        Record record = builder.build();
+        assertEquals("6,5,1,2,3,4", getRecordValues(record));
+    }
+
+    void testInsertAfter(final Schema schema) {
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(schema);
+        final Entry e5 = new EntryImpl.BuilderImpl().withName("f5").withType(Type.STRING).build();
+        final Entry e6 = new EntryImpl.BuilderImpl().withName("f6").withType(Type.STRING).build();
+        final Entry e7 = new EntryImpl.BuilderImpl().withName("f7").withType(Type.STRING).build();
+        builder.insertAfter("f1", e5, "5");
+        builder.insertAfter("f5", e6, "6");
+        builder.insertAfter("f4", e7, "7");
+        Record record = builder.build();
+        assertEquals("1,5,6,2,3,4,7", getRecordValues(record));
+    }
+
+    void testMoveBefore(final Schema schema) {
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(schema);
+    }
+
+    void testMoveAfter(final Schema schema) {
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(schema);
+    }
+
 }

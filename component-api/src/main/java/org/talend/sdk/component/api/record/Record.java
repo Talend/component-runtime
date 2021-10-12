@@ -271,6 +271,16 @@ public interface Record {
 
         Builder updateEntryByName(String name, Schema.Entry schemaEntry);
 
+        <T> Builder insertBefore(final String before, final Schema.Entry entry, final T value);
+
+        <T> Builder insertAfter(final String after, final Schema.Entry entry, final T value);
+
+        Builder moveBefore(final String before, final String name);
+
+        Builder moveAfter(final String after, final String name);
+
+        Builder swap(final String name, final String with);
+
         Builder with(Schema.Entry entry, Object value);
 
         Builder withString(String name, String value);
