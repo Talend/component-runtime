@@ -556,7 +556,6 @@ class RecordBuilderImplTest {
     void testMixedOperation() {
         final RecordImpl.BuilderImpl builder = createDefaultBuilder(createInsertSchema());
         Entry f5 = newMetaEntry("f5", "f5", Type.STRING, false, "", "");
-        Entry f6 = newMetaEntry("f6", "", Type.STRING, true, "", "");
         Entry m2 = newMetaEntry("m2", "Columns Checks", Type.INT, true, 102, "");
         Entry m3 = newMetaEntry("m3", "Columns Checks", Type.INT, true, 103, "");
         //
@@ -672,14 +671,6 @@ class RecordBuilderImplTest {
         builder.insertAfter("f4", e7, "7");
         Record record = builder.build();
         assertEquals("1,5,6,2,3,4,7", getRecordValues(record));
-    }
-
-    void testMoveBefore(final Schema schema) {
-        final RecordImpl.BuilderImpl builder = createDefaultBuilder(schema);
-    }
-
-    void testMoveAfter(final Schema schema) {
-        final RecordImpl.BuilderImpl builder = createDefaultBuilder(schema);
     }
 
 }
