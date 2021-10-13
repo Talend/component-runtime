@@ -555,7 +555,7 @@ class RecordBuilderImplTest {
     @Test
     void testMixedOperation() {
         final RecordImpl.BuilderImpl builder = createDefaultBuilder(createInsertSchema());
-        Entry f5 = newMetaEntry("f5", "f5", Type.STRING, false, "", "");
+        Entry f5 = newEntry("f5", "f5", Type.STRING, false, "", "");
         Entry m2 = newMetaEntry("m2", "Columns Checks", Type.INT, true, 102, "");
         Entry m3 = newMetaEntry("m3", "Columns Checks", Type.INT, true, 103, "");
         //
@@ -596,6 +596,14 @@ class RecordBuilderImplTest {
         assertEquals("m1,m2,m3,f1,f2,f3,f4", getCurrentSchema(builder));
         // record checks
         Record record = builder.build();
+        Schema schema = record.getSchema();
+        assertEquals("rootPropValue1", schema.getProp("rootProp1"));
+        assertEquals("rootPropValue2", schema.getProp("rootProp2"));
+        assertEquals("rootPropValue3", schema.getProp("rootProp3"));
+        assertEquals(3, schema.getMetadata().size());
+        assertEquals(4, schema.getEntries().size());
+        assertEquals(false, schema.getEntry("f1").isNullable());
+        assertEquals("metadata", schema.getEntry("m1").getComment());
         assertEquals(101, record.getInt("m1"));
         assertEquals(102, record.getInt("m2"));
         assertEquals(103, record.getInt("m3"));
@@ -629,10 +637,10 @@ class RecordBuilderImplTest {
     private Schema createInsertSchema() {
         return new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(newEntry("f1", "f1", Type.STRING, true, 5, "Comment"))
-                .withEntry(newEntry("f2", "f2", Type.STRING, true, 5, "Comment"))
-                .withEntry(newEntry("f3", "f3", Type.STRING, true, 5, "Comment"))
-                .withEntry(newEntry("f4", "f4", Type.STRING, true, 5, "Comment"))
+                .withEntry(newEntry("f1", "f1", Type.STRING, false, 1, ""))
+                .withEntry(newEntry("f2", "f2", Type.STRING, true, 2, ""))
+                .withEntry(newEntry("f3", "f3", Type.STRING, true, 3, ""))
+                .withEntry(newEntry("f4", "f4", Type.STRING, true, 4, ""))
                 .withEntry(newMetaEntry("m1", "m1", Type.INT, true, 101, "metadata"))
                 .withProp("rootProp1", "rootPropValue1")
                 .withProp("rootProp2", "rootPropValue2")

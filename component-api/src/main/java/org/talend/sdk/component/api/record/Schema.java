@@ -22,12 +22,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.json.Json;
@@ -61,10 +59,7 @@ public interface Schema {
     Stream<Entry> getAllEntries();
 
     default Entry getEntry(final String name) {
-        return Optional
-                .ofNullable(getEntries()) //
-                .orElse(Collections.emptyList()) //
-                .stream() //
+        return getAllEntries() //
                 .filter((Entry e) -> Objects.equals(e.getName(), name)) //
                 .findFirst() //
                 .orElse(null);
@@ -100,6 +95,7 @@ public interface Schema {
     }
 
     enum Type {
+
         RECORD(new Class<?>[] { Record.class }),
         ARRAY(new Class<?>[] { Collection.class }),
         STRING(new Class<?>[] { String.class }),
