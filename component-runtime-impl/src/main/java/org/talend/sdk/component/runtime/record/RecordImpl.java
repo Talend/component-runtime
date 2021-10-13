@@ -19,6 +19,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
@@ -43,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -120,28 +120,29 @@ public final class RecordImpl implements Record {
         }
 
         public BuilderImpl(final Schema providedSchema) {
+            // provided schema is now used to initialize the builder and is not anymore the reference as we introduced
+            // entries manipulations...
             this.providedSchema = providedSchema;
             if (providedSchema != null) {
-                this.entries.addAll(this.providedSchema.getEntries());
+                entries.addAll(this.providedSchema.getAllEntries().collect(toList()));
             }
-            this.entryIndex = entries.stream().collect(toMap(Schema.Entry::getName, identity()));
+            entryIndex = entries.stream().collect(toMap(Schema.Entry::getName, identity()));
         }
 
         private BuilderImpl(final List<Schema.Entry> entries, final Map<String, Object> values) {
+            providedSchema = null;
             this.entries.addAll(entries);
             this.values.putAll(values);
-            this.providedSchema = null;
-            this.entryIndex = entries.stream().collect(toMap(Schema.Entry::getName, identity()));
+            entryIndex = entries.stream().collect(toMap(Schema.Entry::getName, identity()));
         }
 
         @Override
         public Object getValue(final String name) {
-            return this.values.get(name);
+            return values.get(name);
         }
 
         @Override
         public Builder with(final Entry entry, final Object value) {
-            validateTypeAgainstProvidedSchema(entry.getName(), entry.getType(), value);
             if (!entry.getType().isCompatible(value)) {
                 throw new IllegalArgumentException(String
                         .format("Entry '%s' of type %s is not compatible with value of type '%s'", entry.getName(),
@@ -151,13 +152,13 @@ public final class RecordImpl implements Record {
                 if (value == null) {
                     return this;
                 } else if (value instanceof Long) {
-                    this.withTimestamp(entry, (Long) value);
+                    withTimestamp(entry, (Long) value);
                 } else if (value instanceof Date) {
-                    this.withDateTime(entry, (Date) value);
+                    withDateTime(entry, (Date) value);
                 } else if (value instanceof ZonedDateTime) {
-                    this.withDateTime(entry, (ZonedDateTime) value);
+                    withDateTime(entry, (ZonedDateTime) value);
                 } else if (value instanceof Temporal) {
-                    this.withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
+                    withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
                 }
                 return this;
             } else {
@@ -167,99 +168,62 @@ public final class RecordImpl implements Record {
 
         @Override
         public List<Entry> getCurrentEntries() {
-            // entries should represent provided schema also...
-            return Collections.unmodifiableList(this.entries);
+            return Collections.unmodifiableList(entries);
         }
 
         @Override
         public Builder removeEntry(final Schema.Entry schemaEntry) {
-            if (this.providedSchema == null) {
-                Optional<Entry> entry = this.entries
-                        .stream()
-                        .filter((Entry e) -> Objects.equals(e.getName(), schemaEntry.getName()))
-                        .findFirst();
-                if (entry.isPresent()) {
-                    this.entries.remove(entry.get());
-                } else {
-                    throw new IllegalArgumentException(
-                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
-                }
-                this.values.remove(schemaEntry.getName());
-                return this;
+            Optional<Entry> entry = entries
+                    .stream()
+                    .filter((Entry e) -> Objects.equals(e.getName(), schemaEntry.getName()))
+                    .findFirst();
+            if (entry.isPresent()) {
+                entries.remove(entry.get());
+            } else {
+                throw new IllegalArgumentException(
+                        "No entry '" + schemaEntry.getName() + "' expected in entries: " + entries);
             }
+            entryIndex.remove(schemaEntry.getName());
+            values.remove(schemaEntry.getName());
+            return this;
 
-            final BuilderImpl builder =
-                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
-            return builder.removeEntry(schemaEntry);
         }
 
         @Override
         public Builder updateEntryByName(final String name, final Schema.Entry schemaEntry) {
-            if (this.providedSchema == null) {
-                final Object value = this.values.get(name);
-                if (!schemaEntry.getType().isCompatible(value)) {
-                    throw new IllegalArgumentException(String
-                            .format("Entry '%s' of type %s is not compatible with value of type '%s'",
-                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass().getName()));
-                }
-                boolean found = false;
-                for (int i = 0; i < entries.size() && !found; i++) {
-                    final Schema.Entry entry = this.entries.get(i);
-                    if (Objects.equals(entry.getName(), name)) {
-                        this.entries.set(i, schemaEntry);
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    throw new IllegalArgumentException(
-                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
-                }
-                this.values.remove(name);
-                this.values.put(schemaEntry.getName(), value);
-                return this;
+            final Object value = values.get(name);
+            if (!schemaEntry.getType().isCompatible(value)) {
+                throw new IllegalArgumentException(String
+                        .format("Entry '%s' of type %s is not compatible with value of type '%s'",
+                                schemaEntry.getName(), schemaEntry.getType(), value.getClass().getName()));
             }
-
-            final BuilderImpl builder =
-                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
-            return builder.updateEntryByName(name, schemaEntry);
-        }
-
-        private Schema.Entry findExistingEntry(final String name) {
-            if (this.entryIndex == null) {
-                this.entryIndex = providedSchema.getAllEntries().collect(toMap(Schema.Entry::getName, identity()));
+            boolean found = false;
+            for (int i = 0; i < entries.size() && !found; i++) {
+                final Schema.Entry entry = entries.get(i);
+                if (Objects.equals(entry.getName(), name)) {
+                    entries.set(i, schemaEntry);
+                    found = true;
+                }
             }
-            final Schema.Entry entry = this.entryIndex.get(name);
-            if (entry == null) {
+            if (!found) {
                 throw new IllegalArgumentException(
-                        "No entry '" + name + "' expected in provided schema: " + entryIndex.keySet());
+                        "No entry '" + schemaEntry.getName() + "' expected in entries: " + entries);
             }
-            return entry;
+            entryIndex.remove(name);
+            entryIndex.put(schemaEntry.getName(), schemaEntry);
+            values.remove(name);
+            values.put(schemaEntry.getName(), value);
+            return this;
         }
 
         private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
-            if (providedSchema == null) {
+            Entry entry = entryIndex.get(name);
+            if (entry == null) {
                 return new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName(name)
                         .withType(type)
                         .withNullable(nullable)
                         .build();
-            }
-            return this.findExistingEntry(name);
-        }
-
-        private Schema.Entry validateTypeAgainstProvidedSchema(final String name, final Schema.Type type,
-                final Object value) {
-            if (providedSchema == null) {
-                return null;
-            }
-
-            final Schema.Entry entry = this.findExistingEntry(name);
-            if (entry.getType() != type) {
-                throw new IllegalArgumentException(
-                        "Entry '" + name + "' expected to be a " + entry.getType() + ", got a " + type);
-            }
-            if (value == null && !entry.isNullable()) {
-                throw new IllegalArgumentException("Entry '" + name + "' is not nullable");
             }
             return entry;
         }
@@ -267,18 +231,18 @@ public final class RecordImpl implements Record {
         public Record build() {
             final Schema currentSchema;
             final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
+            final String missing = entries
+                    .stream()
+                    .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
+                    .map(Schema.Entry::getName)
+                    .collect(joining(", "));
+            if (!missing.isEmpty()) {
+                throw new IllegalArgumentException("Missing entries: " + missing);
+            }
             if (providedSchema != null) {
-                final String missing = providedSchema
-                        .getAllEntries()
-                        .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
-                        .map(Schema.Entry::getName)
-                        .collect(joining(", "));
-                if (!missing.isEmpty()) {
-                    throw new IllegalArgumentException("Missing entries: " + missing);
-                }
                 builder.withProps(providedSchema.getProps());
             }
-            this.entries.forEach(builder::withEntry);
+            entries.forEach(builder::withEntry);
             currentSchema = builder.build();
 
             return new RecordImpl(unmodifiableMap(values), currentSchema);
@@ -287,29 +251,27 @@ public final class RecordImpl implements Record {
         // here the game is to add an entry method for each kind of type + its companion with Entry provider
 
         public Builder withString(final String name, final String value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, STRING, true);
+            final Schema.Entry entry = findOrBuildEntry(name, STRING, true);
             return withString(entry, value);
         }
 
         public Builder withString(final Schema.Entry entry, final String value) {
             assertType(entry.getType(), STRING);
-            validateTypeAgainstProvidedSchema(entry.getName(), STRING, value);
             return append(entry, value);
         }
 
         public Builder withBytes(final String name, final byte[] value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, BYTES, true);
+            final Schema.Entry entry = findOrBuildEntry(name, BYTES, true);
             return withBytes(entry, value);
         }
 
         public Builder withBytes(final Schema.Entry entry, final byte[] value) {
             assertType(entry.getType(), BYTES);
-            validateTypeAgainstProvidedSchema(entry.getName(), BYTES, value);
             return append(entry, value);
         }
 
         public Builder withDateTime(final String name, final Date value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, true);
+            final Schema.Entry entry = findOrBuildEntry(name, DATETIME, true);
             return withDateTime(entry, value);
         }
 
@@ -317,12 +279,11 @@ public final class RecordImpl implements Record {
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
             }
-            validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return withTimestamp(entry, value == null ? -1 : value.getTime());
         }
 
         public Builder withDateTime(final String name, final ZonedDateTime value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, true);
+            final Schema.Entry entry = findOrBuildEntry(name, DATETIME, true);
             return withDateTime(entry, value);
         }
 
@@ -330,73 +291,66 @@ public final class RecordImpl implements Record {
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
             }
-            validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return withTimestamp(entry, value == null ? -1 : value.toInstant().toEpochMilli());
         }
 
         public Builder withTimestamp(final String name, final long value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, false);
+            final Schema.Entry entry = findOrBuildEntry(name, DATETIME, false);
             return withTimestamp(entry, value);
         }
 
         public Builder withTimestamp(final Schema.Entry entry, final long value) {
             assertType(entry.getType(), DATETIME);
-            validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value);
         }
 
         public Builder withInt(final String name, final int value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, INT, false);
+            final Schema.Entry entry = findOrBuildEntry(name, INT, false);
             return withInt(entry, value);
         }
 
         public Builder withInt(final Schema.Entry entry, final int value) {
             assertType(entry.getType(), INT);
-            validateTypeAgainstProvidedSchema(entry.getName(), INT, value);
             return append(entry, value);
         }
 
         public Builder withLong(final String name, final long value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, LONG, false);
+            final Schema.Entry entry = findOrBuildEntry(name, LONG, false);
             return withLong(entry, value);
         }
 
         public Builder withLong(final Schema.Entry entry, final long value) {
             assertType(entry.getType(), LONG);
-            validateTypeAgainstProvidedSchema(entry.getName(), LONG, value);
             return append(entry, value);
         }
 
         public Builder withFloat(final String name, final float value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, FLOAT, false);
+            final Schema.Entry entry = findOrBuildEntry(name, FLOAT, false);
             return withFloat(entry, value);
         }
 
         public Builder withFloat(final Schema.Entry entry, final float value) {
             assertType(entry.getType(), FLOAT);
-            validateTypeAgainstProvidedSchema(entry.getName(), FLOAT, value);
             return append(entry, value);
         }
 
         public Builder withDouble(final String name, final double value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DOUBLE, false);
+            final Schema.Entry entry = findOrBuildEntry(name, DOUBLE, false);
             return withDouble(entry, value);
         }
 
         public Builder withDouble(final Schema.Entry entry, final double value) {
             assertType(entry.getType(), DOUBLE);
-            validateTypeAgainstProvidedSchema(entry.getName(), DOUBLE, value);
             return append(entry, value);
         }
 
         public Builder withBoolean(final String name, final boolean value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, BOOLEAN, false);
+            final Schema.Entry entry = findOrBuildEntry(name, BOOLEAN, false);
             return withBoolean(entry, value);
         }
 
         public Builder withBoolean(final Schema.Entry entry, final boolean value) {
             assertType(entry.getType(), BOOLEAN);
-            validateTypeAgainstProvidedSchema(entry.getName(), BOOLEAN, value);
             return append(entry, value);
         }
 
@@ -405,7 +359,6 @@ public final class RecordImpl implements Record {
             if (entry.getElementSchema() == null) {
                 throw new IllegalArgumentException("No schema for the nested record");
             }
-            validateTypeAgainstProvidedSchema(entry.getName(), RECORD, value);
             return append(entry, value);
         }
 
@@ -423,7 +376,6 @@ public final class RecordImpl implements Record {
             if (entry.getElementSchema() == null) {
                 throw new IllegalArgumentException("No schema for the collection items");
             }
-            validateTypeAgainstProvidedSchema(entry.getName(), ARRAY, values);
             // todo: check item type?
             return append(entry, values);
         }
@@ -440,13 +392,8 @@ public final class RecordImpl implements Record {
             } else if (!entry.isNullable()) {
                 throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
             }
-            if (providedSchema == null) {
-                if (entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
-                    entries.add(entry);
-                }
-            }
-            if (entryIndex == null) {
-                entryIndex = new HashMap<>();
+            if (entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
+                entries.add(entry);
             }
             entryIndex.put(entry.getName(), entry);
             return this;
@@ -523,7 +470,7 @@ public final class RecordImpl implements Record {
         }
 
         private int getEntryIndex(final Entry entry) {
-            final int index = this.entries.indexOf(entry);
+            final int index = entries.indexOf(entry);
             if (index == -1) {
                 throw new IllegalStateException("Index out of bound!");
             }

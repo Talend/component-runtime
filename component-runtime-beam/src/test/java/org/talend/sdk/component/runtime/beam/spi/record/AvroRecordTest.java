@@ -51,6 +51,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
@@ -108,8 +109,13 @@ class AvroRecordTest {
             assertEquals(1, record.getSchema().getEntries().size());
             assertNull(record.getString("name"));
         }
-        { // missing entry
-            assertThrows(IllegalArgumentException.class, () -> builder.get().withString("name2", null).build());
+        { // entry not nullable
+            Entry notNull = new SchemaImpl.EntryImpl.BuilderImpl()
+                    .withName("name2")
+                    .withType(Type.STRING)
+                    .withNullable(false)
+                    .build();
+            assertThrows(IllegalArgumentException.class, () -> builder.get().withString(notNull, null).build());
         }
         { // invalid type entry
             assertThrows(IllegalArgumentException.class, () -> builder.get().withInt("name", 2).build());

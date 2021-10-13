@@ -124,8 +124,9 @@ class RecordBuilderImplTest {
             assertEquals(1, record.getSchema().getEntries().size());
             assertNull(record.getString("name"));
         }
-        { // missing entry in the schema
-            assertThrows(IllegalArgumentException.class, () -> builder.get().withString("name2", null).build());
+        { // entry not nullable
+            Entry notNull = newEntry("name2", "name2", Type.STRING, false, "", "");
+            assertThrows(IllegalArgumentException.class, () -> builder.get().withString(notNull, null).build());
         }
         { // invalid type entry
             assertThrows(IllegalArgumentException.class, () -> builder.get().withInt("name", 2).build());
@@ -417,8 +418,8 @@ class RecordBuilderImplTest {
         builder.updateEntryByName("field1", entry);
         Assertions.assertEquals(2, builder.getCurrentEntries().size());
         assertTrue(entries
-                        .stream()
-                        .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
+                .stream()
+                .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
         assertEquals("Hello", builder.getValue("field2"));
 
         final Entry entryTypeNotCompatible = newEntry("field3", "newFieldName", Type.INT, true, 5, "Comment");
@@ -442,10 +443,10 @@ class RecordBuilderImplTest {
         Record.Builder newBuilder = builder1.updateEntryByName("field1", entry1);
         Assertions.assertEquals(1, newBuilder.getCurrentEntries().size());
         assertTrue(newBuilder
-                        .getCurrentEntries()
-                        .stream()
-                        .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
-                                && Type.STRING.equals(e.getType())));
+                .getCurrentEntries()
+                .stream()
+                .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
+                        && Type.STRING.equals(e.getType())));
         assertEquals("10", newBuilder.getValue("field2"));
     }
 
@@ -516,25 +517,25 @@ class RecordBuilderImplTest {
     @Test
     void testMoveAfter() {
         final RecordImpl.BuilderImpl builder = createDefaultBuilder(createInsertSchema());
-        assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
+        assertEquals("m1,f1,f2,f3,f4", getCurrentSchema(builder));
         builder.moveAfter("f1", "f4");
-        assertEquals("f1,f4,f2,f3", getCurrentSchema(builder));
+        assertEquals("m1,f1,f4,f2,f3", getCurrentSchema(builder));
         builder.moveAfter("f1", "f3");
-        assertEquals("f1,f3,f4,f2", getCurrentSchema(builder));
+        assertEquals("m1,f1,f3,f4,f2", getCurrentSchema(builder));
         builder.moveAfter("f1", "f2");
-        assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
+        assertEquals("m1,f1,f2,f3,f4", getCurrentSchema(builder));
         // self move
         builder.moveAfter("f1", "f1");
-        assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
+        assertEquals("m1,f1,f2,f3,f4", getCurrentSchema(builder));
         builder.moveAfter("f4", "f1");
-        assertEquals("f2,f3,f4,f1", getCurrentSchema(builder));
+        assertEquals("m1,f2,f3,f4,f1", getCurrentSchema(builder));
         Record record = builder.build();
         assertEquals("2,3,4,1", getRecordValues(record));
     }
 
     @Test
     void testSwap() {
-        final RecordImpl.BuilderImpl builder = createDefaultBuilder(createInsertSchema());
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(null);
         assertEquals("f1,f2,f3,f4", getCurrentSchema(builder));
         builder.swap("f1", "f4");
         assertEquals("f4,f2,f3,f1", getCurrentSchema(builder));
@@ -548,7 +549,59 @@ class RecordBuilderImplTest {
         builder.swap("f4", "f1");
         assertEquals("f1,f4,f2,f3", getCurrentSchema(builder));
         Record record = builder.build();
-        assertEquals("1,4,2,3", getRecordValues(record));
+        assertEquals("1,4,2,3", getAllRecordValues(record));
+    }
+
+    @Test
+    void testMixedOperation() {
+        final RecordImpl.BuilderImpl builder = createDefaultBuilder(createInsertSchema());
+        Entry f5 = newMetaEntry("f5", "f5", Type.STRING, false, "", "");
+        Entry f6 = newMetaEntry("f6", "", Type.STRING, true, "", "");
+        Entry m2 = newMetaEntry("m2", "Columns Checks", Type.INT, true, 102, "");
+        Entry m3 = newMetaEntry("m3", "Columns Checks", Type.INT, true, 103, "");
+        //
+        builder.withInt("m1", 101);
+        assertEquals("m1,f1,f2,f3,f4", getCurrentSchema(builder));
+        builder.swap("m1", "f3");
+        assertEquals("f3,f1,f2,m1,f4", getCurrentSchema(builder));
+        builder.insertAfter("m1", m2, 102);
+        assertEquals("f3,f1,f2,m1,m2,f4", getCurrentSchema(builder));
+        builder.removeEntry(m2);
+        assertEquals("f3,f1,f2,m1,f4", getCurrentSchema(builder));
+        builder.with(m2, 102);
+        assertEquals("f3,f1,f2,m1,f4,m2", getCurrentSchema(builder));
+        builder.moveBefore("f3", "m2");
+        assertEquals("m2,f3,f1,f2,m1,f4", getCurrentSchema(builder));
+        builder.updateEntryByName("m2", m3);
+        assertNull(builder.getValue("m2"));
+        assertEquals(102, builder.getValue("m3"));
+        builder.withInt("m3", 103);
+        assertEquals(103, builder.getValue("m3"));
+        assertEquals("m3,f3,f1,f2,m1,f4", getCurrentSchema(builder));
+        assertThrows(IllegalArgumentException.class, () -> builder.insertBefore("f2", f5, null));
+        assertThrows(IllegalArgumentException.class, () -> builder.insertAfter("f2", f5, null));
+        assertEquals("m3,f3,f1,f2,m1,f4", getCurrentSchema(builder));
+        builder.insertBefore("m3", f5, "5");
+        assertEquals("f5,m3,f3,f1,f2,m1,f4", getCurrentSchema(builder));
+        builder.moveBefore("f5", "m1");
+        assertEquals("m1,f5,m3,f3,f1,f2,f4", getCurrentSchema(builder));
+        builder.moveAfter("m1", "m3");
+        assertEquals("m1,m3,f5,f3,f1,f2,f4", getCurrentSchema(builder));
+        builder.insertAfter("m1", m2, 102);
+        assertEquals("m1,m2,m3,f5,f3,f1,f2,f4", getCurrentSchema(builder));
+        builder.moveBefore("f5", "f1");
+        assertEquals("m1,m2,m3,f1,f5,f3,f2,f4", getCurrentSchema(builder));
+        builder.moveAfter("f1", "f2");
+        assertEquals("m1,m2,m3,f1,f2,f5,f3,f4", getCurrentSchema(builder));
+        builder.removeEntry(f5);
+        assertEquals("m1,m2,m3,f1,f2,f3,f4", getCurrentSchema(builder));
+        // record checks
+        Record record = builder.build();
+        assertEquals(101, record.getInt("m1"));
+        assertEquals(102, record.getInt("m2"));
+        assertEquals(103, record.getInt("m3"));
+        assertEquals("1,2,3,4", getRecordValues(record));
+        assertEquals("101,102,103,1,2,3,4", getAllRecordValues(record));
     }
 
     private String getCurrentSchema(final RecordImpl.BuilderImpl builder) {
@@ -565,6 +618,15 @@ class RecordBuilderImplTest {
                 .collect(Collectors.joining(","));
     }
 
+    private String getAllRecordValues(final Record record) {
+        return record
+                .getSchema()
+                .getAllEntries()
+                .map(e -> e.getName())
+                .map(f -> record.getString(f))
+                .collect(Collectors.joining(","));
+    }
+
     private Schema createInsertSchema() {
         return new BuilderImpl() //
                 .withType(Type.RECORD) //
@@ -572,6 +634,10 @@ class RecordBuilderImplTest {
                 .withEntry(newEntry("f2", "f2", Type.STRING, true, 5, "Comment"))
                 .withEntry(newEntry("f3", "f3", Type.STRING, true, 5, "Comment"))
                 .withEntry(newEntry("f4", "f4", Type.STRING, true, 5, "Comment"))
+                .withEntry(newMetaEntry("m1", "m1", Type.INT, true, 101, "metadata"))
+                .withProp("rootProp1", "rootPropValue1")
+                .withProp("rootProp2", "rootPropValue2")
+                .withProp("rootProp3", "rootPropValue3")
                 .build();
     }
 

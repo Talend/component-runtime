@@ -271,15 +271,15 @@ public interface Record {
 
         Builder updateEntryByName(String name, Schema.Entry schemaEntry);
 
-        <T> Builder insertBefore(final String before, final Schema.Entry entry, final T value);
+        <T> Builder insertBefore(String before, Schema.Entry entry, T value);
 
-        <T> Builder insertAfter(final String after, final Schema.Entry entry, final T value);
+        <T> Builder insertAfter(String after, Schema.Entry entry, T value);
 
-        Builder moveBefore(final String before, final String name);
+        Builder moveBefore(String before, String name);
 
-        Builder moveAfter(final String after, final String name);
+        Builder moveAfter(String after, String name);
 
-        Builder swap(final String name, final String with);
+        Builder swap(String name, String with);
 
         Builder with(Schema.Entry entry, Object value);
 
