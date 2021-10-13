@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -134,8 +135,87 @@ class UiSchemaConverterTest {
         final UiSchema entrySchema = schemas.iterator().next();
         assertEquals("datalist", entrySchema.getWidget());
         assertEquals(1, entrySchema.getTitleMap().size());
-        final UiSchema.NameValue proposal = entrySchema.getTitleMap().iterator().next();
+        final UiSchema.NameValue proposal = (UiSchema.NameValue) entrySchema.getTitleMap().iterator().next();
         assertEquals("a", proposal.getName());
         assertEquals("A", proposal.getValue());
+    }
+
+    @Test
+    void customConverterWithTitleNamedValueTitleMap() throws Exception {
+        final List<SimplePropertyDefinition> properties = singletonList(new SimplePropertyDefinition("entry", "entry",
+                "Entry", "String", null, NVAL, emptyMap(), null, NPROPS));
+        final PropertyContext<Object> propertyContext =
+                new PropertyContext<>(properties.iterator().next(), null, new PropertyContext.Configuration(false));
+        final List<UiSchema> schemas = new ArrayList<>();
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final JsonSchema jsonSchema = new JsonSchema();
+            new JsonSchemaConverter(jsonb, jsonSchema, properties)
+                    .convert(completedFuture(propertyContext))
+                    .toCompletableFuture()
+                    .get();
+            new UiSchemaConverter(null, "test", schemas, properties, null, jsonSchema, properties, emptyList(), "en",
+                    singletonList(new CustomPropertyConverter() {
+
+                        @Override
+                        public boolean supports(final PropertyContext<?> context) {
+                            return context.getProperty().getName().equals("entry");
+                        }
+
+                        @Override
+                        public CompletionStage<PropertyContext<?>> convert(
+                                final CompletionStage<PropertyContext<?>> context,
+                                final ConverterContext converterContext) {
+                            return new DataListWidgetConverter(converterContext.getSchemas(),
+                                    converterContext.getProperties(), converterContext.getActions(),
+                                    converterContext.getClient(), converterContext.getFamily(),
+                                    converterContext.getJsonSchema(), converterContext.getLang()) {
+
+                                @Override
+                                protected CompletionStage<PropertyContext<?>> fillProposalsAndReturn(
+                                        final PropertyContext<?> context, final UiSchema schema,
+                                        final JsonSchema jsonSchema) {
+                                    List<UiSchema.TitledNameValue> titleMapContent = new ArrayList<>();
+                                    List<UiSchema.NameValue> level1 = new ArrayList<>();
+                                    List<UiSchema.NameValue> level2 = new ArrayList<>();
+                                    level1.add(new UiSchema.NameValue.Builder().withName("a1").withValue("A1").build());
+                                    level1.add(new UiSchema.NameValue.Builder().withName("b1").withValue("B1").build());
+                                    level2.add(new UiSchema.NameValue.Builder().withName("a2").withValue("A2").build());
+                                    level2.add(new UiSchema.NameValue.Builder().withName("b2").withValue("B2").build());
+                                    level2.add(new UiSchema.NameValue.Builder().withName("c2").withValue("C2").build());
+                                    titleMapContent
+                                            .add(new UiSchema.TitledNameValue.Builder()
+                                                    .withTitle("title1")
+                                                    .withSuggestions(level1)
+                                                    .build());
+                                    titleMapContent
+                                            .add(new UiSchema.TitledNameValue.Builder()
+                                                    .withTitle("title2")
+                                                    .withSuggestions(level2)
+                                                    .build());
+                                    schema.setTitleMap(titleMapContent);
+                                    List<String> enumValues = new ArrayList<>();
+                                    enumValues.add("A1");
+                                    enumValues.add("B1");
+                                    enumValues.add("A2");
+                                    enumValues.add("B2");
+                                    enumValues.add("C2");
+                                    jsonSchema.setEnumValues(enumValues);
+                                    return completedFuture(context);
+                                }
+                            }.convert(context);
+                        }
+                    }), new AtomicInteger(1)).convert(completedFuture(propertyContext)).toCompletableFuture().get();
+        }
+        assertEquals(1, schemas.size());
+        final UiSchema entrySchema = schemas.iterator().next();
+        assertEquals("datalist", entrySchema.getWidget());
+        assertEquals(2, entrySchema.getTitleMap().size());
+        Iterator<? extends UiSchema.TitleMapContent> titleMapContent = entrySchema.getTitleMap().iterator();
+        UiSchema.TitledNameValue proposal = (UiSchema.TitledNameValue) titleMapContent.next();
+        assertEquals("title1", proposal.getTitle());
+        assertEquals(2, proposal.getSuggestions().size());
+        proposal = (UiSchema.TitledNameValue) titleMapContent.next();
+        assertEquals("title2", proposal.getTitle());
+        assertEquals(3, proposal.getSuggestions().size());
     }
 }
