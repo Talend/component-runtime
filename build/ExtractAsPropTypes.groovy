@@ -22,6 +22,7 @@ import static java.util.Locale.ROOT
 import static java.util.Optional.ofNullable
 
 static def toPropType(type) {
+    println type
     if (type == String.class) {
         return 'PropType.string'
     }
@@ -63,6 +64,7 @@ GenerationAggregator createPropType(parent, clazz, aggregate) {
         return
     }
     output.parentFile.mkdirs()
+    println clazz
     aggregate.filenames.add(clazz.simpleName)
     if (!aggregate.namespace) {
         aggregate.namespace = namespace
@@ -75,6 +77,9 @@ GenerationAggregator createPropType(parent, clazz, aggregate) {
             def type = it.genericType
             if (ParameterizedType.class.isInstance(type)) {
                 if (Collection.class.isAssignableFrom(type.rawType)) {
+                    if (type.actualTypeArguments[0].class.name == "sun.reflect.generics.reflectiveObjects.WildcardTypeImpl") {
+                        return org.talend.sdk.component.form.model.uischema.UiSchema.NameValue.class
+                    }
                     return type.actualTypeArguments[0]
                 }
                 if (Map.class.isAssignableFrom(type.rawType)) { // no need to impl a custom validator for this case
@@ -101,6 +106,9 @@ GenerationAggregator createPropType(parent, clazz, aggregate) {
             if (ParameterizedType.class.isInstance(it.genericType)) {
                 if (Collection.class.isAssignableFrom(type.rawType)) {
                     def nestedType = type.actualTypeArguments[0]
+                    if (nestedType.class.name == "sun.reflect.generics.reflectiveObjects.WildcardTypeImpl") {
+                        nestedType = org.talend.sdk.component.form.model.uischema.UiSchema.NameValue.class
+                    }
                     if (nestedType == clazz) {
                         appendedAttributes.append("definition.${name} = PropType.arrayOf(${toPropType(nestedType)});\n")
                     } else {

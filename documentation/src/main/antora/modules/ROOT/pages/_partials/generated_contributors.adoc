@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":408,
+    "commits":409,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -85,7 +85,7 @@
   },
   {
     "commits":5,
-    "description":"",
+    "description":"Committer and PMC member of Apache Avro.",
     "gravatar":"https://avatars.githubusercontent.com/u/7744819?v=4",
     "id":"RyanSkraba"
   },
@@ -120,6 +120,13 @@
   {
     "commits":3,
     "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/1133383?v=4",
+    "id":"rdubois",
+    "name":"Rémy DUBOIS"
+  },
+  {
+    "commits":3,
+    "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/18050008?v=4",
     "id":"chmyga"
   },
@@ -142,13 +149,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/2045409?v=4",
     "id":"ZoltanTakacs",
     "name":"Zoltán Takács"
-  },
-  {
-    "commits":2,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/1133383?v=4",
-    "id":"rdubois",
-    "name":"Rémy DUBOIS"
   },
   {
     "commits":1,

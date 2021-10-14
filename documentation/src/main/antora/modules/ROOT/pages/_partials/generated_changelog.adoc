@@ -24,6 +24,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2001[TCOMP-2001^]: Upgrade Beam to 2.32.0
 - link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
 - link:https://jira.talendforge.org/browse/TCOMP-2009[TCOMP-2009^]: Upgrade dockerfile-maven-plugin to 1.4.13
+- link:https://jira.talendforge.org/browse/TCOMP-2016[TCOMP-2016^]: UiSchema can't hold advanced titleMap for more advanded datalist widgets
 
 
 
