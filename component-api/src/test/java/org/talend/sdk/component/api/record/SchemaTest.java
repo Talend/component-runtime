@@ -23,6 +23,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -140,6 +141,41 @@ class SchemaTest {
         }
 
         @Override
+        public Builder toBuilder() {
+            throw new UnsupportedOperationException("#toBuilder()");
+        }
+
+        @Override
+        public void moveBefore(final String before, final String name) {
+            throw new UnsupportedOperationException("#moveBefore()");
+        }
+
+        @Override
+        public void moveAfter(final String after, final String name) {
+            throw new UnsupportedOperationException("#moveAfter()");
+        }
+
+        @Override
+        public void swap(final String name, final String with) {
+            throw new UnsupportedOperationException("#swap()");
+        }
+
+        @Override
+        public Comparator<Entry> buildOrderComparator(final String[] fieldNames) {
+            throw new UnsupportedOperationException("#buildComparator()");
+        }
+
+        @Override
+        public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+            throw new UnsupportedOperationException("#getEntriesOrdered()");
+        }
+
+        @Override
+        public List<Entry> getEntriesOrdered() {
+            throw new UnsupportedOperationException("#getEntriesOrdered()");
+        }
+
+        @Override
         public Map<String, String> getProps() {
             return props;
         }
@@ -220,6 +256,11 @@ class SchemaTest {
             @Override
             public Schema getSchema() {
                 return null;
+            }
+
+            @Override
+            public Builder withNewSchema(final Schema schema) {
+                throw new UnsupportedOperationException("#withNewSchema()");
             }
 
             @Override

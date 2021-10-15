@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.record;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -167,6 +168,41 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
+    public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+        throw new UnsupportedOperationException("#getEntriesOrdered()");
+    }
+
+    @Override
+    public Comparator<Entry> buildOrderComparator(final String[] fieldNames) {
+        throw new UnsupportedOperationException("#buildComparator()");
+    }
+
+    @Override
+    public List<Entry> getEntriesOrdered() {
+        throw new UnsupportedOperationException("#getEntriesOrdered()");
+    }
+
+    @Override
+    public void moveBefore(final String before, final String name) {
+        throw new UnsupportedOperationException("#moveBefore()");
+    }
+
+    @Override
+    public void moveAfter(final String after, final String name) {
+        throw new UnsupportedOperationException("#moveAfter()");
+    }
+
+    @Override
+    public void swap(final String name, final String with) {
+        throw new UnsupportedOperationException("#swap()");
+    }
+
+    @Override
+    public Builder toBuilder() {
+        throw new UnsupportedOperationException("#toBuilder()");
+    }
+
+    @Override
     public Builder withProps(final Map<String, String> props) {
         throw new UnsupportedOperationException("#withProps()");
     }
@@ -184,5 +220,25 @@ public abstract class Schemas implements Schema, Schema.Builder {
     @Override
     public String getProp(final String property) {
         throw new UnsupportedOperationException("#getProp()");
+    }
+
+    @Override
+    public Builder withEntryAfter(final String before, final Entry entry) {
+        throw new UnsupportedOperationException("#withEntryAfter()");
+    }
+
+    @Override
+    public Builder withEntryBefore(final String after, final Entry entry) {
+        throw new UnsupportedOperationException("#withEntryBefore()");
+    }
+
+    @Override
+    public Builder remove(final String name) {
+        throw new UnsupportedOperationException("#remove()");
+    }
+
+    @Override
+    public Builder remove(final Entry entry) {
+        throw new UnsupportedOperationException("#remove()");
     }
 }

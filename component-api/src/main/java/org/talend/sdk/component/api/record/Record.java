@@ -36,6 +36,14 @@ public interface Record {
     Schema getSchema();
 
     /**
+     * Create a Builder with values of the record present in {@link Schema}.
+     * 
+     * @param schema new schema
+     * @return a {@link Record.Builder}
+     */
+    Builder withNewSchema(Schema schema);
+
+    /**
      * Access a record field value.
      *
      * IMPORTANT: it is always better to use the typed accessors and the optional flavor when the entry is nullable.

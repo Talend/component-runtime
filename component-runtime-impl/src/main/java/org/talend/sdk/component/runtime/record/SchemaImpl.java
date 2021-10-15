@@ -19,15 +19,20 @@ import static java.util.Collections.unmodifiableList;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.Schema;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -52,12 +57,23 @@ public class SchemaImpl implements Schema {
     @Getter
     private final Map<String, String> props;
 
+    private final List<String> entriesOrder;
+
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
         this.type = builder.type;
         this.elementSchema = builder.elementSchema;
         this.entries = unmodifiableList(builder.entries);
         this.metadataEntries = unmodifiableList(builder.metadataEntries);
         this.props = builder.props;
+        this.entriesOrder = builder.entriesOrder;
+    }
+
+    @Override
+    public Builder toBuilder() {
+        Builder builder = new BuilderImpl();
+        builder.withType(type).withProps(props).withElementSchema(elementSchema);
+        getEntriesOrdered().forEach(entry -> builder.withEntry(entry));
+        return builder;
     }
 
     @Override
@@ -76,6 +92,70 @@ public class SchemaImpl implements Schema {
         return Stream.concat(this.metadataEntries.stream(), this.entries.stream());
     }
 
+    @Override
+    public List<Entry> getEntriesOrdered() {
+        return getAllEntries().sorted(new OrderComparator(entriesOrder)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+        return getAllEntries().sorted(comparator).collect(Collectors.toList());
+    }
+
+    @Override
+    public Comparator<Schema.Entry> buildOrderComparator(final String[] fields) {
+        return new OrderComparator(Arrays.asList(fields));
+    }
+
+    @Override
+    public void moveAfter(final String after, final String name) {
+        if (entriesOrder.indexOf(after) == -1) {
+            throw new IllegalArgumentException(String.format("%s not in schema", after));
+        }
+        entriesOrder.remove(name);
+        int destination = entriesOrder.indexOf(after);
+        if (!(destination + 1 == entriesOrder.size())) {
+            destination += 1;
+        }
+        entriesOrder.add(destination, name);
+    }
+
+    @Override
+    public void moveBefore(final String before, final String name) {
+        if (entriesOrder.indexOf(before) == -1) {
+            throw new IllegalArgumentException(String.format("%s not in schema", before));
+        }
+        entriesOrder.remove(name);
+        entriesOrder.add(entriesOrder.indexOf(before), name);
+    }
+
+    @Override
+    public void swap(final String name, final String with) {
+        Collections.swap(entriesOrder, entriesOrder.indexOf(name), entriesOrder.indexOf(with));
+    }
+
+    @AllArgsConstructor
+    public static class OrderComparator implements Comparator<Entry> {
+
+        private final List<String> orderNames;
+
+        @Override
+        public int compare(final Entry e1, final Entry e2) {
+            final String name1 = e1.getName();
+            final String name2 = e2.getName();
+            if (orderNames.contains(name1) && orderNames.contains(name2)) {
+                return orderNames.indexOf(name1) - orderNames.indexOf(name2);
+            }
+            if (orderNames.contains(name1)) {
+                return -1;
+            }
+            if (orderNames.contains(name2)) {
+                return 1;
+            }
+            return 0;
+        }
+    }
+
     public static class BuilderImpl implements Builder {
 
         private Type type;
@@ -87,6 +167,8 @@ public class SchemaImpl implements Schema {
         private final List<Entry> metadataEntries = new ArrayList<>();
 
         private Map<String, String> props = new LinkedHashMap<>(0);
+
+        private List<String> entriesOrder = new ArrayList<>();
 
         @Override
         public Builder withElementSchema(final Schema schema) {
@@ -113,7 +195,58 @@ public class SchemaImpl implements Schema {
             } else {
                 entries.add(entry);
             }
+            entriesOrder.add(entry.getName());
             return this;
+        }
+
+        @Override
+        public Builder withEntryAfter(final String after, final Entry entry) {
+            if (entriesOrder.indexOf(after) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", after));
+            }
+            withEntry(entry);
+            entriesOrder.remove(entry.getName());
+            int destination = entriesOrder.indexOf(after);
+            if (!(destination + 1 == entriesOrder.size())) {
+                destination += 1;
+            }
+            entriesOrder.add(destination, entry.getName());
+            return this;
+        }
+
+        @Override
+        public Builder withEntryBefore(final String before, final Entry entry) {
+            if (entriesOrder.indexOf(before) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", before));
+            }
+            withEntry(entry);
+            entriesOrder.remove(entry.getName());
+            entriesOrder.add(entriesOrder.indexOf(before), entry.getName());
+            return this;
+        }
+
+        @Override
+        public Builder remove(final Entry entry) {
+            if (entry.isMetadata()) {
+                metadataEntries.remove(entry);
+            } else {
+                entries.remove(entry);
+            }
+            entriesOrder.remove(entry.getName());
+            return this;
+        }
+
+        @Override
+        public Builder remove(final String name) {
+            final Entry entry = Stream
+                    .concat(entries.stream(), metadataEntries.stream())
+                    .filter(e -> name.equals(e.getName()))
+                    .findFirst()
+                    .get();
+            if (entry == null) {
+                throw new IllegalArgumentException(String.format("%s not in schema", name));
+            }
+            return remove(entry);
         }
 
         @Override

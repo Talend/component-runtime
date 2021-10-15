@@ -23,6 +23,7 @@ import java.time.temporal.Temporal;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,60 @@ public interface Schema {
      * @return All entries, including data and metadata, of this schema.
      */
     Stream<Entry> getAllEntries();
+
+    /**
+     * Get a Builder from the current schema.
+     * 
+     * @return a {@link Schema.Builder}
+     */
+    Builder toBuilder();
+
+    /**
+     * Get all entries sorted by schema designed order.
+     * 
+     * @return all entries ordered
+     */
+    List<Entry> getEntriesOrdered();
+
+    /**
+     * Get all entries sorted using a custom comparator.
+     * 
+     * @param comparator the comparator
+     * @return all entries ordered with provided comparator
+     */
+    List<Entry> getEntriesOrdered(Comparator<Entry> comparator);
+
+    /**
+     * Build an order comparator according fieldNames.
+     * 
+     * @param fieldNames the fields ordering
+     * @return the order comparator
+     */
+    Comparator<Schema.Entry> buildOrderComparator(String[] fieldNames);
+
+    /**
+     * Move an entry after another one.
+     *
+     * @param after the entry name reference
+     * @param name the entry name
+     */
+    void moveAfter(final String after, final String name);
+
+    /**
+     * Move an entry before another one.
+     * 
+     * @param before the entry name reference
+     * @param name the entry name
+     */
+    void moveBefore(final String before, final String name);
+
+    /**
+     * Swap two entries.
+     * 
+     * @param name the entry name
+     * @param with the other entry name
+     */
+    void swap(final String name, final String with);
 
     default Entry getEntry(final String name) {
         return Optional
@@ -100,6 +155,7 @@ public interface Schema {
     }
 
     enum Type {
+
         RECORD(new Class<?>[] { Record.class }),
         ARRAY(new Class<?>[] { Collection.class }),
         STRING(new Class<?>[] { String.class }),
@@ -262,6 +318,40 @@ public interface Schema {
          * @return this builder.
          */
         Builder withEntry(Entry entry);
+
+        /**
+         * Insert the entry after the specified entry.
+         * 
+         * @param after the entry name reference
+         * @param entry the entry name
+         * @return this builder
+         */
+        Builder withEntryAfter(String after, Entry entry);
+
+        /**
+         * Insert the entry before the specified entry.
+         * 
+         * @param before the entry name reference
+         * @param entry the entry name
+         * @return this builder
+         */
+        Builder withEntryBefore(String before, Entry entry);
+
+        /**
+         * Remove entry from builder.
+         * 
+         * @param name the entry name
+         * @return this builder
+         */
+        Builder remove(String name);
+
+        /**
+         * Remove entry from builder.
+         * 
+         * @param entry the entry
+         * @return this builder
+         */
+        Builder remove(Entry entry);
 
         /**
          * @param schema nested element schema.

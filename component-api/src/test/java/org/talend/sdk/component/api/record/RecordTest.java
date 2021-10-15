@@ -73,6 +73,11 @@ class RecordTest {
         }
 
         @Override
+        public Builder withNewSchema(final Schema schema) {
+            throw new UnsupportedOperationException("#withNewSchema()");
+        }
+
+        @Override
         public <T> T get(final Class<T> expectedType, final String name) {
             return expectedType.cast(value);
         }

@@ -104,6 +104,13 @@ public final class RecordImpl implements Record {
         }
     }
 
+    @Override
+    public Builder withNewSchema(final Schema schema) {
+        final BuilderImpl builder = new BuilderImpl(schema);
+        schema.getEntriesOrdered().forEach(e -> builder.with(e, values.get(e.getName())));
+        return builder;
+    }
+
     // Entry creation can be optimized a bit but recent GC should not see it as a big deal
     public static class BuilderImpl implements Builder {
 

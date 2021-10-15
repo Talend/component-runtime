@@ -15,6 +15,11 @@
  */
 package org.talend.sdk.component.runtime.record;
 
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
@@ -129,6 +135,99 @@ class SchemaImplTest {
         Assertions.assertEquals(34, record.getInt("record_id"));
         Assertions.assertEquals("Aloa", record.getString("field1"));
         Assertions.assertEquals("Hallo, wie gehst du ?", record.getString("field2"));
+    }
+
+    @Test
+    void testOrder() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(dataEntry1) //
+                .withEntry(meta1) //
+                .withEntry(dataEntry2) //
+                .withEntry(meta2) //
+                .build();
+        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
+        final Comparator<Entry> comp = schema.buildOrderComparator(new String[] { "meta2", "meta1", "data1", "meta0" });
+        assertEquals("meta2,meta1,data1,data2", getSchemaFields(schema, comp));
+        schema.moveAfter("meta1", "data1");
+        assertEquals("meta1,data1,data2,meta2", getSchemaFields(schema));
+        schema.moveBefore("data2", "meta1");
+        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
+    }
+
+    @Test
+    void testComparator() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(dataEntry1) //
+                .withEntry(meta1) //
+                .withEntry(dataEntry2) //
+                .withEntry(meta2) //
+                .build();
+        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
+        final Comparator<Entry> comparator = (o1, o2) -> {
+            if (o1.isMetadata() && o2.isMetadata()) {
+                return 0;
+            }
+            if (o1.isMetadata()) {
+                return -1;
+            }
+            if (o2.isMetadata()) {
+                return 1;
+            }
+            return 0;
+        };
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, comparator));
+    }
+
+    @Test
+    void testBuilder() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(dataEntry1) //
+                .withEntryBefore("data1", meta1) //
+                .withEntry(dataEntry2) //
+                .withEntryAfter("meta1", meta2) //
+                .build();
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
+        // failing
+        final Schema.Builder builder = new BuilderImpl().withType(Type.RECORD);
+        assertThrows(IllegalArgumentException.class, () -> builder.withEntryAfter("data1", meta1));
+        assertThrows(IllegalArgumentException.class, () -> builder.withEntryBefore("data1", meta2));
+    }
+
+    @Test
+    void testToBuilder() {
+        final Schema schemaOrigin = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(dataEntry1) //
+                .withEntry(meta1) //
+                .withEntry(dataEntry2) //
+                .withEntry(meta2) //
+                .build();
+        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schemaOrigin));
+        schemaOrigin.moveAfter("meta1", "data1");
+        schemaOrigin.moveBefore("data2", "meta2");
+        assertEquals("meta1,data1,meta2,data2", getSchemaFields(schemaOrigin));
+        Builder builder = schemaOrigin.toBuilder();
+        builder.withEntry(newEntry("data3", Type.STRING).build());
+        builder.withEntry(newEntry("meta3", Type.STRING).withMetadata(true).build());
+        final Schema schemaNew = builder.build();
+        assertEquals(3, schemaNew.getMetadata().size());
+        assertEquals(3, schemaNew.getEntries().size());
+        assertEquals(6, schemaNew.getAllEntries().count());
+        assertEquals("meta1,data1,meta2,data2,data3,meta3", getSchemaFields(schemaNew));
+        schemaNew.moveBefore("meta1", "meta3");
+        schemaNew.moveAfter("meta1", "data3");
+        assertEquals("meta3,meta1,data3,data1,meta2,data2", getSchemaFields(schemaNew));
+    }
+
+    private String getSchemaFields(final Schema schema) {
+        return schema.getEntriesOrdered().stream().map(e -> e.getName()).collect(joining(","));
+    }
+
+    private String getSchemaFields(final Schema schema, final Comparator<Entry> comp) {
+        return schema.getEntriesOrdered(comp).stream().map(e -> e.getName()).collect(joining(","));
     }
 
     private Schema.Entry.Builder newEntry(final String name, final Schema.Type type) {
