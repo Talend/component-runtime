@@ -29,6 +29,7 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
+import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
@@ -168,6 +169,41 @@ public class AvroSchemaBuilder implements Schema.Builder {
         final Field f = AvroHelper.toField(schema, entry);
         fields.add(f);
         return this;
+    }
+
+    @Override
+    public Builder withEntryAfter(final String after, final Entry entry) {
+        throw new UnsupportedOperationException("#withEntryAfter()");
+    }
+
+    @Override
+    public Builder withEntryBefore(final String before, final Entry entry) {
+        throw new UnsupportedOperationException("#withEntryBefore()");
+    }
+
+    @Override
+    public Builder remove(final String name) {
+        throw new UnsupportedOperationException("#remove()");
+    }
+
+    @Override
+    public Builder remove(final Entry entry) {
+        throw new UnsupportedOperationException("#remove()");
+    }
+
+    @Override
+    public Builder moveAfter(final String after, final String name) {
+        throw new UnsupportedOperationException("#moveAfter()");
+    }
+
+    @Override
+    public Builder moveBefore(final String before, final String name) {
+        throw new UnsupportedOperationException("#moveBefore()");
+    }
+
+    @Override
+    public Builder swap(final String name, final String with) {
+        throw new UnsupportedOperationException("#swap()");
     }
 
     @Override

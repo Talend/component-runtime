@@ -23,6 +23,7 @@ import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
+import static org.talend.sdk.component.runtime.beam.spi.record.KeysForAvroProperty.ENTRIES_ORDER_PROP;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
 import java.nio.ByteBuffer;
@@ -40,8 +41,10 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
@@ -75,7 +78,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             this.schema = avr.schema;
             return;
         }
-        final List<org.apache.avro.Schema.Field> fields = record.getSchema().getAllEntries().map(entry -> {
+        EntriesOrder eo = EntriesOrderImpl.of(record.getSchema().getProp(ENTRIES_ORDER_PROP));
+        final List<org.apache.avro.Schema.Field> fields = record.getSchema().getAllEntries().sorted(eo).map(entry -> {
             final org.apache.avro.Schema avroSchema = toSchema(entry);
             final org.apache.avro.Schema.Field f = AvroSchemaBuilder.AvroHelper.toField(avroSchema, entry);
             return f;
@@ -123,6 +127,13 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     @Override
     public Schema getSchema() {
         return schema;
+    }
+
+    @Override
+    public Builder withNewSchema(final Schema schema) {
+        final AvroRecordBuilder builder = new AvroRecordBuilder(schema);
+        schema.getEntriesOrdered().forEach(e -> builder.with(e, delegate.get(9)));
+        return builder;
     }
 
     @Override
