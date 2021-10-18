@@ -146,27 +146,12 @@ class SchemaTest {
         }
 
         @Override
-        public void moveBefore(final String before, final String name) {
-            throw new UnsupportedOperationException("#moveBefore()");
-        }
-
-        @Override
-        public void moveAfter(final String after, final String name) {
-            throw new UnsupportedOperationException("#moveAfter()");
-        }
-
-        @Override
-        public void swap(final String name, final String with) {
-            throw new UnsupportedOperationException("#swap()");
-        }
-
-        @Override
-        public Comparator<Entry> buildOrderComparator(final String[] fieldNames) {
+        public EntriesOrder buildEntriesOrder(final String[] fieldNames) {
             throw new UnsupportedOperationException("#buildComparator()");
         }
 
         @Override
-        public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+        public List<Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
             throw new UnsupportedOperationException("#getEntriesOrdered()");
         }
 

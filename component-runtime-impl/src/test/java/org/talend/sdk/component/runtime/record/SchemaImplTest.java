@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
@@ -145,18 +146,17 @@ class SchemaImplTest {
                 .withEntry(meta1) //
                 .withEntry(dataEntry2) //
                 .withEntry(meta2) //
+                .moveAfter("meta1", "data1")
+                .moveBefore("data2", "meta1")
                 .build();
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
-        final Comparator<Entry> comp = schema.buildOrderComparator(new String[] { "meta2", "meta1", "data1", "meta0" });
+        final EntriesOrder comp = schema.buildEntriesOrder(new String[] { "meta2", "meta1", "data1", "meta0" });
         assertEquals("meta2,meta1,data1,data2", getSchemaFields(schema, comp));
-        schema.moveAfter("meta1", "data1");
-        assertEquals("meta1,data1,data2,meta2", getSchemaFields(schema));
-        schema.moveBefore("data2", "meta1");
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
     }
 
     @Test
-    void testComparator() {
+    void testEntriesOrder() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
                 .withEntry(dataEntry1) //
@@ -165,19 +165,43 @@ class SchemaImplTest {
                 .withEntry(meta2) //
                 .build();
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
-        final Comparator<Entry> comparator = (o1, o2) -> {
-            if (o1.isMetadata() && o2.isMetadata()) {
+        final EntriesOrder myEntriesOrder = new EntriesOrder() {
+
+            @Override
+            public List<String> getFieldsOrder() {
+                throw new UnsupportedOperationException("#getFieldsOrder()");
+            }
+
+            @Override
+            public void moveAfter(final String before, final String name) {
+                throw new UnsupportedOperationException("#moveAfter()");
+            }
+
+            @Override
+            public void moveBefore(final String before, final String name) {
+                throw new UnsupportedOperationException("#moveBefore()");
+            }
+
+            @Override
+            public void swap(final String name, final String with) {
+                throw new UnsupportedOperationException("#swap()");
+            }
+
+            @Override
+            public int compare(final Entry o1, final Entry o2) {
+                if (o1.isMetadata() && o2.isMetadata()) {
+                    return 0;
+                }
+                if (o1.isMetadata()) {
+                    return -1;
+                }
+                if (o2.isMetadata()) {
+                    return 1;
+                }
                 return 0;
             }
-            if (o1.isMetadata()) {
-                return -1;
-            }
-            if (o2.isMetadata()) {
-                return 1;
-            }
-            return 0;
         };
-        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, comparator));
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, myEntriesOrder));
     }
 
     @Test
@@ -204,10 +228,9 @@ class SchemaImplTest {
                 .withEntry(meta1) //
                 .withEntry(dataEntry2) //
                 .withEntry(meta2) //
+                .moveAfter("meta1", "data1")
+                .moveBefore("data2", "meta2")
                 .build();
-        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schemaOrigin));
-        schemaOrigin.moveAfter("meta1", "data1");
-        schemaOrigin.moveBefore("data2", "meta2");
         assertEquals("meta1,data1,meta2,data2", getSchemaFields(schemaOrigin));
         Builder builder = schemaOrigin.toBuilder();
         builder.withEntry(newEntry("data3", Type.STRING).build());
@@ -217,17 +240,14 @@ class SchemaImplTest {
         assertEquals(3, schemaNew.getEntries().size());
         assertEquals(6, schemaNew.getAllEntries().count());
         assertEquals("meta1,data1,meta2,data2,data3,meta3", getSchemaFields(schemaNew));
-        schemaNew.moveBefore("meta1", "meta3");
-        schemaNew.moveAfter("meta1", "data3");
-        assertEquals("meta3,meta1,data3,data1,meta2,data2", getSchemaFields(schemaNew));
     }
 
     private String getSchemaFields(final Schema schema) {
         return schema.getEntriesOrdered().stream().map(e -> e.getName()).collect(joining(","));
     }
 
-    private String getSchemaFields(final Schema schema, final Comparator<Entry> comp) {
-        return schema.getEntriesOrdered(comp).stream().map(e -> e.getName()).collect(joining(","));
+    private String getSchemaFields(final Schema schema, final EntriesOrder entriesOrder) {
+        return schema.getEntriesOrdered(entriesOrder).stream().map(e -> e.getName()).collect(joining(","));
     }
 
     private Schema.Entry.Builder newEntry(final String name, final Schema.Type type) {

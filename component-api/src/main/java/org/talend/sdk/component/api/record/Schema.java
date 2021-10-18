@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.Json;
@@ -78,10 +79,10 @@ public interface Schema {
     /**
      * Get all entries sorted using a custom comparator.
      * 
-     * @param comparator the comparator
+     * @param entriesOrder the comparator impl
      * @return all entries ordered with provided comparator
      */
-    List<Entry> getEntriesOrdered(Comparator<Entry> comparator);
+    List<Entry> getEntriesOrdered(EntriesOrder entriesOrder);
 
     /**
      * Build an order comparator according fieldNames.
@@ -89,31 +90,7 @@ public interface Schema {
      * @param fieldNames the fields ordering
      * @return the order comparator
      */
-    Comparator<Schema.Entry> buildOrderComparator(String[] fieldNames);
-
-    /**
-     * Move an entry after another one.
-     *
-     * @param after the entry name reference
-     * @param name the entry name
-     */
-    void moveAfter(final String after, final String name);
-
-    /**
-     * Move an entry before another one.
-     * 
-     * @param before the entry name reference
-     * @param name the entry name
-     */
-    void moveBefore(final String before, final String name);
-
-    /**
-     * Swap two entries.
-     * 
-     * @param name the entry name
-     * @param with the other entry name
-     */
-    void swap(final String name, final String with);
+    EntriesOrder buildEntriesOrder(String[] fieldNames);
 
     default Entry getEntry(final String name) {
         return Optional
@@ -354,6 +331,30 @@ public interface Schema {
         Builder remove(Entry entry);
 
         /**
+         * Move an entry after another one.
+         *
+         * @param after the entry name reference
+         * @param name the entry name
+         */
+        Builder moveAfter(final String after, final String name);
+
+        /**
+         * Move an entry before another one.
+         * 
+         * @param before the entry name reference
+         * @param name the entry name
+         */
+        Builder moveBefore(final String before, final String name);
+
+        /**
+         * Swap two entries.
+         * 
+         * @param name the entry name
+         * @param with the other entry name
+         */
+        Builder swap(final String name, final String with);
+
+        /**
          * @param schema nested element schema.
          * @return this builder.
          */
@@ -434,4 +435,34 @@ public interface Schema {
         return sanitizedBuilder.toString();
     }
 
+    public interface EntriesOrder extends Comparator<Entry> {
+
+        List<String> getFieldsOrder();
+
+        default String toFields() {
+            return getFieldsOrder().stream().collect(Collectors.joining(","));
+        }
+
+        void moveAfter(String before, String name);
+
+        void moveBefore(String before, String name);
+
+        void swap(final String name, final String with);
+
+        @Override
+        default int compare(final Entry e1, final Entry e2) {
+            final String name1 = e1.getName();
+            final String name2 = e2.getName();
+            if (getFieldsOrder().contains(name1) && getFieldsOrder().contains(name2)) {
+                return getFieldsOrder().indexOf(name1) - getFieldsOrder().indexOf(name2);
+            }
+            if (getFieldsOrder().contains(name1)) {
+                return -1;
+            }
+            if (getFieldsOrder().contains(name2)) {
+                return 1;
+            }
+            return 0;
+        }
+    }
 }

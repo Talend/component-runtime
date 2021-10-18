@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.record;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -168,12 +167,12 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
-    public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+    public List<Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
         throw new UnsupportedOperationException("#getEntriesOrdered()");
     }
 
     @Override
-    public Comparator<Entry> buildOrderComparator(final String[] fieldNames) {
+    public EntriesOrder buildEntriesOrder(final String[] fieldNames) {
         throw new UnsupportedOperationException("#buildComparator()");
     }
 
@@ -183,17 +182,17 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
-    public void moveBefore(final String before, final String name) {
+    public Builder moveBefore(final String before, final String name) {
         throw new UnsupportedOperationException("#moveBefore()");
     }
 
     @Override
-    public void moveAfter(final String after, final String name) {
+    public Builder moveAfter(final String after, final String name) {
         throw new UnsupportedOperationException("#moveAfter()");
     }
 
     @Override
-    public void swap(final String name, final String with) {
+    public Builder swap(final String name, final String with) {
         throw new UnsupportedOperationException("#swap()");
     }
 
