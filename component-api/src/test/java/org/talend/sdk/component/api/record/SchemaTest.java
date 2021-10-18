@@ -146,8 +146,8 @@ class SchemaTest {
         }
 
         @Override
-        public EntriesOrder buildEntriesOrder(final String[] fieldNames) {
-            throw new UnsupportedOperationException("#buildComparator()");
+        public EntriesOrder naturalOrder() {
+            throw new UnsupportedOperationException("#naturalOrder()");
         }
 
         @Override
@@ -157,6 +157,11 @@ class SchemaTest {
 
         @Override
         public List<Entry> getEntriesOrdered() {
+            throw new UnsupportedOperationException("#getEntriesOrdered()");
+        }
+
+        @Override
+        public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
             throw new UnsupportedOperationException("#getEntriesOrdered()");
         }
 

@@ -79,18 +79,27 @@ public interface Schema {
     /**
      * Get all entries sorted using a custom comparator.
      * 
-     * @param entriesOrder the comparator impl
+     * @param comparator the comparator
      * @return all entries ordered with provided comparator
+     */
+
+    List<Entry> getEntriesOrdered(Comparator<Entry> comparator);
+
+    /**
+     * Get all entries sorted using a custom EntriesOrder .
+     * 
+     * @param entriesOrder
+     * @return all entries ordered with provided EntriesOrder
      */
     List<Entry> getEntriesOrdered(EntriesOrder entriesOrder);
 
     /**
-     * Build an order comparator according fieldNames.
-     * 
-     * @param fieldNames the fields ordering
-     * @return the order comparator
+     * Get the EntriesOrder defined with Builder.
+     *
+     * @return the EntriesOrder
      */
-    EntriesOrder buildEntriesOrder(String[] fieldNames);
+
+    EntriesOrder naturalOrder();
 
     default Entry getEntry(final String name) {
         return Optional
@@ -435,7 +444,7 @@ public interface Schema {
         return sanitizedBuilder.toString();
     }
 
-    public interface EntriesOrder extends Comparator<Entry> {
+    interface EntriesOrder extends Comparator<Entry> {
 
         List<String> getFieldsOrder();
 
@@ -443,11 +452,32 @@ public interface Schema {
             return getFieldsOrder().stream().collect(Collectors.joining(","));
         }
 
-        void moveAfter(String before, String name);
+        /**
+         * Move a field after another one.
+         *
+         * @param after the field name reference
+         * @param name the field name
+         * @return this EntriesOrder
+         */
+        EntriesOrder moveAfter(final String after, final String name);
 
-        void moveBefore(String before, String name);
+        /**
+         * Move a field before another one.
+         *
+         * @param before the field name reference
+         * @param name the field name
+         * @return this EntriesOrder
+         */
+        EntriesOrder moveBefore(final String before, final String name);
 
-        void swap(final String name, final String with);
+        /**
+         * Swap two fields.
+         *
+         * @param name the field name
+         * @param with the other field
+         * @return this EntriesOrder
+         */
+        EntriesOrder swap(final String name, final String with);
 
         @Override
         default int compare(final Entry e1, final Entry e2) {

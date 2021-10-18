@@ -32,6 +32,7 @@ import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
 
 class SchemaImplTest {
 
@@ -150,13 +151,13 @@ class SchemaImplTest {
                 .moveBefore("data2", "meta1")
                 .build();
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
-        final EntriesOrder comp = schema.buildEntriesOrder(new String[] { "meta2", "meta1", "data1", "meta0" });
+        final EntriesOrder comp = EntriesOrderImpl.of("meta2,meta1,data1,meta0");
         assertEquals("meta2,meta1,data1,data2", getSchemaFields(schema, comp));
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
     }
 
     @Test
-    void testEntriesOrder() {
+    void testCustomComparatorEntriesOrder() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
                 .withEntry(dataEntry1) //
@@ -165,43 +166,35 @@ class SchemaImplTest {
                 .withEntry(meta2) //
                 .build();
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
-        final EntriesOrder myEntriesOrder = new EntriesOrder() {
-
-            @Override
-            public List<String> getFieldsOrder() {
-                throw new UnsupportedOperationException("#getFieldsOrder()");
-            }
-
-            @Override
-            public void moveAfter(final String before, final String name) {
-                throw new UnsupportedOperationException("#moveAfter()");
-            }
-
-            @Override
-            public void moveBefore(final String before, final String name) {
-                throw new UnsupportedOperationException("#moveBefore()");
-            }
-
-            @Override
-            public void swap(final String name, final String with) {
-                throw new UnsupportedOperationException("#swap()");
-            }
-
-            @Override
-            public int compare(final Entry o1, final Entry o2) {
-                if (o1.isMetadata() && o2.isMetadata()) {
-                    return 0;
-                }
-                if (o1.isMetadata()) {
-                    return -1;
-                }
-                if (o2.isMetadata()) {
-                    return 1;
-                }
+        final Comparator<Entry> myComparator = (o1, o2) -> {
+            if (o1.isMetadata() && o2.isMetadata()) {
                 return 0;
             }
+            if (o1.isMetadata()) {
+                return -1;
+            }
+            if (o2.isMetadata()) {
+                return 1;
+            }
+            return 0;
         };
-        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, myEntriesOrder));
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, myComparator));
+    }
+
+    @Test
+    void testCustomEntriesOrder() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(dataEntry1) //
+                .withEntry(meta1) //
+                .withEntry(dataEntry2) //
+                .withEntry(meta2) //
+                .build();
+        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
+        final EntriesOrder entriesOrder = EntriesOrderImpl.of("meta1,meta2,data1,data2");
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, entriesOrder));
+        entriesOrder.swap("meta1", "data2").moveBefore("meta2", "data1");
+        assertEquals("data2,data1,meta2,meta1", getSchemaFields(schema, entriesOrder));
     }
 
     @Test
@@ -247,6 +240,10 @@ class SchemaImplTest {
     }
 
     private String getSchemaFields(final Schema schema, final EntriesOrder entriesOrder) {
+        return schema.getEntriesOrdered(entriesOrder).stream().map(e -> e.getName()).collect(joining(","));
+    }
+
+    private String getSchemaFields(final Schema schema, final Comparator<Entry> entriesOrder) {
         return schema.getEntriesOrdered(entriesOrder).stream().map(e -> e.getName()).collect(joining(","));
     }
 
