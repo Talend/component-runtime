@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.record;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
@@ -57,9 +58,10 @@ public class SchemaImpl implements Schema {
     @Getter
     private final Map<String, String> props;
 
-    private final EntriesOrder entriesOrder;
+    @JsonbTransient
+    private final transient EntriesOrder entriesOrder;
 
-    public static final String ENTRIES_ORDER_PROP = "__entriesOrder";
+    public static final String ENTRIES_ORDER_PROP = "talend.fields.order";
 
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
         this.type = builder.type;
@@ -95,21 +97,25 @@ public class SchemaImpl implements Schema {
     }
 
     @Override
+    @JsonbTransient
     public List<Entry> getEntriesOrdered() {
         return getAllEntries().sorted(entriesOrder).collect(Collectors.toList());
     }
 
     @Override
+    @JsonbTransient
     public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
         return getAllEntries().sorted(comparator).collect(Collectors.toList());
     }
 
     @Override
+    @JsonbTransient
     public List<Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
         return getAllEntries().sorted(entriesOrder).collect(Collectors.toList());
     }
 
     @Override
+    @JsonbTransient
     public EntriesOrder naturalOrder() {
         return entriesOrder;
     }
@@ -142,7 +148,11 @@ public class SchemaImpl implements Schema {
         }
 
         public EntriesOrderImpl(final String fields) {
-            fieldsOrder = Arrays.stream(fields.split(",")).collect(Collectors.toList());
+            if (fields == null) {
+                fieldsOrder = emptyList();
+            } else {
+                fieldsOrder = Arrays.stream(fields.split(",")).collect(Collectors.toList());
+            }
         }
 
         @Override

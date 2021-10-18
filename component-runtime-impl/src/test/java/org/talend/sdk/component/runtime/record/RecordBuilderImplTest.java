@@ -292,7 +292,7 @@ class RecordBuilderImplTest {
         assertEquals("field-one", record.getString("f01"));
         assertEquals("field-two", record.getString("f02"));
         assertEquals(3, rSchema.getProps().size());
-        assertEquals("f01,f02", rSchema.getProp("__entriesOrder"));
+        assertEquals("f01,f02", rSchema.getProp("talend.fields.order"));
         assertEquals("rootPropValue1", rSchema.getProp("rootProp1"));
         assertEquals("rootPropValue2", rSchema.getProp("rootProp2"));
         assertEquals(1, rSchema.getEntries().get(0).getProps().size());
@@ -335,7 +335,7 @@ class RecordBuilderImplTest {
         assertEquals("field-one", record.getString("f01"));
         assertEquals("field-two", record.getString("f02"));
         assertEquals(12, rSchema.getProps().size());
-        assertEquals("f01,f02", rSchema.getProp("__entriesOrder"));
+        assertEquals("f01,f02", rSchema.getProp("talend.fields.order"));
         assertEquals("rootPropValue1", rSchema.getProp("key1"));
         assertEquals("rootPropValue2", rSchema.getProp("key2"));
         assertEquals("value3", rSchema.getProp("key3"));
