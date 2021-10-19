@@ -253,6 +253,8 @@
     <frontend.version>1.8.0</frontend.version>
 
     <!-- misc dependencies -->
+    <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
+    <bndlib.version>5.1.0</bndlib.version>
     <jcommander.version>1.78</jcommander.version>
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
@@ -745,6 +747,11 @@
         <groupId>com.beust</groupId>
         <artifactId>jcommander</artifactId>
         <version>${jcommander.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>biz.aQute.bndlib</artifactId>
+        <version>${bndlib.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -1250,7 +1257,14 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>4.2.0</version>
+        <version>${maven-bundle-plugin.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>biz.aQute.bnd</groupId>
+            <artifactId>biz.aQute.bndlib</artifactId>
+            <version>${bndlib.version}</version>
+          </dependency>
+        </dependencies>
         <extensions>true</extensions>
       </plugin>
       <plugin>
