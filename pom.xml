@@ -212,7 +212,6 @@
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <gradle.version>6.0-rc-1</gradle.version>
     <mvn.version>3.8.1</mvn.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
@@ -223,8 +222,9 @@
     <spark.version>3.0.1</spark.version>
     <spark-scala.version>2.12</spark-scala.version>
 
+    <gradle.version>6.9.1</gradle.version>
     <groovy.version>3.0.9</groovy.version>
-    <gmavenplus.version>1.12.1</gmavenplus.version>
+    <gmavenplus.version>1.13.0</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <assembly-plugin.version>3.1.1</assembly-plugin.version>
     <javadoc-plugin.version>3.2.0</javadoc-plugin.version>
