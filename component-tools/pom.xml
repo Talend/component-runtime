@@ -49,7 +49,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.jruby</groupId>
-          <artifactId>jruby</artifactId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -60,7 +60,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.jruby</groupId>
-          <artifactId>jruby-complete</artifactId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -202,6 +202,15 @@
             <script>${project.basedir}/src/build/PrepareResources.groovy</script>
           </scripts>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-banned-joda-time-dependency</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
