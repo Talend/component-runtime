@@ -32,8 +32,9 @@ public class Defaults {
 
     static {
         final String version = System.getProperty("java.version", "1.8");
-        final Constructor<MethodHandles.Lookup> constructor = findLookupConstructor();
-        if (version.startsWith("1.8.") || version.startsWith("8.")) { // j8
+        final Boolean isJava8 = version.startsWith("1.8.") || version.startsWith("8.");
+        final Constructor<MethodHandles.Lookup> constructor = findLookupConstructor(isJava8);
+        if (isJava8) { // j8
             HANDLER = (clazz, method, proxy, args) -> constructor
                     .newInstance(clazz, MethodHandles.Lookup.PRIVATE)
                     .unreflectSpecial(method, clazz)
@@ -72,11 +73,16 @@ public class Defaults {
         }
     }
 
-    private static Constructor<MethodHandles.Lookup> findLookupConstructor() {
+    private static Constructor<MethodHandles.Lookup> findLookupConstructor(final Boolean isJava8) {
         try {
-            final Constructor<MethodHandles.Lookup> constructor =
-                    MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+            Constructor<MethodHandles.Lookup> constructor;
+            if (isJava8) {
+                constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+            } else {
+                constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
+            }
             if (!constructor.isAccessible()) {
+                // this needs the `--add-opens java.base/java.lang.invoke=ALL-UNNAMED` jvm flag when java9+.
                 constructor.setAccessible(true);
             }
             return constructor;

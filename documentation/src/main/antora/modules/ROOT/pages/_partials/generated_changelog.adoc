@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1963[TCOMP-1963^]: Missing IMetaDataColumn fields in guess schema
 - link:https://jira.talendforge.org/browse/TCOMP-1987[TCOMP-1987^]: Avro record : Array of Array of records issue
+- link:https://jira.talendforge.org/browse/TCOMP-1988[TCOMP-1988^]: Unable to run component-runtime connectors in Studio with JDK 17
 - link:https://jira.talendforge.org/browse/TCOMP-2005[TCOMP-2005^]: Non defined columns appear in schema
 - link:https://jira.talendforge.org/browse/TCOMP-2006[TCOMP-2006^]: Support empty values for Numbers case
 - link:https://jira.talendforge.org/browse/TCOMP-2010[TCOMP-2010^]: Error on Documentation build on "less" usage
@@ -15,6 +16,12 @@
 === Epic
 
 - link:https://jira.talendforge.org/browse/TCOMP-1900[TCOMP-1900^]: Create jenkins release process for component-runtime
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1997[TCOMP-1997^]: Enable plugins reloading according criteria
 
 
 
