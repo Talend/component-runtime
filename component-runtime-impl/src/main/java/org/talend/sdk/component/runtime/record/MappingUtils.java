@@ -54,9 +54,11 @@ public class MappingUtils {
         if (Long.class.isInstance(value) && expectedType != Long.class) {
             if (ZonedDateTime.class == expectedType) {
                 final long epochMilli = Number.class.cast(value).longValue();
-                if (epochMilli == -1L) { // not <0 which can be a bug
-                    return null;
-                }
+                // And here we reconvert -1 to null
+                // We don't need this anymore if we put null directly in the record
+                // if (epochMilli == -1L) { // not <0 which can be a bug
+                // return null;
+                // }
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC);
             }
             if (Date.class == expectedType) {

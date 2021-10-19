@@ -116,6 +116,53 @@ class AvroRecordTest {
         }
     }
 
+    /**
+     * This test is similar to the one above, but using DATETIME type.
+     *
+     * Before the fix, the output is the following
+     * 
+     * <pre>
+     * record:             AvroRecord{delegate={"name": -1}}
+     * record.getDateTime: null
+     * indexedRecord:      {"name": -1}
+     * indexedRecord.get:  -1
+     * </pre>
+     *
+     * After the fix:
+     * 
+     * <pre>
+     * record:             AvroRecord{delegate={"name": null}}
+     * record.getDateTime: null
+     * indexedRecord:      {"name": null}
+     * indexedRecord.get:  null
+     * </pre>
+     */
+    @Test
+    void providedSchemaNullableDate() {
+        final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(true)
+                        .withType(Schema.Type.DATETIME)
+                        .build())
+                .build());
+        {
+//            final Record record = builder.get().withDateTime("name", new Date()).build();
+             final Record record = builder.get().withDateTime("name", (Date)null).build();
+            assertEquals(1, record.getSchema().getEntries().size());
+             assertNull(record.getDateTime("name"));
+            IndexedRecord indexedRecord = ((AvroRecord) record).unwrap(IndexedRecord.class);
+             assertNull(indexedRecord.get(0));
+            System.out.println("record:             " + record);
+            System.out.println("record.getDateTime: " + record.getDateTime("name"));
+            System.out.println("record:             " + record.getSchema());
+            System.out.println("indexedRecord:      " + indexedRecord);
+            System.out.println("indexedRecord.get:  " + indexedRecord.get(0));
+            System.out.println("indexedRecord.get:  " + indexedRecord.getSchema());
+        }
+    }
+
     @Test
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
