@@ -223,19 +223,6 @@
     </dependency>
   </dependencies>
 
-  <repositories>
-    <repository>
-      <id>bintray</id>
-      <url>https://jcenter.bintray.com</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>bintray</id>
-      <url>https://jcenter.bintray.com</url>
-    </pluginRepository>
-  </pluginRepositories>
-
   <build>
     <plugins>
       <plugin>
