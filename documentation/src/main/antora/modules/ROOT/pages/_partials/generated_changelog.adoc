@@ -1,5 +1,14 @@
 
 
+== Version 1.39.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2023[TCOMP-2023^]: Upgrade gradle to 6.9.1
+- link:https://jira.talendforge.org/browse/TCOMP-2024[TCOMP-2024^]: Upgrade maven-bundle-plugin to 4.2.1
+- link:https://jira.talendforge.org/browse/TCOMP-2025[TCOMP-2025^]: Upgrade documentation to latest
+- link:https://jira.talendforge.org/browse/TCOMP-2027[TCOMP-2027^]: Upgrage junit to 5.8.1
+
 == Version 1.38.0
 
 === Bug
