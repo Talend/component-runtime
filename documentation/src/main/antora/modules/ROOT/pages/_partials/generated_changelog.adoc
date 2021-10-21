@@ -9,6 +9,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2025[TCOMP-2025^]: Upgrade documentation to latest
 - link:https://jira.talendforge.org/browse/TCOMP-2027[TCOMP-2027^]: Upgrage junit to 5.8.1
 - link:https://jira.talendforge.org/browse/TCOMP-2028[TCOMP-2028^]: Provide nashorn scripting engine when using java15+
+- link:https://jira.talendforge.org/browse/TCOMP-2029[TCOMP-2029^]: Upgrade jaxb to 2.3.5
 
 == Version 1.38.0
 

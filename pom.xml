@@ -258,7 +258,8 @@
     <jcommander.version>1.78</jcommander.version>
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
-    <java11.jaxb.version>2.3.0</java11.jaxb.version>
+    <jaxb.version>2.3.1</jaxb.version>
+    <java11.jaxb.version>2.3.5</java11.jaxb.version>
     <!-- minimal code coverage ratio -->
     <coverage.min>0.75</coverage.min>
     <coverage.fail>false</coverage.fail>
@@ -829,12 +830,12 @@
             <dependency>
               <groupId>javax.xml.bind</groupId>
               <artifactId>jaxb-api</artifactId>
-              <version>${java11.jaxb.version}</version>
+              <version>${jaxb.version}</version>
             </dependency>
             <dependency>
               <groupId>com.sun.xml.bind</groupId>
               <artifactId>jaxb-impl</artifactId>
-              <version>${java11.jaxb.version}</version>
+              <version>${jaxb.version}</version>
               <exclusions>
                 <exclusion>
                   <groupId>javax.xml.bind</groupId>
