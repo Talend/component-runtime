@@ -39,6 +39,11 @@ public @interface Suggestable {
     String value();
 
     /**
+     * @return true if custom value input is supported, false otherwise.
+     */
+    boolean isInputable() default false;
+
+    /**
      * This "list" will represent the parameter the caller will send to the suggestions implementation.
      *
      * Syntax is the following:

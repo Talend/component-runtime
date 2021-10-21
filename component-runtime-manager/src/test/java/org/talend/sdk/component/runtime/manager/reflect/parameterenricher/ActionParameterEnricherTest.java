@@ -123,6 +123,11 @@ class ActionParameterEnricherTest {
             }
 
             @Override
+            public boolean isInputable() {
+                return false;
+            }
+
+            @Override
             public String[] parameters() {
                 return new String[] { ".", "foo", "/bar/dummy" };
             }
