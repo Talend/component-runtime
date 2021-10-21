@@ -114,6 +114,7 @@ class ActionParameterEnricherTest {
             {
                 put("tcomp::action::suggestions", "test");
                 put("tcomp::action::suggestions::parameters", ".,foo,/bar/dummy");
+                put("tcomp::action::suggestions::isInputable", "false");
             }
         }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Suggestable() {
 
