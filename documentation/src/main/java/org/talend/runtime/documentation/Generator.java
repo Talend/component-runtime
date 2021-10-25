@@ -1088,8 +1088,12 @@ public class Generator {
                                     && Annotation.class == method.getDeclaringClass()) {
                                 return type;
                             }
-                            if (Defaults.isDefaultAndShouldHandle(method)) {
-                                return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
+                            if (method.isDefault()) {
+                                try {
+                                    return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
+                                } catch (Throwable e) {
+                                    log.error("[generateAnnotation] handleDefault failed: {}", e.getMessage());
+                                }
                             }
                             final Class<?> returnType = method.getReturnType();
                             if (int.class == returnType) {

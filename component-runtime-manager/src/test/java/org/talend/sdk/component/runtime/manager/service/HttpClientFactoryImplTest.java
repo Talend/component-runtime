@@ -179,7 +179,6 @@ class HttpClientFactoryImplTest {
     }
 
     @Test
-    @Disabled
     void requestDefault() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
