@@ -45,10 +45,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
 
 
+== Version 1.38.4
 
+=== Bug
 
-
-
+- link:https://jira.talendforge.org/browse/TCOMP-2030[TCOMP-2030^]: Upgrade Tomcat to 9.0.54 due to CVE-2021-42340
 
 == Version 1.38.3
 
@@ -67,6 +68,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
+
 
 == Version 1.38.0
 
