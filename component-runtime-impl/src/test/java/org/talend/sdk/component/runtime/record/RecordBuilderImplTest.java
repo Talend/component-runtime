@@ -36,7 +36,6 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
-import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 class RecordBuilderImplTest {
 
@@ -44,7 +43,7 @@ class RecordBuilderImplTest {
     void providedSchemaGetSchema() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new SchemaImpl.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -57,7 +56,7 @@ class RecordBuilderImplTest {
     void getValue() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         Assertions.assertNull(builder.getValue("name"));
-        final Entry entry = new EntryImpl.BuilderImpl() //
+        final Entry entry = new Entry.Builder() //
                 .withName("name") //
                 .withNullable(true) //
                 .withType(Type.STRING) //
@@ -67,7 +66,7 @@ class RecordBuilderImplTest {
         builder.with(entry, "value");
         Assertions.assertEquals("value", builder.getValue("name"));
 
-        final Entry entryTime = new EntryImpl.BuilderImpl() //
+        final Entry entryTime = new Entry.Builder() //
                 .withName("time") //
                 .withNullable(true) //
                 .withType(Type.DATETIME) //
@@ -89,7 +88,7 @@ class RecordBuilderImplTest {
     void recordEntryFromName() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new SchemaImpl.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -106,7 +105,7 @@ class RecordBuilderImplTest {
     void providedSchemaNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new RecordImpl.BuilderImpl(new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new SchemaImpl.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -134,7 +133,7 @@ class RecordBuilderImplTest {
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new RecordImpl.BuilderImpl(new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new SchemaImpl.Entry.Builder()
                         .withName("name")
                         .withNullable(false)
                         .withType(Schema.Type.STRING)
@@ -184,7 +183,7 @@ class RecordBuilderImplTest {
     void nullSupportCollections() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         final Schema innerArray = new BuilderImpl().withType(Type.STRING).build();
-        final Entry arrayEntry = new EntryImpl.BuilderImpl() //
+        final Entry arrayEntry = new Entry.Builder() //
                 .withName("test") //
                 .withRawName("test") //
                 .withType(Type.ARRAY) //
@@ -201,14 +200,14 @@ class RecordBuilderImplTest {
     void notNullableNullBehavior() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         assertThrows(IllegalArgumentException.class, () -> builder
-                .withString(new SchemaImpl.EntryImpl.BuilderImpl().withNullable(false).withName("test").build(), null));
+                .withString(new SchemaImpl.Entry.Builder().withNullable(false).withName("test").build(), null));
     }
 
     @Test
     void dateTime() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new SchemaImpl.Entry.Builder()
                         .withName("date")
                         .withNullable(false)
                         .withType(Schema.Type.DATETIME)
@@ -225,7 +224,7 @@ class RecordBuilderImplTest {
     @Test
     void array() {
         final Schema schemaArray = new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build();
-        final Schema.Entry entry = new SchemaImpl.EntryImpl.BuilderImpl()
+        final Schema.Entry entry = new SchemaImpl.Entry.Builder()
                 .withName("data")
                 .withNullable(false)
                 .withType(Schema.Type.ARRAY)
@@ -249,9 +248,8 @@ class RecordBuilderImplTest {
         final Schema schema = new BuilderImpl()
                 .withType(Type.RECORD)
                 .withProps(rootProps)
-                .withEntry(new EntryImpl.BuilderImpl().withName("f01").withType(Type.STRING).build())
-                .withEntry(
-                        new EntryImpl.BuilderImpl().withName("f02").withType(Type.STRING).withProps(fieldProps).build())
+                .withEntry(new Entry.Builder().withName("f01").withType(Type.STRING).build())
+                .withEntry(new Entry.Builder().withName("f02").withType(Type.STRING).withProps(fieldProps).build())
                 .build();
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
         final Record record = builder.withString("f01", "field-one").withString("f02", "field-two").build();
@@ -273,12 +271,12 @@ class RecordBuilderImplTest {
                 .withType(Type.RECORD)
                 .withProp("rootProp1", "rootPropValue1")
                 .withProp("rootProp2", "rootPropValue2")
-                .withEntry(new EntryImpl.BuilderImpl()
+                .withEntry(new Entry.Builder()
                         .withName("f01")
                         .withType(Type.STRING)
                         .withProp("dqType", "semantic-test1")
                         .build())
-                .withEntry(new EntryImpl.BuilderImpl()
+                .withEntry(new Entry.Builder()
                         .withName("f02")
                         .withType(Type.STRING)
                         .withProp("dqType", "semantic-test2")
@@ -313,13 +311,13 @@ class RecordBuilderImplTest {
                 .withProp("key1", "rootPropValue1")
                 .withProp("key2", "rootPropValue2")
                 .withProp("rootProp2", "rootPropValue2")
-                .withEntry(new EntryImpl.BuilderImpl()
+                .withEntry(new Entry.Builder()
                         .withName("f01")
                         .withType(Type.STRING)
                         .withProp("dqType", "semantic-test1")
                         .withProps(fieldProps)
                         .build())
-                .withEntry(new EntryImpl.BuilderImpl()
+                .withEntry(new Entry.Builder()
                         .withName("f02")
                         .withType(Type.STRING)
                         .withProps(fieldProps)
@@ -360,7 +358,7 @@ class RecordBuilderImplTest {
 
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(new EntryImpl.BuilderImpl()
+                .withEntry(new Entry.Builder()
                         .withName("field1")
                         .withRawName("field1")
                         .withType(Type.INT)
@@ -449,9 +447,18 @@ class RecordBuilderImplTest {
         assertEquals("10", newBuilder.getValue("field2"));
     }
 
+    @Test
+    void testSimpleCollision() {
+        final Record record = new RecordImpl.BuilderImpl() //
+                .withString("goodName", "v1") //
+                .withString("goodName", "v2") //
+                .build();
+        Assertions.assertEquals("v2", record.getString("goodName"));
+    }
+
     private Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable, Object defaultValue,
             String comment) {
-        return new EntryImpl.BuilderImpl()
+        return new Entry.Builder()
                 .withName(name)
                 .withRawName(rawname)
                 .withType(type)
@@ -463,7 +470,7 @@ class RecordBuilderImplTest {
 
     private Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
             Object defaultValue, String comment) {
-        return new EntryImpl.BuilderImpl()
+        return new Entry.Builder()
                 .withName(name)
                 .withRawName(rawname)
                 .withType(type)

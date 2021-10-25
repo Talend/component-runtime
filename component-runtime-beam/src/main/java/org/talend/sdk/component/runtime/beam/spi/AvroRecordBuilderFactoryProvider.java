@@ -28,7 +28,6 @@ import org.talend.sdk.component.runtime.beam.spi.record.AvroSchemaBuilder;
 import org.talend.sdk.component.runtime.manager.service.DefaultServices;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +82,7 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
 
         @Override
         public Schema.Entry.Builder newEntryBuilder() {
-            return new SchemaImpl.EntryImpl.BuilderImpl();
+            return new Schema.Entry.Builder();
         }
 
         Object writeReplace() throws ObjectStreamException {

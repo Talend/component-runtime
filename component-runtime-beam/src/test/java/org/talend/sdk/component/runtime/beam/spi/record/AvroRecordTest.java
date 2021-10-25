@@ -78,7 +78,7 @@ class AvroRecordTest {
     void providedSchemaGetSchema() {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -92,7 +92,7 @@ class AvroRecordTest {
     void providedSchemaNullable() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -137,7 +137,7 @@ class AvroRecordTest {
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(false)
                         .withType(Schema.Type.STRING)

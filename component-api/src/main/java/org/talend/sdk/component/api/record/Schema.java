@@ -20,18 +20,19 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.Json;
 import javax.json.JsonValue;
+import javax.json.bind.annotation.JsonbTransient;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 public interface Schema {
 
@@ -59,6 +60,11 @@ public interface Schema {
      * @return All entries, including data and metadata, of this schema.
      */
     Stream<Entry> getAllEntries();
+
+    /**
+     * @return schema builder from this schema.
+     */
+    Schema.Builder toBuilder();
 
     default Entry getEntry(final String name) {
         return Optional
@@ -137,72 +143,85 @@ public interface Schema {
         }
     }
 
-    interface Entry {
+    @Getter
+    @EqualsAndHashCode
+    @ToString
+    class Entry {
+
+        private Entry(final Entry.Builder builder) {
+            this.name = builder.name;
+            this.rawName = builder.rawName;
+            this.type = builder.type;
+            this.nullable = builder.nullable;
+            this.metadata = builder.metadata;
+            this.defaultValue = builder.defaultValue;
+            this.elementSchema = builder.elementSchema;
+            this.comment = builder.comment;
+            this.props.putAll(builder.props);
+        }
 
         /**
-         * @return The name of this entry.
+         * The name of this entry.
          */
-        String getName();
+        private final String name;
 
         /**
-         * @return The raw name of this entry.
+         * The raw name of this entry.
          */
-        String getRawName();
+        private final String rawName;
 
         /**
-         * @return the raw name of this entry if exists, else return name.
+         * Type of the entry, this determine which other fields are populated.
          */
-        String getOriginalFieldName();
+        private final Schema.Type type;
 
         /**
-         * @return Type of the entry, this determine which other fields are populated.
+         * Is this entry nullable or always valued.
          */
-        Type getType();
+        private final boolean nullable;
+
+        private final boolean metadata;
 
         /**
-         * @return Is this entry nullable or always valued.
+         * Default value for this entry.
          */
-        boolean isNullable();
+        private final Object defaultValue;
 
         /**
-         * @return true if this entry is for metadata; false for ordinary data.
+         * For type == record, the element type.
          */
-        boolean isMetadata();
+        private final Schema elementSchema;
 
         /**
-         * @param <T> the default value type.
-         * @return Default value for this entry.
+         * Allows to associate to this field a comment - for doc purposes, no use in the runtime.
          */
-        <T> T getDefaultValue();
+        private final String comment;
 
         /**
-         * @return For type == record, the element type.
+         * metadata
          */
-        Schema getElementSchema();
+        private final Map<String, String> props = new LinkedHashMap<>(0);
 
-        /**
-         * @return Allows to associate to this field a comment - for doc purposes, no use in the runtime.
-         */
-        String getComment();
-
-        /**
-         * @return the metadata props
-         */
-        Map<String, String> getProps();
+        @JsonbTransient
+        public String getOriginalFieldName() {
+            return rawName != null ? rawName : name;
+        }
 
         /**
          * @param property : property name.
          * @return the requested metadata prop
          */
-        String getProp(String property);
+        public String getProp(final String property) {
+            return this.props.get(property);
+        }
 
         /**
          * Get a property values from entry with its name.
-         * 
+         *
          * @param name : property's name.
          * @return property's value.
          */
-        default JsonValue getJsonProp(final String name) {
+        public JsonValue getJsonProp(final String name) {
             final String prop = this.getProp(name);
             if (prop == null) {
                 return null;
@@ -214,34 +233,114 @@ public interface Schema {
             }
         }
 
+        /**
+         * @return Entry builder from this entry.
+         */
+        public Entry.Builder toBuilder() {
+            return new Entry.Builder(this);
+        }
+
         // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
 
         /**
          * Plain builder matching {@link Entry} structure.
          */
-        interface Builder {
+        public static class Builder {
 
-            Builder withName(String name);
+            private String name;
 
-            Builder withRawName(String rawName);
+            private String rawName;
 
-            Builder withType(Type type);
+            private Schema.Type type;
 
-            Builder withNullable(boolean nullable);
+            private boolean nullable;
 
-            Builder withMetadata(boolean metadata);
+            private boolean metadata = false;
 
-            <T> Builder withDefaultValue(T value);
+            private Object defaultValue;
 
-            Builder withElementSchema(Schema schema);
+            private Schema elementSchema;
 
-            Builder withComment(String comment);
+            private String comment;
 
-            Builder withProps(Map<String, String> props);
+            private final Map<String, String> props = new LinkedHashMap<>(0);
 
-            Builder withProp(String key, String value);
+            public Builder() {
+            }
 
-            Entry build();
+            private Builder(final Entry entry) {
+                this.name = entry.name;
+                this.rawName = entry.rawName;
+                this.nullable = entry.nullable;
+                this.type = entry.type;
+                this.comment = entry.comment;
+                this.elementSchema = entry.elementSchema;
+                this.defaultValue = entry.defaultValue;
+                this.metadata = entry.metadata;
+                this.props.putAll(entry.props);
+            }
+
+            public Builder withName(final String name) {
+                this.name = sanitizeConnectionName(name);
+                // if raw name is changed as follow name rule, use label to store raw name
+                // if not changed, not set label to save space
+                if (!name.equals(this.name)) {
+                    this.rawName = name;
+                }
+                return this;
+            }
+
+            public Builder withRawName(final String rawName) {
+                this.rawName = rawName;
+                return this;
+            }
+
+            public Builder withType(final Type type) {
+                this.type = type;
+                return this;
+            }
+
+            public Builder withNullable(final boolean nullable) {
+                this.nullable = nullable;
+                return this;
+            }
+
+            public Builder withMetadata(final boolean metadata) {
+                this.metadata = metadata;
+                return this;
+            }
+
+            public <T> Builder withDefaultValue(final T value) {
+                defaultValue = value;
+                return this;
+            }
+
+            public Builder withElementSchema(final Schema schema) {
+                elementSchema = schema;
+                return this;
+            }
+
+            public Builder withComment(final String comment) {
+                this.comment = comment;
+                return this;
+            }
+
+            public Builder withProp(final String key, final String value) {
+                props.put(key, value);
+                return this;
+            }
+
+            public Builder withProps(final Map props) {
+                if (props == null) {
+                    return this;
+                }
+                this.props.putAll(props);
+                return this;
+            }
+
+            public Entry build() {
+                return new Entry(this);
+            }
 
         }
     }
@@ -344,4 +443,40 @@ public interface Schema {
         return sanitizedBuilder.toString();
     }
 
+    static Schema.Entry avoidCollision(final Schema.Entry newEntry,
+            final Supplier<Stream<Schema.Entry>> allEntriesSupplier, final BiConsumer<String, Entry> replaceFunction) {
+        final Optional<Entry> collisionedEntry = allEntriesSupplier //
+                .get() //
+                .filter((final Entry field) -> field.getName().equals(newEntry.getName())) //
+                .findFirst();
+        if (!collisionedEntry.isPresent()) {
+            // No collision, return new entry.
+            return newEntry;
+        }
+        final Entry matchedEntry = collisionedEntry.get();
+        final boolean matchedToChange = matchedEntry.getRawName() != null && !(matchedEntry.getRawName().isEmpty());
+        if (matchedToChange) {
+            // the rename has to be applied on entry already inside schema, so replace.
+            replaceFunction.accept(matchedEntry.getName(), newEntry);
+        } else if (newEntry.getRawName() == null || newEntry.getRawName().isEmpty()) {
+            // try to add exactly same raw, skip the add here.
+            return null;
+        }
+        final Entry fieldToChange = matchedToChange ? matchedEntry : newEntry;
+        int indexForAnticollision = 1;
+        final String baseName = Schema.sanitizeConnectionName(fieldToChange.rawName); // recalc primiti name.
+
+        String newName = baseName + "_" + indexForAnticollision;
+        final Set<String> existingNames = allEntriesSupplier //
+                .get() //
+                .map(Entry::getName) //
+                .collect(Collectors.toSet());
+        while (existingNames.contains(newName)) {
+            indexForAnticollision++;
+            newName = baseName + "_" + indexForAnticollision;
+        }
+        final Entry newFieldToAdd = fieldToChange.toBuilder().withName(newName).build();
+
+        return newFieldToAdd; // matchedToChange ? newFieldToAdd : newEntry;
+    }
 }

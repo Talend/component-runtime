@@ -142,21 +142,30 @@ public final class RecordImpl implements Record {
                         .format("Entry '%s' of type %s is not compatible with value of type '%s'", entry.getName(),
                                 entry.getType(), value.getClass().getName()));
             }
-            if (entry.getType() == Schema.Type.DATETIME) {
+            final Entry realEntry;
+            if (this.providedSchema == null) {
+                realEntry = Optional
+                        .ofNullable(Schema.avoidCollision(entry, this.entries::stream, this::replaceEntry))
+                        .orElse(entry);
+            } else {
+                realEntry = entry;
+            }
+
+            if (realEntry.getType() == Schema.Type.DATETIME) {
                 if (value == null) {
                     return this;
                 } else if (value instanceof Long) {
-                    this.withTimestamp(entry, (Long) value);
+                    this.withTimestamp(realEntry, (Long) value);
                 } else if (value instanceof Date) {
-                    this.withDateTime(entry, (Date) value);
+                    this.withDateTime(realEntry, (Date) value);
                 } else if (value instanceof ZonedDateTime) {
-                    this.withDateTime(entry, (ZonedDateTime) value);
+                    this.withDateTime(realEntry, (ZonedDateTime) value);
                 } else if (value instanceof Temporal) {
-                    this.withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
+                    this.withTimestamp(realEntry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
                 }
                 return this;
             } else {
-                return append(entry, value);
+                return append(realEntry, value);
             }
         }
 
@@ -221,6 +230,15 @@ public final class RecordImpl implements Record {
             return builder.updateEntryByName(name, schemaEntry);
         }
 
+        private void replaceEntry(final String name, final Entry newEntry) {
+            for (int index = 0; index < this.entries.size(); index++) {
+                if (Objects.equals(name, this.entries.get(index).getName())) {
+                    this.entries.set(index, newEntry);
+                    return;
+                }
+            }
+        }
+
         private Schema.Entry findExistingEntry(final String name) {
             if (this.entryIndex == null) {
                 this.entryIndex = providedSchema.getAllEntries().collect(toMap(Schema.Entry::getName, identity()));
@@ -235,11 +253,7 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
             if (providedSchema == null) {
-                return new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName(name)
-                        .withType(type)
-                        .withNullable(nullable)
-                        .build();
+                return new Schema.Entry.Builder().withName(name).withType(type).withNullable(nullable).build();
             }
             return this.findExistingEntry(name);
         }
@@ -409,7 +423,7 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withRecord(final String name, final Record value) {
-            return withRecord(new SchemaImpl.EntryImpl.BuilderImpl()
+            return withRecord(new Schema.Entry.Builder()
                     .withName(name)
                     .withElementSchema(value.getSchema())
                     .withType(RECORD)

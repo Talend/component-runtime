@@ -19,10 +19,8 @@ import static java.util.Arrays.asList;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
@@ -31,7 +29,6 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 public class AvroSchemaBuilder implements Schema.Builder {
 
@@ -97,7 +94,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private static final AvroSchema BOOLEAN_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
             .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN))));
 
-    private List<org.apache.avro.Schema.Field> fields;
+    private List<Schema.Entry> fields;
 
     private Schema.Type type;
 
@@ -119,6 +116,21 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (fields == null) {
             fields = new ArrayList<>();
         }
+        final Schema.Entry realEntry = Schema.avoidCollision(entry, this.fields::stream, this::replaceEntry);
+        fields.add(realEntry);
+        return this;
+    }
+
+    private void replaceEntry(final String entryName, final Schema.Entry entry) {
+        for (int index = 0; index < fields.size(); index++) {
+            if (Objects.equals(entryName, fields.get(index).getName())) {
+                fields.set(index, entry);
+                return;
+            }
+        }
+    }
+
+    private Field entryToAvroField(final Schema.Entry entry) {
         final Unwrappable unwrappable;
         switch (entry.getType()) {
         case RECORD:
@@ -165,9 +177,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
-        final Field f = AvroHelper.toField(schema, entry);
-        fields.add(f);
-        return this;
+        return AvroHelper.toField(schema, entry);
     }
 
     @Override
@@ -210,15 +220,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
             return entry;
         }
         final Schema avroSchema = this.toAvroSchema(elementSchema);
-        return new SchemaImpl.EntryImpl.BuilderImpl() //
-                .withName(entry.getName()) //
-                .withRawName(entry.getRawName()) //
-                .withNullable(entry.isNullable()) //
-                .withType(entry.getType()) //
-                .withDefaultValue(entry.getDefaultValue()) //
+        return entry
+                .toBuilder()
                 .withElementSchema(avroSchema) //
-                .withComment(entry.getComment()) //
-                .withProps(entry.getProps()) //
                 .build();
     }
 
@@ -260,9 +264,12 @@ public class AvroSchemaBuilder implements Schema.Builder {
             if (fields == null) {
                 return new AvroSchema(AvroSchemas.getEmptySchema());
             }
+            final List<Field> avroFields =
+                    this.fields.stream().map(this::entryToAvroField).collect(Collectors.toList());
             final org.apache.avro.Schema record = org.apache.avro.Schema
-                    .createRecord(SchemaIdGenerator.generateRecordName(fields), null, "talend.component.schema", false);
-            record.setFields(fields);
+                    .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
+                            false);
+            record.setFields(avroFields);
             return new AvroSchema(record);
         case ARRAY:
             if (elementSchema == null) {
