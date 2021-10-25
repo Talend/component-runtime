@@ -56,13 +56,6 @@
     "name":"Chao MENG"
   },
   {
-    "commits":19,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/53257653?v=4",
-    "id":"rlecomte-talend",
-    "name":"Richard Lecomte"
-  },
-  {
     "commits":9,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7734020?v=4",
