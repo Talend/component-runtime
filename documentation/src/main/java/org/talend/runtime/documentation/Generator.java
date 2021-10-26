@@ -125,7 +125,6 @@ import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
-import org.talend.sdk.component.api.service.schema.Type;
 import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
 import org.talend.sdk.component.remoteengine.customizer.Cli;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
