@@ -49,7 +49,6 @@ import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.Schema;
-import org.talend.sdk.component.api.service.schema.Type;
 
 @Service
 public class MockTableService {
@@ -122,7 +121,13 @@ public class MockTableService {
             return new Schema(emptyList());
         }
 
-        return new Schema(record.keySet().stream().map(k -> new Schema.Entry(k, Type.STRING)).collect(toList()));
+        return new Schema(record.keySet().stream().map(this::buildStringEntry).collect(toList()));
     }
 
+    private org.talend.sdk.component.api.record.Schema.Entry buildStringEntry(final String name) {
+        return new org.talend.sdk.component.api.record.Schema.Entry.Builder()
+                .withName(name)
+                .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                .build();
+    }
 }
