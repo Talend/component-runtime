@@ -863,9 +863,10 @@ public class Generator {
             return jsonb.toJson(status);
         }
         if (returnedType == Schema.class) {
-            final Schema.Entry entry = new Schema.Entry();
-            entry.setName("column1");
-            entry.setType(Type.STRING);
+            final org.talend.sdk.component.api.record.Schema.Entry entry = new org.talend.sdk.component.api.record.Schema.Entry.Builder()
+                    .withName("column1")
+                    .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                    .build();
 
             final Schema schema = new Schema();
             schema.setEntries(new ArrayList<>());
