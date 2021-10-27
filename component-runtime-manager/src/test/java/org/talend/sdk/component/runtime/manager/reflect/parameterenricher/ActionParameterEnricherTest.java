@@ -114,7 +114,7 @@ class ActionParameterEnricherTest {
             {
                 put("tcomp::action::suggestions", "test");
                 put("tcomp::action::suggestions::parameters", ".,foo,/bar/dummy");
-                put("tcomp::action::suggestions::isInputable", "false");
+                put("tcomp::action::suggestions::isCustomizable", "false");
             }
         }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Suggestable() {
 
@@ -124,7 +124,7 @@ class ActionParameterEnricherTest {
             }
 
             @Override
-            public boolean isInputable() {
+            public boolean isCustomizable() {
                 return false;
             }
 

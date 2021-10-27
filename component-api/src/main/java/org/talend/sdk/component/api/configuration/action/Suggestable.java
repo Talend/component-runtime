@@ -41,7 +41,7 @@ public @interface Suggestable {
     /**
      * @return true if custom value input is supported, false otherwise.
      */
-    boolean isInputable() default false;
+    boolean isCustomizable() default true;
 
     /**
      * This "list" will represent the parameter the caller will send to the suggestions implementation.
