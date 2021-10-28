@@ -312,16 +312,12 @@ public final class RecordImpl implements Record {
             return withDateTime(entry, value);
         }
 
-        // Instead of calling `withTimestamp`, why don't we `append` the values directly?
-        // Bonus: we don't need to `validateTypeAgainstProvidedSchema` twice with the same parameters!
         public Builder withDateTime(final Schema.Entry entry, final Date value) {
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
             }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value == null ? null : value.getTime());
-            // we use -1 when it's null
-            // return withTimestamp(entry, value == null ? -1 : value.getTime());
         }
 
         public Builder withDateTime(final String name, final ZonedDateTime value) {
@@ -329,30 +325,19 @@ public final class RecordImpl implements Record {
             return withDateTime(entry, value);
         }
 
-        // Instead of calling `withTimestamp`, why don't we `append` the values directly?
-        // Bonus: we don't need to `validateTypeAgainstProvidedSchema` twice with the same parameters!
-        // The original commit is 3 years old
-        // https://github.com/Talend/component-runtime/commit/251ee58c50a0b1079aa533b14b3582ebf9c36543
         public Builder withDateTime(final Schema.Entry entry, final ZonedDateTime value) {
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
             }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value == null ? null : value.toInstant().toEpochMilli());
-            // we use -1 when it's null
-            // return withTimestamp(entry, value == null ? -1 : value.toInstant().toEpochMilli());
         }
 
-        @Override
-        // this method doesn't accept null values, that's why -1 is used instead
-        // however, this is an ad-hoc solution, and I think that null should be used instead
         public Builder withTimestamp(final String name, final long value) {
             final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, false);
             return withTimestamp(entry, value);
         }
 
-        @Override
-        // this method doesn't accept null values, that's why -1 is used instead
         public Builder withTimestamp(final Schema.Entry entry, final long value) {
             assertType(entry.getType(), DATETIME);
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);

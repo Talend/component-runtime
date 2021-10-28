@@ -82,7 +82,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }).collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
-        record.getSchema().getProps().forEach((k, v) -> avroSchema.addProp(k, v));
+        record.getSchema().getProps().forEach(avroSchema::addProp);
         avroSchema.setFields(fields);
         schema = new AvroSchema(avroSchema);
         delegate = new GenericData.Record(avroSchema);
@@ -91,11 +91,6 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                 .getAllEntries()
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {
-                            // if -1 should be kep for whatever reason, here, we should convert it back to null
-                            // uncomment the two following lines
-                            // boolean isNullDate = entry.getType() == Schema.Type.DATETIME && v instanceof Long &&
-                            // (Long)v == -1;
-                            // final Object avroValue = isNullDate ? null : directMapping(v);
                             final Object avroValue = directMapping(v);
 
                             if (avroValue != null) {
