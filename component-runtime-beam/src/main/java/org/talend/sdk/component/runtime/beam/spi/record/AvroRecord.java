@@ -42,6 +42,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.RecordImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
@@ -104,6 +105,9 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private Object directMapping(final Object value) {
         if (Collection.class.isInstance(value)) {
             return Collection.class.cast(value).stream().map(this::directMapping).collect(toList());
+        }
+        if (RecordImpl.class.isInstance(value)) {
+            return new AvroRecord((Record) value).delegate;
         }
         if (Record.class.isInstance(value)) {
             return Unwrappable.class.cast(value).unwrap(IndexedRecord.class);

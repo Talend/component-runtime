@@ -444,7 +444,28 @@ class AvroRecordTest {
     }
 
     @Test
-    @Disabled("Error with https://jira.talendforge.org/browse/TCOMP-1957")
+    void recordCollisionName() {
+        // Case with collision without sanitize.
+        final Record record = new AvroRecordBuilder() //
+                .withString("field", "value1") //
+                .withInt("field", 234) //
+                .build();
+        final Object value = record.get(Object.class, "field");
+        Assertions.assertEquals(Integer.valueOf(234), value);
+
+        // Case with collision and sanitize.
+        final Record recordSanitize = new AvroRecordBuilder() //
+                .withString("70歳以上", "value70") //
+                .withString("60歳以上", "value60") //
+                .build();
+        Assertions.assertEquals(2, recordSanitize.getSchema().getEntries().size());
+        final String name1 = Schema.sanitizeConnectionName("70歳以上");
+        Assertions.assertEquals("value70", recordSanitize.getString(name1));
+        Assertions.assertEquals("value60", recordSanitize.getString(name1 + "_1"));
+    }
+
+    @Test
+    // @Disabled("Error with https://jira.talendforge.org/browse/TCOMP-1957")
     void testArray() {
         final RecordBuilderFactory stdFactory = new RecordBuilderFactoryImpl("test");
         final Schema.Entry field = stdFactory

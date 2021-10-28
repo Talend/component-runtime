@@ -142,30 +142,22 @@ public final class RecordImpl implements Record {
                         .format("Entry '%s' of type %s is not compatible with value of type '%s'", entry.getName(),
                                 entry.getType(), value.getClass().getName()));
             }
-            final Entry realEntry;
-            if (this.providedSchema == null) {
-                realEntry = Optional
-                        .ofNullable(Schema.avoidCollision(entry, this.entries::stream, this::replaceEntry))
-                        .orElse(entry);
-            } else {
-                realEntry = entry;
-            }
 
-            if (realEntry.getType() == Schema.Type.DATETIME) {
+            if (entry.getType() == Schema.Type.DATETIME) {
                 if (value == null) {
                     return this;
                 } else if (value instanceof Long) {
-                    this.withTimestamp(realEntry, (Long) value);
+                    this.withTimestamp(entry, (Long) value);
                 } else if (value instanceof Date) {
-                    this.withDateTime(realEntry, (Date) value);
+                    this.withDateTime(entry, (Date) value);
                 } else if (value instanceof ZonedDateTime) {
-                    this.withDateTime(realEntry, (ZonedDateTime) value);
+                    this.withDateTime(entry, (ZonedDateTime) value);
                 } else if (value instanceof Temporal) {
-                    this.withTimestamp(realEntry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
+                    this.withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
                 }
                 return this;
             } else {
-                return append(realEntry, value);
+                return append(entry, value);
             }
         }
 
@@ -448,14 +440,22 @@ public final class RecordImpl implements Record {
         }
 
         private <T> Builder append(final Schema.Entry entry, final T value) {
+            final Entry realEntry;
+            if (this.providedSchema == null) {
+                realEntry = Optional
+                        .ofNullable(Schema.avoidCollision(entry, this.entries::stream, this::replaceEntry))
+                        .orElse(entry);
+            } else {
+                realEntry = entry;
+            }
             if (value != null) {
-                values.put(entry.getName(), value);
-            } else if (!entry.isNullable()) {
-                throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
+                values.put(realEntry.getName(), value);
+            } else if (!realEntry.isNullable()) {
+                throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
             }
             if (providedSchema == null) {
-                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
-                    this.entries.add(entry);
+                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), realEntry.getName()))) {
+                    this.entries.add(realEntry);
                 }
             }
             return this;

@@ -454,6 +454,16 @@ class RecordBuilderImplTest {
                 .withString("goodName", "v2") //
                 .build();
         Assertions.assertEquals("v2", record.getString("goodName"));
+
+        // Case with collision and sanitize.
+        final Record recordSanitize = new RecordImpl.BuilderImpl() //
+                .withString("70歳以上", "value70") //
+                .withString("60歳以上", "value60") //
+                .build();
+        Assertions.assertEquals(2, recordSanitize.getSchema().getEntries().size());
+        final String name1 = Schema.sanitizeConnectionName("70歳以上");
+        Assertions.assertEquals("value70", recordSanitize.getString(name1));
+        Assertions.assertEquals("value60", recordSanitize.getString(name1 + "_1"));
     }
 
     private Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable, Object defaultValue,
