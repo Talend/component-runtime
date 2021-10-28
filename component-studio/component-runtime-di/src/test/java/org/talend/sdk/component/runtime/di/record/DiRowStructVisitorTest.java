@@ -36,7 +36,6 @@ import org.talend.sdk.component.api.record.Schema;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 class DiRowStructVisitorTest extends VisitorsTest {
 
     private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value) {
@@ -98,7 +97,6 @@ class DiRowStructVisitorTest extends VisitorsTest {
         // should have 3 excluded fields
         assertEquals(42, schema.getEntries().size());
         // asserts Record
-        log.info("[visit] values: {}", record);
         assertEquals(":testing:", record.getString("id"));
         assertEquals(NAME, record.getString("name"));
         assertEquals(SHORT, record.getInt("shortP"));
