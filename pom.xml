@@ -1655,6 +1655,15 @@
       </build>
     </profile>
     <profile>
+      <id>java8</id>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+      <properties>
+        <extraJvmFlags/>
+      </properties>
+    </profile>
+    <profile>
       <id>java9</id>
       <activation>
         <jdk>[1.9,)</jdk>
