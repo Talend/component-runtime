@@ -34,11 +34,11 @@ public class InMemCollector implements Serializable {
         OUTPUTS.add(output);
     }
 
-    public static Collection<JsonObject> getShadedOutputs(final ClassLoader loader) {
+    public static Collection<JsonObject> getShadedOutputs(final ClassLoader loader, final String location) {
         try {
             return Collection.class
                     .cast(loader
-                            .loadClass("org.talend.test.generated.target.InMemCollector")
+                            .loadClass("org.talend.test.generated." + location + ".InMemCollector")
                             .getField("OUTPUTS")
                             .get(null));
         } catch (final Exception e) {

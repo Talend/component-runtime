@@ -1,20 +1,44 @@
 
 
+== Version 1.39.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1924[TCOMP-1924^]: Support Java 17 runtime
+- link:https://jira.talendforge.org/browse/TCOMP-2023[TCOMP-2023^]: Upgrade gradle to 6.9.1
+- link:https://jira.talendforge.org/browse/TCOMP-2024[TCOMP-2024^]: Upgrade maven-bundle-plugin to 4.2.1
+- link:https://jira.talendforge.org/browse/TCOMP-2025[TCOMP-2025^]: Upgrade documentation to latest
+- link:https://jira.talendforge.org/browse/TCOMP-2027[TCOMP-2027^]: Upgrage junit to 5.8.1
+- link:https://jira.talendforge.org/browse/TCOMP-2028[TCOMP-2028^]: Provide nashorn scripting engine when using java15+
+- link:https://jira.talendforge.org/browse/TCOMP-2029[TCOMP-2029^]: Upgrade jaxb to 2.3.5
+- link:https://jira.talendforge.org/browse/TCOMP-2030[TCOMP-2030^]: Upgrade Tomcat to 9.0.54 due to CVE-2021-42340
+- link:https://jira.talendforge.org/browse/TCOMP-2031[TCOMP-2031^]: Upgrade Beam to 2.33.0
+- link:https://jira.talendforge.org/browse/TCOMP-2032[TCOMP-2032^]: Upgrade Spark to 3.2.0
+- link:https://jira.talendforge.org/browse/TCOMP-2035[TCOMP-2035^]: Check build w/ Java 17 on CI
+
 == Version 1.38.0
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1963[TCOMP-1963^]: Missing IMetaDataColumn fields in guess schema
 - link:https://jira.talendforge.org/browse/TCOMP-1987[TCOMP-1987^]: Avro record : Array of Array of records issue
+- link:https://jira.talendforge.org/browse/TCOMP-1988[TCOMP-1988^]: Unable to run component-runtime connectors in Studio with JDK 17
 - link:https://jira.talendforge.org/browse/TCOMP-2005[TCOMP-2005^]: Non defined columns appear in schema
 - link:https://jira.talendforge.org/browse/TCOMP-2006[TCOMP-2006^]: Support empty values for Numbers case
 - link:https://jira.talendforge.org/browse/TCOMP-2010[TCOMP-2010^]: Error on Documentation build on "less" usage
+- link:https://jira.talendforge.org/browse/TCOMP-2020[TCOMP-2020^]: talend-component-kit-intellij-plugin module build fails using Bintray (decomissioned)
 
 
 
 === Epic
 
 - link:https://jira.talendforge.org/browse/TCOMP-1900[TCOMP-1900^]: Create jenkins release process for component-runtime
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1997[TCOMP-1997^]: Enable plugins reloading according criteria
 
 
 

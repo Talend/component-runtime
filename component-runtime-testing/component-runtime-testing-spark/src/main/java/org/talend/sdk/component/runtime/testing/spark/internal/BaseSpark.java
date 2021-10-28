@@ -97,6 +97,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
 
     protected abstract File getRoot();
 
+    protected final static String EXTRA_JVM_ARGS =
+            "--add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED";
+
     public T withSlaves(final int slaves) {
         this.slaves = slaves;
         return (T) this;
@@ -548,6 +551,12 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                                         Stream.of(mainAndArgs))
                                 .collect(toList()));
                 final Map<String, String> environment = builder.environment();
+                final String jvmVersion = System.getProperty("java.version", "1.8");
+                // poor check - suppose using at least jvm 8...
+                final Boolean isJava8 = jvmVersion.startsWith("1.8.") || jvmVersion.startsWith("8.");
+                if (!isJava8) { // j8
+                    environment.put("_JAVA_OPTIONS", EXTRA_JVM_ARGS);
+                }
                 environment.put("SPARK_HOME", sparkHome.getAbsolutePath());
                 environment.put("SPARK_SCALA_VERSION", scalaVersion); // using jarLocation we can determine it if needed
                 if (config.version == Version.SPARK_1) { // classpath is relying on assemblies not on maven so force the

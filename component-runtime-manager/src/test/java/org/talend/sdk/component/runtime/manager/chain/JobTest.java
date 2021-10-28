@@ -167,9 +167,10 @@ class JobTest {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), plugin);
+        final String testLocation = temporaryFolder.getParent().getFileName().toString();
         try (final ComponentManager manager = newTestManager(jar)) {
             final Collection<JsonObject> outputs =
-                    InMemCollector.getShadedOutputs(manager.findPlugin(plugin).get().getLoader());
+                    InMemCollector.getShadedOutputs(manager.findPlugin(plugin).get().getLoader(), testLocation);
             outputs.clear();
             Job
                     .components()

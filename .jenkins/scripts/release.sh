@@ -75,7 +75,7 @@ main() {
   echo ">> Rebuilding ${branch} and updating it (doc) for next iteration"
   git reset --hard
   git checkout "${branch}"
-  mvn clean install -DskipTests -Dinvoker.skip=true -T1C ${EXTRA_BUILD_ARGS}
+  mvn clean install -DskipTests -Dinvoker.skip=true ${EXTRA_BUILD_ARGS}
   git commit -a -m ">> Updating doc for next iteration"
   git push -u origin "${branch}"
   ###
