@@ -102,7 +102,7 @@ spec:
         choice(name: 'Action',
                 choices: ['STANDARD', 'RELEASE'],
                 description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
-        booleanParam(name: 'BUILD_W_JDK17', defaultValue: true, description: 'Test build with Java 17')
+        booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17')
         booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
         string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
         string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
@@ -128,6 +128,8 @@ spec:
                                bash .jenkins/scripts/setup_gpg.sh
                                """
                         }
+                        // run Java 17 build on standard branches
+                        params.BUILD_W_JDK17 = params.BUILD_W_JDK17 || isStdBranch
                         def pom = readMavenPom file: 'pom.xml'
                         env.PROJECT_VERSION = pom.version
                         try {
