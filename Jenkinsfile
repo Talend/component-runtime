@@ -128,8 +128,6 @@ spec:
                                bash .jenkins/scripts/setup_gpg.sh
                                """
                         }
-                        // run Java 17 build on standard branches
-                        params.BUILD_W_JDK17 = params.BUILD_W_JDK17 || isStdBranch
                         def pom = readMavenPom file: 'pom.xml'
                         env.PROJECT_VERSION = pom.version
                         try {
@@ -157,7 +155,7 @@ spec:
             }
         }
         stage('Java 17 build') {
-            when { expression { params.Action != 'RELEASE' && params.BUILD_W_JDK17 } }
+            when { expression { params.Action != 'RELEASE' && (params.BUILD_W_JDK17 || isStdBranch) } }
             steps {
                 container('jdk17') {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
