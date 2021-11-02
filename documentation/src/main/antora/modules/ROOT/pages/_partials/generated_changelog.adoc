@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2031[TCOMP-2031^]: Upgrade Beam to 2.33.0
 - link:https://jira.talendforge.org/browse/TCOMP-2032[TCOMP-2032^]: Upgrade Spark to 3.2.0
 - link:https://jira.talendforge.org/browse/TCOMP-2035[TCOMP-2035^]: Check build w/ Java 17 on CI
+- link:https://jira.talendforge.org/browse/TCOMP-2036[TCOMP-2036^]: Upgrade cxf to 3.4.5
 
 == Version 1.38.0
 
