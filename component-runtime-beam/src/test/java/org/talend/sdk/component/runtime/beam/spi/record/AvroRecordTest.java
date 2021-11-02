@@ -21,6 +21,7 @@ import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCod
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -52,7 +53,6 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
@@ -117,6 +117,23 @@ class AvroRecordTest {
     }
 
     @Test
+    void providedSchemaNullableDate() {
+        final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(true)
+                        .withType(Schema.Type.DATETIME)
+                        .build())
+                .build());
+        { // null
+            final Record record = builder.get().withDateTime("name", (Date)null).build();
+            assertEquals(1, record.getSchema().getEntries().size());
+            assertNull(record.getDateTime("name"));
+        }
+    }
+
+    @Test
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
@@ -130,6 +147,26 @@ class AvroRecordTest {
             final Record record = builder.get().withString("name", "ok").build();
             assertEquals(1, record.getSchema().getEntries().size());
             assertEquals("ok", record.getString("name"));
+        }
+        { // null
+            assertThrows(IllegalArgumentException.class, () -> builder.get().withString("name", null).build());
+        }
+    }
+
+    @Test
+    void providedSchemaNotNullableDate() {
+        final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(false)
+                        .withType(Schema.Type.DATETIME)
+                        .build())
+                .build());
+        { // normal/valued
+            final Record record = builder.get().withDateTime("name", new Date()).build();
+            assertEquals(1, record.getSchema().getEntries().size());
+            assertNotNull(record.getDateTime("name"));
         }
         { // null
             assertThrows(IllegalArgumentException.class, () -> builder.get().withString("name", null).build());

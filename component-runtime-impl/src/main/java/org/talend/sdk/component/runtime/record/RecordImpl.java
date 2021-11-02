@@ -317,7 +317,7 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
             }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
-            return withTimestamp(entry, value == null ? -1 : value.getTime());
+            return append(entry, value == null ? null : value.getTime());
         }
 
         public Builder withDateTime(final String name, final ZonedDateTime value) {
@@ -330,7 +330,7 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
             }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
-            return withTimestamp(entry, value == null ? -1 : value.toInstant().toEpochMilli());
+            return append(entry, value == null ? null : value.toInstant().toEpochMilli());
         }
 
         public Builder withTimestamp(final String name, final long value) {
