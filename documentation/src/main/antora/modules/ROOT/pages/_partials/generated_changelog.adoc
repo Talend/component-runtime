@@ -17,6 +17,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2035[TCOMP-2035^]: Check build w/ Java 17 on CI
 - link:https://jira.talendforge.org/browse/TCOMP-2036[TCOMP-2036^]: Upgrade cxf to 3.4.5
 - link:https://jira.talendforge.org/browse/TCOMP-2037[TCOMP-2037^]: Upgrade johnzon to 1.2.15
+- link:https://jira.talendforge.org/browse/TCOMP-2038[TCOMP-2038^]: Upgrade bouncycastle to 1.69
 
 == Version 1.38.0
 
