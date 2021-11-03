@@ -196,9 +196,4 @@ public abstract class Schemas implements Schema, Schema.Builder {
         return null;
     }
 
-    @Override
-    public Builder toBuilder() {
-        return null;
-    }
-
 }
