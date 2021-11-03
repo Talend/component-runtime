@@ -17,7 +17,11 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

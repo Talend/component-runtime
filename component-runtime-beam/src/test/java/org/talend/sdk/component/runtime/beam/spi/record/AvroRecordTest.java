@@ -463,7 +463,6 @@ class AvroRecordTest {
     }
 
     @Test
-    // @Disabled("Error with https://jira.talendforge.org/browse/TCOMP-1957")
     void testArray() {
         final RecordBuilderFactory stdFactory = new RecordBuilderFactoryImpl("test");
         final Schema.Entry field = stdFactory
