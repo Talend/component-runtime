@@ -45,7 +45,6 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -59,7 +58,6 @@ import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordImpl;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroRecordTest {
 
@@ -120,14 +118,14 @@ class AvroRecordTest {
     void providedSchemaNullableDate() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.DATETIME)
                         .build())
                 .build());
         { // null
-            final Record record = builder.get().withDateTime("name", (Date)null).build();
+            final Record record = builder.get().withDateTime("name", (Date) null).build();
             assertEquals(1, record.getSchema().getEntries().size());
             assertNull(record.getDateTime("name"));
         }
@@ -157,7 +155,7 @@ class AvroRecordTest {
     void providedSchemaNotNullableDate() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(false)
                         .withType(Schema.Type.DATETIME)
