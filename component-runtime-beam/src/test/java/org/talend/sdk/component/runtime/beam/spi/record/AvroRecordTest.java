@@ -45,7 +45,6 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -59,7 +58,6 @@ import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordImpl;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroRecordTest {
 
@@ -78,7 +76,7 @@ class AvroRecordTest {
     void providedSchemaGetSchema() {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -92,7 +90,7 @@ class AvroRecordTest {
     void providedSchemaNullable() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -120,14 +118,14 @@ class AvroRecordTest {
     void providedSchemaNullableDate() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.DATETIME)
                         .build())
                 .build());
         { // null
-            final Record record = builder.get().withDateTime("name", (Date)null).build();
+            final Record record = builder.get().withDateTime("name", (Date) null).build();
             assertEquals(1, record.getSchema().getEntries().size());
             assertNull(record.getDateTime("name"));
         }
@@ -137,7 +135,7 @@ class AvroRecordTest {
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(false)
                         .withType(Schema.Type.STRING)
@@ -157,7 +155,7 @@ class AvroRecordTest {
     void providedSchemaNotNullableDate() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(false)
                         .withType(Schema.Type.DATETIME)
@@ -444,7 +442,27 @@ class AvroRecordTest {
     }
 
     @Test
-    @Disabled("Error with https://jira.talendforge.org/browse/TCOMP-1957")
+    void recordCollisionName() {
+        // Case with collision without sanitize.
+        final Record record = new AvroRecordBuilder() //
+                .withString("field", "value1") //
+                .withInt("field", 234) //
+                .build();
+        final Object value = record.get(Object.class, "field");
+        Assertions.assertEquals(Integer.valueOf(234), value);
+
+        // Case with collision and sanitize.
+        final Record recordSanitize = new AvroRecordBuilder() //
+                .withString("70歳以上", "value70") //
+                .withString("60歳以上", "value60") //
+                .build();
+        Assertions.assertEquals(2, recordSanitize.getSchema().getEntries().size());
+        final String name1 = Schema.sanitizeConnectionName("70歳以上");
+        Assertions.assertEquals("value70", recordSanitize.getString(name1));
+        Assertions.assertEquals("value60", recordSanitize.getString(name1 + "_1"));
+    }
+
+    @Test
     void testArray() {
         final RecordBuilderFactory stdFactory = new RecordBuilderFactoryImpl("test");
         final Schema.Entry field = stdFactory

@@ -122,7 +122,14 @@ public class MockTableService {
             return new Schema(emptyList());
         }
 
-        return new Schema(record.keySet().stream().map(k -> new Schema.Entry(k, Type.STRING)).collect(toList()));
+        return new Schema(record
+                .keySet()
+                .stream()
+                .map(k -> new org.talend.sdk.component.api.record.Schema.Entry.Builder()
+                        .withName(k)
+                        .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                        .build())
+                .collect(toList()));
     }
 
 }

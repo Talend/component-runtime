@@ -32,21 +32,21 @@ class RecordPointerImplTest {
         final Record record = new RecordImpl.BuilderImpl()
                 .withString("foo", "foo_1234")
                 .withInt("bar", 1324)
-                .withArray(new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withArray(new Schema.Entry.Builder() //
                         .withName("array1") //
                         .withRawName("array1") //
                         .withType(Schema.Type.ARRAY) //
                         .withNullable(false) //
                         .withElementSchema(new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build()) //
                         .build(), asList("a", "b"))
-                .withArray(new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withArray(new Schema.Entry.Builder() //
                         .withName("array2")
                         .withRawName("array2")
                         .withType(Schema.Type.ARRAY) //
                         .withNullable(false)
                         .withElementSchema(new SchemaImpl.BuilderImpl()
                                 .withType(Schema.Type.RECORD)
-                                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl() //
+                                .withEntry(new Schema.Entry.Builder() //
                                         .withName("item") //
                                         .withRawName("item") //
                                         .withType(Schema.Type.STRING) //

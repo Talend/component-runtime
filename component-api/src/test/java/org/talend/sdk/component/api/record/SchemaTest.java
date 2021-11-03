@@ -20,16 +20,9 @@ import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.json.Json;
@@ -51,8 +44,8 @@ class SchemaTest {
         final Schema sc1 = new SchemaExample(null, Collections.emptyMap());
         Assertions.assertNull(sc1.getEntry("unknown"));
 
-        final Entry e1 = new EntryExample("e1", Collections.emptyMap());
-        final Entry e2 = new EntryExample("e2", Collections.emptyMap());
+        final Entry e1 = new Entry.Builder().withName("e1").build();
+        final Entry e2 = new Entry.Builder().withName("e2").build();
         final Schema sc2 = new SchemaExample(Arrays.asList(e1, e2), Collections.emptyMap());
         Assertions.assertNull(sc2.getEntry("unknown"));
         Assertions.assertSame(e1, sc2.getEntry("e1"));
@@ -90,7 +83,7 @@ class SchemaTest {
         testMap.put("key2", Json.createObjectBuilder().add("Hello", 5).build().toString());
         testMap.put("key3", Json.createArrayBuilder().add(1).add(2).build().toString());
 
-        final Entry entry = new EntryExample(null, testMap);
+        final Entry entry = new Entry.Builder().withProps(testMap).build();
         Assertions.assertNull(entry.getJsonProp("unexist"));
 
         final JsonValue value1 = entry.getJsonProp("key1");
@@ -148,68 +141,10 @@ class SchemaTest {
         public String getProp(final String property) {
             return props.get(property);
         }
-    }
-
-    @RequiredArgsConstructor
-    class EntryExample implements Schema.Entry {
-
-        private final String name;
-
-        private final Map<String, String> props;
 
         @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String getRawName() {
+        public Builder toBuilder() {
             return null;
-        }
-
-        @Override
-        public String getOriginalFieldName() {
-            return null;
-        }
-
-        @Override
-        public Type getType() {
-            return null;
-        }
-
-        @Override
-        public boolean isNullable() {
-            return false;
-        }
-
-        @Override
-        public boolean isMetadata() {
-            return false;
-        }
-
-        @Override
-        public <T> T getDefaultValue() {
-            return null;
-        }
-
-        @Override
-        public Schema getElementSchema() {
-            return null;
-        }
-
-        @Override
-        public String getComment() {
-            return null;
-        }
-
-        @Override
-        public Map<String, String> getProps() {
-            return this.props;
-        }
-
-        @Override
-        public String getProp(final String property) {
-            return this.props.get(property);
         }
     }
 
@@ -302,4 +237,44 @@ class SchemaTest {
         }
     }
 
+    @Test
+    void testAvoidCollision() {
+        final Map<String, Schema.Entry> entries = new HashMap<>();
+        for (int index = 1; index < 8; index++) {
+            final Schema.Entry e = this.newEntry(index + "name_b", index + "_value");
+            final Schema.Entry realEntry = Schema.avoidCollision(e, entries.values()::stream, entries::put);
+            entries.put(realEntry.getName(), realEntry);
+        }
+        final Entry last = this.newEntry("name_b_5", "last_value");
+        final Schema.Entry realEntry = Schema.avoidCollision(last, entries.values()::stream, entries::put);
+        entries.put(realEntry.getName(), realEntry);
+
+        Assertions.assertEquals(8, entries.size());
+        Assertions.assertEquals("name_b", entries.get("name_b").getName());
+        Assertions
+                .assertTrue(IntStream
+                        .range(1, 8)
+                        .mapToObj((int i) -> "name_b_" + i)
+                        .allMatch((String name) -> entries.get(name).getName().equals(name)));
+
+        final Map<String, Schema.Entry> entriesDuplicate = new HashMap<>();
+        final Schema.Entry e1 = this.newEntry("goodName", "value");
+        final Schema.Entry realEntry1 =
+                Schema.avoidCollision(e1, entriesDuplicate.values()::stream, entriesDuplicate::put);
+        Assertions.assertSame(e1, realEntry1);
+        entriesDuplicate.put(realEntry1.getName(), realEntry1);
+        final Schema.Entry e2 = this.newEntry("goodName", "value");
+        final Schema.Entry realEntry2 =
+                Schema.avoidCollision(e2, entriesDuplicate.values()::stream, entriesDuplicate::put);
+
+        Assertions.assertNull(realEntry2);
+    }
+
+    private Entry newEntry(final String name, final String defaultValue) {
+        return new Entry.Builder() //
+                .withName(name) //
+                .withType(Type.STRING) //
+                .withDefaultValue(defaultValue) //
+                .build();
+    }
 }

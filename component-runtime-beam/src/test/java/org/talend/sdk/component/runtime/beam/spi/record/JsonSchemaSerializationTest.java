@@ -36,7 +36,7 @@ class JsonSchemaSerializationTest {
     void toJson() throws Exception {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("array")
                         .withRawName("array")
                         .withType(Schema.Type.ARRAY)
@@ -58,7 +58,7 @@ class JsonSchemaSerializationTest {
     void toJsonWithMeta() throws Exception {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("array")
                         .withRawName("array")
                         .withType(Schema.Type.ARRAY)

@@ -125,7 +125,6 @@ import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
-import org.talend.sdk.component.api.service.schema.Type;
 import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
 import org.talend.sdk.component.remoteengine.customizer.Cli;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
@@ -863,9 +862,10 @@ public class Generator {
             return jsonb.toJson(status);
         }
         if (returnedType == Schema.class) {
-            final Schema.Entry entry = new Schema.Entry();
-            entry.setName("column1");
-            entry.setType(Type.STRING);
+            final org.talend.sdk.component.api.record.Schema.Entry entry = new org.talend.sdk.component.api.record.Schema.Entry.Builder()
+                    .withName("column1")
+                    .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                    .build();
 
             final Schema schema = new Schema();
             schema.setEntries(new ArrayList<>());
@@ -876,14 +876,14 @@ public class Generator {
             return jsonb
                     .toJson(new SchemaImpl.BuilderImpl()
                             .withType(org.talend.sdk.component.api.record.Schema.Type.RECORD)
-                            .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                            .withEntry(new Schema.Entry.Builder()
                                     .withName("column1")
                                     .withRawName("column 1")
                                     .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
                                     .withNullable(false)
                                     .withComment("The column 1")
                                     .build())
-                            .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                            .withEntry(new Schema.Entry.Builder()
                                     .withName("column2")
                                     .withRawName("column 2")
                                     .withType(org.talend.sdk.component.api.record.Schema.Type.INT)
