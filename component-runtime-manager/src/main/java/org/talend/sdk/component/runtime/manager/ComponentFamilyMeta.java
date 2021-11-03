@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
 import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
@@ -46,6 +47,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -123,7 +125,7 @@ public class ComponentFamilyMeta {
     }
 
     @Data
-    public static class BaseMeta<T> {
+    public static class BaseMeta<T extends Lifecycle> {
 
         private static final ComponentBundle NO_COMPONENT_BUNDLE = new ComponentBundle(null, null) {
 
@@ -202,6 +204,16 @@ public class ComponentFamilyMeta {
             });
         }
 
+        public T instantiate(final Map<String, String> configuration, final int configVersion) {
+            if (configuration == null) {
+                return this.getInstantiator().apply(null);
+            }
+            final Supplier<MigrationHandler> migrationHandler = this.getMigrationHandler();
+            final Map<String, String> migratedConfiguration =
+                    migrationHandler.get().migrate(configVersion, configuration);
+            return this.getInstantiator().apply(migratedConfiguration);
+        }
+
         /**
          * Sets data provided by extension
          *
@@ -228,7 +240,7 @@ public class ComponentFamilyMeta {
         }
     }
 
-    @Data
+    @ToString
     @EqualsAndHashCode(callSuper = true)
     public static class PartitionMapperMeta extends BaseMeta<Mapper> {
 
@@ -260,7 +272,7 @@ public class ComponentFamilyMeta {
         }
     }
 
-    @Data
+    @ToString
     @EqualsAndHashCode(callSuper = true)
     public static class ProcessorMeta extends BaseMeta<Processor> {
 
@@ -286,7 +298,7 @@ public class ComponentFamilyMeta {
         }
     }
 
-    @Data
+    @ToString
     @EqualsAndHashCode(callSuper = true)
     public static class DriverRunnerMeta extends BaseMeta<DriverRunner> {
 

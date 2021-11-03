@@ -182,6 +182,11 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
+    public Builder toBuilder() {
+        return null;
+    }
+
+    @Override
     public String getProp(final String property) {
         throw new UnsupportedOperationException("#getProp()");
     }

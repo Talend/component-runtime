@@ -143,8 +143,9 @@ class ComponentManagerTest {
         DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl("plugin"));
         final String jvd = System.getProperty("java.version.date"); // java 11
         System.clearProperty("java.version.date");
+        final File dependencyFile = new File("target/test-dependencies");
         try (final ComponentManager manager =
-                new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+                new ComponentManager(dependencyFile, "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
             final Mapper mapper =
                     manager.findMapper("config", "injected", 1, emptyMap()).orElseThrow(IllegalStateException::new);

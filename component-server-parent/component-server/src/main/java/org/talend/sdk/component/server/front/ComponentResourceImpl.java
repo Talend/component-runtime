@@ -61,6 +61,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.design.extension.DesignModel;
+import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMapperMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
@@ -199,7 +200,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         .orElseGet(() -> new DependencyDefinition(emptyList()));
                 dependencies.put(id, deps);
             } else {
-                final ComponentFamilyMeta.BaseMeta<Object> meta = componentDao.findById(id);
+                final ComponentFamilyMeta.BaseMeta<Lifecycle> meta = componentDao.findById(id);
                 dependencies.put(meta.getId(), getDependenciesFor(meta));
             }
         }
@@ -347,7 +348,7 @@ public class ComponentResourceImpl implements ComponentResource {
         }
 
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
-        final ComponentFamilyMeta.BaseMeta<Object> meta = componentDao.findById(id);
+        final ComponentFamilyMeta.BaseMeta<Lifecycle> meta = componentDao.findById(id);
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -538,7 +539,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         .noneMatch(ga -> ga.equals(extArtifact.getGroup() + ":" + extArtifact.getArtifact())));
     }
 
-    private ComponentId createMetaId(final Container container, final ComponentFamilyMeta.BaseMeta<Object> meta) {
+    private ComponentId createMetaId(final Container container, final ComponentFamilyMeta.BaseMeta<Lifecycle> meta) {
         return new ComponentId(meta.getId(), meta.getParent().getId(), meta.getParent().getPlugin(),
                 ofNullable(container.get(ComponentManager.OriginalId.class))
                         .map(ComponentManager.OriginalId::getValue)
