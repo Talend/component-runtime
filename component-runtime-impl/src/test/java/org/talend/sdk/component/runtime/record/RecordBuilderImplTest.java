@@ -490,4 +490,21 @@ class RecordBuilderImplTest {
                 .withMetadata(true)
                 .build();
     }
+
+    @Test
+    void testUsedSameEntry() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        final Schema.Entry e1 = new Entry.Builder().withName("_0000").withType(Type.STRING).build();
+
+        builder.withString(e1, "value1");
+        final Schema.Entry e2 =
+                new Entry.Builder().withName("_0001").withRawName("_0000_number").withType(Type.STRING).build();
+        builder.withString(e2, "value2");
+        builder.withString(e2, "value3");
+        final Record record = builder.build();
+        Assertions.assertNotNull(record);
+
+        Assertions.assertEquals("value3", record.getString("_0001"));
+        Assertions.assertEquals(2, record.getSchema().getEntries().size());
+    }
 }

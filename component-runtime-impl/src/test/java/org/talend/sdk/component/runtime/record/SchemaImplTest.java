@@ -193,7 +193,12 @@ class SchemaImplTest {
                                         .filter((Entry e) -> Objects.equals(name, e.getName())))
                                 .count());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> this.newSchema(entry3, entry3));
+        final Entry entry3Twin = new Entry.Builder() //
+                .withName("name_b") //
+                .withType(Type.LONG) //
+                .withDefaultValue(0L) //
+                .build();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> this.newSchema(entry3, entry3Twin));
     }
 
     private Schema newSchema(Entry... entries) {
