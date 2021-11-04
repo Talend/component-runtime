@@ -267,7 +267,7 @@ class SchemaTest {
         final Schema.Entry realEntry2 =
                 Schema.avoidCollision(e2, entriesDuplicate.values()::stream, entriesDuplicate::put);
 
-        Assertions.assertNull(realEntry2);
+        Assertions.assertSame(realEntry2, e2);
     }
 
     private Entry newEntry(final String name, final String defaultValue) {

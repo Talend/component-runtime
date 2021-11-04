@@ -456,7 +456,8 @@ public interface Schema {
             final Supplier<Stream<Schema.Entry>> allEntriesSupplier, final BiConsumer<String, Entry> replaceFunction) {
         final Optional<Entry> collisionedEntry = allEntriesSupplier //
                 .get() //
-                .filter((final Entry field) -> field.getName().equals(newEntry.getName())) //
+                .filter((final Entry field) -> field.getName().equals(newEntry.getName())
+                        && !Objects.equals(field, newEntry)) //
                 .findFirst();
         if (!collisionedEntry.isPresent()) {
             // No collision, return new entry.
