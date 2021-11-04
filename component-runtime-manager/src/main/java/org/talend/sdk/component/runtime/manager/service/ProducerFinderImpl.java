@@ -44,8 +44,7 @@ public class ProducerFinderImpl implements ProducerFinder {
     public Iterator<Record> find(final String familyName, final String inputName, final int version,
             final Map<String, String> configuration) {
 
-        final ComponentInstantiator.ComponentMetaFinder datasetFinder =
-                new ComponentInstantiator.ComponentMetaFinder(inputName);
+        final ComponentInstantiator.MetaFinder datasetFinder = new ComponentInstantiator.ComponentNameFinder(inputName);
         final ComponentInstantiator instantiator =
                 this.mapperFinder.build(familyName, datasetFinder, ComponentManager.ComponentType.MAPPER);
         final Mapper mapper = this.findMapper(instantiator, version, configuration);

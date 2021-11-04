@@ -22,9 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Getter
 @ToString
 public class ContainerComponentRegistry {
@@ -34,9 +32,6 @@ public class ContainerComponentRegistry {
     private final Collection<ServiceMeta> services = new ArrayList<>();
 
     public ComponentFamilyMeta findComponentFamily(final String pluginId) {
-        if (!this.components.containsKey(pluginId)) {
-            log.error("Search for a plugin {} that is not registered", pluginId);
-        }
         return this.components.get(pluginId);
     }
 }

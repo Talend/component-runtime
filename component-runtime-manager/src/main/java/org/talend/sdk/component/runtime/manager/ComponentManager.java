@@ -829,8 +829,8 @@ public class ComponentManager implements AutoCloseable {
 
         final String pluginIdentifier = container.buildAutoIdFromName(plugin);
 
-        final ComponentInstantiator.Builder builder =
-                new ComponentInstantiator.BuilderDefault(() -> pluginContainer.get(ContainerComponentRegistry.class));
+        final ComponentInstantiator.Builder builder = new ComponentInstantiator.BuilderDefault(
+                () -> Stream.of(pluginContainer.get(ContainerComponentRegistry.class)));
         return ofNullable(
                 builder.build(pluginIdentifier, ComponentInstantiator.MetaFinder.ofComponent(name), componentType))
                         .map((ComponentInstantiator instantiator) -> instantiator.instantiate(configuration, version));
@@ -1255,8 +1255,12 @@ public class ComponentManager implements AutoCloseable {
 
             final AtomicReference<Map<Class<?>, Object>> seviceLookupRef = new AtomicReference<>();
 
-            final ComponentInstantiator.Builder builder =
-                    new ComponentInstantiator.BuilderDefault(() -> container.get(ContainerComponentRegistry.class));
+            final ContainerManager containerManager = ComponentManager.this.getContainer();
+            final Supplier<Stream<ContainerComponentRegistry>> registriesSupplier = () -> containerManager
+                    .findAll()
+                    .stream()
+                    .map((Container c) -> c.get(ContainerComponentRegistry.class));
+            final ComponentInstantiator.Builder builder = new ComponentInstantiator.BuilderDefault(registriesSupplier);
 
             final Map<Class<?>, Object> services = new LazyMap<>(24,
                     type -> defaultServiceProvider

@@ -26,6 +26,7 @@ import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 class ComponentInstantiatorTest {
 
@@ -40,8 +41,9 @@ class ComponentInstantiatorTest {
 
         registry.getComponents().put("pluginId", familyMeta);
 
-        ComponentInstantiator.BuilderDefault builder = new ComponentInstantiator.BuilderDefault(() -> registry);
-        ComponentInstantiator.MetaFinder finder = new ComponentInstantiator.ComponentMetaFinder("TheDataSet");
+        ComponentInstantiator.BuilderDefault builder =
+                new ComponentInstantiator.BuilderDefault(() -> Stream.of(registry));
+        ComponentInstantiator.MetaFinder finder = new ComponentInstantiator.ComponentNameFinder("name");
 
         final ComponentInstantiator instanciator =
                 builder.build("pluginId", finder, ComponentManager.ComponentType.MAPPER);
@@ -62,12 +64,11 @@ class ComponentInstantiatorTest {
 
     @Test
     void testFinder() {
-        final ComponentInstantiator.ComponentMetaFinder dataSet =
-                new ComponentInstantiator.ComponentMetaFinder("TheDataSet");
+        final ComponentInstantiator.MetaFinder dataSet = new ComponentInstantiator.ComponentNameFinder("meta1");
         Assertions.assertFalse(dataSet.filter(Collections.emptyMap()).isPresent());
 
         final ComponentFamilyMeta familyMeta =
-                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "name", "packageName");
+                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "meta1", "packageName");
 
         final ComponentFamilyMeta.PartitionMapperMeta meta1 = new FakeMapperMeta(familyMeta);
         final Map<String, ComponentFamilyMeta.BaseMeta> meta = new HashMap<>();

@@ -15,16 +15,16 @@
  */
 package org.talend.sdk.component.runtime.manager.service.api;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,17 +51,24 @@ public interface ComponentInstantiator {
                 final ComponentType componentType);
     }
 
+    @Slf4j
     @RequiredArgsConstructor
     class BuilderDefault implements Builder {
 
-        private final Supplier<ContainerComponentRegistry> registrySupplier;
+        private final Supplier<Stream<ContainerComponentRegistry>> registrySupplier;
 
         @Override
         public ComponentInstantiator build(final String familyName, final MetaFinder finder,
                 final ComponentType componentType) {
-            return Optional
-                    .ofNullable(this.registrySupplier.get())
+            final Stream<ContainerComponentRegistry> registries = this.registrySupplier.get();
+            if (registries == null) {
+                return null;
+            }
+            return registries
                     .map((ContainerComponentRegistry registry) -> registry.findComponentFamily(familyName))
+                    .filter(Objects::nonNull)
+                    .peek((ComponentFamilyMeta cm) -> log.debug("Family found {}", familyName))
+                    .findFirst()
                     .map(componentType::findMeta)
                     .flatMap((Map<String, ? extends ComponentFamilyMeta.BaseMeta> map) -> finder.filter(map))
                     .map((ComponentFamilyMeta.BaseMeta c) -> (ComponentInstantiator) c::instantiate)
@@ -82,44 +89,6 @@ public interface ComponentInstantiator {
                 log.warn("Can't find component name {}", this.componentName);
             }
             return Optional.ofNullable(source.get(this.componentName));
-        }
-    }
-
-    @Slf4j
-    @RequiredArgsConstructor
-    class ComponentMetaFinder implements MetaFinder {
-
-        private final String inputName;
-
-        @Override
-        public Optional<? extends ComponentFamilyMeta.BaseMeta>
-                filter(final Map<String, ? extends ComponentFamilyMeta.BaseMeta> source) {
-            final Optional<? extends ComponentFamilyMeta.BaseMeta> result =
-                    source.values().stream().filter(this::isSearchedMeta).findFirst();
-            if (!result.isPresent()) {
-                log.warn("Can't find input name {}", this.inputName);
-            }
-            return result;
-        }
-
-        private boolean isSearchedMeta(final ComponentFamilyMeta.BaseMeta meta) {
-            if (!(meta instanceof ComponentFamilyMeta.PartitionMapperMeta)) {
-                return false;
-            }
-            final Supplier<List<ParameterMeta>> parameterMetas = meta.getParameterMetas();
-            final List<ParameterMeta> metas = parameterMetas.get();
-
-            return metas.parallelStream().anyMatch(this::containsDataset);
-        }
-
-        private boolean containsDataset(final ParameterMeta parameters) {
-            return this.isDataset(parameters)
-                    || parameters.getNestedParameters().parallelStream().anyMatch(this::containsDataset);
-        }
-
-        private boolean isDataset(final ParameterMeta parameters) {
-            final Map<String, String> metadata = parameters.getMetadata();
-            return this.inputName.equals(metadata.get("tcomp::configuration::name"));
         }
     }
 }
