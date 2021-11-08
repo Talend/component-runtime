@@ -26,11 +26,9 @@
   <packaging>pom</packaging>
 
   <name>Component Runtime :: Sample Parent :: Documentation Samples</name>
-  <description>
-    Samples used in the documentation.
+  <description>Samples used in the documentation.
 
-    IMPORTANT: children MUST NOT use any parent to be self-contained!
-  </description>
+    IMPORTANT: children MUST NOT use any parent to be self-contained!</description>
 
   <modules>
     <module>activeif-component</module>
@@ -67,21 +65,6 @@
         <artifactId>gmavenplus-plugin</artifactId>
         <version>${gmavenplus.version}</version>
         <inherited>false</inherited>
-        <executions>
-          <execution>
-            <id>generate-bundles</id>
-            <phase>package</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <allowSystemExits>true</allowSystemExits>
-              <scripts>
-                <script>${project.basedir}/_src/build/Bundles.groovy</script>
-              </scripts>
-            </configuration>
-          </execution>
-        </executions>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
@@ -90,6 +73,21 @@
             <type>pom</type>
           </dependency>
         </dependencies>
+        <executions>
+          <execution>
+            <id>generate-bundles</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <allowSystemExits>true</allowSystemExits>
+              <scripts>
+                <script>${project.basedir}/_src/build/Bundles.groovy</script>
+              </scripts>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

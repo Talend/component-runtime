@@ -1078,6 +1078,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public enum ComponentType {
+
         MAPPER {
 
             @Override

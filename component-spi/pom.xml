@@ -37,6 +37,12 @@
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <version>${maven-bundle-plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Import-Package>!org.talend.sdk.component.spi.*</Import-Package>
+          </instructions>
+        </configuration>
         <dependencies>
           <dependency>
             <groupId>biz.aQute.bnd</groupId>
@@ -44,12 +50,6 @@
             <version>${bndlib.version}</version>
           </dependency>
         </dependencies>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Import-Package>!org.talend.sdk.component.spi.*</Import-Package>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>

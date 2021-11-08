@@ -417,6 +417,7 @@ public class ImageM2Mojo extends BuildComponentM2RepositoryMojo {
         }
 
         public enum SizeUnit {
+
             BYTES {
 
                 @Override

@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Icons {
+
     TACOKIT(IconLoader.getIcon("/tacokit.png", Icons.class));
 
     public final Icon icon;

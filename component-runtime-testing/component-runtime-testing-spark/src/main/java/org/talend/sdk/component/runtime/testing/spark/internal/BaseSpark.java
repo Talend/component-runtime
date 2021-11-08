@@ -677,6 +677,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
     }
 
     public enum Version {
+
         SPARK_1 {
 
             @Override

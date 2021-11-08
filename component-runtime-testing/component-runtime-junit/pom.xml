@@ -146,7 +146,8 @@
               <goal>check</goal>
             </goals>
             <configuration>
-              <excludes> <!-- internal -->
+              <excludes>
+                <!-- internal -->
                 <exclude>**/EnvironmentalContext*</exclude>
               </excludes>
             </configuration>

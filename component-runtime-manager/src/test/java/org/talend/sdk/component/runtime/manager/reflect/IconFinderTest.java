@@ -95,6 +95,7 @@ class IconFinderTest {
         // optional but normally not needed EnumOrString type() default "custom";
 
         enum MetaIconValue {
+
             SIMPLE,
             COMPLEX;
 

@@ -139,8 +139,8 @@
   <build>
     <testResources>
       <testResource>
-        <directory>src/test/resources</directory>
         <filtering>true</filtering>
+        <directory>src/test/resources</directory>
       </testResource>
     </testResources>
     <plugins>
@@ -183,10 +183,10 @@
         <executions>
           <execution>
             <id>create-TALEND-INF/dependencies.txt</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>list</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
               <includeScope>provided</includeScope>
               <outputFile>${project.build.outputDirectory}/TALEND-INF/beam.dependencies</outputFile>
@@ -200,14 +200,16 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
+            <!-- cleanup asap -->
             <id>cleanup-TALEND-INF/dependencies.txt</id>
-            <phase>compile</phase> <!-- cleanup asap -->
             <goals>
               <goal>run</goal>
             </goals>
+            <phase>compile</phase>
             <configuration>
-              <target> <!-- TCOMP-1983 -->
-                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/beam.dependencies" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true" />
+              <target>
+                <!-- TCOMP-1983 -->
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/beam.dependencies" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace=""/>
               </target>
             </configuration>
           </execution>
@@ -220,10 +222,10 @@
         <executions>
           <execution>
             <id>dependencies</id>
-            <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <attach>true</attach>
               <descriptors>
@@ -240,10 +242,10 @@
         <executions>
           <execution>
             <id>runner-dependencies</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>execute</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>

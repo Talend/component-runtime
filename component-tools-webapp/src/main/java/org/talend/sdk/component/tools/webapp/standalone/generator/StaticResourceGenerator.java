@@ -423,6 +423,7 @@ public class StaticResourceGenerator implements Runnable {
     }
 
     public enum OutputFormatter {
+
         JSON {
 
             @Override

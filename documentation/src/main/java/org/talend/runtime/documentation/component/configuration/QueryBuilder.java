@@ -48,6 +48,7 @@ public class QueryBuilder implements Serializable {
     private String value = "";
 
     public enum Operation {
+
         Equals("="),
         Not_Equals("!="),
         Greater_Than(">"),

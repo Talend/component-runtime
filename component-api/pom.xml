@@ -61,14 +61,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${javadoc-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <splitindex>true</splitindex>
           <linksource>true</linksource>
@@ -78,6 +70,14 @@
           <bottom>${project.version} - Copyright &amp;copy; 2019 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
           <use>true</use>
         </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

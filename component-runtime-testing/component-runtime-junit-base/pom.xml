@@ -25,11 +25,9 @@
   <artifactId>component-runtime-junit-base</artifactId>
 
   <name>Component Runtime :: Testing :: JUnit Base</name>
-  <description>
-    Some JUnit utilities, reused accross the other testing module.
+  <description>Some JUnit utilities, reused accross the other testing module.
 
-    IMPORTANT: this module must not depend on the runtime/framework.
-  </description>
+    IMPORTANT: this module must not depend on the runtime/framework.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.junit.base</talend.build.name>

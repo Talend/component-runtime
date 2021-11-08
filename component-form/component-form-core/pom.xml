@@ -107,20 +107,18 @@
         <executions>
           <execution>
             <id>generate-proptypes</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>execute</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>${project.parent.parent.basedir}/build/ExtractAsPropTypes.groovy</script>
               </scripts>
               <properties>
-                <types>
-                  org.talend.sdk.component.form.model.uischema.UiSchema,
-                  org.talend.sdk.component.form.model.jsonschema.JsonSchema
-                </types>
+                <types>org.talend.sdk.component.form.model.uischema.UiSchema,
+                  org.talend.sdk.component.form.model.jsonschema.JsonSchema</types>
               </properties>
             </configuration>
           </execution>
@@ -133,10 +131,10 @@
         <executions>
           <execution>
             <id>attach-prop-types</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>single</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <attach>true</attach>
               <descriptors>

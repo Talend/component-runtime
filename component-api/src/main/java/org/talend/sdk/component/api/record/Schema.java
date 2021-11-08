@@ -115,6 +115,7 @@ public interface Schema {
     }
 
     enum Type {
+
         RECORD(new Class<?>[] { Record.class }),
         ARRAY(new Class<?>[] { Collection.class }),
         STRING(new Class<?>[] { String.class }),

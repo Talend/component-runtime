@@ -51,6 +51,7 @@ public @interface Icon {
      */
     @RequiredArgsConstructor
     enum IconType {
+
         @Deprecated
         ACTIVEMQ("activemq"),
         @Deprecated

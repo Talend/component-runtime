@@ -26,10 +26,8 @@
   <packaging>bundle</packaging>
 
   <name>Component Runtime :: Impl</name>
-  <description>
-    Module responsible to understand the API model and make it runnable.
-    This MUST be considered as an internal of the stack.
-  </description>
+  <description>Module responsible to understand the API model and make it runnable.
+    This MUST be considered as an internal of the stack.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.impl</talend.build.name>

@@ -40,8 +40,8 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
         <version>${maven-bundle-plugin.version}</version>
+        <extensions>true</extensions>
         <dependencies>
           <dependency>
             <groupId>biz.aQute.bnd</groupId>
@@ -52,10 +52,10 @@
         <executions>
           <execution>
             <id>lib-jar</id>
-            <phase>package</phase>
             <goals>
               <goal>bundle</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <instructions>
                 <Bundle-SymbolicName>${project.groupId}.server.model</Bundle-SymbolicName>

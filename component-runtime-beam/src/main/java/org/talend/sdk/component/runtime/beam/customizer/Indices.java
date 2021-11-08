@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 enum Indices {
+
     BEAM_SDKS_JAVA_CORE("TALEND-INF/classloader/indices/beam-sdks-java-core") {
 
         @Override

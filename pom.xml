@@ -34,69 +34,69 @@
 
   <developers>
     <developer>
-      <name>Romain Manni-Bucau</name>
       <id>rmannibucau</id>
+      <name>Romain Manni-Bucau</name>
       <email>rmannibucau@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <name>Anas Khabali</name>
       <id>akhabali</id>
+      <name>Anas Khabali</name>
       <email>akhabali@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <name>Dmytro Chmyga</name>
       <id>dchmyga</id>
+      <name>Dmytro Chmyga</name>
       <email>dchmyga@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+2</timezone>
     </developer>
     <developer>
-      <name>Ivan Honchar</name>
       <id>igonchar</id>
+      <name>Ivan Honchar</name>
       <email>igonchar@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+2</timezone>
     </developer>
     <developer>
-      <name>Emmanuel GALLOIS</name>
       <id>undx</id>
+      <name>Emmanuel GALLOIS</name>
       <email>egallois@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <name>Christophe Le Saec</name>
       <id>clesaec</id>
+      <name>Christophe Le Saec</name>
       <email>clesaec@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+1</timezone>
     </developer>
   </developers>
@@ -132,18 +132,18 @@
   <scm>
     <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
     <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
-    <url>https://github.com/talend/component-runtime</url>
     <tag>HEAD</tag>
+    <url>https://github.com/talend/component-runtime</url>
   </scm>
   <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <properties>
@@ -160,12 +160,14 @@
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
     <xbean.version>4.20</xbean.version>
-    <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
+    <!-- do not update without updating test-->
+    <xbean.test.version>4.9</xbean.test.version>
     <xerces.version>2.12.0</xerces.version>
     <slf4j.version>1.7.32</slf4j.version>
     <junit.version>4.13.2</junit.version>
     <ziplock.version>8.0.4</ziplock.version>
-    <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
+    <!-- do not update without updating test-->
+    <ziplock.test.version>7.0.5</ziplock.test.version>
     <johnzon.version>1.2.15</johnzon.version>
     <meecrowave.version>1.2.12</meecrowave.version>
     <owb.version>2.0.23</owb.version>
@@ -208,7 +210,8 @@
     <avro.version>1.8.2</avro.version>
     <jsoup.version>1.14.3</jsoup.version>
 
-    <talend-icon.version>3.8.0</talend-icon.version> <!-- deprecated after -->
+    <!-- deprecated after -->
+    <talend-icon.version>3.8.0</talend-icon.version>
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
@@ -241,7 +244,7 @@
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
     <jacoco.version>0.8.7</jacoco.version>
     <gpg-plugin.version>1.6</gpg-plugin.version>
-    <spotless.version>1.23.0</spotless.version>
+    <spotless.version>2.17.3</spotless.version>
     <jib.version>1.4.0</jib.version>
     <jib-core.version>0.15.0</jib-core.version>
     <bouncycastle.version>1.69</bouncycastle.version>
@@ -272,7 +275,8 @@
         <artifactId>jib-core</artifactId>
         <version>${jib-core.version}</version>
       </dependency>
-      <dependency><!-- upgrade for jib (to not get CVE) -->
+      <dependency>
+        <!-- upgrade for jib (to not get CVE) -->
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>4.5.13</version>
@@ -780,36 +784,36 @@
 
   <repositories>
     <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
     </repository>
     <repository>
-      <id>gradle-libs-releases-local</id>
-      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
       <releases>
         <enabled>true</enabled>
       </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>gradle-libs-releases-local</id>
+      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
-      <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
       <releases>
         <enabled>true</enabled>
       </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>TalendOpenSourceRelease</id>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -1061,29 +1065,30 @@
         <executions>
           <execution>
             <id>tidy-pom</id>
-            <phase>initialize</phase>
             <goals>
               <goal>pom</goal>
             </goals>
+            <phase>initialize</phase>
           </execution>
         </executions>
       </plugin>
-      <plugin><!--  mvn ossindex:audit -->
+      <plugin>
+        <!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
         <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>audit-dependencies</id>
-            <phase />
-            <goals>
-              <goal>audit</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <scope>compile,runtime</scope>
         </configuration>
+        <executions>
+          <execution>
+            <id>audit-dependencies</id>
+            <goals>
+              <goal>audit</goal>
+            </goals>
+            <phase/>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -1114,15 +1119,6 @@
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
         <version>${spotless.version}</version>
-        <executions>
-          <execution>
-            <id>apply</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>apply</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <java>
             <licenseHeader>
@@ -1143,23 +1139,36 @@
  */]]></content>
             </licenseHeader>
             <eclipse>
-              <file>${rootlocation}/formatter.xml</file>
+              <file>talend_java_eclipse_formatter.xml</file>
             </eclipse>
           </java>
+          <pom>
+            <sortPom>
+              <expandEmptyElements>false</expandEmptyElements>
+            </sortPom>
+          </pom>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.talend.tools</groupId>
+            <artifactId>java-formatter</artifactId>
+            <version>0.2.2</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>apply</id>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+            <phase>process-classes</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <version>0.13</version>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <consoleOutput>true</consoleOutput>
           <reportFile>${project.build.directory}/${project.build.finalName}.rat</reportFile>
@@ -1215,6 +1224,14 @@
             <exclude>**/src/test/resources/DitaDocumentationGeneratorTest/**</exclude>
           </excludes>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1239,7 +1256,8 @@
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
           </systemPropertyVariables>
-          <!-- <forkCount>1</forkCount> --> <!-- never use 0, it affects too much test behavior to be accurate -->
+          <!-- <forkCount>1</forkCount> -->
+          <!-- never use 0, it affects too much test behavior to be accurate -->
           <trimStackTrace>false</trimStackTrace>
           <argLine>${argLine} ${extraJvmFlags}</argLine>
         </configuration>
@@ -1258,6 +1276,7 @@
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <version>${maven-bundle-plugin.version}</version>
+        <extensions>true</extensions>
         <dependencies>
           <dependency>
             <groupId>biz.aQute.bnd</groupId>
@@ -1265,104 +1284,103 @@
             <version>${bndlib.version}</version>
           </dependency>
         </dependencies>
-        <extensions>true</extensions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>verify-style</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
+        <version>3.1.2</version>
         <configuration>
           <logViolationsToConsole>true</logViolationsToConsole>
           <excludes>**/HelpMojo*,**/maven/legacy/model/**</excludes>
           <checkstyleRules>
             <module name="Checker">
               <module name="FileLength">
-                <property name="max" value="3500" />
-                <property name="fileExtensions" value="java" />
+                <property name="max" value="3500"/>
+                <property name="fileExtensions" value="java"/>
               </module>
-              <module name="FileTabCharacter" />
+              <module name="FileTabCharacter"/>
+              <module name="LineLength">
+                <property name="max" value="180"/>
+                <property name="ignorePattern" value="@version|@see"/>
+              </module>
               <module name="TreeWalker">
-                <module name="SuppressionCommentFilter" />
-                <module name="FinalParameters" />
+                <module name="SuppressionCommentFilter"/>
+                <module name="FinalParameters"/>
                 <module name="ConstantName">
-                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$" />
+                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$"/>
                 </module>
-                <module name="LocalVariableName" />
+                <module name="LocalVariableName"/>
                 <module name="MethodName">
-                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$" />
+                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$"/>
                 </module>
-                <module name="PackageName" />
-                <module name="LocalFinalVariableName" />
-                <module name="ParameterName" />
-                <module name="StaticVariableName" />
+                <module name="PackageName"/>
+                <module name="LocalFinalVariableName"/>
+                <module name="ParameterName"/>
+                <module name="StaticVariableName"/>
                 <module name="TypeName">
-                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$" />
+                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$"/>
                 </module>
                 <module name="AvoidStarImport">
-                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context" />
+                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context"/>
                 </module>
-                <module name="IllegalImport" />
-                <module name="RedundantImport" />
-                <module name="UnusedImports" />
-                <module name="LineLength">
-                  <property name="max" value="180" />
-                  <property name="ignorePattern" value="@version|@see" />
-                </module>
+                <module name="IllegalImport"/>
+                <module name="RedundantImport"/>
+                <module name="UnusedImports"/>
                 <module name="MethodLength">
-                  <property name="max" value="250" />
+                  <property name="max" value="250"/>
                 </module>
                 <module name="ParameterNumber">
-                  <property name="max" value="10" />
+                  <property name="max" value="10"/>
                 </module>
                 <module name="EmptyBlock">
-                  <property name="option" value="text" />
+                  <property name="option" value="text"/>
                 </module>
-                <module name="NeedBraces" />
+                <module name="NeedBraces"/>
                 <module name="LeftCurly">
-                  <property name="option" value="EOL" />
+                  <property name="option" value="EOL"/>
                 </module>
                 <module name="RightCurly">
-                  <property name="option" value="SAME" />
+                  <property name="option" value="SAME"/>
                 </module>
-                <module name="EmptyStatement" />
-                <module name="EqualsHashCode" />
-                <module name="DefaultComesLast" />
-                <module name="MissingSwitchDefault" />
-                <module name="FallThrough" />
-                <module name="MultipleVariableDeclarations" />
+                <module name="EmptyStatement"/>
+                <module name="EqualsHashCode"/>
+                <module name="DefaultComesLast"/>
+                <module name="MissingSwitchDefault"/>
+                <module name="FallThrough"/>
+                <module name="MultipleVariableDeclarations"/>
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck">
-                  <property name="severity" value="ignore" />
+                  <property name="severity" value="ignore"/>
                 </module>
                 <!-- using lombok this constraint is not accurate
                 <module name="HideUtilityClassConstructor" />
                 -->
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck">
-                  <property name="packageAllowed" value="false" />
-                  <property name="protectedAllowed" value="true" />
-                  <property name="publicMemberPattern" value="^serialVersionUID" />
-                  <property name="severity" value="warning" />
+                  <property name="packageAllowed" value="false"/>
+                  <property name="protectedAllowed" value="true"/>
+                  <property name="publicMemberPattern" value="^serialVersionUID"/>
+                  <property name="severity" value="warning"/>
                 </module>
-                <module name="UpperEll" />
+                <module name="UpperEll"/>
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok" />
-                  <property name="ordered" value="true" />
-                  <property name="separated" value="true" />
-                  <property name="option" value="top" />
-                  <property name="sortStaticImportsAlphabetically" value="true" />
+                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok"/>
+                  <property name="ordered" value="true"/>
+                  <property name="separated" value="true"/>
+                  <property name="option" value="top"/>
+                  <property name="sortStaticImportsAlphabetically" value="true"/>
                 </module>
               </module>
             </module>
           </checkstyleRules>
         </configuration>
+        <executions>
+          <execution>
+            <id>verify-style</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>process-classes</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
@@ -1380,10 +1398,10 @@
           </execution>
           <execution>
             <id>post-unit-test</id>
-            <phase>test</phase>
             <goals>
               <goal>report</goal>
             </goals>
+            <phase>test</phase>
             <configuration>
               <dataFile>${project.build.directory}/jacoco.exec</dataFile>
               <outputDirectory>${project.build.directory}/jacoco-ut</outputDirectory>
@@ -1391,10 +1409,10 @@
           </execution>
           <execution>
             <id>prepare-agent-it</id>
-            <phase>pre-integration-test</phase>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
+            <phase>pre-integration-test</phase>
             <configuration>
               <propertyName>invoker.mavenOpts</propertyName>
               <append>true</append>
@@ -1402,10 +1420,10 @@
           </execution>
           <execution>
             <id>post-integration-test</id>
-            <phase>post-integration-test</phase>
             <goals>
               <goal>report</goal>
             </goals>
+            <phase>post-integration-test</phase>
             <configuration>
               <dataFile>${project.build.directory}/jacoco-it.exec</dataFile>
               <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
@@ -1467,18 +1485,18 @@
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <version>${git-commit-id-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>get-the-git-infos-in-m2-properties</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
         </configuration>
+        <executions>
+          <execution>
+            <id>get-the-git-infos-in-m2-properties</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>process-classes</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1528,8 +1546,8 @@
             </goals>
             <configuration>
               <rules>
-                <banDistributionManagement />
-                <banDuplicatePomDependencyVersions />
+                <banDistributionManagement/>
+                <banDuplicatePomDependencyVersions/>
               </rules>
               <fail>true</fail>
             </configuration>
@@ -1541,7 +1559,7 @@
             </goals>
             <configuration>
               <rules>
-                <dependencyConvergence />
+                <dependencyConvergence/>
               </rules>
               <fail>false</fail>
             </configuration>
@@ -1629,10 +1647,10 @@
             <executions>
               <execution>
                 <id>sign-artifacts</id>
-                <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <phase>verify</phase>
               </execution>
             </executions>
           </plugin>
@@ -1669,8 +1687,7 @@
         <jdk>[1.9,)</jdk>
       </activation>
       <properties>
-        <extraJvmFlags>
-          --add-modules=ALL-SYSTEM
+        <extraJvmFlags>--add-modules=ALL-SYSTEM
           --add-opens java.base/java.io=ALL-UNNAMED
           --add-opens java.base/java.lang.invoke=ALL-UNNAMED
           --add-opens java.base/java.lang.reflect=ALL-UNNAMED
@@ -1683,8 +1700,7 @@
           --add-opens java.base/sun.nio.cs=ALL-UNNAMED
           --add-opens java.base/sun.security.action=ALL-UNNAMED
           --add-opens java.base/sun.security.x509=ALL-UNNAMED
-          --add-opens java.base/sun.util.calendar=ALL-UNNAMED
-        </extraJvmFlags>
+          --add-opens java.base/sun.util.calendar=ALL-UNNAMED</extraJvmFlags>
       </properties>
     </profile>
   </profiles>
