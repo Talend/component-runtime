@@ -349,7 +349,8 @@
             <artifactId>jruby-complete</artifactId>
             <version>${jruby.version}</version>
           </dependency>
-          <dependency><!-- to reuse maven one -->
+          <!-- to reuse maven one -->
+          <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.5.6</version>
@@ -557,7 +558,8 @@
           </execution>
         </executions>
       </plugin>
-      <plugin><!-- mvn package -Pgen-doc [once] && mvn frontend:npm@npm-dev -Pgen-doc -->
+      <plugin>
+        <!-- mvn package -Pgen-doc [once] && mvn frontend:npm@npm-dev -Pgen-doc -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
@@ -714,7 +716,8 @@
         </executions>
       </plugin>
 
-      <plugin><!-- mvn initialize asciidoctor:process-asciidoc@pdf -e -->
+      <plugin>
+        <!-- mvn initialize asciidoctor:process-asciidoc@pdf -e -->
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
         <version>2.2.1</version>

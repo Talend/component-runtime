@@ -99,13 +99,13 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <!-- for java >= 9 support -->
     <dependency>
-      <!-- for java >= 9 support -->
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
     </dependency>
+    <!-- for java >= 9 support -->
     <dependency>
-      <!-- for java >= 9 support -->
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-activation_1.1_spec</artifactId>
       <scope>test</scope>
