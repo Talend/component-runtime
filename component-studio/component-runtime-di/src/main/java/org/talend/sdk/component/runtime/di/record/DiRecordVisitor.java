@@ -92,7 +92,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null));
+                                    RecordService.class, null, null));
 
     DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;

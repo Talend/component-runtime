@@ -30,4 +30,8 @@ public class ContainerComponentRegistry {
     private final Map<String, ComponentFamilyMeta> components = new ConcurrentHashMap<>();
 
     private final Collection<ServiceMeta> services = new ArrayList<>();
+
+    public ComponentFamilyMeta findComponentFamily(final String pluginId) {
+        return this.components.get(pluginId);
+    }
 }

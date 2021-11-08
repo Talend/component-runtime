@@ -30,6 +30,7 @@ import javax.inject.Inject;
 
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.repository.Config;
+import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -47,7 +48,7 @@ public class ActionsService {
     private PropertiesService propertiesService;
 
     public Collection<ActionReference> findActions(final String family, final Container container, final Locale locale,
-            final ComponentFamilyMeta.BaseMeta<Object> meta, final FamilyBundle familyBundle) {
+            final ComponentFamilyMeta.BaseMeta<Lifecycle> meta, final FamilyBundle familyBundle) {
         final Set<ActionReference> actions = getActionReference(meta, familyBundle);
         return findActions(family, actions, container, locale, familyBundle);
     }
@@ -59,7 +60,7 @@ public class ActionsService {
         return findActions(family, actions, container, locale, familyBundle);
     }
 
-    public Set<ActionReference> getActionReference(final ComponentFamilyMeta.BaseMeta<Object> meta,
+    public Set<ActionReference> getActionReference(final ComponentFamilyMeta.BaseMeta<Lifecycle> meta,
             final FamilyBundle familyBundle) {
         return getActionReference(toStream(meta.getParameterMetas().get()), meta.getParent().getName(), familyBundle);
     }
