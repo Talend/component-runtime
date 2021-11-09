@@ -470,6 +470,23 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void testUsedSameEntry() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        final Schema.Entry e1 = new Entry.Builder().withName("_0000").withType(Type.STRING).build();
+
+        builder.withString(e1, "value1");
+        final Schema.Entry e2 =
+                new Entry.Builder().withName("_0001").withRawName("_0000_number").withType(Type.STRING).build();
+        builder.withString(e2, "value2");
+        builder.withString(e2, "value3");
+        final Record record = builder.build();
+        Assertions.assertNotNull(record);
+
+        Assertions.assertEquals("value3", record.getString("_0001"));
+        Assertions.assertEquals(2, record.getSchema().getEntries().size());
+    }
+
+    @Test
     void testRecordWithNewSchema() {
         final Schema schema0 = new BuilderImpl() //
                 .withType(Type.RECORD) //
@@ -479,10 +496,10 @@ class RecordBuilderImplTest {
                 .withEntryAfter("meta1", meta2) //
                 .build();
         final RecordImpl.BuilderImpl builder0 = new RecordImpl.BuilderImpl(schema0);
-        builder0.withInt("data1", 101);
-        builder0.withString("data2", "102");
-        builder0.withInt("meta1", 103);
-        builder0.withString("meta2", "104");
+        builder0.withInt("data1", 101)
+                .withString("data2", "102")
+                .withInt("meta1", 103)
+                .withString("meta2", "104");
         final Record record0 = builder0.build();
         assertEquals(101, record0.getInt("data1"));
         assertEquals("102", record0.getString("data2"));
@@ -543,24 +560,24 @@ class RecordBuilderImplTest {
                 .collect(joining(","));
     }
 
-    private final Schema.Entry dataEntry1 = new SchemaImpl.EntryImpl.BuilderImpl() //
+    private final Schema.Entry dataEntry1 = new SchemaImpl.Entry.Builder() //
             .withName("data1") //
             .withType(Schema.Type.INT) //
             .build();
 
-    private final Schema.Entry dataEntry2 = new SchemaImpl.EntryImpl.BuilderImpl() //
+    private final Schema.Entry dataEntry2 = new SchemaImpl.Entry.Builder() //
             .withName("data2") //
             .withType(Schema.Type.STRING) //
             .withNullable(true) //
             .build();
 
-    private final Schema.Entry meta1 = new SchemaImpl.EntryImpl.BuilderImpl() //
+    private final Schema.Entry meta1 = new SchemaImpl.Entry.Builder() //
             .withName("meta1") //
             .withType(Schema.Type.INT) //
             .withMetadata(true) //
             .build();
 
-    private final Schema.Entry meta2 = new SchemaImpl.EntryImpl.BuilderImpl() //
+    private final Schema.Entry meta2 = new SchemaImpl.Entry.Builder() //
             .withName("meta2") //
             .withType(Schema.Type.STRING) //
             .withMetadata(true) //
@@ -596,24 +613,8 @@ class RecordBuilderImplTest {
                 .build();
     }
 
-    @Test
-    void testUsedSameEntry() {
-        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
-        final Schema.Entry e1 = new Entry.Builder().withName("_0000").withType(Type.STRING).build();
-
-        builder.withString(e1, "value1");
-        final Schema.Entry e2 =
-                new Entry.Builder().withName("_0001").withRawName("_0000_number").withType(Type.STRING).build();
-        builder.withString(e2, "value2");
-        builder.withString(e2, "value3");
-        final Record record = builder.build();
-        Assertions.assertNotNull(record);
-
-        Assertions.assertEquals("value3", record.getString("_0001"));
-        Assertions.assertEquals(2, record.getSchema().getEntries().size());
-    }
-
     private Entry newMetaEntry(final String name, Schema.Type type) {
         return newMetaEntry(name, name, type, true, "", "");
     }
+
 }

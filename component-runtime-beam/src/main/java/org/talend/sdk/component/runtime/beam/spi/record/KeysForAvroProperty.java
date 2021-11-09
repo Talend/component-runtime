@@ -22,5 +22,4 @@ public interface KeysForAvroProperty {
     // alias that indicate field is metadata if present.
     String METADATA_ALIAS_NAME = "talend.field.__METADATA__";
 
-    String ENTRIES_ORDER_PROP = "talend.fields.order";
 }

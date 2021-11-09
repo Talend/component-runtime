@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.Json;
@@ -73,16 +72,11 @@ public interface Schema {
     Stream<Entry> getAllEntries();
 
     /**
-     * @return schema builder from this schema.
-     */
-    Schema.Builder toBuilder();
-
-    /**
      * Get a Builder from the current schema.
      *
      * @return a {@link Schema.Builder}
      */
-    Builder toBuilder();
+    Schema.Builder toBuilder();
 
     /**
      * Get all entries sorted by schema designed order.
@@ -603,6 +597,7 @@ public interface Schema {
             return 0;
         }
     }
+
     static Schema.Entry avoidCollision(final Schema.Entry newEntry,
             final Supplier<Stream<Schema.Entry>> allEntriesSupplier, final BiConsumer<String, Entry> replaceFunction) {
         final Optional<Entry> collisionedEntry = allEntriesSupplier //

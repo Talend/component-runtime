@@ -83,85 +83,27 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
 
     @Override
     public Builder toBuilder() {
-        throw new UnsupportedOperationException("#toBuilder()");
+        return null;
     }
 
     @Override
-    public List<org.talend.sdk.component.api.record.Schema.Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
+    public List<Entry> getEntriesOrdered() {
         throw new UnsupportedOperationException("#getEntriesOrdered()");
     }
 
     @Override
-    public List<org.talend.sdk.component.api.record.Schema.Entry> getEntriesOrdered() {
+    public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
         throw new UnsupportedOperationException("#getEntriesOrdered()");
     }
 
     @Override
-    public List<org.talend.sdk.component.api.record.Schema.Entry>
-            getEntriesOrdered(final Comparator<org.talend.sdk.component.api.record.Schema.Entry> comparator) {
+    public List<Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
         throw new UnsupportedOperationException("#getEntriesOrdered()");
     }
 
     @Override
     public EntriesOrder naturalOrder() {
         throw new UnsupportedOperationException("#naturalOrder()");
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Deprecated
-    public static class Entry implements org.talend.sdk.component.api.record.Schema.Entry {
-
-        private String name;
-
-        private Schema.Type type;
-
-        // 1.0 compat
-        public Entry(final String name, final org.talend.sdk.component.api.service.schema.Type type) {
-            this.name = name;
-            this.type = org.talend.sdk.component.api.record.Schema.Type.valueOf(type.name());
-        }
-
-        // 1.0 compat
-        public void setType(final org.talend.sdk.component.api.service.schema.Type type) {
-            this.type = org.talend.sdk.component.api.record.Schema.Type.valueOf(type.name());
-        }
-
-        @Override
-        public String getRawName() {
-            return null;
-        }
-
-        @JsonbTransient
-        @Override
-        public String getOriginalFieldName() {
-            return null;
-        }
-
-        @Override
-        public boolean isNullable() {
-            return true;
-        }
-
-        @Override
-        public boolean isMetadata() {
-            return false;
-        }
-
-        @Override
-        public <T> T getDefaultValue() {
-            return null;
-        }
-
-        @Override
-        public org.talend.sdk.component.api.record.Schema getElementSchema() {
-            return null;
-        }
-
-    @Override
-    public Builder toBuilder() {
-        return null;
     }
 
 }

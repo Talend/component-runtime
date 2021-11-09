@@ -143,11 +143,6 @@ class SchemaTest {
         }
 
         @Override
-        public Builder toBuilder() {
-            throw new UnsupportedOperationException("#toBuilder()");
-        }
-
-        @Override
         public EntriesOrder naturalOrder() {
             throw new UnsupportedOperationException("#naturalOrder()");
         }

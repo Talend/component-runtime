@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
-import static org.talend.sdk.component.runtime.beam.spi.record.KeysForAvroProperty.ENTRIES_ORDER_PROP;
+import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
 import java.util.Comparator;
 import java.util.List;
@@ -36,7 +36,6 @@ import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
-import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -139,11 +138,6 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     @JsonbTransient
     public Stream<Entry> getAllEntries() {
         return Stream.concat(this.getEntries().stream(), this.getMetadata().stream());
-    }
-
-    @Override
-    public Builder toBuilder() {
-        throw new UnsupportedOperationException("#toBuilder()");
     }
 
     @Override

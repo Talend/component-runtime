@@ -196,11 +196,6 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
-    public Builder toBuilder() {
-        throw new UnsupportedOperationException("#toBuilder()");
-    }
-
-    @Override
     public Builder withProps(final Map<String, String> props) {
         throw new UnsupportedOperationException("#withProps()");
     }
@@ -229,7 +224,6 @@ public abstract class Schemas implements Schema, Schema.Builder {
     public Type getType() {
         return null;
     }
-
 
     @Override
     public Builder withEntryAfter(final String before, final Entry entry) {

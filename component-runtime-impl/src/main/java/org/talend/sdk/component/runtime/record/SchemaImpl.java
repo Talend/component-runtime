@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +34,6 @@ import javax.json.bind.annotation.JsonbTransient;
 import org.talend.sdk.component.api.record.Schema;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -74,14 +72,6 @@ public class SchemaImpl implements Schema {
     }
 
     @Override
-    public Builder toBuilder() {
-        Builder builder = new BuilderImpl();
-        builder.withType(type).withProps(props).withElementSchema(elementSchema);
-        getEntriesOrdered().forEach(entry -> builder.withEntry(entry));
-        return builder;
-    }
-
-    @Override
     public String getProp(final String property) {
         return props.get(property);
     }
@@ -106,11 +96,10 @@ public class SchemaImpl implements Schema {
                         .entrySet()
                         .stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        this.getAllEntries().forEach(builder::withEntry);
+        getEntriesOrdered().forEach(builder::withEntry);
         return builder;
     }
 
-    public static class BuilderImpl implements Schema.Builder {
     @Override
     @JsonbTransient
     public List<Entry> getEntriesOrdered() {
@@ -373,181 +362,4 @@ public class SchemaImpl implements Schema {
         }
     }
 
-    @Data
-    public static class EntryImpl implements org.talend.sdk.component.api.record.Schema.Entry {
-
-        EntryImpl(final EntryImpl.BuilderImpl builder) {
-            this.name = builder.name;
-            this.rawName = builder.rawName;
-            this.type = builder.type;
-            this.nullable = builder.nullable;
-            this.metadata = builder.metadata;
-            this.defaultValue = builder.defaultValue;
-            this.elementSchema = builder.elementSchema;
-            this.comment = builder.comment;
-
-            if (builder.props != null) {
-                this.props.putAll(builder.props);
-            }
-        }
-
-        /**
-         * if raw name is changed as follow name rule, use label to store raw name
-         * if not changed, not set label to save space
-         * 
-         * @param name incoming entry name
-         */
-        private void initNames(final String name) {
-            this.name = sanitizeConnectionName(name);
-            if (!name.equals(this.name)) {
-                rawName = name;
-            }
-        }
-
-        @JsonbTransient
-        public String getOriginalFieldName() {
-            return rawName != null ? rawName : name;
-        }
-
-        /**
-         * The name of this entry.
-         */
-        private String name;
-
-        /**
-         * The raw name of this entry.
-         */
-        private String rawName;
-
-        /**
-         * Type of the entry, this determine which other fields are populated.
-         */
-        private Schema.Type type;
-
-        /**
-         * Is this entry nullable or always valued.
-         */
-        private boolean nullable;
-
-        private final boolean metadata;
-
-        /**
-         * Default value for this entry.
-         */
-        private Object defaultValue;
-
-        /**
-         * For type == record, the element type.
-         */
-        private Schema elementSchema;
-
-        /**
-         * Allows to associate to this field a comment - for doc purposes, no use in the runtime.
-         */
-        private String comment;
-
-        /**
-         * metadata
-         */
-        private Map<String, String> props = new LinkedHashMap<>(0);
-
-        @Override
-        public String getProp(final String property) {
-            return props.get(property);
-        }
-
-        public static class BuilderImpl implements Builder {
-
-            private String name;
-
-            private String rawName;
-
-            private Schema.Type type;
-
-            private boolean nullable;
-
-            private boolean metadata = false;
-
-            private Object defaultValue;
-
-            private Schema elementSchema;
-
-            private String comment;
-
-            private final Map<String, String> props = new LinkedHashMap<>(0);
-
-            @Override
-            public Builder withName(final String name) {
-                this.name = sanitizeConnectionName(name);
-                // if raw name is changed as follow name rule, use label to store raw name
-                // if not changed, not set label to save space
-                if (!name.equals(this.name)) {
-                    withRawName(name);
-                }
-                return this;
-            }
-
-            @Override
-            public Builder withRawName(final String rawName) {
-                this.rawName = rawName;
-                return this;
-            }
-
-            @Override
-            public Builder withType(final Type type) {
-                this.type = type;
-                return this;
-            }
-
-            @Override
-            public Builder withNullable(final boolean nullable) {
-                this.nullable = nullable;
-                return this;
-            }
-
-            @Override
-            public Builder withMetadata(final boolean metadata) {
-                this.metadata = metadata;
-                return this;
-            }
-
-            @Override
-            public <T> Builder withDefaultValue(final T value) {
-                defaultValue = value;
-                return this;
-            }
-
-            @Override
-            public Builder withElementSchema(final Schema schema) {
-                elementSchema = schema;
-                return this;
-            }
-
-            @Override
-            public Builder withComment(final String comment) {
-                this.comment = comment;
-                return this;
-            }
-
-            @Override
-            public Builder withProp(final String key, final String value) {
-                props.put(key, value);
-                return this;
-            }
-
-            @Override
-            public Builder withProps(final Map props) {
-                if (props == null) {
-                    return this;
-                }
-                this.props.putAll(props);
-                return this;
-            }
-
-            @Override
-            public Entry build() {
-                return new EntryImpl(this);
-            }
-        }
-    }
 }
