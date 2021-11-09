@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.39.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-manager</artifactId>
@@ -99,11 +99,13 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency><!-- for java >= 9 support -->
+    <!-- for java >= 9 support -->
+    <dependency>
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
     </dependency>
-    <dependency><!-- for java >= 9 support -->
+    <!-- for java >= 9 support -->
+    <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-activation_1.1_spec</artifactId>
       <scope>test</scope>
@@ -119,10 +121,10 @@
         <executions>
           <execution>
             <id>copy-test-container-dependencies</id>
-            <phase>generate-test-resources</phase>
             <goals>
               <goal>copy</goal>
             </goals>
+            <phase>generate-test-resources</phase>
             <configuration>
               <!-- tests jars for modules -->
               <artifactItems>
@@ -132,9 +134,7 @@
                   <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}</outputDirectory>
                   <destFileName>openejb-itests-beans-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
@@ -143,9 +143,7 @@
                   <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/${ziplock.test.version}
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/${ziplock.test.version}</outputDirectory>
                   <destFileName>arquillian-tomee-codi-tests-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
               </artifactItems>
@@ -153,10 +151,10 @@
           </execution>
           <execution>
             <id>create-TALEND-INF/dependencies.txt</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>list</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
               <includeScope>runtime</includeScope>
               <outputFile>${project.build.outputDirectory}/TALEND-INF/manager.dependencies</outputFile>
@@ -171,13 +169,15 @@
         <executions>
           <execution>
             <id>cleanup-TALEND-INF/dependencies.txt</id>
-            <phase>compile</phase> <!-- cleanup asap -->
+            <!-- cleanup asap -->
             <goals>
               <goal>run</goal>
             </goals>
+            <phase>compile</phase>
             <configuration>
-              <target> <!-- TCOMP-1983 -->
-                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/manager.dependencies" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true" />
+              <target>
+                <!-- TCOMP-1983 -->
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/manager.dependencies" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace=""/>
               </target>
             </configuration>
           </execution>
@@ -196,4 +196,21 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>java15</id>
+      <activation>
+        <jdk>[15,)</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.openjdk.nashorn</groupId>
+          <artifactId>nashorn-core</artifactId>
+          <version>15.3</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>

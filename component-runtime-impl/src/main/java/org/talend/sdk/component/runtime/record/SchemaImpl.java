@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
-import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +25,8 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -96,6 +97,20 @@ public class SchemaImpl implements Schema {
         return Stream.concat(this.metadataEntries.stream(), this.entries.stream());
     }
 
+    @Override
+    public Builder toBuilder() {
+        final Builder builder = new BuilderImpl()
+                .withType(this.type)
+                .withElementSchema(this.elementSchema)
+                .withProps(this.props
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        this.getAllEntries().forEach(builder::withEntry);
+        return builder;
+    }
+
+    public static class BuilderImpl implements Schema.Builder {
     @Override
     @JsonbTransient
     public List<Entry> getEntriesOrdered() {
@@ -220,11 +235,17 @@ public class SchemaImpl implements Schema {
             if (type != Type.RECORD) {
                 throw new IllegalArgumentException("entry is only valid for RECORD type of schema");
             }
-            if (entry.isMetadata()) {
-                this.metadataEntries.add(entry);
-            } else {
-                entries.add(entry);
+            final Entry entryToAdd = Schema.avoidCollision(entry, this::getAllEntries, this::replaceEntry);
+            if (entryToAdd == null) {
+                // mean try to add entry with same name.
+                throw new IllegalArgumentException("Entry with name " + entry.getName() + " already exist in schema");
             }
+            if (entry.isMetadata()) {
+                this.metadataEntries.add(entryToAdd);
+            } else {
+                this.entries.add(entryToAdd);
+            }
+
             entriesOrder.add(entry.getName());
             return this;
         }
@@ -253,6 +274,28 @@ public class SchemaImpl implements Schema {
             entriesOrder.remove(entry.getName());
             entriesOrder.add(entriesOrder.indexOf(before), entry.getName());
             return this;
+        }
+
+        private void replaceEntry(final String name, final Schema.Entry entry) {
+            boolean fromEntries = this.replaceEntryFrom(this.entries, name, entry);
+            if (!fromEntries) {
+                this.replaceEntryFrom(this.metadataEntries, name, entry);
+            }
+        }
+
+        private boolean replaceEntryFrom(final List<Entry> currentEntries, final String entryName,
+                final Schema.Entry entry) {
+            for (int index = 0; index < currentEntries.size(); index++) {
+                if (Objects.equals(entryName, currentEntries.get(index).getName())) {
+                    currentEntries.set(index, entry);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private Stream<Entry> getAllEntries() {
+            return Stream.concat(this.entries.stream(), this.metadataEntries.stream());
         }
 
         @Override

@@ -22,7 +22,6 @@ import static java.util.Locale.ROOT
 import static java.util.Optional.ofNullable
 
 static def toPropType(type) {
-    println type
     if (type == String.class) {
         return 'PropType.string'
     }
@@ -64,7 +63,6 @@ GenerationAggregator createPropType(parent, clazz, aggregate) {
         return
     }
     output.parentFile.mkdirs()
-    println clazz
     aggregate.filenames.add(clazz.simpleName)
     if (!aggregate.namespace) {
         aggregate.namespace = namespace

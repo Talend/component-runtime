@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.json.bind.annotation.JsonbTransient;
-
 import org.talend.sdk.component.api.meta.Partial;
 
 import lombok.AllArgsConstructor;
@@ -161,19 +159,9 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
             return null;
         }
 
-        @Override
-        public String getComment() {
-            return null;
-        }
-
-        @Override
-        public Map<String, String> getProps() {
-            return null;
-        }
-
-        @Override
-        public String getProp(final String property) {
-            return null;
-        }
+    @Override
+    public Builder toBuilder() {
+        return null;
     }
+
 }

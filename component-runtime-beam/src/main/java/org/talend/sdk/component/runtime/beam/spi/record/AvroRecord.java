@@ -44,6 +44,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
@@ -86,7 +87,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }).collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
-        record.getSchema().getProps().forEach((k, v) -> avroSchema.addProp(k, v));
+        record.getSchema().getProps().forEach(avroSchema::addProp);
         avroSchema.setFields(fields);
         schema = new AvroSchema(avroSchema);
         delegate = new GenericData.Record(avroSchema);
@@ -108,6 +109,9 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private Object directMapping(final Object value) {
         if (Collection.class.isInstance(value)) {
             return Collection.class.cast(value).stream().map(this::directMapping).collect(toList());
+        }
+        if (RecordImpl.class.isInstance(value)) {
+            return new AvroRecord((Record) value).delegate;
         }
         if (Record.class.isInstance(value)) {
             return Unwrappable.class.cast(value).unwrap(IndexedRecord.class);

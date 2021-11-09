@@ -44,6 +44,7 @@ import javax.json.bind.JsonbBuilder;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;

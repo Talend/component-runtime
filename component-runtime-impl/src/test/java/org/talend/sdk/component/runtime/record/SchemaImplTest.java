@@ -21,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,24 +39,24 @@ import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
 
 class SchemaImplTest {
 
-    private final Schema.Entry dataEntry1 = new SchemaImpl.EntryImpl.BuilderImpl() //
+    private final Schema.Entry dataEntry1 = new Schema.Entry.Builder() //
             .withName("data1") //
             .withType(Schema.Type.INT) //
             .build();
 
-    private final Schema.Entry dataEntry2 = new SchemaImpl.EntryImpl.BuilderImpl() //
+    private final Schema.Entry dataEntry2 = new Schema.Entry.Builder() //
             .withName("data2") //
             .withType(Schema.Type.STRING) //
             .withNullable(true) //
             .build();
 
-    private final Schema.Entry meta1 = new SchemaImpl.EntryImpl.BuilderImpl() //
+    private final Schema.Entry meta1 = new Schema.Entry.Builder() //
             .withName("meta1") //
             .withType(Schema.Type.INT) //
             .withMetadata(true) //
             .build();
 
-    private final Schema.Entry meta2 = new SchemaImpl.EntryImpl.BuilderImpl() //
+    private final Schema.Entry meta2 = new Schema.Entry.Builder() //
             .withName("meta2") //
             .withType(Schema.Type.STRING) //
             .withMetadata(true) //
@@ -137,6 +140,89 @@ class SchemaImplTest {
         Assertions.assertEquals(34, record.getInt("record_id"));
         Assertions.assertEquals("Aloa", record.getString("field1"));
         Assertions.assertEquals("Hallo, wie gehst du ?", record.getString("field2"));
+    }
+
+    @Test
+    void testAntiCollision() {
+        final Entry entry1 = this.newEntry("1name_b", "a_value");
+        final Entry entry2 = this.newEntry("2name_b", "b_value");
+        final Entry entry3 = this.newEntry("name_b", "c_value");
+
+        final Schema schema = this.newSchema(entry1, entry2, entry3);
+
+        final boolean checkNames = schema
+                .getAllEntries()
+                .allMatch((Entry e) -> ("1name_b".equals(e.getRawName()) && e.getName().matches("name_b_[12]")
+                        && "a_value".equals(e.getDefaultValue())) //
+                        || ("2name_b".equals(e.getRawName()) && e.getName().matches("name_b_[12]")
+                                && "b_value".equals(e.getDefaultValue())) //
+                        || (e.getRawName() == null && e.getName().equals("name_b")
+                                && "c_value".equals(e.getDefaultValue())));
+        Assertions.assertTrue(checkNames);
+        Assertions.assertEquals(3, schema.getAllEntries().map(Entry::getName).distinct().count());
+
+        final Entry entry3Bis = this.newEntry("name_b_1", "c_value");
+
+        final Schema schemaBis = this.newSchema(entry1, entry2, entry3Bis);
+        final boolean checkNamesBis = schemaBis
+                .getAllEntries()
+                .allMatch((Entry e) -> ("1name_b".equals(e.getRawName()) && e.getName().matches("name_b(_2)?")
+                        && "a_value".equals(e.getDefaultValue())) //
+                        || ("2name_b".equals(e.getRawName()) && e.getName().matches("name_b(_2)?")
+                                && "b_value".equals(e.getDefaultValue())) //
+                        || (e.getRawName() == null && e.getName().equals("name_b_1")
+                                && "c_value".equals(e.getDefaultValue())));
+        Assertions.assertTrue(checkNamesBis);
+        Assertions.assertEquals(3, schemaBis.getAllEntries().map(Entry::getName).distinct().count());
+
+        final Schema.Builder builder = new BuilderImpl().withType(Type.RECORD);
+        for (int index = 1; index < 8; index++) {
+            final Entry e = this.newEntry(index + "name_b", index + "_value");
+            builder.withEntry(e);
+        }
+        final Entry last = this.newEntry("name_b_5", "last_value");
+        builder.withEntry(last);
+        final Schema schemaTer = builder.build();
+        Assertions.assertEquals(8, schemaTer.getAllEntries().map(Entry::getName).distinct().count());
+        Assertions
+                .assertEquals(1,
+                        schemaTer
+                                .getAllEntries()
+                                .map(Entry::getName)
+                                .filter((String name) -> "name_b".equals(name))
+                                .count());
+        Assertions
+                .assertEquals(7,
+                        IntStream
+                                .range(1, 8)
+                                .mapToObj((int i) -> "name_b_" + i)
+                                .flatMap((String name) -> schemaTer
+                                        .getAllEntries()
+                                        .filter((Entry e) -> Objects.equals(name, e.getName())))
+                                .count());
+
+        final Entry entry3Twin = new Entry.Builder() //
+                .withName("name_b") //
+                .withType(Type.LONG) //
+                .withDefaultValue(0L) //
+                .build();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> this.newSchema(entry3, entry3Twin));
+    }
+
+    private Schema newSchema(Entry... entries) {
+        final Schema.Builder builder = new BuilderImpl().withType(Type.RECORD);
+        for (Entry e : entries) {
+            builder.withEntry(e);
+        }
+        return builder.build();
+    }
+
+    private Entry newEntry(final String name, final String defaultValue) {
+        return new Entry.Builder() //
+                .withName(name) //
+                .withType(Type.STRING) //
+                .withDefaultValue(defaultValue) //
+                .build();
     }
 
     @Test
@@ -248,6 +334,7 @@ class SchemaImplTest {
     }
 
     private Schema.Entry.Builder newEntry(final String name, final Schema.Type type) {
-        return new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(type);
+        return new Schema.Entry.Builder().withName(name).withType(type);
     }
+
 }

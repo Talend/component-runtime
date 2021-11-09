@@ -149,6 +149,7 @@ public final class RecordImpl implements Record {
                         .format("Entry '%s' of type %s is not compatible with value of type '%s'", entry.getName(),
                                 entry.getType(), value.getClass().getName()));
             }
+
             if (entry.getType() == Schema.Type.DATETIME) {
                 if (value == null) {
                     return this;
@@ -228,6 +229,15 @@ public final class RecordImpl implements Record {
             return builder.updateEntryByName(name, schemaEntry);
         }
 
+        private void replaceEntry(final String name, final Entry newEntry) {
+            for (int index = 0; index < this.entries.size(); index++) {
+                if (Objects.equals(name, this.entries.get(index).getName())) {
+                    this.entries.set(index, newEntry);
+                    return;
+                }
+            }
+        }
+
         private Schema.Entry findExistingEntry(final String name) {
             if (this.entryIndex == null) {
                 this.entryIndex = providedSchema.getAllEntries().collect(toMap(Schema.Entry::getName, identity()));
@@ -242,11 +252,7 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
             if (providedSchema == null) {
-                return new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName(name)
-                        .withType(type)
-                        .withNullable(nullable)
-                        .build();
+                return new Schema.Entry.Builder().withName(name).withType(type).withNullable(nullable).build();
             }
             return this.findExistingEntry(name);
         }
@@ -324,7 +330,7 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
             }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
-            return withTimestamp(entry, value == null ? -1 : value.getTime());
+            return append(entry, value == null ? null : value.getTime());
         }
 
         public Builder withDateTime(final String name, final ZonedDateTime value) {
@@ -337,7 +343,7 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
             }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
-            return withTimestamp(entry, value == null ? -1 : value.toInstant().toEpochMilli());
+            return append(entry, value == null ? null : value.toInstant().toEpochMilli());
         }
 
         public Builder withTimestamp(final String name, final long value) {
@@ -416,7 +422,7 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withRecord(final String name, final Record value) {
-            return withRecord(new SchemaImpl.EntryImpl.BuilderImpl()
+            return withRecord(new Schema.Entry.Builder()
                     .withName(name)
                     .withElementSchema(value.getSchema())
                     .withType(RECORD)
@@ -441,14 +447,22 @@ public final class RecordImpl implements Record {
         }
 
         private <T> Builder append(final Schema.Entry entry, final T value) {
+            final Entry realEntry;
+            if (this.providedSchema == null) {
+                realEntry = Optional
+                        .ofNullable(Schema.avoidCollision(entry, this.entries::stream, this::replaceEntry))
+                        .orElse(entry);
+            } else {
+                realEntry = entry;
+            }
             if (value != null) {
-                values.put(entry.getName(), value);
-            } else if (!entry.isNullable()) {
-                throw new IllegalArgumentException(entry.getName() + " is not nullable but got a null value");
+                values.put(realEntry.getName(), value);
+            } else if (!realEntry.isNullable()) {
+                throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
             }
             if (providedSchema == null) {
-                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), entry.getName()))) {
-                    this.entries.add(entry);
+                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), realEntry.getName()))) {
+                    this.entries.add(realEntry);
                 }
             }
             return this;

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.39.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>sample-beam</artifactId>
@@ -46,7 +46,8 @@
         <artifactId>maven-deploy-plugin</artifactId>
         <version>${deploy-plugin.version}</version>
         <configuration>
-          <skip>true</skip> <!-- just a sample, we don't want to deploy it -->
+          <skip>true</skip>
+          <!-- just a sample, we don't want to deploy it -->
         </configuration>
       </plugin>
 
@@ -57,10 +58,10 @@
         <executions>
           <execution>
             <id>create-TALEND-INF/dependencies.txt</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>list</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
               <outputFile>${project.build.outputDirectory}/TALEND-INF/dependencies.txt</outputFile>
             </configuration>
@@ -73,13 +74,15 @@
         <executions>
           <execution>
             <id>cleanup-TALEND-INF/dependencies.txt</id>
-            <phase>compile</phase> <!-- cleanup asap -->
+            <!-- cleanup asap -->
             <goals>
               <goal>run</goal>
             </goals>
+            <phase>compile</phase>
             <configuration>
-              <target> <!-- TCOMP-1983 -->
-                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true" />
+              <target>
+                <!-- TCOMP-1983 -->
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace=""/>
               </target>
             </configuration>
           </execution>

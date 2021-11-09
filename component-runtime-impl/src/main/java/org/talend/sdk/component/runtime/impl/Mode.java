@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.impl;
 
 public enum Mode {
+
     DEFAULT, // default logic, nothing particular
     UNSAFE; // deactivate validations for an unsafe runtime (speed gain when environment is already validated)
 

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.39.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-vault-proxy-image</artifactId>
@@ -94,10 +94,10 @@
         <executions>
           <execution>
             <id>copy-resources</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/conf</outputDirectory>
               <resources>
@@ -117,10 +117,10 @@
         <executions>
           <execution>
             <id>unpack-sigar</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <artifactItems>
                 <artifactItem>
@@ -152,8 +152,7 @@
             <configuration>
               <extraDirectories>
                 <paths>
-                  <path>${additionalDockerFiles}
-                  </path>
+                  <path>${additionalDockerFiles}</path>
                 </paths>
               </extraDirectories>
               <from>
@@ -206,8 +205,7 @@
                     -Dtalend.vault.cache.vault.url=http://vault:8200
                     -Dtalend.vault.cache.vault.decrypt.endpoint=v1/something/decrypt/00000001
                     -Dtalend.vault.cache.vault.auth.roleId=myrole
-                    -Dtalend.vault.cache.talendComponentKit.url=https://componentkitserver:8080
-                  </com.talend.docker.params>
+                    -Dtalend.vault.cache.talendComponentKit.url=https://componentkitserver:8080</com.talend.docker.params>
                   <com.talend.docker.healthcheck>curl --fail http://localhost:${boundPort}/api/v1/proxy/environment</com.talend.docker.healthcheck>
                 </labels>
               </container>
@@ -215,22 +213,14 @@
           </execution>
         </executions>
       </plugin>
-      <plugin><!--
+      <plugin>
+        <!--
         mvn clean verify dockerfile:build -P dev-tsbi
         docker tag talend/common/tacokit/component-server-vault-proxy:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release}
         docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${release}
         -->
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default</id>
-            <phase>none</phase>
-            <goals>
-              <goal>build</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <repository>${image.target}</repository>
           <tag>${image.tag}</tag>
@@ -247,6 +237,15 @@
           </buildArgs>
           <skip>${disable.dockerBuild}</skip>
         </configuration>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>build</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

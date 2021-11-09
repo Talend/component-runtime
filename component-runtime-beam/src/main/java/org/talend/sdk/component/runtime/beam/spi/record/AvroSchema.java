@@ -189,7 +189,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     private static Entry buildFromAvro(final Field field, final Type type, final AvroSchema elementSchema) {
-        return new EntryImpl.BuilderImpl() //
+        return new Entry.Builder() //
                 .withName(field.name()) //
                 .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
                 .withType(type) //
@@ -216,6 +216,20 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             return null;
         }
         return getActualDelegate().getProp(property);
+    }
+
+    @Override
+    public Builder toBuilder() {
+        final Builder builder = new AvroSchemaBuilder()
+                .withElementSchema(this.elementSchema)
+                .withType(this.type)
+                .withProps(this
+                        .getProps()
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        this.getAllEntries().forEach(builder::withEntry);
+        return builder;
     }
 
     @Override

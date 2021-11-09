@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 
 @ApplicationScoped
@@ -33,7 +34,7 @@ public class ComponentDao {
         return meta.getId();
     }
 
-    public <T> ComponentFamilyMeta.BaseMeta<T> findById(final String id) {
+    public <T extends Lifecycle> ComponentFamilyMeta.BaseMeta<T> findById(final String id) {
         return (ComponentFamilyMeta.BaseMeta<T>) data.get(id);
     }
 

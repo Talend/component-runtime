@@ -8,8 +8,8 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":409,
-    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
+    "commits":439,
+    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
     "name":"Emmanuel GALLOIS"
@@ -36,7 +36,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":53,
+    "commits":55,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
     "id":"clesaec"
@@ -54,13 +54,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/7741480?v=4",
     "id":"cmeng-talend",
     "name":"Chao MENG"
-  },
-  {
-    "commits":19,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/53257653?v=4",
-    "id":"rlecomte-talend",
-    "name":"Richard Lecomte"
   },
   {
     "commits":9,
@@ -179,7 +172,7 @@
   },
   {
     "commits":1,
-    "description":"Information Architect\n\nBlog: TBD",
+    "description":"Product Manager, Information Architect",
     "gravatar":"https://avatars.githubusercontent.com/u/19730806?v=4",
     "id":"fviolette",
     "name":"François Violette"
@@ -218,6 +211,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/20939820?v=4",
     "id":"Voievidko",
     "name":"Roman"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/10938011?v=4",
+    "id":"jad-darrous",
+    "name":"Jad Darrous"
   }
 ]</jsonArray>
 ++++

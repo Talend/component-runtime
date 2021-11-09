@@ -17,6 +17,7 @@ package org.talend.sdk.component.design.extension.flows;
 
 import java.util.Collection;
 
+import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.BaseMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.DriverRunnerMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMapperMeta;
@@ -35,7 +36,7 @@ public interface FlowsFactory {
      * @param meta the meta instance to use as reference to find the right factory.
      * @return the factory to use to create a flow for this meta.
      */
-    static FlowsFactory get(final BaseMeta<?> meta) {
+    static FlowsFactory get(final BaseMeta<? extends Lifecycle> meta) {
         if (meta == null) {
             throw new IllegalArgumentException("meta should not be null");
         }
