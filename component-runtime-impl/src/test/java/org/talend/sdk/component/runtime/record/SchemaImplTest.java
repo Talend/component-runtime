@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,12 +38,12 @@ import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
 
 class SchemaImplTest {
 
-    private final Schema.Entry dataEntry1 = new Schema.Entry.Builder() //
+    private final Schema.Entry data1 = new Schema.Entry.Builder() //
             .withName("data1") //
             .withType(Schema.Type.INT) //
             .build();
 
-    private final Schema.Entry dataEntry2 = new Schema.Entry.Builder() //
+    private final Schema.Entry data2 = new Schema.Entry.Builder() //
             .withName("data2") //
             .withType(Schema.Type.STRING) //
             .withNullable(true) //
@@ -65,7 +64,7 @@ class SchemaImplTest {
 
     @Test
     void testEntries() {
-        Assertions.assertFalse(dataEntry1.isMetadata(), "meta data should be false by default");
+        Assertions.assertFalse(data1.isMetadata(), "meta data should be false by default");
         Assertions.assertTrue(meta1.isMetadata(), "meta data should be true here");
     }
 
@@ -73,15 +72,15 @@ class SchemaImplTest {
     void getAllEntries() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
-                .withEntry(dataEntry2) //
+                .withEntry(data2) //
                 .withEntry(meta2) //
                 .build();
         final List<Entry> entries = schema.getEntries();
         Assertions.assertEquals(2, entries.size());
-        Assertions.assertTrue(entries.contains(this.dataEntry1));
-        Assertions.assertTrue(entries.contains(this.dataEntry2));
+        Assertions.assertTrue(entries.contains(this.data1));
+        Assertions.assertTrue(entries.contains(this.data2));
 
         Assertions.assertEquals(4, schema.getAllEntries().count());
         final List<Entry> metaEntries = schema.getAllEntries().filter(Entry::isMetadata).collect(Collectors.toList());
@@ -94,14 +93,14 @@ class SchemaImplTest {
     void testEquals() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
                 .withEntry(meta2) //
                 .build();
 
         final Schema schema1 = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
                 .withEntry(meta2) //
                 .build();
@@ -229,26 +228,26 @@ class SchemaImplTest {
     void testOrder() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
-                .withEntry(dataEntry2) //
+                .withEntry(data2) //
                 .withEntry(meta2) //
                 .moveAfter("meta1", "data1")
-                .moveBefore("data2", "meta1")
+                .moveBefore("data1", "meta2")
                 .build();
-        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
-        final EntriesOrder comp = EntriesOrderImpl.of("meta2,meta1,data1,meta0");
-        assertEquals("meta2,meta1,data1,data2", getSchemaFields(schema, comp));
-        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
+        assertEquals("meta2,meta1,data1,data2",
+                getSchemaFields(schema, EntriesOrderImpl.of("meta2,meta1,data1,meta0")));
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
     }
 
     @Test
     void testCustomComparatorEntriesOrder() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
-                .withEntry(dataEntry2) //
+                .withEntry(data2) //
                 .withEntry(meta2) //
                 .build();
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
@@ -271,9 +270,9 @@ class SchemaImplTest {
     void testCustomEntriesOrder() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
-                .withEntry(dataEntry2) //
+                .withEntry(data2) //
                 .withEntry(meta2) //
                 .build();
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
@@ -287,9 +286,9 @@ class SchemaImplTest {
     void testBuilder() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntryBefore("data1", meta1) //
-                .withEntry(dataEntry2) //
+                .withEntry(data2) //
                 .withEntryAfter("meta1", meta2) //
                 .build();
         assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
@@ -303,9 +302,9 @@ class SchemaImplTest {
     void testToBuilder() {
         final Schema schemaOrigin = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
-                .withEntry(dataEntry2) //
+                .withEntry(data2) //
                 .withEntry(meta2) //
                 .moveAfter("meta1", "data1")
                 .moveBefore("data2", "meta2")
