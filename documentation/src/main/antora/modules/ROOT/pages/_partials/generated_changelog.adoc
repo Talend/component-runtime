@@ -2,6 +2,13 @@
 
 == Version 1.39.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2019[TCOMP-2019^]: Sanitized columns name collision support
+- link:https://jira.talendforge.org/browse/TCOMP-2021[TCOMP-2021^]: Missing logic when handling null date values in Record
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1924[TCOMP-1924^]: Support Java 17 runtime

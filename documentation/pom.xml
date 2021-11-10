@@ -558,8 +558,8 @@
           </execution>
         </executions>
       </plugin>
+      <!-- mvn package -Pgen-doc [once] && mvn frontend:npm@npm-dev -Pgen-doc -->
       <plugin>
-        <!-- mvn package -Pgen-doc [once] && mvn frontend:npm@npm-dev -Pgen-doc -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
@@ -715,9 +715,8 @@
           </execution>
         </executions>
       </plugin>
-
+      <!-- mvn initialize asciidoctor:process-asciidoc@pdf -e -->
       <plugin>
-        <!-- mvn initialize asciidoctor:process-asciidoc@pdf -e -->
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
         <version>2.2.1</version>

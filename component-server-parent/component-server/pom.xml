@@ -57,8 +57,8 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- extends runtime manager with design time data -->
     <dependency>
-      <!-- extends runtime manager with design time data -->
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-design-extension</artifactId>
       <version>${project.version}</version>
@@ -78,9 +78,8 @@
       <artifactId>commons-cli</artifactId>
       <version>${commons-cli.version}</version>
     </dependency>
-
+    <!-- override until we upgrade meecrowave -->
     <dependency>
-      <!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
       <version>${johnzon.version}</version>
@@ -94,8 +93,8 @@
       <groupId>org.eclipse.microprofile.config</groupId>
       <artifactId>microprofile-config-api</artifactId>
     </dependency>
+    <!-- just to generate the openapi.json -->
     <dependency>
-      <!-- just to generate the openapi.json -->
       <groupId>org.eclipse.microprofile.openapi</groupId>
       <artifactId>microprofile-openapi-api</artifactId>
       <version>${microprofile-openapi-api.version}</version>
@@ -141,9 +140,9 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-extension-api</artifactId>
       <version>${project.version}</version>
+      <!-- all the stack must be provided -->
       <exclusions>
         <exclusion>
-          <!-- all the stack must be provided -->
           <groupId>*</groupId>
           <artifactId>*</artifactId>
         </exclusion>
