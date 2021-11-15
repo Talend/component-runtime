@@ -28,16 +28,25 @@ import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_KEY;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PRECISION;
 
 import routines.system.Dynamic;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -217,6 +226,15 @@ public class DiRowStructVisitor {
         return recordBuilder.build();
     }
 
+    private <T> T getMetadata(final String metadata, final Object data, final Class<T> type) {
+        try {
+            final Method m = data.getClass().getDeclaredMethod(metadata);
+            return Optional.ofNullable(m.invoke(data)).map(type::cast).orElse(null);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            return null;
+        }
+    }
+
     private Schema inferSchema(final Object data, final RecordBuilderFactory factory) {
         // all standard rowStruct fields have accessors, not technical fields.
         allowedFields = Arrays
@@ -230,12 +248,20 @@ public class DiRowStructVisitor {
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
                 final Class<?> type = field.getType();
-                final String name = field.getName();
-                final Object raw = field.get(data);
-                if (!allowedFields.contains(name)) {
-                    log.debug("[inferSchema] Skipping technical field {}.", name);
+                if (!allowedFields.contains(field.getName())) {
+                    log.debug("[inferSchema] Skipping technical field {}.", field.getName());
                     return;
                 }
+                final String name = sanitizeConnectionName(field.getName());
+                final Object raw = field.get(data);
+                final Boolean isNullable = getMetadata(name + "IsNullable", data, Boolean.class);
+                final Boolean isKey = getMetadata(name + "IsKey", data, Boolean.class);
+                final Integer length = getMetadata(name + "Length", data, Integer.class);
+                final Integer precision = getMetadata(name + "Precision", data, Integer.class);
+                final String defaultValue = getMetadata(name + "Default", data, String.class);
+                final String comment = getMetadata(name + "Comment", data, String.class);
+                final String pattern = getMetadata(name + "Pattern", data, String.class);
+                final String originalDbColumnName = getMetadata(name + "OriginalDbColumnName", data, String.class);
                 switch (type.getName()) {
                 case "java.util.List":
                     schema.withEntry(toCollectionEntry(name, "", raw));
@@ -245,7 +271,8 @@ public class DiRowStructVisitor {
                 case "java.lang.Character":
                 case "char":
                 case "java.math.BigDecimal":
-                    schema.withEntry(toEntry(name, STRING));
+                    schema.withEntry(toEntry(name, STRING, originalDbColumnName, isNullable, comment, isKey, length,
+                            precision, defaultValue, null));
                     break;
                 case "java.lang.Integer":
                 case "int":
@@ -253,30 +280,37 @@ public class DiRowStructVisitor {
                 case "short":
                 case "java.lang.Byte":
                 case "byte":
-                    schema.withEntry(toEntry(name, INT));
+                    schema.withEntry(toEntry(name, INT, originalDbColumnName, isNullable, comment, isKey, null, null,
+                            defaultValue, null));
                     break;
                 case "java.lang.Long":
                 case "long":
-                    schema.withEntry(toEntry(name, LONG));
+                    schema.withEntry(toEntry(name, LONG, originalDbColumnName, isNullable, comment, isKey, null, null,
+                            defaultValue, null));
                     break;
                 case "java.lang.Float":
                 case "float":
-                    schema.withEntry(toEntry(name, FLOAT));
+                    schema.withEntry(toEntry(name, FLOAT, originalDbColumnName, isNullable, comment, isKey, length,
+                            precision, defaultValue, null));
                     break;
                 case "java.lang.Double":
                 case "double":
-                    schema.withEntry(toEntry(name, DOUBLE));
+                    schema.withEntry(toEntry(name, DOUBLE, originalDbColumnName, isNullable, comment, isKey, length,
+                            precision, defaultValue, null));
                     break;
                 case "java.lang.Boolean":
                 case "boolean":
-                    schema.withEntry(toEntry(name, BOOLEAN));
+                    schema.withEntry(toEntry(name, BOOLEAN, originalDbColumnName, isNullable, comment, isKey, null,
+                            null, defaultValue, null));
                     break;
                 case "java.util.Date":
-                    schema.withEntry(toEntry(name, DATETIME));
+                    schema.withEntry(toEntry(name, DATETIME, originalDbColumnName, isNullable, comment, isKey, null,
+                            null, defaultValue, pattern));
                     break;
                 case "byte[]":
                 case "[B":
-                    schema.withEntry(toEntry(name, BYTES));
+                    schema.withEntry(toEntry(name, BYTES, originalDbColumnName, isNullable, comment, isKey, null, null,
+                            defaultValue, null));
                     break;
                 case "routines.system.Dynamic":
                     final Dynamic dynamic = Dynamic.class.cast(raw);
@@ -284,7 +318,6 @@ public class DiRowStructVisitor {
                         final Object value = dynamic.getColumnValue(meta.getName());
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
-                        final String metaComment = meta.getDescription();
                         final boolean metaIsNullable = meta.isNullable();
                         log.debug("[inferSchema] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                         switch (meta.getType()) {
@@ -294,36 +327,46 @@ public class DiRowStructVisitor {
                         case "id_Object":
                         case "id_String":
                         case "id_Character":
+                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
+                                    isKey, null, null, defaultValue, null));
+                            break;
                         case "id_BigDecimal":
-                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
+                                    isKey, length, precision, defaultValue, null));
                             break;
                         case "id_byte[]":
-                            schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, comment,
+                                    isKey, null, null, defaultValue, null));
                             break;
                         case "id_Byte":
                         case "id_Short":
                         case "id_Integer":
-                            schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, comment,
+                                    isKey, null, null, defaultValue, null));
                             break;
                         case "id_Long":
-                            schema.withEntry(toEntry(metaName, LONG, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, LONG, metaOriginalName, metaIsNullable, comment,
+                                    isKey, null, null, defaultValue, null));
                             break;
                         case "id_Float":
-                            schema.withEntry(toEntry(metaName, FLOAT, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, FLOAT, metaOriginalName, metaIsNullable, comment,
+                                    isKey, length, precision, defaultValue, null));
                             break;
                         case "id_Double":
-                            schema.withEntry(toEntry(metaName, DOUBLE, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, DOUBLE, metaOriginalName, metaIsNullable, comment,
+                                    isKey, length, precision, defaultValue, null));
                             break;
                         case "id_Boolean":
-                            schema.withEntry(toEntry(metaName, BOOLEAN, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, BOOLEAN, metaOriginalName, metaIsNullable, comment,
+                                    isKey, null, null, defaultValue, null));
                             break;
                         case "id_Date":
-                            schema
-                                    .withEntry(
-                                            toEntry(metaName, DATETIME, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, DATETIME, metaOriginalName, metaIsNullable, comment,
+                                    isKey, null, null, defaultValue, pattern));
                             break;
                         default:
-                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, metaComment));
+                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
+                                    isKey, length, precision, defaultValue, null));
                         }
                     });
                     break;
@@ -382,14 +425,31 @@ public class DiRowStructVisitor {
     }
 
     private Entry toEntry(final String name, final Schema.Type type, final String originalName,
-            final boolean isNullable, final String comment) {
+            final Boolean isNullable, final String comment, final Boolean isKey, final Integer length,
+            final Integer precision, final String defaultValue, final String pattern) {
+        final Map<String, String> props = new HashMap();
+        if (isKey != null) {
+            props.put(STUDIO_KEY, String.valueOf(isKey));
+        }
+        if (length != null) {
+            props.put(STUDIO_LENGTH, String.valueOf(length));
+        }
+        if (precision != null) {
+            props.put(STUDIO_PRECISION, String.valueOf(precision));
+        }
+        if (pattern != null) {
+            props.put(STUDIO_PATTERN, pattern);
+        }
+
         return factory
                 .newEntryBuilder()
                 .withName(name)
                 .withRawName(originalName)
-                .withNullable(isNullable)
+                .withNullable(isNullable == null ? true : isNullable)
                 .withType(type)
                 .withComment(comment)
+                .withDefaultValue(defaultValue)
+                .withProps(props)
                 .build();
     }
 
