@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.server.front.model;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,4 +28,7 @@ public class Connectors {
 
     private String version;
 
+    private String pluginsHash;
+
+    private List<String> pluginsList;
 }
