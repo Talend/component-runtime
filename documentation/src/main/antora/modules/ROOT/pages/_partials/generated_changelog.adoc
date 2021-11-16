@@ -1,5 +1,43 @@
 
 
+== Version 1.39.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2019[TCOMP-2019^]: Sanitized columns name collision support
+- link:https://jira.talendforge.org/browse/TCOMP-2021[TCOMP-2021^]: Missing logic when handling null date values in Record
+- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1924[TCOMP-1924^]: Support Java 17 runtime
+- link:https://jira.talendforge.org/browse/TCOMP-2023[TCOMP-2023^]: Upgrade gradle to 6.9.1
+- link:https://jira.talendforge.org/browse/TCOMP-2024[TCOMP-2024^]: Upgrade maven-bundle-plugin to 4.2.1
+- link:https://jira.talendforge.org/browse/TCOMP-2025[TCOMP-2025^]: Upgrade documentation to latest
+- link:https://jira.talendforge.org/browse/TCOMP-2027[TCOMP-2027^]: Upgrage junit to 5.8.1
+- link:https://jira.talendforge.org/browse/TCOMP-2028[TCOMP-2028^]: Provide nashorn scripting engine when using java15+
+- link:https://jira.talendforge.org/browse/TCOMP-2029[TCOMP-2029^]: Upgrade jaxb to 2.3.5
+- link:https://jira.talendforge.org/browse/TCOMP-2030[TCOMP-2030^]: Upgrade Tomcat to 9.0.54 due to CVE-2021-42340
+- link:https://jira.talendforge.org/browse/TCOMP-2031[TCOMP-2031^]: Upgrade Beam to 2.33.0
+- link:https://jira.talendforge.org/browse/TCOMP-2032[TCOMP-2032^]: Upgrade Spark to 3.2.0
+- link:https://jira.talendforge.org/browse/TCOMP-2035[TCOMP-2035^]: Check build w/ Java 17 on CI
+- link:https://jira.talendforge.org/browse/TCOMP-2036[TCOMP-2036^]: Upgrade cxf to 3.4.5
+- link:https://jira.talendforge.org/browse/TCOMP-2037[TCOMP-2037^]: Upgrade johnzon to 1.2.15
+- link:https://jira.talendforge.org/browse/TCOMP-2038[TCOMP-2038^]: Upgrade bouncycastle to 1.69
+- link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
+- link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
+- link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
+
+== Version 1.38.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
+
 == Version 1.38.0
 
 === Bug
