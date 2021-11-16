@@ -148,21 +148,6 @@ class SchemaTest {
         }
 
         @Override
-        public List<Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
-            throw new UnsupportedOperationException("#getEntriesOrdered()");
-        }
-
-        @Override
-        public List<Entry> getEntriesOrdered() {
-            throw new UnsupportedOperationException("#getEntriesOrdered()");
-        }
-
-        @Override
-        public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
-            throw new UnsupportedOperationException("#getEntriesOrdered()");
-        }
-
-        @Override
         public Map<String, String> getProps() {
             return props;
         }

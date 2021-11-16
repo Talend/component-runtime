@@ -18,7 +18,6 @@ package org.talend.sdk.component.api.service.schema;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -84,21 +83,6 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
     @Override
     public Builder toBuilder() {
         return null;
-    }
-
-    @Override
-    public List<Entry> getEntriesOrdered() {
-        throw new UnsupportedOperationException("#getEntriesOrdered()");
-    }
-
-    @Override
-    public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
-        throw new UnsupportedOperationException("#getEntriesOrdered()");
-    }
-
-    @Override
-    public List<Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
-        throw new UnsupportedOperationException("#getEntriesOrdered()");
     }
 
     @Override

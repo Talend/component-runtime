@@ -15,11 +15,14 @@
  */
 package org.talend.sdk.component.api.record;
 
+import static java.util.Collections.emptyList;
+
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +43,7 @@ import javax.json.Json;
 import javax.json.JsonValue;
 import javax.json.bind.annotation.JsonbTransient;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -83,7 +87,9 @@ public interface Schema {
      *
      * @return all entries ordered
      */
-    List<Entry> getEntriesOrdered();
+    default List<Entry> getEntriesOrdered() {
+        return getAllEntries().sorted(naturalOrder()).collect(Collectors.toList());
+    }
 
     /**
      * Get all entries sorted using a custom comparator.
@@ -91,16 +97,10 @@ public interface Schema {
      * @param comparator the comparator
      * @return all entries ordered with provided comparator
      */
-
-    List<Entry> getEntriesOrdered(Comparator<Entry> comparator);
-
-    /**
-     * Get all entries sorted using a custom EntriesOrder .
-     *
-     * @param entriesOrder
-     * @return all entries ordered with provided EntriesOrder
-     */
-    List<Entry> getEntriesOrdered(EntriesOrder entriesOrder);
+    @JsonbTransient
+    default List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+        return getAllEntries().sorted(comparator).collect(Collectors.toList());
+    }
 
     /**
      * Get the EntriesOrder defined with Builder.
@@ -111,10 +111,7 @@ public interface Schema {
     EntriesOrder naturalOrder();
 
     default Entry getEntry(final String name) {
-        return Optional
-                .ofNullable(getEntries()) //
-                .orElse(Collections.emptyList()) //
-                .stream() //
+        return getAllEntries() //
                 .filter((Entry e) -> Objects.equals(e.getName(), name)) //
                 .findFirst() //
                 .orElse(null);
@@ -546,12 +543,30 @@ public interface Schema {
         return sanitizedBuilder.toString();
     }
 
-    interface EntriesOrder extends Comparator<Entry> {
+    @AllArgsConstructor
+    @ToString
+    @EqualsAndHashCode
+    class EntriesOrder implements Comparator<Entry> {
 
-        List<String> getFieldsOrder();
+        @Getter
+        private final List<String> fieldsOrder;
 
-        default String toFields() {
-            return getFieldsOrder().stream().collect(Collectors.joining(","));
+        /**
+         * Build an EntriesOrder according fields.
+         *
+         * @param fields the fields ordering
+         * @return the order EntriesOrder
+         */
+        public static EntriesOrder of(final String fields) {
+            return new EntriesOrder(fields);
+        }
+
+        public EntriesOrder(final String fields) {
+            if (fields == null) {
+                fieldsOrder = emptyList();
+            } else {
+                fieldsOrder = Arrays.stream(fields.split(",")).collect(Collectors.toList());
+            }
         }
 
         /**
@@ -561,7 +576,18 @@ public interface Schema {
          * @param name the field name
          * @return this EntriesOrder
          */
-        EntriesOrder moveAfter(final String after, final String name);
+        public EntriesOrder moveAfter(final String after, final String name) {
+            if (getFieldsOrder().indexOf(after) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", after));
+            }
+            getFieldsOrder().remove(name);
+            int destination = getFieldsOrder().indexOf(after);
+            if (!(destination + 1 == getFieldsOrder().size())) {
+                destination += 1;
+            }
+            getFieldsOrder().add(destination, name);
+            return this;
+        }
 
         /**
          * Move a field before another one.
@@ -570,7 +596,14 @@ public interface Schema {
          * @param name the field name
          * @return this EntriesOrder
          */
-        EntriesOrder moveBefore(final String before, final String name);
+        public EntriesOrder moveBefore(final String before, final String name) {
+            if (getFieldsOrder().indexOf(before) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", before));
+            }
+            getFieldsOrder().remove(name);
+            getFieldsOrder().add(getFieldsOrder().indexOf(before), name);
+            return this;
+        }
 
         /**
          * Swap two fields.
@@ -579,10 +612,17 @@ public interface Schema {
          * @param with the other field
          * @return this EntriesOrder
          */
-        EntriesOrder swap(final String name, final String with);
+        public EntriesOrder swap(final String name, final String with) {
+            Collections.swap(getFieldsOrder(), getFieldsOrder().indexOf(name), getFieldsOrder().indexOf(with));
+            return this;
+        }
+
+        public String toFields() {
+            return getFieldsOrder().stream().collect(Collectors.joining(","));
+        }
 
         @Override
-        default int compare(final Entry e1, final Entry e2) {
+        public int compare(final Entry e1, final Entry e2) {
             final String name1 = e1.getName();
             final String name2 = e2.getName();
             if (getFieldsOrder().contains(name1) && getFieldsOrder().contains(name2)) {

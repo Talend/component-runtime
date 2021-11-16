@@ -34,7 +34,6 @@ import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
-import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
 
 class SchemaImplTest {
 
@@ -236,8 +235,7 @@ class SchemaImplTest {
                 .moveBefore("data1", "meta2")
                 .build();
         assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
-        assertEquals("meta2,meta1,data1,data2",
-                getSchemaFields(schema, EntriesOrderImpl.of("meta2,meta1,data1,meta0")));
+        assertEquals("meta2,meta1,data1,data2", getSchemaFields(schema, EntriesOrder.of("meta2,meta1,data1,meta0")));
         assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
     }
 
@@ -276,7 +274,7 @@ class SchemaImplTest {
                 .withEntry(meta2) //
                 .build();
         assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
-        final EntriesOrder entriesOrder = EntriesOrderImpl.of("meta1,meta2,data1,data2");
+        final EntriesOrder entriesOrder = EntriesOrder.of("meta1,meta2,data1,data2");
         assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, entriesOrder));
         entriesOrder.swap("meta1", "data2").moveBefore("meta2", "data1");
         assertEquals("data2,data1,meta2,meta1", getSchemaFields(schema, entriesOrder));

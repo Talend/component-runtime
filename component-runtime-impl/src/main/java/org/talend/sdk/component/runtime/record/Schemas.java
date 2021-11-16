@@ -169,12 +169,6 @@ public abstract class Schemas implements Schema, Schema.Builder {
 
     @Override
     @JsonbTransient
-    public List<Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
-        throw new UnsupportedOperationException("#getEntriesOrdered()");
-    }
-
-    @Override
-    @JsonbTransient
     public List<Entry> getEntriesOrdered() {
         throw new UnsupportedOperationException("#getEntriesOrdered()");
     }

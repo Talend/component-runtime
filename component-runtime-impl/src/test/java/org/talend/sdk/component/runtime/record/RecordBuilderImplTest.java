@@ -44,7 +44,7 @@ class RecordBuilderImplTest {
     void providedSchemaGetSchema() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.Entry.Builder()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -89,7 +89,7 @@ class RecordBuilderImplTest {
     void recordEntryFromName() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.Entry.Builder()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -106,7 +106,7 @@ class RecordBuilderImplTest {
     void providedSchemaNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new RecordImpl.BuilderImpl(new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.Entry.Builder()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -134,7 +134,7 @@ class RecordBuilderImplTest {
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new RecordImpl.BuilderImpl(new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.Entry.Builder()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("name")
                         .withNullable(false)
                         .withType(Schema.Type.STRING)
@@ -201,14 +201,14 @@ class RecordBuilderImplTest {
     void notNullableNullBehavior() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
         assertThrows(IllegalArgumentException.class, () -> builder
-                .withString(new SchemaImpl.Entry.Builder().withNullable(false).withName("test").build(), null));
+                .withString(new Schema.Entry.Builder().withNullable(false).withName("test").build(), null));
     }
 
     @Test
     void dateTime() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.Entry.Builder()
+                .withEntry(new Schema.Entry.Builder()
                         .withName("date")
                         .withNullable(false)
                         .withType(Schema.Type.DATETIME)
@@ -225,7 +225,7 @@ class RecordBuilderImplTest {
     @Test
     void array() {
         final Schema schemaArray = new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build();
-        final Schema.Entry entry = new SchemaImpl.Entry.Builder()
+        final Schema.Entry entry = new Schema.Entry.Builder()
                 .withName("data")
                 .withNullable(false)
                 .withType(Schema.Type.ARRAY)
@@ -487,7 +487,7 @@ class RecordBuilderImplTest {
     }
 
     @Test
-    void testRecordWithNewSchema() {
+    void recordWithNewSchema() {
         final Schema schema0 = new BuilderImpl() //
                 .withType(Type.RECORD) //
                 .withEntry(dataEntry1) //
@@ -560,24 +560,24 @@ class RecordBuilderImplTest {
                 .collect(joining(","));
     }
 
-    private final Schema.Entry dataEntry1 = new SchemaImpl.Entry.Builder() //
+    private final Schema.Entry dataEntry1 = new Schema.Entry.Builder() //
             .withName("data1") //
             .withType(Schema.Type.INT) //
             .build();
 
-    private final Schema.Entry dataEntry2 = new SchemaImpl.Entry.Builder() //
+    private final Schema.Entry dataEntry2 = new Schema.Entry.Builder() //
             .withName("data2") //
             .withType(Schema.Type.STRING) //
             .withNullable(true) //
             .build();
 
-    private final Schema.Entry meta1 = new SchemaImpl.Entry.Builder() //
+    private final Schema.Entry meta1 = new Schema.Entry.Builder() //
             .withName("meta1") //
             .withType(Schema.Type.INT) //
             .withMetadata(true) //
             .build();
 
-    private final Schema.Entry meta2 = new SchemaImpl.Entry.Builder() //
+    private final Schema.Entry meta2 = new Schema.Entry.Builder() //
             .withName("meta2") //
             .withType(Schema.Type.STRING) //
             .withMetadata(true) //

@@ -121,7 +121,7 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
   "metadata":[
   ],
   "props":{
-
+    "talend.fields.order":"column1,column2"
   },
   "type":"RECORD"
 }

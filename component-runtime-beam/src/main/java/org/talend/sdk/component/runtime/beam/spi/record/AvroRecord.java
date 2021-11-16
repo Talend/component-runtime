@@ -45,7 +45,6 @@ import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordImpl;
-import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
@@ -79,7 +78,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             this.schema = avr.schema;
             return;
         }
-        EntriesOrder eo = EntriesOrderImpl.of(record.getSchema().getProp(ENTRIES_ORDER_PROP));
+        EntriesOrder eo = EntriesOrder.of(record.getSchema().getProp(ENTRIES_ORDER_PROP));
         final List<org.apache.avro.Schema.Field> fields = record.getSchema().getAllEntries().sorted(eo).map(entry -> {
             final org.apache.avro.Schema avroSchema = toSchema(entry);
             final org.apache.avro.Schema.Field f = AvroSchemaBuilder.AvroHelper.toField(avroSchema, entry);
@@ -133,10 +132,11 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         return schema;
     }
 
-    @Override
-    public Builder withNewSchema(final Schema schema) {
-        final AvroRecordBuilder builder = new AvroRecordBuilder(schema);
-        schema.getEntriesOrdered().forEach(e -> builder.with(e, delegate.get(9)));
+    public Builder withNewSchema(final Schema newSchema) {
+        final AvroRecordBuilder builder = new AvroRecordBuilder(newSchema);
+        newSchema.getAllEntries()
+                .filter(e -> Objects.equals(schema.getEntry(e.getName()), e))
+                .forEach(e -> builder.with(e, get(Object.class, e.getName())));
         return builder;
     }
 

@@ -23,7 +23,6 @@ import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,7 +34,6 @@ import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
-import org.talend.sdk.component.runtime.record.SchemaImpl.EntriesOrderImpl;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -142,28 +140,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     @Override
     @JsonbTransient
-    public List<Entry> getEntriesOrdered() {
-        final Schema schema = getActualDelegate();
-        EntriesOrder eo = EntriesOrderImpl.of(schema.getProp(ENTRIES_ORDER_PROP));
-        return getAllEntries().sorted(eo).collect(toList());
-    }
-
-    @Override
-    @JsonbTransient
-    public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
-        throw new UnsupportedOperationException("#getEntriesOrdered()");
-    }
-
-    @Override
-    @JsonbTransient
-    public List<Entry> getEntriesOrdered(final EntriesOrder entriesOrder) {
-        throw new UnsupportedOperationException("#getEntriesOrdered()");
-    }
-
-    @Override
-    @JsonbTransient
     public EntriesOrder naturalOrder() {
-        throw new UnsupportedOperationException("#naturalOrder()");
+        return EntriesOrder.of(getActualDelegate().getProp(ENTRIES_ORDER_PROP));
     }
 
     private Stream<Field> getNonNullFields() {
@@ -215,14 +193,14 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     @Override
     public Builder toBuilder() {
         final Builder builder = new AvroSchemaBuilder()
+                .withType(Type.RECORD)
                 .withElementSchema(this.elementSchema)
-                .withType(this.type)
                 .withProps(this
                         .getProps()
                         .entrySet()
                         .stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        this.getAllEntries().forEach(builder::withEntry);
+        getEntriesOrdered().forEach(builder::withEntry);
         return builder;
     }
 
