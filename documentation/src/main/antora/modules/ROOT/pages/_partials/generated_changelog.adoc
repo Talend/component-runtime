@@ -2,6 +2,14 @@
 
 == Version 1.39.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2019[TCOMP-2019^]: Sanitized columns name collision support
+- link:https://jira.talendforge.org/browse/TCOMP-2021[TCOMP-2021^]: Missing logic when handling null date values in Record
+- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1924[TCOMP-1924^]: Support Java 17 runtime
@@ -18,8 +26,17 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2036[TCOMP-2036^]: Upgrade cxf to 3.4.5
 - link:https://jira.talendforge.org/browse/TCOMP-2037[TCOMP-2037^]: Upgrade johnzon to 1.2.15
 - link:https://jira.talendforge.org/browse/TCOMP-2038[TCOMP-2038^]: Upgrade bouncycastle to 1.69
+- link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
+
+== Version 1.38.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
 
 == Version 1.38.0
 

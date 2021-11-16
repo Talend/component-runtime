@@ -21,6 +21,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +92,10 @@ public class ComponentServerMock {
     @GET
     @Path("environment")
     public Environment environment() {
-        return new Environment(1, "test", "test", null, new Date(0), new Connectors("1.2.3"));
+        return new Environment(1, "test", "test", null, new Date(0),
+                new Connectors("1.2.3", "3a507eb7e52c9acd14c247d62bffecdee6493fc08f9cf69f65b941a64fcbf179",
+                        Arrays.asList("another-test-component", "collection-of-object",
+                                "component-with-user-jars", "file-component", "jdbc-component", "the-test-component")));
     }
 
     @POST
