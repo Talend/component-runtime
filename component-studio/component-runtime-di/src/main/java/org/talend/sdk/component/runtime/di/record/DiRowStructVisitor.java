@@ -211,8 +211,10 @@ public class DiRowStructVisitor {
     }
 
     public Record get(final Object data, final RecordBuilderFactory factory) {
-        this.factory = factory;
-        recordBuilder = factory.newRecordBuilder(inferSchema(data, factory));
+        if (recordBuilder == null) {
+            this.factory = factory;
+            recordBuilder = factory.newRecordBuilder(inferSchema(data, factory));
+        }
         visit(data);
         return recordBuilder.build();
     }
