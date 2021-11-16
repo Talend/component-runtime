@@ -25,6 +25,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -60,6 +62,14 @@ class SchemaImplTest {
             .withMetadata(true) //
             .withNullable(true) //
             .build();
+
+    @Test
+    void checkEquals() {
+        EqualsVerifier.simple()
+                .suppress(Warning.STRICT_HASHCODE) // Supress test hashcode use all fields used by equals (for legacy)
+                .forClass(SchemaImpl.class)
+                .verify();
+    }
 
     @Test
     void testEntries() {

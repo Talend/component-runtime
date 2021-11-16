@@ -30,11 +30,9 @@ import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.Schema;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-@EqualsAndHashCode
 @ToString
 public class SchemaImpl implements Schema {
 
@@ -65,6 +63,48 @@ public class SchemaImpl implements Schema {
         this.metadataEntries = unmodifiableList(builder.metadataEntries);
         this.props = builder.props;
         entriesOrder = EntriesOrder.of(getFieldsOrder());
+    }
+
+    /**
+     * Optimized hashcode method (do not enter inside field hashcode, just getName, ignore props fields).
+     * 
+     * @return hashcode.
+     */
+    @Override
+    public int hashCode() {
+        final String e1 =
+                this.entries != null ? this.entries.stream().map(Entry::getName).collect(Collectors.joining(",")) : "";
+        final String m1 = this.metadataEntries != null
+                ? this.metadataEntries.stream().map(Entry::getName).collect(Collectors.joining(","))
+                : "";
+
+        return Objects.hash(this.type,
+                this.elementSchema,
+                e1,
+                m1);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof SchemaImpl)) {
+            return false;
+        }
+        final SchemaImpl other = (SchemaImpl) obj;
+        if (!other.canEqual(this)) {
+            return false;
+        }
+        return Objects.equals(this.type, other.type)
+                && Objects.equals(this.elementSchema, other.elementSchema)
+                && Objects.equals(this.entries, other.entries)
+                && Objects.equals(this.metadataEntries, other.metadataEntries)
+                && Objects.equals(this.props, other.props);
+    }
+
+    protected boolean canEqual(final SchemaImpl other) {
+        return true;
     }
 
     @Override
