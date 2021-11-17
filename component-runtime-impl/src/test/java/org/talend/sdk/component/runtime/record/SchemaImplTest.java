@@ -15,8 +15,12 @@
  */
 package org.talend.sdk.component.runtime.record;
 
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,18 +29,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Builder;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 
 class SchemaImplTest {
 
-    private final Schema.Entry dataEntry1 = new Schema.Entry.Builder() //
+    private final Schema.Entry data1 = new Schema.Entry.Builder() //
             .withName("data1") //
             .withType(Schema.Type.INT) //
             .build();
 
-    private final Schema.Entry dataEntry2 = new Schema.Entry.Builder() //
+    private final Schema.Entry data2 = new Schema.Entry.Builder() //
             .withName("data2") //
             .withType(Schema.Type.STRING) //
             .withNullable(true) //
@@ -57,7 +63,7 @@ class SchemaImplTest {
 
     @Test
     void testEntries() {
-        Assertions.assertFalse(dataEntry1.isMetadata(), "meta data should be false by default");
+        Assertions.assertFalse(data1.isMetadata(), "meta data should be false by default");
         Assertions.assertTrue(meta1.isMetadata(), "meta data should be true here");
     }
 
@@ -65,15 +71,15 @@ class SchemaImplTest {
     void getAllEntries() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
-                .withEntry(dataEntry2) //
+                .withEntry(data2) //
                 .withEntry(meta2) //
                 .build();
         final List<Entry> entries = schema.getEntries();
         Assertions.assertEquals(2, entries.size());
-        Assertions.assertTrue(entries.contains(this.dataEntry1));
-        Assertions.assertTrue(entries.contains(this.dataEntry2));
+        Assertions.assertTrue(entries.contains(this.data1));
+        Assertions.assertTrue(entries.contains(this.data2));
 
         Assertions.assertEquals(4, schema.getAllEntries().count());
         final List<Entry> metaEntries = schema.getAllEntries().filter(Entry::isMetadata).collect(Collectors.toList());
@@ -86,14 +92,14 @@ class SchemaImplTest {
     void testEquals() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
                 .withEntry(meta2) //
                 .build();
 
         final Schema schema1 = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(dataEntry1) //
+                .withEntry(data1) //
                 .withEntry(meta1) //
                 .withEntry(meta2) //
                 .build();
@@ -215,6 +221,113 @@ class SchemaImplTest {
                 .withType(Type.STRING) //
                 .withDefaultValue(defaultValue) //
                 .build();
+    }
+
+    @Test
+    void testOrder() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta1) //
+                .withEntry(data2) //
+                .withEntry(meta2) //
+                .moveAfter("meta1", "data1")
+                .moveBefore("data1", "meta2")
+                .build();
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
+        assertEquals("meta2,meta1,data1,data2", getSchemaFields(schema, EntriesOrder.of("meta2,meta1,data1,meta0")));
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
+    }
+
+    @Test
+    void testCustomComparatorEntriesOrder() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta1) //
+                .withEntry(data2) //
+                .withEntry(meta2) //
+                .build();
+        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
+        final Comparator<Entry> myComparator = (o1, o2) -> {
+            if (o1.isMetadata() && o2.isMetadata()) {
+                return 0;
+            }
+            if (o1.isMetadata()) {
+                return -1;
+            }
+            if (o2.isMetadata()) {
+                return 1;
+            }
+            return 0;
+        };
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, myComparator));
+    }
+
+    @Test
+    void testCustomEntriesOrder() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta1) //
+                .withEntry(data2) //
+                .withEntry(meta2) //
+                .build();
+        assertEquals("data1,meta1,data2,meta2", getSchemaFields(schema));
+        final EntriesOrder entriesOrder = EntriesOrder.of("meta1,meta2,data1,data2");
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, entriesOrder));
+        entriesOrder.swap("meta1", "data2").moveBefore("meta2", "data1");
+        assertEquals("data2,data1,meta2,meta1", getSchemaFields(schema, entriesOrder));
+    }
+
+    @Test
+    void testBuilder() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(data1) //
+                .withEntryBefore("data1", meta1) //
+                .withEntry(data2) //
+                .withEntryAfter("meta1", meta2) //
+                .build();
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
+        // failing
+        final Schema.Builder builder = new BuilderImpl().withType(Type.RECORD);
+        assertThrows(IllegalArgumentException.class, () -> builder.withEntryAfter("data1", meta1));
+        assertThrows(IllegalArgumentException.class, () -> builder.withEntryBefore("data1", meta2));
+    }
+
+    @Test
+    void testToBuilder() {
+        final Schema schemaOrigin = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta1) //
+                .withEntry(data2) //
+                .withEntry(meta2) //
+                .moveAfter("meta1", "data1")
+                .moveBefore("data2", "meta2")
+                .build();
+        assertEquals("meta1,data1,meta2,data2", getSchemaFields(schemaOrigin));
+        Builder builder = schemaOrigin.toBuilder();
+        builder.withEntry(newEntry("data3", Type.STRING).build());
+        builder.withEntry(newEntry("meta3", Type.STRING).withMetadata(true).build());
+        final Schema schemaNew = builder.build();
+        assertEquals(3, schemaNew.getMetadata().size());
+        assertEquals(3, schemaNew.getEntries().size());
+        assertEquals(6, schemaNew.getAllEntries().count());
+        assertEquals("meta1,data1,meta2,data2,data3,meta3", getSchemaFields(schemaNew));
+    }
+
+    private String getSchemaFields(final Schema schema) {
+        return schema.getEntriesOrdered().stream().map(e -> e.getName()).collect(joining(","));
+    }
+
+    private String getSchemaFields(final Schema schema, final EntriesOrder entriesOrder) {
+        return schema.getEntriesOrdered(entriesOrder).stream().map(e -> e.getName()).collect(joining(","));
+    }
+
+    private String getSchemaFields(final Schema schema, final Comparator<Entry> entriesOrder) {
+        return schema.getEntriesOrdered(entriesOrder).stream().map(e -> e.getName()).collect(joining(","));
     }
 
     private Schema.Entry.Builder newEntry(final String name, final Schema.Type type) {

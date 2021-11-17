@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.record;
 import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,12 +53,18 @@ public class SchemaImpl implements Schema {
     @Getter
     private final Map<String, String> props;
 
+    @JsonbTransient
+    private final transient EntriesOrder entriesOrder;
+
+    public static final String ENTRIES_ORDER_PROP = "talend.fields.order";
+
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
         this.type = builder.type;
         this.elementSchema = builder.elementSchema;
         this.entries = unmodifiableList(builder.entries);
         this.metadataEntries = unmodifiableList(builder.metadataEntries);
         this.props = builder.props;
+        entriesOrder = EntriesOrder.of(getFieldsOrder());
     }
 
     @Override
@@ -85,11 +92,31 @@ public class SchemaImpl implements Schema {
                         .entrySet()
                         .stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        this.getAllEntries().forEach(builder::withEntry);
+        getEntriesOrdered().forEach(builder::withEntry);
         return builder;
     }
 
-    public static class BuilderImpl implements Schema.Builder {
+    @JsonbTransient
+    public List<Entry> getEntriesOrdered() {
+        return getAllEntries().sorted(entriesOrder).collect(Collectors.toList());
+    }
+
+    @Override
+    @JsonbTransient
+    public EntriesOrder naturalOrder() {
+        return entriesOrder;
+    }
+
+    private String getFieldsOrder() {
+        String fields = getProp(ENTRIES_ORDER_PROP);
+        if (fields == null || fields.isEmpty()) {
+            fields = getAllEntries().map(entry -> entry.getName()).collect(Collectors.joining(","));
+            props.put(ENTRIES_ORDER_PROP, fields);
+        }
+        return fields;
+    }
+
+    public static class BuilderImpl implements Builder {
 
         private Type type;
 
@@ -100,6 +127,8 @@ public class SchemaImpl implements Schema {
         private final List<Entry> metadataEntries = new ArrayList<>();
 
         private Map<String, String> props = new LinkedHashMap<>(0);
+
+        private List<String> entriesOrder = new ArrayList<>();
 
         @Override
         public Builder withElementSchema(final Schema schema) {
@@ -132,7 +161,20 @@ public class SchemaImpl implements Schema {
                 this.entries.add(entryToAdd);
             }
 
+            entriesOrder.add(entry.getName());
             return this;
+        }
+
+        @Override
+        public Builder withEntryAfter(final String after, final Entry entry) {
+            withEntry(entry);
+            return moveAfter(after, entry.getName());
+        }
+
+        @Override
+        public Builder withEntryBefore(final String before, final Entry entry) {
+            withEntry(entry);
+            return moveBefore(before, entry.getName());
         }
 
         private void replaceEntry(final String name, final Schema.Entry entry) {
@@ -172,7 +214,62 @@ public class SchemaImpl implements Schema {
         }
 
         @Override
+        public Builder remove(final String name) {
+            final Entry entry = Stream
+                    .concat(entries.stream(), metadataEntries.stream())
+                    .filter(e -> name.equals(e.getName()))
+                    .findFirst()
+                    .get();
+            if (entry == null) {
+                throw new IllegalArgumentException(String.format("%s not in schema", name));
+            }
+            return remove(entry);
+        }
+
+        @Override
+        public Builder remove(final Entry entry) {
+            if (entry.isMetadata()) {
+                metadataEntries.remove(entry);
+            } else {
+                entries.remove(entry);
+            }
+            entriesOrder.remove(entry.getName());
+            return this;
+        }
+
+        @Override
+        public Builder moveAfter(final String after, final String name) {
+            if (entriesOrder.indexOf(after) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", after));
+            }
+            entriesOrder.remove(name);
+            int destination = entriesOrder.indexOf(after);
+            if (!(destination + 1 == entriesOrder.size())) {
+                destination += 1;
+            }
+            entriesOrder.add(destination, name);
+            return this;
+        }
+
+        @Override
+        public Builder moveBefore(final String before, final String name) {
+            if (entriesOrder.indexOf(before) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", before));
+            }
+            entriesOrder.remove(name);
+            entriesOrder.add(entriesOrder.indexOf(before), name);
+            return this;
+        }
+
+        @Override
+        public Builder swap(final String name, final String with) {
+            Collections.swap(entriesOrder, entriesOrder.indexOf(name), entriesOrder.indexOf(with));
+            return this;
+        }
+
+        @Override
         public Schema build() {
+            this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(Collectors.joining(",")));
             return new SchemaImpl(this);
         }
     }

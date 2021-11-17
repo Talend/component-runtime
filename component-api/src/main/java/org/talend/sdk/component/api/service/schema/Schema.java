@@ -85,4 +85,9 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         return null;
     }
 
+    @Override
+    public EntriesOrder naturalOrder() {
+        throw new UnsupportedOperationException("#naturalOrder()");
+    }
+
 }

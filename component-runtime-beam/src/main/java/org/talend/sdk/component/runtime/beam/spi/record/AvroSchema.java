@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
+import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
 import java.util.List;
 import java.util.Map;
@@ -137,6 +138,12 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         return Stream.concat(this.getEntries().stream(), this.getMetadata().stream());
     }
 
+    @Override
+    @JsonbTransient
+    public EntriesOrder naturalOrder() {
+        return EntriesOrder.of(getActualDelegate().getProp(ENTRIES_ORDER_PROP));
+    }
+
     private Stream<Field> getNonNullFields() {
         return getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL);
     }
@@ -186,14 +193,14 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     @Override
     public Builder toBuilder() {
         final Builder builder = new AvroSchemaBuilder()
+                .withType(Type.RECORD)
                 .withElementSchema(this.elementSchema)
-                .withType(this.type)
                 .withProps(this
                         .getProps()
                         .entrySet()
                         .stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        this.getAllEntries().forEach(builder::withEntry);
+        getEntriesOrdered().forEach(builder::withEntry);
         return builder;
     }
 

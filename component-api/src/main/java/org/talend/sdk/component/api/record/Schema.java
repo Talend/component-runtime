@@ -15,14 +15,18 @@
  */
 package org.talend.sdk.component.api.record;
 
+import static java.util.Collections.emptyList;
+
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +43,7 @@ import javax.json.Json;
 import javax.json.JsonValue;
 import javax.json.bind.annotation.JsonbTransient;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -71,15 +76,42 @@ public interface Schema {
     Stream<Entry> getAllEntries();
 
     /**
-     * @return schema builder from this schema.
+     * Get a Builder from the current schema.
+     *
+     * @return a {@link Schema.Builder}
      */
     Schema.Builder toBuilder();
 
+    /**
+     * Get all entries sorted by schema designed order.
+     *
+     * @return all entries ordered
+     */
+    default List<Entry> getEntriesOrdered() {
+        return getEntriesOrdered(naturalOrder());
+    }
+
+    /**
+     * Get all entries sorted using a custom comparator.
+     *
+     * @param comparator the comparator
+     * @return all entries ordered with provided comparator
+     */
+    @JsonbTransient
+    default List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+        return getAllEntries().sorted(comparator).collect(Collectors.toList());
+    }
+
+    /**
+     * Get the EntriesOrder defined with Builder.
+     *
+     * @return the EntriesOrder
+     */
+
+    EntriesOrder naturalOrder();
+
     default Entry getEntry(final String name) {
-        return Optional
-                .ofNullable(getEntries()) //
-                .orElse(Collections.emptyList()) //
-                .stream() //
+        return getAllEntries() //
                 .filter((Entry e) -> Objects.equals(e.getName(), name)) //
                 .findFirst() //
                 .orElse(null);
@@ -373,6 +405,64 @@ public interface Schema {
         Builder withEntry(Entry entry);
 
         /**
+         * Insert the entry after the specified entry.
+         *
+         * @param after the entry name reference
+         * @param entry the entry name
+         * @return this builder
+         */
+        Builder withEntryAfter(String after, Entry entry);
+
+        /**
+         * Insert the entry before the specified entry.
+         *
+         * @param before the entry name reference
+         * @param entry the entry name
+         * @return this builder
+         */
+        Builder withEntryBefore(String before, Entry entry);
+
+        /**
+         * Remove entry from builder.
+         *
+         * @param name the entry name
+         * @return this builder
+         */
+        Builder remove(String name);
+
+        /**
+         * Remove entry from builder.
+         *
+         * @param entry the entry
+         * @return this builder
+         */
+        Builder remove(Entry entry);
+
+        /**
+         * Move an entry after another one.
+         *
+         * @param after the entry name reference
+         * @param name the entry name
+         */
+        Builder moveAfter(final String after, final String name);
+
+        /**
+         * Move an entry before another one.
+         *
+         * @param before the entry name reference
+         * @param name the entry name
+         */
+        Builder moveBefore(final String before, final String name);
+
+        /**
+         * Swap two entries.
+         *
+         * @param name the entry name
+         * @param with the other entry name
+         */
+        Builder swap(final String name, final String with);
+
+        /**
          * @param schema nested element schema.
          * @return this builder.
          */
@@ -451,6 +541,101 @@ public interface Schema {
 
         }
         return sanitizedBuilder.toString();
+    }
+
+    @AllArgsConstructor
+    @ToString
+    @EqualsAndHashCode
+    class EntriesOrder implements Comparator<Entry> {
+
+        @Getter
+        private final List<String> fieldsOrder;
+
+        /**
+         * Build an EntriesOrder according fields.
+         *
+         * @param fields the fields ordering
+         * @return the order EntriesOrder
+         */
+        public static EntriesOrder of(final String fields) {
+            return new EntriesOrder(fields);
+        }
+
+        public EntriesOrder(final String fields) {
+            if (fields == null) {
+                fieldsOrder = emptyList();
+            } else {
+                fieldsOrder = Arrays.stream(fields.split(",")).collect(Collectors.toList());
+            }
+        }
+
+        /**
+         * Move a field after another one.
+         *
+         * @param after the field name reference
+         * @param name the field name
+         * @return this EntriesOrder
+         */
+        public EntriesOrder moveAfter(final String after, final String name) {
+            if (getFieldsOrder().indexOf(after) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", after));
+            }
+            getFieldsOrder().remove(name);
+            int destination = getFieldsOrder().indexOf(after);
+            if (!(destination + 1 == getFieldsOrder().size())) {
+                destination += 1;
+            }
+            getFieldsOrder().add(destination, name);
+            return this;
+        }
+
+        /**
+         * Move a field before another one.
+         *
+         * @param before the field name reference
+         * @param name the field name
+         * @return this EntriesOrder
+         */
+        public EntriesOrder moveBefore(final String before, final String name) {
+            if (getFieldsOrder().indexOf(before) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", before));
+            }
+            getFieldsOrder().remove(name);
+            getFieldsOrder().add(getFieldsOrder().indexOf(before), name);
+            return this;
+        }
+
+        /**
+         * Swap two fields.
+         *
+         * @param name the field name
+         * @param with the other field
+         * @return this EntriesOrder
+         */
+        public EntriesOrder swap(final String name, final String with) {
+            Collections.swap(getFieldsOrder(), getFieldsOrder().indexOf(name), getFieldsOrder().indexOf(with));
+            return this;
+        }
+
+        public String toFields() {
+            return getFieldsOrder().stream().collect(Collectors.joining(","));
+        }
+
+        @Override
+        public int compare(final Entry e1, final Entry e2) {
+            final int index1 = getFieldsOrder().indexOf(e1.getName());
+            final int index2 = getFieldsOrder().indexOf(e2.getName());
+            if (index1 >= 0 && index2 >= 0) {
+                return index1 - index2;
+            }
+            if (index1 >= 0) {
+                return -1;
+            }
+            if (index2 >= 0) {
+                return 1;
+            }
+            return 0;
+        }
     }
 
     static Schema.Entry avoidCollision(final Schema.Entry newEntry,

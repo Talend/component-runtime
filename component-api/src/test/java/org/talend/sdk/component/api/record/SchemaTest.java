@@ -20,6 +20,16 @@ import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -133,6 +143,11 @@ class SchemaTest {
         }
 
         @Override
+        public EntriesOrder naturalOrder() {
+            throw new UnsupportedOperationException("#naturalOrder()");
+        }
+
+        @Override
         public Map<String, String> getProps() {
             return props;
         }
@@ -155,6 +170,11 @@ class SchemaTest {
             @Override
             public Schema getSchema() {
                 return null;
+            }
+
+            @Override
+            public Builder withNewSchema(final Schema schema) {
+                throw new UnsupportedOperationException("#withNewSchema()");
             }
 
             @Override
