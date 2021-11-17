@@ -215,8 +215,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (getEntryIndex(after) == -1) {
             throw new IllegalArgumentException(String.format("%s not in schema", after));
         }
-        final Entry entry = fields.get(getEntryIndex(name));
-        fields.remove(entry);
+        final Entry entry = fields.remove(getEntryIndex(name));
         int destination = getEntryIndex(after);
         if (!(destination + 1 == fields.size())) {
             destination += 1;
@@ -230,8 +229,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (getEntryIndex(before) == -1) {
             throw new IllegalArgumentException(String.format("%s not in schema", before));
         }
-        final Entry entry = fields.get(getEntryIndex(name));
-        fields.remove(getEntryIndex(name));
+        final Entry entry = fields.remove(getEntryIndex(name));
         fields.add(getEntryIndex(before), entry);
         return this;
     }

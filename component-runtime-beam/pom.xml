@@ -72,7 +72,8 @@
       <version>${beam.version}</version>
       <scope>test</scope>
       <exclusions>
-        <exclusion><!-- prevent PipelineOptionsFactory to get instantiated if present -->
+        <!-- prevent PipelineOptionsFactory to get instantiated if present -->
+        <exclusion>
           <groupId>com.fasterxml.jackson.module</groupId>
           <artifactId>jackson-module-scala_${spark-scala.version}</artifactId>
         </exclusion>

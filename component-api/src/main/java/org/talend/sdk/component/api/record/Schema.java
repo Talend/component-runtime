@@ -88,7 +88,7 @@ public interface Schema {
      * @return all entries ordered
      */
     default List<Entry> getEntriesOrdered() {
-        return getAllEntries().sorted(naturalOrder()).collect(Collectors.toList());
+        return getEntriesOrdered(naturalOrder());
     }
 
     /**
@@ -625,13 +625,15 @@ public interface Schema {
         public int compare(final Entry e1, final Entry e2) {
             final String name1 = e1.getName();
             final String name2 = e2.getName();
-            if (getFieldsOrder().contains(name1) && getFieldsOrder().contains(name2)) {
-                return getFieldsOrder().indexOf(name1) - getFieldsOrder().indexOf(name2);
+            final int index1 = getFieldsOrder().indexOf(name1);
+            final int index2 = getFieldsOrder().indexOf(name2);
+            if (index1 >= 0 && index2 >= 0) {
+                return index1 - index2;
             }
-            if (getFieldsOrder().contains(name1)) {
+            if (index1 >= 0) {
                 return -1;
             }
-            if (getFieldsOrder().contains(name2)) {
+            if (index2 >= 0) {
                 return 1;
             }
             return 0;
