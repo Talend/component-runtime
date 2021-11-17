@@ -623,10 +623,8 @@ public interface Schema {
 
         @Override
         public int compare(final Entry e1, final Entry e2) {
-            final String name1 = e1.getName();
-            final String name2 = e2.getName();
-            final int index1 = getFieldsOrder().indexOf(name1);
-            final int index2 = getFieldsOrder().indexOf(name2);
+            final int index1 = getFieldsOrder().indexOf(e1.getName());
+            final int index2 = getFieldsOrder().indexOf(e2.getName());
             if (index1 >= 0 && index2 >= 0) {
                 return index1 - index2;
             }
