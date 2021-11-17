@@ -10,6 +10,13 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2004[TCOMP-2004^]: [Runtime convergence] New tck/API to retrieve dataset full content
+- link:https://jira.talendforge.org/browse/TCOMP-2008[TCOMP-2008^]: Add ability to insert a schema entry on Record BuilderImpl
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1924[TCOMP-1924^]: Support Java 17 runtime
