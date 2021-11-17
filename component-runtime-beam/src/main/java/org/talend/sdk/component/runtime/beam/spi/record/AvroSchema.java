@@ -44,6 +44,17 @@ import lombok.ToString;
 @ToString(of = "delegate")
 public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
 
+    private static final AvroSchemaCache SCHEMA_CACHE = AvroSchema.initCache();
+
+    private static AvroSchemaCache initCache() {
+        final AvroSchemaConverter converter = new AvroSchemaConverter();
+        return new AvroSchemaCache(converter::convert);
+    }
+
+    static AvroSchema toAvroSchema(final org.talend.sdk.component.api.record.Schema schema) {
+        return AvroSchema.SCHEMA_CACHE.find(schema);
+    }
+
     @JsonbTransient
     private final Schema delegate;
 
@@ -153,11 +164,11 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     private Entry fromAvro(final Field field) {
-        final Type type = mapType(field.schema());
-        final AvroSchema elementSchema =
-                new AvroSchema(type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
+        final Type fieldType = mapType(field.schema());
+        final AvroSchema fieldSchema =
+                new AvroSchema(fieldType == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
 
-        return AvroSchema.buildFromAvro(field, type, elementSchema);
+        return AvroSchema.buildFromAvro(field, fieldType, fieldSchema);
     }
 
     private static Entry buildFromAvro(final Field field, final Type type, final AvroSchema elementSchema) {
