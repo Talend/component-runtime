@@ -27,6 +27,7 @@ content:
       - '!component-runtime-1.1.15.*'
       - '!component-runtime-1.29.*'
       - '!component-runtime-1.30.*'
+      - '!component-runtime-1.38.*'
       - '!component-runtime-1.39.*'
     branches:
       - master
