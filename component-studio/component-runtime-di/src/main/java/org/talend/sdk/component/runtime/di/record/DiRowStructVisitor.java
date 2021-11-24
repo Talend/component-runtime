@@ -61,6 +61,8 @@ public class DiRowStructVisitor {
 
     private Builder recordBuilder;
 
+    private Schema rowStructSchema;
+
     private final Jsonb jsonb = JsonbProvider.provider().create().build();
 
     private Set<String> allowedFields;
@@ -211,10 +213,11 @@ public class DiRowStructVisitor {
     }
 
     public Record get(final Object data, final RecordBuilderFactory factory) {
-        if (recordBuilder == null) {
+        if (rowStructSchema == null) {
             this.factory = factory;
-            recordBuilder = factory.newRecordBuilder(inferSchema(data, factory));
+            rowStructSchema = inferSchema(data, factory);
         }
+        recordBuilder = factory.newRecordBuilder(rowStructSchema);
         visit(data);
         return recordBuilder.build();
     }

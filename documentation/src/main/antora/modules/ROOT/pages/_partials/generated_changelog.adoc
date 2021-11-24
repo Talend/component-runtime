@@ -1,5 +1,19 @@
 
 
+== Version 1.40.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+
+
+
+== Version 1.39.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+
 == Version 1.39.0
 
 === Bug
@@ -38,6 +52,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
 
 
+
+
+
+== Version 1.38.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
 
 == Version 1.38.1
 
