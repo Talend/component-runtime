@@ -25,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
@@ -34,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 class DiRowStructVisitorTest extends VisitorsTest {
@@ -155,10 +158,65 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertNull(record.getString("lookKey"));
     }
 
+    @Test
+    void visitEmptyAndNullFields() {
+        final RowStructEmptyNull r1 = new RowStructEmptyNull();
+        r1.meta_id = 1;
+        r1.firstName = "";
+        r1.lastName = "";
+        r1.city = "";
+        final RowStructEmptyNull r2 = new RowStructEmptyNull();
+        r2.meta_id = 2;
+        r2.firstName = "Bob";
+        r2.lastName = "Kent";
+        r2.city = "London";
+        final RowStructEmptyNull r3 = new RowStructEmptyNull();
+        r3.meta_id = 3;
+        //
+        final DiRowStructVisitor visitor = new DiRowStructVisitor();
+        final Record rcd1 = visitor.get(r1, factory);
+        final Record rcd2 = visitor.get(r2, factory);
+        final Record rcd3 = visitor.get(r3, factory);
+        assertEquals(1, rcd1.getInt("meta_id"));
+        assertEquals("", rcd1.getString("firstName"));
+        assertEquals("", rcd1.getString("lastName"));
+        assertEquals("", rcd1.getString("city"));
+        assertEquals(2, rcd2.getInt("meta_id"));
+        assertEquals("Bob", rcd2.getString("firstName"));
+        assertEquals("Kent", rcd2.getString("lastName"));
+        assertEquals("London", rcd2.getString("city"));
+        assertEquals(3, rcd3.getInt("meta_id"));
+        assertNull(rcd3.getString("firstName"));
+        assertNull(rcd3.getString("lastName"));
+        assertNull(rcd3.getString("city"));
+    }
+
     public static class Rcd {
 
         public String str = "one";
 
         public int ntgr = 1;
+    }
+
+    @Data
+    public static class RowStructEmptyNull implements routines.system.IPersistableRow {
+
+        public Integer meta_id;
+
+        public String firstName;
+
+        public String lastName;
+
+        public String city;
+
+        @Override
+        public void writeData(final ObjectOutputStream objectOutputStream) {
+            throw new UnsupportedOperationException("#writeData()");
+        }
+
+        @Override
+        public void readData(final ObjectInputStream objectInputStream) {
+            throw new UnsupportedOperationException("#readData()");
+        }
     }
 }
