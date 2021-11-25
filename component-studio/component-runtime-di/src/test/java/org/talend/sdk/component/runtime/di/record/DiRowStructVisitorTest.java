@@ -162,14 +162,18 @@ class DiRowStructVisitorTest extends VisitorsTest {
     void visitEmptyAndNullFields() {
         final RowStructEmptyNull r1 = new RowStructEmptyNull();
         r1.meta_id = 1;
-        r1.firstName = "";
+        r1.FirstName = "";
         r1.lastName = "";
-        r1.city = "";
+        r1.City = "";
+        r1.i = "";
+        r1.A = "";
         final RowStructEmptyNull r2 = new RowStructEmptyNull();
         r2.meta_id = 2;
-        r2.firstName = "Bob";
+        r2.FirstName = "Bob";
         r2.lastName = "Kent";
-        r2.city = "London";
+        r2.City = "London";
+        r2.i = "i";
+        r2.A = "A";
         final RowStructEmptyNull r3 = new RowStructEmptyNull();
         r3.meta_id = 3;
         //
@@ -178,17 +182,23 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Record rcd2 = visitor.get(r2, factory);
         final Record rcd3 = visitor.get(r3, factory);
         assertEquals(1, rcd1.getInt("meta_id"));
-        assertEquals("", rcd1.getString("firstName"));
+        assertEquals("", rcd1.getString("FirstName"));
         assertEquals("", rcd1.getString("lastName"));
-        assertEquals("", rcd1.getString("city"));
+        assertEquals("", rcd1.getString("City"));
+        assertEquals("", rcd1.getString("i"));
+        assertEquals("", rcd1.getString("A"));
         assertEquals(2, rcd2.getInt("meta_id"));
-        assertEquals("Bob", rcd2.getString("firstName"));
+        assertEquals("Bob", rcd2.getString("FirstName"));
         assertEquals("Kent", rcd2.getString("lastName"));
-        assertEquals("London", rcd2.getString("city"));
+        assertEquals("London", rcd2.getString("City"));
+        assertEquals("i", rcd2.getString("i"));
+        assertEquals("A", rcd2.getString("A"));
         assertEquals(3, rcd3.getInt("meta_id"));
-        assertNull(rcd3.getString("firstName"));
+        assertNull(rcd3.getString("FirstName"));
         assertNull(rcd3.getString("lastName"));
-        assertNull(rcd3.getString("city"));
+        assertNull(rcd3.getString("City"));
+        assertNull(rcd3.getString("i"));
+        assertNull(rcd3.getString("A"));
     }
 
     public static class Rcd {
@@ -203,11 +213,15 @@ class DiRowStructVisitorTest extends VisitorsTest {
 
         public Integer meta_id;
 
-        public String firstName;
+        public String FirstName;
 
         public String lastName;
 
-        public String city;
+        public String City;
+
+        public String i;
+
+        public String A;
 
         @Override
         public void writeData(final ObjectOutputStream objectOutputStream) {

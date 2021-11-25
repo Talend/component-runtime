@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
 
 
 
@@ -13,6 +14,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
 
 == Version 1.39.0
 
@@ -52,6 +54,18 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
 
 
+
+
+
+
+
+
+
+== Version 1.38.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
 
 
 
