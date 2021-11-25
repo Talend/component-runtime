@@ -224,12 +224,22 @@ public class DiRowStructVisitor {
 
     private Schema inferSchema(final Object data, final RecordBuilderFactory factory) {
         // all standard rowStruct fields have accessors, not technical fields.
+        final Set<String> fields = Arrays
+                .stream(data.getClass().getFields()) //
+                .map(f -> f.getName()) //
+                .collect(Collectors.toSet());
         allowedFields = Arrays
                 .stream(data.getClass().getDeclaredMethods())
                 .map(method -> method.getName())
                 .filter(m -> m.matches("^(get|is).*"))
                 .map(n -> n.replaceAll("^(get|is)", ""))
-                .map(n -> n.substring(0, 1).toLowerCase(Locale.ROOT) + n.substring(1))
+                .map(n -> {
+                    if (fields.contains(n)) {
+                        return n;
+                    }
+                    // use java convention for members
+                    return n.substring(0, 1).toLowerCase(Locale.ROOT) + n.substring(1);
+                })
                 .collect(Collectors.toSet());
         final Schema.Builder schema = factory.newSchemaBuilder(RECORD);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
