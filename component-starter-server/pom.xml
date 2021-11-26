@@ -311,7 +311,7 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase />
+            <phase/>
             <configuration>
               <arguments>start</arguments>
               <environmentVariables>
