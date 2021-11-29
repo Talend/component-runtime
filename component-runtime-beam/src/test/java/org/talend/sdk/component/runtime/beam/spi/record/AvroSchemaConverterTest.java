@@ -28,7 +28,7 @@ class AvroSchemaConverterTest {
 
         final SchemaImpl s1 = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.STRING)
                         .withNullable(true)
                         .withName("field1")

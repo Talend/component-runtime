@@ -49,7 +49,7 @@ class AvroSchemaCacheTest {
 
         final SchemaImpl s7 = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.BOOLEAN)
                         .withName("fieldBool")
                         .build())
@@ -69,7 +69,7 @@ class AvroSchemaCacheTest {
     private List<SchemaImpl> provideSchemas() {
         final SchemaImpl s1 = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.STRING)
                         .withNullable(false)
                         .withName("field1")
@@ -79,7 +79,7 @@ class AvroSchemaCacheTest {
 
         final SchemaImpl s2 = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.STRING)
                         .withNullable(true)
                         .withName("field1")
@@ -89,7 +89,7 @@ class AvroSchemaCacheTest {
 
         final SchemaImpl s3 = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.STRING)
                         .withNullable(true)
                         .withName("field1")
@@ -99,7 +99,7 @@ class AvroSchemaCacheTest {
 
         final SchemaImpl s4 = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.INT)
                         .withNullable(true)
                         .withName("field1")
@@ -108,7 +108,7 @@ class AvroSchemaCacheTest {
 
         final SchemaImpl s5 = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.INT)
                         .withNullable(true)
                         .withName("fieldBis")
@@ -117,7 +117,7 @@ class AvroSchemaCacheTest {
 
         final SchemaImpl s6 = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.FLOAT)
                         .withNullable(true)
                         .withName("fieldNext")
@@ -126,7 +126,7 @@ class AvroSchemaCacheTest {
 
         final SchemaImpl s2Bis = (SchemaImpl) new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withType(Schema.Type.STRING)
                         .withNullable(true)
                         .withName("field1")

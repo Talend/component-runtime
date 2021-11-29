@@ -136,7 +136,7 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
 
     @Override
     public Schema.Entry.Builder newEntryBuilder() {
-        return new Schema.Entry.Builder();
+        return new SchemaImpl.EntryImpl.BuilderImpl();
     }
 
     Object writeReplace() throws ObjectStreamException {
