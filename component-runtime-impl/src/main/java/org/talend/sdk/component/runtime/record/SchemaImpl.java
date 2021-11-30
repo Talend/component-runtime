@@ -318,7 +318,7 @@ public class SchemaImpl implements Schema {
         }
     }
 
-    @Getter
+    @Getter(onMethod = @__({@Override}))
     @EqualsAndHashCode
     @ToString
     public static class EntryImpl implements org.talend.sdk.component.api.record.Schema.Entry {
@@ -355,6 +355,9 @@ public class SchemaImpl implements Schema {
          */
         private final boolean nullable;
 
+        /**
+         * Is this entry a metadata entry.
+         */
         private final boolean metadata;
 
         /**

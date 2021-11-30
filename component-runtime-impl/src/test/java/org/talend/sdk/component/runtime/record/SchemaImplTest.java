@@ -19,6 +19,9 @@ import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +43,7 @@ import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
@@ -68,6 +72,18 @@ class SchemaImplTest {
             .withMetadata(true) //
             .withNullable(true) //
             .build();
+
+    @Test
+    void checkEquals() {
+        final RecordBuilderFactory f = new RecordBuilderFactoryImpl("test");
+        final Entry first = f.newEntryBuilder().withName("First").withType(Type.STRING).build();
+        final Entry second = f.newEntryBuilder().withName("Second").withType(Type.STRING).build();
+        EqualsVerifier.simple()
+                .suppress(Warning.STRICT_HASHCODE) // Supress test hashcode use all fields used by equals (for legacy)
+                .forClass(SchemaImpl.class)
+                .withPrefabValues(Schema.Entry.class, first, second)
+                .verify();
+    }
 
     @Test
     void testEntries() {
