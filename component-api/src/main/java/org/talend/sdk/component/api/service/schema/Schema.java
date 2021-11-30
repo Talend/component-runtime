@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import javax.json.bind.annotation.JsonbTransient;
+
 import org.talend.sdk.component.api.meta.Partial;
 
 import lombok.AllArgsConstructor;
@@ -82,12 +84,85 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
 
     @Override
     public Builder toBuilder() {
-        return null;
+        throw new UnsupportedOperationException("#toBuilder()");
     }
 
     @Override
     public EntriesOrder naturalOrder() {
         throw new UnsupportedOperationException("#naturalOrder()");
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Deprecated
+    public static class Entry implements org.talend.sdk.component.api.record.Schema.Entry {
+
+        private String name;
+
+        private Schema.Type type;
+
+        // 1.0 compat
+        public Entry(final String name, final org.talend.sdk.component.api.service.schema.Type type) {
+            this.name = name;
+            this.type = org.talend.sdk.component.api.record.Schema.Type.valueOf(type.name());
+        }
+
+        // 1.0 compat
+        public void setType(final org.talend.sdk.component.api.service.schema.Type type) {
+            this.type = org.talend.sdk.component.api.record.Schema.Type.valueOf(type.name());
+        }
+
+        @Override
+        public String getRawName() {
+            return null;
+        }
+
+        @JsonbTransient
+        @Override
+        public String getOriginalFieldName() {
+            return null;
+        }
+
+        @Override
+        public boolean isNullable() {
+            return true;
+        }
+
+        @Override
+        public boolean isMetadata() {
+            return false;
+        }
+
+        @Override
+        public <T> T getDefaultValue() {
+            return null;
+        }
+
+        @Override
+        public org.talend.sdk.component.api.record.Schema getElementSchema() {
+            return null;
+        }
+
+        @Override
+        public String getComment() {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getProps() {
+            return null;
+        }
+
+        @Override
+        public String getProp(final String property) {
+            return null;
+        }
+
+        @Override
+        public Builder toBuilder() {
+            throw new UnsupportedOperationException("#toBuilder()");
+        }
     }
 
 }

@@ -1,13 +1,10 @@
 
 
-== Version 1.40.0
+== Version 1.39.2
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
-- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
-
-
+- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
 
 == Version 1.39.1
 

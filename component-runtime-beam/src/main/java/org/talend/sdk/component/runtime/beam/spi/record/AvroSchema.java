@@ -34,6 +34,7 @@ import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -161,7 +162,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     private static Entry buildFromAvro(final Field field, final Type type, final AvroSchema elementSchema) {
-        return new Entry.Builder() //
+        return new EntryImpl.BuilderImpl() //
                 .withName(field.name()) //
                 .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
                 .withType(type) //
