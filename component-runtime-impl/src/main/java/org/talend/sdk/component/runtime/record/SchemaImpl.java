@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -27,8 +26,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.JsonValue;
 import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.Schema;
@@ -37,7 +34,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-@EqualsAndHashCode
 @ToString
 public class SchemaImpl implements Schema {
 
@@ -68,6 +64,45 @@ public class SchemaImpl implements Schema {
         this.metadataEntries = unmodifiableList(builder.metadataEntries);
         this.props = builder.props;
         entriesOrder = EntriesOrder.of(getFieldsOrder());
+    }
+
+    /**
+     * Optimized hashcode method (do not enter inside field hashcode, just getName, ignore props fields).
+     *
+     * @return hashcode.
+     */
+    @Override
+    public int hashCode() {
+        final String e1 =
+                this.entries != null ? this.entries.stream().map(Entry::getName).collect(Collectors.joining(",")) : "";
+        final String m1 = this.metadataEntries != null
+                ? this.metadataEntries.stream().map(Entry::getName).collect(Collectors.joining(","))
+                : "";
+
+        return Objects.hash(this.type, this.elementSchema, e1, m1);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof SchemaImpl)) {
+            return false;
+        }
+        final SchemaImpl other = (SchemaImpl) obj;
+        if (!other.canEqual(this)) {
+            return false;
+        }
+        return Objects.equals(this.type, other.type)
+                && Objects.equals(this.elementSchema, other.elementSchema)
+                && Objects.equals(this.entries, other.entries)
+                && Objects.equals(this.metadataEntries, other.metadataEntries)
+                && Objects.equals(this.props, other.props);
+    }
+
+    protected boolean canEqual(final SchemaImpl other) {
+        return true;
     }
 
     @Override
@@ -277,7 +312,9 @@ public class SchemaImpl implements Schema {
         }
     }
 
-    @Getter(onMethod = @__({ @Override }))
+    /**
+     * {@link org.talend.sdk.component.api.record.Schema.Entry} implementation.
+     */
     @EqualsAndHashCode
     @ToString
     public static class EntryImpl implements org.talend.sdk.component.api.record.Schema.Entry {
@@ -339,47 +376,66 @@ public class SchemaImpl implements Schema {
          */
         private final Map<String, String> props = new LinkedHashMap<>(0);
 
+        @Override
         @JsonbTransient
         public String getOriginalFieldName() {
             return rawName != null ? rawName : name;
         }
 
-        /**
-         * @param property : property name.
-         *
-         * @return the requested metadata prop
-         */
+        @Override
         public String getProp(final String property) {
             return this.props.get(property);
         }
 
-        /**
-         * Get a property values from entry with its name.
-         *
-         * @param name : property's name.
-         *
-         * @return property's value.
-         */
-        public JsonValue getJsonProp(final String name) {
-            final String prop = this.getProp(name);
-            if (prop == null) {
-                return null;
-            }
-            try {
-                return Json.createParser(new StringReader(prop)).getValue();
-            } catch (RuntimeException ex) {
-                return Json.createValue(prop);
-            }
-        }
-
-        /**
-         * @return Entry builder from this entry.
-         */
+        @Override
         public Entry.Builder toBuilder() {
             return new EntryImpl.BuilderImpl(this);
         }
 
-        // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public String getRawName() {
+            return this.rawName;
+        }
+
+        @Override
+        public Type getType() {
+            return this.type;
+        }
+
+        @Override
+        public boolean isNullable() {
+            return this.nullable;
+        }
+
+        @Override
+        public boolean isMetadata() {
+            return this.metadata;
+        }
+
+        @Override
+        public Object getDefaultValue() {
+            return this.defaultValue;
+        }
+
+        @Override
+        public Schema getElementSchema() {
+            return this.elementSchema;
+        }
+
+        @Override
+        public String getComment() {
+            return this.comment;
+        }
+
+        @Override
+        public Map<String, String> getProps() {
+            return this.props;
+        }
 
         /**
          * Plain builder matching {@link Entry} structure.

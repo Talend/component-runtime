@@ -270,6 +270,9 @@ public interface Schema {
             }
         }
 
+        /**
+         * @return an {@link Entry.Builder} from this entry.
+         */
         Entry.Builder toBuilder();
 
         /**
@@ -302,7 +305,7 @@ public interface Schema {
     }
 
     /**
-     * Allows to build a schema.
+     * Allows to build a {@link Schema}.
      */
     interface Builder {
 
