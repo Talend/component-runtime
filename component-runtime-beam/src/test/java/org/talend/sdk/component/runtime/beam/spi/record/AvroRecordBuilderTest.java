@@ -26,17 +26,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.avro.generic.IndexedRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
-import org.talend.sdk.component.runtime.record.RecordImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 @TestInstance(PER_CLASS)
 class AvroRecordBuilderTest {
@@ -279,7 +278,7 @@ class AvroRecordBuilderTest {
     private Schema.Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable,
             Object defaultValue,
             String comment) {
-        return new Entry.Builder()
+        return new EntryImpl.BuilderImpl()
                 .withName(name)
                 .withRawName(rawname)
                 .withType(type)
@@ -295,7 +294,7 @@ class AvroRecordBuilderTest {
 
     private Schema.Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
             Object defaultValue, String comment) {
-        return new Entry.Builder()
+        return new EntryImpl.BuilderImpl()
                 .withName(name)
                 .withRawName(rawname)
                 .withType(type)
@@ -306,24 +305,24 @@ class AvroRecordBuilderTest {
                 .build();
     }
 
-    private final Schema.Entry dataEntry1 = new Schema.Entry.Builder() //
+    private final Schema.Entry dataEntry1 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("data1") //
             .withType(INT) //
             .build();
 
-    private final Schema.Entry dataEntry2 = new Schema.Entry.Builder() //
+    private final Schema.Entry dataEntry2 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("data2") //
             .withType(Schema.Type.STRING) //
             .withNullable(true) //
             .build();
 
-    private final Schema.Entry meta1 = new Schema.Entry.Builder() //
+    private final Schema.Entry meta1 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("meta1") //
             .withType(Schema.Type.INT) //
             .withMetadata(true) //
             .build();
 
-    private final Schema.Entry meta2 = new Schema.Entry.Builder() //
+    private final Schema.Entry meta2 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("meta2") //
             .withType(Schema.Type.STRING) //
             .withMetadata(true) //

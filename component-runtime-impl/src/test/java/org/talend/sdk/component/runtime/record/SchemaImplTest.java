@@ -19,14 +19,22 @@ import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
+import javax.json.Json;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -35,28 +43,30 @@ import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 class SchemaImplTest {
 
-    private final Schema.Entry data1 = new Schema.Entry.Builder() //
+    private final Schema.Entry data1 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("data1") //
             .withType(Schema.Type.INT) //
             .build();
 
-    private final Schema.Entry data2 = new Schema.Entry.Builder() //
+    private final Schema.Entry data2 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("data2") //
             .withType(Schema.Type.STRING) //
             .withNullable(true) //
             .build();
 
-    private final Schema.Entry meta1 = new Schema.Entry.Builder() //
+    private final Schema.Entry meta1 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("meta1") //
             .withType(Schema.Type.INT) //
             .withMetadata(true) //
             .build();
 
-    private final Schema.Entry meta2 = new Schema.Entry.Builder() //
+    private final Schema.Entry meta2 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("meta2") //
             .withType(Schema.Type.STRING) //
             .withMetadata(true) //
@@ -65,9 +75,13 @@ class SchemaImplTest {
 
     @Test
     void checkEquals() {
+        final RecordBuilderFactory f = new RecordBuilderFactoryImpl("test");
+        final Entry first = f.newEntryBuilder().withName("First").withType(Type.STRING).build();
+        final Entry second = f.newEntryBuilder().withName("Second").withType(Type.STRING).build();
         EqualsVerifier.simple()
                 .suppress(Warning.STRICT_HASHCODE) // Supress test hashcode use all fields used by equals (for legacy)
                 .forClass(SchemaImpl.class)
+                .withPrefabValues(Schema.Entry.class, first, second)
                 .verify();
     }
 
@@ -127,14 +141,23 @@ class SchemaImplTest {
     void testRecordWithMetadataFields() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
-                .withEntry(newEntry("field1", Type.STRING)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("field1")
+                        .withType(Type.STRING)
                         .withNullable(true)
                         .withRawName("field1")
                         .withDefaultValue(5)
                         .withComment("Comment")
                         .build())
-                .withEntry(newEntry("record_id", Type.INT).withMetadata(true).withProp("method", "FIFO").build())
-                .withEntry(newEntry("field2", Type.STRING).withMetadata(true).build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl().withName("record_id")
+                        .withType(Type.INT)
+                        .withMetadata(true)
+                        .withProp("method", "FIFO")
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl().withName("field2")
+                        .withType(Type.STRING)
+                        .withMetadata(true)
+                        .build())
                 .build();
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
         Record record = builder //
@@ -209,7 +232,7 @@ class SchemaImplTest {
                                         .filter((Entry e) -> Objects.equals(name, e.getName())))
                                 .count());
 
-        final Entry entry3Twin = new Entry.Builder() //
+        final Entry entry3Twin = new EntryImpl.BuilderImpl() //
                 .withName("name_b") //
                 .withType(Type.LONG) //
                 .withDefaultValue(0L) //
@@ -226,7 +249,7 @@ class SchemaImplTest {
     }
 
     private Entry newEntry(final String name, final String defaultValue) {
-        return new Entry.Builder() //
+        return new EntryImpl.BuilderImpl() //
                 .withName(name) //
                 .withType(Type.STRING) //
                 .withDefaultValue(defaultValue) //
@@ -307,6 +330,30 @@ class SchemaImplTest {
     }
 
     @Test
+    void testJsonPropForEntry() {
+        final Map<String, String> testMap = new HashMap<>(3);
+        testMap.put("key1", "value1");
+        testMap.put("key2", Json.createObjectBuilder().add("Hello", 5).build().toString());
+        testMap.put("key3", Json.createArrayBuilder().add(1).add(2).build().toString());
+
+        final Entry entry = newEntry("key0", Type.STRING, testMap);
+        Assertions.assertNull(entry.getJsonProp("unexist"));
+
+        final JsonValue value1 = entry.getJsonProp("key1");
+        Assertions.assertEquals(ValueType.STRING, value1.getValueType());
+        Assertions.assertEquals("value1", ((JsonString) value1).getString());
+
+        final JsonValue value2 = entry.getJsonProp("key2");
+        Assertions.assertEquals(ValueType.OBJECT, value2.getValueType());
+        Assertions.assertEquals(5, value2.asJsonObject().getJsonNumber("Hello").intValue());
+
+        final JsonValue value3 = entry.getJsonProp("key3");
+        Assertions.assertEquals(ValueType.ARRAY, value3.getValueType());
+        Assertions.assertEquals(1, value3.asJsonArray().getJsonNumber(0).intValue());
+        Assertions.assertEquals(2, value3.asJsonArray().getJsonNumber(1).intValue());
+    }
+
+    @Test
     void testToBuilder() {
         final Schema schemaOrigin = new BuilderImpl() //
                 .withType(Type.RECORD) //
@@ -319,13 +366,49 @@ class SchemaImplTest {
                 .build();
         assertEquals("meta1,data1,meta2,data2", getSchemaFields(schemaOrigin));
         Builder builder = schemaOrigin.toBuilder();
-        builder.withEntry(newEntry("data3", Type.STRING).build());
-        builder.withEntry(newEntry("meta3", Type.STRING).withMetadata(true).build());
+        builder.withEntry(newEntry("data3", Type.STRING));
+        builder.withEntry(new SchemaImpl.EntryImpl.BuilderImpl().withName("meta3")
+                .withType(Type.STRING)
+                .withMetadata(true)
+                .build());
         final Schema schemaNew = builder.build();
         assertEquals(3, schemaNew.getMetadata().size());
         assertEquals(3, schemaNew.getEntries().size());
         assertEquals(6, schemaNew.getAllEntries().count());
         assertEquals("meta1,data1,meta2,data2,data3,meta3", getSchemaFields(schemaNew));
+    }
+
+    @Test
+    void testAvoidCollision() {
+        final Map<String, Schema.Entry> entries = new HashMap<>();
+        for (int index = 1; index < 8; index++) {
+            final Schema.Entry e = this.newEntry(index + "name_b", Type.STRING);
+            final Schema.Entry realEntry = Schema.avoidCollision(e, entries.values()::stream, entries::put);
+            entries.put(realEntry.getName(), realEntry);
+        }
+        final Entry last = this.newEntry("name_b_5", Type.STRING);
+        final Schema.Entry realEntry = Schema.avoidCollision(last, entries.values()::stream, entries::put);
+        entries.put(realEntry.getName(), realEntry);
+
+        Assertions.assertEquals(8, entries.size());
+        Assertions.assertEquals("name_b", entries.get("name_b").getName());
+        Assertions
+                .assertTrue(IntStream
+                        .range(1, 8)
+                        .mapToObj((int i) -> "name_b_" + i)
+                        .allMatch((String name) -> entries.get(name).getName().equals(name)));
+
+        final Map<String, Entry> entriesDuplicate = new HashMap<>();
+        final Schema.Entry e1 = this.newEntry("goodName", Type.STRING);
+        final Schema.Entry realEntry1 =
+                Schema.avoidCollision(e1, entriesDuplicate.values()::stream, entriesDuplicate::put);
+        Assertions.assertSame(e1, realEntry1);
+        entriesDuplicate.put(realEntry1.getName(), realEntry1);
+        final Schema.Entry e2 = this.newEntry("goodName", Type.STRING);
+        final Schema.Entry realEntry2 =
+                Schema.avoidCollision(e2, entriesDuplicate.values()::stream, entriesDuplicate::put);
+
+        Assertions.assertSame(realEntry2, e2);
     }
 
     private String getSchemaFields(final Schema schema) {
@@ -340,8 +423,12 @@ class SchemaImplTest {
         return schema.getEntriesOrdered(entriesOrder).stream().map(e -> e.getName()).collect(joining(","));
     }
 
-    private Schema.Entry.Builder newEntry(final String name, final Schema.Type type) {
-        return new Schema.Entry.Builder().withName(name).withType(type);
+    private Schema.Entry newEntry(final String name, final Schema.Type type) {
+        return new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(type).build();
+    }
+
+    private Schema.Entry newEntry(final String name, final Schema.Type type, final Map<String, String> props) {
+        return new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(type).withProps(props).build();
     }
 
 }

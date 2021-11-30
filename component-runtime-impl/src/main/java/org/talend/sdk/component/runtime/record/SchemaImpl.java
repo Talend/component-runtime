@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -26,10 +27,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.json.Json;
+import javax.json.JsonValue;
 import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.Schema;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -311,6 +315,222 @@ public class SchemaImpl implements Schema {
         public Schema build() {
             this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(Collectors.joining(",")));
             return new SchemaImpl(this);
+        }
+    }
+
+    @Getter(onMethod = @__({@Override}))
+    @EqualsAndHashCode
+    @ToString
+    public static class EntryImpl implements org.talend.sdk.component.api.record.Schema.Entry {
+
+        private EntryImpl(final EntryImpl.BuilderImpl builder) {
+            this.name = builder.name;
+            this.rawName = builder.rawName;
+            this.type = builder.type;
+            this.nullable = builder.nullable;
+            this.metadata = builder.metadata;
+            this.defaultValue = builder.defaultValue;
+            this.elementSchema = builder.elementSchema;
+            this.comment = builder.comment;
+            this.props.putAll(builder.props);
+        }
+
+        /**
+         * The name of this entry.
+         */
+        private final String name;
+
+        /**
+         * The raw name of this entry.
+         */
+        private final String rawName;
+
+        /**
+         * Type of the entry, this determine which other fields are populated.
+         */
+        private final Schema.Type type;
+
+        /**
+         * Is this entry nullable or always valued.
+         */
+        private final boolean nullable;
+
+        /**
+         * Is this entry a metadata entry.
+         */
+        private final boolean metadata;
+
+        /**
+         * Default value for this entry.
+         */
+        private final Object defaultValue;
+
+        /**
+         * For type == record, the element type.
+         */
+        private final Schema elementSchema;
+
+        /**
+         * Allows to associate to this field a comment - for doc purposes, no use in the runtime.
+         */
+        private final String comment;
+
+        /**
+         * metadata
+         */
+        private final Map<String, String> props = new LinkedHashMap<>(0);
+
+        @JsonbTransient
+        public String getOriginalFieldName() {
+            return rawName != null ? rawName : name;
+        }
+
+        /**
+         * @param property : property name.
+         *
+         * @return the requested metadata prop
+         */
+        public String getProp(final String property) {
+            return this.props.get(property);
+        }
+
+        /**
+         * Get a property values from entry with its name.
+         *
+         * @param name : property's name.
+         *
+         * @return property's value.
+         */
+        public JsonValue getJsonProp(final String name) {
+            final String prop = this.getProp(name);
+            if (prop == null) {
+                return null;
+            }
+            try {
+                return Json.createParser(new StringReader(prop)).getValue();
+            } catch (RuntimeException ex) {
+                return Json.createValue(prop);
+            }
+        }
+
+        /**
+         * @return Entry builder from this entry.
+         */
+        public Entry.Builder toBuilder() {
+            return new EntryImpl.BuilderImpl(this);
+        }
+
+        // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
+
+        /**
+         * Plain builder matching {@link Entry} structure.
+         */
+        public static class BuilderImpl implements Entry.Builder {
+
+            private String name;
+
+            private String rawName;
+
+            private Schema.Type type;
+
+            private boolean nullable;
+
+            private boolean metadata = false;
+
+            private Object defaultValue;
+
+            private Schema elementSchema;
+
+            private String comment;
+
+            private final Map<String, String> props = new LinkedHashMap<>(0);
+
+            public BuilderImpl() {
+            }
+
+            private BuilderImpl(final Entry entry) {
+                this.name = entry.getName();
+                this.rawName = entry.getRawName();
+                this.nullable = entry.isNullable();
+                this.type = entry.getType();
+                this.comment = entry.getComment();
+                this.elementSchema = entry.getElementSchema();
+                this.defaultValue = entry.getDefaultValue();
+                this.metadata = entry.isMetadata();
+                this.props.putAll(entry.getProps());
+            }
+
+            public Builder withName(final String name) {
+                this.name = Schema.sanitizeConnectionName(name);
+                // if raw name is changed as follow name rule, use label to store raw name
+                // if not changed, not set label to save space
+                if (!name.equals(this.name)) {
+                    this.rawName = name;
+                }
+                return this;
+            }
+
+            @Override
+            public Builder withRawName(final String rawName) {
+                this.rawName = rawName;
+                return this;
+            }
+
+            @Override
+            public Builder withType(final Type type) {
+                this.type = type;
+                return this;
+            }
+
+            @Override
+            public Builder withNullable(final boolean nullable) {
+                this.nullable = nullable;
+                return this;
+            }
+
+            @Override
+            public Builder withMetadata(final boolean metadata) {
+                this.metadata = metadata;
+                return this;
+            }
+
+            @Override
+            public <T> Builder withDefaultValue(final T value) {
+                defaultValue = value;
+                return this;
+            }
+
+            @Override
+            public Builder withElementSchema(final Schema schema) {
+                elementSchema = schema;
+                return this;
+            }
+
+            @Override
+            public Builder withComment(final String comment) {
+                this.comment = comment;
+                return this;
+            }
+
+            @Override
+            public Builder withProp(final String key, final String value) {
+                props.put(key, value);
+                return this;
+            }
+
+            @Override
+            public Builder withProps(final Map props) {
+                if (props == null) {
+                    return this;
+                }
+                this.props.putAll(props);
+                return this;
+            }
+
+            public Entry build() {
+                return new EntryImpl(this);
+            }
+
         }
     }
 

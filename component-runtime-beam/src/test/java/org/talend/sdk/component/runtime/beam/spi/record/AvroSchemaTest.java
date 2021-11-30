@@ -36,6 +36,7 @@ import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroSchemaTest {
 
@@ -227,31 +228,31 @@ class AvroSchemaTest {
 
     private org.talend.sdk.component.api.record.Schema.Entry.Builder newEntry(final String name,
             final org.talend.sdk.component.api.record.Schema.Type type) {
-        return new org.talend.sdk.component.api.record.Schema.Entry.Builder().withName(name).withType(type);
+        return new SchemaImpl.EntryImpl.BuilderImpl().withName(name).withType(type);
     }
 
     private final org.talend.sdk.component.api.record.Schema.Entry data1 =
-            new org.talend.sdk.component.api.record.Schema.Entry.Builder() //
+            new SchemaImpl.EntryImpl.BuilderImpl() //
                     .withName("data1") //
                     .withType(org.talend.sdk.component.api.record.Schema.Type.INT) //
                     .build();
 
     private final org.talend.sdk.component.api.record.Schema.Entry data2 =
-            new org.talend.sdk.component.api.record.Schema.Entry.Builder() //
+            new SchemaImpl.EntryImpl.BuilderImpl() //
                     .withName("data2") //
                     .withType(org.talend.sdk.component.api.record.Schema.Type.STRING) //
                     .withNullable(true) //
                     .build();
 
     private final org.talend.sdk.component.api.record.Schema.Entry meta1 =
-            new org.talend.sdk.component.api.record.Schema.Entry.Builder() //
+            new SchemaImpl.EntryImpl.BuilderImpl() //
                     .withName("meta1") //
                     .withType(org.talend.sdk.component.api.record.Schema.Type.INT) //
                     .withMetadata(true) //
                     .build();
 
     private final org.talend.sdk.component.api.record.Schema.Entry meta2 =
-            new org.talend.sdk.component.api.record.Schema.Entry.Builder() //
+            new SchemaImpl.EntryImpl.BuilderImpl() //
                     .withName("meta2") //
                     .withType(org.talend.sdk.component.api.record.Schema.Type.STRING) //
                     .withMetadata(true) //

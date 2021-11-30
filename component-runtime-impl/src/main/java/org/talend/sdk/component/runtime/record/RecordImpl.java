@@ -254,7 +254,10 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
             if (providedSchema == null) {
-                return new Schema.Entry.Builder().withName(name).withType(type).withNullable(nullable).build();
+                return new SchemaImpl.EntryImpl.BuilderImpl().withName(name)
+                        .withType(type)
+                        .withNullable(nullable)
+                        .build();
             }
             return this.findExistingEntry(name);
         }
@@ -424,7 +427,7 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withRecord(final String name, final Record value) {
-            return withRecord(new Schema.Entry.Builder()
+            return withRecord(new SchemaImpl.EntryImpl.BuilderImpl()
                     .withName(name)
                     .withElementSchema(value.getSchema())
                     .withType(RECORD)

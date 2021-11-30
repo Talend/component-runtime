@@ -58,6 +58,7 @@ import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroRecordTest {
 
@@ -76,7 +77,7 @@ class AvroRecordTest {
     void providedSchemaGetSchema() {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -90,7 +91,7 @@ class AvroRecordTest {
     void providedSchemaNullable() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.STRING)
@@ -118,7 +119,7 @@ class AvroRecordTest {
     void providedSchemaNullableDate() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(true)
                         .withType(Schema.Type.DATETIME)
@@ -135,7 +136,7 @@ class AvroRecordTest {
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(false)
                         .withType(Schema.Type.STRING)
@@ -155,7 +156,7 @@ class AvroRecordTest {
     void providedSchemaNotNullableDate() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new Schema.Entry.Builder()
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(false)
                         .withType(Schema.Type.DATETIME)
