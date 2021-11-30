@@ -6,6 +6,21 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
 - link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
+- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2018[TCOMP-2018^]: Optimize Avro Record
+
+
+
+== Version 1.39.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
 
 
 
@@ -52,6 +67,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
 
 
 
