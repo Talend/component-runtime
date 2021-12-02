@@ -129,6 +129,16 @@ public interface Schema {
      */
     String getProp(String property);
 
+    @JsonbTransient
+    default String getDqTypeProp() {
+        return getProp("dqType");
+    }
+
+    @JsonbTransient
+    default boolean getIsForcedProp() {
+        return Boolean.parseBoolean(getProp("isForced"));
+    }
+
     /**
      * Get a property values from schema with its name.
      *
@@ -406,6 +416,15 @@ public interface Schema {
          * @return this builder
          */
         Builder withProp(String key, String value);
+
+
+        default Builder withDqTypeProp(String value) {
+            return withProp("dqType", value);
+        }
+
+        default Builder withIsForcedProp(boolean value) {
+            return withProp("isForced", String.valueOf(value));
+        }
 
         /**
          * @return the described schema.
