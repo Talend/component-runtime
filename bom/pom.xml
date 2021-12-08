@@ -21,6 +21,17 @@
   <version>1.40.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <properties>
     <slf4j.version>1.7.32</slf4j.version>
     <johnzon.version>1.2.15</johnzon.version>
