@@ -17,6 +17,9 @@ package org.talend.sdk.component.junit5.environment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.function.Function;
+
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.junit.environment.Environment;
 import org.talend.sdk.component.junit.environment.builtin.beam.DirectRunnerEnvironment;
 import org.talend.sdk.component.junit5.WithComponents;
@@ -29,8 +32,11 @@ class BeamEnvironmentsWithComponentsTest {
 
     @EnvironmentalTest
     void execute() {
+        final ComponentManager componentManager = ComponentManager.instance();
+        final Function<String, RecordBuilderFactory> provider = componentManager.getRecordBuilderFactoryProvider();
+        final RecordBuilderFactory factory = provider.apply("test");
         assertEquals(
                 "org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider$AvroRecordBuilderFactory",
-                ComponentManager.instance().getRecordBuilderFactoryProvider().apply("test").getClass().getName());
+                factory.getClass().getName());
     }
 }
