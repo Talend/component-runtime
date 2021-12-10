@@ -7,12 +7,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
 - link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
 - link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
 
 
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2018[TCOMP-2018^]: Optimize Avro Record
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.15.0 due to CVE-2021-44228
 
 
 
@@ -75,6 +77,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
+== Version 1.38.4
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
 
 
 
