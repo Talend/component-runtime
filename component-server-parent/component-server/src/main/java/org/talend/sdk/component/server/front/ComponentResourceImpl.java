@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
@@ -28,14 +29,17 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -106,6 +110,8 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 @CacheDefaults(cacheResolverFactory = FrontCacheResolver.class, cacheKeyGenerator = FrontCacheKeyGenerator.class)
 public class ComponentResourceImpl implements ComponentResource {
+
+    public static final String BASE64_PREFIX = "base64://"; //$NON-NLS-1$
 
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
@@ -381,6 +387,15 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
+        final Map<String, String> configuration = config.entrySet().stream().map(e -> {
+            if (e.getValue().startsWith(BASE64_PREFIX)) {
+                final String value = new String(Base64
+                        .getUrlDecoder()
+                        .decode(e.getValue().substring(BASE64_PREFIX.length()).getBytes(StandardCharsets.UTF_8)));
+                e.setValue(value);
+            }
+            return e;
+        }).collect(toMap(Entry::getKey, Entry::getValue));
         String tenant;
         try {
             tenant = headers.getHeaderString("x-talend-tenant-id");
@@ -388,7 +403,7 @@ public class ComponentResourceImpl implements ComponentResource {
             log.debug("[migrate] context not applicable: {}", e.getMessage());
             tenant = null;
         }
-        final Map<String, String> decrypted = vault.decrypt(config, tenant);
+        final Map<String, String> decrypted = vault.decrypt(configuration, tenant);
         if (virtualComponents.isExtensionEntity(id)) {
             return decrypted;
         }
