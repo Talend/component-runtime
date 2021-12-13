@@ -20,6 +20,12 @@
 
 == Version 1.39.3
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.15.0 due to CVE-2021-44228
@@ -77,6 +83,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
 
 
 
