@@ -249,8 +249,8 @@ spec:
                     withCredentials([ossrhCredentials]) {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                             sh """
-                                mvn ossindex:audit-aggregate -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
-                                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report
+                                mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
+                                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
                                """
                         }
                     }
