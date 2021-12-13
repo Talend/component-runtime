@@ -18,6 +18,14 @@
 
 
 
+== Version 1.39.3
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.15.0 due to CVE-2021-44228
+
+
+
 == Version 1.39.2
 
 === Bug
@@ -86,11 +94,19 @@
 
 
 
+
+
 == Version 1.38.4
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.15.0 due to CVE-2021-44228
 
 
 
