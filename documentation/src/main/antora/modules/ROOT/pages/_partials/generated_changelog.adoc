@@ -14,7 +14,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2018[TCOMP-2018^]: Optimize Avro Record
-- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.15.0 due to CVE-2021-44228
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
 
 
 
@@ -28,7 +28,7 @@
 
 === Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.15.0 due to CVE-2021-44228
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
 
 
 
@@ -104,6 +104,10 @@
 
 
 
+
+
+
+
 == Version 1.38.4
 
 === Bug
@@ -114,7 +118,7 @@
 
 === Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.15.0 due to CVE-2021-44228
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
 
 
 
