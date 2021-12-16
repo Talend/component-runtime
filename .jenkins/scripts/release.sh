@@ -44,6 +44,11 @@ main() {
   fi
   local dev_version=${maj}.${min}.${rev}-SNAPSHOT
   ###
+  echo ">> Preparing and installing BOM to release ${release} from ${currentVersion}"
+  mvn versions:set --define newVersion="${release}" --define generateBackupPoms=false -f bom/pom.xml
+  mvn install -f bom/pom.xml
+  mvn versions:set --define newVersion="${currentVersion}" --define generateBackupPoms=false -f bom/pom.xml
+  ###
   echo ">> Maven prepare release $release (next-dev: ${dev_version}; maintenance: ${maintenance_branch} with ${maintenance_version})"
   mvn release:prepare \
     --batch-mode \
