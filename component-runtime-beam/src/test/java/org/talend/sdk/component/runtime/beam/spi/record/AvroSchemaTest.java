@@ -52,6 +52,7 @@ class AvroSchemaTest {
         final AvroSchema schema = new AvroSchema(delegate);
         final List<org.talend.sdk.component.api.record.Schema.Entry> entries = schema.getEntries();
         assertEquals(RECORD, schema.getType());
+        assertEquals(RECORD, schema.getType());
         assertEquals(1, entries.size());
         final org.talend.sdk.component.api.record.Schema.Entry entry = entries.iterator().next();
         assertEquals(STRING, entry.getType());
