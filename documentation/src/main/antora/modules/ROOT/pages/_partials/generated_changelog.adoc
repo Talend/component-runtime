@@ -1,5 +1,11 @@
 
 
+== Version 1.41.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2060[TCOMP-2060^]: Update log4j2 to 2.17.0 due to CVE-2021-45105
+
 == Version 1.40.0
 
 === Bug
