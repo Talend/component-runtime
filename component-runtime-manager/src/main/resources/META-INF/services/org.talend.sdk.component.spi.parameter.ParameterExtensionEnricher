@@ -5,3 +5,4 @@ org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionPara
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ActionParameterEnricher
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.DocumentationParameterEnricher
+org.talend.sdk.component.runtime.manager.reflect.parameterenricher.DependencyParameterEnricher
