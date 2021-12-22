@@ -45,7 +45,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
 
 
-== Version 1.38.4
+== Version 1.38.5
 
 === Bug
 
