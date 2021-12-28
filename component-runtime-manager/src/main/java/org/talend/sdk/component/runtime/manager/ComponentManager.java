@@ -1292,10 +1292,11 @@ public class ComponentManager implements AutoCloseable {
 
             final Map<String, AnnotatedElement> componentDefaults = new HashMap<>();
 
-            finder.findAnnotatedClasses(Internationalized.class).forEach(proxy -> {
+            finder.findAnnotatedClasses(Internationalized.class).forEach((Class proxy) -> {
+                final Object service = internationalizationServiceFactory.create(proxy, container.getLoader());
                 final Object instance = javaProxyEnricherFactory
                         .asSerializable(container.getLoader(), container.getId(), proxy.getName(),
-                                internationalizationServiceFactory.create(proxy, container.getLoader()));
+                                service, true);
                 services.put(proxy, instance);
                 registry.getServices().add(new ServiceMeta(instance, emptyList()));
             });
