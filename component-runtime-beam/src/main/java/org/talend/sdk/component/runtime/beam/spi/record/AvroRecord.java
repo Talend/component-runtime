@@ -70,7 +70,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return;
         }
         this.schema = AvroSchema.toAvroSchema(record.getSchema());
-        delegate = new GenericData.Record(this.schema.getDelegate());
+        this.delegate = new GenericData.Record(this.schema.getActualDelegate());
 
         record
                 .getSchema()

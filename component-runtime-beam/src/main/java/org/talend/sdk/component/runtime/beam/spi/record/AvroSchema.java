@@ -70,7 +70,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     private volatile Schema actualDelegate;
 
-    private Schema getActualDelegate() {
+    Schema getActualDelegate() {
         if (actualDelegate != null) {
             return actualDelegate;
         }
