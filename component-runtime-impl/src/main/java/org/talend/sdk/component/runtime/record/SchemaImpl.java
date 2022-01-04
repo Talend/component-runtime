@@ -281,11 +281,12 @@ public class SchemaImpl implements Schema {
                 throw new IllegalArgumentException(String.format("%s not in schema", after));
             }
             entriesOrder.remove(name);
-            int destination = entriesOrder.indexOf(after);
-            if (!(destination + 1 == entriesOrder.size())) {
-                destination += 1;
+            int destination = entriesOrder.indexOf(after) + 1;
+            if (destination < entriesOrder.size()) {
+                entriesOrder.add(destination, name);
+            } else {
+                entriesOrder.add(name);
             }
-            entriesOrder.add(destination, name);
             return this;
         }
 
