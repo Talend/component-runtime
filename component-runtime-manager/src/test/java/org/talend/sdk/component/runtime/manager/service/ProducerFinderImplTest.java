@@ -57,6 +57,21 @@ class ProducerFinderImplTest {
         Assertions.assertEquals(2, ProducerFinderImplTest.state, "not stopped ?");
     }
 
+    @Test
+    void findException() {
+        final ComponentInstantiator.Builder builder =
+                (final String pluginId, final ComponentInstantiator.MetaFinder finder,
+                        final ComponentManager.ComponentType componentType) -> null;
+        final ProducerFinderImpl finder = new ProducerFinderImpl("ThePlugin", builder, this::toRecord);
+        final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> finder.find("unknownFamily", "unknownInput", 1, null));
+
+        Assertions.assertTrue(exception.getMessage().contains("unknownFamily"),
+                "exception does not contains family name");
+        Assertions.assertTrue(exception.getMessage().contains("unknownInput"),
+                "exception does not contains input name");
+    }
+
     private Record toRecord(final Object object) {
         if (object instanceof Record) {
             return (Record) object;

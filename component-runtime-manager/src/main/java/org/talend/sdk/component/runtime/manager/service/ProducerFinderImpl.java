@@ -30,7 +30,9 @@ import org.talend.sdk.component.runtime.manager.service.api.ComponentInstantiato
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class ProducerFinderImpl implements ProducerFinder {
 
@@ -47,6 +49,11 @@ public class ProducerFinderImpl implements ProducerFinder {
         final ComponentInstantiator.MetaFinder datasetFinder = new ComponentInstantiator.ComponentNameFinder(inputName);
         final ComponentInstantiator instantiator =
                 this.mapperFinder.build(familyName, datasetFinder, ComponentManager.ComponentType.MAPPER);
+        if (instantiator == null) {
+            log.error("Can't find {} for connector family {}", inputName, familyName);
+            throw new IllegalArgumentException(
+                    String.format("Can't find %s for connector family %s", inputName, familyName));
+        }
         final Mapper mapper = this.findMapper(instantiator, version, configuration);
         final Input input = mapper.create();
         final Iterator<Object> iteratorObject = new InputIterator(input);
