@@ -85,7 +85,16 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     @Override
     public Type getType() {
-        return mapType(getActualDelegate());
+        if (this.type != null) {
+            return this.type;
+        }
+        synchronized (this) {
+            if (this.type != null) {
+                return this.type;
+            }
+            this.type = this.mapType(this.getActualDelegate());
+        }
+        return this.type;
     }
 
     @Override
