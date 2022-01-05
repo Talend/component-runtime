@@ -270,6 +270,17 @@ class SchemaImplTest {
         assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
         assertEquals("meta2,meta1,data1,data2", getSchemaFields(schema, EntriesOrder.of("meta2,meta1,data1,meta0")));
         assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema));
+
+        // test when move after last columns (TCOMP-2067)
+        final Schema schemaLast = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta2) //
+                .withEntry(data2) //
+                .withEntry(meta1) //
+                .moveAfter("meta1", "meta2")
+                .build();
+        assertEquals("data1,data2,meta1,meta2", getSchemaFields(schemaLast));
     }
 
     @Test
