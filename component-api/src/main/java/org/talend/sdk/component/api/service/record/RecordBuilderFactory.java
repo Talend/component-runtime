@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.api.service.record;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ import org.talend.sdk.component.api.record.Schema;
 /**
  * Entry point to create records (through builders).
  */
-public interface RecordBuilderFactory {
+public interface RecordBuilderFactory extends Serializable {
 
     /**
      * Enables to build a record from another one. It is typically useful to add a column and passthrough others.
