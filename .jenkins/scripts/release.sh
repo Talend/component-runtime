@@ -75,7 +75,11 @@ main() {
   echo ">> Checkout the release tag"
   git checkout -b "${tag}" "${tag}"
   ### docker build call
-  bash .jenkins/scripts/docker_build.sh "${release}"
+  local tag_latest=""
+  if [[ ${branch} == 'master' ]]; then
+    tag_latest="true"
+  fi
+  bash .jenkins/scripts/docker_build.sh "${release}" "${tag_latest}"
   ###
   echo ">> Rebuilding ${branch} and updating it (doc) for next iteration"
   git reset --hard

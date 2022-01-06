@@ -21,17 +21,24 @@ set -xe
 # $1: docker tag version
 main() {
   local tag="${1?Missing tag}"
+  local latest="${2:-true}"
 
   echo ">> Building and pushing component-server:${tag}"
   cd images/component-server-image
   mvn verify dockerfile:build -P ci-tsbi
   docker tag "talend/common/tacokit/component-server:${tag}" "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}"
   docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}"
+  if [[ ${latest} == 'true' ]]; then
+    docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server"
+  fi
   echo ">> Building and pushing component-server-vault-proxy:${tag}"
   cd ../component-server-vault-proxy-image
   mvn verify dockerfile:build -P ci-tsbi
   docker tag "talend/common/tacokit/component-server-vault-proxy:${tag}" "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}"
   docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}"
+  if [[ ${latest} == 'true' ]]; then
+    docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy"
+  fi
   #TODO starter and remote-engine-customizer
   cd ../..
 }
