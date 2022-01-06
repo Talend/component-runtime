@@ -26,18 +26,22 @@ main() {
   echo ">> Building and pushing component-server:${tag}"
   cd images/component-server-image
   mvn verify dockerfile:build -P ci-tsbi
-  docker tag "talend/common/tacokit/component-server:${tag}" "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}"
-  docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}"
+  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server"
+  docker tag "talend/common/tacokit/component-server:${tag}" "${registry_srv}:${tag}"
+  docker push "${registry_srv}:${tag}"
   if [[ ${latest} == 'true' ]]; then
-    docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server"
+    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
+    docker push "${registry_srv}:latest"
   fi
   echo ">> Building and pushing component-server-vault-proxy:${tag}"
   cd ../component-server-vault-proxy-image
   mvn verify dockerfile:build -P ci-tsbi
-  docker tag "talend/common/tacokit/component-server-vault-proxy:${tag}" "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}"
-  docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}"
+  local registry_srv_proxy="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy"
+  docker tag "talend/common/tacokit/component-server-vault-proxy:${tag}" "${registry_srv_proxy}:${tag}"
+  docker push "${registry_srv_proxy}:${tag}"
   if [[ ${latest} == 'true' ]]; then
-    docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy"
+    docker tag  "${registry_srv_proxy}:${tag}" "${registry_srv_proxy}:latest"
+    docker push "${registry_srv_proxy}:latest"
   fi
   #TODO starter and remote-engine-customizer
   cd ../..
