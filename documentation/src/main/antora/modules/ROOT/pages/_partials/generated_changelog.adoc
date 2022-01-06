@@ -4,9 +4,10 @@
 
 === Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-2060[TCOMP-2060^]: Update log4j2 to 2.17.0 due to CVE-2021-45105
-- link:https://jira.talendforge.org/browse/TCOMP-2061[TCOMP-2061^]: Update netty to 4.1.72.Final due to CVE-2021-43797
+- link:https://jira.talendforge.org/browse/TCOMP-2060[TCOMP-2060^]: Upgrade log4j2 to 2.17.0 due to CVE-2021-45105
+- link:https://jira.talendforge.org/browse/TCOMP-2061[TCOMP-2061^]: Upgrade netty to 4.1.72.Final due to CVE-2021-43797
 - link:https://jira.talendforge.org/browse/TCOMP-2068[TCOMP-2068^]: Upgrade log4j2 to 2.17.1 due to CVE-2021-44832
+- link:https://jira.talendforge.org/browse/TCOMP-2070[TCOMP-2070^]: Upgrade TSBI to 2.9.18-20220104141654
 
 == Version 1.40.0
 
