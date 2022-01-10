@@ -21,6 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_KEY;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PRECISION;
 
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
@@ -92,13 +96,37 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "BYTES", "id_List", BYTES);
         createMetadata(dynamic, "DATES", "id_List", DATES);
         createMetadata(dynamic, "RECORDS", "id_List", RECORDS);
+        createMetadata(dynamic, "dynDate", "id_Date", DATE);
         rowStruct.dynamic = dynamic;
         //
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(42, schema.getEntries().size());
+        assertEquals(43, schema.getEntries().size());
+        // schema metadata
+        assertFalse(schema.getEntry("id").isNullable());
+        assertEquals("true", schema.getEntry("id").getProp(STUDIO_KEY));
+        assertFalse(schema.getEntry("name").isNullable());
+        assertEquals("namy", schema.getEntry("name").getOriginalFieldName());
+        assertEquals("John", schema.getEntry("name").getDefaultValue());
+        assertEquals("A small comment on name field...", schema.getEntry("name").getComment());
+        assertEquals("true", schema.getEntry("name").getProp(STUDIO_KEY));
+        assertEquals("10", schema.getEntry("floatP").getProp(STUDIO_LENGTH));
+        assertEquals("2", schema.getEntry("floatP").getProp(STUDIO_PRECISION));
+        assertEquals("false", schema.getEntry("date0").getProp(STUDIO_KEY));
+        assertEquals("YYYY-mm-dd HH:MM:ss", schema.getEntry("date0").getProp(STUDIO_PATTERN));
+        assertEquals("30", schema.getEntry("bigDecimal0").getProp(STUDIO_LENGTH));
+        assertEquals("10", schema.getEntry("bigDecimal0").getProp(STUDIO_PRECISION));
+        // dyn
+        assertTrue(schema.getEntry("dynString").isNullable());
+        assertEquals("true", schema.getEntry("dynString").getProp(STUDIO_KEY));
+        assertEquals("dYnAmIc", schema.getEntry("dynString").getComment());
+        assertEquals("30", schema.getEntry("dynDouble").getProp(STUDIO_LENGTH));
+        assertEquals("10", schema.getEntry("dynDouble").getProp(STUDIO_PRECISION));
+        assertEquals("30", schema.getEntry("dynBigDecimal").getProp(STUDIO_LENGTH));
+        assertEquals("10", schema.getEntry("dynBigDecimal").getProp(STUDIO_PRECISION));
+        assertEquals("YYYY-mm-ddTHH:MM", schema.getEntry("dynDate").getProp(STUDIO_PATTERN));
         // asserts Record
         assertEquals(":testing:", record.getString("id"));
         assertEquals(NAME, record.getString("name"));
