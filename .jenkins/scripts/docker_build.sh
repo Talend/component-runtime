@@ -21,7 +21,7 @@ set -xe
 # $1: docker tag version
 main() {
   local tag="${1?Missing tag}"
-  local latest="${2:-true}"
+  local latest="${2:-false}"
 
   echo ">> Building and pushing component-server:${tag}"
   cd images/component-server-image
