@@ -435,10 +435,6 @@ public class DiRowStructVisitor {
         recordBuilder.withString(name, jsonb.toJson(value));
     }
 
-    private Entry toEntry(final String name, final Schema.Type type) {
-        return factory.newEntryBuilder().withName(name).withNullable(true).withType(type).build();
-    }
-
     private Entry toEntry(final String name, final Schema.Type type, final String originalName,
             final Boolean isNullable, final String comment, final Boolean isKey, final Integer length,
             final Integer precision, final String defaultValue, final String pattern) {
