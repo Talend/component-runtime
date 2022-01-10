@@ -17,14 +17,11 @@ package org.talend.sdk.component.runtime.di.record;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Optional.ofNullable;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PRECISION;
 
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
@@ -36,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,7 +54,6 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
-import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.record.MappingUtils;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
@@ -217,41 +214,45 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         metadata.setDbName(entry.getOriginalFieldName());
         metadata.setNullable(entry.isNullable());
         metadata.setDescription(entry.getComment());
+        metadata.setKey(false);
         metadata.setSourceType(sourceTypes.unknown);
-
-        final Boolean isKey = ofNullable(entry.getProp(STUDIO_KEY))
-                .filter(l -> !l.isEmpty())
-                .map(Boolean::valueOf)
-                .orElse(false);
-        final Integer length = ofNullable(entry.getProp(STUDIO_LENGTH))
-                .filter(l -> !l.isEmpty())
-                .map(Integer::valueOf)
-                .orElse(dynamicColumnLength);
-        final Integer precision = ofNullable(entry.getProp(STUDIO_PRECISION))
-                .filter(l -> !l.isEmpty())
-                .map(Integer::valueOf)
-                .orElse(dynamicColumnPrecision);
-        final String pattern = ofNullable(entry.getProp(STUDIO_PATTERN))
-                .filter(l -> !l.isEmpty())
-                .orElse(dynamicColumnPattern);
-        final String studioType = entry.getProps()
-                .getOrDefault(STUDIO_TYPE, StudioTypes.typeFromRecord(entry.getType()));
-        metadata.setKey(isKey);
-        metadata.setType(studioType);
-
-        switch (studioType) {
-        case StudioTypes.BIGDECIMAL:
-        case StudioTypes.FLOAT:
-        case StudioTypes.DOUBLE:
-            metadata.setLength(length);
-            metadata.setPrecision(precision);
+        metadata.setLength(dynamicColumnLength);
+        metadata.setPrecision(dynamicColumnPrecision);
+        switch (entry.getType()) {
+        case RECORD:
+            metadata.setType("id_Object");
             break;
-        case StudioTypes.DATE:
+        case ARRAY:
+            metadata.setType("id_List");
+            break;
+        case STRING:
+            metadata.setType("id_String");
+            break;
+        case BYTES:
+            metadata.setType("id_byte[]");
+            break;
+        case INT:
+            metadata.setType("id_Integer");
+            break;
+        case LONG:
+            metadata.setType("id_Long");
+            break;
+        case FLOAT:
+            metadata.setType("id_Float");
+            break;
+        case DOUBLE:
+            metadata.setType("id_Double");
+            break;
+        case BOOLEAN:
+            metadata.setType("id_Boolean");
+            break;
+        case DATETIME:
+            metadata.setType("id_Date");
             metadata.setLogicalType("timestamp-millis");
-            metadata.setFormat(pattern);
+            metadata.setFormat(dynamicColumnPattern);
             break;
         default:
-            // nop
+            throw new IllegalStateException("Unexpected value: " + entry.getType());
         }
         return metadata;
     }
@@ -273,10 +274,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             } else {
                 metadata = dynamic.getColumnMetadata(index);
             }
-
-            final Class<?> clazz = StudioTypes.classFromType(metadata.getType());
-            if (clazz != null) {
-                dynamic.setColumnValue(index, MappingUtils.coerce(clazz, value, name));
+            if ("id_Date".equals(metadata.getType())) {
+                dynamic.setColumnValue(index, MappingUtils.coerce(Date.class, value, name));
             } else {
                 dynamic.setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
             }
