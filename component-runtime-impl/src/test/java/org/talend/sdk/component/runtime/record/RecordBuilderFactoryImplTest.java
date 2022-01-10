@@ -36,7 +36,6 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.serialization.DynamicContainerFinder;
 
-
 @TestInstance(PER_CLASS)
 class RecordBuilderFactoryImplTest {
 

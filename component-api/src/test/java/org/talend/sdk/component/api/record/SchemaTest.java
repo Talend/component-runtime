@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.api.record;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -35,6 +37,7 @@ import javax.json.JsonValue.ValueType;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 
@@ -117,6 +120,76 @@ class SchemaTest {
         }
     }
 
+    @Test
+    void testTypes() {
+        final Record rec = new Record() {
+
+            @Override
+            public Schema getSchema() {
+                return null;
+            }
+
+            @Override
+            public <T> T get(final Class<T> expectedType, final String name) {
+                return null;
+            }
+        };
+        Assertions.assertTrue(Type.RECORD.isCompatible(rec));
+        Assertions.assertFalse(Type.RECORD.isCompatible(1234));
+
+        Assertions.assertTrue(Type.ARRAY.isCompatible(Collections.emptyList()));
+        Assertions.assertFalse(Schema.Type.ARRAY.isCompatible(new int[] {}));
+
+        Assertions.assertTrue(Type.STRING.isCompatible("Hello"));
+        Assertions.assertFalse(Schema.Type.STRING.isCompatible(new int[] {}));
+
+        Assertions.assertTrue(Type.BYTES.isCompatible("Hello".getBytes()));
+        Assertions.assertTrue(Type.BYTES.isCompatible(new Byte[] {}));
+        Assertions.assertFalse(Schema.Type.BYTES.isCompatible(new int[] {}));
+
+        Assertions.assertTrue(Schema.Type.INT.isCompatible(null));
+        Assertions.assertTrue(Schema.Type.INT.isCompatible(123));
+        Assertions.assertFalse(Schema.Type.INT.isCompatible(234L));
+        Assertions.assertFalse(Schema.Type.INT.isCompatible("Hello"));
+
+        Assertions.assertTrue(Schema.Type.LONG.isCompatible(123L));
+        Assertions.assertFalse(Schema.Type.LONG.isCompatible(234));
+
+        Assertions.assertTrue(Schema.Type.FLOAT.isCompatible(123.2f));
+        Assertions.assertFalse(Schema.Type.FLOAT.isCompatible(234.1d));
+
+        Assertions.assertTrue(Schema.Type.DOUBLE.isCompatible(123.2d));
+        Assertions.assertFalse(Schema.Type.DOUBLE.isCompatible(Float.valueOf(3.4f)));
+
+        Assertions.assertTrue(Schema.Type.BOOLEAN.isCompatible(Boolean.TRUE));
+        Assertions.assertFalse(Schema.Type.BOOLEAN.isCompatible(10));
+
+        Assertions.assertTrue(Type.DATETIME.isCompatible(System.currentTimeMillis()));
+        Assertions.assertTrue(Type.DATETIME.isCompatible(new Date()));
+        Assertions.assertTrue(Type.DATETIME.isCompatible(ZonedDateTime.now()));
+        Assertions.assertFalse(Schema.Type.DATETIME.isCompatible(10));
+    }
+
+    /**
+     * Ensure API contract will not break
+     */
+    @Test
+    void testDefaults() {
+        SchemaExample schema = new SchemaExample(null, Collections.emptyMap());
+        assertThrows(UnsupportedOperationException.class, () -> schema.toBuilder());
+        assertThrows(UnsupportedOperationException.class, () -> schema.naturalOrder());
+        EntryExample entry = new EntryExample("test", Type.STRING);
+        assertThrows(UnsupportedOperationException.class, () -> entry.toBuilder());
+        Schema.Builder builder = new SchemaBuilder();
+        assertThrows(UnsupportedOperationException.class, () -> builder.withEntryAfter(null, null));
+        assertThrows(UnsupportedOperationException.class, () -> builder.withEntryBefore(null, null));
+        assertThrows(UnsupportedOperationException.class, () -> builder.remove(entry));
+        assertThrows(UnsupportedOperationException.class, () -> builder.remove(""));
+        assertThrows(UnsupportedOperationException.class, () -> builder.moveAfter(null, null));
+        assertThrows(UnsupportedOperationException.class, () -> builder.moveBefore(null, null));
+        assertThrows(UnsupportedOperationException.class, () -> builder.swap(null, null));
+    }
+
     @RequiredArgsConstructor
     class SchemaExample implements Schema {
 
@@ -147,16 +220,6 @@ class SchemaTest {
         @Override
         public Stream<Entry> getAllEntries() {
             return Optional.ofNullable(this.entries).map(List::stream).orElse(Stream.empty());
-        }
-
-        @Override
-        public Builder toBuilder() {
-            throw new UnsupportedOperationException("#toBuilder()");
-        }
-
-        @Override
-        public EntriesOrder naturalOrder() {
-            throw new UnsupportedOperationException("#naturalOrder()");
         }
 
         @Override
@@ -237,65 +300,39 @@ class SchemaTest {
             return Entry.super.getJsonProp(name);
         }
 
-        @Override
-        public Builder toBuilder() {
-            throw new UnsupportedOperationException("#toBuilder()");
-        }
     }
 
-    @Test
-    void testTypes() {
-        final Record rec = new Record() {
+    class SchemaBuilder implements Schema.Builder {
 
-            @Override
-            public Schema getSchema() {
-                return null;
-            }
+        @Override
+        public Builder withType(final Type type) {
+            throw new UnsupportedOperationException("#withType()");
+        }
 
-            @Override
-            public Builder withNewSchema(final Schema schema) {
-                throw new UnsupportedOperationException("#withNewSchema()");
-            }
+        @Override
+        public Builder withEntry(final Entry entry) {
+            throw new UnsupportedOperationException("#withEntry()");
+        }
 
-            @Override
-            public <T> T get(final Class<T> expectedType, final String name) {
-                return null;
-            }
-        };
-        Assertions.assertTrue(Type.RECORD.isCompatible(rec));
-        Assertions.assertFalse(Type.RECORD.isCompatible(1234));
+        @Override
+        public Builder withElementSchema(final Schema schema) {
+            throw new UnsupportedOperationException("#withElementSchema()");
+        }
 
-        Assertions.assertTrue(Type.ARRAY.isCompatible(Collections.emptyList()));
-        Assertions.assertFalse(Schema.Type.ARRAY.isCompatible(new int[] {}));
+        @Override
+        public Builder withProps(final Map<String, String> props) {
+            throw new UnsupportedOperationException("#withProps()");
+        }
 
-        Assertions.assertTrue(Type.STRING.isCompatible("Hello"));
-        Assertions.assertFalse(Schema.Type.STRING.isCompatible(new int[] {}));
+        @Override
+        public Builder withProp(final String key, final String value) {
+            throw new UnsupportedOperationException("#withProp()");
+        }
 
-        Assertions.assertTrue(Type.BYTES.isCompatible("Hello".getBytes()));
-        Assertions.assertTrue(Type.BYTES.isCompatible(new Byte[] {}));
-        Assertions.assertFalse(Schema.Type.BYTES.isCompatible(new int[] {}));
-
-        Assertions.assertTrue(Schema.Type.INT.isCompatible(null));
-        Assertions.assertTrue(Schema.Type.INT.isCompatible(123));
-        Assertions.assertFalse(Schema.Type.INT.isCompatible(234L));
-        Assertions.assertFalse(Schema.Type.INT.isCompatible("Hello"));
-
-        Assertions.assertTrue(Schema.Type.LONG.isCompatible(123L));
-        Assertions.assertFalse(Schema.Type.LONG.isCompatible(234));
-
-        Assertions.assertTrue(Schema.Type.FLOAT.isCompatible(123.2f));
-        Assertions.assertFalse(Schema.Type.FLOAT.isCompatible(234.1d));
-
-        Assertions.assertTrue(Schema.Type.DOUBLE.isCompatible(123.2d));
-        Assertions.assertFalse(Schema.Type.DOUBLE.isCompatible(Float.valueOf(3.4f)));
-
-        Assertions.assertTrue(Schema.Type.BOOLEAN.isCompatible(Boolean.TRUE));
-        Assertions.assertFalse(Schema.Type.BOOLEAN.isCompatible(10));
-
-        Assertions.assertTrue(Type.DATETIME.isCompatible(System.currentTimeMillis()));
-        Assertions.assertTrue(Type.DATETIME.isCompatible(new Date()));
-        Assertions.assertTrue(Type.DATETIME.isCompatible(ZonedDateTime.now()));
-        Assertions.assertFalse(Schema.Type.DATETIME.isCompatible(10));
+        @Override
+        public Schema build() {
+            throw new UnsupportedOperationException("#build()");
+        }
     }
 
 }
