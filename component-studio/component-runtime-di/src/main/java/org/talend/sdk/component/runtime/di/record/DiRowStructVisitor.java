@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,8 @@ public class DiRowStructVisitor {
     private RecordBuilderFactory factory;
 
     private Builder recordBuilder;
+
+    private Schema rowStructSchema;
 
     private final Jsonb jsonb = JsonbProvider.provider().create().build();
 
@@ -220,8 +222,11 @@ public class DiRowStructVisitor {
     }
 
     public Record get(final Object data, final RecordBuilderFactory factory) {
-        this.factory = factory;
-        recordBuilder = factory.newRecordBuilder(inferSchema(data, factory));
+        if (rowStructSchema == null) {
+            this.factory = factory;
+            rowStructSchema = inferSchema(data, factory);
+        }
+        recordBuilder = factory.newRecordBuilder(rowStructSchema);
         visit(data);
         return recordBuilder.build();
     }
@@ -237,12 +242,22 @@ public class DiRowStructVisitor {
 
     private Schema inferSchema(final Object data, final RecordBuilderFactory factory) {
         // all standard rowStruct fields have accessors, not technical fields.
+        final Set<String> fields = Arrays
+                .stream(data.getClass().getFields()) //
+                .map(f -> f.getName()) //
+                .collect(Collectors.toSet());
         allowedFields = Arrays
                 .stream(data.getClass().getDeclaredMethods())
                 .map(method -> method.getName())
                 .filter(m -> m.matches("^(get|is).*"))
                 .map(n -> n.replaceAll("^(get|is)", ""))
-                .map(n -> n.substring(0, 1).toLowerCase(Locale.ROOT) + n.substring(1))
+                .map(n -> {
+                    if (fields.contains(n)) {
+                        return n;
+                    }
+                    // use java convention for members
+                    return n.substring(0, 1).toLowerCase(Locale.ROOT) + n.substring(1);
+                })
                 .collect(Collectors.toSet());
         final Schema.Builder schema = factory.newSchemaBuilder(RECORD);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {

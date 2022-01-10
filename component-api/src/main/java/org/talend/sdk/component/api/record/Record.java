@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,14 @@ public interface Record {
      * @return the schema of this record.
      */
     Schema getSchema();
+
+    /**
+     * Create a Builder with values of the record present in {@link Schema}.
+     * 
+     * @param schema new schema
+     * @return a {@link Record.Builder}
+     */
+    Builder withNewSchema(Schema schema);
 
     /**
      * Access a record field value.

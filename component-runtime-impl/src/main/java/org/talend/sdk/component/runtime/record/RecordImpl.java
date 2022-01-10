@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,15 @@ public final class RecordImpl implements Record {
         } catch (final Exception e) {
             return super.toString();
         }
+    }
+
+    @Override
+    public Builder withNewSchema(final Schema newSchema) {
+        final BuilderImpl builder = new BuilderImpl(newSchema);
+        newSchema.getAllEntries()
+                .filter(e -> Objects.equals(schema.getEntry(e.getName()), e))
+                .forEach(e -> builder.with(e, values.get(e.getName())));
+        return builder;
     }
 
     // Entry creation can be optimized a bit but recent GC should not see it as a big deal
@@ -245,7 +254,10 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
             if (providedSchema == null) {
-                return new Schema.Entry.Builder().withName(name).withType(type).withNullable(nullable).build();
+                return new SchemaImpl.EntryImpl.BuilderImpl().withName(name)
+                        .withType(type)
+                        .withNullable(nullable)
+                        .build();
             }
             return this.findExistingEntry(name);
         }
@@ -415,7 +427,7 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withRecord(final String name, final Record value) {
-            return withRecord(new Schema.Entry.Builder()
+            return withRecord(new SchemaImpl.EntryImpl.BuilderImpl()
                     .withName(name)
                     .withElementSchema(value.getSchema())
                     .withType(RECORD)

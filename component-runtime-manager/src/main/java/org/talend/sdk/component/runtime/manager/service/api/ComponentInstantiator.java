@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,10 +64,11 @@ public interface ComponentInstantiator {
             if (registries == null) {
                 return null;
             }
+            final String sanitizedFamilyName = Optional.ofNullable(familyName).map(String::trim).orElse("");
             return registries
-                    .map((ContainerComponentRegistry registry) -> registry.findComponentFamily(familyName))
+                    .map((ContainerComponentRegistry registry) -> registry.findComponentFamily(sanitizedFamilyName))
                     .filter(Objects::nonNull)
-                    .peek((ComponentFamilyMeta cm) -> log.debug("Family found {}", familyName))
+                    .peek((ComponentFamilyMeta cm) -> log.debug("Family found {}", sanitizedFamilyName))
                     .findFirst()
                     .map(componentType::findMeta)
                     .flatMap((Map<String, ? extends ComponentFamilyMeta.BaseMeta> map) -> finder.filter(map))
@@ -77,10 +78,13 @@ public interface ComponentInstantiator {
     }
 
     @Slf4j
-    @RequiredArgsConstructor
     class ComponentNameFinder implements MetaFinder {
 
         private final String componentName;
+
+        public ComponentNameFinder(final String componentName) {
+            this.componentName = Optional.ofNullable(componentName).map(String::trim).orElse("");
+        }
 
         @Override
         public Optional<? extends ComponentFamilyMeta.BaseMeta>

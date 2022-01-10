@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-#  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -44,6 +44,11 @@ main() {
   fi
   local dev_version=${maj}.${min}.${rev}-SNAPSHOT
   ###
+  echo ">> Preparing and installing BOM to release ${release} from ${currentVersion}"
+  mvn versions:set --define newVersion="${release}" --define generateBackupPoms=false -f bom/pom.xml
+  mvn install -f bom/pom.xml
+  mvn versions:set --define newVersion="${currentVersion}" --define generateBackupPoms=false -f bom/pom.xml
+  ###
   echo ">> Maven prepare release $release (next-dev: ${dev_version}; maintenance: ${maintenance_branch} with ${maintenance_version})"
   mvn release:prepare \
     --batch-mode \
@@ -70,7 +75,11 @@ main() {
   echo ">> Checkout the release tag"
   git checkout -b "${tag}" "${tag}"
   ### docker build call
-  bash .jenkins/scripts/docker_build.sh "${release}"
+  local tag_latest=""
+  if [[ ${branch} == 'master' ]]; then
+    tag_latest="true"
+  fi
+  bash .jenkins/scripts/docker_build.sh "${release}" "${tag_latest}"
   ###
   echo ">> Rebuilding ${branch} and updating it (doc) for next iteration"
   git reset --hard

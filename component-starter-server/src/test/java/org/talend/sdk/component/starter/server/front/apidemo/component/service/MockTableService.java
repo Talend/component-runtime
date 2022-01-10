@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,14 +122,7 @@ public class MockTableService {
             return new Schema(emptyList());
         }
 
-        return new Schema(record
-                .keySet()
-                .stream()
-                .map(k -> new org.talend.sdk.component.api.record.Schema.Entry.Builder()
-                        .withName(k)
-                        .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
-                        .build())
-                .collect(toList()));
+        return new Schema(record.keySet().stream().map(k -> new Schema.Entry(k, Type.STRING)).collect(toList()));
     }
 
 }

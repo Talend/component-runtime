@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.39.0-SNAPSHOT</version>
+  <version>1.41.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -102,6 +102,7 @@
   </developers>
 
   <modules>
+    <module>bom</module>
     <module>component-api</module>
     <module>container</module>
     <module>component-spi</module>
@@ -163,17 +164,17 @@
     <!-- do not update without updating test-->
     <xbean.test.version>4.9</xbean.test.version>
     <xerces.version>2.12.0</xerces.version>
-    <slf4j.version>1.7.32</slf4j.version>
+
     <junit.version>4.13.2</junit.version>
     <ziplock.version>8.0.4</ziplock.version>
+
     <!-- do not update without updating test-->
     <ziplock.test.version>7.0.5</ziplock.test.version>
-    <johnzon.version>1.2.15</johnzon.version>
     <meecrowave.version>1.2.12</meecrowave.version>
     <owb.version>2.0.23</owb.version>
     <tomcat.version>9.0.54</tomcat.version>
     <cxf.version>3.4.5</cxf.version>
-    <log4j2.version>2.14.1</log4j2.version>
+
     <logback.version>1.2.5</logback.version>
     <log4j.version>1.2.17</log4j.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
@@ -183,10 +184,7 @@
     <geronimo-jsonb.version>1.2</geronimo-jsonb.version>
     <geronimo-json.version>1.3</geronimo-json.version>
     <batik.version>1.14</batik.version>
-    <commons-codec.version>1.15</commons-codec.version>
-    <commons-compress.version>1.21</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
-    <commons-lang3.version>3.11</commons-lang3.version>
     <commons-cli.version>1.4</commons-cli.version>
     <commons-text.version>1.8</commons-text.version>
     <geronimo-jaxrs.version>1.1</geronimo-jaxrs.version>
@@ -204,8 +202,6 @@
     <geronimo-config.version>1.2.2</geronimo-config.version>
     <junit5.version>5.8.1</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <jackson.version>2.12.1</jackson.version>
-    <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
     <jsoup.version>1.14.3</jsoup.version>
@@ -247,8 +243,6 @@
     <spotless.version>2.17.3</spotless.version>
     <jib.version>1.4.0</jib.version>
     <jib-core.version>0.15.0</jib-core.version>
-    <bouncycastle.version>1.69</bouncycastle.version>
-    <commons-io.version>2.8.0</commons-io.version>
 
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v12.13.0</node.version>
@@ -258,7 +252,7 @@
     <!-- misc dependencies -->
     <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
     <bndlib.version>5.1.0</bndlib.version>
-    <jcommander.version>1.78</jcommander.version>
+
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
     <jaxb.version>2.3.1</jaxb.version>
@@ -266,61 +260,29 @@
     <!-- minimal code coverage ratio -->
     <coverage.min>0.75</coverage.min>
     <coverage.fail>false</coverage.fail>
+
+    <johnzon.version>1.2.15</johnzon.version>
+    <commons-io.version>2.8.0</commons-io.version>
+    <commons-compress.version>1.21</commons-compress.version>
+    <slf4j.version>1.7.32</slf4j.version>
+    <log4j2.version>2.17.1</log4j2.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>component-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-core</artifactId>
         <version>${jib-core.version}</version>
       </dependency>
-      <dependency>
-        <!-- upgrade for jib (to not get CVE) -->
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>4.5.13</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons-io.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpg-jdk15on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson-databind.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>30.1-jre</version>
-      </dependency>
+
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-annotation_1.3_spec</artifactId>
@@ -389,24 +351,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-compress</artifactId>
-        <version>${commons-compress.version}</version>
-      </dependency>
-      <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>${commons-logging.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${commons-lang3.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
@@ -457,16 +404,6 @@
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-catalina</artifactId>
         <version>${tomcat.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-jaxrs</artifactId>
-        <version>${johnzon.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-jsonb</artifactId>
-        <version>${johnzon.version}</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.microprofile.openapi</groupId>
@@ -709,31 +646,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-jul</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.tomee</groupId>
         <artifactId>ziplock</artifactId>
         <version>${ziplock.version}</version>
@@ -748,16 +660,13 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
-        <groupId>com.beust</groupId>
-        <artifactId>jcommander</artifactId>
-        <version>${jcommander.version}</version>
-      </dependency>
+
       <dependency>
         <groupId>biz.aQute.bnd</groupId>
         <artifactId>biz.aQute.bndlib</artifactId>
         <version>${bndlib.version}</version>
       </dependency>
+
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -1123,7 +1032,7 @@
           <java>
             <licenseHeader>
               <content><![CDATA[/**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

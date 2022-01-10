@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":441,
+    "commits":472,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -29,17 +29,17 @@
     "name":"Ivan Gonchar"
   },
   {
+    "commits":66,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
+    "id":"clesaec"
+  },
+  {
     "commits":59,
     "description":"Frontend Architect",
     "gravatar":"https://avatars.githubusercontent.com/u/19857479?v=4",
     "id":"jmfrancois",
     "name":"Jean-Michel FRANCOIS"
-  },
-  {
-    "commits":56,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
-    "id":"clesaec"
   },
   {
     "commits":37,
@@ -75,12 +75,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
     "id":"coheigea",
     "name":"Colm O hEigeartaigh"
-  },
-  {
-    "commits":5,
-    "description":"Committer and PMC member of Apache Avro.",
-    "gravatar":"https://avatars.githubusercontent.com/u/7744819?v=4",
-    "id":"RyanSkraba"
   },
   {
     "commits":4,

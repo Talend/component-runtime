@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ class SchemaRegistryCoderTest {
     void codecArrayRecord() throws IOException {
         final AvroRecord nestedRecord = new AvroRecord(new RecordImpl.BuilderImpl().withDouble("len", 2).build());
         final Record record = new AvroRecord(new RecordImpl.BuilderImpl()
-                .withArray(new Schema.Entry.Builder()
+                .withArray(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("__default__")
                         .withRawName("__default__")
                         .withType(Schema.Type.ARRAY)

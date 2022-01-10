@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,21 @@ class ProducerFinderImplTest {
         }
         Assertions.assertEquals(3, counter, "expected 3 records");
         Assertions.assertEquals(2, ProducerFinderImplTest.state, "not stopped ?");
+    }
+
+    @Test
+    void findException() {
+        final ComponentInstantiator.Builder builder =
+                (final String pluginId, final ComponentInstantiator.MetaFinder finder,
+                        final ComponentManager.ComponentType componentType) -> null;
+        final ProducerFinderImpl finder = new ProducerFinderImpl("ThePlugin", builder, this::toRecord);
+        final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> finder.find("unknownFamily", "unknownInput", 1, null));
+
+        Assertions.assertTrue(exception.getMessage().contains("unknownFamily"),
+                "exception does not contains family name");
+        Assertions.assertTrue(exception.getMessage().contains("unknownInput"),
+                "exception does not contains input name");
     }
 
     private Record toRecord(final Object object) {

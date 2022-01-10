@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.avro.generic.IndexedRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -35,6 +34,8 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 @TestInstance(PER_CLASS)
 class AvroRecordBuilderTest {
@@ -190,6 +191,142 @@ class AvroRecordBuilderTest {
                 .withElementSchema(schema)
                 .build();
         Assertions.assertNotNull(arrayType);
-
     }
+
+    @Test
+    void recordWithNewSchema() {
+        final Schema schema0 = new AvroSchemaBuilder()//
+                .withType(RECORD) //
+                .withEntry(dataEntry1) //
+                .withEntryBefore("data1", meta1) //
+                .withEntry(dataEntry2) //
+                .withEntryAfter("meta1", meta2) //
+                .build();
+        AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
+        System.setProperty("talend.component.beam.record.factory.impl", "avro");
+        RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
+
+        final Record.Builder builder0 = recordBuilderFactory.newRecordBuilder(schema0);
+        builder0.withInt("data1", 101)
+                .withString("data2", "102")
+                .withInt("meta1", 103)
+                .withString("meta2", "104");
+        final Record record0 = builder0.build();
+        assertEquals(101, record0.getInt("data1"));
+        assertEquals("102", record0.getString("data2"));
+        assertEquals(103, record0.getInt("meta1"));
+        assertEquals("104", record0.getString("meta2"));
+        assertEquals("meta1,meta2,data1,data2", getSchemaFields(record0.getSchema()));
+        assertEquals("103,104,101,102", getRecordValues(record0));
+        // get a new schema from record
+        final Schema schema1 = record0
+                .getSchema() //
+                .toBuilder() //
+                .withEntryBefore("data1", newMetaEntry("meta3", STRING)) //
+                .withEntryAfter("meta3", newEntry("data3", STRING)) //
+                .build();
+        assertEquals("meta1,meta2,meta3,data3,data1,data2", getSchemaFields(schema1));
+        // test new record1
+        final Record record1 = record0 //
+                .withNewSchema(schema1) //
+                .withString("data3", "data3") //
+                .withString("meta3", "meta3") //
+                .build();
+        assertEquals(101, record1.getInt("data1"));
+        assertEquals("102", record1.getString("data2"));
+        assertEquals(103, record1.getInt("meta1"));
+        assertEquals("104", record1.getString("meta2"));
+        assertEquals("data3", record1.getString("data3"));
+        assertEquals("meta3", record1.getString("meta3"));
+        assertEquals("meta1,meta2,meta3,data3,data1,data2", getSchemaFields(record1.getSchema()));
+        assertEquals("103,104,meta3,data3,101,102", getRecordValues(record1));
+        // remove latest additions
+        final Schema schema2 = record1
+                .getSchema()
+                .toBuilder()
+                .withEntryBefore("data1", newEntry("data0", STRING))
+                .withEntryBefore("meta1", newEntry("meta0", STRING))
+                .remove("data3")
+                .remove("meta3")
+                .build();
+        assertEquals("meta0,meta1,meta2,data0,data1,data2", getSchemaFields(schema2));
+        final Record record2 = record1 //
+                .withNewSchema(schema2) //
+                .withString("data0", "data0") //
+                .withString("meta0", "meta0") //
+                .build();
+        assertEquals("meta0,103,104,data0,101,102", getRecordValues(record2));
+    }
+
+    private String getSchemaFields(final Schema schema) {
+        return schema.getEntriesOrdered().stream().map(e -> e.getName()).collect(joining(","));
+    }
+
+    private String getRecordValues(final Record record) {
+        return record
+                .getSchema()
+                .getEntriesOrdered()
+                .stream()
+                .map(e -> record.get(String.class, e.getName()))
+                .collect(joining(","));
+    }
+
+    private Schema.Entry newEntry(final String name, Schema.Type type) {
+        return newEntry(name, name, type, true, "", "");
+    }
+
+    private Schema.Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable,
+            Object defaultValue,
+            String comment) {
+        return new EntryImpl.BuilderImpl()
+                .withName(name)
+                .withRawName(rawname)
+                .withType(type)
+                .withNullable(nullable)
+                .withDefaultValue(defaultValue)
+                .withComment(comment)
+                .build();
+    }
+
+    private Schema.Entry newMetaEntry(final String name, Schema.Type type) {
+        return newMetaEntry(name, name, type, true, "", "");
+    }
+
+    private Schema.Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
+            Object defaultValue, String comment) {
+        return new EntryImpl.BuilderImpl()
+                .withName(name)
+                .withRawName(rawname)
+                .withType(type)
+                .withNullable(nullable)
+                .withDefaultValue(defaultValue)
+                .withComment(comment)
+                .withMetadata(true)
+                .build();
+    }
+
+    private final Schema.Entry dataEntry1 = new SchemaImpl.EntryImpl.BuilderImpl() //
+            .withName("data1") //
+            .withType(INT) //
+            .build();
+
+    private final Schema.Entry dataEntry2 = new SchemaImpl.EntryImpl.BuilderImpl() //
+            .withName("data2") //
+            .withType(Schema.Type.STRING) //
+            .withNullable(true) //
+            .build();
+
+    private final Schema.Entry meta1 = new SchemaImpl.EntryImpl.BuilderImpl() //
+            .withName("meta1") //
+            .withType(Schema.Type.INT) //
+            .withMetadata(true) //
+            .build();
+
+    private final Schema.Entry meta2 = new SchemaImpl.EntryImpl.BuilderImpl() //
+            .withName("meta2") //
+            .withType(Schema.Type.STRING) //
+            .withMetadata(true) //
+            .withNullable(true) //
+            .build();
+
 }

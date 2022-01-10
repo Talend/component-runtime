@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.39.0-SNAPSHOT</version>
+    <version>1.41.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>images</artifactId>
@@ -47,8 +47,8 @@
     <!-- TSBI -->
     <docker.registryHost>artifactory.datapwn.com</docker.registryHost>
     <docker.tsbiPath>/tlnd-docker-prod/talend/common/tsbi</docker.tsbiPath>
-    <docker.tsbiVersionRelease>2.9.2</docker.tsbiVersionRelease>
-    <docker.tsbiVersionDate>20211106085418</docker.tsbiVersionDate>
+    <docker.tsbiVersionRelease>2.9.18</docker.tsbiVersionRelease>
+    <docker.tsbiVersionDate>20220104141654</docker.tsbiVersionDate>
     <docker.tsbiVersion>${docker.tsbiVersionRelease}-${docker.tsbiVersionDate}</docker.tsbiVersion>
     <disable.dockerBuild>false</disable.dockerBuild>
     <disable.tsbiLayerspector>false</disable.tsbiLayerspector>

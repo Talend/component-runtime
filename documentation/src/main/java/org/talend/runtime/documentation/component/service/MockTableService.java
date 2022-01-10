@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.Schema;
+import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 @Service
 public class MockTableService {
@@ -125,7 +126,7 @@ public class MockTableService {
     }
 
     private org.talend.sdk.component.api.record.Schema.Entry buildStringEntry(final String name) {
-        return new org.talend.sdk.component.api.record.Schema.Entry.Builder()
+        return new SchemaImpl.EntryImpl.BuilderImpl()
                 .withName(name)
                 .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
                 .build();

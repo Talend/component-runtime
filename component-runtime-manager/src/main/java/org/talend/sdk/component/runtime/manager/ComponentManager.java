@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1292,10 +1292,11 @@ public class ComponentManager implements AutoCloseable {
 
             final Map<String, AnnotatedElement> componentDefaults = new HashMap<>();
 
-            finder.findAnnotatedClasses(Internationalized.class).forEach(proxy -> {
+            finder.findAnnotatedClasses(Internationalized.class).forEach((Class proxy) -> {
+                final Object service = internationalizationServiceFactory.create(proxy, container.getLoader());
                 final Object instance = javaProxyEnricherFactory
                         .asSerializable(container.getLoader(), container.getId(), proxy.getName(),
-                                internationalizationServiceFactory.create(proxy, container.getLoader()));
+                                service, true);
                 services.put(proxy, instance);
                 registry.getServices().add(new ServiceMeta(instance, emptyList()));
             });

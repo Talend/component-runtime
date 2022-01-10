@@ -1,11 +1,86 @@
 
 
+== Version 1.41.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2063[TCOMP-2063^]: Avro Record Constructor
+- link:https://jira.talendforge.org/browse/TCOMP-2064[TCOMP-2064^]: NPE with lookup missconfiguration in Join processor
+- link:https://jira.talendforge.org/browse/TCOMP-2067[TCOMP-2067^]: Bug on order columns
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2057[TCOMP-2057^]: AvroSchema : optimize getType by using type fields
+- link:https://jira.talendforge.org/browse/TCOMP-2060[TCOMP-2060^]: Upgrade log4j2 to 2.17.0 due to CVE-2021-45105
+- link:https://jira.talendforge.org/browse/TCOMP-2061[TCOMP-2061^]: Upgrade netty to 4.1.72.Final due to CVE-2021-43797
+- link:https://jira.talendforge.org/browse/TCOMP-2065[TCOMP-2065^]: Internationalized Services as Serializable
+- link:https://jira.talendforge.org/browse/TCOMP-2068[TCOMP-2068^]: Upgrade log4j2 to 2.17.1 due to CVE-2021-44832
+- link:https://jira.talendforge.org/browse/TCOMP-2069[TCOMP-2069^]: Create a latest tag for component-runtime images
+- link:https://jira.talendforge.org/browse/TCOMP-2070[TCOMP-2070^]: Upgrade TSBI to 2.9.18-20220104141654
+
+== Version 1.40.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
+- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2018[TCOMP-2018^]: Optimize Avro Record
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
+
+
+
+== Version 1.39.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
+
+
+
+== Version 1.39.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
+
+
+
+== Version 1.39.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
+
 == Version 1.39.0
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2019[TCOMP-2019^]: Sanitized columns name collision support
 - link:https://jira.talendforge.org/browse/TCOMP-2021[TCOMP-2021^]: Missing logic when handling null date values in Record
+- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2004[TCOMP-2004^]: [Runtime convergence] New tck/API to retrieve dataset full content
+- link:https://jira.talendforge.org/browse/TCOMP-2008[TCOMP-2008^]: Add ability to insert a schema entry on Record BuilderImpl
 
 
 
@@ -28,6 +103,64 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+== Version 1.38.4
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
+
+
+
+== Version 1.38.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
+
+
+
+== Version 1.38.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+
+== Version 1.38.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
 
 == Version 1.38.0
 

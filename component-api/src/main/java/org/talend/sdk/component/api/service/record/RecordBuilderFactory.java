@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.api.service.record;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ import org.talend.sdk.component.api.record.Schema;
 /**
  * Entry point to create records (through builders).
  */
-public interface RecordBuilderFactory {
+public interface RecordBuilderFactory extends Serializable {
 
     /**
      * Enables to build a record from another one. It is typically useful to add a column and passthrough others.

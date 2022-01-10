@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,21 +32,21 @@ class RecordPointerImplTest {
         final Record record = new RecordImpl.BuilderImpl()
                 .withString("foo", "foo_1234")
                 .withInt("bar", 1324)
-                .withArray(new Schema.Entry.Builder() //
+                .withArray(new SchemaImpl.EntryImpl.BuilderImpl() //
                         .withName("array1") //
                         .withRawName("array1") //
                         .withType(Schema.Type.ARRAY) //
                         .withNullable(false) //
                         .withElementSchema(new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build()) //
                         .build(), asList("a", "b"))
-                .withArray(new Schema.Entry.Builder() //
+                .withArray(new SchemaImpl.EntryImpl.BuilderImpl() //
                         .withName("array2")
                         .withRawName("array2")
                         .withType(Schema.Type.ARRAY) //
                         .withNullable(false)
                         .withElementSchema(new SchemaImpl.BuilderImpl()
                                 .withType(Schema.Type.RECORD)
-                                .withEntry(new Schema.Entry.Builder() //
+                                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl() //
                                         .withName("item") //
                                         .withRawName("item") //
                                         .withType(Schema.Type.STRING) //

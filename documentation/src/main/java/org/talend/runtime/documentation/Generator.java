@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -863,7 +863,7 @@ public class Generator {
         }
         if (returnedType == Schema.class) {
             final org.talend.sdk.component.api.record.Schema.Entry entry =
-                    new org.talend.sdk.component.api.record.Schema.Entry.Builder()
+                    new SchemaImpl.EntryImpl.BuilderImpl()
                             .withName("column1")
                             .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
                             .build();
@@ -877,14 +877,14 @@ public class Generator {
             return jsonb
                     .toJson(new SchemaImpl.BuilderImpl()
                             .withType(org.talend.sdk.component.api.record.Schema.Type.RECORD)
-                            .withEntry(new Schema.Entry.Builder()
+                            .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                                     .withName("column1")
                                     .withRawName("column 1")
                                     .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
                                     .withNullable(false)
                                     .withComment("The column 1")
                                     .build())
-                            .withEntry(new Schema.Entry.Builder()
+                            .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                                     .withName("column2")
                                     .withRawName("column 2")
                                     .withType(org.talend.sdk.component.api.record.Schema.Type.INT)
