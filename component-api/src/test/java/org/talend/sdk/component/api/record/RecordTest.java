@@ -17,6 +17,7 @@ package org.talend.sdk.component.api.record;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
@@ -62,6 +63,15 @@ class RecordTest {
         assertEquals(value, opt.orElseThrow(IllegalStateException::new));
     }
 
+    /**
+     * Ensure API contract will not break
+     */
+    @Test
+    void testDefaults() {
+        Record record = new MockRecord(null);
+        assertThrows(UnsupportedOperationException.class, () -> record.withNewSchema(null));
+    }
+
     @RequiredArgsConstructor
     private static class MockRecord implements Record {
 
@@ -70,11 +80,6 @@ class RecordTest {
         @Override
         public Schema getSchema() {
             return null;
-        }
-
-        @Override
-        public Builder withNewSchema(final Schema schema) {
-            throw new UnsupportedOperationException("#withNewSchema()");
         }
 
         @Override

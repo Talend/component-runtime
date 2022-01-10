@@ -41,7 +41,9 @@ public interface Record {
      * @param schema new schema
      * @return a {@link Record.Builder}
      */
-    Builder withNewSchema(Schema schema);
+    default Builder withNewSchema(Schema schema) {
+        throw new UnsupportedOperationException("#withNewSchema is not implemented");
+    }
 
     /**
      * Access a record field value.

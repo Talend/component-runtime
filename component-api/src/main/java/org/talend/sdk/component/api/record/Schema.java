@@ -79,7 +79,9 @@ public interface Schema {
      *
      * @return a {@link Schema.Builder}
      */
-    Schema.Builder toBuilder();
+    default Schema.Builder toBuilder() {
+        throw new UnsupportedOperationException("#toBuilder is not implemented");
+    }
 
     /**
      * Get all entries sorted by schema designed order.
@@ -108,7 +110,9 @@ public interface Schema {
      * @return the EntriesOrder
      */
 
-    EntriesOrder naturalOrder();
+    default EntriesOrder naturalOrder() {
+        throw new UnsupportedOperationException("#naturalOrder is not implemented");
+    }
 
     default Entry getEntry(final String name) {
         return getAllEntries() //
@@ -273,7 +277,9 @@ public interface Schema {
         /**
          * @return an {@link Entry.Builder} from this entry.
          */
-        Entry.Builder toBuilder();
+        default Entry.Builder toBuilder() {
+            throw new UnsupportedOperationException("#toBuilder is not implemented");
+        }
 
         /**
          * Plain builder matching {@link Entry} structure.
@@ -331,7 +337,9 @@ public interface Schema {
          *
          * @return this builder
          */
-        Builder withEntryAfter(String after, Entry entry);
+        default Builder withEntryAfter(String after, Entry entry) {
+            throw new UnsupportedOperationException("#withEntryAfter is not implemented");
+        }
 
         /**
          * Insert the entry before the specified entry.
@@ -341,7 +349,9 @@ public interface Schema {
          *
          * @return this builder
          */
-        Builder withEntryBefore(String before, Entry entry);
+        default Builder withEntryBefore(String before, Entry entry) {
+            throw new UnsupportedOperationException("#withEntryBefore is not implemented");
+        }
 
         /**
          * Remove entry from builder.
@@ -350,7 +360,9 @@ public interface Schema {
          *
          * @return this builder
          */
-        Builder remove(String name);
+        default Builder remove(String name) {
+            throw new UnsupportedOperationException("#remove is not implemented");
+        }
 
         /**
          * Remove entry from builder.
@@ -359,7 +371,9 @@ public interface Schema {
          *
          * @return this builder
          */
-        Builder remove(Entry entry);
+        default Builder remove(Entry entry) {
+            throw new UnsupportedOperationException("#remove is not implemented");
+        }
 
         /**
          * Move an entry after another one.
@@ -367,7 +381,9 @@ public interface Schema {
          * @param after the entry name reference
          * @param name the entry name
          */
-        Builder moveAfter(final String after, final String name);
+        default Builder moveAfter(final String after, final String name) {
+            throw new UnsupportedOperationException("#moveAfter is not implemented");
+        }
 
         /**
          * Move an entry before another one.
@@ -375,7 +391,9 @@ public interface Schema {
          * @param before the entry name reference
          * @param name the entry name
          */
-        Builder moveBefore(final String before, final String name);
+        default Builder moveBefore(final String before, final String name) {
+            throw new UnsupportedOperationException("#moveBefore is not implemented");
+        }
 
         /**
          * Swap two entries.
@@ -383,7 +401,9 @@ public interface Schema {
          * @param name the entry name
          * @param with the other entry name
          */
-        Builder swap(final String name, final String with);
+        default Builder swap(final String name, final String with) {
+            throw new UnsupportedOperationException("#swap is not implemented");
+        }
 
         /**
          * @param schema nested element schema.
