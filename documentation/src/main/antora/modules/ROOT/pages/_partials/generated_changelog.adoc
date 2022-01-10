@@ -7,6 +7,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2063[TCOMP-2063^]: Avro Record Constructor
 - link:https://jira.talendforge.org/browse/TCOMP-2064[TCOMP-2064^]: NPE with lookup missconfiguration in Join processor
 - link:https://jira.talendforge.org/browse/TCOMP-2067[TCOMP-2067^]: Bug on order columns
+- link:https://jira.talendforge.org/browse/TCOMP-2071[TCOMP-2071^]: Define default methods on Schema / Entry / Record interfaces
 
 
 
