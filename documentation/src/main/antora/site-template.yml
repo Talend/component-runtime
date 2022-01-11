@@ -1,4 +1,4 @@
-#  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ content:
       - '!component-runtime-1.1.15.*'
       - '!component-runtime-1.29.*'
       - '!component-runtime-1.30.*'
-      - '!component-runtime-1.36.*'
+      - '!component-runtime-1.38.*'
+      - '!component-runtime-1.39.*'
     branches:
       - master
       - component-runtime-*

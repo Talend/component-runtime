@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,19 @@ import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.serialization.DynamicContainerFinder;
 
 @TestInstance(PER_CLASS)
 class RecordBuilderFactoryImplTest {
@@ -83,5 +91,22 @@ class RecordBuilderFactoryImplTest {
         assertEquals(
                 "{\"name\":\"Test\",\"age\":33,\"current_address\":{\"street\":\"here\",\"number\":1},\"custom\":\"added\"}",
                 output.toString());
+    }
+
+    @Test
+    void serial() throws IOException, ClassNotFoundException {
+        DynamicContainerFinder.LOADERS.put("test", Thread.currentThread().getContextClassLoader());
+        final RecordBuilderFactory factory = DynamicContainerFinder.Instance.get()
+                .find("test")
+                .findService(RecordBuilderFactory.class);
+
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (final ObjectOutputStream oos = new ObjectOutputStream(out)) {
+            oos.writeObject(factory);
+        }
+        try (final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()))) {
+            final RecordBuilderFactory factory2 = (RecordBuilderFactory) ois.readObject();
+            Assertions.assertNotNull(factory2);
+        }
     }
 }

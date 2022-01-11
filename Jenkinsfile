@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
 final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.9.0-2.3-20210907155713"
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.9.18-2.4-20220104141654"
+final def jdk17Image= "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-springboot-builder:2.9.18-2.4-20220104141654"
 final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
 def EXTRA_BUILD_ARGS = ""
@@ -47,7 +48,18 @@ spec:
                 { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
                 { name: dockercache, mountPath: /root/.dockercache}
             ]
-            resources: {requests: {memory: 8G, cpu: '6.0'}, limits: {memory: 12G, cpu: '6.5'}}
+            resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+        -
+            name: jdk17
+            image: '${jdk17Image}'
+            command: [cat]
+            tty: true
+            volumeMounts: [
+                { name: docker, mountPath: /var/run/docker.sock }, 
+                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+                { name: dockercache, mountPath: /root/.dockercache}
+            ]
+            resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
     volumes:
         -
             name: docker
@@ -67,9 +79,9 @@ spec:
 
     environment {
         MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
-        BUILD_ARGS="-Dgpg.skip=true"
+        BUILD_ARGS="-Dgpg.skip=true -Denforcer.skip=true"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2"
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
@@ -90,6 +102,7 @@ spec:
         choice(name: 'Action',
                 choices: ['STANDARD', 'RELEASE'],
                 description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
+        booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17')
         booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
         string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
         string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
@@ -115,6 +128,7 @@ spec:
                                bash .jenkins/scripts/setup_gpg.sh
                                """
                         }
+
                         def pom = readMavenPom file: 'pom.xml'
                         env.PROJECT_VERSION = pom.version
                         try {
@@ -136,6 +150,18 @@ spec:
                             } catch (error) {
                                 //
                             }
+                        }
+                    }
+                }
+            }
+        }
+        stage('Java 17 build') {
+            when { expression { params.Action != 'RELEASE' && (params.BUILD_W_JDK17 || isStdBranch) } }
+            steps {
+                container('jdk17') {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        script {
+                            sh "mvn clean package $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                         }
                     }
                 }
@@ -200,8 +226,10 @@ spec:
         }
         stage('Documentation') {
             when {
-                expression { params.Action != 'RELEASE' }
-                branch 'master'
+                allOf {
+                    expression { params.Action != 'RELEASE' }
+                    expression { isStdBranch }
+                }
             }
             steps {
                 container('main') {
@@ -221,8 +249,8 @@ spec:
                     withCredentials([ossrhCredentials]) {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                             sh """
-                                mvn ossindex:audit-aggregate -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
-                                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report
+                                mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
+                                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
                                """
                         }
                     }

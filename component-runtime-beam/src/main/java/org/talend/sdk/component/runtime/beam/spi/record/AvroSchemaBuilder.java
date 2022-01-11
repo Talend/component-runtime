@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,25 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
+import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 public class AvroSchemaBuilder implements Schema.Builder {
 
@@ -97,7 +101,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private static final AvroSchema BOOLEAN_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
             .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN))));
 
-    private List<org.apache.avro.Schema.Field> fields;
+    private List<Schema.Entry> fields;
 
     private Schema.Type type;
 
@@ -119,6 +123,21 @@ public class AvroSchemaBuilder implements Schema.Builder {
         if (fields == null) {
             fields = new ArrayList<>();
         }
+        final Schema.Entry realEntry = Schema.avoidCollision(entry, this.fields::stream, this::replaceEntry);
+        fields.add(realEntry);
+        return this;
+    }
+
+    private void replaceEntry(final String entryName, final Schema.Entry entry) {
+        for (int index = 0; index < fields.size(); index++) {
+            if (Objects.equals(entryName, fields.get(index).getName())) {
+                fields.set(index, entry);
+                return;
+            }
+        }
+    }
+
+    private Field entryToAvroField(final Schema.Entry entry) {
         final Unwrappable unwrappable;
         switch (entry.getType()) {
         case RECORD:
@@ -165,8 +184,59 @@ public class AvroSchemaBuilder implements Schema.Builder {
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
-        final Field f = AvroHelper.toField(schema, entry);
-        fields.add(f);
+        return AvroHelper.toField(schema, entry);
+    }
+
+    @Override
+    public Builder withEntryAfter(final String after, final Entry entry) {
+        withEntry(entry);
+        return moveAfter(after, entry.getName());
+    }
+
+    @Override
+    public Builder withEntryBefore(final String before, final Entry entry) {
+        withEntry(entry);
+        return moveBefore(before, entry.getName());
+    }
+
+    @Override
+    public Builder remove(final String name) {
+        return remove(fields.get(getEntryIndex(name)));
+    }
+
+    @Override
+    public Builder remove(final Entry entry) {
+        fields.remove(entry);
+        return this;
+    }
+
+    @Override
+    public Builder moveAfter(final String after, final String name) {
+        if (getEntryIndex(after) == -1) {
+            throw new IllegalArgumentException(String.format("%s not in schema", after));
+        }
+        final Entry entry = fields.remove(getEntryIndex(name));
+        int destination = getEntryIndex(after);
+        if (!(destination + 1 == fields.size())) {
+            destination += 1;
+        }
+        fields.add(destination, entry);
+        return this;
+    }
+
+    @Override
+    public Builder moveBefore(final String before, final String name) {
+        if (getEntryIndex(before) == -1) {
+            throw new IllegalArgumentException(String.format("%s not in schema", before));
+        }
+        final Entry entry = fields.remove(getEntryIndex(name));
+        fields.add(getEntryIndex(before), entry);
+        return this;
+    }
+
+    @Override
+    public Builder swap(final String name, final String with) {
+        Collections.swap(fields, getEntryIndex(name), getEntryIndex(with));
         return this;
     }
 
@@ -179,6 +249,15 @@ public class AvroSchemaBuilder implements Schema.Builder {
         final Schema avroSchema = this.toAvroSchema(schema);
         this.elementSchema = avroSchema;
         return this;
+    }
+
+    private int getEntryIndex(final String name) {
+        for (int index = 0; index < fields.size(); index++) {
+            if (Objects.equals(name, fields.get(index).getName())) {
+                return index;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -210,15 +289,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
             return entry;
         }
         final Schema avroSchema = this.toAvroSchema(elementSchema);
-        return new SchemaImpl.EntryImpl.BuilderImpl() //
-                .withName(entry.getName()) //
-                .withRawName(entry.getRawName()) //
-                .withNullable(entry.isNullable()) //
-                .withType(entry.getType()) //
-                .withDefaultValue(entry.getDefaultValue()) //
+        return entry
+                .toBuilder()
                 .withElementSchema(avroSchema) //
-                .withComment(entry.getComment()) //
-                .withProps(entry.getProps()) //
                 .build();
     }
 
@@ -260,9 +333,13 @@ public class AvroSchemaBuilder implements Schema.Builder {
             if (fields == null) {
                 return new AvroSchema(AvroSchemas.getEmptySchema());
             }
+            final List<Field> avroFields =
+                    this.fields.stream().map(this::entryToAvroField).collect(Collectors.toList());
             final org.apache.avro.Schema record = org.apache.avro.Schema
-                    .createRecord(SchemaIdGenerator.generateRecordName(fields), null, "talend.component.schema", false);
-            record.setFields(fields);
+                    .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
+                            false);
+            record.setFields(avroFields);
+            record.addProp(ENTRIES_ORDER_PROP, fields.stream().map(e -> e.getName()).collect(Collectors.joining(",")));
             return new AvroSchema(record);
         case ARRAY:
             if (elementSchema == null) {

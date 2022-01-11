@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PRECISION;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -63,6 +66,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TaCoKitGuessSchema {
+
+    public static final String STRING_ESCAPE = "\"";
 
     private ComponentManager componentManager;
 
@@ -308,7 +313,6 @@ public class TaCoKitGuessSchema {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + type + "#" + action));
         }
-
         final Object schemaResult = actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration));
 
         if (schemaResult instanceof Schema) {
@@ -330,6 +334,11 @@ public class TaCoKitGuessSchema {
         for (Schema.Entry entry : entries) {
             String name = entry.getName();
             Schema.Type entryType = entry.getType();
+            String dbName = entry.getOriginalFieldName();
+            String pattern = null;
+            String length = null;
+            String precision = null;
+            boolean isDateTime = false;
             if (entryType == null) {
                 entryType = Schema.Type.STRING;
             }
@@ -340,6 +349,8 @@ public class TaCoKitGuessSchema {
                 break;
             case DOUBLE:
                 typeName = javaTypesManager.DOUBLE.getId();
+                length = entry.getProp(STUDIO_LENGTH);
+                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case INT:
                 typeName = javaTypesManager.INTEGER.getId();
@@ -349,12 +360,16 @@ public class TaCoKitGuessSchema {
                 break;
             case FLOAT:
                 typeName = javaTypesManager.FLOAT.getId();
+                length = entry.getProp(STUDIO_LENGTH);
+                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case BYTES:
                 typeName = javaTypesManager.BYTE_ARRAY.getId();
                 break;
             case DATETIME:
                 typeName = javaTypesManager.DATE.getId();
+                isDateTime = true;
+                pattern = entry.getProp(STUDIO_PATTERN);
                 break;
             case RECORD:
                 typeName = javaTypesManager.OBJECT.getId();
@@ -368,11 +383,34 @@ public class TaCoKitGuessSchema {
             }
 
             final Column column = new Column();
-            // TODO check if can use entry.getLabel() value here?
             column.setLabel(name);
+            column.setOriginalDbColumnName(dbName);
             column.setTalendType(typeName);
             column.setNullable(entry.isNullable());
             column.setComment(entry.getComment());
+            if (length != null && precision != null) {
+                try {
+                    column.setLength(Integer.valueOf(length));
+                    column.setPrecision(Integer.valueOf(precision));
+                } catch (NumberFormatException e) {
+                    // let default values if props are trash...
+                }
+            }
+            if (isDateTime) {
+                if (pattern != null) {
+                    column.setPattern(STRING_ESCAPE + pattern + STRING_ESCAPE);
+                } else {
+                    // studio default pattern
+                    column.setPattern(STRING_ESCAPE + "dd-MM-yyyy" + STRING_ESCAPE);
+                }
+            }
+            if (entry.getDefaultValue() != null) {
+                try {
+                    column.setDefault(entry.getDefaultValue().toString());
+                } catch (Exception e) {
+                    // nevermind as it's almost useless...
+                }
+            }
             columns.put(name, column);
         }
         return true;
@@ -449,6 +487,7 @@ public class TaCoKitGuessSchema {
             final String name = field.getName();
             final Column column = new Column();
             column.setLabel(name);
+            column.setOriginalDbColumnName(name);
             column.setTalendType(getTalendType(field.getType()));
             column.setNullable(!field.getType().isPrimitive());
             columns.put(name, column);
@@ -470,6 +509,7 @@ public class TaCoKitGuessSchema {
         for (final String key : keysNoTypeYet) {
             final Column column = new Column();
             column.setLabel(key);
+            column.setOriginalDbColumnName(key);
             column.setTalendType(getTalendType(Object.class));
             column.setNullable(true);
             columns.put(key, column);
@@ -496,6 +536,7 @@ public class TaCoKitGuessSchema {
             for (final String key : keysNoTypeYet) {
                 final Column column = new Column();
                 column.setLabel(key);
+                column.setOriginalDbColumnName(key);
                 column.setTalendType(getTalendType(Object.class));
                 column.setNullable(true);
                 columns.put(key, column);
@@ -526,6 +567,7 @@ public class TaCoKitGuessSchema {
 
             final Column column = new Column();
             column.setLabel(key);
+            column.setOriginalDbColumnName(key);
             column.setTalendType(type);
             column.setNullable(true);
             columns.put(key, column);

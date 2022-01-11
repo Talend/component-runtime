@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,6 +51,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
@@ -306,6 +311,31 @@ public class ContainerManager implements Lifecycle {
 
     public Collection<Container> findAll() {
         return containers.values();
+    }
+
+    public List<String> getPluginsList() {
+        return findAll()
+                .stream()
+                .map(container -> container.getId())
+                .sorted()
+                .collect(toList());
+    }
+
+    public String getPluginsHash() {
+        final String plugins = getPluginsList().stream().collect(Collectors.joining());
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(plugins.getBytes(StandardCharsets.UTF_8));
+            final char[] hexChars = "0123456789abcdef".toCharArray();
+            final StringBuilder out = new StringBuilder(hash.length * 2);
+            for (final byte b : hash) {
+                out.append(hexChars[b >> 4 & 15]).append(hexChars[b & 15]);
+            }
+            return out.toString();
+        } catch (NoSuchAlgorithmException e) {
+            log.error("[getPluginsHash] {}", e.getMessage());
+            throw new IllegalStateException(e);
+        }
     }
 
     private Stream<String> getComponentModules() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,16 +19,14 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.37.0-SNAPSHOT</version>
+    <version>1.41.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-vault-proxy</artifactId>
 
   <name>Component Runtime :: Server Parent :: Vault Proxy</name>
-  <description>
-    Proxies Component Server with decrypting of credential using Vault.
-    Note that this proxy is intended to be replaced by a real more advanced proxy later on.
-  </description>
+  <description>Proxies Component Server with decrypting of credential using Vault.
+    Note that this proxy is intended to be replaced by a real more advanced proxy later on.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.vault.proxy</talend.build.name>
@@ -44,7 +42,6 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
-      <version>${johnzon.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.meecrowave</groupId>
@@ -145,19 +142,19 @@
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <version>${git-commit-id-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>generate-the-git-infos</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <generateGitPropertiesFile>true</generateGitPropertiesFile>
           <generateGitPropertiesFilename>${project.build.outputDirectory}/TALEND-INF/git.properties</generateGitPropertiesFilename>
         </configuration>
+        <executions>
+          <execution>
+            <id>generate-the-git-infos</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

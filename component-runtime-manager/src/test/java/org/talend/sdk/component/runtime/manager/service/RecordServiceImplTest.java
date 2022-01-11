@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ class RecordServiceImplTest {
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> factory, null)
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null));
+                                    RecordService.class, null, null));
 
     private final Schema address = factory
             .newSchemaBuilder(RECORD)

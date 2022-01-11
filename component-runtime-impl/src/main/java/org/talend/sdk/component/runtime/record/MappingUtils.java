@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,9 +54,6 @@ public class MappingUtils {
         if (Long.class.isInstance(value) && expectedType != Long.class) {
             if (ZonedDateTime.class == expectedType) {
                 final long epochMilli = Number.class.cast(value).longValue();
-                if (epochMilli == -1L) { // not <0 which can be a bug
-                    return null;
-                }
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC);
             }
             if (Date.class == expectedType) {

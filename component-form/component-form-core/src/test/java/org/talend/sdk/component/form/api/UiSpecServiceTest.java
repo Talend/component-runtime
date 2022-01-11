@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -645,7 +646,11 @@ class UiSpecServiceTest {
 
                             assertNotNull(driver.getTriggers());
                             assertEquals(1, driver.getTriggers().size());
-                            final Collection<UiSchema.NameValue> titleMap = driver.getTitleMap();
+                            final Collection<UiSchema.NameValue> titleMap = driver
+                                    .getTitleMap()
+                                    .stream()
+                                    .map(UiSchema.NameValue.class::cast)
+                                    .collect(Collectors.toList());
                             assertEquals(1, titleMap.size());
                             final UiSchema.NameValue firstTitleMap = titleMap.iterator().next();
                             assertEquals("some.driver.Jdbc", firstTitleMap.getValue());

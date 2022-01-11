@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ def validateWrapperFile(File baseDir, String file){
             }
             break
         case "gradlew.bat":
-            if(!from.text.contains('"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %CMD_LINE_ARGS%')){
+            if(!from.text.contains('"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*')){
                 throw new IllegalStateException("Invalid file: " + file);
             }
             break

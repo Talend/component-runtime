@@ -958,7 +958,7 @@
   ],
   "displayName": "Marketo Input",
   "icon": "MarketoInput",
-  "id": {
+  "componentId": {
     "family": "Marketo",
     "familyId": "bWFya2V0byNNYXJrZXRv",
     "id": "bWFya2V0byNNYXJrZXRvI0lucHV0",

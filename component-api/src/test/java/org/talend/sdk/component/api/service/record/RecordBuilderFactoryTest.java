@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,11 @@ class RecordBuilderFactoryTest {
         @Override
         public String getProp(final String property) {
             return this.getProps().get(property);
+        }
+
+        @Override
+        public Builder toBuilder() {
+            throw new UnsupportedOperationException("#toBuilder()");
         }
     }
 

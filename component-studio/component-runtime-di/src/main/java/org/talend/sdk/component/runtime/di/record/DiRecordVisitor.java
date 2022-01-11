@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PRECISION;
 
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
@@ -92,7 +95,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null));
+                                    RecordService.class, null, null));
 
     DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;
@@ -118,9 +121,9 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             log
                     .debug("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
                             metadata);
-            dynamicColumnLength = Integer.valueOf(metadata.getOrDefault("length", "-1"));
-            dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault("precision", "-1"));
-            dynamicColumnPattern = metadata.getOrDefault("pattern", "yyyy-MM-dd");
+            dynamicColumnLength = Integer.valueOf(metadata.getOrDefault(STUDIO_LENGTH, "-1"));
+            dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault(STUDIO_PRECISION, "-1"));
+            dynamicColumnPattern = metadata.getOrDefault(STUDIO_PATTERN, "yyyy-MM-dd");
         } catch (final NoSuchMethodException | IllegalAccessException | InstantiationException
                 | InvocationTargetException e) {
             throw new IllegalStateException(e);

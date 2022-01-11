@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -88,7 +89,35 @@ public class VisitorsTest {
 
         public String id;
 
+        public Boolean idIsNullable() {
+            return false;
+        }
+
+        public Boolean idIsKey() {
+            return true;
+        }
+
         public String name;
+
+        public Boolean nameIsNullable() {
+            return false;
+        }
+
+        public Boolean nameIsKey() {
+            return true;
+        }
+
+        public String nameDefault() {
+            return "John";
+        }
+
+        public String nameComment() {
+            return "A small comment on name field...";
+        }
+
+        public String nameOriginalDbColumnName() {
+            return "namy";
+        }
 
         public short shortP;
 
@@ -104,6 +133,14 @@ public class VisitorsTest {
 
         public float floatP;
 
+        public Integer floatPLength() {
+            return 10;
+        }
+
+        public Integer floatPPrecision() {
+            return 2;
+        }
+
         public Float floatC;
 
         public double doubleP;
@@ -111,6 +148,14 @@ public class VisitorsTest {
         public Double doubleC;
 
         public Date date0;
+
+        public Boolean date0IsKey() {
+            return false;
+        }
+
+        public String date0Pattern() {
+            return "YYYY-mm-dd HH:MM:ss";
+        }
 
         public Date date1;
 
@@ -124,6 +169,14 @@ public class VisitorsTest {
 
         public BigDecimal bigDecimal0;
 
+        public Integer bigDecimal0Length() {
+            return 30;
+        }
+
+        public Integer bigDecimal0Precision() {
+            return 10;
+        }
+
         public boolean bool0;
 
         public Boolean bool1;
@@ -133,6 +186,43 @@ public class VisitorsTest {
         public Object object0;
 
         public Dynamic dynamic;
+
+        public Boolean dynamicIsNullable() {
+            return false;
+        }
+
+        public Boolean dynamicIsKey() {
+            return true;
+        }
+
+        public String dynamicComment() {
+            return "dYnAmIc";
+        }
+
+        public Integer dynamicLength() {
+            return 30;
+        }
+
+        public Integer dynamicPrecision() {
+            return 10;
+        }
+
+        public String dynamicPattern() {
+            return "YYYY-mm-ddTHH:MM";
+        }
+
+        public String h;
+
+        public boolean hAshcOdEdIrtY;
+
+        @Getter(value = AccessLevel.NONE)
+        public boolean hashCodeDirty = true;
+
+        @Getter(value = AccessLevel.NONE)
+        public String loopKey = "loopyyyy";
+
+        @Getter(value = AccessLevel.NONE)
+        public String lookKey = "lookKIIII";
 
         @Override
         public void writeData(final ObjectOutputStream objectOutputStream) {

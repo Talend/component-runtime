@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.Connectors;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -90,7 +92,10 @@ public class ComponentServerMock {
     @GET
     @Path("environment")
     public Environment environment() {
-        return new Environment(1, "test", "test", null, new Date(0), "1.2.3");
+        return new Environment(1, "test", "test", null, new Date(0),
+                new Connectors("1.2.3", "3a507eb7e52c9acd14c247d62bffecdee6493fc08f9cf69f65b941a64fcbf179",
+                        Arrays.asList("another-test-component", "collection-of-object",
+                                "component-with-user-jars", "file-component", "jdbc-component", "the-test-component")));
     }
 
     @POST

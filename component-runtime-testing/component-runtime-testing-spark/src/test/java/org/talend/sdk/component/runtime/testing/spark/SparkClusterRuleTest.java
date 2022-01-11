@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import lombok.NoArgsConstructor;
 public class SparkClusterRuleTest {
 
     @ClassRule
-    public static final SparkClusterRule SPARK = new SparkClusterRule("2.12", "3.0.1", 1);
+    public static final SparkClusterRule SPARK = new SparkClusterRule("2.12", "3.2.0", 1);
 
     @Rule
     public final TestName testName = new TestName();

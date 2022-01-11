@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.util.Locale;
 
@@ -30,15 +31,21 @@ import org.talend.sdk.component.runtime.manager.test.Serializer;
 
 class JavaProxyEnricherFactoryTest {
 
+    private final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+
+    private final JavaProxyEnricherFactory proxyFactory = new JavaProxyEnricherFactory();
+
+    private final InternationalizationServiceFactory builder =
+            new InternationalizationServiceFactory(Locale::getDefault);
+
     @Test
     void serialization() throws IOException, ClassNotFoundException {
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        final JavaProxyEnricherFactory factory = new JavaProxyEnricherFactory();
+
+        final Translator translator = builder.create(Translator.class, loader);
         final Translator proxyBased = Translator.class
-                .cast(factory
+                .cast(proxyFactory
                         .asSerializable(loader, getClass().getSimpleName(), Translator.class.getName(),
-                                new InternationalizationServiceFactory(Locale::getDefault)
-                                        .create(Translator.class, loader)));
+                                translator, true));
         assertEquals("ok", proxyBased.message());
 
         DynamicContainerFinder.SERVICES.put(Translator.class, proxyBased);
@@ -54,11 +61,31 @@ class JavaProxyEnricherFactoryTest {
     }
 
     @Test
+    void serializationOnSerial() throws IOException, ClassNotFoundException {
+
+        final SerialTranslator translatorInstance = builder.create(SerialTranslator.class, loader);
+        final SerialTranslator proxyBased = SerialTranslator.class
+                .cast(proxyFactory
+                        .asSerializable(loader, getClass().getSimpleName(), SerialTranslator.class.getName(),
+                                translatorInstance, true));
+        assertEquals("serial ok", proxyBased.message());
+
+        DynamicContainerFinder.SERVICES.put(SerialTranslator.class, proxyBased);
+        DynamicContainerFinder.LOADERS.put(getClass().getSimpleName(), Thread.currentThread().getContextClassLoader());
+        try {
+            final SerialTranslator fromApi = Serializer.roundTrip(proxyBased);
+            assertEquals(fromApi, proxyBased);
+            assertSame(Proxy.getInvocationHandler(fromApi), Proxy.getInvocationHandler(proxyBased));
+        } finally {
+            DynamicContainerFinder.LOADERS.clear();
+            DynamicContainerFinder.SERVICES.remove(Translator.class);
+        }
+    }
+
+    @Test
     void defaultMethod() {
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        final JavaProxyEnricherFactory factory = new JavaProxyEnricherFactory();
         final SomeDefault proxyBased = SomeDefault.class
-                .cast(factory
+                .cast(proxyFactory
                         .asSerializable(loader, getClass().getSimpleName(), SomeDefault.class.getName(),
                                 new SomeDefault() {
 
@@ -79,6 +106,12 @@ class JavaProxyEnricherFactoryTest {
 
     @Internationalized
     public interface Translator {
+
+        String message();
+    }
+
+    @Internationalized
+    public interface SerialTranslator extends Serializable {
 
         String message();
     }

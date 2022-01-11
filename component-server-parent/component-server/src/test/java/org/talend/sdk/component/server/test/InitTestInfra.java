@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,6 +99,14 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
         final String skipLogs = System.getProperty("component.server.test.logging.skip", "true");
         System.setProperty("talend.component.server.request.log", Boolean.toString("false".equals(skipLogs)));
+
+        //
+        System.setProperty("talend.component.server.plugins.reloading.active", "true");
+        System.setProperty("talend.component.server.plugins.reloading.interval", "5");
+        System
+                .setProperty("talend.component.server.plugins.reloading.marker",
+                        "target/InitTestInfra/.m2/repository/CONNECTORS_VERSION");
+
     }
 
     private String createUserJars(final String tempDir) {

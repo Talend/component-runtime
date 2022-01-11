@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,7 +125,6 @@ import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
-import org.talend.sdk.component.api.service.schema.Type;
 import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
 import org.talend.sdk.component.remoteengine.customizer.Cli;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
@@ -863,9 +862,11 @@ public class Generator {
             return jsonb.toJson(status);
         }
         if (returnedType == Schema.class) {
-            final Schema.Entry entry = new Schema.Entry();
-            entry.setName("column1");
-            entry.setType(Type.STRING);
+            final org.talend.sdk.component.api.record.Schema.Entry entry =
+                    new SchemaImpl.EntryImpl.BuilderImpl()
+                            .withName("column1")
+                            .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                            .build();
 
             final Schema schema = new Schema();
             schema.setEntries(new ArrayList<>());
@@ -1088,8 +1089,12 @@ public class Generator {
                                     && Annotation.class == method.getDeclaringClass()) {
                                 return type;
                             }
-                            if (Defaults.isDefaultAndShouldHandle(method)) {
-                                return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
+                            if (method.isDefault()) {
+                                try {
+                                    return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
+                                } catch (Throwable e) {
+                                    log.error("[generateAnnotation] handleDefault failed: {}", e.getMessage());
+                                }
                             }
                             final Class<?> returnType = method.getReturnType();
                             if (int.class == returnType) {

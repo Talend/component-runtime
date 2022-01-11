@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
     protected abstract void assertTrue(final String message, final boolean value);
 
     protected abstract File getRoot();
+
+    protected final static String EXTRA_JVM_ARGS =
+            "--add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED";
 
     public T withSlaves(final int slaves) {
         this.slaves = slaves;
@@ -548,6 +551,12 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                                         Stream.of(mainAndArgs))
                                 .collect(toList()));
                 final Map<String, String> environment = builder.environment();
+                final String jvmVersion = System.getProperty("java.version", "1.8");
+                // poor check - suppose using at least jvm 8...
+                final Boolean isJava8 = jvmVersion.startsWith("1.8.") || jvmVersion.startsWith("8.");
+                if (!isJava8) { // j8
+                    environment.put("_JAVA_OPTIONS", EXTRA_JVM_ARGS);
+                }
                 environment.put("SPARK_HOME", sparkHome.getAbsolutePath());
                 environment.put("SPARK_SCALA_VERSION", scalaVersion); // using jarLocation we can determine it if needed
                 if (config.version == Version.SPARK_1) { // classpath is relying on assemblies not on maven so force the
@@ -668,6 +677,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
     }
 
     public enum Version {
+
         SPARK_1 {
 
             @Override

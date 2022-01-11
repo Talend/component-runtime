@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public class QueryBuilder implements Serializable {
     private String value = "";
 
     public enum Operation {
+
         Equals("="),
         Not_Equals("!="),
         Greater_Than(">"),

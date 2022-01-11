@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.talend.sdk.component.api.record.Schema.Type;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 class DiRecordVisitorTest extends VisitorsTest {
 
     @Test
@@ -133,7 +132,6 @@ class DiRecordVisitorTest extends VisitorsTest {
         final DiRecordVisitor visitor = new DiRecordVisitor(RowStruct.class, Collections.emptyMap());
         final RowStruct rowStruct = RowStruct.class.cast(visitor.visit(record));
         assertNotNull(rowStruct);
-        log.info("[get] {}", rowStruct);
         // asserts rowStruct::members
         assertEquals(":testing:", rowStruct.id);
         assertEquals(NAME, rowStruct.name);

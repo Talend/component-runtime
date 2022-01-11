@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.talend.sdk.component.api.record;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
@@ -60,6 +61,15 @@ class RecordTest {
         final OptionalLong opt = new MockRecord(value).getOptionalLong("ddd");
         assertTrue(opt.isPresent());
         assertEquals(value, opt.orElseThrow(IllegalStateException::new));
+    }
+
+    /**
+     * Ensure API contract will not break
+     */
+    @Test
+    void testDefaults() {
+        Record record = new MockRecord(null);
+        assertThrows(UnsupportedOperationException.class, () -> record.withNewSchema(null));
     }
 
     @RequiredArgsConstructor

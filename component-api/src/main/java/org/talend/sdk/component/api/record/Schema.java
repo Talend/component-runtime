@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,37 @@
  */
 package org.talend.sdk.component.api.record;
 
+import static java.util.Collections.emptyList;
+
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.Json;
 import javax.json.JsonValue;
+import javax.json.bind.annotation.JsonbTransient;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 public interface Schema {
 
@@ -60,11 +74,48 @@ public interface Schema {
      */
     Stream<Entry> getAllEntries();
 
+    /**
+     * Get a Builder from the current schema.
+     *
+     * @return a {@link Schema.Builder}
+     */
+    default Schema.Builder toBuilder() {
+        throw new UnsupportedOperationException("#toBuilder is not implemented");
+    }
+
+    /**
+     * Get all entries sorted by schema designed order.
+     *
+     * @return all entries ordered
+     */
+    default List<Entry> getEntriesOrdered() {
+        return getEntriesOrdered(naturalOrder());
+    }
+
+    /**
+     * Get all entries sorted using a custom comparator.
+     *
+     * @param comparator the comparator
+     *
+     * @return all entries ordered with provided comparator
+     */
+    @JsonbTransient
+    default List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+        return getAllEntries().sorted(comparator).collect(Collectors.toList());
+    }
+
+    /**
+     * Get the EntriesOrder defined with Builder.
+     *
+     * @return the EntriesOrder
+     */
+
+    default EntriesOrder naturalOrder() {
+        throw new UnsupportedOperationException("#naturalOrder is not implemented");
+    }
+
     default Entry getEntry(final String name) {
-        return Optional
-                .ofNullable(getEntries()) //
-                .orElse(Collections.emptyList()) //
-                .stream() //
+        return getAllEntries() //
                 .filter((Entry e) -> Objects.equals(e.getName(), name)) //
                 .findFirst() //
                 .orElse(null);
@@ -77,14 +128,16 @@ public interface Schema {
 
     /**
      * @param property : property name.
+     *
      * @return the requested metadata prop
      */
     String getProp(String property);
 
     /**
      * Get a property values from schema with its name.
-     * 
+     *
      * @param name : property's name.
+     *
      * @return property's value.
      */
     default JsonValue getJsonProp(final String name) {
@@ -100,6 +153,7 @@ public interface Schema {
     }
 
     enum Type {
+
         RECORD(new Class<?>[] { Record.class }),
         ARRAY(new Class<?>[] { Collection.class }),
         STRING(new Class<?>[] { String.class }),
@@ -111,7 +165,9 @@ public interface Schema {
         BOOLEAN(new Class<?>[] { Boolean.class }),
         DATETIME(new Class<?>[] { Long.class, Date.class, Temporal.class });
 
-        /** All compatibles Java classes */
+        /**
+         * All compatibles Java classes
+         */
         private final Class<?>[] classes;
 
         Type(final Class<?>[] classes) {
@@ -120,8 +176,9 @@ public interface Schema {
 
         /**
          * Check if input can be affected to an entry of this type.
-         * 
+         *
          * @param input : object.
+         *
          * @return true if input is null or ok.
          */
         public boolean isCompatible(final Object input) {
@@ -171,6 +228,7 @@ public interface Schema {
 
         /**
          * @param <T> the default value type.
+         *
          * @return Default value for this entry.
          */
         <T> T getDefaultValue();
@@ -192,14 +250,16 @@ public interface Schema {
 
         /**
          * @param property : property name.
+         *
          * @return the requested metadata prop
          */
         String getProp(String property);
 
         /**
          * Get a property values from entry with its name.
-         * 
+         *
          * @param name : property's name.
+         *
          * @return property's value.
          */
         default JsonValue getJsonProp(final String name) {
@@ -214,7 +274,12 @@ public interface Schema {
             }
         }
 
-        // Map<String, Object> metadata <-- DON'T DO THAT, ENSURE ANY META IS TYPED!
+        /**
+         * @return an {@link Entry.Builder} from this entry.
+         */
+        default Entry.Builder toBuilder() {
+            throw new UnsupportedOperationException("#toBuilder is not implemented");
+        }
 
         /**
          * Plain builder matching {@link Entry} structure.
@@ -242,43 +307,122 @@ public interface Schema {
             Builder withProp(String key, String value);
 
             Entry build();
-
         }
     }
 
     /**
-     * Allows to build a schema.
+     * Allows to build a {@link Schema}.
      */
     interface Builder {
 
         /**
          * @param type schema type.
+         *
          * @return this builder.
          */
         Builder withType(Type type);
 
         /**
          * @param entry element for either an array or record type.
+         *
          * @return this builder.
          */
         Builder withEntry(Entry entry);
 
         /**
+         * Insert the entry after the specified entry.
+         *
+         * @param after the entry name reference
+         * @param entry the entry name
+         *
+         * @return this builder
+         */
+        default Builder withEntryAfter(String after, Entry entry) {
+            throw new UnsupportedOperationException("#withEntryAfter is not implemented");
+        }
+
+        /**
+         * Insert the entry before the specified entry.
+         *
+         * @param before the entry name reference
+         * @param entry the entry name
+         *
+         * @return this builder
+         */
+        default Builder withEntryBefore(String before, Entry entry) {
+            throw new UnsupportedOperationException("#withEntryBefore is not implemented");
+        }
+
+        /**
+         * Remove entry from builder.
+         *
+         * @param name the entry name
+         *
+         * @return this builder
+         */
+        default Builder remove(String name) {
+            throw new UnsupportedOperationException("#remove is not implemented");
+        }
+
+        /**
+         * Remove entry from builder.
+         *
+         * @param entry the entry
+         *
+         * @return this builder
+         */
+        default Builder remove(Entry entry) {
+            throw new UnsupportedOperationException("#remove is not implemented");
+        }
+
+        /**
+         * Move an entry after another one.
+         *
+         * @param after the entry name reference
+         * @param name the entry name
+         */
+        default Builder moveAfter(final String after, final String name) {
+            throw new UnsupportedOperationException("#moveAfter is not implemented");
+        }
+
+        /**
+         * Move an entry before another one.
+         *
+         * @param before the entry name reference
+         * @param name the entry name
+         */
+        default Builder moveBefore(final String before, final String name) {
+            throw new UnsupportedOperationException("#moveBefore is not implemented");
+        }
+
+        /**
+         * Swap two entries.
+         *
+         * @param name the entry name
+         * @param with the other entry name
+         */
+        default Builder swap(final String name, final String with) {
+            throw new UnsupportedOperationException("#swap is not implemented");
+        }
+
+        /**
          * @param schema nested element schema.
+         *
          * @return this builder.
          */
         Builder withElementSchema(Schema schema);
 
         /**
          * @param props schema properties
+         *
          * @return this builder
          */
         Builder withProps(Map<String, String> props);
 
         /**
-         *
          * @param key the prop key name
          * @param value the prop value
+         *
          * @return this builder
          */
         Builder withProp(String key, String value);
@@ -291,8 +435,9 @@ public interface Schema {
 
     /**
      * Sanitize name to be avro compatible.
-     * 
+     *
      * @param name : original name.
+     *
      * @return avro compatible name.
      */
     static String sanitizeConnectionName(final String name) {
@@ -344,4 +489,140 @@ public interface Schema {
         return sanitizedBuilder.toString();
     }
 
+    @AllArgsConstructor
+    @ToString
+    @EqualsAndHashCode
+    class EntriesOrder implements Comparator<Entry> {
+
+        @Getter
+        private final List<String> fieldsOrder;
+
+        /**
+         * Build an EntriesOrder according fields.
+         *
+         * @param fields the fields ordering
+         *
+         * @return the order EntriesOrder
+         */
+        public static EntriesOrder of(final String fields) {
+            return new EntriesOrder(fields);
+        }
+
+        public EntriesOrder(final String fields) {
+            if (fields == null) {
+                fieldsOrder = emptyList();
+            } else {
+                fieldsOrder = Arrays.stream(fields.split(",")).collect(Collectors.toList());
+            }
+        }
+
+        /**
+         * Move a field after another one.
+         *
+         * @param after the field name reference
+         * @param name the field name
+         *
+         * @return this EntriesOrder
+         */
+        public EntriesOrder moveAfter(final String after, final String name) {
+            if (getFieldsOrder().indexOf(after) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", after));
+            }
+            getFieldsOrder().remove(name);
+            int destination = getFieldsOrder().indexOf(after);
+            if (!(destination + 1 == getFieldsOrder().size())) {
+                destination += 1;
+            }
+            getFieldsOrder().add(destination, name);
+            return this;
+        }
+
+        /**
+         * Move a field before another one.
+         *
+         * @param before the field name reference
+         * @param name the field name
+         *
+         * @return this EntriesOrder
+         */
+        public EntriesOrder moveBefore(final String before, final String name) {
+            if (getFieldsOrder().indexOf(before) == -1) {
+                throw new IllegalArgumentException(String.format("%s not in schema", before));
+            }
+            getFieldsOrder().remove(name);
+            getFieldsOrder().add(getFieldsOrder().indexOf(before), name);
+            return this;
+        }
+
+        /**
+         * Swap two fields.
+         *
+         * @param name the field name
+         * @param with the other field
+         *
+         * @return this EntriesOrder
+         */
+        public EntriesOrder swap(final String name, final String with) {
+            Collections.swap(getFieldsOrder(), getFieldsOrder().indexOf(name), getFieldsOrder().indexOf(with));
+            return this;
+        }
+
+        public String toFields() {
+            return getFieldsOrder().stream().collect(Collectors.joining(","));
+        }
+
+        @Override
+        public int compare(final Entry e1, final Entry e2) {
+            final int index1 = getFieldsOrder().indexOf(e1.getName());
+            final int index2 = getFieldsOrder().indexOf(e2.getName());
+            if (index1 >= 0 && index2 >= 0) {
+                return index1 - index2;
+            }
+            if (index1 >= 0) {
+                return -1;
+            }
+            if (index2 >= 0) {
+                return 1;
+            }
+            return 0;
+        }
+    }
+
+    static Schema.Entry avoidCollision(final Schema.Entry newEntry,
+            final Supplier<Stream<Schema.Entry>> allEntriesSupplier, final BiConsumer<String, Entry> replaceFunction) {
+        final Optional<Entry> collisionedEntry = allEntriesSupplier //
+                .get() //
+                .filter((final Entry field) -> field.getName().equals(newEntry.getName())
+                        && !Objects.equals(field, newEntry)) //
+                .findFirst();
+        if (!collisionedEntry.isPresent()) {
+            // No collision, return new entry.
+            return newEntry;
+        }
+        final Entry matchedEntry = collisionedEntry.get();
+        final boolean matchedToChange = matchedEntry.getRawName() != null && !(matchedEntry.getRawName().isEmpty());
+        if (matchedToChange) {
+            // the rename has to be applied on entry already inside schema, so replace.
+            replaceFunction.accept(matchedEntry.getName(), newEntry);
+        } else if (newEntry.getRawName() == null || newEntry.getRawName().isEmpty()) {
+            // try to add exactly same raw, skip the add here.
+            return null;
+        }
+        final Entry fieldToChange = matchedToChange ? matchedEntry : newEntry;
+        int indexForAnticollision = 1;
+        final String baseName = Schema.sanitizeConnectionName(fieldToChange.getRawName()); // recalc primiti name.
+
+        String newName = baseName + "_" + indexForAnticollision;
+        final Set<String> existingNames = allEntriesSupplier //
+                .get() //
+                .map(Entry::getName) //
+                .collect(Collectors.toSet());
+        while (existingNames.contains(newName)) {
+            indexForAnticollision++;
+            newName = baseName + "_" + indexForAnticollision;
+        }
+        final Entry newFieldToAdd = fieldToChange.toBuilder().withName(newName).build();
+
+        return newFieldToAdd; // matchedToChange ? newFieldToAdd : newEntry;
+    }
 }

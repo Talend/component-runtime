@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,6 @@ import org.apache.xbean.finder.filter.PrefixFilter;
 import org.apache.xbean.finder.util.Files;
 import org.apache.xbean.propertyeditor.Converter;
 import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -142,6 +141,7 @@ import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalReposit
 import org.talend.sdk.component.jmx.JmxManager;
 import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
+import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.impl.Mode;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -161,6 +161,7 @@ import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.manager.service.ServiceHelper;
+import org.talend.sdk.component.runtime.manager.service.api.ComponentInstantiator;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.util.Lazy;
@@ -820,28 +821,20 @@ public class ComponentManager implements AutoCloseable {
         return findGenericInstance(plugin, name, componentType, version, configuration, pluginContainer)
                 .orElseGet(
                         () -> findDeployedInstance(plugin, name, componentType, version, configuration, pluginContainer)
-                                .filter(Objects::nonNull)
-                                .findFirst()
                                 .orElse(null));
     }
 
-    private Stream<Object> findDeployedInstance(final String plugin, final String name,
+    private Optional<Object> findDeployedInstance(final String plugin, final String name,
             final ComponentType componentType, final int version, final Map<String, String> configuration,
             final Container pluginContainer) {
-        return Stream
-                .of(pluginContainer.get(ContainerComponentRegistry.class))
-                .filter(Objects::nonNull)
-                .map(r -> r.getComponents().get(container.buildAutoIdFromName(plugin)))
-                .filter(Objects::nonNull)
-                .map(component -> componentType.findMeta(component).get(name))
-                .filter(Objects::nonNull)
-                .map(comp -> {
-                    if (configuration == null) {
-                        return comp.getInstantiator().apply(null);
-                    }
-                    final Supplier<MigrationHandler> migrationHandler = comp.getMigrationHandler();
-                    return comp.getInstantiator().apply(migrationHandler.get().migrate(version, configuration));
-                });
+
+        final String pluginIdentifier = container.buildAutoIdFromName(plugin);
+
+        final ComponentInstantiator.Builder builder = new ComponentInstantiator.BuilderDefault(
+                () -> Stream.of(pluginContainer.get(ContainerComponentRegistry.class)));
+        return ofNullable(
+                builder.build(pluginIdentifier, ComponentInstantiator.MetaFinder.ofComponent(name), componentType))
+                        .map((ComponentInstantiator instantiator) -> instantiator.instantiate(configuration, version));
     }
 
     private Optional<Object> findGenericInstance(final String plugin, final String name,
@@ -1079,46 +1072,47 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public enum ComponentType {
+
         MAPPER {
 
             @Override
-            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
+            public Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
                 return family.getPartitionMappers();
             }
 
             @Override
-            Class<?> runtimeType() {
+            Class<? extends Lifecycle> runtimeType() {
                 return Mapper.class;
             }
         },
         PROCESSOR {
 
             @Override
-            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
+            public Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
                 return family.getProcessors();
             }
 
             @Override
-            Class<?> runtimeType() {
+            Class<? extends Lifecycle> runtimeType() {
                 return org.talend.sdk.component.runtime.output.Processor.class;
             }
         },
         DRIVER_RUNNER {
 
             @Override
-            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
+            public Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
                 return family.getDriverRunners();
             }
 
             @Override
-            Class<?> runtimeType() {
+            Class<? extends Lifecycle> runtimeType() {
                 return org.talend.sdk.component.runtime.standalone.DriverRunner.class;
             }
         };
 
-        abstract Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
+        abstract public Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
 
-        abstract Class<?> runtimeType();
+        abstract Class<? extends Lifecycle> runtimeType();
     }
 
     @AllArgsConstructor
@@ -1262,13 +1256,21 @@ public class ComponentManager implements AutoCloseable {
             }
 
             final AtomicReference<Map<Class<?>, Object>> seviceLookupRef = new AtomicReference<>();
+
+            final ContainerManager containerManager = ComponentManager.this.getContainer();
+            final Supplier<Stream<ContainerComponentRegistry>> registriesSupplier = () -> containerManager
+                    .findAll()
+                    .stream()
+                    .map((Container c) -> c.get(ContainerComponentRegistry.class));
+            final ComponentInstantiator.Builder builder = new ComponentInstantiator.BuilderDefault(registriesSupplier);
+
             final Map<Class<?>, Object> services = new LazyMap<>(24,
                     type -> defaultServiceProvider
                             .lookup(container.getId(), container.getLoader(),
                                     () -> container
                                             .getLoader()
                                             .findContainedResources("TALEND-INF/local-configuration.properties"),
-                                    container.getLocalDependencyRelativeResolver(), type, seviceLookupRef));
+                                    container.getLocalDependencyRelativeResolver(), type, seviceLookupRef, builder));
             seviceLookupRef.set(services);
 
             final AllServices allServices = new AllServices(services);
@@ -1291,10 +1293,11 @@ public class ComponentManager implements AutoCloseable {
 
             final Map<String, AnnotatedElement> componentDefaults = new HashMap<>();
 
-            finder.findAnnotatedClasses(Internationalized.class).forEach(proxy -> {
+            finder.findAnnotatedClasses(Internationalized.class).forEach((Class proxy) -> {
+                final Object service = internationalizationServiceFactory.create(proxy, container.getLoader());
                 final Object instance = javaProxyEnricherFactory
                         .asSerializable(container.getLoader(), container.getId(), proxy.getName(),
-                                internationalizationServiceFactory.create(proxy, container.getLoader()));
+                                service, true);
                 services.put(proxy, instance);
                 registry.getServices().add(new ServiceMeta(instance, emptyList()));
             });

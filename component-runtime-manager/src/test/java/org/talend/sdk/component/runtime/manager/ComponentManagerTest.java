@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,8 +143,9 @@ class ComponentManagerTest extends JarNoCacheTest {
         DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl("plugin"));
         final String jvd = System.getProperty("java.version.date"); // java 11
         System.clearProperty("java.version.date");
+        final File dependencyFile = new File("target/test-dependencies");
         try (final ComponentManager manager =
-                new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+                new ComponentManager(dependencyFile, "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
             final Mapper mapper =
                     manager.findMapper("config", "injected", 1, emptyMap()).orElseThrow(IllegalStateException::new);
