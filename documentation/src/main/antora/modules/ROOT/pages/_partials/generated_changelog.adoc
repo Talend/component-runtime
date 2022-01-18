@@ -11,6 +11,12 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2073[TCOMP-2073^]: Upgrade maven-core to 3.8.4 due to CVE
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2057[TCOMP-2057^]: AvroSchema : optimize getType by using type fields

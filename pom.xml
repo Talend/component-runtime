@@ -211,7 +211,7 @@
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <mvn.version>3.8.1</mvn.version>
+    <mvn.version>3.8.4</mvn.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
     <beam.version>2.33.0</beam.version>
@@ -1145,7 +1145,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.9.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
