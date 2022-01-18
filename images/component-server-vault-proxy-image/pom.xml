@@ -231,7 +231,6 @@
             <DOCKER_REGISTRY_HOST>${docker.registryHost}</DOCKER_REGISTRY_HOST>
             <TSBI_IMAGE_PATH>${docker.tsbiPath}</TSBI_IMAGE_PATH>
             <TSBI_VERSION>${docker.tsbiVersion}</TSBI_VERSION>
-            <BOUND_PORT>${boundPort}</BOUND_PORT>
             <GIT_BRANCH>${git.branch}</GIT_BRANCH>
             <GIT_COMMIT>${git.commit.id}</GIT_COMMIT>
           </buildArgs>
