@@ -17,8 +17,10 @@ package org.talend.sdk.component.runtime.di.record;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_KEY;
 import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_LENGTH;
 import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PATTERN;
 import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PRECISION;
@@ -214,10 +216,25 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         metadata.setDbName(entry.getOriginalFieldName());
         metadata.setNullable(entry.isNullable());
         metadata.setDescription(entry.getComment());
-        metadata.setKey(false);
         metadata.setSourceType(sourceTypes.unknown);
-        metadata.setLength(dynamicColumnLength);
-        metadata.setPrecision(dynamicColumnPrecision);
+
+        final Boolean isKey = ofNullable(entry.getProp(STUDIO_KEY))
+                .filter(l -> !l.isEmpty())
+                .map(Boolean::valueOf)
+                .orElse(false);
+        final Integer length = ofNullable(entry.getProp(STUDIO_LENGTH))
+                .filter(l -> !l.isEmpty())
+                .map(Integer::valueOf)
+                .orElse(dynamicColumnLength);
+        final Integer precision = ofNullable(entry.getProp(STUDIO_PRECISION))
+                .filter(l -> !l.isEmpty())
+                .map(Integer::valueOf)
+                .orElse(dynamicColumnPrecision);
+        final String pattern = ofNullable(entry.getProp(STUDIO_PATTERN))
+                .filter(l -> !l.isEmpty())
+                .orElse(dynamicColumnPattern);
+        metadata.setKey(isKey);
+
         switch (entry.getType()) {
         case RECORD:
             metadata.setType("id_Object");
@@ -239,9 +256,13 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             break;
         case FLOAT:
             metadata.setType("id_Float");
+            metadata.setLength(length);
+            metadata.setPrecision(precision);
             break;
         case DOUBLE:
             metadata.setType("id_Double");
+            metadata.setLength(length);
+            metadata.setPrecision(precision);
             break;
         case BOOLEAN:
             metadata.setType("id_Boolean");
@@ -249,7 +270,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         case DATETIME:
             metadata.setType("id_Date");
             metadata.setLogicalType("timestamp-millis");
-            metadata.setFormat(dynamicColumnPattern);
+            metadata.setFormat(pattern);
             break;
         default:
             throw new IllegalStateException("Unexpected value: " + entry.getType());

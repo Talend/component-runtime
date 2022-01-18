@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.di.record;
 
 import static java.time.Instant.ofEpochMilli;
 import static java.time.ZoneOffset.UTC;
+import static java.util.Optional.ofNullable;
 import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
@@ -46,7 +47,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -234,7 +234,7 @@ public class DiRowStructVisitor {
     private <T> T getMetadata(final String metadata, final Object data, final Class<T> type) {
         try {
             final Method m = data.getClass().getDeclaredMethod(metadata);
-            return Optional.ofNullable(m.invoke(data)).map(type::cast).orElse(null);
+            return ofNullable(m.invoke(data)).map(type::cast).orElse(null);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             return null;
         }
@@ -269,10 +269,11 @@ public class DiRowStructVisitor {
                 }
                 final String name = sanitizeConnectionName(field.getName());
                 final Object raw = field.get(data);
-                final Boolean isNullable = getMetadata(name + "IsNullable", data, Boolean.class);
-                final Boolean isKey = getMetadata(name + "IsKey", data, Boolean.class);
-                final Integer length = getMetadata(name + "Length", data, Integer.class);
-                final Integer precision = getMetadata(name + "Precision", data, Integer.class);
+                final Boolean isNullable =
+                        ofNullable(getMetadata(name + "IsNullable", data, Boolean.class)).orElse(true);
+                final Boolean isKey = ofNullable(getMetadata(name + "IsKey", data, Boolean.class)).orElse(false);
+                final Integer length = ofNullable(getMetadata(name + "Length", data, Integer.class)).orElse(-1);
+                final Integer precision = ofNullable(getMetadata(name + "Precision", data, Integer.class)).orElse(-1);
                 final String defaultValue = getMetadata(name + "Default", data, String.class);
                 final String comment = getMetadata(name + "Comment", data, String.class);
                 final String pattern = getMetadata(name + "Pattern", data, String.class);
@@ -334,6 +335,11 @@ public class DiRowStructVisitor {
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         final boolean metaIsNullable = meta.isNullable();
+                        final boolean metaIsKey = meta.isKey() ? meta.isKey() : isKey;
+                        final int metaLength = meta.getLength() != -1 ? meta.getLength() : length;
+                        final int metaPrecision = meta.getPrecision() != -1 ? meta.getPrecision() : precision;
+                        final String metaPattern =
+                                !meta.getFormat().equals("dd-MM-yyyy HH:mm:ss") ? meta.getFormat() : pattern;
                         log.debug("[inferSchema] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                         switch (meta.getType()) {
                         case "id_List":
@@ -343,45 +349,45 @@ public class DiRowStructVisitor {
                         case "id_String":
                         case "id_Character":
                             schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
-                                    isKey, null, null, defaultValue, null));
+                                    metaIsKey, null, null, defaultValue, null));
                             break;
                         case "id_BigDecimal":
                             schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
-                                    isKey, length, precision, defaultValue, null));
+                                    metaIsKey, metaLength, metaPrecision, defaultValue, null));
                             break;
                         case "id_byte[]":
                             schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, comment,
-                                    isKey, null, null, defaultValue, null));
+                                    metaIsKey, null, null, defaultValue, null));
                             break;
                         case "id_Byte":
                         case "id_Short":
                         case "id_Integer":
                             schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, comment,
-                                    isKey, null, null, defaultValue, null));
+                                    metaIsKey, null, null, defaultValue, null));
                             break;
                         case "id_Long":
                             schema.withEntry(toEntry(metaName, LONG, metaOriginalName, metaIsNullable, comment,
-                                    isKey, null, null, defaultValue, null));
+                                    metaIsKey, null, null, defaultValue, null));
                             break;
                         case "id_Float":
                             schema.withEntry(toEntry(metaName, FLOAT, metaOriginalName, metaIsNullable, comment,
-                                    isKey, length, precision, defaultValue, null));
+                                    metaIsKey, metaLength, metaPrecision, defaultValue, null));
                             break;
                         case "id_Double":
                             schema.withEntry(toEntry(metaName, DOUBLE, metaOriginalName, metaIsNullable, comment,
-                                    isKey, length, precision, defaultValue, null));
+                                    metaIsKey, metaLength, metaPrecision, defaultValue, null));
                             break;
                         case "id_Boolean":
                             schema.withEntry(toEntry(metaName, BOOLEAN, metaOriginalName, metaIsNullable, comment,
-                                    isKey, null, null, defaultValue, null));
+                                    metaIsKey, null, null, defaultValue, null));
                             break;
                         case "id_Date":
                             schema.withEntry(toEntry(metaName, DATETIME, metaOriginalName, metaIsNullable, comment,
-                                    isKey, null, null, defaultValue, pattern));
+                                    metaIsKey, null, null, defaultValue, metaPattern));
                             break;
                         default:
                             schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
-                                    isKey, length, precision, defaultValue, null));
+                                    metaIsKey, metaLength, metaPrecision, defaultValue, metaPattern));
                         }
                     });
                     break;
