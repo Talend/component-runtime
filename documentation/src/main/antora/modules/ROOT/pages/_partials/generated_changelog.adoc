@@ -11,6 +11,13 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2045[TCOMP-2045^]: Pass and read meta information about columns.
+- link:https://jira.talendforge.org/browse/TCOMP-2072[TCOMP-2072^]: Ligthen parameters for component-server docker image
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2057[TCOMP-2057^]: AvroSchema : optimize getType by using type fields
@@ -106,29 +113,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
 
+== Version 1.38.5
 
+=== Bug
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- link:https://jira.talendforge.org/browse/TCOMP-2030[TCOMP-2030^]: Upgrade Tomcat to 9.0.54 due to CVE-2021-42340
 
 == Version 1.38.4
 

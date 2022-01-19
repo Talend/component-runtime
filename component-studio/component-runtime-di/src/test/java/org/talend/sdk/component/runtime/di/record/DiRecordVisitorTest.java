@@ -36,7 +36,6 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
-@Slf4j
 class DiRecordVisitorTest extends VisitorsTest {
 
     @Test
@@ -45,12 +44,14 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .newRecordBuilder()
                 .withString("id", ":testing:")
                 .withString("name", NAME)
-                .withInt(factory.newEntryBuilder()
+                .withInt(factory
+                        .newEntryBuilder()
                         .withName("shortP")
                         .withType(Type.INT)
                         .withProp(STUDIO_TYPE, StudioTypes.SHORT)
                         .build(), SHORT)
-                .withInt(factory.newEntryBuilder()
+                .withInt(factory
+                        .newEntryBuilder()
                         .withName("shortC")
                         .withType(Type.INT)
                         .withProp(STUDIO_TYPE, StudioTypes.SHORT)
@@ -69,7 +70,8 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .withString("date1", ZONED_DATE_TIME.toString())
                 .withDateTime("date2", ZONED_DATE_TIME)
                 .withLong("date3", ZONED_DATE_TIME.toInstant().toEpochMilli())
-                .withString(factory.newEntryBuilder()
+                .withString(factory
+                        .newEntryBuilder()
                         .withName("bigDecimal0")
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
@@ -82,17 +84,20 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .withBytes("dynBytesArray", BYTES0)
                 .withBytes("dynBytesBuffer", ByteBuffer.allocate(100).wrap(BYTES0).array())
                 .withBytes("dynBytesWString", String.valueOf(BYTES0).getBytes())
-                .withString(factory.newEntryBuilder()
+                .withString(factory
+                        .newEntryBuilder()
                         .withName("dynBigDecimal")
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
                         .build(), BIGDEC.toString())
-                .withInt(factory.newEntryBuilder()
+                .withInt(factory
+                        .newEntryBuilder()
                         .withName("dynShort")
                         .withType(Type.INT)
                         .withProp(STUDIO_TYPE, StudioTypes.SHORT)
                         .build(), SHORT)
-                .withString(factory.newEntryBuilder()
+                .withString(factory
+                        .newEntryBuilder()
                         .withName("dynChar")
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
@@ -166,7 +171,6 @@ class DiRecordVisitorTest extends VisitorsTest {
         final DiRecordVisitor visitor = new DiRecordVisitor(RowStruct.class, Collections.emptyMap());
         final RowStruct rowStruct = RowStruct.class.cast(visitor.visit(record));
         assertNotNull(rowStruct);
-        log.info("[get] {}", rowStruct);
         // asserts rowStruct::members
         assertEquals(":testing:", rowStruct.id);
         assertEquals(NAME, rowStruct.name);

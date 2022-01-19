@@ -442,7 +442,8 @@ public class DynamicColumnsTest {
                     .newRecordBuilder()
                     .withString("id", String.valueOf(i))
                     .withString("name", "record" + i)
-                    .withInt(builderFactory.newEntryBuilder()
+                    .withInt(builderFactory
+                            .newEntryBuilder()
                             .withName("shorty")
                             .withType(Type.INT)
                             .withProp(STUDIO_TYPE, StudioTypes.SHORT)
@@ -474,17 +475,20 @@ public class DynamicColumnsTest {
                             .withElementSchema(builderFactory.newSchemaBuilder(Type.INT).build())
                             .build(), IntStream.range(0, i + 1).boxed().collect(toList()))
                     .withDateTime("date0", ZonedDateTime.now())
-                    .withString(builderFactory.newEntryBuilder()
+                    .withString(builderFactory
+                            .newEntryBuilder()
                             .withName("dynBigDecimal")
                             .withType(Type.STRING)
                             .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
                             .build(), "12345.67890")
-                    .withString(builderFactory.newEntryBuilder()
+                    .withString(builderFactory
+                            .newEntryBuilder()
                             .withName("bigDecy")
                             .withType(Type.STRING)
                             .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
                             .build(), "12345.67890")
-                    .withString(builderFactory.newEntryBuilder()
+                    .withString(builderFactory
+                            .newEntryBuilder()
                             .withName("chary")
                             .withType(Type.STRING)
                             .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
