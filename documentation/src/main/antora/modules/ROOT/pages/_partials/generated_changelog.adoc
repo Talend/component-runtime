@@ -11,6 +11,12 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2072[TCOMP-2072^]: Ligthen parameters for component-server docker image
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2057[TCOMP-2057^]: AvroSchema : optimize getType by using type fields
