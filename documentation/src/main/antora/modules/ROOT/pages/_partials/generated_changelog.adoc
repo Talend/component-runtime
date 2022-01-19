@@ -13,6 +13,7 @@
 
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-2045[TCOMP-2045^]: Pass and read meta information about columns.
 - link:https://jira.talendforge.org/browse/TCOMP-2072[TCOMP-2072^]: Ligthen parameters for component-server docker image
 
 
