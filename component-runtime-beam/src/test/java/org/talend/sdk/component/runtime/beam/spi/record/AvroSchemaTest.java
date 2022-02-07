@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
+import org.apache.avro.generic.IndexedRecord;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
@@ -259,5 +260,131 @@ class AvroSchemaTest {
                     .withMetadata(true) //
                     .withNullable(true) //
                     .build();
+
+
+    private void assertSchemaProperties(final org.talend.sdk.component.api.record.Schema schema) {
+        assertEquals("one,three,two,four", schema.getProp(SchemaImpl.ENTRIES_ORDER_PROP));
+        assertEquals("rp1", schema.getProp("recordProp1"));
+        assertEquals("rp2", schema.getProp("recordProp2"));
+        assertEquals("rp3", schema.getProp("recordProp3"));
+        assertEquals("fp1", schema.getEntry("one").getProp("prop1"));
+        assertEquals("fp2", schema.getEntry("two").getProp("prop2"));
+        assertEquals("fp3", schema.getEntry("three").getProp("prop3"));
+        assertEquals("fp4", schema.getEntry("four").getProp("prop4"));
+        assertEquals("es5", schema.getEntry("four").getElementSchema().getEntry("field").getProp("prop5"));
+    }
+
+    @Test
+    void schemaPropertiesRoundTrip() {
+        final AvroRecordBuilderFactoryProvider provider = new AvroRecordBuilderFactoryProvider();
+        final String oldValue = System.setProperty("talend.component.beam.record.factory.impl", "avro");
+        try {
+            final RecordBuilderFactory factory = provider.apply("test");
+            final org.talend.sdk.component.api.record.Schema.Entry entryOne = factory.newEntryBuilder()
+                    .withName("one")
+                    .withProp("prop1", "fp1")
+                    .withNullable(false)
+                    .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                    .build();
+            final org.talend.sdk.component.api.record.Schema.Entry entryTwo = factory.newEntryBuilder()
+                    .withName("two")
+                    .withProp("prop2", "fp2")
+                    .withNullable(false)
+                    .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                    .build();
+            final org.talend.sdk.component.api.record.Schema.Entry entryThree = factory.newEntryBuilder()
+                    .withName("three")
+                    .withProp("prop3", "fp3")
+                    .withNullable(true)
+                    .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                    .build();
+
+            final org.talend.sdk.component.api.record.Schema subSchema =
+                    factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("field")
+                            .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                            .withProp("prop5", "es5")
+                            .build())
+                    .build();
+
+            final org.talend.sdk.component.api.record.Schema.Entry field = factory.newEntryBuilder()
+                    .withName("four")
+                    .withNullable(true)
+                    .withType(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                    .withElementSchema(subSchema)
+                    .withProp("prop4", "fp4")
+                    .build();
+
+            final org.talend.sdk.component.api.record.Schema schema = factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                    .withProp("recordProp1", "rp1")
+                    .withProp("recordProp2", "rp2")
+                    .withProp("recordProp3", "rp3")
+                    .withEntry(entryOne)
+                    .withEntry(entryTwo)
+                    .withEntryBefore("two", entryThree)
+                    .withEntry(field)
+                    .build();
+
+            final org.talend.sdk.component.api.record.Record fourRecord = factory.newRecordBuilder(
+                    factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                            .withEntry(field)
+                            .build()
+                            .getEntry("four")
+                            .getElementSchema())
+                    .withString("field", "value4")
+                    .build();
+            //
+            assertSchemaProperties(schema);
+            final org.talend.sdk.component.api.record.Record record = new AvroRecordBuilder(schema)
+                    .withString("one", "value1")
+                    .withString("two", "value2")
+                    .withString("three", "value3")
+                    .withRecord("four", fourRecord)
+                    .build();
+            final org.talend.sdk.component.api.record.Schema recordSchema = record.getSchema();
+            assertSchemaProperties(recordSchema);
+            // recreate an AvroRecord from a Record
+            final AvroRecord avroRecord = new AvroRecord(record);
+            assertEquals("value1", avroRecord.getString("one"));
+            assertEquals("value2", avroRecord.getString("two"));
+            assertEquals("value3", avroRecord.getString("three"));
+            assertEquals("value4", avroRecord.getRecord("four").getString("field"));
+            final org.talend.sdk.component.api.record.Schema avroSchema = avroRecord.getSchema();
+            assertSchemaProperties(avroSchema);
+            // test wrapped IndexedRecord
+            final IndexedRecord indexedRecord = avroRecord.unwrap(IndexedRecord.class);
+            final org.apache.avro.Schema indexedRecordSchema = indexedRecord.getSchema();
+            assertEquals("one,three,two,four", indexedRecordSchema.getProp(SchemaImpl.ENTRIES_ORDER_PROP));
+            assertEquals("rp1", indexedRecordSchema.getProp("recordProp1"));
+            assertEquals("rp2", indexedRecordSchema.getProp("recordProp2"));
+            assertEquals("rp3", indexedRecordSchema.getProp("recordProp3"));
+            assertEquals("fp1", indexedRecordSchema.getField("one").getProp("prop1"));
+            assertEquals("fp2", indexedRecordSchema.getField("two").getProp("prop2"));
+            assertEquals("fp3", indexedRecordSchema.getField("three").getProp("prop3"));
+            assertEquals("fp4", indexedRecordSchema.getField("four").getProp("prop4"));
+            assertEquals("es5", indexedRecordSchema.getField("four")
+                    .schema()
+                    .getTypes()
+                    .get(1)
+                    .getField("field")
+                    .getProp("prop5"));
+            // recreate an AvroRecord from an IndexedRecord
+            final AvroRecord avroRecordFromIdx = new AvroRecord(indexedRecord);
+            assertEquals("value1", avroRecordFromIdx.getString("one"));
+            assertEquals("value2", avroRecordFromIdx.getString("two"));
+            assertEquals("value3", avroRecordFromIdx.getString("three"));
+            assertEquals("value4", avroRecord.getRecord("four").getString("field"));
+            final org.talend.sdk.component.api.record.Schema avroSchemaFromIdx = avroRecordFromIdx.getSchema();
+            assertSchemaProperties(avroSchemaFromIdx);
+        } finally {
+            if (oldValue == null) {
+                System.clearProperty("talend.component.beam.record.factory.impl");
+            } else {
+                System.setProperty("talend.component.beam.record.factory.impl", oldValue);
+            }
+        }
+    }
+
 
 }
