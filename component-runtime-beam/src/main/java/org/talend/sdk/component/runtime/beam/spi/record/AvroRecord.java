@@ -81,7 +81,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
-                                        this.schema.getDelegate().getField(sanitizeConnectionName(entry.getName()));
+                                        this.schema.getActualDelegate().getField(sanitizeConnectionName(entry.getName()));
                                 delegate.put(field.pos(), avroValue);
                             }
                         }));

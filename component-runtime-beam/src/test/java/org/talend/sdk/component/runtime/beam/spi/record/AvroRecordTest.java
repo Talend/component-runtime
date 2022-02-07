@@ -173,6 +173,53 @@ class AvroRecordTest {
     }
 
     @Test
+    void withNullEntry() {
+        final AvroRecordBuilderFactoryProvider provider = new AvroRecordBuilderFactoryProvider();
+        final String oldValue = System.setProperty("talend.component.beam.record.factory.impl", "avro");
+        try {
+            final RecordBuilderFactory factory = provider.apply("test");
+
+            final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+                    .withEntry(factory.newEntryBuilder().withName("field")
+                            .withType(Schema.Type.STRING)
+                            .withProp("k1", "v1")
+                            .build())
+                    .withProp("schemaK1", "schemaV1")
+                    .build();
+
+            final Entry field = factory.newEntryBuilder()
+                    .withName("Hello")
+                    .withNullable(true)
+                    .withType(Schema.Type.RECORD)
+                    .withElementSchema(schema)
+                    .build();
+
+            final Schema schemaBis = factory.newSchemaBuilder(Schema.Type.RECORD)
+                    .withEntry(field)
+                    .build();
+
+            Schema hello = schemaBis.getEntry("Hello").getElementSchema();
+
+            final Record record = factory.newRecordBuilder(hello)
+                    .withString("field", "world")
+                    .build();
+
+            Assertions.assertNotNull(record);
+            Assertions.assertEquals("world", record.getString("field"));
+            Assertions.assertEquals("schemaV1", record.getSchema().getProp("schemaK1"));
+            Assertions.assertEquals("v1", record.getSchema().getEntry("field").getProp("k1"));
+        }
+        finally {
+            if (oldValue == null) {
+                System.clearProperty("talend.component.beam.record.factory.impl");
+            }
+            else {
+                System.setProperty("talend.component.beam.record.factory.impl", oldValue);
+            }
+        }
+    }
+
+    @Test
     void bytes() {
         final byte[] array = { 0, 1, 2, 3, 4 };
         final Record record = new AvroRecordBuilder().withBytes("bytes", array).build();
