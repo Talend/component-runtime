@@ -339,8 +339,11 @@ public class AvroSchemaBuilder implements Schema.Builder {
                     .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
                             false);
             record.setFields(avroFields);
-            this.props.forEach(record::addProp);
             record.addProp(ENTRIES_ORDER_PROP, fields.stream().map(e -> e.getName()).collect(Collectors.joining(",")));
+            this.props.entrySet()
+                    .stream()
+                    .filter((Map.Entry<String, String> e) -> !ENTRIES_ORDER_PROP.equals(e.getKey()))
+                    .forEach((Map.Entry<String, String> e) -> record.addProp(e.getKey(), e.getValue()));
             return new AvroSchema(record);
         case ARRAY:
             if (elementSchema == null) {
