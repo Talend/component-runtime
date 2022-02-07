@@ -203,6 +203,7 @@ class AvroRecordTest {
                     .build();
 
             Assertions.assertNotNull(record);
+            Assertions.assertEquals("world", record.getString("field"));
         }
         finally {
             if (oldValue == null) {
