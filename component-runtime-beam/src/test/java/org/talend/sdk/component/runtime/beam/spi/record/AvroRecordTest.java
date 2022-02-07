@@ -182,7 +182,9 @@ class AvroRecordTest {
             final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
                     .withEntry(factory.newEntryBuilder().withName("field")
                             .withType(Schema.Type.STRING)
+                            .withProp("k1", "v1")
                             .build())
+                    .withProp("schemaK1", "schemaV1")
                     .build();
 
             final Entry field = factory.newEntryBuilder()
@@ -204,6 +206,8 @@ class AvroRecordTest {
 
             Assertions.assertNotNull(record);
             Assertions.assertEquals("world", record.getString("field"));
+            Assertions.assertEquals("schemaV1", record.getSchema().getProp("schemaK1"));
+            Assertions.assertEquals("v1", record.getSchema().getEntry("field").getProp("k1"));
         }
         finally {
             if (oldValue == null) {
