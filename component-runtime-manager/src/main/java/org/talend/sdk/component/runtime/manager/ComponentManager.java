@@ -199,6 +199,7 @@ public class ComponentManager implements AutoCloseable {
                 private final AtomicBoolean closed = new AtomicBoolean(false);
 
                 {
+                    info("ComponentManager version: " + ComponentManagerVersion.VERSION);
                     info("Creating the contextual ComponentManager instance " + getIdentifiers());
 
                     parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
