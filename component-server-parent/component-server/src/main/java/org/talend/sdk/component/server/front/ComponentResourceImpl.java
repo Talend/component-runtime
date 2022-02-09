@@ -620,8 +620,9 @@ public class ComponentResourceImpl implements ComponentResource {
                 .stream()
                 .map(e -> {
                     final String bundleKey = e.getKey().replaceAll("::", ".");
-                    if (bundle.displayName(bundleKey).isPresent()) {
-                        return new SimpleEntry<String, String>(e.getKey(), bundle.displayName(bundleKey).get());
+                    Optional<String> translation = bundle.displayName(bundleKey);
+                    if (translation.isPresent()) {
+                        return new SimpleEntry<String, String>(e.getKey(), translation.get());
                     }
                     return e;
                 })
