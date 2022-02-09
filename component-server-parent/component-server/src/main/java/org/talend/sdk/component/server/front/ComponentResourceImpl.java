@@ -483,7 +483,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 componentDetail.setActions(actionsService
                         .findActions(meta.getParent().getName(), container, locale, meta,
                                 meta.getParent().findBundle(container.getLoader(), locale)));
-                componentDetail.setMetadata(translateMetada(meta.getMetadata(), bundle));
+                componentDetail.setMetadata(translateMetadata(meta.getMetadata(), bundle));
 
                 return componentDetail;
             }).orElseGet(() -> {
@@ -603,7 +603,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 singletonList(new Link("Detail", "/component/details?identifiers=" + meta.getId(),
                         MediaType.APPLICATION_JSON)),
                 //
-                translateMetada(meta.getMetadata(), bundle));
+                translateMetadata(meta.getMetadata(), bundle));
     }
 
     private String normalizeCategory(final String category) {
@@ -614,7 +614,7 @@ public class ComponentResourceImpl implements ComponentResource {
         return category;
     }
 
-    private Map<String, String> translateMetada(final Map<String, String> source, final ComponentBundle bundle) {
+    private Map<String, String> translateMetadata(final Map<String, String> source, final ComponentBundle bundle) {
         return source
                 .entrySet()
                 .stream()
