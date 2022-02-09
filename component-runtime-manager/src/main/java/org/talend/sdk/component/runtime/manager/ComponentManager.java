@@ -81,6 +81,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.jar.JarInputStream;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -594,7 +596,16 @@ public class ComponentManager implements AutoCloseable {
                 .map(m2 -> {
                     // jobServer may badly translate paths on Windows
                     try {
-                        return PathFactory.get(m2);
+                        log.debug("[findM2] talend.component.manager.m2.repository={}", m2);
+                        final Path m2Path = PathFactory.get(m2);
+                        if (java.nio.file.Files.exists(m2Path)) {
+                            return m2Path;
+                        } else {
+                            log.warn(
+                                    "[findM2] talend.component.manager.m2.repository value points to a non existent path: {}",
+                                    m2Path);
+                            return findStudioM2();
+                        }
                     } catch (Exception e) {
                         return findStudioM2();
                     }
@@ -612,6 +623,7 @@ public class ComponentManager implements AutoCloseable {
                 return localM2;
             }
         }
+        log.debug("[findStudioM2] could not get studio config");
         return findDefaultM2();
     }
 
@@ -621,26 +633,38 @@ public class ComponentManager implements AutoCloseable {
                 .get(System
                         .getProperty("talend.component.manager.m2.settings",
                                 System.getProperty("user.home") + "/.m2/settings.xml"));
+        log.debug("[findDefaultM2] searching for localRepository location in {}", settings);
         if (java.nio.file.Files.exists(settings)) {
             try {
-                // faster to do that than previous code (commented after)
-                final String content = new String(java.nio.file.Files.readAllBytes(settings), StandardCharsets.UTF_8);
-                final int start = content.indexOf("<localRepository>");
                 String localM2RepositoryFromSettings = null;
-                if (start > 0) {
-                    final int end = content.indexOf("</localRepository>", start);
-                    if (end > 0) {
-                        localM2RepositoryFromSettings = content.substring(start + "<localRepository>".length(), end);
+                // do not introduce a xml parser so will do with what we have...
+                final String content = new String(java.nio.file.Files.readAllBytes(settings), StandardCharsets.UTF_8);
+                final Pattern comments = Pattern.compile("(<!--.*?-->)", Pattern.DOTALL);
+                final Pattern emptyLines = Pattern.compile("^\\s*$|\\n|\\r\\n");
+                final Pattern localRepo =
+                        Pattern.compile(".*<localRepository>(.+)</localRepository>.*", Pattern.CASE_INSENSITIVE);
+                // some cleanups
+                String stripped = comments.matcher(content).replaceAll("");
+                stripped = emptyLines.matcher(stripped).replaceAll("");
+                // localRepository present?
+                final Matcher m = localRepo.matcher(stripped);
+                if (!m.matches()) {
+                    log.debug("[findDefaultM2] localRepository not defined in settings.xml");
+                } else {
+                    localM2RepositoryFromSettings = m.group(1).trim();
+                    if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
+                        final Path settingsM2 = PathFactory.get(localM2RepositoryFromSettings);
+                        if (java.nio.file.Files.exists(settingsM2)) {
+                            return settingsM2;
+                        }
+                        log.warn("[findDefaultM2] localRepository points to a non existent path: {}", settingsM2);
                     }
-                }
-                if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
-                    return PathFactory.get(localM2RepositoryFromSettings);
                 }
             } catch (final Exception ignore) {
                 // fallback on default local path
             }
         }
-
+        log.debug("[findDefaultM2] fallback to user's default repository");
         return PathFactory.get(System.getProperty("user.home", "")).resolve(".m2/repository");
     }
 
@@ -2022,8 +2046,6 @@ public class ComponentManager implements AutoCloseable {
 
         /**
          * Enables a customizer to know other configuration.
-         *
-         * @deprecated Mainly here for backward compatibility for beam customizer.
          *
          * @param customizers all customizers.
          *
