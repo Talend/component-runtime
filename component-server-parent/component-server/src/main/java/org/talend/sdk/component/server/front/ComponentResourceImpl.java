@@ -291,15 +291,15 @@ public class ComponentResourceImpl implements ComponentResource {
                     .concat(findDeployedComponents(includeIconContent, locale), virtualComponents
                             .getDetails()
                             .stream()
-                            .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
-                                    detail.getId()
-                                            .getFamily(),
+                            .map(detail -> new ComponentIndex(
+                                    detail.getId(),
+                                    detail.getDisplayName(),
+                                    detail.getId().getFamily(),
                                     new Icon(detail.getIcon(), null, null),
-                                    new Icon(virtualComponents.getFamilyIconFor(detail.getId()
-                                            .getFamilyId()), null,
+                                    new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()), null,
                                             null),
-                                    detail.getVersion(), singletonList(detail.getId()
-                                            .getFamily()),
+                                    detail.getVersion(),
+                                    singletonList(detail.getId().getFamily()),
                                     detail.getLinks(),
                                     detail.getMetadata())))
                     .filter(filter)
@@ -398,9 +398,7 @@ public class ComponentResourceImpl implements ComponentResource {
             if (e.getValue().startsWith(BASE64_PREFIX)) {
                 final String value = new String(Base64
                         .getUrlDecoder()
-                        .decode(e.getValue()
-                                .substring(BASE64_PREFIX.length())
-                                .getBytes(StandardCharsets.UTF_8)));
+                        .decode(e.getValue().substring(BASE64_PREFIX.length()).getBytes(StandardCharsets.UTF_8)));
                 e.setValue(value);
             }
             return e;
