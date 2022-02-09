@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -582,7 +583,6 @@ public class ComponentResourceImpl implements ComponentResource {
                         .stream()
                         .map(this::normalizeCategory)
                         .map(category -> category.replace("${family}", meta.getParent().getName()))
-                        // not i18n-ed yet
                         .map(category -> parentBundle.category(category)
                                 .orElseGet(() -> category.replace("/" + meta.getParent().getName() + "/",
                                         "/" + familyDisplayName + "/")))
@@ -620,7 +620,9 @@ public class ComponentResourceImpl implements ComponentResource {
                 .stream()
                 .map(e -> {
                     final String bundleKey = e.getKey().replaceAll("::", ".");
-                    e.setValue(bundle.displayName(bundleKey).orElse(e.getValue()));
+                    if (bundle.displayName(bundleKey).isPresent()) {
+                        return new SimpleEntry<String, String>(e.getKey(), bundle.displayName(bundleKey).get());
+                    }
                     return e;
                 })
                 .collect(toMap(Entry::getKey, Entry::getValue));
