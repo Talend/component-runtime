@@ -31,13 +31,14 @@ public class ConnectorReference implements Serializable {
     private String family;
 
     /**
-     * Name of related input.
+     * Name of referenced connector.
      */
     @Option
     private String name;
 
     /**
-     * Name of related input.
+     * maven reference of referenced connector (as gav).
+     * exemple : org.talend.components:rest:1.29.0
      */
     @Option
     private String mavenReferences;

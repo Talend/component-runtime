@@ -43,7 +43,7 @@ public class DependencyParameterEnricher extends BaseParameterEnricher {
     }
 
     // Check if parameter is of a simple collection (List, Set ...) of ConnectorReference
-    // don't work with Map (composed collection), nor with List<? extends ConnectorReference> (not used in TCK)
+    // don't work with Map (composed collection), nor List<? extends ConnectorReference> (not used in framework)
     private boolean isCollectionConnectorReference(final Type parameterType) {
         // check generic
         if (!(parameterType instanceof ParameterizedType)) {
