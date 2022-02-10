@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,6 +67,8 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.base.Lifecycle;
+import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
+import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMapperMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
@@ -289,11 +292,16 @@ public class ComponentResourceImpl implements ComponentResource {
                     .concat(findDeployedComponents(includeIconContent, locale), virtualComponents
                             .getDetails()
                             .stream()
-                            .map(detail -> new ComponentIndex(detail.getId(), detail.getDisplayName(),
-                                    detail.getId().getFamily(), new Icon(detail.getIcon(), null, null),
+                            .map(detail -> new ComponentIndex(
+                                    detail.getId(),
+                                    detail.getDisplayName(),
+                                    detail.getId().getFamily(),
+                                    new Icon(detail.getIcon(), null, null),
                                     new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()), null,
                                             null),
-                                    detail.getVersion(), singletonList(detail.getId().getFamily()), detail.getLinks(),
+                                    detail.getVersion(),
+                                    singletonList(detail.getId().getFamily()),
+                                    detail.getLinks(),
                                     detail.getMetadata())))
                     .filter(filter)
                     .collect(toList()));
@@ -460,6 +468,7 @@ public class ComponentResourceImpl implements ComponentResource {
                     type = "standalone";
                 }
 
+                final ComponentBundle bundle = meta.findBundle(container.getLoader(), locale);
                 final ComponentDetail componentDetail = new ComponentDetail();
                 componentDetail.setLinks(emptyList() /* todo ? */);
                 componentDetail.setId(createMetaId(container, meta));
@@ -468,18 +477,14 @@ public class ComponentResourceImpl implements ComponentResource {
                 componentDetail.setInputFlows(model.get().getInputFlows());
                 componentDetail.setOutputFlows(model.get().getOutputFlows());
                 componentDetail.setType(type);
-                componentDetail
-                        .setDisplayName(
-                                meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
-                componentDetail
-                        .setProperties(propertiesService
-                                .buildProperties(meta.getParameterMetas().get(), container.getLoader(), locale, null)
-                                .collect(toList()));
-                componentDetail
-                        .setActions(actionsService
-                                .findActions(meta.getParent().getName(), container, locale, meta,
-                                        meta.getParent().findBundle(container.getLoader(), locale)));
-                componentDetail.setMetadata(meta.getMetadata());
+                componentDetail.setDisplayName(bundle.displayName().orElse(meta.getName()));
+                componentDetail.setProperties(propertiesService
+                        .buildProperties(meta.getParameterMetas().get(), container.getLoader(), locale, null)
+                        .collect(toList()));
+                componentDetail.setActions(actionsService
+                        .findActions(meta.getParent().getName(), container, locale, meta,
+                                meta.getParent().findBundle(container.getLoader(), locale)));
+                componentDetail.setMetadata(translateMetadata(meta.getMetadata(), bundle));
 
                 return componentDetail;
             }).orElseGet(() -> {
@@ -570,36 +575,35 @@ public class ComponentResourceImpl implements ComponentResource {
         final String familyIcon = meta.getParent().getIcon();
         final IconResolver.Icon iconContent = iconResolver.resolve(container, icon);
         final IconResolver.Icon iconFamilyContent = iconResolver.resolve(container, familyIcon);
-        final String familyDisplayName =
-                meta.getParent().findBundle(loader, locale).displayName().orElse(meta.getParent().getName());
+        final FamilyBundle parentBundle = meta.getParent().findBundle(loader, locale);
+        final ComponentBundle bundle = meta.findBundle(loader, locale);
+        final String familyDisplayName = parentBundle.displayName().orElse(meta.getParent().getName());
         final List<String> categories = ofNullable(meta.getParent().getCategories())
                 .map(vals -> vals
                         .stream()
                         .map(this::normalizeCategory)
-                        .map(category -> category.replace("${family}", meta.getParent().getName())) // not
-                        // i18n-ed
-                        // yet
-                        .map(category -> meta
-                                .getParent()
-                                .findBundle(loader, locale)
-                                .category(category)
-                                .orElseGet(() -> category
-                                        .replace("/" + meta.getParent().getName() + "/",
-                                                "/" + familyDisplayName + "/")))
+                        .map(category -> category.replace("${family}", meta.getParent().getName()))
+                        .map(category -> parentBundle.category(category)
+                                .orElseGet(() -> category.replace("/" + meta.getParent().getName() + "/",
+                                        "/" + familyDisplayName + "/")))
                         .collect(toList()))
                 .orElseGet(Collections::emptyList);
         return new ComponentIndex(
                 new ComponentId(meta.getId(), meta.getParent().getId(), plugin,
                         ofNullable(originalId).map(ComponentManager.OriginalId::getValue).orElse(plugin),
                         meta.getParent().getName(), meta.getName()),
-                meta.findBundle(loader, locale).displayName().orElse(meta.getName()), familyDisplayName,
+                bundle.displayName().orElse(meta.getName()),
+                familyDisplayName,
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),
                         !includeIcon ? null : (iconContent == null ? null : iconContent.getBytes())),
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
                         !includeIcon ? null : (iconFamilyContent == null ? null : iconFamilyContent.getBytes())),
-                meta.getVersion(), categories, singletonList(new Link("Detail",
-                        "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)),
-                meta.getMetadata());
+                meta.getVersion(),
+                categories,
+                singletonList(new Link("Detail", "/component/details?identifiers=" + meta.getId(),
+                        MediaType.APPLICATION_JSON)),
+                //
+                translateMetadata(meta.getMetadata(), bundle));
     }
 
     private String normalizeCategory(final String category) {
@@ -608,6 +612,16 @@ public class ComponentResourceImpl implements ComponentResource {
             return category + "/${family}";
         }
         return category;
+    }
+
+    private Map<String, String> translateMetadata(final Map<String, String> source, final ComponentBundle bundle) {
+        return source
+                .entrySet()
+                .stream()
+                .map(e -> bundle.displayName(e.getKey().replaceAll("::", "."))
+                        .map(it -> (Entry<String, String>) new SimpleEntry(e.getKey(), it))
+                        .orElse(e))
+                .collect(toMap(Entry::getKey, Entry::getValue));
     }
 
     private StreamingOutput onMissingJar(final String id) {
