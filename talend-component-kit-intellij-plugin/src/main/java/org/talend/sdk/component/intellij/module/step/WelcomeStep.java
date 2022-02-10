@@ -63,7 +63,7 @@ public class WelcomeStep extends ModuleWizardStep {
             JPanel container = new JPanel(new VerticalLayout(10));
             JPanel headerPanel = new JPanel(new HorizontalLayout(10));
             try (InputStream is =
-                    Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("/talend_logo_.png"));) {
+                    Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("talend_logo_.png"));) {
                 headerPanel.add(new JLabel(new ImageIcon(ImageIO.read(is))));
             } catch (IOException e) {// no-op
             }
@@ -73,7 +73,7 @@ public class WelcomeStep extends ModuleWizardStep {
             headerPanel.add(titleLabel);
 
             try (InputStream is =
-                    Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("/tacokit_logo.png"));) {
+                    Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("tacokit_logo.png"));) {
                 headerPanel.add(new JLabel(new ImageIcon(ImageIO.read(is))));
             } catch (IOException e) {// no-op
             }
