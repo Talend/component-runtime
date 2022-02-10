@@ -618,14 +618,9 @@ public class ComponentResourceImpl implements ComponentResource {
         return source
                 .entrySet()
                 .stream()
-                .map(e -> {
-                    final String bundleKey = e.getKey().replaceAll("::", ".");
-                    final Optional<String> translation = bundle.displayName(bundleKey);
-                    if (translation.isPresent()) {
-                        return new SimpleEntry<String, String>(e.getKey(), translation.get());
-                    }
-                    return e;
-                })
+                .map(e -> bundle.displayName(e.getKey().replaceAll("::", "."))
+                        .map(it -> (Entry<String, String>) new SimpleEntry(e.getKey(), it))
+                        .orElse(e))
                 .collect(toMap(Entry::getKey, Entry::getValue));
     }
 
