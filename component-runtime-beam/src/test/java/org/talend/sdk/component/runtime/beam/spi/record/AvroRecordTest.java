@@ -180,7 +180,8 @@ class AvroRecordTest {
             final RecordBuilderFactory factory = provider.apply("test");
 
             final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
-                    .withEntry(factory.newEntryBuilder().withName("field")
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("field")
                             .withType(Schema.Type.STRING)
                             .withProp("k1", "v1")
                             .build())
@@ -208,12 +209,10 @@ class AvroRecordTest {
             Assertions.assertEquals("world", record.getString("field"));
             Assertions.assertEquals("schemaV1", record.getSchema().getProp("schemaK1"));
             Assertions.assertEquals("v1", record.getSchema().getEntry("field").getProp("k1"));
-        }
-        finally {
+        } finally {
             if (oldValue == null) {
                 System.clearProperty("talend.component.beam.record.factory.impl");
-            }
-            else {
+            } else {
                 System.setProperty("talend.component.beam.record.factory.impl", oldValue);
             }
         }
