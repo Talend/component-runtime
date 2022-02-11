@@ -17,33 +17,36 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<Configuration status="INFO">
-  <Properties>
-    <Property name="jsonLayout">{"eventUUID":"%uuid{RANDOM}","correlationId":"%X{traceId}","spanId":"%X{spanId}","traceId":"%X{traceId}","category":"components","eventType":"LOGEvent","severity":"%level","logMessage":"%encode{%message}{JSON}","logSource": {"class.name":"%class","file.name":"%file","host.name":"%X{hostname}","line.number":"%line","logger.name":"%logger","method.name":"%method","process.id":"%pid"},"service":"${env:LOG_SERVICE_NAME:-component-server}","application":"${env:LOG_APP_NAME:-component-server}","exportable":"${env:LOG_EXPORTABLE:-true}","audit":"${env:LOG_AUDIT:-false}","logTimestamp":"%d{ISO8601}{UTC}","serverTimestamp":"%d{ISO8601}{UTC}","customInfo": {"threadName":"%encode{%thread}{JSON}","stackTrace":"%encode{%xThrowable{full}}{JSON}"}}%n</Property>
-  </Properties>
-  <Appenders>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="${jsonLayout}" alwaysWriteExceptions="false"/>
-    </Console>
-    <Routing name="KafkaTracing">
-      <Routes pattern="$${env:TRACING_KAFKA_URL:-none}">
-        <Route ref="Console" key="none" />
-        <Route>
-          <Kafka name="Kafka" topic="${env:TRACING_KAFKA_TOPIC}" syncSend="false" >
-            <PatternLayout pattern="%message" alwaysWriteExceptions="false"/>
-            <Property name="bootstrap.servers">${env:TRACING_KAFKA_URL}</Property>
-          </Kafka>
-        </Route>
-      </Routes>
-    </Routing>
-  </Appenders>
-  <Loggers>
-    <Logger name="org.apache.kafka" level="INFO" />
-    <Logger name="org.apache.geronimo.opentracing.zipkin" level="${env:KAFKA_LOG_LEVEL:-INFO}" additivity="false">
-      <AppenderRef ref="KafkaTracing"/>
-    </Logger>
-    <Root level="${env:KAFKA_ROOT_LOGGER_LEVEL:-INFO}">
-      <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-INFO}" />
-    </Root>
-  </Loggers>
+<Configuration status="WARN" packages="org.talend.daikon.logging.event.layout" verbose="false">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <Log4j2ECSLayout serviceName="${env:LOG_SERVICE_NAME:-component-server}" locationInfo="true" hostInfo="true">
+                <KeyValuePair key="event.category" value="components"/>
+            </Log4j2ECSLayout>
+        </Console>
+        <Console name="requestLogs" target="SYSTEM_OUT">
+            <Log4j2ECSLayout serviceName="${env:LOG_SERVICE_NAME:-component-server}" locationInfo="true" hostInfo="true">
+                <KeyValuePair key="event.category" value="requests"/>
+            </Log4j2ECSLayout>
+        </Console>
+        <Console name="zipkinLogs" target="SYSTEM_OUT">
+            <Log4j2ECSLayout serviceName="${env:LOG_SERVICE_NAME:-component-server}" locationInfo="true" hostInfo="true">
+                <KeyValuePair key="event.category" value="zipkin"/>
+            </Log4j2ECSLayout>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <root level="${env:CONSOLE_LOG_LEVEL:-INFO}">
+            <appender-ref ref="Console"/>
+        </root>
+        <Logger name="org.apache.meecrowave.tomcat.LoggingAccessLogPattern" level="${env:CONSOLE_LOG_LEVEL:-INFO}" additivity="false">
+            <AppenderRef ref="requestLogs"/>
+        </Logger>
+        <Logger name="org.apache.geronimo.opentracing.zipkin" level="${env:CONSOLE_LOG_LEVEL:-INFO}" additivity="false">
+            <AppenderRef ref="zipkinLogs"/>
+        </Logger>
+        <Logger name="org.apache.logging.log4j.jul" level="${env:CONSOLE_LOG_LEVEL:-INFO}">
+            <appender-ref ref="Console"/>
+        </Logger>
+    </Loggers>
 </Configuration>

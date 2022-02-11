@@ -127,6 +127,12 @@
       <artifactId>geronimo-opentracing</artifactId>
       <version>${geronimo-opentracing.version}</version>
     </dependency>
+    <!-- ecs logging layout -->
+    <dependency>
+      <groupId>org.talend.daikon</groupId>
+      <artifactId>logging-event-layout</artifactId>
+      <version>LATEST</version>
+    </dependency>
   </dependencies>
 
   <build>
