@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
@@ -262,7 +263,7 @@ class AvroSchemaTest {
                     .build();
 
     private void assertSchemaProperties(final org.talend.sdk.component.api.record.Schema schema) {
-        assertEquals("one,three,two,four", schema.getProp(SchemaImpl.ENTRIES_ORDER_PROP));
+        assertEquals("one,three,two,four,This_name_should_be_sanitized", schema.getProp(SchemaImpl.ENTRIES_ORDER_PROP));
         assertEquals("rp1", schema.getProp("recordProp1"));
         assertEquals("rp2", schema.getProp("recordProp2"));
         assertEquals("rp3", schema.getProp("recordProp3"));
@@ -271,6 +272,8 @@ class AvroSchemaTest {
         assertEquals("fp3", schema.getEntry("three").getProp("prop3"));
         assertEquals("fp4", schema.getEntry("four").getProp("prop4"));
         assertEquals("es5", schema.getEntry("four").getElementSchema().getEntry("field").getProp("prop5"));
+        assertEquals("fpr0", schema.getEntry("This_name_should_be_sanitized").getProp("raw0"));
+        assertEquals("This name should be sanitized", schema.getEntry("This_name_should_be_sanitized").getOriginalFieldName());
     }
 
     @Test
@@ -315,6 +318,13 @@ class AvroSchemaTest {
                     .withProp("prop4", "fp4")
                     .build();
 
+            final org.talend.sdk.component.api.record.Schema.Entry entryRawName = factory.newEntryBuilder()
+                    .withName("This name should be sanitized")
+                    .withProp("raw0", "fpr0")
+                    .withNullable(true)
+                    .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                    .build();
+
             final org.talend.sdk.component.api.record.Schema schema =
                     factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
                             .withProp("recordProp1", "rp1")
@@ -324,6 +334,7 @@ class AvroSchemaTest {
                             .withEntry(entryTwo)
                             .withEntryBefore("two", entryThree)
                             .withEntry(field)
+                            .withEntry(entryRawName)
                             .build();
 
             final org.talend.sdk.component.api.record.Record fourRecord = factory.newRecordBuilder(
@@ -350,12 +361,13 @@ class AvroSchemaTest {
             assertEquals("value2", avroRecord.getString("two"));
             assertEquals("value3", avroRecord.getString("three"));
             assertEquals("value4", avroRecord.getRecord("four").getString("field"));
+            assertNull(avroRecord.getString("This_name_should_be_sanitized"));
             final org.talend.sdk.component.api.record.Schema avroSchema = avroRecord.getSchema();
             assertSchemaProperties(avroSchema);
             // test wrapped IndexedRecord
             final IndexedRecord indexedRecord = avroRecord.unwrap(IndexedRecord.class);
             final org.apache.avro.Schema indexedRecordSchema = indexedRecord.getSchema();
-            assertEquals("one,three,two,four", indexedRecordSchema.getProp(SchemaImpl.ENTRIES_ORDER_PROP));
+            assertEquals("one,three,two,four,This_name_should_be_sanitized", indexedRecordSchema.getProp(SchemaImpl.ENTRIES_ORDER_PROP));
             assertEquals("rp1", indexedRecordSchema.getProp("recordProp1"));
             assertEquals("rp2", indexedRecordSchema.getProp("recordProp2"));
             assertEquals("rp3", indexedRecordSchema.getProp("recordProp3"));
@@ -369,12 +381,15 @@ class AvroSchemaTest {
                     .get(1)
                     .getField("field")
                     .getProp("prop5"));
+            assertEquals("fpr0", indexedRecordSchema.getField("This_name_should_be_sanitized").getProp("raw0"));
+            assertEquals("This name should be sanitized", indexedRecordSchema.getField("This_name_should_be_sanitized").getProp(KeysForAvroProperty.LABEL));
             // recreate an AvroRecord from an IndexedRecord
             final AvroRecord avroRecordFromIdx = new AvroRecord(indexedRecord);
             assertEquals("value1", avroRecordFromIdx.getString("one"));
             assertEquals("value2", avroRecordFromIdx.getString("two"));
             assertEquals("value3", avroRecordFromIdx.getString("three"));
             assertEquals("value4", avroRecord.getRecord("four").getString("field"));
+            assertNull(avroRecordFromIdx.getString("This_name_should_be_sanitized"));
             final org.talend.sdk.component.api.record.Schema avroSchemaFromIdx = avroRecordFromIdx.getSchema();
             assertSchemaProperties(avroSchemaFromIdx);
         } finally {
