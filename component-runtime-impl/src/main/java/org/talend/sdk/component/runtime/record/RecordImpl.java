@@ -427,6 +427,9 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withRecord(final String name, final Record value) {
+            if (value == null) {
+                throw new IllegalArgumentException("No schema for the nested record due to null record value");
+            }
             return withRecord(new SchemaImpl.EntryImpl.BuilderImpl()
                     .withName(name)
                     .withElementSchema(value.getSchema())
