@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -217,7 +218,7 @@ class RecordBuilderImplTest {
                 .build();
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
         final Record record = builder.withDateTime("date", ZonedDateTime.now()).build();
-        Assertions.assertNotNull(record.getDateTime("date"));
+        assertNotNull(record.getDateTime("date"));
 
         final RecordImpl.BuilderImpl builder2 = new RecordImpl.BuilderImpl(schema);
         assertThrows(IllegalArgumentException.class, () -> builder2.withDateTime("date", (ZonedDateTime) null));
@@ -453,6 +454,31 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void withRecordFromEntryWithNullValue() {
+        final Entry recordEntry = new EntryImpl.BuilderImpl()
+                .withType(Type.RECORD)
+                .withName("record")
+                .withNullable(true)
+                .withElementSchema(new SchemaImpl.BuilderImpl()
+                        .withType(Schema.Type.RECORD)
+                        .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                                .withName("name")
+                                .withNullable(true)
+                                .withType(Schema.Type.STRING)
+                                .build())
+                        .build())
+                .build();
+        Record r = new RecordImpl.BuilderImpl().withRecord(recordEntry, null).build();
+        assertNotNull(r.getSchema().getEntry("record").getElementSchema());
+        assertNull(r.getRecord("record"));
+    }
+
+    @Test
+    void withRecordFromNameWithNullValue() {
+        assertThrows(IllegalArgumentException.class, () -> new RecordImpl.BuilderImpl().withRecord("record", null));
+    }
+
+    @Test
     void testSimpleCollision() {
         final Record record = new RecordImpl.BuilderImpl() //
                 .withString("goodName", "v1") //
@@ -482,7 +508,7 @@ class RecordBuilderImplTest {
         builder.withString(e2, "value2");
         builder.withString(e2, "value3");
         final Record record = builder.build();
-        Assertions.assertNotNull(record);
+        assertNotNull(record);
 
         Assertions.assertEquals("value3", record.getString("_0001"));
         Assertions.assertEquals(2, record.getSchema().getEntries().size());
