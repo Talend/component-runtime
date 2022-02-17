@@ -95,6 +95,14 @@ main() {
     mvn versions:set \
       --batch-mode \
       --settings .jenkins/settings.xml \
+      --define generateBackupPoms=false \
+      --define newVersion="${maintenance_version}" \
+      -f bom/pom.xml
+
+    mvn versions:set \
+      --batch-mode \
+      --settings .jenkins/settings.xml \
+      --define generateBackupPoms=false \
       --define newVersion="${maintenance_version}"
     git commit -a -m "[jenkins-release] prepare for next development iteration ${maintenance_branch}"
     git push -u origin "${maintenance_branch}"
