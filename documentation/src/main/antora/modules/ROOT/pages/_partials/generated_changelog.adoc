@@ -4,8 +4,10 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1803[TCOMP-1803^]: RecordBuilder.withRecord(final String name, final Record value) doesn't accept null value
 - link:https://jira.talendforge.org/browse/TCOMP-2079[TCOMP-2079^]: Intellij plugin fails on plugin startup
 - link:https://jira.talendforge.org/browse/TCOMP-2080[TCOMP-2080^]: AvroRecord refuses Union[null, RecordSchema]
+- link:https://jira.talendforge.org/browse/TCOMP-2082[TCOMP-2082^]: ComponentManager's findDefaultM2 method takes comment as granted
 
 
 
@@ -13,6 +15,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2058[TCOMP-2058^]: Add dependencies on config
 - link:https://jira.talendforge.org/browse/TCOMP-2083[TCOMP-2083^]: Give component-runtime version on ComponentManager startup
+- link:https://jira.talendforge.org/browse/TCOMP-2084[TCOMP-2084^]: Allow use of i18n in connectors' metadata for custom labels
 
 
 
@@ -22,6 +25,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2079[TCOMP-2079^]: Intellij plugin fails on plugin startup
 - link:https://jira.talendforge.org/browse/TCOMP-2080[TCOMP-2080^]: AvroRecord refuses Union[null, RecordSchema]
+- link:https://jira.talendforge.org/browse/TCOMP-2082[TCOMP-2082^]: ComponentManager's findDefaultM2 method takes comment as granted
 
 == Version 1.41.0
 
