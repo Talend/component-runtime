@@ -131,7 +131,7 @@
     <dependency>
       <groupId>org.talend.daikon</groupId>
       <artifactId>logging-event-layout</artifactId>
-      <version>LATEST</version>
+      <version>6.3.0</version>
     </dependency>
   </dependencies>
 
