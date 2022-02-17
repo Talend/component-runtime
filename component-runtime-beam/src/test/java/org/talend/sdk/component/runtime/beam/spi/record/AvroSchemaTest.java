@@ -261,7 +261,6 @@ class AvroSchemaTest {
                     .withNullable(true) //
                     .build();
 
-
     private void assertSchemaProperties(final org.talend.sdk.component.api.record.Schema schema) {
         assertEquals("one,three,two,four", schema.getProp(SchemaImpl.ENTRIES_ORDER_PROP));
         assertEquals("rp1", schema.getProp("recordProp1"));
@@ -301,12 +300,12 @@ class AvroSchemaTest {
 
             final org.talend.sdk.component.api.record.Schema subSchema =
                     factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
-                    .withEntry(factory.newEntryBuilder()
-                            .withName("field")
-                            .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
-                            .withProp("prop5", "es5")
-                            .build())
-                    .build();
+                            .withEntry(factory.newEntryBuilder()
+                                    .withName("field")
+                                    .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                                    .withProp("prop5", "es5")
+                                    .build())
+                            .build();
 
             final org.talend.sdk.component.api.record.Schema.Entry field = factory.newEntryBuilder()
                     .withName("four")
@@ -316,15 +315,16 @@ class AvroSchemaTest {
                     .withProp("prop4", "fp4")
                     .build();
 
-            final org.talend.sdk.component.api.record.Schema schema = factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
-                    .withProp("recordProp1", "rp1")
-                    .withProp("recordProp2", "rp2")
-                    .withProp("recordProp3", "rp3")
-                    .withEntry(entryOne)
-                    .withEntry(entryTwo)
-                    .withEntryBefore("two", entryThree)
-                    .withEntry(field)
-                    .build();
+            final org.talend.sdk.component.api.record.Schema schema =
+                    factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                            .withProp("recordProp1", "rp1")
+                            .withProp("recordProp2", "rp2")
+                            .withProp("recordProp3", "rp3")
+                            .withEntry(entryOne)
+                            .withEntry(entryTwo)
+                            .withEntryBefore("two", entryThree)
+                            .withEntry(field)
+                            .build();
 
             final org.talend.sdk.component.api.record.Record fourRecord = factory.newRecordBuilder(
                     factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
@@ -385,6 +385,5 @@ class AvroSchemaTest {
             }
         }
     }
-
 
 }

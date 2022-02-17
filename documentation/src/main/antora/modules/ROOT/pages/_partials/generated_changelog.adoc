@@ -1,5 +1,13 @@
 
 
+== Version 1.41.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2079[TCOMP-2079^]: Intellij plugin fails on plugin startup
+- link:https://jira.talendforge.org/browse/TCOMP-2080[TCOMP-2080^]: AvroRecord refuses Union[null, RecordSchema]
+- link:https://jira.talendforge.org/browse/TCOMP-2082[TCOMP-2082^]: ComponentManager's findDefaultM2 method takes comment as granted
+
 == Version 1.41.0
 
 === Bug
