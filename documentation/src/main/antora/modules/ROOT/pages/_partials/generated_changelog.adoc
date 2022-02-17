@@ -14,6 +14,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2058[TCOMP-2058^]: Add dependencies on config
+- link:https://jira.talendforge.org/browse/TCOMP-2074[TCOMP-2074^]: Change JSON log format to conform to ECS
 - link:https://jira.talendforge.org/browse/TCOMP-2083[TCOMP-2083^]: Give component-runtime version on ComponentManager startup
 - link:https://jira.talendforge.org/browse/TCOMP-2084[TCOMP-2084^]: Allow use of i18n in connectors' metadata for custom labels
 
