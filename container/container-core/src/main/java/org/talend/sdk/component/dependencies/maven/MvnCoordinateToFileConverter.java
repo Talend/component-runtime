@@ -58,10 +58,10 @@ public class MvnCoordinateToFileConverter {
                 break;
             case 5:
                 if (SCOPES.contains(segments[4])) {
-                    // g:a:t:c:v
+                    // g:a:t:v:s
                     segments = new String[]{segments[0], segments[1], segments[2], null, segments[3], segments[4]};
                 } else {
-                    // g:a:t:v:s
+                    // g:a:t:c:v
                     segments = new String[]{segments[0], segments[1], segments[2], segments[3], segments[4], "compile"};
                 }
                 break;
