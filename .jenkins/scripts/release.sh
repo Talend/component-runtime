@@ -84,9 +84,9 @@ main() {
   echo ">> Rebuilding ${branch} and updating it (doc) for next iteration"
   git reset --hard
   git checkout "${branch}"
-  mvn clean install -DskipTests -Dinvoker.skip=true ${EXTRA_BUILD_ARGS}
-  git commit -a -m ">> Updating doc for next iteration"
-  git push -u origin "${branch}"
+  mvn clean install -DskipTests -Dinvoker.skip=true ${EXTRA_BUILD_ARGS} || true
+  git commit -a -m ">> Updating doc for next iteration" || true
+  git push -u origin "${branch}" || true
   ###
   if [[ ${branch} == 'master' ]]; then
     echo ">> Creating ${maintenance_branch?Missing branch} with ${maintenance_version?Missing version}"
