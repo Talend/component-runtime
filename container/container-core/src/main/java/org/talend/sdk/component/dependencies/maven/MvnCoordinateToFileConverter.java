@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
- * <p>
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 public class MvnCoordinateToFileConverter {
-    private static final Set<String> SCOPES = new HashSet<>(Arrays.asList("compile", "provided", "runtime", "test", "system"));
+
+    private static final Set<String> SCOPES =
+            new HashSet<>(Arrays.asList("compile", "provided", "runtime", "test", "system"));
 
     public Artifact toArtifact(final String coordinates) {
         String trim = coordinates
@@ -47,25 +49,25 @@ public class MvnCoordinateToFileConverter {
             throw new IllegalArgumentException("Invalid coordinate: " + trim);
         }
 
-        switch (segments.length) { // support some optional values 3: g:a:v, 4: g:a:t:v
-            case 3:
-                // g:a:v
-                segments = new String[]{segments[0], segments[1], "jar", null, segments[2], "compile"};
-                break;
-            case 4:
-                // g:a:t:v
-                segments = new String[]{segments[0], segments[1], segments[2], null, segments[3], "compile"};
-                break;
-            case 5:
-                if (SCOPES.contains(segments[4])) {
-                    // g:a:t:v:s
-                    segments = new String[]{segments[0], segments[1], segments[2], null, segments[3], segments[4]};
-                } else {
-                    // g:a:t:c:v
-                    segments = new String[]{segments[0], segments[1], segments[2], segments[3], segments[4], "compile"};
-                }
-                break;
-            default:
+        switch (segments.length) {
+        case 3:
+            // g:a:v
+            segments = new String[] { segments[0], segments[1], "jar", null, segments[2], "compile" };
+            break;
+        case 4:
+            // g:a:t:v
+            segments = new String[] { segments[0], segments[1], segments[2], null, segments[3], "compile" };
+            break;
+        case 5:
+            if (SCOPES.contains(segments[4])) {
+                // g:a:t:v:s
+                segments = new String[] { segments[0], segments[1], segments[2], null, segments[3], segments[4] };
+            } else {
+                // g:a:t:c:v
+                segments = new String[] { segments[0], segments[1], segments[2], segments[3], segments[4], "compile" };
+            }
+            break;
+        default:
         }
 
         // group:artifact:type[:classifier]:version:scope
