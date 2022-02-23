@@ -247,7 +247,7 @@
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v16.14.0</node.version>
     <npm.version>8.5.1</npm.version>
-    <frontend.version>1.8.0</frontend.version>
+    <frontend.version>1.12.1</frontend.version>
 
     <!-- misc dependencies -->
     <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
