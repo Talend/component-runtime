@@ -28,7 +28,7 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>2.3.4</antora.version>
+    <antora.version>3.0.1</antora.version>
 
     <!-- -Dantora.site.mode=dev-poc to test new theme -->
     <antora.dev.site.mode>dev</antora.dev.site.mode>
@@ -44,7 +44,7 @@
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
 
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
-    <asciidoctor-pdf-gem.version>1.5.4</asciidoctor-pdf-gem.version>
+    <asciidoctor-pdf-gem.version>1.6.0</asciidoctor-pdf-gem.version>
     <crawler-commons.version>1.0</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
     <!-- skip flags for the release -->
@@ -488,7 +488,8 @@
               <mainClass>org.talend.runtime.documentation.SearchIndexation</mainClass>
               <includePluginDependencies>true</includePluginDependencies>
               <arguments>
-                <argument>${project.build.directory}/${project.build.finalName}/sitemap-main.xml</argument>
+                <argument>${project.build.directory}/${project.build.finalName}/sitemap.xml</argument>
+                <argument>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</argument>
               </arguments>
             </configuration>
           </execution>
@@ -718,7 +719,7 @@
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>2.2.1</version>
+        <version>2.2.2</version>
         <dependencies>
           <dependency>
             <groupId>org.asciidoctor</groupId>
