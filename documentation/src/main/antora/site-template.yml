@@ -17,6 +17,9 @@ site:
   url: https://talend.github.io/component-runtime
   keys:
     google_analytics: GTM-PSBN
+urls:
+  latest_version_segment: latest
+  redirect_facility: static
 content:
   sources:
   - url: https://github.com/Talend/component-runtime.git
