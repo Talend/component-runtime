@@ -33,10 +33,6 @@ content:
       - master
       - component-runtime-*
     start_path: documentation/src/main/antora
-  - url: https://github.com/Talend/component-runtime.git
-    branches:
-      - master
-    start_path: documentation/src/main/blog
 ui:
   bundle:
     url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/master/raw/build/ui-bundle.zip?job=bundle-stable
