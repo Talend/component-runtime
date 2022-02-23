@@ -18,7 +18,7 @@
 // but we can invest on it later,
 // for now it looks asciidoctor+talend and it is enough
 
-def asciidocCss = new File(project.basedir, 'src/main/frontend/node_modules/asciidoctor.js/dist/css/asciidoctor.css')
+def asciidocCss = new File(project.basedir, 'src/main/frontend/node_modules/@asciidoctor/core/dist/css/asciidoctor.css')
 
 // apply talend colors
 def customized = asciidocCss.text
