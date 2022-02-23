@@ -1,5 +1,7 @@
 = Wall of Fame
 :page-partial:
 :page-talend_contributors: true
+:description: Heroes of Talend Component Kit.
+:keywords: contributor, github, profile, developper, gravatar, commit
 
 include::{partialsdir}/generated_contributors.adoc[]
