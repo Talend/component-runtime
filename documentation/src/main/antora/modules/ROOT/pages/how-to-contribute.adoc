@@ -1,6 +1,7 @@
 = Contributing to Talend Component Kit documentation
-:page-talend_skipindexation:
 :page-talend_stage: draft
+:keywords: documentation, asciidoc, asciidoctor, contributor
+:description: Lear how to contribute to component-runtime documentation
 
 This document explains how Asciidoctor is used in the context of Talend Component Kit as well as the specific processes in place.
 

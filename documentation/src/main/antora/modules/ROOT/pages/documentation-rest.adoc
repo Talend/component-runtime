@@ -1,7 +1,7 @@
 = Component server and HTTP API
 :page-partial:
 :description: Learn about Talend Component Kit HTTP API and the component server
-:keywords: REST API
+:keywords: REST API, component-server
 
 == HTTP API
 

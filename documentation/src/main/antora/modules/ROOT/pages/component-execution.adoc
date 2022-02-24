@@ -17,7 +17,7 @@ IMPORTANT: In distributed environments, class constructor are called on cluster 
 ....
                  /-------------------------\
                  |    Create and submit    |
-                 |   task to cluster (1)   |
+                 |   task to cluster <1>   |
                  \-------------------------/
                              |
                              V
@@ -25,7 +25,7 @@ IMPORTANT: In distributed environments, class constructor are called on cluster 
                 |     Cluster manager       |
                 |---------------------------|
                 |     Partition plan        |
-                |     computation (2)       |
+                |     computation <2>       |
                 |                           |
                 +---------------------------+
                              ^
@@ -37,7 +37,7 @@ IMPORTANT: In distributed environments, class constructor are called on cluster 
                     +------------------+
                     |   Worker node    |
                     |----------------- |
-                    |Flow Execution (3)|
+                    |Flow Execution <3>|
                     +------------------+
 ....
 ////
