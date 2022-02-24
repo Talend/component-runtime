@@ -33,8 +33,7 @@ content:
       - '!component-runtime-1.38.*'
       - '!component-runtime-1.39.*'
     branches:
-      - master
-      - component-runtime-*
+      - HEAD
     start_path: documentation/src/main/antora
 ui:
   bundle:
