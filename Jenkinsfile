@@ -146,7 +146,10 @@ spec:
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                         script {
                             try {
-                                sh "${params.POST_LOGIN_SCRIPT}"
+                                sh "${params.POST_LOGIN_SCRIPT}";
+                                sh """
+                                   bash .jenkins/scripts/npm_fix.sh
+                                   """
                             } catch (error) {
                                 //
                             }
