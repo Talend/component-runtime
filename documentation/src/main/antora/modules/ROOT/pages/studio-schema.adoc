@@ -49,7 +49,7 @@ public class OutputConfig implements Serializable {
 <3> `Structure.Type.IN`: marks the schema for an incoming flow (Output).
      Use `Structure.Type.OUT` for outgoing flow (Input).
 <4> `List<SchemaInfo>`: is a custom class for holding metadata.
-<4> `@GridLayout`: option should be defined in the UI layout.
+<5> `@GridLayout`: option should be defined in the UI layout.
 
 Then, we should have a class `SchemaInfo` as following:
 

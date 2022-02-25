@@ -243,7 +243,7 @@ public class Generator {
             if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
                     writer
-                            .write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
+                            .write(("== Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
                                     + "(window.talend " + "= (window.talend || {})).swaggerUi = " + newApi.toString()
                                     + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
                                             .getBytes(StandardCharsets.UTF_8));
