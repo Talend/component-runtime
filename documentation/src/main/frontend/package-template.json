@@ -8,9 +8,7 @@
     "@antora/site-generator-default": "${antora.version}"
   },
   "scripts": {
-    "preantora:build": "./whoami.js",
     "antora:build": "antora --stacktrace ../antora/site.yml",
-    "postantora:build": "./whoami.js",
     "antora:${antora.dev.site.mode}": "antora --stacktrace ../antora/site-${antora.dev.site.mode}.yml"
   }
 }
