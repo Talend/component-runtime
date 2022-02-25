@@ -494,6 +494,22 @@
             </configuration>
           </execution>
           <execution>
+            <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@redirect-latest -->
+            <id>redirect-latest</id>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <skip>${indexation.skip}</skip>
+              <mainClass>org.talend.runtime.documentation.StaticRedirector</mainClass>
+              <includePluginDependencies>true</includePluginDependencies>
+              <arguments>
+                <argument>${project.build.directory}/${project.build.finalName}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
             <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@upload-api-mock -->
             <id>upload-api-mock</id>
             <!-- avoid to do it at each build, since it is remote it is ok to do it here (see .travis.yml) -->
