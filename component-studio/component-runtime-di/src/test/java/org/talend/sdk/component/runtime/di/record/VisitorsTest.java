@@ -213,6 +213,8 @@ public class VisitorsTest {
 
         public String h;
 
+        public Character char0;
+
         public boolean hAshcOdEdIrtY;
 
         @Getter(value = AccessLevel.NONE)

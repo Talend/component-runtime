@@ -1,7 +1,7 @@
 = Studio schema
 :page-partial:
 :description: How to access studio's schema in your component.
-:keywords: studio, schema, metadata, dynamic, columns
+:keywords: studio, schema, metadata, dynamic, columns, output, sink, connector
 
 == Dynamic schema
 
@@ -103,6 +103,20 @@ Available Studio metadata informations
 |`comment`| String|Comment
 
 |===
+
+== Notes when designing an Output connector
+
+WARNING: notice that's WIP and draft!
+
+NOTE: available since 1.43.x release
+
+As Talend Component Kit record's type (TODO: link to API) aren't matching Studio types, we wrap those types in wider types.
+Anyway, the original type coming from Studio's IPersistentRow (TODO: link to API) descendants' type is stored in record's schema properties.
+The property name is `talend.studio.type` and when handling an output connector designed for Studio, you should
+have to *check* for this property to get an accurate type for output.
+
+For instance, `java.math.BigDecimal` is handled in framework as a `Type.STRING` so when an output connector will receive
+a record, in studio context, you'll need to check for the property and cast it correctly...
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
