@@ -15,16 +15,15 @@ site:
   title: Talend Component Kit Developer Guide
   start_page: main::index
   url: http://localhost:8080
+urls:
+  latest_version_segment: latest
+  redirect_facility: static
 content:
   sources:
   - url: ../../../..
     branches:
       - master
     start_path: documentation/src/main/antora
-  - url: ../../../..
-    branches:
-      - master
-    start_path: documentation/src/main/blog
 ui:
   bundle:
     url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/master/raw/build/ui-bundle.zip?job=bundle-stable

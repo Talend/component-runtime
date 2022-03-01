@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":493,
+    "commits":497,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -32,7 +32,8 @@
     "commits":68,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
-    "id":"clesaec"
+    "id":"clesaec",
+    "name":"clesaec"
   },
   {
     "commits":59,
@@ -115,7 +116,8 @@
     "commits":3,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/18050008?v=4",
-    "id":"chmyga"
+    "id":"chmyga",
+    "name":"chmyga"
   },
   {
     "commits":3,
@@ -128,7 +130,8 @@
     "commits":2,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/31616269?v=4",
-    "id":"lcelton-talend"
+    "id":"lcelton-talend",
+    "name":"lcelton-talend"
   },
   {
     "commits":2,
@@ -162,7 +165,8 @@
     "commits":1,
     "description":"Senior Cloud Software Architect",
     "gravatar":"https://avatars.githubusercontent.com/u/783286?v=4",
-    "id":"sgandon"
+    "id":"sgandon",
+    "name":"sgandon"
   },
   {
     "commits":1,

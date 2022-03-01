@@ -3,6 +3,8 @@
 :description: A Vault Proxy manages credential encryption before the data reaches the component server.
 :keywords: component server vault proxy, credentials, cloud
 
+WARNING:  Component server vault proxy is deprecated since component-runtime-1.34.0 release
+
 Browse the API description using xref:rest-openapi-vault.adoc[OpenAPI].
 
 A Vault proxy dedicated to the component server allows to safely manage credential encryption when operating in a Cloud environment.

@@ -921,3 +921,8 @@ ul.tree > li > a {
     margin-bottom: 0px;
     margin-left: 0.4rem;
 }
+
+.found {
+    background-color: #f5f5f5;
+    font-weight: 550;
+}

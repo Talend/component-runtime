@@ -1,5 +1,8 @@
 = Handling component version migration
 :page-partial:
+:description: How to handle component version migration
+:keywords: tutorial, migration, component, backward compatibility, configuration, option
+
 
 [[tutorial-handle-talend-component-migration]]
 

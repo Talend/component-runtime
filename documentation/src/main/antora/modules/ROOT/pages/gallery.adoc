@@ -1,7 +1,7 @@
 = Widget and validation gallery
 :page-partial:
 :description: Sample screenshots of the Talend Component Kit available widgets and validation methods
-:keywords: Widget, validation
+:keywords: Widget, validation, service
 
 This gallery shows how widgets and validations are rendered in both Studio and web environments, along with sample implementation code.
 
