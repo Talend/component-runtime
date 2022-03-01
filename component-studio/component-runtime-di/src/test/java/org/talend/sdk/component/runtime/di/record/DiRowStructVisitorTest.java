@@ -98,6 +98,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "BYTES", StudioTypes.LIST, BYTES);
         createMetadata(dynamic, "DATES", StudioTypes.LIST, DATES);
         createMetadata(dynamic, "RECORDS", StudioTypes.LIST, RECORDS);
+        createMetadata(dynamic, "BIG_DECIMALS", StudioTypes.LIST, BIG_DECIMALS);
         createMetadata(dynamic, "dynDate", StudioTypes.DATE, DATE);
         rowStruct.dynamic = dynamic;
         //
@@ -105,7 +106,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(44, schema.getEntries().size());
+        assertEquals(45, schema.getEntries().size());
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
         assertEquals("true", schema.getEntry("id").getProp(STUDIO_KEY));
@@ -184,6 +185,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
             assertEquals(1, r.getInt("ntgr"));
             assertEquals("one", r.getString("str"));
         });
+        assertEquals(BIG_DECIMALS, record.getArray(BigDecimal.class, "BIG_DECIMALS"));
         assertEquals(3,
                 schema.getEntries()
                         .stream()

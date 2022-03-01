@@ -153,6 +153,12 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.ARRAY)
                         .withElementSchema(factory.newSchemaBuilder(Type.RECORD).build())
                         .build(), RECORDS)
+                .withArray(factory
+                        .newEntryBuilder()
+                        .withName("BIG_DECIMALS")
+                        .withType(Type.ARRAY)
+                        .withElementSchema(factory.newSchemaBuilder(Type.STRING).build())
+                        .build(), BIG_DECIMALS)
                 //
                 .build();
         //
@@ -228,7 +234,7 @@ class DiRecordVisitorTest extends VisitorsTest {
             assertEquals(1, r.getInt("ntgr"));
             assertEquals("one", r.getString("str"));
         });
-
+        assertEquals(BIG_DECIMALS, rowStruct.dynamic.getColumnValue("BIG_DECIMALS"));
     }
 
     @Test
