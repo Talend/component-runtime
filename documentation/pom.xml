@@ -678,44 +678,6 @@
             </configuration>
           </execution>
           <execution>
-            <id>unpack-junit-javadoc</id>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <phase>process-resources</phase>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.talend.sdk.component</groupId>
-                  <artifactId>component-api</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/api</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.talend.sdk.component</groupId>
-                  <artifactId>component-runtime-junit</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/junit</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.talend.sdk.component</groupId>
-                  <artifactId>component-runtime-http-junit</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/junit-http</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-          <execution>
             <id>unpack-icons</id>
             <goals>
               <goal>unpack</goal>
@@ -988,11 +950,63 @@
         <indexation.skip>true</indexation.skip>
       </properties>
     </profile>
-    <!--    <profile>-->
-    <!--      <id>latest</id>-->
-    <!--      <activation>-->
-    <!--        <property></property>-->
-    <!--      </activation>-->
-    <!--    </profile>-->
+        <profile>
+          <id>build-latest-apidoc</id>
+          <activation>
+            <property>
+              <name>env.BRANCH_NAME</name>
+              <value>master</value>
+            </property>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-dependency-plugin</artifactId>
+              <version>${dependency-plugin.version}</version>
+              <executions>
+                <execution>
+                  <id>unpack-junit-javadoc</id>
+                  <goals>
+                    <goal>unpack</goal>
+                  </goals>
+                  <phase>process-resources</phase>
+                  <configuration>
+                    <artifactItems>
+                      <artifactItem>
+                        <groupId>org.talend.sdk.component</groupId>
+                        <artifactId>component-api</artifactId>
+                        <version>${project.version}</version>
+                        <type>jar</type>
+                        <classifier>javadoc</classifier>
+                        <overWrite>true</overWrite>
+                        <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/api</outputDirectory>
+                      </artifactItem>
+                      <artifactItem>
+                        <groupId>org.talend.sdk.component</groupId>
+                        <artifactId>component-runtime-junit</artifactId>
+                        <version>${project.version}</version>
+                        <type>jar</type>
+                        <classifier>javadoc</classifier>
+                        <overWrite>true</overWrite>
+                        <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/junit</outputDirectory>
+                      </artifactItem>
+                      <artifactItem>
+                        <groupId>org.talend.sdk.component</groupId>
+                        <artifactId>component-runtime-http-junit</artifactId>
+                        <version>${project.version}</version>
+                        <type>jar</type>
+                        <classifier>javadoc</classifier>
+                        <overWrite>true</overWrite>
+                        <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/junit-http</outputDirectory>
+                      </artifactItem>
+                    </artifactItems>
+                  </configuration>
+                </execution>
+              </executions>
+              </plugin>
+            </plugins>
+          </build>
+        </profile>
   </profiles>
 </project>
