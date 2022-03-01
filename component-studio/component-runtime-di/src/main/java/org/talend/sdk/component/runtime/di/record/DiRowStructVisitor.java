@@ -82,10 +82,11 @@ public class DiRowStructVisitor {
         log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
-                final Class<?> type = field.getType();
+                final Class<?> fieldType = field.getType();
+                final String studioType = StudioTypes.typeFromClass(fieldType.getName());
                 final String name = field.getName();
                 final Object raw = field.get(data);
-                log.debug("[visit] Field {} ({}) ==> {}.", name, type.getName(), raw);
+                log.debug("[visit] Field {} ({} / {}) ==> {}.", name, fieldType.getName(), studioType, raw);
                 if (raw == null) {
                     log.debug("[visit] Skipping field {} with null value.", name);
                     return;
@@ -94,49 +95,53 @@ public class DiRowStructVisitor {
                     log.debug("[visit] Skipping technical field {}.", name);
                     return;
                 }
-                switch (type.getName()) {
-                case "java.lang.Object":
+                switch (studioType) {
+                case StudioTypes.OBJECT:
                     onObject(name, raw);
                     break;
-                case "java.lang.String":
+                case StudioTypes.LIST:
+                    onArray(toCollectionEntry(name, "", raw), Collection.class.cast(raw));
+                    break;
+                case StudioTypes.BYTE_ARRAY:
+                    onBytes(name, byte[].class.cast(raw));
+                    break;
+                case StudioTypes.CHARACTER:
+                    onString(name, String.valueOf(raw));
+                    break;
+                case StudioTypes.STRING:
                     onString(name, raw);
                     break;
-                case "java.math.BigDecimal":
+                case StudioTypes.BIGDECIMAL:
                     onString(name, BigDecimal.class.cast(raw).toString());
                     break;
-                case "java.lang.Integer":
-                case "int":
-                case "java.lang.Short":
-                case "short":
+                case StudioTypes.BYTE:
+                    onInt(name, Byte.class.cast(raw).intValue());
+                    break;
+                case StudioTypes.INTEGER:
+                case StudioTypes.SHORT:
                     onInt(name, raw);
                     break;
-                case "java.lang.Long":
-                case "long":
+                case StudioTypes.LONG:
                     onLong(name, raw);
                     break;
-                case "java.lang.Float":
-                case "float":
+                case StudioTypes.FLOAT:
                     onFloat(name, raw);
                     break;
-                case "java.lang.Double":
-                case "double":
+                case StudioTypes.DOUBLE:
                     onDouble(name, raw);
                     break;
-                case "java.lang.Boolean":
-                case "boolean":
+                case StudioTypes.BOOLEAN:
                     onBoolean(name, raw);
                     break;
-                case "java.util.Date":
+                case StudioTypes.DATE:
                     onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
                     break;
-                case "routines.system.Dynamic":
+                case StudioTypes.DYNAMIC:
                     final Dynamic dynamic = Dynamic.class.cast(raw);
                     dynamic.metadatas.forEach(meta -> {
                         final Object value = dynamic.getColumnValue(meta.getName());
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
-                        final String metaComment = meta.getDescription();
-                        final boolean metaIsNullable = meta.isNullable();
                         log.debug("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                         if (value == null) {
                             return;
@@ -203,19 +208,8 @@ public class DiRowStructVisitor {
                     });
                     break;
                 default:
-                    if (byte[].class.isInstance(raw)) {
-                        onBytes(name, byte[].class.cast(raw));
-                    } else if (byte.class.isInstance(raw) || Byte.class.isInstance(raw)) {
-                        onInt(name, Byte.class.cast(raw).intValue());
-                    } else if (Collection.class.isInstance(raw)) {
-                        final Collection collection = Collection.class.cast(raw);
-                        onArray(toCollectionEntry(name, "", collection), Collection.class.cast(collection));
-                    } else if (char.class.isInstance(raw) || Character.class.isInstance(raw)) {
-                        onString(name, String.valueOf(raw));
-                    } else {
-                        throw new IllegalAccessException(String.format("Invalid type: %s with value: %s.", type, raw));
-                    }
-                    break;
+                    throw new IllegalAccessException(String.format("Invalid type: %s (%s) with value: %s. .",
+                            fieldType, studioType, raw));
                 }
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
@@ -271,7 +265,7 @@ public class DiRowStructVisitor {
                 }
                 final String name = sanitizeConnectionName(field.getName());
                 final Object raw = field.get(data);
-                final Boolean isNullable =
+                final boolean isNullable =
                         ofNullable(getMetadata(name + "IsNullable", data, Boolean.class)).orElse(true);
                 final Boolean isKey = ofNullable(getMetadata(name + "IsKey", data, Boolean.class)).orElse(false);
                 final Integer length = ofNullable(getMetadata(name + "Length", data, Integer.class)).orElse(-1);
@@ -438,7 +432,7 @@ public class DiRowStructVisitor {
 
     // CHECKSTYLE:OFF
     private Entry toEntry(final String name, final Schema.Type type, final String originalName,
-            final Boolean isNullable, final String comment, final Boolean isKey, final Integer length,
+            final boolean isNullable, final String comment, final Boolean isKey, final Integer length,
             final Integer precision, final String defaultValue, final String pattern, final String studioType) {
         // CHECKSTYLE:ON
         final Map<String, String> props = new HashMap();
@@ -460,7 +454,7 @@ public class DiRowStructVisitor {
                 .newEntryBuilder()
                 .withName(name)
                 .withRawName(originalName)
-                .withNullable(isNullable == null ? true : isNullable)
+                .withNullable(isNullable)
                 .withType(type)
                 .withComment(comment)
                 .withDefaultValue(defaultValue)
