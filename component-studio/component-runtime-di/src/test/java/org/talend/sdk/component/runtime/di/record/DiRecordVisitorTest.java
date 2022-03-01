@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_TYPE;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
-import org.talend.sdk.component.runtime.di.schema.Constants.StudioTypes;
+import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
 class DiRecordVisitorTest extends VisitorsTest {
 

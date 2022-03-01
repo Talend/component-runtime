@@ -21,11 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_KEY;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PRECISION;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_TYPE;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
 
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
@@ -40,7 +40,7 @@ import java.util.Date;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.runtime.di.schema.Constants.StudioTypes;
+import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
 import lombok.Data;
 

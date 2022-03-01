@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_TYPE;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
 
 import routines.system.Dynamic;
 
@@ -70,7 +70,7 @@ import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.OutputsHandler;
-import org.talend.sdk.component.runtime.di.schema.Constants.StudioTypes;
+import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -371,11 +371,11 @@ public class DynamicColumnsTest {
             assertEquals(StudioTypes.DATE, record.getSchema().getEntry("date0").getProp(STUDIO_TYPE));
             assertTrue(ZonedDateTime.now().toEpochSecond() >= record.getDateTime("date0").toEpochSecond());
             assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("bigDecy").getProp(STUDIO_TYPE));
-            assertEquals("12345.67890" , record.getString("bigDecy"));
+            assertEquals("12345.67890", record.getString("bigDecy"));
             assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("dynBigDecimal").getProp(STUDIO_TYPE));
-            assertEquals("12345.67890" , record.getString("dynBigDecimal"));
+            assertEquals("12345.67890", record.getString("dynBigDecimal"));
             assertEquals(StudioTypes.CHARACTER, record.getSchema().getEntry("chary").getProp(STUDIO_TYPE));
-            assertEquals(String.valueOf(Character.MAX_VALUE) , record.getString("chary"));
+            assertEquals(String.valueOf(Character.MAX_VALUE), record.getString("chary"));
 
             counter++;
         }

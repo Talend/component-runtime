@@ -29,11 +29,11 @@ import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_KEY;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_PRECISION;
-import static org.talend.sdk.component.runtime.di.schema.Constants.STUDIO_TYPE;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
 
 import routines.system.Dynamic;
 
@@ -60,7 +60,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.runtime.di.schema.Constants.StudioTypes;
+import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.record.MappingUtils;
 
 import lombok.extern.slf4j.Slf4j;
