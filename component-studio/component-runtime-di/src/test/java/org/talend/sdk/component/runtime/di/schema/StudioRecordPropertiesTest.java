@@ -15,14 +15,19 @@
  */
 package org.talend.sdk.component.runtime.di.schema;
 
-// TODO extract to studio API
-public class Constants {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    public static final String STUDIO_KEY = "key";
+import org.junit.jupiter.api.Test;
 
-    public static final String STUDIO_LENGTH = "length";
+class StudioRecordPropertiesTest {
 
-    public static final String STUDIO_PATTERN = "pattern";
-
-    public static final String STUDIO_PRECISION = "precision";
+    @Test
+    void testPropertiesValues() {
+        final String suffix = "talend.studio.";
+        assertEquals(suffix + "key", StudioRecordProperties.STUDIO_KEY);
+        assertEquals(suffix + "precision", StudioRecordProperties.STUDIO_PRECISION);
+        assertEquals(suffix + "length", StudioRecordProperties.STUDIO_LENGTH);
+        assertEquals(suffix + "pattern", StudioRecordProperties.STUDIO_PATTERN);
+        assertEquals(suffix + "type", StudioRecordProperties.STUDIO_TYPE);
+    }
 }

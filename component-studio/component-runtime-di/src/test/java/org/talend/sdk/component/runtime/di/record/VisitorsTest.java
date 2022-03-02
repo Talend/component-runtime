@@ -83,6 +83,8 @@ public class VisitorsTest {
 
     protected static final List<Record> RECORDS = Arrays.asList(RECORD, RECORD);
 
+    protected static final List<BigDecimal> BIG_DECIMALS = Arrays.asList(BIGDEC, BIGDEC, BIGDEC, BIGDEC);
+
     @Getter
     @ToString
     public static class RowStruct implements routines.system.IPersistableRow {
@@ -212,6 +214,8 @@ public class VisitorsTest {
         }
 
         public String h;
+
+        public Character char0;
 
         public boolean hAshcOdEdIrtY;
 
