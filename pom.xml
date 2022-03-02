@@ -226,7 +226,7 @@
     <gmavenplus.version>1.13.0</gmavenplus.version>
     <dependency-plugin.version>3.1.1</dependency-plugin.version>
     <assembly-plugin.version>3.1.1</assembly-plugin.version>
-    <javadoc-plugin.version>3.2.0</javadoc-plugin.version>
+    <javadoc-plugin.version>3.3.2</javadoc-plugin.version>
     <deploy-plugin.version>2.8.2</deploy-plugin.version>
     <clean-plugin.version>3.1.0</clean-plugin.version>
     <download-plugin.version>1.4.2</download-plugin.version>
@@ -787,7 +787,7 @@
             <windowtitle>${project.name}</windowtitle>
             <header>${project.name} - ${project.version}</header>
             <doctitle>${project.name} - ${project.version}</doctitle>
-            <bottom>${project.version} - Copyright &amp;copy; 2018 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <bottom>${project.version} - Copyright &amp;copy; 2022 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
           </configuration>
         </plugin>
