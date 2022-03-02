@@ -5,7 +5,11 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2087[TCOMP-2087^]: Upgrade Tomcat to 9.0.59 due to CVE-2022-23181
+- link:https://jira.talendforge.org/browse/TCOMP-2088[TCOMP-2088^]: Upgrade OpenWebBeans to 2.0.26
+- link:https://jira.talendforge.org/browse/TCOMP-2089[TCOMP-2089^]: Upgrade meecrowave to 1.2.13
+- link:https://jira.talendforge.org/browse/TCOMP-2090[TCOMP-2090^]: Upgrade johnzon to 1.2.16
 - link:https://jira.talendforge.org/browse/TCOMP-2092[TCOMP-2092^]: MvnCoordinateToFileConverter fakes classifiers' support
+- link:https://jira.talendforge.org/browse/TCOMP-2097[TCOMP-2097^]: Upgrade cxf to 3.5.1
 
 == Version 1.42.0
 
