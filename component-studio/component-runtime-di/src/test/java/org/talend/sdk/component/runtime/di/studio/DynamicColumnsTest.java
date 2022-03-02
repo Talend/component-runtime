@@ -22,14 +22,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+
+import routines.system.Dynamic;
 
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -59,6 +70,7 @@ import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.OutputsHandler;
+import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -76,7 +88,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import routines.system.Dynamic;
 
 @Slf4j
 public class DynamicColumnsTest {
@@ -325,13 +336,20 @@ public class DynamicColumnsTest {
 
             assertNotNull(record);
             assertNotNull(record.getString("id"));
+            assertEquals(StudioTypes.STRING, record.getSchema().getEntry("id").getProp(STUDIO_TYPE));
             assertNotNull(record.getString("name"));
+            assertEquals(StudioTypes.STRING, record.getSchema().getEntry("name").getProp(STUDIO_TYPE));
             assertTrue(record.getString("name").startsWith("record"));
             assertEquals("value" + counter, record.getString("string0"));
+            assertEquals(StudioTypes.SHORT, record.getSchema().getEntry("shorty").getProp(STUDIO_TYPE));
             assertEquals(Short.MAX_VALUE, record.getInt("shorty"));
+            assertEquals(StudioTypes.INTEGER, record.getSchema().getEntry("inty").getProp(STUDIO_TYPE));
             assertEquals(Integer.MAX_VALUE, record.getInt("inty"));
+            assertEquals(StudioTypes.LONG, record.getSchema().getEntry("longy").getProp(STUDIO_TYPE));
             assertEquals(Long.MAX_VALUE, record.getLong("longy"));
+            assertEquals(StudioTypes.FLOAT, record.getSchema().getEntry("floaty").getProp(STUDIO_TYPE));
             assertEquals(Float.MAX_VALUE, record.getFloat("floaty"));
+            assertEquals(StudioTypes.DOUBLE, record.getSchema().getEntry("doubly").getProp(STUDIO_TYPE));
             assertEquals(Double.MAX_VALUE, record.getDouble("doubly"));
             assertEquals((counter % 2 == 0), record.getBoolean("bool0"));
             assertEquals(counter, record.getInt("int0"));
@@ -350,7 +368,14 @@ public class DynamicColumnsTest {
             assertEquals(String.format("zorglub-is-still-alive-%05d", counter), new String(record.getBytes("bytes0")));
             assertEquals(IntStream.range(0, counter + 1).boxed().collect(toList()),
                     record.getArray(Integer.class, "array0"));
+            assertEquals(StudioTypes.DATE, record.getSchema().getEntry("date0").getProp(STUDIO_TYPE));
             assertTrue(ZonedDateTime.now().toEpochSecond() >= record.getDateTime("date0").toEpochSecond());
+            assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("bigDecy").getProp(STUDIO_TYPE));
+            assertEquals("12345.67890", record.getString("bigDecy"));
+            assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("dynBigDecimal").getProp(STUDIO_TYPE));
+            assertEquals("12345.67890", record.getString("dynBigDecimal"));
+            assertEquals(StudioTypes.CHARACTER, record.getSchema().getEntry("chary").getProp(STUDIO_TYPE));
+            assertEquals(String.valueOf(Character.MAX_VALUE), record.getString("chary"));
 
             counter++;
         }
@@ -417,7 +442,11 @@ public class DynamicColumnsTest {
                     .newRecordBuilder()
                     .withString("id", String.valueOf(i))
                     .withString("name", "record" + i)
-                    .withInt("shorty", Short.MAX_VALUE)
+                    .withInt(builderFactory.newEntryBuilder()
+                            .withName("shorty")
+                            .withType(Type.INT)
+                            .withProp(STUDIO_TYPE, StudioTypes.SHORT)
+                            .build(), Short.MAX_VALUE)
                     .withInt("inty", Integer.MAX_VALUE)
                     .withLong("longy", Long.MAX_VALUE)
                     .withFloat("floaty", Float.MAX_VALUE)
@@ -445,6 +474,21 @@ public class DynamicColumnsTest {
                             .withElementSchema(builderFactory.newSchemaBuilder(Type.INT).build())
                             .build(), IntStream.range(0, i + 1).boxed().collect(toList()))
                     .withDateTime("date0", ZonedDateTime.now())
+                    .withString(builderFactory.newEntryBuilder()
+                            .withName("dynBigDecimal")
+                            .withType(Type.STRING)
+                            .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
+                            .build(), "12345.67890")
+                    .withString(builderFactory.newEntryBuilder()
+                            .withName("bigDecy")
+                            .withType(Type.STRING)
+                            .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
+                            .build(), "12345.67890")
+                    .withString(builderFactory.newEntryBuilder()
+                            .withName("chary")
+                            .withType(Type.STRING)
+                            .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
+                            .build(), String.valueOf(Character.MAX_VALUE))
                     .build();
             return record;
         }
@@ -467,6 +511,10 @@ public class DynamicColumnsTest {
         public float floaty;
 
         public double doubly;
+
+        public BigDecimal bigDecy;
+
+        public Character chary;
 
         public Dynamic dynamic;
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -346,8 +349,8 @@ public class TaCoKitGuessSchema {
                 break;
             case DOUBLE:
                 typeName = javaTypesManager.DOUBLE.getId();
-                length = entry.getProp("length");
-                precision = entry.getProp("precision");
+                length = entry.getProp(STUDIO_LENGTH);
+                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case INT:
                 typeName = javaTypesManager.INTEGER.getId();
@@ -357,8 +360,8 @@ public class TaCoKitGuessSchema {
                 break;
             case FLOAT:
                 typeName = javaTypesManager.FLOAT.getId();
-                length = entry.getProp("length");
-                precision = entry.getProp("precision");
+                length = entry.getProp(STUDIO_LENGTH);
+                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case BYTES:
                 typeName = javaTypesManager.BYTE_ARRAY.getId();
@@ -366,7 +369,7 @@ public class TaCoKitGuessSchema {
             case DATETIME:
                 typeName = javaTypesManager.DATE.getId();
                 isDateTime = true;
-                pattern = entry.getProp("pattern");
+                pattern = entry.getProp(STUDIO_PATTERN);
                 break;
             case RECORD:
                 typeName = javaTypesManager.OBJECT.getId();
