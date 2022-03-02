@@ -1,5 +1,11 @@
 
 
+== Version 1.43.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2092[TCOMP-2092^]: MvnCoordinateToFileConverter fakes classifiers' support
+
 == Version 1.42.0
 
 === Bug
