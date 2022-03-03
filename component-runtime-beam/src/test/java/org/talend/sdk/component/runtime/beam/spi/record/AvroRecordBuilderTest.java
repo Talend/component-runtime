@@ -516,7 +516,7 @@ class AvroRecordBuilderTest {
     }
 
     private Schema.Entry newEntry(final String name, Schema.Type type) {
-        return newEntry(name, name, type, true, "", "");
+        return newEntry(name, name, type, true, null, "");
     }
 
     private Schema.Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable,
@@ -533,7 +533,7 @@ class AvroRecordBuilderTest {
     }
 
     private Schema.Entry newMetaEntry(final String name, Schema.Type type) {
-        return newMetaEntry(name, name, type, true, "", "");
+        return newMetaEntry(name, name, type, true, null, "");
     }
 
     private Schema.Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
