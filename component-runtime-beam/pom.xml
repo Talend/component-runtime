@@ -58,7 +58,10 @@
       <artifactId>beam-sdks-java-core</artifactId>
       <scope>provided</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-direct-java</artifactId>
@@ -91,13 +94,6 @@
       <artifactId>beam-sdks-java-io-jdbc</artifactId>
       <version>${beam.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>${avro-jackson.version}</version>
-      <scope>test</scope>
-      <!-- skip CVE since this is an utility and it depends more on avro version -->
     </dependency>
     <dependency>
       <groupId>org.hsqldb</groupId>
