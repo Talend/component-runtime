@@ -48,12 +48,11 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
             try {
                 ofNullable(Thread.currentThread().getContextClassLoader())
                         .orElseGet(ClassLoader::getSystemClassLoader)
-                        .loadClass("org.codehaus.jackson.node.TextNode");
+                        .loadClass("com.fasterxml.jackson.databind.node.TextNode");
                 return new AvroRecordBuilderFactory(containerId);
             } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
-                log
-                        .info("jackson-mapper-asl is not available, skipping AvroRecordBuilderFactory ({})",
-                                getClass().getName());
+                log.info("jackson-databind is not available, skipping AvroRecordBuilderFactory ({})",
+                        getClass().getName());
                 return new RecordBuilderFactoryImpl(containerId);
             }
         }
