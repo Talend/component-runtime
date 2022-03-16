@@ -2,6 +2,18 @@
 
 == Version 1.43.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2003[TCOMP-2003^]: Maven dependency classifier considered as version in dependencies.txt by Studio
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2096[TCOMP-2096^]: Support BigDecimal type in DI integration
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2087[TCOMP-2087^]: Upgrade Tomcat to 9.0.59 due to CVE-2022-23181
@@ -177,6 +189,14 @@
 
 
 
+
+
+
+== Version 1.38.6
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2096[TCOMP-2096^]: Support BigDecimal type in DI integration
 
 == Version 1.38.4
 
