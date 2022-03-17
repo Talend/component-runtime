@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.38.6-SNAPSHOT</version>
+    <version>1.43.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>documentation</artifactId>
@@ -28,9 +28,10 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>2.2.0</antora.version>
+    <antora.version>3.0.1</antora.version>
 
-    <antora.dev.site.mode>dev</antora.dev.site.mode> <!-- -Dantora.site.mode=dev-poc to test new theme -->
+    <!-- -Dantora.site.mode=dev-poc to test new theme -->
+    <antora.dev.site.mode>dev</antora.dev.site.mode>
     <project_version>${project.version}</project_version>
     <sample_project-base>${project.basedir}/../sample</sample_project-base>
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
@@ -43,7 +44,7 @@
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
 
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
-    <asciidoctor-pdf-gem.version>1.5.2</asciidoctor-pdf-gem.version>
+    <asciidoctor-pdf-gem.version>1.6.0</asciidoctor-pdf-gem.version>
     <crawler-commons.version>1.0</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
     <!-- skip flags for the release -->
@@ -174,7 +175,6 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
-      <version>${johnzon.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -185,7 +185,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.jruby</groupId>
-          <artifactId>jruby</artifactId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -232,18 +232,41 @@
           <skipIfEmpty>true</skipIfEmpty>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>${gmavenplus.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-jsonb</artifactId>
+            <version>${johnzon.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctorj</artifactId>
+            <version>${asciidoctorj.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.jruby</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+          <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>groovy-scripts</id>
-            <phase>compile</phase> <!-- before exec plugin -->
+            <!-- before exec plugin -->
             <goals>
               <goal>execute</goal>
             </goals>
+            <phase>compile</phase>
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
@@ -253,259 +276,6 @@
             </configuration>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.johnzon</groupId>
-            <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj</artifactId>
-            <version>${asciidoctorj.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.6.0</version>
-        <executions>
-          <execution>
-            <id>generated-doc</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <mainClass>org.talend.runtime.documentation.Generator</mainClass>
-              <includePluginDependencies>true</includePluginDependencies>
-              <arguments>
-                <argument>${project.basedir}/src/main/antora/modules/ROOT/pages</argument>
-                <argument>${talend.jira.username}</argument>
-                <argument>${talend.jira.password}</argument>
-                <argument>${project.version}</argument>
-                <argument>offline=${settings.offline}</argument>
-                <argument>${talend.github.username}</argument>
-                <argument>${talend.github.password}</argument>
-                <argument>${talend.documentation.generation.skip}</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@indexation -->
-            <id>indexation</id>
-            <phase>package</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <skip>${indexation.skip}</skip>
-              <mainClass>org.talend.runtime.documentation.SearchIndexation</mainClass>
-              <includePluginDependencies>true</includePluginDependencies>
-              <arguments>
-                <argument>${project.build.directory}/${project.build.finalName}/sitemap-main.xml</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@upload-api-mock -->
-            <id>upload-api-mock</id>
-            <phase>pre-site</phase> <!-- avoid to do it at each build, since it is remote it is ok to do it here (see .travis.yml) -->
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <mainClass>org.talend.runtime.documentation.ApiMockUpdate</mainClass>
-              <includePluginDependencies>true</includePluginDependencies>
-              <systemProperties>
-                <systemProperty>
-                  <key>java.net.preferIPv4Stack</key>
-                  <value>true</value>
-                </systemProperty>
-              </systemProperties>
-              <arguments>
-                <argument>${project.build.directory}/exec/api-mock</argument>
-                <argument>${project.build.directory}/exec/api-mock/examples/apidemo</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.eclipse.microprofile.openapi</groupId>
-            <artifactId>microprofile-openapi-api</artifactId>
-            <version>${microprofile-openapi-api.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.geronimo</groupId>
-            <artifactId>geronimo-openapi-impl</artifactId>
-            <version>${geronimo-openapi.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-json_1.1_spec</artifactId>
-            <version>${geronimo-json.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-            <version>${geronimo-jsonb.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.johnzon</groupId>
-            <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.github.crawler-commons</groupId>
-            <artifactId>crawler-commons</artifactId>
-            <version>${crawler-commons.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>${commons-text.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
-            <version>${geronimo-jaxrs.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj</artifactId>
-            <version>${asciidoctorj.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.jruby</groupId>
-                <artifactId>jruby</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-          <dependency>
-            <groupId>org.jruby</groupId>
-            <artifactId>jruby-complete</artifactId>
-            <version>${jruby.version}</version>
-          </dependency>
-          <dependency><!-- to reuse maven one -->
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.5.6</version>
-          </dependency>
-          <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>component-api</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>component-server-vault-proxy</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j-impl</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-          <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>component-server</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j-impl</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-          <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>talend-component-maven-plugin</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.python</groupId>
-                <artifactId>jython</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-          <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>component-runtime-junit</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.tomee</groupId>
-            <artifactId>ziplock</artifactId>
-            <version>${ziplock.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.tomee</groupId>
-                <artifactId>*</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-finder-shaded</artifactId>
-            <version>${xbean.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>args4j</groupId>
-            <artifactId>args4j</artifactId>
-            <version>${args4j.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-client</artifactId>
-            <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sonatype.plexus</groupId>
-            <artifactId>plexus-sec-dispatcher</artifactId>
-            <version>${plexus-sec-dispatcher.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
-            <version>${geronimo-jaxrs.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>remote-engine-customizer</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.slf4j</groupId>
-                <artifactId>*</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>slf4j-standard</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>com.github.rmannibucau</groupId>
@@ -514,10 +284,10 @@
         <executions>
           <execution>
             <id>filter-antora</id>
-            <phase>process-classes</phase>
             <goals>
               <goal>filter</goal>
             </goals>
+            <phase>process-classes</phase>
             <configuration>
               <from>${project.basedir}/src/main/antora/antora-template.yml</from>
               <to>${project.basedir}/src/main/antora/antora.yml</to>
@@ -525,10 +295,10 @@
           </execution>
           <execution>
             <id>filter-site-dev</id>
-            <phase>process-classes</phase>
             <goals>
               <goal>filter</goal>
             </goals>
+            <phase>process-classes</phase>
             <configuration>
               <from>${project.basedir}/src/main/antora/site-${antora.dev.site.mode}-template.yml</from>
               <to>${project.basedir}/src/main/antora/site-${antora.dev.site.mode}.yml</to>
@@ -536,10 +306,10 @@
           </execution>
           <execution>
             <id>filter-site</id>
-            <phase>process-classes</phase>
             <goals>
               <goal>filter</goal>
             </goals>
+            <phase>process-classes</phase>
             <configuration>
               <from>${project.basedir}/src/main/antora/site-template.yml</from>
               <to>${project.basedir}/src/main/antora/site.yml</to>
@@ -547,288 +317,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin><!-- mvn package -Pgen-doc [once] && mvn frontend:npm@npm-dev -Pgen-doc -->
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend.version}</version>
-        <executions>
-          <execution>
-            <id>install-node-and-npm</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>${node.version}</nodeVersion>
-              <npmVersion>${npm.version}</npmVersion>
-            </configuration>
-          </execution>
-          <execution>
-            <id>npm-install</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>npm-build</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <skip>${component.front.build.skip}</skip>
-              <arguments>run antora:build</arguments>
-            </configuration>
-          </execution>
-          <execution> <!-- mvn initialize git-commit-id:revision@get-the-git-infos-in-m2-properties gplus:execute@groovy-scripts frontend:npm@npm-dev -->
-            <id>npm-dev</id>
-            <phase />
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <skip>${component.front.build.skip}</skip>
-              <arguments>run antora:${antora.dev.site.mode}</arguments>
-            </configuration>
-          </execution>
-        </executions>
-        <configuration>
-          <skip>${antora.skip}</skip>
-          <installDirectory>${project.basedir}/.node</installDirectory>
-          <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
-          <environmentVariables>
-            <NODE_ENV>production</NODE_ENV>
-          </environmentVariables>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>${dependency-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>unpack-api-javadoc</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.talend.sdk.component</groupId>
-                  <artifactId>component-api</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/api</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-          <execution>
-            <id>unpack-junit-javadoc</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.talend.sdk.component</groupId>
-                  <artifactId>component-runtime-junit</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit
-                  </outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.talend.sdk.component</groupId>
-                  <artifactId>component-runtime-http-junit</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit-http
-                  </outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-          <execution>
-            <id>unpack-icons</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.talend.ui</groupId>
-                  <artifactId>talend-icon</artifactId>
-                  <version>${talend-icon.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.basedir}/src/main/antora/modules/ROOT/assets/images</outputDirectory>
-                  <includes>**/*.svg</includes>
-                  <excludes>**/filters/**</excludes>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-          <execution>
-            <id>unpack-asciidoctor-pdf</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.asciidoctor</groupId>
-                  <artifactId>asciidoctorj-pdf</artifactId>
-                  <version>${asciidoctorj-pdf.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/build-dependencies/asciidoctorj-pdf</outputDirectory>
-                  <includes>gems/asciidoctor-pdf-${asciidoctor-pdf-gem.version}/data/**</includes>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin><!-- mvn initialize asciidoctor:process-asciidoc@pdf -e -->
-        <groupId>org.asciidoctor</groupId>
-        <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>2.0.0-RC.1</version>
-        <executions>
-          <!-- same as (but using java to avoid ruby setup, however it is x2 slower):
-          asciidoctor-pdf \
-            -a pdf-style=talend \
-            -a pdf-stylesdir=$PWD/src/main/asciidoctor/pdf/theme \
-            -a pdf-fonts=$PWD/target/build-dependencies/asciidoctorj-pdf/gems/asciidoctor-pdf-1.5.0.alpha.16/data/fonts \
-            -a pagenums \
-            -a toc \
-            -a numbered \
-            -a hide-uri-scheme \
-            -a idprefix \
-            -a icons=font \
-            -a icon-set=fa \
-            -a idseparator=- \
-            -a partialsdir=$PWD/src/main/antora/modules/ROOT/pages/_partials \
-            -a imagesdir=$PWD/src/main/antora/modules/ROOT/assets/images \
-            -a project_version=1.1.8 \
-            -a page-component-version=1.1.8 \
-            -a deploymentRoot=https://talend.github.io/component-runtime \
-            -a git.branch=master \
-            src/main/antora/modules/ROOT/pages/all-in-one.adoc
-          -->
-          <execution>
-            <id>pdf</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>process-asciidoc</goal>
-            </goals>
-            <configuration>
-              <skip>${talend.documentation.pdf.skip}</skip>
-              <backend>pdf</backend>
-              <sourceDirectory>src/main/antora/modules/ROOT/pages</sourceDirectory>
-              <sourceDocumentName>all-in-one.adoc</sourceDocumentName>
-              <sourceHighlighter>coderay</sourceHighlighter>
-              <attributes>
-                <pdf-style>talend</pdf-style>
-                <pdf-stylesdir>${project.basedir}/src/main/asciidoctor/pdf/theme</pdf-stylesdir>
-                <pdf-fonts>${project.build.directory}/build-dependencies/asciidoctorj-pdf/gems/asciidoctor-pdf-${asciidoctor-pdf-gem.version}/data/fonts</pdf-fonts>
-                <pagenums />
-                <toc />
-                <numbered />
-                <hide-uri-scheme />
-                <idprefix />
-                <icons>font</icons>
-                <icon-set>fa</icon-set>
-                <idseparator>-</idseparator>
-                <partialsdir>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials</partialsdir>
-                <imagesdir>${project.basedir}/src/main/antora/modules/ROOT/assets/images</imagesdir>
-                <project_version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</project_version>
-                <page-component-version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</page-component-version>
-                <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
-                <git_branch>${git.branch}</git_branch>
-              </attributes>
-              <logHandler><outputToConsole>false</outputToConsole></logHandler>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj</artifactId>
-            <version>${asciidoctorj.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.jruby</groupId>
-                <artifactId>jruby</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-          <dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj-pdf</artifactId>
-            <version>${asciidoctorj-pdf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.jruby</groupId>
-            <artifactId>jruby-complete</artifactId>
-            <version>${jruby.version}</version>
-          </dependency>
-          <!-- until antora supports it we don't use that
-          <dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj-diagram</artifactId>
-            <version>${asciidoctorj-diagram.version}</version>
-          </dependency>
-          -->
-        </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>${build-helper-maven-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>parse-version</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>parse-version</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <skipAttach>${talend.documentation.pdf.skip}</skipAttach>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/generated-docs/all-in-one.pdf</file>
-                  <type>pdf</type>
-                  <classifier>all-in-one</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
@@ -840,6 +328,15 @@
           <webapp>${project.build.directory}/${project.build.finalName}</webapp>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-banned-joda-time-dependency</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -848,7 +345,8 @@
       <id>gh-pages</id>
 
       <properties>
-        <github.global.server>github</github.global.server> <!-- matches a server in your settings.xml -->
+        <github.global.server>github</github.global.server>
+        <!-- matches a server in your settings.xml -->
         <content.rootpath>/component-runtime</content.rootpath>
         <site.rootpath>/component-runtime</site.rootpath>
       </properties>
@@ -859,23 +357,6 @@
             <groupId>org.codehaus.gmavenplus</groupId>
             <artifactId>gmavenplus-plugin</artifactId>
             <version>${gmavenplus.version}</version>
-            <executions>
-              <execution>
-                <id>deploy-site</id>
-                <phase>pre-site</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-                <configuration>
-                  <allowSystemExits>true</allowSystemExits>
-                  <scripts>
-                    <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
-                    <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
-                    <script>${project.basedir}/src/build/GithubPages.groovy</script>
-                  </scripts>
-                </configuration>
-              </execution>
-            </executions>
             <dependencies>
               <dependency>
                 <groupId>org.eclipse.jgit</groupId>
@@ -903,6 +384,23 @@
                 <version>${cxf.version}</version>
               </dependency>
             </dependencies>
+            <executions>
+              <execution>
+                <id>deploy-site</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>pre-site</phase>
+                <configuration>
+                  <allowSystemExits>true</allowSystemExits>
+                  <scripts>
+                    <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
+                    <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
+                    <script>${project.basedir}/src/build/GithubPages.groovy</script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
@@ -915,6 +413,599 @@
         <component.front.build.skip>true</component.front.build.skip>
         <indexation.skip>true</indexation.skip>
       </properties>
+    </profile>
+    <profile>
+      <id>build-latest-doc</id>
+      <activation>
+        <property>
+          <name>env.BRANCH_NAME</name>
+          <value>master</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>${dependency-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>unpack-junit-javadoc</id>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <phase>process-resources</phase>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.talend.sdk.component</groupId>
+                      <artifactId>component-api</artifactId>
+                      <version>${project.version}</version>
+                      <type>jar</type>
+                      <classifier>javadoc</classifier>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/api</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>org.talend.sdk.component</groupId>
+                      <artifactId>component-runtime-junit</artifactId>
+                      <version>${project.version}</version>
+                      <type>jar</type>
+                      <classifier>javadoc</classifier>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/junit</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>org.talend.sdk.component</groupId>
+                      <artifactId>component-runtime-http-junit</artifactId>
+                      <version>${project.version}</version>
+                      <type>jar</type>
+                      <classifier>javadoc</classifier>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/latest/junit-http</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.6.0</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.eclipse.microprofile.openapi</groupId>
+                <artifactId>microprofile-openapi-api</artifactId>
+                <version>${microprofile-openapi-api.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.geronimo</groupId>
+                <artifactId>geronimo-openapi-impl</artifactId>
+                <version>${geronimo-openapi.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-json_1.1_spec</artifactId>
+                <version>${geronimo-json.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+                <version>${geronimo-jsonb.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.johnzon</groupId>
+                <artifactId>johnzon-jsonb</artifactId>
+                <version>${johnzon.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>com.github.crawler-commons</groupId>
+                <artifactId>crawler-commons</artifactId>
+                <version>${crawler-commons.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
+                <version>${geronimo-jaxrs.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj</artifactId>
+                <version>${asciidoctorj.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>org.jruby</groupId>
+                    <artifactId>jruby</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+              <dependency>
+                <groupId>org.jruby</groupId>
+                <artifactId>jruby-complete</artifactId>
+                <version>${jruby.version}</version>
+              </dependency>
+              <!-- to reuse maven one -->
+              <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.5.6</version>
+              </dependency>
+              <dependency>
+                <groupId>org.talend.sdk.component</groupId>
+                <artifactId>component-api</artifactId>
+                <version>${project.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.talend.sdk.component</groupId>
+                <artifactId>component-server-vault-proxy</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+              <dependency>
+                <groupId>org.talend.sdk.component</groupId>
+                <artifactId>component-server</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+              <dependency>
+                <groupId>org.talend.sdk.component</groupId>
+                <artifactId>talend-component-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>org.python</groupId>
+                    <artifactId>jython</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+              <dependency>
+                <groupId>org.talend.sdk.component</groupId>
+                <artifactId>component-runtime-junit</artifactId>
+                <version>${project.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.tomee</groupId>
+                <artifactId>ziplock</artifactId>
+                <version>${ziplock.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>org.apache.tomee</groupId>
+                    <artifactId>*</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.xbean</groupId>
+                <artifactId>xbean-finder-shaded</artifactId>
+                <version>${xbean.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>args4j</groupId>
+                <artifactId>args4j</artifactId>
+                <version>${args4j.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+                <version>${cxf.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-client</artifactId>
+                <version>${cxf.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.sonatype.plexus</groupId>
+                <artifactId>plexus-sec-dispatcher</artifactId>
+                <version>${plexus-sec-dispatcher.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
+                <version>${geronimo-jaxrs.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.talend.sdk.component</groupId>
+                <artifactId>remote-engine-customizer</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                  </exclusion>
+                  <exclusion>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>slf4j-standard</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>generated-doc</id>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <phase>process-classes</phase>
+                <configuration>
+                  <mainClass>org.talend.runtime.documentation.Generator</mainClass>
+                  <includePluginDependencies>true</includePluginDependencies>
+                  <arguments>
+                    <argument>${project.basedir}/src/main/antora/modules/ROOT/pages</argument>
+                    <argument>${talend.jira.username}</argument>
+                    <argument>${talend.jira.password}</argument>
+                    <argument>${project.version}</argument>
+                    <argument>offline=${settings.offline}</argument>
+                    <argument>${talend.github.username}</argument>
+                    <argument>${talend.github.password}</argument>
+                    <argument>${talend.documentation.generation.skip}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@indexation -->
+                <id>indexation</id>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <skip>${indexation.skip}</skip>
+                  <mainClass>org.talend.runtime.documentation.SearchIndexation</mainClass>
+                  <includePluginDependencies>true</includePluginDependencies>
+                  <arguments>
+                    <argument>${project.build.directory}/${project.build.finalName}/sitemap.xml</argument>
+                    <argument>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@redirect-latest -->
+                <id>redirect-latest</id>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <skip>${indexation.skip}</skip>
+                  <mainClass>org.talend.runtime.documentation.StaticRedirector</mainClass>
+                  <includePluginDependencies>true</includePluginDependencies>
+                  <arguments>
+                    <argument>${project.build.directory}/${project.build.finalName}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@upload-api-mock -->
+                <id>upload-api-mock</id>
+                <!-- avoid to do it at each build, since it is remote it is ok to do it here (see .travis.yml) -->
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <phase>pre-site</phase>
+                <configuration>
+                  <mainClass>org.talend.runtime.documentation.ApiMockUpdate</mainClass>
+                  <includePluginDependencies>true</includePluginDependencies>
+                  <systemProperties>
+                    <systemProperty>
+                      <key>java.net.preferIPv4Stack</key>
+                      <value>true</value>
+                    </systemProperty>
+                  </systemProperties>
+                  <arguments>
+                    <argument>${project.build.directory}/exec/api-mock</argument>
+                    <argument>${project.build.directory}/exec/api-mock/examples/apidemo</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- mvn package -Pgen-doc [once] && mvn frontend:npm@npm-dev -Pgen-doc -->
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>${frontend.version}</version>
+            <configuration>
+              <skip>${antora.skip}</skip>
+              <installDirectory>${project.basedir}/.node</installDirectory>
+              <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
+              <environmentVariables>
+                <NODE_ENV>production</NODE_ENV>
+              </environmentVariables>
+            </configuration>
+            <executions>
+              <execution>
+                <id>install-node-and-npm</id>
+                <goals>
+                  <goal>install-node-and-npm</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <nodeVersion>${node.version}</nodeVersion>
+                  <npmVersion>${npm.version}</npmVersion>
+                </configuration>
+              </execution>
+              <execution>
+                <id>npm-install</id>
+                <goals>
+                  <goal>npm</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <arguments>install</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>npm-build</id>
+                <goals>
+                  <goal>npm</goal>
+                </goals>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <skip>${component.front.build.skip}</skip>
+                  <arguments>run antora:build</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- mvn initialize git-commit-id:revision@get-the-git-infos-in-m2-properties gplus:execute@groovy-scripts frontend:npm@npm-dev -->
+                <id>npm-dev</id>
+                <goals>
+                  <goal>npm</goal>
+                </goals>
+                <phase/>
+                <configuration>
+                  <skip>${component.front.build.skip}</skip>
+                  <arguments>run antora:${antora.dev.site.mode}</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>${dependency-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>unpack-api-javadoc</id>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <phase>process-resources</phase>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.talend.sdk.component</groupId>
+                      <artifactId>component-api</artifactId>
+                      <version>${project.version}</version>
+                      <type>jar</type>
+                      <classifier>javadoc</classifier>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/api</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>org.talend.sdk.component</groupId>
+                      <artifactId>component-runtime-junit</artifactId>
+                      <version>${project.version}</version>
+                      <type>jar</type>
+                      <classifier>javadoc</classifier>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>org.talend.sdk.component</groupId>
+                      <artifactId>component-runtime-http-junit</artifactId>
+                      <version>${project.version}</version>
+                      <type>jar</type>
+                      <classifier>javadoc</classifier>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit-http</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+              <execution>
+                <id>unpack-icons</id>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <phase>process-resources</phase>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.talend.ui</groupId>
+                      <artifactId>talend-icon</artifactId>
+                      <version>${talend-icon.version}</version>
+                      <type>jar</type>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.basedir}/src/main/antora/modules/ROOT/assets/images</outputDirectory>
+                      <includes>**/*.svg</includes>
+                      <excludes>**/filters/**</excludes>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+              <execution>
+                <id>unpack-asciidoctor-pdf</id>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <phase>generate-resources</phase>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.asciidoctor</groupId>
+                      <artifactId>asciidoctorj-pdf</artifactId>
+                      <version>${asciidoctorj-pdf.version}</version>
+                      <type>jar</type>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.directory}/build-dependencies/asciidoctorj-pdf</outputDirectory>
+                      <includes>gems/asciidoctor-pdf-${asciidoctor-pdf-gem.version}/data/**</includes>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- mvn initialize asciidoctor:process-asciidoc@pdf -e -->
+          <plugin>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctor-maven-plugin</artifactId>
+            <version>2.2.2</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj</artifactId>
+                <version>${asciidoctorj.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>org.jruby</groupId>
+                    <artifactId>*</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj-pdf</artifactId>
+                <version>${asciidoctorj-pdf.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>org.jruby</groupId>
+                    <artifactId>*</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+              <dependency>
+                <groupId>org.jruby</groupId>
+                <artifactId>jruby-complete</artifactId>
+                <version>${jruby.version}</version>
+              </dependency>
+              <!-- until antora supports it we don't use that
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj-diagram</artifactId>
+                <version>${asciidoctorj-diagram.version}</version>
+              </dependency>
+              -->
+            </dependencies>
+            <executions>
+              <!-- same as (but using java to avoid ruby setup, however it is x2 slower):
+              asciidoctor-pdf \
+                -a pdf-style=talend \
+                -a pdf-stylesdir=$PWD/src/main/asciidoctor/pdf/theme \
+                -a pdf-fonts=$PWD/target/build-dependencies/asciidoctorj-pdf/gems/asciidoctor-pdf-1.5.0.alpha.16/data/fonts \
+                -a pagenums \
+                -a toc \
+                -a numbered \
+                -a hide-uri-scheme \
+                -a idprefix \
+                -a icons=font \
+                -a icon-set=fa \
+                -a idseparator=- \
+                -a partialsdir=$PWD/src/main/antora/modules/ROOT/pages/_partials \
+                -a imagesdir=$PWD/src/main/antora/modules/ROOT/assets/images \
+                -a project_version=1.1.8 \
+                -a page-component-version=1.1.8 \
+                -a deploymentRoot=https://talend.github.io/component-runtime \
+                -a git.branch=master \
+                src/main/antora/modules/ROOT/pages/all-in-one.adoc
+              -->
+              <execution>
+                <id>pdf</id>
+                <goals>
+                  <goal>process-asciidoc</goal>
+                </goals>
+                <phase>generate-resources</phase>
+                <configuration>
+                  <skip>${talend.documentation.pdf.skip}</skip>
+                  <backend>pdf</backend>
+                  <sourceDirectory>src/main/antora/modules/ROOT/pages</sourceDirectory>
+                  <sourceDocumentName>all-in-one.adoc</sourceDocumentName>
+                  <sourceHighlighter>coderay</sourceHighlighter>
+                  <attributes>
+                    <pdf-style>talend</pdf-style>
+                    <pdf-stylesdir>${project.basedir}/src/main/asciidoctor/pdf/theme</pdf-stylesdir>
+                    <pdf-fonts>${project.build.directory}/build-dependencies/asciidoctorj-pdf/gems/asciidoctor-pdf-${asciidoctor-pdf-gem.version}/data/fonts</pdf-fonts>
+                    <pagenums/>
+                    <toc/>
+                    <numbered/>
+                    <hide-uri-scheme/>
+                    <idprefix/>
+                    <icons>font</icons>
+                    <icon-set>fa</icon-set>
+                    <idseparator>-</idseparator>
+                    <partialsdir>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials</partialsdir>
+                    <imagesdir>${project.basedir}/src/main/antora/modules/ROOT/assets/images</imagesdir>
+                    <project_version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</project_version>
+                    <page-component-version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</page-component-version>
+                    <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
+                    <git_branch>${git.branch}</git_branch>
+                  </attributes>
+                  <logHandler>
+                    <outputToConsole>false</outputToConsole>
+                  </logHandler>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>${build-helper-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>parse-version</id>
+                <goals>
+                  <goal>parse-version</goal>
+                </goals>
+                <phase>initialize</phase>
+              </execution>
+              <execution>
+                <id>attach-artifacts</id>
+                <goals>
+                  <goal>attach-artifact</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <skipAttach>${talend.documentation.pdf.skip}</skipAttach>
+                  <artifacts>
+                    <artifact>
+                      <file>${project.build.directory}/generated-docs/all-in-one.pdf</file>
+                      <type>pdf</type>
+                      <classifier>all-in-one</classifier>
+                    </artifact>
+                  </artifacts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
