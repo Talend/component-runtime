@@ -1,5 +1,11 @@
 
 
+== Version 1.44.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60
+
 == Version 1.43.0
 
 === Bug
