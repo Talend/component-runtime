@@ -512,6 +512,17 @@ public interface Schema {
             return new EntriesOrder(fields);
         }
 
+        /**
+         * Build an EntriesOrder according fields.
+         *
+         * @param fields the fields ordering.
+         *
+         * @return the order EntriesOrder
+         */
+        public static EntriesOrder of(final List<String> fields) {
+            return new EntriesOrder(fields);
+        }
+
         public EntriesOrder(final String fields) {
             if (fields == null) {
                 fieldsOrder = emptyList();
