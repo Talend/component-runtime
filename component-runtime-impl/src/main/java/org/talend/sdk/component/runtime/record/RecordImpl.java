@@ -56,6 +56,7 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 
 import lombok.EqualsAndHashCode;
@@ -207,7 +208,8 @@ public final class RecordImpl implements Record {
                 if (!schemaEntry.getType().isCompatible(value)) {
                     throw new IllegalArgumentException(String
                             .format("Entry '%s' of type %s is not compatible with value of type '%s'",
-                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass().getName()));
+                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass()
+                                            .getName()));
                 }
                 boolean found = false;
                 for (int i = 0; i < entries.size() && !found; i++) {
@@ -294,7 +296,8 @@ public final class RecordImpl implements Record {
             if (providedSchema == null) {
                 final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
                 this.entries.forEach(builder::withEntry);
-                currentSchema = builder.build();
+                System.out.println("setting order w/ : " + entriesOrder);
+                currentSchema = builder.build(EntriesOrder.of(entriesOrder.stream().collect(Collectors.joining(","))));
             } else {
                 currentSchema = this.providedSchema;
             }
@@ -454,6 +457,58 @@ public final class RecordImpl implements Record {
             }
         }
 
+        @Override
+        public Builder before(final String existingColumn) {
+            orderState = Order.BEFORE;
+            orderTarget = existingColumn;
+            return this;
+        }
+
+        @Override
+        public Builder after(final String existingColumn) {
+            orderState = Order.AFTER;
+            orderTarget = existingColumn;
+            return this;
+        }
+
+        private enum Order {
+            BEFORE,
+            AFTER,
+            LAST;
+        }
+
+        private Order orderState = Order.LAST;
+
+        private String orderTarget = "";
+
+        private List<String> entriesOrder = new ArrayList<>();
+
+        private void updateOrderState(final String name) {
+            System.out.println(
+                    "OrderState: setting " + name + " " + orderState + " " + orderTarget + " -> " + entriesOrder);
+            if (orderState == Order.LAST) {
+                entriesOrder.add(name);
+            } else {
+                final int targetIndex = entriesOrder.indexOf(orderTarget);
+                if (targetIndex == -1) {
+                    throw new IllegalArgumentException(String.format("%s not in schema.", orderTarget));
+                }
+                if (orderState == Order.BEFORE) {
+                    entriesOrder.add(targetIndex, name);
+                } else {
+                    int destination = targetIndex + 1;
+                    if (destination < entriesOrder.size()) {
+                        entriesOrder.add(destination, name);
+                    } else {
+                        entriesOrder.add(name);
+                    }
+                }
+            }
+            // reset default behavior
+            orderTarget = "";
+            orderState = Order.LAST;
+        }
+
         private <T> Builder append(final Schema.Entry entry, final T value) {
             final Entry realEntry;
             if (this.providedSchema == null) {
@@ -473,6 +528,8 @@ public final class RecordImpl implements Record {
                     this.entries.add(realEntry);
                 }
             }
+            updateOrderState(realEntry.getName());
+
             return this;
         }
     }

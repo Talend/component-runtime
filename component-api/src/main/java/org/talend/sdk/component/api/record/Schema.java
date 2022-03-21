@@ -431,6 +431,10 @@ public interface Schema {
          * @return the described schema.
          */
         Schema build();
+
+        default Schema build(EntriesOrder order) {
+            throw new UnsupportedOperationException("#build(EntriesOrder) is not implemented");
+        }
     }
 
     /**

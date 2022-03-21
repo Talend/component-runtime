@@ -311,6 +311,12 @@ public class SchemaImpl implements Schema {
             this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(Collectors.joining(",")));
             return new SchemaImpl(this);
         }
+
+        @Override
+        public Schema build(final EntriesOrder order) {
+            this.props.put(ENTRIES_ORDER_PROP, order.toFields());
+            return new SchemaImpl(this);
+        }
     }
 
     /**
