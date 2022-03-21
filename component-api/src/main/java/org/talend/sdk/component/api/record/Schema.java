@@ -432,6 +432,13 @@ public interface Schema {
          */
         Schema build();
 
+        /**
+         * Same as {@link Builder#build()} but entries order is specified by @{code order}. This voids any previous
+         * defined order.
+         * 
+         * @param order the wanted order for entries.
+         * @return the described schema.
+         */
         default Schema build(EntriesOrder order) {
             throw new UnsupportedOperationException("#build(EntriesOrder) is not implemented");
         }
