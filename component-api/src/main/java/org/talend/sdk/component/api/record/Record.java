@@ -280,9 +280,9 @@ public interface Record {
         List<Entry> getCurrentEntries();
 
         /**
-         * Mark that next entry created @code{withXXXX()} will be before @code{existingEntry} in schema order.
+         * Mark that next entry created {@code withXXXX()} will be before {@code existingEntry} in schema order.
          *
-         * See also:
+         * @see
          * <ul>
          * <li>{@link Schema#naturalOrder()}</li>
          * <li>{@link Schema#getEntriesOrdered()}</li>
@@ -296,9 +296,9 @@ public interface Record {
         Builder before(String existingEntry);
 
         /**
-         * Mark that next entry created @code{withXXXX()} will be after @code{existingEntry} in schema order.
+         * Mark that next entry created {@code withXXXX()} will be after {@code existingEntry} in schema order.
          *
-         * See also:
+         * @see
          * <ul>
          * <li>{@link Schema#naturalOrder()}</li>
          * <li>{@link Schema#getEntriesOrdered()}</li>

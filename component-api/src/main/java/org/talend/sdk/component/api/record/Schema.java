@@ -504,7 +504,7 @@ public interface Schema {
         /**
          * Build an EntriesOrder according fields.
          *
-         * @param fields the fields ordering
+         * @param fields the fields ordering. Each field should be {@code ,} separated.
          *
          * @return the order EntriesOrder
          */
