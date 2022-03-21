@@ -296,7 +296,6 @@ public final class RecordImpl implements Record {
             if (providedSchema == null) {
                 final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
                 this.entries.forEach(builder::withEntry);
-                System.out.println("setting order w/ : " + entriesOrder);
                 currentSchema = builder.build(EntriesOrder.of(entriesOrder.stream().collect(Collectors.joining(","))));
             } else {
                 currentSchema = this.providedSchema;
@@ -484,8 +483,6 @@ public final class RecordImpl implements Record {
         private List<String> entriesOrder = new ArrayList<>();
 
         private void updateOrderState(final String name) {
-            System.out.println(
-                    "OrderState: setting " + name + " " + orderState + " " + orderTarget + " -> " + entriesOrder);
             if (orderState == Order.LAST) {
                 entriesOrder.add(name);
             } else {
