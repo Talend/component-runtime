@@ -125,9 +125,8 @@ public class BuildComponentM2RepositoryMojoV2 extends CarConsumer {
         componentCars.forEach(this::copyComponentDependencies);
 
         if (componentCars.isEmpty()) {
-            getLog().error(
+            throw new IllegalStateException(
                     "No components found, check the component cars are included in your dependencies with scope compile");
-            throw new IllegalStateException();
         } else {
             final String coordinates = componentCars
                     .stream()
