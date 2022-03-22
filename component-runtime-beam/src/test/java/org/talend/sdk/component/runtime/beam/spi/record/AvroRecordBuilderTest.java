@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
@@ -26,11 +27,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
@@ -40,22 +44,43 @@ import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 @TestInstance(PER_CLASS)
 class AvroRecordBuilderTest {
 
-    private final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
+    private static RecordBuilderFactory factory;// = new AvroRecordBuilderFactoryProvider().apply(null);
 
-    private final Schema address = factory
-            .newSchemaBuilder(RECORD)
-            .withEntry(
-                    factory.newEntryBuilder().withName("street").withRawName("current street").withType(STRING).build())
-            .withEntry(factory.newEntryBuilder().withName("number").withType(INT).build())
-            .build();
+    private static Schema address;
 
-    private final Schema baseSchema = factory
-            .newSchemaBuilder(RECORD)
-            .withEntry(factory.newEntryBuilder().withName("name").withRawName("current name").withType(STRING).build())
-            .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
-            .withEntry(
-                    factory.newEntryBuilder().withName("@address").withType(RECORD).withElementSchema(address).build())
-            .build();
+    private static Schema baseSchema;
+
+    @BeforeAll
+    static void setup() {
+        AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
+        System.setProperty("talend.component.beam.record.factory.impl", "avro");
+        factory = recordBuilderFactoryProvider.apply("test");
+        address = factory
+                .newSchemaBuilder(RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withName("street")
+                        .withRawName("current street")
+                        .withType(STRING)
+                        .build())
+                .withEntry(factory.newEntryBuilder().withName("number").withType(INT).build())
+                .build();
+        baseSchema = factory
+                .newSchemaBuilder(RECORD)
+                .withEntry(
+                        factory.newEntryBuilder().withName("name").withRawName("current name").withType(STRING).build())
+                .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("@address")
+                        .withType(RECORD)
+                        .withElementSchema(address)
+                        .build())
+                .build();
+    }
+
+    @AfterAll
+    static void tearDown() {
+        System.clearProperty("talend.component.beam.record.factory.impl");
+    }
 
     @Test
     void copySchema() {
@@ -92,20 +117,15 @@ class AvroRecordBuilderTest {
 
     @Test
     void avroTest() {
-        // get RecordBuilderFactory
-        AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
-        System.setProperty("talend.component.beam.record.factory.impl", "avro");
-        RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
         // customer record schema
-        org.talend.sdk.component.api.record.Schema.Builder schemaBuilder =
-                recordBuilderFactory.newSchemaBuilder(Schema.Type.RECORD);
-        Schema.Entry nameEntry = recordBuilderFactory
+        org.talend.sdk.component.api.record.Schema.Builder schemaBuilder = factory.newSchemaBuilder(Schema.Type.RECORD);
+        Schema.Entry nameEntry = factory
                 .newEntryBuilder()
                 .withName("name")
                 .withNullable(true)
                 .withType(Schema.Type.STRING)
                 .build();
-        Schema.Entry ageEntry = recordBuilderFactory
+        Schema.Entry ageEntry = factory
                 .newEntryBuilder()
                 .withName("age")
                 .withNullable(true)
@@ -113,12 +133,12 @@ class AvroRecordBuilderTest {
                 .build();
         Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(ageEntry).build();
         // record 1
-        Record.Builder recordBuilder = recordBuilderFactory.newRecordBuilder(customerSchema);
+        Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
         recordBuilder.withString("name", "Tom Cruise");
         recordBuilder.withInt("age", 58);
         Record record1 = recordBuilder.build();
         // record 2
-        recordBuilder = recordBuilderFactory.newRecordBuilder(customerSchema);
+        recordBuilder = factory.newRecordBuilder(customerSchema);
         recordBuilder.withString("name", "Meryl Streep");
         recordBuilder.withInt("age", 63);
         Record record2 = recordBuilder.build();
@@ -127,12 +147,12 @@ class AvroRecordBuilderTest {
         list1.add(record1);
         list1.add(record2);
         // record 3
-        recordBuilder = recordBuilderFactory.newRecordBuilder(customerSchema);
+        recordBuilder = factory.newRecordBuilder(customerSchema);
         recordBuilder.withString("name", "Client Eastwood");
         recordBuilder.withInt("age", 89);
         Record record3 = recordBuilder.build();
         // record 4
-        recordBuilder = recordBuilderFactory.newRecordBuilder(customerSchema);
+        recordBuilder = factory.newRecordBuilder(customerSchema);
         recordBuilder.withString("name", "Jessica Chastain");
         recordBuilder.withInt("age", 36);
         Record record4 = recordBuilder.build();
@@ -145,11 +165,11 @@ class AvroRecordBuilderTest {
         list3.add(list1);
         list3.add(list2);
         // schema of sub list
-        schemaBuilder = recordBuilderFactory.newSchemaBuilder(Schema.Type.ARRAY);
+        schemaBuilder = factory.newSchemaBuilder(Schema.Type.ARRAY);
         Schema subListSchema = schemaBuilder.withElementSchema(customerSchema).build();
         // main record
-        recordBuilder = recordBuilderFactory.newRecordBuilder();
-        Schema.Entry entry = recordBuilderFactory
+        recordBuilder = factory.newRecordBuilder();
+        Schema.Entry entry = factory
                 .newEntryBuilder()
                 .withName("customers")
                 .withNullable(true)
@@ -176,17 +196,13 @@ class AvroRecordBuilderTest {
 
     @Test
     void mixedRecordTest() {
-        final AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
-        System.setProperty("talend.component.beam.record.factory.impl", "avro");
-        final RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
-
         final RecordBuilderFactory otherFactory = new RecordBuilderFactoryImpl("test");
         final Schema schema = otherFactory
                 .newSchemaBuilder(RECORD)
                 .withEntry(otherFactory.newEntryBuilder().withName("e1").withType(INT).build())
                 .build();
 
-        final Schema arrayType = recordBuilderFactory //
+        final Schema arrayType = factory //
                 .newSchemaBuilder(Schema.Type.ARRAY) //
                 .withElementSchema(schema)
                 .build();
@@ -202,11 +218,8 @@ class AvroRecordBuilderTest {
                 .withEntry(dataEntry2) //
                 .withEntryAfter("meta1", meta2) //
                 .build();
-        AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
-        System.setProperty("talend.component.beam.record.factory.impl", "avro");
-        RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
 
-        final Record.Builder builder0 = recordBuilderFactory.newRecordBuilder(schema0);
+        final Record.Builder builder0 = factory.newRecordBuilder(schema0);
         builder0.withInt("data1", 101)
                 .withString("data2", "102")
                 .withInt("meta1", 103)
@@ -256,6 +269,76 @@ class AvroRecordBuilderTest {
                 .withString("meta0", "meta0") //
                 .build();
         assertEquals("meta0,103,104,data0,101,102", getRecordValues(record2));
+    }
+
+    @Test
+    void recordAfterBefore() {
+        final Record record = factory.newRecordBuilder()
+                .withString("_10", "10")
+                .withString("_20", "20")
+                .withString("_30", "30")
+                .withString("_40", "40")
+                .withString("_50", "50")
+                .before("_10")
+                .withString("_00", "0")
+                .after("_20")
+                .withString("_25", "25")
+                .after("_50")
+                .withString("_55", "55")
+                .before("_55")
+                .withString("_53", "53")
+                .build();
+        assertEquals("_00,_10,_20,_25,_30,_40,_50,_53,_55", getSchemaFields(record.getSchema()));
+        assertEquals("0,10,20,25,30,40,50,53,55", getRecordValues(record));
+    }
+
+    @Test
+    void recordOrderingWithProvidedSchema() {
+        final Schema schema = factory.newRecordBuilder()
+                .withString("_10", "10")
+                .withString("_20", "20")
+                .withString("_30", "30")
+                .withString("_40", "40")
+                .withString("_50", "50")
+                .withString("_00", "0")
+                .withString("_25", "25")
+                .withString("_55", "55")
+                .withString("_53", "53")
+                .build()
+                .getSchema();
+        final EntriesOrder order = schema.naturalOrder()
+                .moveBefore("_10", "_00")
+                .moveAfter("_20", "_25")
+                .swap("_53", "_55");
+        assertEquals("_00,_10,_20,_25,_30,_40,_50,_53,_55", order.toFields());
+        final Record record = factory.newRecordBuilder(schema.toBuilder().build(order))
+                .withString("_10", "10")
+                .withString("_20", "20")
+                .withString("_30", "30")
+                .withString("_40", "40")
+                .withString("_50", "50")
+                .withString("_00", "0")
+                .withString("_25", "25")
+                .withString("_55", "55")
+                .before("_30")
+                .withString("_53", "53")
+                .build();
+        assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", getSchemaFields(record.getSchema()));
+        assertEquals("0,10,20,25,53,30,40,50,55", getRecordValues(record));
+    }
+
+    @Test
+    void recordAfterBeforeFail() {
+        assertThrows(IllegalArgumentException.class, () -> factory.newRecordBuilder()
+                .withString("_10", "10")
+                .before("_50")
+                .withString("_45", "45")
+                .build());
+        assertThrows(IllegalArgumentException.class, () -> factory.newRecordBuilder()
+                .withString("_10", "10")
+                .after("_50")
+                .withString("_55", "55")
+                .build());
     }
 
     private String getSchemaFields(final Schema schema) {

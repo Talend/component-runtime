@@ -33,6 +33,7 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
@@ -262,7 +263,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     /**
      * Convert a non avro schema to schema.
-     * 
+     *
      * @param schema : Non Avro schema.
      * @return Avro schema.
      */
@@ -312,6 +313,11 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     @Override
     public Schema build() {
+        return build(null);
+    }
+
+    @Override
+    public Schema build(final EntriesOrder order) {
         switch (type) {
         case BYTES:
             return BYTES_SCHEMA;
@@ -339,7 +345,12 @@ public class AvroSchemaBuilder implements Schema.Builder {
                     .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
                             false);
             record.setFields(avroFields);
-            record.addProp(ENTRIES_ORDER_PROP, fields.stream().map(e -> e.getName()).collect(Collectors.joining(",")));
+            if (order != null) {
+                record.addProp(ENTRIES_ORDER_PROP, order.toFields());
+            } else {
+                record.addProp(ENTRIES_ORDER_PROP,
+                        fields.stream().map(e -> e.getName()).collect(Collectors.joining(",")));
+            }
             this.props.entrySet()
                     .stream()
                     .filter((Map.Entry<String, String> e) -> !ENTRIES_ORDER_PROP.equals(e.getKey()))
