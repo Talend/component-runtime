@@ -433,7 +433,7 @@ public interface Schema {
         Schema build();
 
         /**
-         * Same as {@link Builder#build()} but entries order is specified by @{code order}. This voids any previous
+         * Same as {@link Builder#build()} but entries order is specified by {@code order}. This voids any previous
          * defined order.
          * 
          * @param order the wanted order for entries.
