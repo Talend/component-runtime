@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
@@ -598,6 +599,41 @@ class RecordBuilderImplTest {
         final Record record = builder.build();
         assertEquals("_00,_10,_20,_25,_30,_40,_50,_53,_55", getSchemaFields(record.getSchema()));
         assertEquals("0,10,20,25,30,40,50,53,55", getRecordValues(record));
+    }
+
+    @Test
+    void recordOrderingWithProvidedSchema() {
+        final Schema schema = new RecordImpl.BuilderImpl()
+                .withString("_10", "10")
+                .withString("_20", "20")
+                .withString("_30", "30")
+                .withString("_40", "40")
+                .withString("_50", "50")
+                .withString("_00", "0")
+                .withString("_25", "25")
+                .withString("_55", "55")
+                .withString("_53", "53")
+                .build()
+                .getSchema();
+        final EntriesOrder order = schema.naturalOrder()
+                .moveBefore("_10", "_00")
+                .moveAfter("_20", "_25")
+                .swap("_53", "_55");
+        assertEquals("_00,_10,_20,_25,_30,_40,_50,_53,_55", order.toFields());
+        final Record record = new RecordImpl.BuilderImpl(schema.toBuilder().build(order))
+                .withString("_10", "10")
+                .withString("_20", "20")
+                .withString("_30", "30")
+                .withString("_40", "40")
+                .withString("_50", "50")
+                .withString("_00", "0")
+                .withString("_25", "25")
+                .withString("_55", "55")
+                .before("_30")
+                .withString("_53", "53")
+                .build();
+        assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", getSchemaFields(record.getSchema()));
+        assertEquals("0,10,20,25,53,30,40,50,55", getRecordValues(record));
     }
 
     @Test

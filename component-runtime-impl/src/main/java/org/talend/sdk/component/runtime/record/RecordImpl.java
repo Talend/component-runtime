@@ -131,6 +131,9 @@ public final class RecordImpl implements Record {
 
         public BuilderImpl(final Schema providedSchema) {
             this.providedSchema = providedSchema;
+            if (providedSchema != null) {
+                this.entriesOrder = providedSchema.naturalOrder().getFieldsOrder();
+            }
         }
 
         private BuilderImpl(final List<Schema.Entry> entries, final Map<String, Object> values) {
@@ -296,9 +299,13 @@ public final class RecordImpl implements Record {
             if (providedSchema == null) {
                 final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
                 this.entries.forEach(builder::withEntry);
-                currentSchema = builder.build(EntriesOrder.of(entriesOrder.stream().collect(Collectors.joining(","))));
+                currentSchema = builder.build(EntriesOrder.of(entriesOrder));
             } else {
-                currentSchema = this.providedSchema;
+                if (orderOverride) {
+                    currentSchema = this.providedSchema.toBuilder().build(EntriesOrder.of(entriesOrder));
+                } else {
+                    currentSchema = this.providedSchema;
+                }
             }
             return new RecordImpl(unmodifiableMap(values), currentSchema);
         }
@@ -458,6 +465,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder before(final String existingColumn) {
+            orderOverride = true;
             orderState = Order.BEFORE;
             orderTarget = existingColumn;
             return this;
@@ -465,6 +473,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder after(final String existingColumn) {
+            orderOverride = true;
             orderState = Order.AFTER;
             orderTarget = existingColumn;
             return this;
@@ -480,15 +489,21 @@ public final class RecordImpl implements Record {
 
         private String orderTarget = "";
 
+        // flags if providedSchema's entriesOrder was altered
+        private Boolean orderOverride = Boolean.FALSE;
+
         private List<String> entriesOrder = new ArrayList<>();
 
         private void updateOrderState(final String name) {
             if (orderState == Order.LAST) {
-                entriesOrder.add(name);
+                // if entry is already present, we keep its position otherwise put it all the end.
+                if (entriesOrder.indexOf(name) == -1) {
+                    entriesOrder.add(name);
+                }
             } else {
                 final int targetIndex = entriesOrder.indexOf(orderTarget);
                 if (targetIndex == -1) {
-                    throw new IllegalArgumentException(String.format("%s not in schema.", orderTarget));
+                    throw new IllegalArgumentException(String.format("'%s' not in schema.", orderTarget));
                 }
                 if (orderState == Order.BEFORE) {
                     entriesOrder.add(targetIndex, name);
