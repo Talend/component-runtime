@@ -578,8 +578,8 @@ class RecordBuilderImplTest {
 
     @Test
     void recordAfterBefore() {
-        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
-        builder.withString("_10", "10")
+        final Record record = new RecordImpl.BuilderImpl()
+                .withString("_10", "10")
                 .withString("_20", "20")
                 .withString("_30", "30")
                 .withString("_40", "40")
@@ -591,8 +591,8 @@ class RecordBuilderImplTest {
                 .after("_50")
                 .withString("_55", "55")
                 .before("_55")
-                .withString("_53", "53");
-        final Record record = builder.build();
+                .withString("_53", "53")
+                .build();
         assertEquals("_00,_10,_20,_25,_30,_40,_50,_53,_55", getSchemaFields(record.getSchema()));
         assertEquals("0,10,20,25,30,40,50,53,55", getRecordValues(record));
     }
