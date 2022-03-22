@@ -576,10 +576,6 @@ class RecordBuilderImplTest {
         assertEquals("meta0,103,104,data0,101,102", getRecordValues(record2));
     }
 
-    private String getSchemaFields(final Schema schema) {
-        return schema.getEntriesOrdered().stream().map(e -> e.getName()).collect(joining(","));
-    }
-
     @Test
     void recordAfterBefore() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
@@ -648,6 +644,10 @@ class RecordBuilderImplTest {
                 .after("_50")
                 .withString("_55", "55")
                 .build());
+    }
+
+    private String getSchemaFields(final Schema schema) {
+        return schema.getEntriesOrdered().stream().map(e -> e.getName()).collect(joining(","));
     }
 
     private String getRecordValues(final Record record) {
