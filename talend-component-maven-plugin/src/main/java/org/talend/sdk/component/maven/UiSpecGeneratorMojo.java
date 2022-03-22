@@ -50,7 +50,7 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
         super.doExecute();
         final Map<String, String> setup = new HashMap<>();
         setup.put("talend.component.server.maven.repository", m2Root.getAbsolutePath());
-        setup.put("talend.component.server.component.registry", getRegistry().getAbsolutePath());
+        setup.put("talend.component.server.component.registry", getRegistry().toAbsolutePath().toString());
         setup.put("talend.component.server.component.extend.dependencies", "false");
         new StaticUiSpecGenerator(setup, languages, uiSpecZip.toPath()).run();
         helper.attachArtifact(project, "zip", "uispec", uiSpecZip);

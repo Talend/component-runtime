@@ -17,6 +17,7 @@ package org.talend.sdk.component.maven;
 
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
+import static org.talend.sdk.component.maven.api.Constants.CAR_EXTENSION;
 
 import java.io.File;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class CarMojo extends DependencyAwareMojo {
         configuration.setCustomMetadata(metadata);
         new CarBundler(configuration, getLog()).run();
         if (attach) {
-            helper.attachArtifact(project, "car", classifier, output);
+            helper.attachArtifact(project, CAR_EXTENSION, classifier, output);
             getLog().info("Attached " + output + " with classifier " + classifier);
         }
     }

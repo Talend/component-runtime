@@ -18,6 +18,7 @@ package org.talend.sdk.component.maven;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
+import static org.talend.sdk.component.maven.api.Constants.CAR_EXTENSION;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -35,7 +36,7 @@ public abstract class CarConsumer extends ComponentDependenciesBase {
     protected String classifier;
 
     protected Set<Artifact> getComponentsCar(final Set<Artifact> artifacts) {
-        return artifacts.stream().map(art -> resolve(art, classifier, "car")).collect(toSet());
+        return artifacts.stream().map(art -> resolve(art, classifier, CAR_EXTENSION)).collect(toSet());
     }
 
     protected Set<Artifact> getComponentArtifacts() {
