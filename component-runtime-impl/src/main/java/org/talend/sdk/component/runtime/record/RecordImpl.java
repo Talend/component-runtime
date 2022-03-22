@@ -495,12 +495,17 @@ public final class RecordImpl implements Record {
         private List<String> entriesOrder = new ArrayList<>();
 
         private void updateOrderState(final String name) {
+            final int position = entriesOrder.indexOf(name);
             if (orderState == Order.LAST) {
                 // if entry is already present, we keep its position otherwise put it all the end.
-                if (entriesOrder.indexOf(name) == -1) {
+                if (position == -1) {
                     entriesOrder.add(name);
                 }
             } else {
+                // if entry is already present, we remove it.
+                if (position>=0) {
+                    entriesOrder.remove(position);
+                }
                 final int targetIndex = entriesOrder.indexOf(orderTarget);
                 if (targetIndex == -1) {
                     throw new IllegalArgumentException(String.format("'%s' not in schema.", orderTarget));

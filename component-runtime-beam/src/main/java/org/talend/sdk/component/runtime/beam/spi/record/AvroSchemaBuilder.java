@@ -346,7 +346,11 @@ public class AvroSchemaBuilder implements Schema.Builder {
                             false);
             record.setFields(avroFields);
             if (order != null) {
-                record.addProp(ENTRIES_ORDER_PROP, order.toFields());
+                final List<String> fieldNames = fields.stream().map(e -> e.getName()).collect(Collectors.toList());
+                final String cleanedOrder = order.getFieldsOrder().stream()
+                        .filter(s -> fieldNames.contains(s))
+                        .collect(Collectors.joining(","));
+                record.addProp(ENTRIES_ORDER_PROP, cleanedOrder);
             } else {
                 record.addProp(ENTRIES_ORDER_PROP,
                         fields.stream().map(e -> e.getName()).collect(Collectors.joining(",")));

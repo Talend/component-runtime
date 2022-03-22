@@ -17,16 +17,22 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
+import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.avro.generic.IndexedRecord;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -323,8 +329,34 @@ class AvroRecordBuilderTest {
                 .before("_30")
                 .withString("_53", "53")
                 .build();
+        assertTrue(AvroRecord.class.isInstance(record));
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", getSchemaFields(record.getSchema()));
+        assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", record.getSchema().naturalOrder().toFields());
         assertEquals("0,10,20,25,53,30,40,50,55", getRecordValues(record));
+        assertTrue(AvroRecord.class.isInstance(record));
+        final List<String> newOrder = record.getSchema().naturalOrder().getFieldsOrder();
+        Collections.reverse(newOrder);
+        final Schema newSchema = record
+                .getSchema()
+                .toBuilder()
+                .remove("_00")
+                .remove("_10")
+                .remove("_20")
+                .withEntry(newEntry("_60", INT))
+                .withEntry(newEntry("_56", INT))
+                .build(EntriesOrder.of(newOrder));
+        final Record newRecord = record.withNewSchema(newSchema)
+                .after("_40")
+                .withInt("_60", 60)
+                .before("_60")
+                .withInt("_56", 56)
+                .build();
+        assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", getSchemaFields(newRecord.getSchema()));
+        assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", newRecord.getSchema().naturalOrder().toFields());
+        assertEquals("55,53,50,40,56,60,30,25", getRecordValues(newRecord));
+        IndexedRecord idx = AvroRecord.class.cast(newRecord).unwrap(IndexedRecord.class);
+        assertNotNull(idx);
+        assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", idx.getSchema().getProp(ENTRIES_ORDER_PROP));
     }
 
     @Test
