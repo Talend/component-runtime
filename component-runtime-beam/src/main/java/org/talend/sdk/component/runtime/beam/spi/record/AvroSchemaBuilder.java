@@ -16,6 +16,8 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
@@ -346,14 +348,18 @@ public class AvroSchemaBuilder implements Schema.Builder {
                             false);
             record.setFields(avroFields);
             if (order != null) {
-                final List<String> fieldNames = fields.stream().map(e -> e.getName()).collect(Collectors.toList());
-                final String cleanedOrder = order.getFieldsOrder().stream()
-                        .filter(s -> fieldNames.contains(s))
-                        .collect(Collectors.joining(","));
-                record.addProp(ENTRIES_ORDER_PROP, cleanedOrder);
+                final List<String> existing = fields.stream().map(e -> e.getName()).collect(toList());
+                // sanity check: filter non-existing entries passed to builder
+                List<String> merge =
+                        order.getFieldsOrder().stream().filter(o -> existing.contains(o)).collect(toList());
+                // keep entries created w/ builder and not passed w/ order
+                existing.removeAll(order.getFieldsOrder());
+                // order has precedence so we add missing order entries at the end
+                merge.addAll(existing);
+                record.addProp(ENTRIES_ORDER_PROP, merge.stream().collect(joining(",")));
             } else {
                 record.addProp(ENTRIES_ORDER_PROP,
-                        fields.stream().map(e -> e.getName()).collect(Collectors.joining(",")));
+                        fields.stream().map(e -> e.getName()).collect(joining(",")));
             }
             this.props.entrySet()
                     .stream()

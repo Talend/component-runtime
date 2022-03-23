@@ -503,7 +503,7 @@ public final class RecordImpl implements Record {
                 }
             } else {
                 // if entry is already present, we remove it.
-                if (position>=0) {
+                if (position >= 0) {
                     entriesOrder.remove(position);
                 }
                 final int targetIndex = entriesOrder.indexOf(orderTarget);

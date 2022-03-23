@@ -16,6 +16,9 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
@@ -74,9 +76,9 @@ public class SchemaImpl implements Schema {
     @Override
     public int hashCode() {
         final String e1 =
-                this.entries != null ? this.entries.stream().map(Entry::getName).collect(Collectors.joining(",")) : "";
+                this.entries != null ? this.entries.stream().map(Entry::getName).collect(joining(",")) : "";
         final String m1 = this.metadataEntries != null
-                ? this.metadataEntries.stream().map(Entry::getName).collect(Collectors.joining(","))
+                ? this.metadataEntries.stream().map(Entry::getName).collect(joining(","))
                 : "";
 
         return Objects.hash(this.type, this.elementSchema, e1, m1);
@@ -129,14 +131,14 @@ public class SchemaImpl implements Schema {
                 .withProps(this.props
                         .entrySet()
                         .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
         getEntriesOrdered().forEach(builder::withEntry);
         return builder;
     }
 
     @JsonbTransient
     public List<Entry> getEntriesOrdered() {
-        return getAllEntries().sorted(entriesOrder).collect(Collectors.toList());
+        return getAllEntries().sorted(entriesOrder).collect(toList());
     }
 
     @Override
@@ -148,7 +150,7 @@ public class SchemaImpl implements Schema {
     private String getFieldsOrder() {
         String fields = getProp(ENTRIES_ORDER_PROP);
         if (fields == null || fields.isEmpty()) {
-            fields = getAllEntries().map(entry -> entry.getName()).collect(Collectors.joining(","));
+            fields = getAllEntries().map(entry -> entry.getName()).collect(joining(","));
             props.put(ENTRIES_ORDER_PROP, fields);
         }
         return fields;
@@ -308,13 +310,20 @@ public class SchemaImpl implements Schema {
 
         @Override
         public Schema build() {
-            this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(Collectors.joining(",")));
+            this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(joining(",")));
             return new SchemaImpl(this);
         }
 
         @Override
         public Schema build(final EntriesOrder order) {
-            this.props.put(ENTRIES_ORDER_PROP, order.toFields());
+            final List<String> existing = entries.stream().map(e -> e.getName()).collect(toList());
+            // sanity check: filter non-existing entries passed to builder
+            List<String> merge = order.getFieldsOrder().stream().filter(o -> existing.contains(o)).collect(toList());
+            // keep entries created w/ builder and not passed w/ order
+            entriesOrder.removeAll(order.getFieldsOrder());
+            // order has precedence so we add missing order entries at the end
+            merge.addAll(entriesOrder);
+            this.props.put(ENTRIES_ORDER_PROP, merge.stream().collect(joining(",")));
             return new SchemaImpl(this);
         }
     }

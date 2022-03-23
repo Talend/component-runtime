@@ -333,9 +333,6 @@ class AvroRecordBuilderTest {
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", getSchemaFields(record.getSchema()));
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", record.getSchema().naturalOrder().toFields());
         assertEquals("0,10,20,25,53,30,40,50,55", getRecordValues(record));
-        assertTrue(AvroRecord.class.isInstance(record));
-        final List<String> newOrder = record.getSchema().naturalOrder().getFieldsOrder();
-        Collections.reverse(newOrder);
         final Schema newSchema = record
                 .getSchema()
                 .toBuilder()
@@ -344,8 +341,20 @@ class AvroRecordBuilderTest {
                 .remove("_20")
                 .withEntry(newEntry("_60", INT))
                 .withEntry(newEntry("_56", INT))
-                .build(EntriesOrder.of(newOrder));
-        final Record newRecord = record.withNewSchema(newSchema)
+                .build();
+        assertEquals("_25,_53,_30,_40,_50,_55,_60,_56", getSchemaFields(newSchema));
+        assertEquals("_25,_53,_30,_40,_50,_55,_60,_56", newSchema.naturalOrder().toFields());
+        // provide an order w/ obsolete/missing entries
+        final List<String> newOrder = record.getSchema().naturalOrder().getFieldsOrder();
+        Collections.sort(newOrder);
+        Collections.reverse(newOrder);
+        assertEquals("_55,_53,_50,_40,_30,_25,_20,_10,_00", newOrder.stream().collect(joining(",")));
+        //
+        final Schema newSchemaBis = newSchema.toBuilder().build(EntriesOrder.of(newOrder));
+        assertEquals("_55,_53,_50,_40,_30,_25,_60,_56", getSchemaFields(newSchemaBis));
+        assertEquals("_55,_53,_50,_40,_30,_25,_60,_56", newSchemaBis.naturalOrder().toFields());
+        //
+        final Record newRecord = record.withNewSchema(newSchemaBis)
                 .after("_40")
                 .withInt("_60", 60)
                 .before("_60")
@@ -354,6 +363,7 @@ class AvroRecordBuilderTest {
         assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", getSchemaFields(newRecord.getSchema()));
         assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", newRecord.getSchema().naturalOrder().toFields());
         assertEquals("55,53,50,40,56,60,30,25", getRecordValues(newRecord));
+        //
         IndexedRecord idx = AvroRecord.class.cast(newRecord).unwrap(IndexedRecord.class);
         assertNotNull(idx);
         assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", idx.getSchema().getProp(ENTRIES_ORDER_PROP));
