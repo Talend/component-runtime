@@ -59,7 +59,19 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.talend.sdk.component.maven.api.Audience;
+import org.talend.sdk.component.maven.api.Constants;
 
+/**
+ * Finds all the cars:
+ * <ul>
+ * <li>defined as talend-component-maven-plugin's dependencies</li>
+ * <li>with scope compile</li>
+ * <li>with classifier {@link Constants#CAR_EXTENSION}</li>
+ * </ul>
+ * Then copies all the jars inside (app jars and dependencies) in a pseudo maven local repository.
+ * This repository can then be included in a Docker image to be mounted in a component-server so that
+ * the component-server loads all the components.
+ */
 @Audience(TALEND_INTERNAL)
 @Mojo(name = "prepare-repository", defaultPhase = PACKAGE, threadSafe = true, requiresDependencyResolution = COMPILE)
 public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
@@ -161,11 +173,11 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
                         car.getClassifier(),
                         CAR_EXTENSION,
                         car.getVersion()))
-                .map(this::resolve) // No resolve, no file
+                .map(this::resolveArtifactOnRemoteRepositories) // No resolve, no file
                 .collect(toSet());
     }
 
-    protected Properties getNewComponentRegistry(final Set<Artifact> componentCars) {
+    protected Properties getNewComponentRegistry(final Set<Artifact> cars) {
         final Properties components = new Properties();
         if (componentRegistryBasePath != null && exists(componentRegistryBasePath)) {
             try (final InputStream source = newInputStream(componentRegistryBasePath)) {
@@ -174,8 +186,7 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
                 throw new IllegalStateException(e);
             }
         }
-        componentCars.forEach(
-                componentCar -> components.put(componentCar.getArtifactId(), computeCoordinates(componentCar)));
+        cars.forEach(car -> components.put(car.getArtifactId(), computeCoordinates(car)));
 
         return components;
     }
@@ -243,6 +254,9 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
         return out.toString();
     }
 
+    /**
+     * Copies a dependency from a car in {@link BuildComponentM2RepositoryMojo#m2Root}.
+     */
     private void copyDependency(final ZipEntry zipEntry, final ZipInputStream zipStream) {
         final String relativeDependencyPath = zipEntry
                 .getName()
@@ -266,6 +280,9 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
         }
     }
 
+    /**
+     * Takes a car and copies all of its dependencies in {@link BuildComponentM2RepositoryMojo#m2Root}.
+     */
     protected void copyComponentDependencies(final Artifact car) {
         try (final FileInputStream fileStream = new FileInputStream(car.getFile());
                 final BufferedInputStream bufferedStream = new BufferedInputStream(fileStream);

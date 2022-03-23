@@ -93,11 +93,11 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
                 .filter(dep -> packagings.contains(dep.getType()))
                 .map(dep -> new DefaultArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getClassifier(),
                         dep.getType(), dep.getVersion()))
-                .map(dep -> resolve(dep, dep.getClassifier(), "jar"))
+                .map(dep -> resolveArtifact(dep, dep.getClassifier(), "jar"))
                 .map(art -> {
                     try (final JarFile file = new JarFile(art.getFile())) {
                         return ofNullable(file.getEntry("TALEND-INF/dependencies.txt")).map(entry -> {
-                            try (final InputStream stream = file.getInputStream(entry)) {
+                            try (final InputStream ignored = file.getInputStream(entry)) {
                                 return onArtifact.apply(art);
                             } catch (final IOException e) {
                                 throw new IllegalStateException(e);
@@ -109,15 +109,33 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
                 });
     }
 
-    protected Artifact resolve(final Artifact dep, final String classifier, final String type) {
+    /**
+     * Resolves an artifact.
+     * This method:
+     * <ul>
+     * <li>searches for the artifact in the local maven repository</li>
+     * <li>if found, returns it (can return an old snapshot if not run with --update-snapshots)</li>
+     * <li>if not found, searches online with
+     * {@link ComponentDependenciesBase#resolveArtifactOnRemoteRepositories(Artifact)}</li>
+     * </ul>
+     * The provided classifier & type override the artifact's.
+     */
+    protected Artifact resolveArtifact(final Artifact artifact, final String classifier, final String type) {
         final LocalRepositoryManager lrm = repositorySystemSession.getLocalRepositoryManager();
-        final Artifact artifact =
-                new DefaultArtifact(dep.getGroupId(), dep.getArtifactId(), classifier, type, getVersion(dep));
-        final File location = new File(lrm.getRepository().getBasedir(), lrm.getPathForLocalArtifact(artifact));
+        final Artifact overriddenArtifact = new DefaultArtifact(
+                artifact.getGroupId(),
+                artifact.getArtifactId(),
+                classifier,
+                type,
+                getVersion(artifact));
+        final File location = new File(
+                lrm.getRepository().getBasedir(),
+                lrm.getPathForLocalArtifact(overriddenArtifact));
+
         if (!location.exists()) {
-            return resolve(artifact);
+            return resolveArtifactOnRemoteRepositories(overriddenArtifact);
         }
-        return artifact.setFile(location);
+        return overriddenArtifact.setFile(location);
     }
 
     protected String computeCoordinates(final Artifact artifact) {
@@ -128,7 +146,17 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
         return ofNullable(dep.getBaseVersion()).orElseGet(dep::getVersion);
     }
 
-    protected Artifact resolve(final Artifact artifact) {
+    /**
+     * Resolves an artifact in remote repositories.
+     * This method:
+     * <ul>
+     * <li>finds the repository in which the artifact is stored</li>
+     * <li>requests that repository to find the artifact</li>
+     * <li>downloads it in the local maven repository</li>
+     * <li>throws if any step above can't be done</li>
+     * </ul>
+     */
+    protected Artifact resolveArtifactOnRemoteRepositories(final Artifact artifact) {
         final String gav = computeCoordinates(artifact);
         final String repositoryIds = remoteRepositories.stream()
                 .map(RemoteRepository::getId)
@@ -157,6 +185,9 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
         }
     }
 
+    /**
+     * Resolves an artifact descriptor to find in which remote repository it is stored.
+     */
     private ArtifactRepository resolveArtifactRepository(final Artifact artifact) {
         final String gav = computeCoordinates(artifact);
         try {
