@@ -72,6 +72,11 @@
   </distributionManagement>
 
   <properties>
+    <mvn-minimal.version>3.6.0</mvn-minimal.version>
+    <enforcer-plugin.version>3.0.0</enforcer-plugin.version>
+    <gpg-plugin.version>3.0.1</gpg-plugin.version>
+    <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
+
     <slf4j.version>1.7.32</slf4j.version>
     <johnzon.version>1.2.16</johnzon.version>
     <log4j2.version>2.17.1</log4j2.version>
@@ -214,6 +219,31 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <build>
+    <plugins>
+    <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-enforcer-plugin</artifactId>
+    <version>${enforcer-plugin.version}</version>
+    <executions>
+    <execution>
+      <id>enforce-maven-3</id>
+      <goals>
+        <goal>enforce</goal>
+      </goals>
+      <configuration>
+        <rules>
+          <requireMavenVersion>
+            <version>${mvn-minimal.version}</version>
+          </requireMavenVersion>
+        </rules>
+        <fail>true</fail>
+      </configuration>
+    </execution>
+    </executions>
+    </plugin>
+    </plugins>
+  </build>
   <profiles>
     <profile>
       <id>gpg2</id>
@@ -222,7 +252,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <version>${gpg-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
@@ -234,7 +264,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
+            <version>${nexus-staging-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
@@ -245,7 +275,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <version>${gpg-plugin.version}</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -266,7 +296,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
+            <version>${nexus-staging-plugin.version}</version>
             <configuration>
               <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
             </configuration>

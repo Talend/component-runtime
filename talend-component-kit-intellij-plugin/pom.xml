@@ -106,7 +106,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>${assembly-plugin.version}</version>
         <executions>
           <execution>
             <id>package-plugin</id>

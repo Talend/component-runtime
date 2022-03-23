@@ -211,7 +211,8 @@
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <mvn.version>3.8.4</mvn.version>
+    <mvn.version>3.8.5</mvn.version>
+    <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
     <beam.version>2.36.0</beam.version>
@@ -224,22 +225,24 @@
     <gradle.version>6.9.1</gradle.version>
     <groovy.version>3.0.9</groovy.version>
     <gmavenplus.version>1.13.0</gmavenplus.version>
-    <dependency-plugin.version>3.1.1</dependency-plugin.version>
-    <assembly-plugin.version>3.1.1</assembly-plugin.version>
+    <dependency-plugin.version>3.3.0</dependency-plugin.version>
+    <assembly-plugin.version>3.3.0</assembly-plugin.version>
     <javadoc-plugin.version>3.3.2</javadoc-plugin.version>
-    <deploy-plugin.version>2.8.2</deploy-plugin.version>
+    <deploy-plugin.version>3.0.0-M2</deploy-plugin.version>
     <clean-plugin.version>3.1.0</clean-plugin.version>
     <download-plugin.version>1.4.2</download-plugin.version>
-    <shade-plugin.version>3.2.3</shade-plugin.version>
+    <shade-plugin.version>3.2.4</shade-plugin.version>
     <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-    <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+    <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+    <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
     <git-commit-id-plugin.version>4.0.5</git-commit-id-plugin.version>
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>5.10.0.202012080955-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
     <jacoco.version>0.8.7</jacoco.version>
-    <gpg-plugin.version>1.6</gpg-plugin.version>
+    <gpg-plugin.version>3.0.1</gpg-plugin.version>
+    <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
     <spotless.version>2.17.3</spotless.version>
     <jib.version>1.4.0</jib.version>
     <jib-core.version>0.15.0</jib-core.version>
@@ -964,6 +967,86 @@
             </dependency>
           </dependencies>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+            <forceJavacCompilerUse>true</forceJavacCompilerUse>
+            <compilerId>javac</compilerId>
+            <fork>true</fork>
+            <compilerArgs>
+              <arg>-parameters</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven-resources-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${clean-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.2.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.0.0-M1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.0.0-M2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.11.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>3.0.0-M5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${surefire-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${dependency-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${assembly-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-invoker-plugin</artifactId>
+          <version>3.2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${shade-plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -998,12 +1081,6 @@
             <phase/>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>${clean-plugin.version}</version>
       </plugin>
       <plugin>
         <groupId>com.github.rmannibucau</groupId>
@@ -1144,23 +1221,7 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.9.0</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-          <forceJavacCompilerUse>true</forceJavacCompilerUse>
-          <compilerId>javac</compilerId>
-          <fork>true</fork>
-          <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire-plugin.version}</version>
         <configuration>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
@@ -1430,8 +1491,22 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M3</version>
+        <version>3.0.0</version>
         <executions>
+          <execution>
+            <id>enforce-maven-3</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>${mvn-minimal.version}</version>
+                </requireMavenVersion>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
           <execution>
             <id>enforce-banned-joda-time-dependency</id>
             <goals>
@@ -1476,15 +1551,6 @@
         </executions>
       </plugin>
     </plugins>
-    <!--
-    <extensions>
-      <extension>
-        <groupId>com.github.rmannibucau</groupId>
-        <artifactId>maven-log-configurer-extension</artifactId>
-        <version>1.0.0</version>
-      </extension>
-    </extensions>
-    -->
   </build>
 
   <profiles>
@@ -1515,7 +1581,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
+            <version>${nexus-staging-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
@@ -1573,7 +1639,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
+            <version>${nexus-staging-plugin.version}</version>
             <configuration>
               <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
             </configuration>
