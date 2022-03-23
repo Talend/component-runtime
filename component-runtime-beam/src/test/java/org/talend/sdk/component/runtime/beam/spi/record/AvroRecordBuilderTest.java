@@ -50,7 +50,7 @@ import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 @TestInstance(PER_CLASS)
 class AvroRecordBuilderTest {
 
-    private static RecordBuilderFactory factory;// = new AvroRecordBuilderFactoryProvider().apply(null);
+    private static RecordBuilderFactory factory;
 
     private static Schema address;
 

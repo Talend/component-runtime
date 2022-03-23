@@ -464,18 +464,18 @@ public final class RecordImpl implements Record {
         }
 
         @Override
-        public Builder before(final String existingColumn) {
+        public Builder before(final String entryName) {
             orderOverride = true;
             orderState = Order.BEFORE;
-            orderTarget = existingColumn;
+            orderTarget = entryName;
             return this;
         }
 
         @Override
-        public Builder after(final String existingColumn) {
+        public Builder after(final String entryName) {
             orderOverride = true;
             orderState = Order.AFTER;
-            orderTarget = existingColumn;
+            orderTarget = entryName;
             return this;
         }
 
@@ -489,7 +489,7 @@ public final class RecordImpl implements Record {
 
         private String orderTarget = "";
 
-        // flags if providedSchema's entriesOrder was altered
+        // flag if providedSchema's entriesOrder was altered
         private Boolean orderOverride = Boolean.FALSE;
 
         private List<String> entriesOrder = new ArrayList<>();

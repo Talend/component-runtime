@@ -280,7 +280,7 @@ public interface Record {
         List<Entry> getCurrentEntries();
 
         /**
-         * Mark that next entry created {@code withXXXX()} will be before {@code existingEntry} in schema order.
+         * Mark that next entry created {@code withXXXX()} will be before {@code entryName} in schema order.
          *
          * @see
          * <ul>
@@ -289,14 +289,14 @@ public interface Record {
          * <li>{@link Schema#getEntriesOrdered(Comparator)}</li>
          * </ul>
          *
-         * @param existingEntry target entry name. This entry <b>must</b> exist!
+         * @param entryName target entry name. This entry <b>must</b> exist!
          *
          * @return this Builder
          */
-        Builder before(String existingEntry);
+        Builder before(String entryName);
 
         /**
-         * Mark that next entry created {@code withXXXX()} will be after {@code existingEntry} in schema order.
+         * Mark that next entry created {@code withXXXX()} will be after {@code entryName} in schema order.
          *
          * @see
          * <ul>
@@ -305,11 +305,11 @@ public interface Record {
          * <li>{@link Schema#getEntriesOrdered(Comparator)}</li>
          * </ul>
          *
-         * @param existingEntry target entry name. This entry <b>must</b> exist!
+         * @param entryName target entry name. This entry <b>must</b> exist!
          *
          * @return this Builder
          */
-        Builder after(String existingEntry);
+        Builder after(String entryName);
 
         Builder removeEntry(Schema.Entry schemaEntry);
 
