@@ -15,7 +15,10 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.File;
@@ -35,8 +38,12 @@ import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.ArtifactRepository;
 import org.eclipse.aether.repository.LocalRepositoryManager;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactDescriptorException;
+import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
+import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
@@ -113,21 +120,63 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
         return artifact.setFile(location);
     }
 
+    protected String computeCoordinates(final Artifact artifact) {
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+    }
+
     private String getVersion(final Artifact dep) {
         return ofNullable(dep.getBaseVersion()).orElseGet(dep::getVersion);
     }
 
-    protected Artifact resolve(final Artifact art) {
-        final ArtifactRequest artifactRequest =
-                new ArtifactRequest().setArtifact(art).setRepositories(remoteRepositories);
+    protected Artifact resolve(final Artifact artifact) {
+        final String gav = computeCoordinates(artifact);
+        final String repositoryIds = remoteRepositories.stream()
+                .map(RemoteRepository::getId)
+                .collect(joining(", "));
+        getLog().debug(format("Resolving %s in [%s]", gav, repositoryIds));
+
+        final ArtifactRepository artifactRepository = resolveArtifactRepository(artifact);
+        final String artifactRepositoryId = artifactRepository.getId();
+
         try {
+            final ArtifactRequest artifactRequest = new ArtifactRequest()
+                    .setArtifact(artifact)
+                    .setRepositories(remoteRepositories.stream()
+                            .filter(remoteRepository -> remoteRepository.getId().equals(artifactRepositoryId))
+                            .collect(toList()));
             final ArtifactResult result = repositorySystem.resolveArtifact(repositorySystemSession, artifactRequest);
             if (result.isMissing()) {
-                throw new IllegalStateException("Can't find " + art);
+                throw new IllegalStateException("Can't find " + artifact);
             }
             return result.getArtifact();
+
         } catch (final ArtifactResolutionException e) {
-            throw new IllegalStateException(e.getMessage(), e);
+            final String message = format("Could not find artifact %s in repository %s",
+                    gav, artifactRepositoryId);
+            throw new IllegalStateException(message, e);
+        }
+    }
+
+    private ArtifactRepository resolveArtifactRepository(final Artifact artifact) {
+        final String gav = computeCoordinates(artifact);
+        try {
+            final ArtifactDescriptorRequest artifactDescriptorRequest =
+                    new ArtifactDescriptorRequest(artifact, remoteRepositories, null);
+            final ArtifactDescriptorResult descriptorResult =
+                    repositorySystem.readArtifactDescriptor(repositorySystemSession, artifactDescriptorRequest);
+            final ArtifactRepository repository = descriptorResult.getRepository();
+            getLog().debug(format("Artifact %s comes from repository %s", gav, repository.getId()));
+            return repository;
+
+        } catch (final ArtifactDescriptorException e) {
+            final String repositoryIds = remoteRepositories.stream()
+                    .map(RemoteRepository::getId)
+                    .collect(joining(", "));
+
+            final String message = format(
+                    "Cannot find the remote repository where artifact %s is hosted. Tried: [%s]",
+                    gav, repositoryIds);
+            throw new IllegalStateException(message, e);
         }
     }
 }
