@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -315,15 +316,10 @@ public class SchemaImpl implements Schema {
         }
 
         @Override
-        public Schema build(final EntriesOrder order) {
-            final List<String> existing = entries.stream().map(e -> e.getName()).collect(toList());
-            // sanity check: filter non-existing entries passed to builder
-            List<String> merge = order.getFieldsOrder().stream().filter(o -> existing.contains(o)).collect(toList());
-            // keep entries created w/ builder and not passed w/ order
-            entriesOrder.removeAll(order.getFieldsOrder());
-            // order has precedence so we add missing order entries at the end
-            merge.addAll(entriesOrder);
-            this.props.put(ENTRIES_ORDER_PROP, merge.stream().collect(joining(",")));
+        public Schema build(final Comparator<Entry> order) {
+            final String entriesOrder = entries.stream().sorted(order).map(Entry::getName).collect(joining(","));
+            this.props.put(ENTRIES_ORDER_PROP, entriesOrder);
+
             return new SchemaImpl(this);
         }
     }

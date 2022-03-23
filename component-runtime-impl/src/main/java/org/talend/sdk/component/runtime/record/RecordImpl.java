@@ -61,6 +61,7 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @EqualsAndHashCode
 public final class RecordImpl implements Record {
@@ -125,6 +126,8 @@ public final class RecordImpl implements Record {
 
         private Map<String, Schema.Entry> entryIndex;
 
+        private OrderState orderState = new OrderState();
+
         public BuilderImpl() {
             this(null);
         }
@@ -132,7 +135,7 @@ public final class RecordImpl implements Record {
         public BuilderImpl(final Schema providedSchema) {
             this.providedSchema = providedSchema;
             if (providedSchema != null) {
-                this.entriesOrder = providedSchema.naturalOrder().getFieldsOrder();
+                orderState.setOrderedEntries(providedSchema.naturalOrder().getFieldsOrder());
             }
         }
 
@@ -236,6 +239,18 @@ public final class RecordImpl implements Record {
             return builder.updateEntryByName(name, schemaEntry);
         }
 
+        @Override
+        public Builder before(final String entryName) {
+            orderState.before(entryName);
+            return this;
+        }
+
+        @Override
+        public Builder after(final String entryName) {
+            orderState.after(entryName);
+            return this;
+        }
+
         private void replaceEntry(final String name, final Entry newEntry) {
             for (int index = 0; index < this.entries.size(); index++) {
                 if (Objects.equals(name, this.entries.get(index).getName())) {
@@ -299,10 +314,11 @@ public final class RecordImpl implements Record {
             if (providedSchema == null) {
                 final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
                 this.entries.forEach(builder::withEntry);
-                currentSchema = builder.build(EntriesOrder.of(entriesOrder));
+                currentSchema = builder.build(EntriesOrder.of(orderState.getOrderedEntries()));
             } else {
-                if (orderOverride) {
-                    currentSchema = this.providedSchema.toBuilder().build(EntriesOrder.of(entriesOrder));
+                if (orderState.isOverride()) {
+                    currentSchema =
+                            this.providedSchema.toBuilder().build(EntriesOrder.of(orderState.getOrderedEntries()));
                 } else {
                     currentSchema = this.providedSchema;
                 }
@@ -463,69 +479,6 @@ public final class RecordImpl implements Record {
             }
         }
 
-        @Override
-        public Builder before(final String entryName) {
-            orderOverride = true;
-            orderState = Order.BEFORE;
-            orderTarget = entryName;
-            return this;
-        }
-
-        @Override
-        public Builder after(final String entryName) {
-            orderOverride = true;
-            orderState = Order.AFTER;
-            orderTarget = entryName;
-            return this;
-        }
-
-        private enum Order {
-            BEFORE,
-            AFTER,
-            LAST;
-        }
-
-        private Order orderState = Order.LAST;
-
-        private String orderTarget = "";
-
-        // flag if providedSchema's entriesOrder was altered
-        private Boolean orderOverride = Boolean.FALSE;
-
-        private List<String> entriesOrder = new ArrayList<>();
-
-        private void updateOrderState(final String name) {
-            final int position = entriesOrder.indexOf(name);
-            if (orderState == Order.LAST) {
-                // if entry is already present, we keep its position otherwise put it all the end.
-                if (position == -1) {
-                    entriesOrder.add(name);
-                }
-            } else {
-                // if entry is already present, we remove it.
-                if (position >= 0) {
-                    entriesOrder.remove(position);
-                }
-                final int targetIndex = entriesOrder.indexOf(orderTarget);
-                if (targetIndex == -1) {
-                    throw new IllegalArgumentException(String.format("'%s' not in schema.", orderTarget));
-                }
-                if (orderState == Order.BEFORE) {
-                    entriesOrder.add(targetIndex, name);
-                } else {
-                    int destination = targetIndex + 1;
-                    if (destination < entriesOrder.size()) {
-                        entriesOrder.add(destination, name);
-                    } else {
-                        entriesOrder.add(name);
-                    }
-                }
-            }
-            // reset default behavior
-            orderTarget = "";
-            orderState = Order.LAST;
-        }
-
         private <T> Builder append(final Schema.Entry entry, final T value) {
             final Entry realEntry;
             if (this.providedSchema == null) {
@@ -545,9 +498,81 @@ public final class RecordImpl implements Record {
                     this.entries.add(realEntry);
                 }
             }
-            updateOrderState(realEntry.getName());
+            orderState.update(realEntry.getName());
 
             return this;
         }
+
+        private enum Order {
+            BEFORE,
+            AFTER,
+            LAST;
+        }
+
+        static class OrderState {
+
+            private Order state = Order.LAST;
+
+            private String target = "";
+
+            @Getter()
+            // flag if providedSchema's entriesOrder was altered
+            private boolean override = false;
+
+            @Getter
+            @Setter
+            private List<String> orderedEntries = new ArrayList<>();
+
+            public void before(final String entryName) {
+                setState(Order.BEFORE, entryName);
+            }
+
+            public void after(final String entryName) {
+                setState(Order.AFTER, entryName);
+            }
+
+            private void setState(final Order order, final String target) {
+                state = order; //
+                this.target = target;
+                override = true;
+            }
+
+            private void resetState() {
+                target = "";
+                state = Order.LAST;
+            }
+
+            public void update(final String name) {
+                final int position = orderedEntries.indexOf(name);
+                if (state == Order.LAST) {
+                    // if entry is already present, we keep its position otherwise put it all the end.
+                    if (position == -1) {
+                        orderedEntries.add(name);
+                    }
+                } else {
+                    // if entry is already present, we remove it.
+                    if (position >= 0) {
+                        orderedEntries.remove(position);
+                    }
+                    final int targetIndex = orderedEntries.indexOf(target);
+                    if (targetIndex == -1) {
+                        throw new IllegalArgumentException(String.format("'%s' not in schema.", target));
+                    }
+                    if (state == Order.BEFORE) {
+                        orderedEntries.add(targetIndex, name);
+                    } else {
+                        int destination = targetIndex + 1;
+                        if (destination < orderedEntries.size()) {
+                            orderedEntries.add(destination, name);
+                        } else {
+                            orderedEntries.add(name);
+                        }
+                    }
+                }
+                // reset default behavior
+                resetState();
+            }
+        }
     }
+
 }

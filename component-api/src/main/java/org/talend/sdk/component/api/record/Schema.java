@@ -439,7 +439,7 @@ public interface Schema {
          * @param order the wanted order for entries.
          * @return the described schema.
          */
-        default Schema build(EntriesOrder order) {
+        default Schema build(Comparator<Entry> order) {
             throw new UnsupportedOperationException("#build(EntriesOrder) is not implemented");
         }
     }
