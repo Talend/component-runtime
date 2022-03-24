@@ -637,7 +637,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>${dependency-plugin.version}</version>
         <executions>
           <execution>
             <id>unpack-api-javadoc</id>
@@ -963,7 +962,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>${dependency-plugin.version}</version>
             <executions>
               <execution>
                 <id>unpack-junit-javadoc</id>

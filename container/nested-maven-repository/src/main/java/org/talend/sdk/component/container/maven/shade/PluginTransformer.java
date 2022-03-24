@@ -18,10 +18,14 @@ package org.talend.sdk.component.container.maven.shade;
 import static java.util.Optional.ofNullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
+
+import org.apache.maven.plugins.shade.relocation.Relocator;
 
 import lombok.Setter;
 
@@ -59,4 +63,17 @@ public class PluginTransformer extends ArtifactTransformer {
         jarOutputStream.putNextEntry(new ZipEntry(pluginListResource));
         properties.store(jarOutputStream, "plugin list");
     }
+
+    @Override
+    public void processResource(final String resource, final InputStream is, final List<Relocator> relocators,
+            final long time) throws IOException {
+        super.processResource(resource, is, relocators, time);
+    }
+
+    @Override
+    public void processResource(final String s, final InputStream inputStream, final List<Relocator> list)
+            throws IOException {
+        throw new UnsupportedOperationException("#processResource()");
+    }
+
 }

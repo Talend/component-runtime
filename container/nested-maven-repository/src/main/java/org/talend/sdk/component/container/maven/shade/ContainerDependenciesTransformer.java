@@ -21,12 +21,16 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
+
+import org.apache.maven.plugins.shade.relocation.Relocator;
 
 import lombok.Setter;
 
@@ -84,5 +88,17 @@ public class ContainerDependenciesTransformer extends ArtifactTransformer {
                     : of(ignoredPaths).map(p -> p.split(",")).map(Stream::of).orElseGet(Stream::empty).collect(toSet());
         }
         return ignoredPathsRuntime.contains(folderPath);
+    }
+
+    @Override
+    public void processResource(final String resource, final InputStream is, final List<Relocator> relocators,
+            final long time) throws IOException {
+        super.processResource(resource, is, relocators, time);
+    }
+
+    @Override
+    public void processResource(final String s, final InputStream inputStream, final List<Relocator> list)
+            throws IOException {
+        throw new UnsupportedOperationException("#processResource()");
     }
 }
