@@ -2,6 +2,12 @@
 
 == Version 1.44.0
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2103[TCOMP-2103^]: Link affected jira components to issue in changelog as keywords for search link:search.html?query=documentation[documentation^,role='dockey']
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2104[TCOMP-2104^]: Header link should be linked to latest path link:search.html?query=documentation[documentation^,role='dockey']

@@ -1,5 +1,5 @@
 = Talend Component Kit Extension Points
-:page-talend_skipindexation:
+:keywords: extension, internal, custom, customize
 
 This pages lists most of the extension points the framework provides for integrators.
 
