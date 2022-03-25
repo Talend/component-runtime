@@ -598,6 +598,18 @@ public class Generator {
                                                                             .append("^]")
                                                                             .append(": ")
                                                                             .append(i.getFields().getSummary().trim())
+                                                                            .append(" ")
+                                                                            .append(i.getFields()
+                                                                                    .getComponents()
+                                                                                    .stream()
+                                                                                    .map(c -> c.getName()
+                                                                                            .trim())
+                                                                                    .filter(c -> !"dependency-update"
+                                                                                            .equals(c))
+                                                                                    .map(n -> String.format(
+                                                                                            "link:search.html?query=%s[%s^,role='dockey']",
+                                                                                            n, n))
+                                                                                    .collect(joining(" ")))
                                                                             .append("\n"),
                                                                     StringBuilder::append))
                                                     .append('\n'),
@@ -1353,6 +1365,16 @@ public class Generator {
     }
 
     @Data
+    public static class JiraComponent {
+
+        private String self;
+
+        private String id;
+
+        private String name;
+    }
+
+    @Data
     public static class Fields {
 
         private String summary;
@@ -1364,6 +1386,8 @@ public class Generator {
         private Status status;
 
         private Collection<JiraVersion> fixVersions;
+
+        private Collection<JiraComponent> components;
     }
 
     @Data

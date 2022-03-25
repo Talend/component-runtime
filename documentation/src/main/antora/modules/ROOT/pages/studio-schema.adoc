@@ -1,7 +1,7 @@
 = Studio schema
 :page-partial:
 :description: How to access studio's schema in your component.
-:keywords: studio, schema, metadata, dynamic, columns, output, sink, connector
+:keywords: studio, studio-integration, schema, metadata, dynamic, columns, output, sink, connector, record-schema
 
 == Dynamic schema
 

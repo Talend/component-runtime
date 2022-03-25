@@ -5,7 +5,7 @@
 :page-documentationindex-icon: check-circle
 :page-documentationindex-description: Learn how to test your component logic in the environment you need
 :description: Learn how to test your component logic in the environment you need using Talend Component Kit
-:keywords: test, overview, environment, beam, runtime
+:keywords: test, overview, environment, beam, runtime, testing
 
 Developing new components includes testing them in the required execution environments. Use the following articles to learn about the best practices and the available options to fully test your components.
 
