@@ -5,7 +5,7 @@
 :page-documentationindex-icon: code
 :page-documentationindex-description: Define the logic and UI of your components using a Java IDE
 :description: Get an overview of the main steps to code the logic of your custom Talend Componit Kit components
-:keywords: create, code, class, logic, layout, configuration, dev, overview
+:keywords: create, code, class, logic, layout, configuration, dev, overview, api
 
 
 Once you have generated a project, you can start implementing the logic and layout of your components and iterate on it. Depending on the type of component you want to create, the logic implementation can differ. However, the layout and component metadata are defined the same way for all types of components in your project. The main steps are:

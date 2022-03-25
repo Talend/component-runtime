@@ -1,7 +1,7 @@
 = Version compatibility
 :page-partial:
 :description: Learn which version of Talend Component Kit you can use for your components to be compatible with the right version of your Talend applications.
-:keywords: versions, Studio, Cloud, compatibility
+:keywords: versions, Studio, studio-integration, Cloud, compatibility
 
 You can integrate and start using components developed using Talend Component Kit in Talend applications very easily.
 

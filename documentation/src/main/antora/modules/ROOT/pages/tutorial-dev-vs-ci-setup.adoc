@@ -1,7 +1,7 @@
 = Testing in a Continuous Integration environment
 :page-partial:
 :description: Learn how to test components in a continuous integration environment
-:keywords: tutorial, example, test, CI, continuous integration
+:keywords: tutorial, example, test, CI, continuous integration, testing
 
 [[tutorial-dev-vs-ci-setup.adoc]]
 

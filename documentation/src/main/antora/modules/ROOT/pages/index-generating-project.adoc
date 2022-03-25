@@ -5,7 +5,7 @@
 :page-documentationindex-icon: power-off
 :page-documentationindex-description: Define the skeleton and general settings of your components
 :description: Get an overview of the first step to create a new component, which consists in building a project using the Component Kit Starter or the Component Kit plugin for IntelliJ
-:keywords: starter, overview, component project, intelliJ
+:keywords: starter, starter, overview, component project, intelliJ, intellij
 
 The first step when developing new components is to create a project that will contain the skeleton of your components and set you on the right track.
 

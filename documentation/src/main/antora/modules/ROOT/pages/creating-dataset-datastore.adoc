@@ -1,7 +1,7 @@
 = Defining datasets and datastores
 :page-partial:
 :description: Learn how to define datasets and datastores for input and output components.
-:keywords: datastore, dataset, validation, input, output, studio, connection
+:keywords: datastore, dataset, validation, input, output, studio, studio-integration, connection
 
 [[dataset-and-datastore]]
 

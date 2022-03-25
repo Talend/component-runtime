@@ -5,7 +5,7 @@
 :page-documentationindex-icon: cloud
 :page-documentationindex-description: Integrate components into Talend Cloud and learn about the component server
 :description: Integrate components into Talend Cloud and learn about the component server
-:keywords: web, component server, cloud
+:keywords: web, component server, component-server, cloud
 
 Learn about the Component Server with the following articles:
 

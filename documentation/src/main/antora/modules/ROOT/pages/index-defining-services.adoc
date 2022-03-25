@@ -5,7 +5,7 @@
 :page-documentationindex-icon: share-alt
 :page-documentationindex-description: Create configurations that can be reused across several components
 :description: Get an overview of what are services and how to use services with Talend Component Kit
-:keywords: service, reuse configuration, overview, action, custom, interceptor, i18n
+:keywords: service, component-manager, reuse configuration, overview, action, custom, interceptor, i18n, api
 
 Services are configurations that can be reused across several classes.
 Talend Component Kit comes with a predefined set of services that you can easily use.

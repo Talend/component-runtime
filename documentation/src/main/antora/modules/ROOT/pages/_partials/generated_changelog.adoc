@@ -4,11 +4,11 @@
 
 === Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-2104[TCOMP-2104^]: Header link should be linked to latest path
-- link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60
-- link:https://jira.talendforge.org/browse/TCOMP-2108[TCOMP-2108^]: Upgrade maven plugins
-- link:https://jira.talendforge.org/browse/TCOMP-2109[TCOMP-2109^]: Upgrade git-commit-id-plugin to 4.0.5
-- link:https://jira.talendforge.org/browse/TCOMP-2110[TCOMP-2110^]: Replace log4j by reload4j
+- link:https://jira.talendforge.org/browse/TCOMP-2104[TCOMP-2104^]: Header link should be linked to latest path link:search.html?query=documentation[documentation^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2108[TCOMP-2108^]: Upgrade maven plugins 
+- link:https://jira.talendforge.org/browse/TCOMP-2109[TCOMP-2109^]: Upgrade git-commit-id-plugin to 4.0.5 
+- link:https://jira.talendforge.org/browse/TCOMP-2110[TCOMP-2110^]: Replace log4j by reload4j link:search.html?query=stitch[stitch^,role='dockey']
 
 == Version 1.43.0
 
