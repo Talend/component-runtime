@@ -926,3 +926,19 @@ ul.tree > li > a {
     background-color: #f5f5f5;
     font-weight: 550;
 }
+
+.dockey {
+  font-family: monospace;
+  font-size: 80%;
+  color: #295679;
+  background-color: #f5f5f5;
+  padding-left: 6px;
+  padding-right: 6px;
+  border: 1px solid #f5f5f5;
+  border-radius: 5px;
+}
+
+.dockey:hover {
+  font-weight: bold;
+  text-decoration: none;
+}

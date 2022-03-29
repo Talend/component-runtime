@@ -51,7 +51,7 @@ $(document).ready(function () {
           if (k.trim().length>=5){
             prefix = '%3D';
           }
-          kwords = kwords + ' <a href="search.html?query='+ prefix + k.trim().replace(/\s/g,'+') + '"><code>' +  k + '</code></a> ';
+          kwords = kwords + ' <a class="dockey" href="search.html?query='+ prefix + k.trim().replace(/\s/g,'+') + '">' +  k + '</a> ';
         });
         return kwords;
       }

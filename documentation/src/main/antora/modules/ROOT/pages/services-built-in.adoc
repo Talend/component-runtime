@@ -1,7 +1,7 @@
 = Built-in services
 :page-partial:
 :description: List of built-in services available with Talend Component Kit
-:keywords: service, internal, json, record, localconfiguration, provider, resolver, http client, http
+:keywords: service, component-manager, internal, json, record, localconfiguration, provider, resolver, http client, http, record-schema
 
 The framework provides built-in services that you can inject by type in components and actions.
 

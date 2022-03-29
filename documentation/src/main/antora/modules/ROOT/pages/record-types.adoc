@@ -1,6 +1,6 @@
 = Record types
 :page-partial:
-:keywords: record, pojo, builder, factory, types, schema, discover, jsonObject, json
+:keywords: record, pojo, builder, factory, types, schema, discover, jsonObject, json, record-schema
 :description: How to modelize data processed or emitted by components.
 
 Components are designed to manipulate data (access, read, create). Talend Component Kit can handle several types of data, described in this document.

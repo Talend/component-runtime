@@ -1,6 +1,6 @@
 = From Javajet to Talend Component Kit
 :page-partial:
-:keywords: javajet, studio, learning, getting started, principles
+:keywords: javajet, studio, studio-integration, learning, getting started, principles
 :description: The Javajet framework is being replaced by the new Talend Component Kit. Learn the main differences and the new approach introduced with this framework.
 
 From the version 7.0 of Talend Studio, Talend Component Kit becomes the recommended framework to use to develop components.

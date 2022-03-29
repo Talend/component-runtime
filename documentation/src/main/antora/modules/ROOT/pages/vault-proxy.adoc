@@ -1,7 +1,7 @@
 = Component Server Vault Proxy
 :page-partial:
 :description: A Vault Proxy manages credential encryption before the data reaches the component server.
-:keywords: component server vault proxy, credentials, cloud
+:keywords: component server, component-server, vault, proxy, credentials, cloud
 
 WARNING:  Component server vault proxy is deprecated since component-runtime-1.34.0 release
 

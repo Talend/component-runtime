@@ -1,7 +1,7 @@
 = Iterating on component development with Talend Studio
 :page-partial:
 :description: How to install and configure components developed with Talend Component Kit in Talend Open Studio
-:keywords: component server, deploy, install, studio, car, version, component-server, debug
+:keywords: component server, deploy, install, studio, studio-integration, car, car-bundler, version, component-server, debug
 
 Integrate components you developed using Talend Component Kit to link:https://sourceforge.net/projects/talend-studio/[Talend Studio] in a few steps. Also learn how to enable the developer and debugging modes to iterate on your component development.
 

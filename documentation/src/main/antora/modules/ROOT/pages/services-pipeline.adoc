@@ -1,7 +1,7 @@
 = Creating a job pipeline
 :page-partial:
 :description: How to create a job pipeline using Talend Component Kit
-:keywords: job builder, service, pipeline, dsl, environment, Beam
+:keywords: job builder, service, component-manager, pipeline, dsl, environment, Beam
 
 == Job Builder
 
