@@ -43,6 +43,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
@@ -266,7 +267,7 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
 
         try {
             createDirectories(m2DependencyPath.getParent());
-            copy(zipStream, m2DependencyPath);
+            copy(zipStream, m2DependencyPath, StandardCopyOption.REPLACE_EXISTING);
 
             final long lastModified = zipEntry.getTime();
             if (lastModified > 0) {
