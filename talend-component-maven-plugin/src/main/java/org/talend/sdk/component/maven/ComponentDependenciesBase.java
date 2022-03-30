@@ -176,7 +176,8 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
             final ArtifactRequest artifactRequest = new ArtifactRequest()
                     .setArtifact(artifact)
                     .setRepositories(remoteRepositories.stream()
-                            .filter(remoteRepository -> remoteRepository.getId().equals(artifactRepositoryId))
+                            .filter(remoteRepository -> remoteRepository.getId()
+                                    .equals(artifactRepositoryId))
                             .collect(toList()));
             final ArtifactResult result = repositorySystem.resolveArtifact(repositorySystemSession, artifactRequest);
             if (result.isMissing()) {
