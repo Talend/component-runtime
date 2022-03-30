@@ -118,7 +118,7 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
      * <li>if not found, searches online with
      * {@link ComponentDependenciesBase#resolveArtifactOnRemoteRepositories(Artifact)}</li>
      * </ul>
-     * The provided classifier & type override the artifact's.
+     * The provided classifier &amp; type override the artifact's.
      */
     protected Artifact resolveArtifact(final Artifact artifact, final String classifier, final String type) {
         final LocalRepositoryManager lrm = repositorySystemSession.getLocalRepositoryManager();
@@ -170,7 +170,8 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
             final ArtifactRequest artifactRequest = new ArtifactRequest()
                     .setArtifact(artifact)
                     .setRepositories(remoteRepositories.stream()
-                            .filter(remoteRepository -> remoteRepository.getId().equals(artifactRepositoryId))
+                            .filter(remoteRepository -> remoteRepository.getId()
+                                    .equals(artifactRepositoryId))
                             .collect(toList()));
             final ArtifactResult result = repositorySystem.resolveArtifact(repositorySystemSession, artifactRequest);
             if (result.isMissing()) {
