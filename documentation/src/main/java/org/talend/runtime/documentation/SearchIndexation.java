@@ -83,6 +83,7 @@ public class SearchIndexation {
 
         final File siteMapFile = new File(args[0]);
         final String latest = args[1];
+        log.info("[main] sitemap: {}; latest: {}.", siteMapFile.toString(), latest);
         final String urlMarker = "/component-runtime/";
         final SiteMap siteMap = SiteMap.class
                 .cast(new SiteMapParser(false /* we index a local file with remote urls */)
@@ -182,6 +183,8 @@ public class SearchIndexation {
             })
                     .flatMap(Collection::stream)
                     .sorted(comparing(o -> o.getString("title")))
+                    .filter(o -> !"${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}"
+                            .equals(o.getString("version")))
                     .collect(groupingBy(
                             o -> (o.getString("version").equals(latest) ? "latest" : o.getString("version"))));
             byVersion.forEach((version, records) -> {
