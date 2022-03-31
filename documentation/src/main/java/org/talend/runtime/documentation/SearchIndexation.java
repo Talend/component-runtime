@@ -183,8 +183,6 @@ public class SearchIndexation {
             })
                     .flatMap(Collection::stream)
                     .sorted(comparing(o -> o.getString("title")))
-                    .filter(o -> !"${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}"
-                            .equals(o.getString("version")))
                     .collect(groupingBy(
                             o -> (o.getString("version").equals(latest) ? "latest" : o.getString("version"))));
             byVersion.forEach((version, records) -> {
