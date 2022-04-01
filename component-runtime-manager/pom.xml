@@ -188,6 +188,7 @@
             <USER_PATH>/home/user</USER_PATH>
             <talend_localconfig_user_home>/home/user</talend_localconfig_user_home>
             <TALEND_LOCALCONFIG_TEST_0>true</TALEND_LOCALCONFIG_TEST_0>
+            <M2_HOME>${project.build.testOutputDirectory}/</M2_HOME>
           </environmentVariables>
         </configuration>
       </plugin>
