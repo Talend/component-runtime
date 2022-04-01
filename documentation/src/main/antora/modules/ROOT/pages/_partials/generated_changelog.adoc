@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2108[TCOMP-2108^]: Upgrade maven plugins 
 - link:https://jira.talendforge.org/browse/TCOMP-2109[TCOMP-2109^]: Upgrade git-commit-id-plugin to 4.0.5 
 - link:https://jira.talendforge.org/browse/TCOMP-2110[TCOMP-2110^]: Replace log4j by reload4j link:search.html?query=stitch[stitch^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2114[TCOMP-2114^]: Upgrade TSBI to 2.9.27-20220331162145 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 
 == Version 1.43.0
 
