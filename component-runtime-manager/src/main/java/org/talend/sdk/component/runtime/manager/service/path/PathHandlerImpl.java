@@ -26,46 +26,56 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PathHandlerImpl implements PathHandler {
 
+    // maven property regexp
     private static final Pattern MVN_PROPERTY = Pattern.compile("^\\$\\{(.*)\\}(.*)");
 
+    // interpolate predicate regexp
+    private static final Pattern INTERPOLATE_P = Pattern.compile("^(\\$\\{(.*)\\}|~|/.:).*");
+
     /**
-     * @param path
+     * Potentially interpolate or modify part of the path to have a full parsable path for the framework.
      *
-     * @return
+     * @param path the value to inspect and eventually modify.
+     *
+     * @return a {@link Path} with interpolated elements.
      */
     protected Path interpolate(final String path) {
         String p = path;
-        // windows
-        if (p.startsWith("/") && p.indexOf(':') == 2) {
-            p = p.substring(1);
-        }
-        // unix ~ : we shouldn't have the case as it's shell parsed only normally
-        if (p.startsWith("~")) {
-            p = System.getProperty("user.home") + p.substring(1);
-        }
-        // parse any maven property : more likely to be used
-        final Matcher matcher = MVN_PROPERTY.matcher(p);
-        if (matcher.matches()) {
-            final String prop = matcher.group(1);
-            String value;
-            if (prop.startsWith("env.")) {
-                value = System.getenv(prop.substring("env.".length()));
-            } else {
-                value = System.getProperty(prop);
+        // skip this directly if not needed...
+        if (INTERPOLATE_P.matcher(path).matches()) {
+            // windows
+            if (p.startsWith("/") && p.indexOf(':') == 2) {
+                p = p.substring(1);
             }
-            p = value + matcher.group(2);
+            // unix ~ : we shouldn't have the case as it's shell parsed only normally
+            if (p.startsWith("~")) {
+                p = System.getProperty("user.home") + p.substring(1);
+            }
+            // parse any maven property : more likely to be used
+            final Matcher matcher = MVN_PROPERTY.matcher(p);
+            if (matcher.matches()) {
+                final String prop = matcher.group(1);
+                String value;
+                if (prop.startsWith("env.")) {
+                    value = System.getenv(prop.substring("env.".length()));
+                } else {
+                    value = System.getProperty(prop);
+                }
+                p = value + matcher.group(2);
+            }
         }
-
         return Paths.get(p);
     }
 
     /**
-     * @param path
+     * Check path existence
      *
-     * @return
+     * @param path value to check
+     *
+     * @return null if path do not exist, path otherwise
      */
     protected Path exist(final Path path) {
-        if (Files.exists(path)) {
+        if (path != null && Files.exists(path)) {
             return path;
         }
         log.debug("[PathHandlerImpl] non existent path: {}.", path);

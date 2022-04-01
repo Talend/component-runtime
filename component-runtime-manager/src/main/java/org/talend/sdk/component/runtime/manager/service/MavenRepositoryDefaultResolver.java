@@ -21,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.runtime.manager.service.path.PathHandler;
@@ -63,7 +62,7 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
     @Override
     public Path fallback() {
         log.debug("[fallback] default to user's default repository.");
-        return Paths.get(System.getProperty("user.home", "")).resolve(".m2/repository");
+        return Paths.get(USER_HOME).resolve(M2_REPOSITORY);
     }
 
     public Path fromSystemProperties() {
@@ -85,21 +84,17 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
         return null;
     }
 
-    private String parseSettings(final Path settings) {
+    private static String parseSettings(final Path settings) {
         log.debug("[fromMavenSettings] searching for localRepository location in {}", settings);
         try {
             String localM2RepositoryFromSettings = null;
             // do not introduce a xml parser so will do with what we have...
             final String content = new String(java.nio.file.Files.readAllBytes(settings), StandardCharsets.UTF_8);
-            final Pattern comments = Pattern.compile("(<!--.*?-->)", Pattern.DOTALL);
-            final Pattern emptyLines = Pattern.compile("^\\s*$|\\n|\\r\\n");
-            final Pattern localRepo =
-                    Pattern.compile(".*<localRepository>(.+)</localRepository>.*", Pattern.CASE_INSENSITIVE);
             // some cleanups
-            String stripped = comments.matcher(content).replaceAll("");
-            stripped = emptyLines.matcher(stripped).replaceAll("");
+            String stripped = XML_COMMENTS_PATTERN.matcher(content).replaceAll("");
+            stripped = XML_EMPTY_LINES_PATTERN.matcher(stripped).replaceAll("");
             // localRepository present?
-            final Matcher m = localRepo.matcher(stripped);
+            final Matcher m = XML_LOCAL_REPO_PATTERN.matcher(stripped);
             if (!m.matches()) {
                 log.debug("[fromMavenSettings] localRepository not defined in settings.xml");
             } else {
@@ -117,14 +112,14 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
     public Path fromMavenSettings() {
         return Stream.of(
                 System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS), //
-                System.getProperty("user.home") + "/.m2/settings.xml", //
-                System.getenv("MAVEN_HOME") + "conf/settings.xml", //
-                System.getenv("M2_HOME") + "conf/settings.xml" //
+                System.getProperty("user.home") + M2_SETTINGS, //
+                System.getenv(MAVEN_HOME) + CONF_SETTINGS, //
+                System.getenv(M2_HOME) + CONF_SETTINGS //
         )
                 .filter(Objects::nonNull)
                 .map(Paths::get)
                 .filter(Files::exists)
-                .map(this::parseSettings)
+                .map(MavenRepositoryDefaultResolver::parseSettings)
                 .filter(Objects::nonNull)
                 .map(handler::get)
                 .filter(Objects::nonNull)
@@ -133,7 +128,7 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
     }
 
     public Path fromEnvironmentVariables() {
-        final String vm2 = System.getenv("M2_HOME");
+        final String vm2 = System.getenv(M2_HOME);
         log.debug("[fromEnvironmentVariables] M2_HOME={}", vm2);
         if (vm2 != null) {
             return handler.get(Paths.get(vm2, "repository").toString());

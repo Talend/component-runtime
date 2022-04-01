@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import java.nio.file.Path;
+import java.util.regex.Pattern;
 
 /**
  * m2 discovery process is used for plugins/connectors loading.
@@ -39,13 +40,25 @@ public interface MavenRepositoryResolver {
 
     String M2_HOME = "M2_HOME";
 
+    String MAVEN_HOME = "MAVEN_HOME";
+
     // a set of constants
 
     String M2_REPOSITORY = ".m2/repository";
 
+    String M2_SETTINGS = ".m2/settings.xml";
+
     String CONF_SETTINGS = "conf/settings.xml";
 
     String USER_HOME = System.getProperty("user.home", "");
+
+    // some settings.xml regexp patterns
+    Pattern XML_COMMENTS_PATTERN = Pattern.compile("(<!--.*?-->)", Pattern.DOTALL);
+
+    Pattern XML_EMPTY_LINES_PATTERN = Pattern.compile("^\\s*$|\\n|\\r\\n");
+
+    Pattern XML_LOCAL_REPO_PATTERN =
+            Pattern.compile(".*<localRepository>(.+)</localRepository>.*", Pattern.CASE_INSENSITIVE);
 
     /**
      * Main entry point for the discovery process.
