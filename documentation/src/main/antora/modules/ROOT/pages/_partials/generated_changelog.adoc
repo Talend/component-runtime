@@ -1,117 +1,17 @@
-
-
-== Version 1.41.0
-
-=== Bug
-
-- link:https://jira.talendforge.org/browse/TCOMP-2063[TCOMP-2063^]: Avro Record Constructor
-- link:https://jira.talendforge.org/browse/TCOMP-2064[TCOMP-2064^]: NPE with lookup missconfiguration in Join processor
-- link:https://jira.talendforge.org/browse/TCOMP-2067[TCOMP-2067^]: Bug on order columns
-- link:https://jira.talendforge.org/browse/TCOMP-2071[TCOMP-2071^]: Define default methods on Schema / Entry / Record interfaces
-
-
+== Version 1.38.6
 
 === New Feature
 
-- link:https://jira.talendforge.org/browse/TCOMP-2045[TCOMP-2045^]: Pass and read meta information about columns.
-- link:https://jira.talendforge.org/browse/TCOMP-2072[TCOMP-2072^]: Ligthen parameters for component-server docker image
+- link:https://jira.talendforge.org/browse/TCOMP-2045[TCOMP-2045^]: Pass and read meta information about columns. link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2096[TCOMP-2096^]: Support BigDecimal type in DI integration link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
 === Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-2057[TCOMP-2057^]: AvroSchema : optimize getType by using type fields
-- link:https://jira.talendforge.org/browse/TCOMP-2060[TCOMP-2060^]: Upgrade log4j2 to 2.17.0 due to CVE-2021-45105
-- link:https://jira.talendforge.org/browse/TCOMP-2061[TCOMP-2061^]: Upgrade netty to 4.1.72.Final due to CVE-2021-43797
-- link:https://jira.talendforge.org/browse/TCOMP-2065[TCOMP-2065^]: Internationalized Services as Serializable
-- link:https://jira.talendforge.org/browse/TCOMP-2068[TCOMP-2068^]: Upgrade log4j2 to 2.17.1 due to CVE-2021-44832
-- link:https://jira.talendforge.org/browse/TCOMP-2069[TCOMP-2069^]: Create a latest tag for component-runtime images
-- link:https://jira.talendforge.org/browse/TCOMP-2070[TCOMP-2070^]: Upgrade TSBI to 2.9.18-20220104141654
-- link:https://jira.talendforge.org/browse/TCOMP-2073[TCOMP-2073^]: Upgrade maven-core to 3.8.4 due to CVE
+- link:https://jira.talendforge.org/browse/TCOMP-2070[TCOMP-2070^]: Upgrade TSBI to 2.9.18-20220104141654 link:search.html?query=build[build^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
 
-== Version 1.40.0
-
-=== Bug
-
-- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
-- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
-- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
-- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
-
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-2018[TCOMP-2018^]: Optimize Avro Record
-- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
-
-
-
-== Version 1.39.3
-
-=== Bug
-
-- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
-
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
-
-
-
-== Version 1.39.2
-
-=== Bug
-
-- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
-
-
-
-== Version 1.39.1
-
-=== Bug
-
-- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
-- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
-
-== Version 1.39.0
-
-=== Bug
-
-- link:https://jira.talendforge.org/browse/TCOMP-2019[TCOMP-2019^]: Sanitized columns name collision support
-- link:https://jira.talendforge.org/browse/TCOMP-2021[TCOMP-2021^]: Missing logic when handling null date values in Record
-- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
-
-
-
-=== New Feature
-
-- link:https://jira.talendforge.org/browse/TCOMP-2004[TCOMP-2004^]: [Runtime convergence] New tck/API to retrieve dataset full content
-- link:https://jira.talendforge.org/browse/TCOMP-2008[TCOMP-2008^]: Add ability to insert a schema entry on Record BuilderImpl
-
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1924[TCOMP-1924^]: Support Java 17 runtime
-- link:https://jira.talendforge.org/browse/TCOMP-2023[TCOMP-2023^]: Upgrade gradle to 6.9.1
-- link:https://jira.talendforge.org/browse/TCOMP-2024[TCOMP-2024^]: Upgrade maven-bundle-plugin to 4.2.1
-- link:https://jira.talendforge.org/browse/TCOMP-2025[TCOMP-2025^]: Upgrade documentation to latest
-- link:https://jira.talendforge.org/browse/TCOMP-2027[TCOMP-2027^]: Upgrage junit to 5.8.1
-- link:https://jira.talendforge.org/browse/TCOMP-2028[TCOMP-2028^]: Provide nashorn scripting engine when using java15+
-- link:https://jira.talendforge.org/browse/TCOMP-2029[TCOMP-2029^]: Upgrade jaxb to 2.3.5
-- link:https://jira.talendforge.org/browse/TCOMP-2030[TCOMP-2030^]: Upgrade Tomcat to 9.0.54 due to CVE-2021-42340
-- link:https://jira.talendforge.org/browse/TCOMP-2031[TCOMP-2031^]: Upgrade Beam to 2.33.0
-- link:https://jira.talendforge.org/browse/TCOMP-2032[TCOMP-2032^]: Upgrade Spark to 3.2.0
-- link:https://jira.talendforge.org/browse/TCOMP-2035[TCOMP-2035^]: Check build w/ Java 17 on CI
-- link:https://jira.talendforge.org/browse/TCOMP-2036[TCOMP-2036^]: Upgrade cxf to 3.4.5
-- link:https://jira.talendforge.org/browse/TCOMP-2037[TCOMP-2037^]: Upgrade johnzon to 1.2.15
-- link:https://jira.talendforge.org/browse/TCOMP-2038[TCOMP-2038^]: Upgrade bouncycastle to 1.69
-- link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
-- link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
-- link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
 
 == Version 1.38.5
 
