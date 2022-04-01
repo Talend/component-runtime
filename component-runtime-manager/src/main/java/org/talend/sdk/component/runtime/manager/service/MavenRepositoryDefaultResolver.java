@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager.service;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.runtime.manager.service.path.PathHandler;
 import org.talend.sdk.component.runtime.manager.service.path.PathHandlerImpl;
 
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,9 +46,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @NoArgsConstructor
+@Data
 public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
 
-    private final PathHandler handler = new PathHandlerImpl();
+    private PathHandler handler = new PathHandlerImpl();
 
     @Override
     public Path discover() {
@@ -59,24 +62,16 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
 
     @Override
     public Path fallback() {
-        log.warn("[fallback] default to user's default repository.");
-        return handler.get(System.getProperty("user.home", "")).resolve(".m2/repository");
+        log.debug("[fallback] default to user's default repository.");
+        return Paths.get(System.getProperty("user.home", "")).resolve(".m2/repository");
     }
 
     public Path fromSystemProperties() {
         final String m2 = System.getProperty(TALEND_COMPONENT_MANAGER_M2_REPOSITORY);
         if (m2 != null) {
-            final Path m2Path = handler.get(m2);
-            log.warn("[fromSystemProperties] {}={}.", TALEND_COMPONENT_MANAGER_M2_REPOSITORY, m2);
-            if (java.nio.file.Files.exists(m2Path)) {
-                return m2Path;
-            } else {
-                log.warn("[fromSystemProperties] {} value points to a non existent path: {}.",
-                        TALEND_COMPONENT_MANAGER_M2_REPOSITORY,
-                        m2Path);
-            }
+            return handler.get(m2);
         }
-        log.warn("[fromSystemProperties] Could not get m2 from System property.");
+        log.debug("[fromSystemProperties] Could not get m2 from System property.");
         return null;
     }
 
@@ -84,69 +79,66 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
         // check if we are in the studio process if so just grab the the studio config
         final String m2Repo = System.getProperty(STUDIO_MVN_REPOSITORY);
         if (!"global".equals(m2Repo)) {
-            final Path m2 = handler.get(System.getProperty("osgi.configuration.area", ""))
-                    .resolve(M2_REPOSITORY);
-            if (java.nio.file.Files.exists(m2)) {
-                return m2;
-            }
+            return handler.get(Paths.get(System.getProperty("osgi.configuration.area", ""), M2_REPOSITORY).toString());
         }
-        log.warn("[fromStudioConfiguration] Could not get m2 from studio config.");
+        log.debug("[fromStudioConfiguration] Could not get m2 from studio config.");
+        return null;
+    }
+
+    private String parseSettings(final Path settings) {
+        log.debug("[fromMavenSettings] searching for localRepository location in {}", settings);
+        try {
+            String localM2RepositoryFromSettings = null;
+            // do not introduce a xml parser so will do with what we have...
+            final String content = new String(java.nio.file.Files.readAllBytes(settings), StandardCharsets.UTF_8);
+            final Pattern comments = Pattern.compile("(<!--.*?-->)", Pattern.DOTALL);
+            final Pattern emptyLines = Pattern.compile("^\\s*$|\\n|\\r\\n");
+            final Pattern localRepo =
+                    Pattern.compile(".*<localRepository>(.+)</localRepository>.*", Pattern.CASE_INSENSITIVE);
+            // some cleanups
+            String stripped = comments.matcher(content).replaceAll("");
+            stripped = emptyLines.matcher(stripped).replaceAll("");
+            // localRepository present?
+            final Matcher m = localRepo.matcher(stripped);
+            if (!m.matches()) {
+                log.debug("[fromMavenSettings] localRepository not defined in settings.xml");
+            } else {
+                localM2RepositoryFromSettings = m.group(1).trim();
+                if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
+                    return localM2RepositoryFromSettings;
+                }
+            }
+        } catch (final Exception ignore) {
+            // fallback on default local path
+        }
         return null;
     }
 
     public Path fromMavenSettings() {
-        final Path settings = handler
-                .get(System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS,
-                        System.getProperty("user.home") + "/.m2/settings.xml"));
-        log.warn("[fromMavenSettings] searching for localRepository location in {}", settings);
-        if (java.nio.file.Files.exists(settings)) {
-            try {
-                String localM2RepositoryFromSettings = null;
-                // do not introduce a xml parser so will do with what we have...
-                final String content = new String(java.nio.file.Files.readAllBytes(settings), StandardCharsets.UTF_8);
-                final Pattern comments = Pattern.compile("(<!--.*?-->)", Pattern.DOTALL);
-                final Pattern emptyLines = Pattern.compile("^\\s*$|\\n|\\r\\n");
-                final Pattern localRepo =
-                        Pattern.compile(".*<localRepository>(.+)</localRepository>.*", Pattern.CASE_INSENSITIVE);
-                // some cleanups
-                String stripped = comments.matcher(content).replaceAll("");
-                stripped = emptyLines.matcher(stripped).replaceAll("");
-                // localRepository present?
-                final Matcher m = localRepo.matcher(stripped);
-                if (!m.matches()) {
-                    log.warn("[fromMavenSettings] localRepository not defined in settings.xml");
-                } else {
-                    localM2RepositoryFromSettings = m.group(1).trim();
-                    if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
-                        final Path settingsM2 = handler.get(localM2RepositoryFromSettings);
-                        if (java.nio.file.Files.exists(settingsM2)) {
-                            return settingsM2;
-                        }
-                        log.warn("[fromMavenSettings] localRepository points to a non existent path: {}.", settingsM2);
-                    }
-                }
-            } catch (final Exception ignore) {
-                // fallback on default local path
-            }
-        }
-        log.warn("[fromMavenSettings] Could not get m2 from maven settings.");
-        return null;
+        return Stream.of(
+                System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS), //
+                System.getProperty("user.home") + "/.m2/settings.xml", //
+                System.getenv("MAVEN_HOME") + "conf/settings.xml", //
+                System.getenv("M2_HOME") + "conf/settings.xml" //
+        )
+                .filter(Objects::nonNull)
+                .map(Paths::get)
+                .filter(Files::exists)
+                .map(this::parseSettings)
+                .filter(Objects::nonNull)
+                .map(handler::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     public Path fromEnvironmentVariables() {
         final String vm2 = System.getenv("M2_HOME");
-        log.warn("[fromEnvironmentVariables] M2_HOME={}", vm2);
+        log.debug("[fromEnvironmentVariables] M2_HOME={}", vm2);
         if (vm2 != null) {
-            Path p = handler.get(vm2).resolve("repository");
-            if (Files.exists(p)) {
-                return p;
-            }
+            return handler.get(Paths.get(vm2, "repository").toString());
         }
-        log.warn("[fromEnvironmentVariables] Could not get m2 from environment.");
-        return null;
-    }
-
-    private Path interpolated(final Path path) {
+        log.debug("[fromEnvironmentVariables] Could not get m2 from environment.");
         return null;
     }
 

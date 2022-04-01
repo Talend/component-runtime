@@ -29,6 +29,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,27 @@ class MavenRepositoryResolverTest {
 
     private final MavenRepositoryResolver resolver = new MavenRepositoryDefaultResolver();
 
+    final MavenRepositoryDefaultResolver mavenSettingsOnlyResolver = new MavenRepositoryDefaultResolver() {
+
+        @Override
+        public Path discover() {
+            return Stream.of(fromMavenSettings())
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(fallback());
+        }
+
+    };
+
     private final PathHandler handler = new PathHandlerImpl();
+
+    private final PathHandler handlerNoExistCheck = new PathHandlerImpl() {
+
+        @Override
+        public Path get(final String path) {
+            return interpolate(path);
+        }
+    };
 
     private final String fallback = System.getProperty("user.home") + "/" + M2_REPOSITORY;
 
@@ -133,6 +155,46 @@ class MavenRepositoryResolverTest {
         final Path m2 = resolver.discover();
         assertNotNull(m2);
         assertEquals("/home", m2.toString());
+        System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
+    }
+
+    @Test
+    void discoverFromSettingsWindowsPath() {
+        setSettingsProperty("settings/settings-win.xml");
+        mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
+        final Path m2 = mavenSettingsOnlyResolver.discover();
+        assertNotNull(m2);
+        assertEquals("C:/Users/maven/repository", m2.toString());
+        System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
+    }
+
+    @Test
+    void discoverFromSettingsTildePath() {
+        setSettingsProperty("settings/settings-tilde.xml");
+        mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
+        final Path m2 = mavenSettingsOnlyResolver.discover();
+        assertNotNull(m2);
+        assertEquals(System.getProperty("user.home") + "/mvn_home_dev/repository", m2.toString());
+        System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
+    }
+
+    @Test
+    void discoverFromSettingsUserHomeProperty() {
+        setSettingsProperty("settings/settings-prop-user.xml");
+        mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
+        final Path m2 = mavenSettingsOnlyResolver.discover();
+        assertNotNull(m2);
+        assertEquals(System.getProperty("user.home") + "/mvn_home_dev/repository", m2.toString());
+        System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
+    }
+
+    @Test
+    void discoverFromSettingsEnvProperty() {
+        setSettingsProperty("settings/settings-prop-env.xml");
+        mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
+        final Path m2 = mavenSettingsOnlyResolver.discover();
+        assertNotNull(m2);
+        assertEquals(Paths.get(System.getenv("M2_HOME") + "/mvn_home_dev/repository"), m2);
         System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
     }
 
