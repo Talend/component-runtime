@@ -25,15 +25,19 @@ public interface MavenRepositoryResolver {
     // a set of system properties available in the framework
 
     /**
-     *
+     * System property used to enforce maven repository location.
      */
     String TALEND_COMPONENT_MANAGER_M2_REPOSITORY = "talend.component.manager.m2.repository";
 
     /**
-     * System property for specifying a settings.xml location.
+     * System property used to enforce the location of settings.xml.
      */
     String TALEND_COMPONENT_MANAGER_M2_SETTINGS = "talend.component.manager.m2.settings";
 
+    /**
+     * Studio's property used to specify maven repository location. If set {@Code global}, the Studio uses user's
+     * settings. Otherwise, Studio's internal repository is used.
+     */
     String STUDIO_MVN_REPOSITORY = "maven.repository";
 
     // a set of environment variables available in the framework or in maven builtin...

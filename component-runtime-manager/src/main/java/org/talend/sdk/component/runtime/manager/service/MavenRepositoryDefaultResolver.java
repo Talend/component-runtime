@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
  * <li>read {@code talend.component.manager.m2.repository} system property</li>
  * <li>check if we're running in studio and uses its m2 if system property is not set to maven.repository=global</li>
  * <li>parse maven's {@code settings.xml} (or if provided {@code talend.component.manager.m2.settings}) for checking if
- * a property localRepositor is defined</li>
+ * a property localRepository is defined</li>
  * <li>checking for maven env properties (ie $M2_HOME)</li>
  * <li>fallbacks to ${user.home}/.m2/repository</li>
  * </ul>
