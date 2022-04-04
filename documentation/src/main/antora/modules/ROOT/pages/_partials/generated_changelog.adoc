@@ -17,8 +17,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2110[TCOMP-2110^]: Replace log4j by reload4j link:search.html?query=stitch[stitch^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2114[TCOMP-2114^]: Upgrade TSBI to 2.9.27-20220331162145 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2115[TCOMP-2115^]: Upgrade jackson to 2.12.6 due to CVE-2020-36518 link:search.html?query=bom[bom^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2116[TCOMP-2116^]: Upgrade log4j2 to 2.17.2
-- link:https://jira.talendforge.org/browse/TCOMP-2117[TCOMP-2117^]: Upgrade slf4j to 1.7.33
+- link:https://jira.talendforge.org/browse/TCOMP-2116[TCOMP-2116^]: Upgrade log4j2 to 2.17.2 
+- link:https://jira.talendforge.org/browse/TCOMP-2117[TCOMP-2117^]: Upgrade slf4j to 1.7.33 
+- link:https://jira.talendforge.org/browse/TCOMP-2118[TCOMP-2118^]: Upgrade tomcat to 9.0.62 (mitigation for CVE-2022-22965) link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
 
 == Version 1.43.0
 
@@ -185,6 +186,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
+
+
 
 
 
