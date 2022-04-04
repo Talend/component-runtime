@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":516,
+    "commits":527,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -139,6 +139,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/11495292?v=4",
     "id":"zwxue",
     "name":"Zhiwei Xue"
+  },
+  {
+    "commits":1,
+    "description":"I'm a serial tooler.",
+    "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
+    "id":"quilicicf",
+    "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
   },
   {
     "commits":1,

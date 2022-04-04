@@ -83,6 +83,7 @@ public class SearchIndexation {
 
         final File siteMapFile = new File(args[0]);
         final String latest = args[1];
+        log.info("[main] sitemap: {}; latest: {}.", siteMapFile.toString(), latest);
         final String urlMarker = "/component-runtime/";
         final SiteMap siteMap = SiteMap.class
                 .cast(new SiteMapParser(false /* we index a local file with remote urls */)
