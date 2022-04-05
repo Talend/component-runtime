@@ -87,13 +87,14 @@ class SchemaRegistryCoderTest {
                 .newEntryBuilder()
                 .withName("createdBy")
                 .withType(Schema.Type.RECORD)
-                .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build())
+                .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build()) // element schema for record
+                                                                                         // means nothing ?
                 .build();
         final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(entry).build();
 
         final org.apache.avro.Schema unwrapped = Unwrappable.class.cast(schema).unwrap(org.apache.avro.Schema.class);
         final String name = SchemaIdGenerator.generateRecordName(unwrapped.getFields());
-        assertEquals("org.talend.sdk.component.schema.generated.Record_1_n_5166783486129187498", name);
+        assertEquals("org.talend.sdk.component.schema.generated.Record_1_n_3269179092139509689", name);
     }
 
     @Test
