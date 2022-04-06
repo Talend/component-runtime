@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.spi;
 
-import static java.util.Optional.ofNullable;
-
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
@@ -46,11 +44,19 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
             return new AvroRecordBuilderFactory(containerId);
         default:
             try {
-                ofNullable(Thread.currentThread().getContextClassLoader())
-                        .orElseGet(ClassLoader::getSystemClassLoader)
-                        .loadClass("org.talend.sdk.component.runtime.beam.TalendIO");
+                // This part is tricky, we need to ensure that we've everything needed to instantiate an ARBF to user.
+                // Testing w/ loadClass won't be accurate enough as we may load all needed classes but w/ distinct cl
+                // like ConfigurableClassLoader vs Launcher$AppClassLoader.
+                // Safest way is to try a direct instantiation.
+                final Record r = new AvroRecordBuilderFactory(containerId)
+                        .newRecordBuilder()
+                        .withString("test", "instantiation")
+                        .build();
+                log.warn("[apply] AvroRecord instantiated.");
+                //
                 return new AvroRecordBuilderFactory(containerId);
-            } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
+            } catch (final NoClassDefFoundError cnfe) {
+                log.warn("[apply] Error: ", cnfe);
                 log.info("component-runtime-beam is not available, skipping AvroRecordBuilderFactory ({})",
                         getClass().getName());
                 return new RecordBuilderFactoryImpl(containerId);
