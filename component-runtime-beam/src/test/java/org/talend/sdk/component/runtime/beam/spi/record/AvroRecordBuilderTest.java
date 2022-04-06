@@ -314,13 +314,11 @@ class AvroRecordBuilderTest {
         writer.write(avroRecord, encoder);
         encoder.flush();
         String chain = new String(outputArray.toByteArray(), StandardCharsets.UTF_8);
-        /*
-         * JsonObject jsonObject = Json.createReader(new StringReader(chain)).readObject();
-         * JsonArray jsonArray = jsonObject.getJsonObject("farray").getJsonArray("array");
-         * Assertions.assertEquals(3, jsonArray.size());
-         * Assertions.assertEquals(2, jsonArray.stream().filter(JsonObject.class::isInstance).count());
-         */
 
+        JsonObject jsonObject = Json.createReader(new StringReader(chain)).readObject();
+        JsonArray jsonArray = jsonObject.getJsonArray("doubleArray").get(0).asJsonObject().getJsonArray("array");
+        Assertions.assertEquals(3, jsonArray.size());
+        Assertions.assertEquals(2, jsonArray.stream().filter(JsonObject.class::isInstance).count());
     }
 
     private String getSchemaFields(final Schema schema) {
