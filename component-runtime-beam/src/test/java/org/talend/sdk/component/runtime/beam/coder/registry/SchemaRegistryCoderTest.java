@@ -87,8 +87,7 @@ class SchemaRegistryCoderTest {
                 .newEntryBuilder()
                 .withName("createdBy")
                 .withType(Schema.Type.RECORD)
-                .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build()) // element schema for record
-                                                                                         // means nothing ?
+                .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build())
                 .build();
         final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(entry).build();
 
