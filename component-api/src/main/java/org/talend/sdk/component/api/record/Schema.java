@@ -18,6 +18,7 @@ package org.talend.sdk.component.api.record;
 import static java.util.Collections.emptyList;
 
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
@@ -163,7 +164,8 @@ public interface Schema {
         FLOAT(new Class<?>[] { Float.class }),
         DOUBLE(new Class<?>[] { Double.class }),
         BOOLEAN(new Class<?>[] { Boolean.class }),
-        DATETIME(new Class<?>[] { Long.class, Date.class, Temporal.class });
+        DATETIME(new Class<?>[] { Long.class, Date.class, Temporal.class }),
+        DECIMAL(new Class<?>[] { BigDecimal.class });
 
         /**
          * All compatibles Java classes

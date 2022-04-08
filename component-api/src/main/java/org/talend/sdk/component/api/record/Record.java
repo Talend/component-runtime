@@ -17,6 +17,7 @@ package org.talend.sdk.component.api.record;
 
 import static java.util.Optional.ofNullable;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -159,6 +160,10 @@ public interface Record {
         return get(ZonedDateTime.class, name);
     }
 
+    default BigDecimal getDecimal(final String name) {
+        return get(BigDecimal.class, name);
+    }
+
     /**
      * See {@link Record#get(Class, String)}.
      * 
@@ -180,6 +185,16 @@ public interface Record {
      */
     default Optional<ZonedDateTime> getOptionalDateTime(final String name) {
         return ofNullable(get(ZonedDateTime.class, name));
+    }
+
+    /**
+     * See {@link Record#get(Class, String)}.
+     *
+     * @param name entry name.
+     * @return the value of the entry in this record.
+     */
+    default Optional<BigDecimal> getOptionalDecimal(final String name) {
+        return ofNullable(get(BigDecimal.class, name));
     }
 
     /**
@@ -298,6 +313,10 @@ public interface Record {
         Builder withDateTime(String name, ZonedDateTime value);
 
         Builder withDateTime(Schema.Entry entry, ZonedDateTime value);
+
+        Builder withDecimal(String name, BigDecimal value);
+
+        Builder withDecimal(Schema.Entry entry, BigDecimal value);
 
         Builder withTimestamp(String name, long value);
 

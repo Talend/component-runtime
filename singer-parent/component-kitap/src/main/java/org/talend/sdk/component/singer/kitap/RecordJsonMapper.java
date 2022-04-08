@@ -18,6 +18,7 @@ package org.talend.sdk.component.singer.kitap;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collection;
@@ -134,6 +135,11 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
         }
 
         @Override
+        public void onDecimal(final Schema.Entry entry, final Optional<BigDecimal> decimal) {
+            decimal.ifPresent(v -> builder.add(entry.getName(), v.toPlainString()));//TODO check it
+        }
+
+        @Override
         public void onBytes(final Schema.Entry entry, final Optional<byte[]> bytes) {
             bytes.ifPresent(v -> builder.add(entry.getName(), Base64.getEncoder().encodeToString(v)));
         }
@@ -228,6 +234,19 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
                                     vs
                                             .stream()
                                             .map(singer::formatDate)
+                                            .collect(factory::createArrayBuilder, JsonArrayBuilder::add,
+                                                    JsonArrayBuilder::addAll)
+                                            .build()));
+        }
+
+        @Override
+        public void onDecimalArray(final Schema.Entry entry, final Optional<Collection<BigDecimal>> array) {
+            array
+                    .ifPresent(vs -> builder
+                            .add(entry.getName(),
+                                    vs
+                                            .stream()
+                                            .map(v -> v.toPlainString())//TODO check it
                                             .collect(factory::createArrayBuilder, JsonArrayBuilder::add,
                                                     JsonArrayBuilder::addAll)
                                             .build()));

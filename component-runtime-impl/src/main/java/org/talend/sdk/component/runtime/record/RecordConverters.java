@@ -220,6 +220,9 @@ public class RecordConverters implements Serializable {
         if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DATETIME).build();
         }
+        if (BigDecimal.class.isInstance(next)) {
+            return factory.newSchemaBuilder(Schema.Type.DECIMAL).build();
+        }
         if (byte[].class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.BYTES).build();
         }
@@ -348,6 +351,13 @@ public class RecordConverters implements Serializable {
                 final ZonedDateTime value = record.get(ZonedDateTime.class, name);
                 if (value != null) {
                     builder.add(name, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                }
+                break;
+            }
+            case DECIMAL: {
+                final BigDecimal value = record.get(BigDecimal.class, name);
+                if (value != null) {
+                    builder.add(name, value.toPlainString());// TODO check it
                 }
                 break;
             }

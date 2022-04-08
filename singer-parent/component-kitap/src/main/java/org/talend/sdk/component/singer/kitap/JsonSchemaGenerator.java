@@ -62,6 +62,12 @@ public class JsonSchemaGenerator implements Supplier<JsonObject> {
                     .add("format", "date-time")
                     .build();
             break;
+        case DECIMAL://TODO check it
+            schema = jsonBuilderFactory
+                    .createObjectBuilder()
+                    .add("type", types("number", entry.isNullable()))
+                    .build();
+            break;
         case BOOLEAN:
             schema = jsonBuilderFactory.createObjectBuilder().add("type", types("boolean", entry.isNullable())).build();
             break;

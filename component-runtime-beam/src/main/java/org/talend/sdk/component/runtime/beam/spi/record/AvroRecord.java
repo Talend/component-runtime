@@ -192,6 +192,11 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                 && expectedType != Long.class) {
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
+        if (Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DECIMAL.name()))) {
+            // no need to do converter here as avro can ser/deser bigdecimal directly, and when to memory, is BigDecimal
+            // object
+            return expectedType.cast(value);
+        }
         if (value instanceof IndexedRecord && (Record.class == expectedType || Object.class == expectedType)) {
             return expectedType.cast(new AvroRecord(IndexedRecord.class.cast(value)));
         }

@@ -59,6 +59,14 @@ public class AvroSchemaBuilder implements Schema.Builder {
                             .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
                     Schema.Type.DATETIME.name(), "true"));
 
+    private static final AvroSchema DECIMAL_SCHEMA = new AvroSchema(new AvroPropertyMapper() {
+    }
+            .setProp(
+                    LogicalTypes
+                            .decimal(32, 10)// TODO delay it
+                            .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BYTES)),
+                    Schema.Type.DECIMAL.name(), "true"));
+
     private static final AvroSchema STRING_SCHEMA =
             new AvroSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING));
 
@@ -88,6 +96,15 @@ public class AvroSchemaBuilder implements Schema.Builder {
                                     .timestampMillis()
                                     .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
                             Schema.Type.DATETIME.name(), "true"))));
+
+    private static final AvroSchema DECIMAL_SCHEMA_NULLABLE =
+            new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
+            }
+                    .setProp(
+                            LogicalTypes
+                                    .decimal(32, 10)// TODO delay it
+                                    .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BYTES)),
+                            Schema.Type.DECIMAL.name(), "true"))));
 
     private static final AvroSchema STRING_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
             .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING))));
@@ -179,6 +196,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
             break;
         case DATETIME:
             unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
+            break;
+        case DECIMAL:
+            unwrappable = !entry.isNullable() ? DECIMAL_SCHEMA : DECIMAL_SCHEMA_NULLABLE;
             break;
         default:
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
@@ -329,6 +349,8 @@ public class AvroSchemaBuilder implements Schema.Builder {
             return BOOLEAN_SCHEMA;
         case DATETIME:
             return DATETIME_SCHEMA;
+        case DECIMAL:
+            return DECIMAL_SCHEMA;
         case RECORD:
             if (fields == null) {
                 return new AvroSchema(AvroSchemas.getEmptySchema());

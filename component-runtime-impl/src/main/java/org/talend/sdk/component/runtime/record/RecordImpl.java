@@ -24,6 +24,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
 import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
+import static org.talend.sdk.component.api.record.Schema.Type.DECIMAL;
 import static org.talend.sdk.component.api.record.Schema.Type.DOUBLE;
 import static org.talend.sdk.component.api.record.Schema.Type.FLOAT;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
@@ -31,6 +32,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
@@ -349,6 +351,19 @@ public final class RecordImpl implements Record {
             }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value == null ? null : value.toInstant().toEpochMilli());
+        }
+
+        @Override
+        public Builder withDecimal(final String name, final BigDecimal value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, DECIMAL, false);
+            return withDecimal(entry, value);
+        }
+
+        @Override
+        public Builder withDecimal(final Entry entry, final BigDecimal value) {
+            assertType(entry.getType(), DECIMAL);
+            validateTypeAgainstProvidedSchema(entry.getName(), DECIMAL, value);
+            return append(entry, value);
         }
 
         public Builder withTimestamp(final String name, final long value) {
