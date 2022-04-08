@@ -29,7 +29,7 @@ import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 
 import lombok.SneakyThrows;
 
-public class Utils {
+public class ReflectionUtils {
 
     static Stream<Method> findMethods(final Object delegate, final Class<? extends Annotation> marker,
             final ClassLoader loader) {

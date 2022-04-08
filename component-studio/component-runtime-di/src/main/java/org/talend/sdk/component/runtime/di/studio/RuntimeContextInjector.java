@@ -28,18 +28,18 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RuntimeContextInject {
+public class RuntimeContextInjector {
 
     /**
      * Inject runtime context object to runtime input/processor/standalone runner object
      */
-    public static void injectRuntimeContext(final Lifecycle lifecycle, final Map<String, Object> runtimeContext) {
+    public static void injectLifecycle(final Lifecycle lifecycle, final Map<String, Object> runtimeContext) {
         if (lifecycle instanceof Delegated) {
             final Object delegate = ((Delegated) lifecycle).getDelegate();
 
             Class<?> currentClass = delegate.getClass();
             while (currentClass != null && currentClass != Object.class) {
-                Utils.findFields(delegate, RuntimeContext.class).forEach(f -> {
+                ReflectionUtils.findFields(delegate, RuntimeContext.class).forEach(f -> {
                     try {
                         f.set(delegate, runtimeContext);
                         return;
@@ -57,18 +57,18 @@ public class RuntimeContextInject {
 
     /**
      * Inject runtime context object to runtime connection/close service/action object,
-     * maybe also commit/rollback if they are auto generated too, TODO consider
+     * maybe also commit/rollback if they are auto generated too,
      * service is flat, no extends as common, so not do getSuperclass
      */
-    public static void injectRuntimeContextForService(final ComponentManager manager, final String plugin,
+    public static void injectService(final ComponentManager manager, final String plugin,
             final Map<String, Object> runtimeContext) {
         manager.findPlugin(plugin)
-                .get()
+                .orElseThrow(() -> new IllegalStateException("Can't find the plugin : " + plugin))
                 .get(org.talend.sdk.component.runtime.manager.ContainerComponentRegistry.class)
                 .getServices()
                 .stream()
                 .forEach(service -> {
-                    Utils.findFields(service.getInstance(), RuntimeContext.class).forEach(f -> {
+                    ReflectionUtils.findFields(service.getInstance(), RuntimeContext.class).forEach(f -> {
                         try {
                             f.set(service.getInstance(), runtimeContext);
                             return;

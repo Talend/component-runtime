@@ -126,7 +126,7 @@ public class DynamicColumnsTest {
 
     private void callCloseComponent(final ComponentManager manager) {
         String plugin = "test-classes";
-        RuntimeContextInject.injectRuntimeContextForService(manager, plugin, globalMap);
+        RuntimeContextInjector.injectService(manager, plugin, globalMap);
 
         manager
                 .findPlugin(plugin)
@@ -156,7 +156,7 @@ public class DynamicColumnsTest {
 
         String plugin = "test-classes";
 
-        RuntimeContextInject.injectRuntimeContextForService(manager, plugin, globalMap);
+        RuntimeContextInjector.injectService(manager, plugin, globalMap);
 
         // TODO how to get the plugin id in client?
         manager
@@ -180,7 +180,7 @@ public class DynamicColumnsTest {
         try {
             final Processor processor = proc.orElseThrow(() -> new IllegalStateException("scanning failed"));
 
-            RuntimeContextInject.injectRuntimeContext(processor, globalMap);
+            RuntimeContextInjector.injectLifecycle(processor, globalMap);
 
             try {
                 Field field = processor.getClass().getSuperclass().getDeclaredField("delegate");
@@ -224,7 +224,7 @@ public class DynamicColumnsTest {
             final Mapper tempMapperMapper = mapper.orElseThrow(() -> new IllegalStateException("scanning failed"));
             JobStateAware.init(tempMapperMapper, globalMap);
 
-            RuntimeContextInject.injectRuntimeContext(tempMapperMapper, globalMap);
+            RuntimeContextInjector.injectLifecycle(tempMapperMapper, globalMap);
 
             doRun(manager, sourceData, processorData, processorProcessor, inputsHandlerProcessor,
                     outputHandlerProcessor, inputsProcessor, outputsProcessor, tempMapperMapper);

@@ -43,11 +43,11 @@ public class AfterVariableExtracter {
         if (lifecycle instanceof Delegated) {
             final Object delegate = ((Delegated) lifecycle).getDelegate();
 
-            ClassLoader classloader = Utils.getClassLoader(lifecycle);
+            ClassLoader classloader = ReflectionUtils.getClassLoader(lifecycle);
 
-            return Utils.findMethods(delegate, AfterVariableContainer.class, classloader)
+            return ReflectionUtils.findMethods(delegate, AfterVariableContainer.class, classloader)
                     .findFirst()
-                    .map(m -> Utils.callInLoader(classloader, () -> (Map<String, Object>) m.invoke(delegate)))
+                    .map(m -> ReflectionUtils.callInLoader(classloader, () -> (Map<String, Object>) m.invoke(delegate)))
                     .orElse(Collections.emptyMap());
         } else {
             log.warn("Not supported implementation of lifecycle");
