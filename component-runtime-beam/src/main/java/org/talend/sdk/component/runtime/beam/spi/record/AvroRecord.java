@@ -69,12 +69,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             this.schema = avr.schema;
             return;
         }
-        try {
-            // evil static init
-            this.schema = AvroSchema.toAvroSchema(record.getSchema());
-        } catch (NoClassDefFoundError e) {
-            throw e;
-        }
+        this.schema = AvroSchema.toAvroSchema(record.getSchema());
         this.delegate = new GenericData.Record(this.schema.getActualDelegate());
 
         record
@@ -176,7 +171,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     private <T> Collection<T> doMapCollection(final Class<T> type, final Collection<?> collection,
-                                              final org.apache.avro.Schema elementType) {
+            final org.apache.avro.Schema elementType) {
         return ofNullable(collection)
                 .map(c -> c.stream().map(item -> doMap(type, elementType, item)).collect(toList()))
                 .orElse(null);

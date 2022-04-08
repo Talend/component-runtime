@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.beam.spi;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
@@ -44,20 +46,18 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
             return new AvroRecordBuilderFactory(containerId);
         default:
             try {
-                // This part is tricky, we need to ensure that we've everything needed to instantiate an ARBF to user.
-                // Testing w/ loadClass won't be accurate enough as we may load all needed classes but w/ distinct cl
-                // like ConfigurableClassLoader vs Launcher$AppClassLoader.
-                // Safest way is to try a direct instantiation.
-                final Record r = new AvroRecordBuilderFactory(containerId)
-                        .newRecordBuilder()
-                        .withString("test", "instantiation")
-                        .build();
-                log.warn("[apply] AvroRecord instantiated.");
-                //
-                return new AvroRecordBuilderFactory(containerId);
-            } catch (final NoClassDefFoundError cnfe) {
-                log.warn("[apply] Error: ", cnfe);
-                log.info("component-runtime-beam is not available, skipping AvroRecordBuilderFactory ({})",
+                final ClassLoader cl = ofNullable(Thread.currentThread().getContextClassLoader())
+                        .orElseGet(ClassLoader::getSystemClassLoader);
+                final Class<?> c1 = cl.loadClass("org.codehaus.jackson.node.TextNode");
+                final Class<?> c2 = cl.loadClass("org.talend.sdk.component.runtime.beam.spi.record.AvroSchema");
+                boolean sameClassloaders = c1.getClassLoader().equals(c2.getClassLoader());
+                if (sameClassloaders) {
+                    return new AvroRecordBuilderFactory(containerId);
+                } else {
+                    return new RecordBuilderFactoryImpl(containerId);
+                }
+            } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
+                log.info("component-runtime-beam is not available, skipping AvroRecordBuilderFactory ({}).",
                         getClass().getName());
                 return new RecordBuilderFactoryImpl(containerId);
             }

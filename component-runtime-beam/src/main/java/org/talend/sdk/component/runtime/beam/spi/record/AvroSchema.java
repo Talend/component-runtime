@@ -48,20 +48,12 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     private static final AvroSchemaCache SCHEMA_CACHE = AvroSchema.initCache();
 
     private static AvroSchemaCache initCache() {
-        try {
-            final AvroSchemaConverter converter = new AvroSchemaConverter();
-            return new AvroSchemaCache(converter::convert);
-        } catch (NoClassDefFoundError e) {
-            throw e;
-        }
+        final AvroSchemaConverter converter = new AvroSchemaConverter();
+        return new AvroSchemaCache(converter::convert);
     }
 
     static AvroSchema toAvroSchema(final org.talend.sdk.component.api.record.Schema schema) {
-        try {
-            return AvroSchema.SCHEMA_CACHE.find(schema);
-        } catch (NoClassDefFoundError e) {
-            throw e;
-        }
+        return AvroSchema.SCHEMA_CACHE.find(schema);
     }
 
     @JsonbTransient
