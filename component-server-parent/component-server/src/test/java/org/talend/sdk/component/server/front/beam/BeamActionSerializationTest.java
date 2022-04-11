@@ -49,7 +49,6 @@ class BeamActionSerializationTest {
                 + "      \"props\":{\n" + "\n" + "      },\n" + "      \"type\":\"ARRAY\"\n" + "    }\n" + "  ],\n"
                 + "  \"metadata\":[\n" + "  ],\n" + "  \"props\":{\n" + "    \"talend.fields.order\":\"array\"\n"
                 + "  },\n" + "  \"type\":\"RECORD\"\n" + "}";
-        assertEquals(attended, schema
-                .replace("        \"declaringClass\":\"org.talend.sdk.component.runtime.record.Schemas\",\n", ""));
+        assertEquals(attended, schema);
     }
 }

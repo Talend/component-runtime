@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.Entity;
@@ -173,6 +172,26 @@ class ActionResourceImplTest {
         assertEquals(200, error.getStatus());
         assertEquals("V1", error.readEntity(new GenericType<Map<String, String>>() {
         }).get("value"));
+    }
+
+    @Test
+    void checkSchemaSerialization() {
+        final String schema = base
+                .path("action/execute")
+                .queryParam("type", "schema")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "jdbc_discover_schema")
+                .queryParam("lang", "it")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE), String.class);
+        final String expected =
+                "{\n  \"entries\":[\n    {\n      \"elementSchema\":{\n        \"entries\":[\n        ],\n" +
+                        "        \"metadata\":[\n        ],\n        \"props\":{\n\n        },\n        \"type\":\"STRING\"\n"
+                        +
+                        "      },\n      \"metadata\":false,\n      \"name\":\"array\",\n      \"nullable\":false,\n" +
+                        "      \"props\":{\n\n      },\n      \"type\":\"ARRAY\"\n    }\n  ],\n  \"metadata\":[\n" +
+                        "  ],\n  \"props\":{\n    \"talend.fields.order\":\"array\"\n  },\n  \"type\":\"RECORD\"\n}";
+        assertEquals(expected, schema);
     }
 
     @Disabled
