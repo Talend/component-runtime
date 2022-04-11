@@ -217,7 +217,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return expectedType.cast(value.toString());
         }
         if (Collection.class.isAssignableFrom(expectedType) && value instanceof Collection) {
-            final org.apache.avro.Schema elementType = fieldSchema.getElementType();
+            final org.apache.avro.Schema elementType = unwrapUnion(fieldSchema).getElementType();
             final org.apache.avro.Schema elementSchema = unwrapUnion(elementType);
             Class<?> toType = Object.class;
             if (elementSchema.getType() == org.apache.avro.Schema.Type.RECORD) {
@@ -225,7 +225,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             } else if (elementSchema.getType() == org.apache.avro.Schema.Type.ARRAY) {
                 toType = Collection.class;
             }
-            final Collection<?> objects = this.doMapCollection(toType, Collection.class.cast(value), elementType);
+            final Collection<?> objects = this.doMapCollection(toType, Collection.class.cast(value), elementSchema);
             return expectedType.cast(objects);
         }
         return expectedType.cast(value);
