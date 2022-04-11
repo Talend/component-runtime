@@ -54,7 +54,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,8 +80,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.jar.JarInputStream;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -163,6 +160,7 @@ import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
+import org.talend.sdk.component.runtime.manager.service.MavenRepositoryDefaultResolver;
 import org.talend.sdk.component.runtime.manager.service.ServiceHelper;
 import org.talend.sdk.component.runtime.manager.service.api.ComponentInstantiator;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
@@ -592,80 +590,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public static Path findM2() {
-        return ofNullable(System.getProperty("talend.component.manager.m2.repository"))
-                .map(m2 -> {
-                    // jobServer may badly translate paths on Windows
-                    try {
-                        log.debug("[findM2] talend.component.manager.m2.repository={}", m2);
-                        final Path m2Path = PathFactory.get(m2);
-                        if (java.nio.file.Files.exists(m2Path)) {
-                            return m2Path;
-                        } else {
-                            log.warn(
-                                    "[findM2] talend.component.manager.m2.repository value points to a non existent path: {}",
-                                    m2Path);
-                            return findStudioM2();
-                        }
-                    } catch (Exception e) {
-                        return findStudioM2();
-                    }
-                })
-                .orElseGet(ComponentManager::findStudioM2);
-    }
-
-    private static Path findStudioM2() {
-        // check if we are in the studio process if so just grab the the studio config
-        final String m2Repo = System.getProperty("maven.repository");
-        if (!"global".equals(m2Repo)) {
-            final Path localM2 =
-                    PathFactory.get(System.getProperty("osgi.configuration.area", "")).resolve(".m2/repository");
-            if (java.nio.file.Files.exists(localM2)) {
-                return localM2;
-            }
-        }
-        log.debug("[findStudioM2] could not get studio config");
-        return findDefaultM2();
-    }
-
-    private static Path findDefaultM2() {
-        // check out settings.xml first
-        final Path settings = PathFactory
-                .get(System
-                        .getProperty("talend.component.manager.m2.settings",
-                                System.getProperty("user.home") + "/.m2/settings.xml"));
-        log.debug("[findDefaultM2] searching for localRepository location in {}", settings);
-        if (java.nio.file.Files.exists(settings)) {
-            try {
-                String localM2RepositoryFromSettings = null;
-                // do not introduce a xml parser so will do with what we have...
-                final String content = new String(java.nio.file.Files.readAllBytes(settings), StandardCharsets.UTF_8);
-                final Pattern comments = Pattern.compile("(<!--.*?-->)", Pattern.DOTALL);
-                final Pattern emptyLines = Pattern.compile("^\\s*$|\\n|\\r\\n");
-                final Pattern localRepo =
-                        Pattern.compile(".*<localRepository>(.+)</localRepository>.*", Pattern.CASE_INSENSITIVE);
-                // some cleanups
-                String stripped = comments.matcher(content).replaceAll("");
-                stripped = emptyLines.matcher(stripped).replaceAll("");
-                // localRepository present?
-                final Matcher m = localRepo.matcher(stripped);
-                if (!m.matches()) {
-                    log.debug("[findDefaultM2] localRepository not defined in settings.xml");
-                } else {
-                    localM2RepositoryFromSettings = m.group(1).trim();
-                    if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
-                        final Path settingsM2 = PathFactory.get(localM2RepositoryFromSettings);
-                        if (java.nio.file.Files.exists(settingsM2)) {
-                            return settingsM2;
-                        }
-                        log.warn("[findDefaultM2] localRepository points to a non existent path: {}", settingsM2);
-                    }
-                }
-            } catch (final Exception ignore) {
-                // fallback on default local path
-            }
-        }
-        log.debug("[findDefaultM2] fallback to user's default repository");
-        return PathFactory.get(System.getProperty("user.home", "")).resolve(".m2/repository");
+        return new MavenRepositoryDefaultResolver().discover();
     }
 
     private static String getIdentifiers() {
