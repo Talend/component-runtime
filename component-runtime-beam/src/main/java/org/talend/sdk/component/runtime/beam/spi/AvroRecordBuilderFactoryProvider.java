@@ -43,24 +43,31 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
         case "default":
             return new RecordBuilderFactoryImpl(containerId);
         case "avro":
+            if (!hasAvroRecordBuilderFactory()) {
+                log.warn(
+                        "AvroRecordBuilderFactoryProvider if forced by System property but seems not available, this may lead to issues.");
+            }
             return new AvroRecordBuilderFactory(containerId);
         default:
-            try {
-                final ClassLoader cl = ofNullable(Thread.currentThread().getContextClassLoader())
-                        .orElseGet(ClassLoader::getSystemClassLoader);
-                final Class<?> c1 = cl.loadClass("org.codehaus.jackson.node.TextNode");
-                final Class<?> c2 = cl.loadClass("org.talend.sdk.component.runtime.beam.spi.record.AvroSchema");
-                boolean sameClassloaders = c1.getClassLoader().equals(c2.getClassLoader());
-                if (sameClassloaders) {
-                    return new AvroRecordBuilderFactory(containerId);
-                } else {
-                    return new RecordBuilderFactoryImpl(containerId);
-                }
-            } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
-                log.info("component-runtime-beam is not available, skipping AvroRecordBuilderFactory ({}).",
-                        getClass().getName());
+            if (hasAvroRecordBuilderFactory()) {
+                return new AvroRecordBuilderFactory(containerId);
+            } else {
                 return new RecordBuilderFactoryImpl(containerId);
             }
+        }
+    }
+
+    protected boolean hasAvroRecordBuilderFactory() {
+        try {
+            final ClassLoader cl = ofNullable(Thread.currentThread().getContextClassLoader())
+                    .orElseGet(ClassLoader::getSystemClassLoader);
+            final Class<?> c1 = cl.loadClass("org.codehaus.jackson.node.TextNode");
+            final Class<?> c2 = cl.loadClass("org.talend.sdk.component.runtime.beam.spi.record.AvroSchema");
+            return c1.getClassLoader().equals(c2.getClassLoader());
+        } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
+            log.info("component-runtime-beam is not available, skipping AvroRecordBuilderFactory ({}).",
+                    getClass().getName());
+            return false;
         }
     }
 
