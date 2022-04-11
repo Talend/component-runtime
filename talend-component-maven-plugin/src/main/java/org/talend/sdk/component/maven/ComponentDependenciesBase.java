@@ -119,6 +119,10 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
      * {@link ComponentDependenciesBase#resolveArtifactOnRemoteRepositories(Artifact)}</li>
      * </ul>
      * The provided classifier &amp; type override the artifact's.
+     *
+     * @param artifact The artifact to resolve
+     * @param classifier The classifier of the artifact to resolve
+     * @param type The type of the artifact to resolve
      */
     protected Artifact resolveArtifact(final Artifact artifact, final String classifier, final String type) {
         final LocalRepositoryManager lrm = repositorySystemSession.getLocalRepositoryManager();
@@ -155,6 +159,8 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
      * <li>downloads it in the local maven repository</li>
      * <li>throws if any step above can't be done</li>
      * </ul>
+     *
+     * @param artifact The artifact to resolve
      */
     protected Artifact resolveArtifactOnRemoteRepositories(final Artifact artifact) {
         final String gav = computeCoordinates(artifact);
