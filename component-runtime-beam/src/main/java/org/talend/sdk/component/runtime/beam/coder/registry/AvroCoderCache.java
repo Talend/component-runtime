@@ -46,7 +46,12 @@ class AvroCoderCache {
                     AvroCoder<IndexedRecord> coder = super.get(key);
                     if (coder == null) {
                         final Schema schema = Schema.class.cast(key);
-                        coder = AvroCoder.of(IndexedRecord.class, schema);
+
+                        // TODO IndexedRecord may not be GenericRecord too, also may be SpecificRecord, but in fact,
+                        // we should never use SpecificRecord
+                        // coder = AvroCoder.of(IndexedRecord.class, schema);
+                        Object o = AvroCoder.of(schema);
+                        coder = (AvroCoder<IndexedRecord>) o;
                         put(schema, coder);
                     }
                     return coder;

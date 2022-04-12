@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
+import static org.talend.sdk.component.api.record.Schema.Type.DECIMAL;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
@@ -35,6 +36,7 @@ import org.apache.avro.generic.IndexedRecord;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
+import org.talend.sdk.component.api.record.TypePropertyKey;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
@@ -121,6 +123,37 @@ class AvroSchemaTest {
                 .noDefault()
                 .endRecord();
         assertEquals(DATETIME, new AvroSchema(avro).getEntries().iterator().next().getType());
+    }
+
+    @Test
+    void checkDecimalConversion() {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
+        final org.apache.avro.Schema avro = AvroSchema.class
+                .cast(new AvroSchemaBuilder()
+                        .withType(RECORD)
+                        .withEntry(factory.newEntryBuilder()
+                                .withType(DECIMAL)
+                                .withName("decimal")
+                                .withProp(TypePropertyKey.PRECISION, "32")
+                                .withProp(TypePropertyKey.SCALE, "10")
+                                .build())
+                        .build())
+                .getDelegate();
+        assertEquals(DECIMAL, new AvroSchema(avro).getEntries().iterator().next().getType());
+        assertEquals(LogicalTypes.decimal(32, 10), LogicalTypes.fromSchema(avro.getField("decimal").schema()));
+    }
+
+    @Test
+    void checkDecimalConversionFromExternalAvro() {
+        final org.apache.avro.Schema avro = SchemaBuilder
+                .record("test")
+                .fields()
+                .name("decimal")
+                .type(LogicalTypes.decimal(32, 10).addToSchema(Schema.create(Schema.Type.BYTES)))
+                .noDefault()
+                .endRecord();
+        assertEquals(DECIMAL, new AvroSchema(avro).getEntries().iterator().next().getType());
+        assertEquals(LogicalTypes.decimal(32, 10), LogicalTypes.fromSchema(avro.getField("decimal").schema()));
     }
 
     @Test

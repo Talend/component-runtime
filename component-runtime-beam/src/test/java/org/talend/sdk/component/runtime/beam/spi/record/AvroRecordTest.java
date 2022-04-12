@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -35,12 +37,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.apache.avro.Conversions;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
+import org.apache.avro.reflect.ReflectData;
 import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.transforms.Create;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
@@ -51,6 +56,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.TypePropertyKey;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
@@ -59,6 +65,10 @@ import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
+
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonReaderFactory;
 
 class AvroRecordTest {
 
@@ -129,6 +139,24 @@ class AvroRecordTest {
             final Record record = builder.get().withDateTime("name", (Date) null).build();
             assertEquals(1, record.getSchema().getEntries().size());
             assertNull(record.getDateTime("name"));
+        }
+    }
+
+    @Test
+    void providedSchemaNullableDecimal() {
+        final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("decimal")
+                        .withNullable(true)
+                        .withType(Schema.Type.DECIMAL)
+                        .withProp(TypePropertyKey.PRECISION, "32")
+                        .build())
+                .build());
+        { // null
+            final Record record = builder.get().withDecimal("decimal", (BigDecimal) null).build();
+            assertEquals(1, record.getSchema().getEntries().size());
+            assertNull(record.getDecimal("decimal"));
         }
     }
 
@@ -337,6 +365,44 @@ class AvroRecordTest {
         builder.withDateTime("t_time", time);
         final Record rec = builder.build();
         final Pipeline pipeline = Pipeline.create();
+        final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
+        final PCollection<Record> output = input.apply(new RecordToRecord());
+        assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
+    }
+
+    @Test
+    void pipelineDecimalFieldsWithAvroRecord() throws Exception {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
+
+        // must provide schema firstly, can't guess if decimal value maybe be null, and decimal must have fixed/same
+        // precision and scale
+        // final Record.Builder builder = factory.newRecordBuilder();
+
+        // in schema, precision and scale must match the value
+        final Schema.Entry f1 = factory.newEntryBuilder()
+                .withType(Schema.Type.DECIMAL)
+                .withName("t_decimal")
+                .withProp(TypePropertyKey.PRECISION, "3")
+                .withProp(TypePropertyKey.SCALE, "2")
+                .build();
+        final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+
+        final Record.Builder builder = factory.newRecordBuilder(schema);
+
+        final BigDecimal decimal = new BigDecimal("1.23");
+        builder.withDecimal("t_decimal", decimal);
+
+        final Record rec = builder.build();
+        final Pipeline pipeline = Pipeline.create();
+
+        // data processing platform need to add this statement to enable decimal support for beam compiler
+        // how to add this for cross threads/cross vm, maybe we need to do a fix for beam LazyAvroCoder/AvroCoder class
+        // and all codec class like SchemaRegistryCoder too, to add this
+        GenericData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
+
+        // should not use ReflectData for any GenericRecord implements
+        // ReflectData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
+
         final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
         final PCollection<Record> output = input.apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());

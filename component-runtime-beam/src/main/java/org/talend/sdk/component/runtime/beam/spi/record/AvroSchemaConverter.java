@@ -71,6 +71,9 @@ public class AvroSchemaConverter {
         case RECORD:
             ofNullable(entry.getElementSchema()).ifPresent(s -> s.getAllEntries().forEach(builder::withEntry));
             break;
+        case DECIMAL:
+            builder.withProps(entry.getProps());
+            break;
         default:
             // no-op
         }
