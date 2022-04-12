@@ -35,7 +35,7 @@ public interface MavenRepositoryResolver {
     String TALEND_COMPONENT_MANAGER_M2_SETTINGS = "talend.component.manager.m2.settings";
 
     /**
-     * Studio's property used to specify maven repository location. If set {@Code global}, the Studio uses user's
+     * Studio's property used to specify maven repository location. If set {@code global}, the Studio uses user's
      * settings. Otherwise, Studio's internal repository is used.
      */
     String STUDIO_MVN_REPOSITORY = "maven.repository";

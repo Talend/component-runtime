@@ -558,7 +558,7 @@ public class ComponentManager implements AutoCloseable {
     /**
      * For test purpose only.
      *
-     * @return
+     * @return the contextual instance
      */
     protected static AtomicReference<ComponentManager> contextualInstance() {
         return SingletonHolder.CONTEXTUAL_INSTANCE;
