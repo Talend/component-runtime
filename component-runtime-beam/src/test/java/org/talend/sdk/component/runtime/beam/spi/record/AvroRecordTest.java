@@ -384,6 +384,7 @@ class AvroRecordTest {
                 .withName("t_decimal")
                 .withProp(TypePropertyKey.PRECISION, "3")
                 .withProp(TypePropertyKey.SCALE, "2")
+                .withNullable(true)
                 .build();
         final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
 
