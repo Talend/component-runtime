@@ -56,6 +56,11 @@
       <!-- skip CVE since this is an utility and it depends more on avro version -->
     </dependency>
     <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-core</artifactId>
       <scope>provided</scope>
@@ -140,6 +145,15 @@
             <phase>none</phase>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <talend.component.junit.handler.state>static</talend.component.junit.handler.state>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
     </plugins>
   </build>
