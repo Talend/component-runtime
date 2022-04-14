@@ -17,6 +17,8 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
@@ -47,10 +49,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 @TestInstance(PER_CLASS)
@@ -210,6 +215,72 @@ class AvroRecordBuilderTest {
     }
 
     @Test
+    void recordWithComplexNewSchema() {
+        final Schema schemaChild = new AvroSchemaBuilder() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("name", Type.STRING)) //
+                .withEntry(newEntry("age", Type.INT)) //
+                .build();
+        final Schema schemaParent = new AvroSchemaBuilder() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("citizenship", Type.STRING)) //
+                .withEntry(newEntry("person", Type.RECORD, schemaChild)) //
+                .build();
+
+        final Schema newSchemaChild = new AvroSchemaBuilder() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("name", Type.STRING)) //
+                .withEntry(newEntry("surname", Type.STRING)) //
+                .withEntry(newEntry("age", Type.INT)) //
+                .build();
+        final Schema newSchema = new AvroSchemaBuilder() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("citizenship", Type.STRING)) //
+                .withEntry(newEntry("planet", Type.STRING)) //
+                .withEntry(newEntry("person", Type.RECORD, newSchemaChild)) //
+                .build();
+
+        AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
+        System.setProperty("talend.component.beam.record.factory.impl", "avro");
+        RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
+
+        final Record person = recordBuilderFactory.newRecordBuilder(schemaChild)
+                .withString("name", "gonzales")
+                .withInt("age", 101)
+                .build();
+        final Record record = recordBuilderFactory.newRecordBuilder(schemaParent)
+                .withString("citizenship", "Brazil")
+                .withRecord("person", person)
+                .build();
+
+        final Record newRecord = record.withNewSchema(newSchema).build();
+        assertEquals(3, newRecord.getSchema().getEntries().size());
+
+        assertNull(newRecord.getString("planet"));
+        assertEquals("Brazil", newRecord.getString("citizenship"));
+
+        final Record resultChildRecord = newRecord.getRecord("person");
+        assertNotNull(resultChildRecord);
+        assertEquals("gonzales", resultChildRecord.getString("name"));
+        assertEquals(101, resultChildRecord.getInt("age"));
+        assertNull(newRecord.getString("surname"));
+        //
+        // intended usage (requirement coming from RT conv)
+        //
+        final Record newRecordValued = record
+                .withNewSchema(newSchema)
+                .withString("planet", "Earth")
+                .build();
+        assertEquals(3, newRecordValued.getSchema().getEntries().size());
+        assertEquals("Brazil", newRecordValued.getString("citizenship"));
+        assertEquals("Earth", newRecordValued.getString("planet"));
+        final Record newResultedRecord = newRecordValued.getRecord("person");
+        assertNotNull(newResultedRecord);
+        assertEquals(101, newResultedRecord.getInt("age"));
+        assertEquals("gonzales", newResultedRecord.getString("name"));
+    }
+
+    @Test
     void recordWithNewSchema() {
         final Schema schema0 = new AvroSchemaBuilder()//
                 .withType(RECORD) //
@@ -338,9 +409,19 @@ class AvroRecordBuilderTest {
         return newEntry(name, name, type, true, "", "");
     }
 
+    private Schema.Entry newEntry(final String name, Schema.Type type, Schema elementSchema) {
+        return newEntry(name, name, type, true, "", "", elementSchema);
+    }
+
     private Schema.Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable,
             Object defaultValue,
             String comment) {
+        return newEntry(name, rawname, type, nullable, defaultValue, comment, null);
+    }
+
+    private Schema.Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable,
+            Object defaultValue,
+            String comment, Schema elementSchema) {
         return new EntryImpl.BuilderImpl()
                 .withName(name)
                 .withRawName(rawname)
@@ -348,6 +429,7 @@ class AvroRecordBuilderTest {
                 .withNullable(nullable)
                 .withDefaultValue(defaultValue)
                 .withComment(comment)
+                .withElementSchema(elementSchema)
                 .build();
     }
 
