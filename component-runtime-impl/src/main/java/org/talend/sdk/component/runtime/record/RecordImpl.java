@@ -108,7 +108,10 @@ public final class RecordImpl implements Record {
     public Builder withNewSchema(final Schema newSchema) {
         final BuilderImpl builder = new BuilderImpl(newSchema);
         newSchema.getAllEntries()
-                .filter(e -> Objects.equals(schema.getEntry(e.getName()), e))
+                .filter(e -> Optional.ofNullable(schema.getEntry(e.getName()))
+                        .map(e2 -> Objects.equals(e2, e)
+                                || SchemaRelationChecker.include(e.getElementSchema(), e2.getElementSchema()))
+                        .orElse(false))
                 .forEach(e -> builder.with(e, values.get(e.getName())));
         return builder;
     }
