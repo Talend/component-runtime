@@ -515,6 +515,68 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void recordWithComplexNewSchema() {
+        final Schema schemaChild = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("name", Type.STRING)) //
+                .withEntry(newEntry("age", Type.INT)) //
+                .build();
+        final Schema schemaParent = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("citizenship", Type.STRING)) //
+                .withEntry(newEntry("person", Type.RECORD, schemaChild)) //
+                .build();
+
+        final Schema newSchemaChild = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("name", Type.STRING)) //
+                .withEntry(newEntry("surname", Type.STRING)) //
+                .withEntry(newEntry("age", Type.INT)) //
+                .build();
+        final Schema newSchema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("citizenship", Type.STRING)) //
+                .withEntry(newEntry("planet", Type.STRING)) //
+                .withEntry(newEntry("person", Type.RECORD, newSchemaChild)) //
+                .build();
+
+        final Record person = new RecordImpl.BuilderImpl(schemaChild)
+                .withString("name", "gonzales")
+                .withInt("age", 101)
+                .build();
+        final Record record = new RecordImpl.BuilderImpl(schemaParent)
+                .withString("citizenship", "Brazil")
+                .withRecord("person", person)
+                .build();
+
+        final Record newRecord = record.withNewSchema(newSchema).build();
+        assertEquals(3, newRecord.getSchema().getEntries().size());
+
+        assertNull(newRecord.getString("planet"));
+        assertEquals("Brazil", newRecord.getString("citizenship"));
+
+        final Record resultChildRecord = newRecord.getRecord("person");
+        assertNotNull(resultChildRecord);
+        assertEquals("gonzales", resultChildRecord.getString("name"));
+        assertEquals(101, resultChildRecord.getInt("age"));
+        assertNull(newRecord.getString("surname"));
+        //
+        // intended usage (requirement coming from RT conv)
+        //
+        final Record newRecordValued = record
+                .withNewSchema(newSchema)
+                .withString("planet", "Earth")
+                .build();
+        assertEquals(3, newRecordValued.getSchema().getEntries().size());
+        assertEquals("Brazil", newRecordValued.getString("citizenship"));
+        assertEquals("Earth", newRecordValued.getString("planet"));
+        final Record newResultedRecord = newRecordValued.getRecord("person");
+        assertNotNull(newResultedRecord);
+        assertEquals(101, newResultedRecord.getInt("age"));
+        assertEquals("gonzales", newResultedRecord.getString("name"));
+    }
+
+    @Test
     void recordWithNewSchema() {
         final Schema schema0 = new BuilderImpl() //
                 .withType(Type.RECORD) //
@@ -614,6 +676,11 @@ class RecordBuilderImplTest {
 
     private Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable, Object defaultValue,
             String comment) {
+        return newEntry(name, rawname, type, nullable, defaultValue, comment, null);
+    }
+
+    private Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable, Object defaultValue,
+            String comment, Schema elementSchema) {
         return new EntryImpl.BuilderImpl()
                 .withName(name)
                 .withRawName(rawname)
@@ -621,11 +688,16 @@ class RecordBuilderImplTest {
                 .withNullable(nullable)
                 .withDefaultValue(defaultValue)
                 .withComment(comment)
+                .withElementSchema(elementSchema)
                 .build();
     }
 
     private Entry newEntry(final String name, Schema.Type type) {
         return newEntry(name, name, type, true, "", "");
+    }
+
+    private Entry newEntry(final String name, Schema.Type type, Schema elementSchema) {
+        return newEntry(name, name, type, true, "", "", elementSchema);
     }
 
     private Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
