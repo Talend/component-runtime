@@ -2,8 +2,16 @@
 
 == Version 1.44.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2102[TCOMP-2102^]: Wrong maven resolution with car when using snapshot in prepare-repository goal link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2119[TCOMP-2119^]: Avro Record : array containing Null. link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
+
+
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-2085[TCOMP-2085^]: Add extras manipulations on Record BuilderImpl link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2103[TCOMP-2103^]: Link affected jira components to issue in changelog as keywords for search link:search.html?query=documentation[documentation^,role='dockey']
 
 
@@ -186,6 +194,16 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
+
+
+
+
+
+
+
+
 
 
 
