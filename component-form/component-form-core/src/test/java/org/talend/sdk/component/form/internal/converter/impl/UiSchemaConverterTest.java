@@ -15,24 +15,6 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.concurrent.CompletableFuture.completedFuture;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -41,6 +23,18 @@ import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import java.util.*;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.*;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UiSchemaConverterTest {
 
@@ -57,6 +51,48 @@ class UiSchemaConverterTest {
                         null, NPROPS),
                 new SimplePropertyDefinition("configuration.list[].name", "name", "name", "STRING", null, NVAL,
                         emptyMap(), null, NPROPS));
+        final List<UiSchema> schemas = getUiSchemas(properties);
+        assertEquals(1, schemas.size());
+        final UiSchema configuration = schemas.iterator().next();
+        assertNull(configuration.getKey());
+        assertEquals(1, configuration.getItems().size());
+        final UiSchema list = configuration.getItems().iterator().next();
+        assertEquals("configuration.list", list.getKey());
+        assertEquals("collapsibleFieldset", list.getItemWidget());
+        assertEquals(1, list.getItems().size());
+        final UiSchema name = list.getItems().iterator().next();
+        assertEquals("configuration.list[].name", name.getKey());
+        assertEquals("text", name.getWidget());
+    }
+
+    @Test
+    void moduleListWithBeanList() throws Exception {
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put("ui::modulelist", "true");
+        final List<SimplePropertyDefinition> properties = asList(
+                new SimplePropertyDefinition("configuration", "configuration", "configuration", "OBJECT", null, NVAL,
+                        emptyMap(), null, NPROPS),
+                new SimplePropertyDefinition("configuration.drivers", "drivers", "drivers", "ARRAY", null, NVAL,
+                        metadata,
+                        null, NPROPS),
+                new SimplePropertyDefinition("configuration.drivers[].path", "path", "path", "STRING", null, NVAL,
+                        emptyMap(), null, NPROPS));
+        final List<UiSchema> schemas = getUiSchemas(properties);
+        assertEquals(1, schemas.size());
+        final UiSchema configuration = schemas.iterator().next();
+        assertNull(configuration.getKey());
+        assertEquals(1, configuration.getItems().size());
+        final UiSchema list = configuration.getItems().iterator().next();
+        assertEquals("configuration.drivers", list.getKey());
+        assertEquals("collapsibleFieldset", list.getItemWidget());
+        assertEquals(1, list.getItems().size());
+        final UiSchema name = list.getItems().iterator().next();
+        assertEquals("configuration.drivers[].path", name.getKey());
+        // use text type in react ui form for the item, it mean ignore @ModuleList which only works for studio now
+        assertEquals("text", name.getWidget());
+    }
+
+    private List<UiSchema> getUiSchemas(List<SimplePropertyDefinition> properties) throws Exception {
         final PropertyContext<Object> propertyContext =
                 new PropertyContext<>(properties.iterator().next(), null, new PropertyContext.Configuration(false));
         final List<UiSchema> schemas = new ArrayList<>();
@@ -72,17 +108,30 @@ class UiSchemaConverterTest {
                             .toCompletableFuture()
                             .get();
         }
+        return schemas;
+    }
+
+    @Test
+    void moduleListWithStringList() throws Exception {
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put("ui::modulelist", "true");
+        final List<SimplePropertyDefinition> properties = asList(
+                new SimplePropertyDefinition("configuration", "configuration", "configuration", "OBJECT", null, NVAL,
+                        emptyMap(), null, NPROPS),
+                // define @ModuleList on list option, will use list<string> like no that @ModuleList for cloud as no
+                // that react ui form now
+                new SimplePropertyDefinition("configuration.drivers", "drivers", "drivers", "ARRAY", null, NVAL,
+                        metadata, null, NPROPS),
+                new SimplePropertyDefinition("configuration.drivers[]", "drivers[]", "drivers[${index}]", "STRING",
+                        null, NVAL,
+                        emptyMap(), null, NPROPS));
+        final List<UiSchema> schemas = getUiSchemas(properties);
         assertEquals(1, schemas.size());
         final UiSchema configuration = schemas.iterator().next();
         assertNull(configuration.getKey());
         assertEquals(1, configuration.getItems().size());
         final UiSchema list = configuration.getItems().iterator().next();
-        assertEquals("configuration.list", list.getKey());
-        assertEquals("collapsibleFieldset", list.getItemWidget());
-        assertEquals(1, list.getItems().size());
-        final UiSchema name = list.getItems().iterator().next();
-        assertEquals("configuration.list[].name", name.getKey());
-        assertEquals("text", name.getWidget());
+        assertEquals("configuration.drivers", list.getKey());
     }
 
     @Test
