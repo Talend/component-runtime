@@ -39,7 +39,7 @@
     <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
     <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
     <!-- -->
-    <talend.server.image.registry />
+    <talend.server.image.registry/>
     <baseImageDir>/opt/talend</baseImageDir>
     <!-- ensure to use an image lib with glic -->
     <baseImage>tacokit/java8:8u212</baseImage>
