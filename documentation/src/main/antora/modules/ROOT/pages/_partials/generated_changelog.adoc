@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2102[TCOMP-2102^]: Wrong maven resolution with car when using snapshot in prepare-repository goal link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2119[TCOMP-2119^]: Avro Record : array containing Null. link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2112[TCOMP-2112^]: [JDBC] discover schema API is failing on production. link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 
 
 
@@ -18,6 +19,7 @@
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2098[TCOMP-2098^]: Improve m2 discovery process link:search.html?query=documentation[documentation^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2104[TCOMP-2104^]: Header link should be linked to latest path link:search.html?query=documentation[documentation^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2108[TCOMP-2108^]: Upgrade maven plugins 
