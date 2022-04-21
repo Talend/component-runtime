@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
@@ -56,6 +57,11 @@ class RecordBuilderImplTest {
                         .build())
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
+
+        Schema.EntriesOrder e = new Schema.EntriesOrder(new RecordImpl.BuilderImpl().getCurrentEntries()
+                .stream()
+                .map(Schema.Entry::getName)
+                .collect(Collectors.toList()));
     }
 
     @Test
