@@ -39,7 +39,7 @@ public class RuntimeContextInjector {
 
             Class<?> currentClass = delegate.getClass();
             while (currentClass != null && currentClass != Object.class) {
-                ReflectionUtils.findFields(delegate, RuntimeContext.class).forEach(f -> {
+                ReflectionUtils.findFields(currentClass, RuntimeContext.class).forEach(f -> {
                     try {
                         f.set(delegate, runtimeContext);
                         return;
