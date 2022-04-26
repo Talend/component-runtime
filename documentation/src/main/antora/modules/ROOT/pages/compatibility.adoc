@@ -16,11 +16,13 @@ The version of Talend Component Kit you need to use to develop new components de
 [options="header",role="table-striped table-hover table-ordered"]
 |===
 |*Talend product*|*Talend Component Kit version*
-|Talend Studio 7.3.1|Framework until 1.1.15
+|Talend Studio 8.8.8 (aka master)|latest release
+|Talend Studio 8.0.1|latest release QA approved
+|Talend Studio 7.3.1|Framework until 1.38.x
 |Talend Studio 7.2.1|Framework until 1.1.10
 |Talend Studio 7.1.1|Framework until 1.1.1
 |Talend Studio 7.0.1|Framework until 0.0.5
-|Talend Cloud|Framework from 1.1.x
+|Talend Cloud|latest release QA and cloud teams approved
 |===
 
 More recent versions of Talend Component Kit contain many fixes, improvements and features that help developing your components. However, they can cause some compatibility issues when deploying these components to older/different versions of Talend Studio and Talend Cloud. Choose the version of Talend Component Kit that best fits your needs.

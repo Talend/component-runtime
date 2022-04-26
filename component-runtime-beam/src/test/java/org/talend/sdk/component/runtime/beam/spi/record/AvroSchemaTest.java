@@ -395,12 +395,10 @@ class AvroSchemaTest {
             assertEquals("fp2", indexedRecordSchema.getField("two").getProp("prop2"));
             assertEquals("fp3", indexedRecordSchema.getField("three").getProp("prop3"));
             assertEquals("fp4", indexedRecordSchema.getField("four").getProp("prop4"));
-            assertEquals("es5", indexedRecordSchema.getField("four")
-                    .schema()
-                    .getTypes()
-                    .get(1)
-                    .getField("field")
-                    .getProp("prop5"));
+            assertEquals("es5", nonNullType(indexedRecordSchema.getField("four")
+                    .schema())
+                            .getField("field")
+                            .getProp("prop5"));
             // recreate an AvroRecord from an IndexedRecord
             final AvroRecord avroRecordFromIdx = new AvroRecord(indexedRecord);
             assertEquals("value1", avroRecordFromIdx.getString("one"));
@@ -416,6 +414,14 @@ class AvroSchemaTest {
                 System.setProperty("talend.component.beam.record.factory.impl", oldValue);
             }
         }
+    }
+
+    private Schema nonNullType(final Schema schema) {
+        return schema.getTypes()
+                .stream()
+                .filter((Schema sub) -> sub.getType() != Schema.Type.NULL)
+                .findFirst()
+                .orElse(schema);
     }
 
 }

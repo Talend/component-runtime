@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":516,
+    "commits":533,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -29,7 +29,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":68,
+    "commits":69,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
     "id":"clesaec",
@@ -43,7 +43,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":37,
+    "commits":38,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",
@@ -125,6 +125,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/31616269?v=4",
     "id":"lcelton-talend",
     "name":"lcelton-talend"
+  },
+  {
+    "commits":2,
+    "description":"I'm a serial tooler.",
+    "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
+    "id":"quilicicf",
+    "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
   },
   {
     "commits":2,

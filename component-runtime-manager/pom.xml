@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.44.0-SNAPSHOT</version>
+    <version>1.45.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-manager</artifactId>
@@ -188,6 +188,7 @@
             <USER_PATH>/home/user</USER_PATH>
             <talend_localconfig_user_home>/home/user</talend_localconfig_user_home>
             <TALEND_LOCALCONFIG_TEST_0>true</TALEND_LOCALCONFIG_TEST_0>
+            <M2_HOME>${project.build.testOutputDirectory}/</M2_HOME>
           </environmentVariables>
         </configuration>
       </plugin>

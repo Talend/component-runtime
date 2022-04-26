@@ -83,6 +83,7 @@ public class SearchIndexation {
 
         final File siteMapFile = new File(args[0]);
         final String latest = args[1];
+        log.info("[main] sitemap: {}; latest: {}.", siteMapFile.toString(), latest);
         final String urlMarker = "/component-runtime/";
         final SiteMap siteMap = SiteMap.class
                 .cast(new SiteMapParser(false /* we index a local file with remote urls */)
@@ -189,7 +190,7 @@ public class SearchIndexation {
                 try (final OutputStream output = new WriteIfDifferentStream(file)) {
                     jsonb.toJson(records, output);
                 } catch (final IOException e) {
-                    throw new IllegalStateException(e);
+                    log.warn("Could not generate version: {} due to {}.", version, e.getMessage());
                 }
                 log.info("Created {}", file);
             });

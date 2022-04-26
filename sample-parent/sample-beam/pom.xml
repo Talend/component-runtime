@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.44.0-SNAPSHOT</version>
+    <version>1.45.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>sample-beam</artifactId>
@@ -34,7 +34,6 @@
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-core</artifactId>
-      <version>${beam.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

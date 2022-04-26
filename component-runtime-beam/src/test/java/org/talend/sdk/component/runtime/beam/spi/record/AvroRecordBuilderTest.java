@@ -21,21 +21,32 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+
+import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.IndexedRecord;
-import org.junit.jupiter.api.AfterAll;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.io.JsonEncoder;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.api.record.Record;
@@ -50,43 +61,22 @@ import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 @TestInstance(PER_CLASS)
 class AvroRecordBuilderTest {
 
-    private static RecordBuilderFactory factory;
+    private final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
 
-    private static Schema address;
+    private final Schema address = factory
+            .newSchemaBuilder(RECORD)
+            .withEntry(
+                    factory.newEntryBuilder().withName("street").withRawName("current street").withType(STRING).build())
+            .withEntry(factory.newEntryBuilder().withName("number").withType(INT).build())
+            .build();
 
-    private static Schema baseSchema;
-
-    @BeforeAll
-    static void setup() {
-        AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
-        System.setProperty("talend.component.beam.record.factory.impl", "avro");
-        factory = recordBuilderFactoryProvider.apply("test");
-        address = factory
-                .newSchemaBuilder(RECORD)
-                .withEntry(factory.newEntryBuilder()
-                        .withName("street")
-                        .withRawName("current street")
-                        .withType(STRING)
-                        .build())
-                .withEntry(factory.newEntryBuilder().withName("number").withType(INT).build())
-                .build();
-        baseSchema = factory
-                .newSchemaBuilder(RECORD)
-                .withEntry(
-                        factory.newEntryBuilder().withName("name").withRawName("current name").withType(STRING).build())
-                .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
-                .withEntry(factory.newEntryBuilder()
-                        .withName("@address")
-                        .withType(RECORD)
-                        .withElementSchema(address)
-                        .build())
-                .build();
-    }
-
-    @AfterAll
-    static void tearDown() {
-        System.clearProperty("talend.component.beam.record.factory.impl");
-    }
+    private final Schema baseSchema = factory
+            .newSchemaBuilder(RECORD)
+            .withEntry(factory.newEntryBuilder().withName("name").withRawName("current name").withType(STRING).build())
+            .withEntry(factory.newEntryBuilder().withName("age").withType(INT).build())
+            .withEntry(
+                    factory.newEntryBuilder().withName("@address").withType(RECORD).withElementSchema(address).build())
+            .build();
 
     @Test
     void copySchema() {
@@ -202,13 +192,17 @@ class AvroRecordBuilderTest {
 
     @Test
     void mixedRecordTest() {
+        final AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
+        System.setProperty("talend.component.beam.record.factory.impl", "avro");
+        final RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
+
         final RecordBuilderFactory otherFactory = new RecordBuilderFactoryImpl("test");
         final Schema schema = otherFactory
                 .newSchemaBuilder(RECORD)
                 .withEntry(otherFactory.newEntryBuilder().withName("e1").withType(INT).build())
                 .build();
 
-        final Schema arrayType = factory //
+        final Schema arrayType = recordBuilderFactory //
                 .newSchemaBuilder(Schema.Type.ARRAY) //
                 .withElementSchema(schema)
                 .build();
@@ -275,6 +269,53 @@ class AvroRecordBuilderTest {
                 .withString("meta0", "meta0") //
                 .build();
         assertEquals("meta0,103,104,data0,101,102", getRecordValues(record2));
+    }
+
+    @Test
+    void arrayTest() throws IOException {
+        final Schema.Entry f1 = this.factory.newEntryBuilder()
+                .withName("f1")
+                .withNullable(true)
+                .withType(STRING)
+                .build();
+        final Schema innerSchema = this.factory.newSchemaBuilder(RECORD).withEntry(f1).build();
+
+        final Record record1 = this.factory.newRecordBuilder(innerSchema)
+                .withString(f1, "value1")
+                .build();
+        final Record record2 = this.factory.newRecordBuilder(innerSchema)
+                .withString(f1, "value2")
+                .build();
+
+        final Schema arraySchema = this.factory.newSchemaBuilder(ARRAY)
+                .withElementSchema(innerSchema)
+                .build();
+        final List<Record> records = Arrays.asList(record1, null, record2);
+        final List<List<Record>> metaList = Collections.singletonList(records);
+
+        final Schema.Entry array = this.factory.newEntryBuilder()
+                .withElementSchema(arraySchema)
+                .withName("doubleArray")
+                .withType(ARRAY)
+                .build();
+        final Schema recordSchema = this.factory.newSchemaBuilder(RECORD).withEntry(array).build();
+        final Record record = this.factory.newRecordBuilder(recordSchema)
+                .withArray(array, metaList)
+                .build();
+        Assertions.assertTrue(record instanceof AvroRecord);
+        final IndexedRecord avroRecord = ((AvroRecord) record).unwrap(IndexedRecord.class);
+        final GenericDatumWriter<IndexedRecord> writer = new GenericDatumWriter<>(avroRecord.getSchema());
+
+        ByteArrayOutputStream outputArray = new ByteArrayOutputStream();
+        JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroRecord.getSchema(), outputArray, true);
+        writer.write(avroRecord, encoder);
+        encoder.flush();
+        String chain = new String(outputArray.toByteArray(), StandardCharsets.UTF_8);
+
+        JsonObject jsonObject = Json.createReader(new StringReader(chain)).readObject();
+        JsonArray jsonArray = jsonObject.getJsonArray("doubleArray").get(0).asJsonObject().getJsonArray("array");
+        Assertions.assertEquals(3, jsonArray.size());
+        Assertions.assertEquals(2, jsonArray.stream().filter(JsonObject.class::isInstance).count());
     }
 
     @Test

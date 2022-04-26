@@ -249,8 +249,23 @@ public class AvroSchemaBuilder implements Schema.Builder {
         }
         // Check schema is Avro Schema, otherwise, convert it.
         final Schema avroSchema = this.toAvroSchema(schema);
-        this.elementSchema = avroSchema;
+        final AvroSchema avro = (AvroSchema) avroSchema;
+
+        this.elementSchema = this.wrapNullable(avro);
         return this;
+    }
+
+    private AvroSchema wrapNullable(final AvroSchema schema) {
+        if (schema == null) {
+            return null;
+        }
+        org.apache.avro.Schema delegate = schema.getDelegate();
+        if (delegate.getType() != Type.UNION) {
+            org.apache.avro.Schema nullableType = org.apache.avro.Schema.createUnion(delegate,
+                    org.apache.avro.Schema.create(Type.NULL));
+            return new AvroSchema(nullableType);
+        }
+        return schema;
     }
 
     private int getEntryIndex(final String name) {
