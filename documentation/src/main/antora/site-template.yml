@@ -26,8 +26,8 @@ content:
     tags:
       # we will keep only latest revision, past revisions will still be present. May speed a bit antora process...
       - component-runtime-*
-      - '!component-runtime-1.1.15*'
-      - 'component-runtime-1.1.15.2'
+      - '!component-runtime-1.1.15'
+      - '!component-runtime-1.1.15.1'
       - '!component-runtime-1.28.0'
       - '!component-runtime-1.28.1'
       - '!component-runtime-1.29.0'
@@ -38,8 +38,6 @@ content:
       - '!component-runtime-1.32.1'
       - '!component-runtime-1.33.0'
       - '!component-runtime-1.33.1'
-      - '!component-runtime-1.33.2'
-      - '!component-runtime-1.38.0'
       - '!component-runtime-1.34.0'
       - '!component-runtime-1.35.0'
       - '!component-runtime-1.36.0'
@@ -49,11 +47,12 @@ content:
       - '!component-runtime-1.38.2'
       - '!component-runtime-1.38.3'
       - '!component-runtime-1.38.4'
+      - '!component-runtime-1.38.5'
       - '!component-runtime-1.39.0'
       - '!component-runtime-1.39.1'
       - '!component-runtime-1.39.2'
       - '!component-runtime-1.41.0'
-      - '!component-runtime-1.43.1'
+      - '!component-runtime-1.43.0'
     branches:
       - HEAD
     start_path: documentation/src/main/antora
