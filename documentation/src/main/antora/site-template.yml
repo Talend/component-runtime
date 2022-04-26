@@ -48,11 +48,12 @@ content:
       - '!component-runtime-1.38.3'
       - '!component-runtime-1.38.4'
       - '!component-runtime-1.38.5'
+      - '!component-runtime-1.38.6'
       - '!component-runtime-1.39.0'
       - '!component-runtime-1.39.1'
       - '!component-runtime-1.39.2'
       - '!component-runtime-1.41.0'
-      - '!component-runtime-1.43.0'
+      - '!component-runtime-1.43.1'
     branches:
       - HEAD
     start_path: documentation/src/main/antora
