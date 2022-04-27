@@ -22,6 +22,7 @@ final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datap
 final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
+final def isMasterBranch = env.BRANCH_NAME == "master"
 final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:2.9.27-20220331162145"
 final def jdk17Image= "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:2.9.27-20220331162145"
@@ -159,7 +160,7 @@ spec:
             }
         }
         stage('Java 17 build') {
-            when { expression { params.Action != 'RELEASE' && (params.BUILD_W_JDK17 || isStdBranch) } }
+            when { expression { params.Action != 'RELEASE' && (params.BUILD_W_JDK17 || isMasterBranch) } }
             steps {
                 container('jdk17') {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -231,7 +232,7 @@ spec:
             when {
                 allOf {
                     expression { params.Action != 'RELEASE' }
-                    expression { isStdBranch }
+                    expression { isMasterBranch }
                 }
             }
             steps {
