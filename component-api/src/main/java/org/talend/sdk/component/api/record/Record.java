@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -269,6 +270,7 @@ public interface Record {
     /**
      * Allows to create a record with a fluent API. This is the unique recommended way to create a record.
      */
+
     interface Builder {
 
         Record build();
@@ -276,6 +278,38 @@ public interface Record {
         Object getValue(String name);
 
         List<Entry> getCurrentEntries();
+
+        /**
+         * Mark that next entry created {@code withXXXX()} will be before {@code entryName} in schema order.
+         *
+         * @see
+         * <ul>
+         * <li>{@link Schema#naturalOrder()}</li>
+         * <li>{@link Schema#getEntriesOrdered()}</li>
+         * <li>{@link Schema#getEntriesOrdered(Comparator)}</li>
+         * </ul>
+         *
+         * @param entryName target entry name. This entry <b>must</b> exist!
+         *
+         * @return this Builder
+         */
+        Builder before(String entryName);
+
+        /**
+         * Mark that next entry created {@code withXXXX()} will be after {@code entryName} in schema order.
+         *
+         * @see
+         * <ul>
+         * <li>{@link Schema#naturalOrder()}</li>
+         * <li>{@link Schema#getEntriesOrdered()}</li>
+         * <li>{@link Schema#getEntriesOrdered(Comparator)}</li>
+         * </ul>
+         *
+         * @param entryName target entry name. This entry <b>must</b> exist!
+         *
+         * @return this Builder
+         */
+        Builder after(String entryName);
 
         Builder removeEntry(Schema.Entry schemaEntry);
 
