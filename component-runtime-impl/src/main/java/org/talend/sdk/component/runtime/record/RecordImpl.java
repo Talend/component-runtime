@@ -56,10 +56,12 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @EqualsAndHashCode
 public final class RecordImpl implements Record {
@@ -124,12 +126,17 @@ public final class RecordImpl implements Record {
 
         private Map<String, Schema.Entry> entryIndex;
 
+        private OrderState orderState = new OrderState();
+
         public BuilderImpl() {
             this(null);
         }
 
         public BuilderImpl(final Schema providedSchema) {
             this.providedSchema = providedSchema;
+            if (providedSchema != null) {
+                orderState.setOrderedEntries(providedSchema.naturalOrder().getFieldsOrder());
+            }
         }
 
         private BuilderImpl(final List<Schema.Entry> entries, final Map<String, Object> values) {
@@ -207,7 +214,8 @@ public final class RecordImpl implements Record {
                 if (!schemaEntry.getType().isCompatible(value)) {
                     throw new IllegalArgumentException(String
                             .format("Entry '%s' of type %s is not compatible with value of type '%s'",
-                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass().getName()));
+                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass()
+                                            .getName()));
                 }
                 boolean found = false;
                 for (int i = 0; i < entries.size() && !found; i++) {
@@ -229,6 +237,18 @@ public final class RecordImpl implements Record {
             final BuilderImpl builder =
                     new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
             return builder.updateEntryByName(name, schemaEntry);
+        }
+
+        @Override
+        public Builder before(final String entryName) {
+            orderState.before(entryName);
+            return this;
+        }
+
+        @Override
+        public Builder after(final String entryName) {
+            orderState.after(entryName);
+            return this;
         }
 
         private void replaceEntry(final String name, final Entry newEntry) {
@@ -294,9 +314,14 @@ public final class RecordImpl implements Record {
             if (providedSchema == null) {
                 final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
                 this.entries.forEach(builder::withEntry);
-                currentSchema = builder.build();
+                currentSchema = builder.build(EntriesOrder.of(orderState.getOrderedEntries()));
             } else {
-                currentSchema = this.providedSchema;
+                if (orderState.isOverride()) {
+                    currentSchema =
+                            this.providedSchema.toBuilder().build(EntriesOrder.of(orderState.getOrderedEntries()));
+                } else {
+                    currentSchema = this.providedSchema;
+                }
             }
             return new RecordImpl(unmodifiableMap(values), currentSchema);
         }
@@ -473,7 +498,81 @@ public final class RecordImpl implements Record {
                     this.entries.add(realEntry);
                 }
             }
+            orderState.update(realEntry.getName());
+
             return this;
         }
+
+        private enum Order {
+            BEFORE,
+            AFTER,
+            LAST;
+        }
+
+        static class OrderState {
+
+            private Order state = Order.LAST;
+
+            private String target = "";
+
+            @Getter()
+            // flag if providedSchema's entriesOrder was altered
+            private boolean override = false;
+
+            @Getter
+            @Setter
+            private List<String> orderedEntries = new ArrayList<>();
+
+            public void before(final String entryName) {
+                setState(Order.BEFORE, entryName);
+            }
+
+            public void after(final String entryName) {
+                setState(Order.AFTER, entryName);
+            }
+
+            private void setState(final Order order, final String target) {
+                state = order; //
+                this.target = target;
+                override = true;
+            }
+
+            private void resetState() {
+                target = "";
+                state = Order.LAST;
+            }
+
+            public void update(final String name) {
+                final int position = orderedEntries.indexOf(name);
+                if (state == Order.LAST) {
+                    // if entry is already present, we keep its position otherwise put it all the end.
+                    if (position == -1) {
+                        orderedEntries.add(name);
+                    }
+                } else {
+                    // if entry is already present, we remove it.
+                    if (position >= 0) {
+                        orderedEntries.remove(position);
+                    }
+                    final int targetIndex = orderedEntries.indexOf(target);
+                    if (targetIndex == -1) {
+                        throw new IllegalArgumentException(String.format("'%s' not in schema.", target));
+                    }
+                    if (state == Order.BEFORE) {
+                        orderedEntries.add(targetIndex, name);
+                    } else {
+                        int destination = targetIndex + 1;
+                        if (destination < orderedEntries.size()) {
+                            orderedEntries.add(destination, name);
+                        } else {
+                            orderedEntries.add(name);
+                        }
+                    }
+                }
+                // reset default behavior
+                resetState();
+            }
+        }
     }
+
 }
