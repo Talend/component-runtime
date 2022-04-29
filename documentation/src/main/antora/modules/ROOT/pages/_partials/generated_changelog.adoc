@@ -1,5 +1,11 @@
 
 
+== Version 1.44.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2085[TCOMP-2085^]: Add extras manipulations on Record BuilderImpl link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
 == Version 1.44.0
 
 === Bug
@@ -12,7 +18,6 @@
 
 === New Feature
 
-- link:https://jira.talendforge.org/browse/TCOMP-2085[TCOMP-2085^]: Add extras manipulations on Record BuilderImpl link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2103[TCOMP-2103^]: Link affected jira components to issue in changelog as keywords for search link:search.html?query=documentation[documentation^,role='dockey']
 
 
