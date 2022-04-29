@@ -203,28 +203,16 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 == Version 1.38.6
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2045[TCOMP-2045^]: Pass and read meta information about columns. link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2096[TCOMP-2096^]: Support BigDecimal type in DI integration link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2070[TCOMP-2070^]: Upgrade TSBI to 2.9.18-20220104141654 link:search.html?query=build[build^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
 
 == Version 1.38.5
