@@ -54,6 +54,7 @@ content:
       - '!component-runtime-1.41.0'
       - '!component-runtime-1.43.0'
       - '!component-runtime-1.44.0'
+      - '!component-runtime-1.44.1'
     branches:
       - HEAD
     start_path: documentation/src/main/antora

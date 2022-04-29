@@ -1,3 +1,19 @@
+
+
+== Version 1.45.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2126[TCOMP-2126^]: give default implementation to Record.Builder to not break api link:search.html?query=api[api^,role='dockey']
+
+
+
+== Version 1.44.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2126[TCOMP-2126^]: give default implementation to Record.Builder to not break api link:search.html?query=api[api^,role='dockey']
+
 == Version 1.44.1
 
 === New Feature
