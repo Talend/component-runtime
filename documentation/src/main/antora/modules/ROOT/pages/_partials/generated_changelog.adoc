@@ -1,5 +1,3 @@
-
-
 == Version 1.44.1
 
 === New Feature
@@ -35,6 +33,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2116[TCOMP-2116^]: Upgrade log4j2 to 2.17.2 
 - link:https://jira.talendforge.org/browse/TCOMP-2117[TCOMP-2117^]: Upgrade slf4j to 1.7.33 
 - link:https://jira.talendforge.org/browse/TCOMP-2118[TCOMP-2118^]: Upgrade tomcat to 9.0.62 (mitigation for CVE-2022-22965) link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+
+== Version 1.43.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TDI-47693[TDI-47693^] : fix misaligned openwebbeans-spi dependency link:search.html?query=studio[studio^,role='dockey']
 
 == Version 1.43.0
 
