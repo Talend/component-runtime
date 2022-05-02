@@ -293,7 +293,9 @@ public interface Record {
          *
          * @return this Builder
          */
-        Builder before(String entryName);
+        default Builder before(String entryName) {
+            throw new UnsupportedOperationException("#before is not implemented");
+        }
 
         /**
          * Mark that next entry created {@code withXXXX()} will be after {@code entryName} in schema order.
@@ -309,7 +311,9 @@ public interface Record {
          *
          * @return this Builder
          */
-        Builder after(String entryName);
+        default Builder after(String entryName) {
+            throw new UnsupportedOperationException("#after");
+        }
 
         Builder removeEntry(Schema.Entry schemaEntry);
 
