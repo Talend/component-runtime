@@ -35,9 +35,9 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.json.Json;
@@ -46,7 +46,6 @@ import javax.json.JsonObject;
 
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.io.EncoderFactory;
@@ -344,6 +343,51 @@ class AvroRecordTest {
         final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
         final PCollection<Record> output = input.apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
+    }
+
+    @Test
+    void arrayOfArrays() throws IOException {
+        final Schema arrayOfString = new AvroSchemaBuilder().withType(Schema.Type.ARRAY)
+                .withElementSchema(new AvroSchemaBuilder().withType(Schema.Type.STRING).build())
+                .build();
+        final Entry data = new AvroEntryBuilder()
+                .withName("data")
+                .withType(Schema.Type.ARRAY)
+                .withNullable(true)
+                .withElementSchema(arrayOfString)
+                .build();
+        final Schema schema = new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(data)
+                .build();
+        final AvroRecordBuilder builder = new AvroRecordBuilder(schema);
+
+        final List<String> list1 = asList("Hello", null, "World");
+        final List<String> list3 = asList("XX", null);
+        final List<List<String>> metaArray = asList(list1, null, list3);
+        final Record record = builder.withArray(data, metaArray).build();
+
+        // Coder will transform collection to GenericData.Array class.
+        // it will activate "value instanceof GenericArray" case of AvroRecord.doMap function
+        // So fieldSchema.getElementType() need to exist.
+        final SchemaRegistryCoder coder = new SchemaRegistryCoder();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        coder.encode(record, out);
+        final Record decodedRecord = coder.decode(new ByteArrayInputStream(out.toByteArray()));
+
+        Collection<List> array = decodedRecord.getArray(List.class, "data");
+        Assertions.assertEquals(3, array.size());
+        Iterator<List> iterator = array.iterator();
+        List next = iterator.next();
+        Assertions.assertEquals("Hello", next.get(0));
+        Assertions.assertEquals(null, next.get(1));
+        Assertions.assertEquals("World", next.get(2));
+        next = iterator.next();
+        Assertions.assertNull(next);
+        next = iterator.next();
+        Assertions.assertEquals("XX", next.get(0));
+        Assertions.assertEquals(null, next.get(1));
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     interface FactoryTester<T extends Exception> {
