@@ -1,5 +1,17 @@
 
 
+== Version 1.44.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2127[TCOMP-2127^]: Fix avro records where array contains nullable array link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2130[TCOMP-2130^]: Add git informations in starter-toolkit's environment link:search.html?query=starter[starter^,role='dockey']
+
 == Version 1.44.2
 
 === Work Item
