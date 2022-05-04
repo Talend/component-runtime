@@ -35,6 +35,7 @@ public class EnvironmentResource {
 
     @GET
     public Environment info() {
-        return new Environment(info.getLastUpdate(), info.getSnapshot().getKit());
+        return new Environment(info.getLastUpdate(), info.getSnapshot().getKit(), info.getBranch(),
+                info.getCommit(), info.getBuildTime(), info.getRelease());
     }
 }
