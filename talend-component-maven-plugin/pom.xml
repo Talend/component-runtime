@@ -36,6 +36,8 @@
     <!-- ITs -->
     <it-component-version>1.31.1</it-component-version>
     <it-component-artifact-id>jdbc</it-component-artifact-id>
+    <it-component-snapshot-version>1.31.2-SNAPSHOT</it-component-snapshot-version>
+    <it-component-snapshot-artifact-id>salesforce</it-component-snapshot-artifact-id>
   </properties>
 
   <dependencies>
@@ -187,6 +189,8 @@
           <scriptVariables>
             <componentVersion>${it-component-version}</componentVersion>
             <componentArtifactId>${it-component-artifact-id}</componentArtifactId>
+            <componentSnapshotVersion>${it-component-snapshot-version}</componentSnapshotVersion>
+            <componentSnapshotArtifactId>${it-component-snapshot-artifact-id}</componentSnapshotArtifactId>
           </scriptVariables>
           <postBuildHookScript>postbuild.groovy</postBuildHookScript>
           <pomIncludes>

@@ -22,19 +22,27 @@ import static java.nio.file.Files.exists
 /**
  * Checks that the IT on mojo prepare-repository ran smoothly
  */
-static def checkPrepareRepositoryMojo (final File basedir, final String componentVersion, final String componentArtifactId) {
+static def checkPrepareRepositoryMojo(final File basedir, final String componentVersion, final String componentArtifactId,
+                                      componentSnapshotVersion, componentSnapshotArtifactId) {
     final Path builtM2 = Paths.get(basedir.toString())
             .resolve('target/talend-component-kit')
 
     if (!exists(builtM2)) {
         throw new FileNotFoundException("Could not find built m2 ${builtM2}")
     }
-
+    // check artifact using release versioning
     final Path componentJar = builtM2.resolve(
             "maven/org/talend/components/${componentArtifactId}/${componentVersion}/${componentArtifactId}-${componentVersion}.jar"
     )
     if (!exists(componentJar)) {
         throw new FileNotFoundException("Could not find component JAR ${componentJar}")
+    }
+    // check artifact using snapshot versioning
+    final Path componentSnapshotJar = builtM2.resolve(
+            "maven/org/talend/components/${componentSnapshotArtifactId}/${componentSnapshotVersion}/${componentSnapshotArtifactId}-${componentSnapshotVersion}.jar"
+    )
+    if (!exists(componentSnapshotJar)) {
+        throw new FileNotFoundException("Could not find component JAR ${componentSnapshotJar}")
     }
 
     final List<String> allJars = []
@@ -46,6 +54,16 @@ static def checkPrepareRepositoryMojo (final File basedir, final String componen
     if (allJars.size() <= 1) {
         throw new IllegalStateException('Only the component jar was found with no dependency')
     }
+
+    // check component-registry.properties generated file
+    Properties properties = new Properties()
+    File registry = builtM2.resolve("maven/component-registry.properties").toFile()
+    registry.withInputStream {
+        properties.load(it)
+    }
+    assert properties.jdbc == 'org.talend.components:jdbc:1.31.1'
+    assert properties.salesforce == 'org.talend.components:salesforce:1.31.2-SNAPSHOT'
 }
 
-checkPrepareRepositoryMojo(basedir, componentVersion, componentArtifactId)
+checkPrepareRepositoryMojo(basedir, componentVersion, componentArtifactId, componentSnapshotVersion,
+        componentSnapshotArtifactId)
