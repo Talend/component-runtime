@@ -61,8 +61,8 @@ static def checkPrepareRepositoryMojo(final File basedir, final String component
     registry.withInputStream {
         properties.load(it)
     }
-    assert properties.jdbc == 'org.talend.components:jdbc:1.31.1'
-    assert properties.salesforce == 'org.talend.components:salesforce:1.31.2-SNAPSHOT'
+    assert properties."${componentArtifactId}" == "org.talend.components:${componentArtifactId}:${componentVersion}"
+    assert properties."${componentSnapshotArtifactId}" == "org.talend.components:${componentSnapshotArtifactId}:${componentSnapshotVersion}"
 }
 
 checkPrepareRepositoryMojo(basedir, componentVersion, componentArtifactId, componentSnapshotVersion,
