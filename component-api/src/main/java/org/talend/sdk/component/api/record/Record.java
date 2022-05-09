@@ -58,6 +58,10 @@ public interface Record {
      */
     <T> T get(Class<T> expectedType, String name);
 
+    default <T> T get(Class<T> expectedType, Schema.Entry entry) {
+        return this.get(expectedType, entry);
+    }
+
     /**
      * See {@link Record#get(Class, String)}.
      * 
@@ -278,6 +282,14 @@ public interface Record {
         Object getValue(String name);
 
         List<Entry> getCurrentEntries();
+
+        default Entry getEntry(final String name) {
+            return this.getCurrentEntries()
+                    .stream()
+                    .filter((Entry e) -> name.equals(e.getName()))
+                    .findFirst()
+                    .orElse(null);
+        }
 
         /**
          * Mark that next entry created {@code withXXXX()} will be before {@code entryName} in schema order.

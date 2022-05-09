@@ -85,6 +85,7 @@ class SchemaImplTest {
                 .suppress(Warning.STRICT_HASHCODE) // Supress test hashcode use all fields used by equals (for legacy)
                 .forClass(SchemaImpl.class)
                 .withPrefabValues(Schema.Entry.class, first, second)
+                .withPrefabValues(EntriesOrder.class, EntriesOrder.of("First"), EntriesOrder.of("Second"))
                 .verify();
     }
 
@@ -397,11 +398,11 @@ class SchemaImplTest {
         final Map<String, Schema.Entry> entries = new HashMap<>();
         for (int index = 1; index < 8; index++) {
             final Schema.Entry e = this.newEntry(index + "name_b", Type.STRING);
-            final Schema.Entry realEntry = Schema.avoidCollision(e, entries.values()::stream, entries::put);
+            final Schema.Entry realEntry = Schema.avoidCollision(e, entries::get, entries::put);
             entries.put(realEntry.getName(), realEntry);
         }
         final Entry last = this.newEntry("name_b_5", Type.STRING);
-        final Schema.Entry realEntry = Schema.avoidCollision(last, entries.values()::stream, entries::put);
+        final Schema.Entry realEntry = Schema.avoidCollision(last, entries::get, entries::put);
         entries.put(realEntry.getName(), realEntry);
 
         Assertions.assertEquals(8, entries.size());
@@ -415,12 +416,12 @@ class SchemaImplTest {
         final Map<String, Entry> entriesDuplicate = new HashMap<>();
         final Schema.Entry e1 = this.newEntry("goodName", Type.STRING);
         final Schema.Entry realEntry1 =
-                Schema.avoidCollision(e1, entriesDuplicate.values()::stream, entriesDuplicate::put);
+                Schema.avoidCollision(e1, entriesDuplicate::get, entriesDuplicate::put);
         Assertions.assertSame(e1, realEntry1);
         entriesDuplicate.put(realEntry1.getName(), realEntry1);
         final Schema.Entry e2 = this.newEntry("goodName", Type.STRING);
         final Schema.Entry realEntry2 =
-                Schema.avoidCollision(e2, entriesDuplicate.values()::stream, entriesDuplicate::put);
+                Schema.avoidCollision(e2, entriesDuplicate::get, entriesDuplicate::put);
 
         Assertions.assertSame(realEntry2, e2);
     }

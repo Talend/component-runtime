@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -386,7 +387,7 @@ class AvroRecordBuilderTest {
         assertEquals("_25,_53,_30,_40,_50,_55,_60,_56", getSchemaFields(newSchema));
         assertEquals("_25,_53,_30,_40,_50,_55,_60,_56", newSchema.naturalOrder().toFields());
         // provide an order w/ obsolete/missing entries
-        final List<String> newOrder = record.getSchema().naturalOrder().getFieldsOrder();
+        final List<String> newOrder = record.getSchema().naturalOrder().getFieldsOrder().collect(Collectors.toList());
         Collections.sort(newOrder);
         Collections.reverse(newOrder);
         assertEquals("_55,_53,_50,_40,_30,_25,_20,_10,_00", newOrder.stream().collect(joining(",")));
