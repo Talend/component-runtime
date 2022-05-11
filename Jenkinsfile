@@ -160,7 +160,7 @@ spec:
             }
         }
         stage('Java 17 build') {
-            when { expression { params.Action != 'RELEASE' && (params.BUILD_W_JDK17 || isMasterBranch) } }
+            when { expression { params.Action != 'RELEASE' && params.BUILD_W_JDK17 } }
             steps {
                 container('jdk17') {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
