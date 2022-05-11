@@ -1,6 +1,55 @@
 
 
+== Version 1.45.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2127[TCOMP-2127^]: Fix avro records where array contains nullable array link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2126[TCOMP-2126^]: give default implementation to Record.Builder to not break api link:search.html?query=api[api^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2130[TCOMP-2130^]: Add git informations in starter-toolkit's environment link:search.html?query=starter[starter^,role='dockey']
+
+
+
+== Version 1.44.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2127[TCOMP-2127^]: Fix avro records where array contains nullable array link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2130[TCOMP-2130^]: Add git informations in starter-toolkit's environment link:search.html?query=starter[starter^,role='dockey']
+
+
+
+== Version 1.44.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2126[TCOMP-2126^]: give default implementation to Record.Builder to not break api link:search.html?query=api[api^,role='dockey']
+
+== Version 1.44.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2085[TCOMP-2085^]: Add extras manipulations on Record BuilderImpl link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
 == Version 1.44.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2102[TCOMP-2102^]: Wrong maven resolution with car when using snapshot in prepare-repository goal link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2119[TCOMP-2119^]: Avro Record : array containing Null. link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2112[TCOMP-2112^]: [JDBC] discover schema API is failing on production. link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+
+
 
 === New Feature
 
@@ -10,6 +59,7 @@
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2098[TCOMP-2098^]: Improve m2 discovery process link:search.html?query=documentation[documentation^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2104[TCOMP-2104^]: Header link should be linked to latest path link:search.html?query=documentation[documentation^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2108[TCOMP-2108^]: Upgrade maven plugins 
@@ -20,6 +70,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2116[TCOMP-2116^]: Upgrade log4j2 to 2.17.2 
 - link:https://jira.talendforge.org/browse/TCOMP-2117[TCOMP-2117^]: Upgrade slf4j to 1.7.33 
 - link:https://jira.talendforge.org/browse/TCOMP-2118[TCOMP-2118^]: Upgrade tomcat to 9.0.62 (mitigation for CVE-2022-22965) link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+
+== Version 1.43.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TDI-47693[TDI-47693^] : fix misaligned openwebbeans-spi dependency link:search.html?query=studio[studio^,role='dockey']
 
 == Version 1.43.0
 
@@ -188,18 +244,16 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
 
 
-
-
-
-
-
-
-
-
 == Version 1.38.6
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2045[TCOMP-2045^]: Pass and read meta information about columns. link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2096[TCOMP-2096^]: Support BigDecimal type in DI integration link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2070[TCOMP-2070^]: Upgrade TSBI to 2.9.18-20220104141654 link:search.html?query=build[build^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
 
 == Version 1.38.5

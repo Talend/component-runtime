@@ -190,7 +190,7 @@ public class SearchIndexation {
                 try (final OutputStream output = new WriteIfDifferentStream(file)) {
                     jsonb.toJson(records, output);
                 } catch (final IOException e) {
-                    throw new IllegalStateException(e);
+                    log.warn("Could not generate version: {} due to {}.", version, e.getMessage());
                 }
                 log.info("Created {}", file);
             });
