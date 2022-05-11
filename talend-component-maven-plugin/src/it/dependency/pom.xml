@@ -90,6 +90,13 @@
             <classifier>component</classifier>
             <type>car</type>
           </dependency>
+          <dependency>
+            <groupId>org.talend.components</groupId>
+            <artifactId>@it-component-snapshot-artifact-id@</artifactId>
+            <version>@it-component-snapshot-version@</version>
+            <classifier>component</classifier>
+            <type>car</type>
+          </dependency>
         </dependencies>
         <executions>
           <execution>
