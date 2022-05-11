@@ -143,7 +143,7 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
     }
 
     protected String computeCoordinates(final Artifact artifact) {
-        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + getVersion(artifact);
     }
 
     private String getVersion(final Artifact dep) {

@@ -737,6 +737,16 @@
       <id>gradle-libs-releases-local</id>
       <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>TalendOpenSourceSnapshot</id>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
