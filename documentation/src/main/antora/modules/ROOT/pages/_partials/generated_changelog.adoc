@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2127[TCOMP-2127^]: Fix avro records where array contains nullable array link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2134[TCOMP-2134^]: Activate intellij plugin by default link:search.html?query=starter[starter^,role='dockey']
 
 
 
