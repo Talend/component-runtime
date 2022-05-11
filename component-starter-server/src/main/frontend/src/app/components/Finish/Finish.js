@@ -63,18 +63,19 @@ function createModel({ project, components, datastore, dataset }, openapi) {
 			try {
 				const model = JSON.parse(project.$$openapi.openapi.trim());
 				const paths = model.paths || {};
+                const selectedEP = project.$$openapi.selectedEndpoints;
 				lightCopyModel.openapi = {
 				    ...{ version: '3.0.0' },
 					...model,
 					paths: Object.keys(paths)
 						.map(path => ({
-							key: path,
-							value: Object.keys(paths[path])
-								.filter(endpoint => project.$$openapi.selectedEndpoints
-									.filter(it => it.operationId == paths[path][endpoint].operationId)
-									.length == 1)
-								.reduce((agg, endpoint) => {
-									agg[endpoint] = paths[path][endpoint];
+							key: path,  // endpoint
+							value: Object.keys(paths[path]) // all verbs
+								.filter(endpointVerb => selectedEP
+									    .filter(it => it.verb + "_" + it.path == endpointVerb + "_"+ path)
+							            .length == 1)
+							    .reduce((agg, endpointVerb) => {
+								    agg[endpointVerb] = paths[path][endpointVerb];
 									return agg;
 								}, {}),
 						}))
