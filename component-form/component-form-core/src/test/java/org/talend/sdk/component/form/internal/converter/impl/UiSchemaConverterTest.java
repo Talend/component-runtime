@@ -73,10 +73,10 @@ class UiSchemaConverterTest {
                 new SimplePropertyDefinition("configuration", "configuration", "configuration", "OBJECT", null, NVAL,
                         emptyMap(), null, NPROPS),
                 new SimplePropertyDefinition("configuration.drivers", "drivers", "drivers", "ARRAY", null, NVAL,
-                        metadata,
+                        emptyMap(),
                         null, NPROPS),
                 new SimplePropertyDefinition("configuration.drivers[].path", "path", "path", "STRING", null, NVAL,
-                        emptyMap(), null, NPROPS));
+                        metadata, null, NPROPS));
         final List<UiSchema> schemas = getUiSchemas(properties);
         assertEquals(1, schemas.size());
         final UiSchema configuration = schemas.iterator().next();
@@ -109,29 +109,6 @@ class UiSchemaConverterTest {
                             .get();
         }
         return schemas;
-    }
-
-    @Test
-    void moduleListWithStringList() throws Exception {
-        final Map<String, String> metadata = new HashMap<>();
-        metadata.put("ui::modulelist", "true");
-        final List<SimplePropertyDefinition> properties = asList(
-                new SimplePropertyDefinition("configuration", "configuration", "configuration", "OBJECT", null, NVAL,
-                        emptyMap(), null, NPROPS),
-                // define @ModuleList on list option, will use list<string> like no that @ModuleList for cloud as no
-                // that react ui form now
-                new SimplePropertyDefinition("configuration.drivers", "drivers", "drivers", "ARRAY", null, NVAL,
-                        metadata, null, NPROPS),
-                new SimplePropertyDefinition("configuration.drivers[]", "drivers[]", "drivers[${index}]", "STRING",
-                        null, NVAL,
-                        emptyMap(), null, NPROPS));
-        final List<UiSchema> schemas = getUiSchemas(properties);
-        assertEquals(1, schemas.size());
-        final UiSchema configuration = schemas.iterator().next();
-        assertNull(configuration.getKey());
-        assertEquals(1, configuration.getItems().size());
-        final UiSchema list = configuration.getItems().iterator().next();
-        assertEquals("configuration.drivers", list.getKey());
     }
 
     @Test

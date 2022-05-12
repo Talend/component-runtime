@@ -26,7 +26,7 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
-@Documentation("Mark a list field as being represented by module list widget, only for studio")
+@Documentation("Mark a string field as being represented by selected module list widget, only for studio")
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })
 public @interface ModuleList {
