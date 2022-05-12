@@ -258,7 +258,11 @@ public class OpenAPIGenerator {
     }
 
     private String mapJavaType(final JsonObject jsonObject) {
-        switch (jsonObject.getString("type")) {
+        // we may not have a type but a `$ref`
+        // TODO parse ref correctly value referenced
+        final String jsonType = jsonObject.getString("type", "unknown");
+
+        switch (jsonType) {
         case "number":
             return "double";
         case "integer":
@@ -273,6 +277,10 @@ public class OpenAPIGenerator {
         }
         case "object":
             return "List<JsonObject>";
+        case "unknown": {
+            System.out.println("Maybe a ref: " + jsonObject.getString("$ref", "noref"));
+            return "JsonObject";
+        }
         default:
             throw new IllegalArgumentException("Unsupported type: " + jsonObject);
         }
