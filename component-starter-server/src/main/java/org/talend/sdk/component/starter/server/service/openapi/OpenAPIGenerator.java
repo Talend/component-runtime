@@ -234,6 +234,7 @@ public class OpenAPIGenerator {
         case "header":
             return "org.talend.sdk.component.api.service.http.Header";
         case "body":
+        case "formData":
             return null;
         default:
             throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
@@ -249,6 +250,7 @@ public class OpenAPIGenerator {
         case "header":
             return "@Header(\"" + name + "\") ";
         case "body":
+        case "formData":
             return "";
         default:
             throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
