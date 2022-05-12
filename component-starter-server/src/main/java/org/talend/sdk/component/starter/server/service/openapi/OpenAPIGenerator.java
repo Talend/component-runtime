@@ -206,7 +206,9 @@ public class OpenAPIGenerator {
     }
 
     private Parameter mapParameter(final JsonObject it, final String type, final String name) {
-        return new Parameter(name, "get" + Strings.capitalize(name), type, getJavaMarkerForParameter(name, type),
+        final String javaName = Introspector.decapitalize(nameConventions.toJavaName(name));
+        return new Parameter(javaName, "get" + Strings.capitalize(javaName), type,
+                getJavaMarkerForParameter(name, type),
                 getMarkerImportForParameter(name, type),
                 getObject(it, "schema").map(this::mapJavaType).orElse("String"),
                 getObject(it, "schema").map(schema -> schema.get("default")).map(defaultValue -> {
