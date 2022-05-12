@@ -1,1 +1,2 @@
 org.talend.sdk.component.starter.server.configuration.ComponentConfigurationLoader
+org.talend.sdk.component.starter.server.configuration.ScmConfigurationLoader

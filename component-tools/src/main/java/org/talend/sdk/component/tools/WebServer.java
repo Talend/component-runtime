@@ -100,11 +100,26 @@ public class WebServer implements Runnable {
                 Thread.currentThread().interrupt();
                 return;
             }
-            log.info("\n\n  You can now access the UI at http://localhost:" + port + "\n\n");
-            final Scanner scanner = new Scanner(System.in);
-            do {
-                log.info("Enter 'exit' to quit");
-            } while (!shouldQuit(scanner.nextLine()));
+            final boolean batch = Boolean.parseBoolean(System.getProperty("talend.web.batch", "false"));
+            final int timeout = Integer.parseInt(System.getProperty("talend.web.batch.timeout", "2"));
+            if (!batch) {
+                log.info("\n\n  You can now access the UI at http://localhost:" + port + "\n\n");
+                final Scanner scanner = new Scanner(System.in);
+                do {
+                    log.info("Enter 'exit' to quit");
+                } while (!shouldQuit(scanner.nextLine()));
+            } else {
+                log.info(String.format(
+                        "Server running at http://localhost:%d in non-interactive mode. Will shutdown in %d minutes.",
+                        port, timeout));
+                try {
+                    Thread.currentThread().sleep(MINUTES.toMillis(timeout));
+                    log.info("Shutting down.");
+                } catch (final InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
         } finally {
             reset("talend.component.server.component.coordinates", originalCompSystProp);
             reset("component.manager.classpath.skip", skipClasspathSystProp);

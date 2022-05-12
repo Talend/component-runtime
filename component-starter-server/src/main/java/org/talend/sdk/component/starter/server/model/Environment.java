@@ -29,4 +29,13 @@ public class Environment {
     private Date lastUpdate;
 
     private String version;
+
+    private String branch;
+
+    private String commit;
+
+    private String buildTime;
+
+    private String release;
+
 }
