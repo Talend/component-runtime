@@ -18,6 +18,7 @@ package org.talend.sdk.component.api.service.source;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.talend.sdk.component.api.record.Record;
 
@@ -28,13 +29,25 @@ import org.talend.sdk.component.api.record.Record;
 public interface ProducerFinder extends Serializable {
 
     /**
+     * Initialize the ProducerFinder
+     *
+     * @param plugin plugin id
+     * @param builder component instantiate builder
+     * @param converter function to convert to Record
+     *
+     * @return initialized ProducerFinder
+     */
+    ProducerFinder init(final String plugin, final Object builder, final Function<Object, Record> converter);
+
+    /**
      * Retrieve iterator.
-     * 
+     *
      * @param familyName : connector family name.
      * @param inputName : dataset name.
      * @param version : version of configuration.
      * @param configuration : dataset configuration.
-     * @return
+     *
+     * @return the Record iterator
      */
     Iterator<Record> find(final String familyName, //
             final String inputName, //

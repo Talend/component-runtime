@@ -24,9 +24,11 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
@@ -191,8 +193,17 @@ public class DefaultServiceProvider {
         if (ProducerFinder.class == api) {
             final RecordService recordService =
                     this.lookup(id, loader, localConfigLookup, resolver, RecordService.class, services, instantiators);
-
-            return new ProducerFinderImpl(id, instantiators, recordService::toRecord);
+            Iterator<ProducerFinder> producerFinders = ServiceLoader.load(ProducerFinder.class, loader).iterator();
+            if (producerFinders.hasNext()) {
+                ProducerFinder producerFinder = producerFinders.next();
+                if (producerFinders.hasNext()) {
+                    log.warn("More than one ProducerFinder are available via SPI, using {}.",
+                            producerFinder.getClass().getSimpleName());
+                }
+                return producerFinder.init(id, instantiators, recordService::toRecord);
+            } else {
+                return new ProducerFinderImpl().init(id, instantiators, recordService::toRecord);
+            }
         }
         if (RecordPointerFactory.class == api) {
             return new RecordPointerFactoryImpl(id);
@@ -276,7 +287,7 @@ public class DefaultServiceProvider {
      * Build executor service
      * used by
      * - Local cache for eviction.
-     * 
+     *
      * @return scheduled executor service.
      */
     private ScheduledExecutorService buildExecutorService() {
