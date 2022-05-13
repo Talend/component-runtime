@@ -193,6 +193,28 @@ class AvroSchemaTest {
         assertEquals(3, schemaNew.getEntries().size());
         assertEquals(6, schemaNew.getAllEntries().count());
         assertEquals("meta1,data1,meta2,data2,data3,meta3", getSchemaFields(schemaNew));
+
+        // test move after last
+        final org.talend.sdk.component.api.record.Schema schema2 = new AvroSchemaBuilder() //
+                .withType(RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta1) //
+                .withEntry(data2) //
+                .withEntry(meta2) //
+                .moveAfter("meta2", "data1")
+                .build();
+        assertEquals("meta1,data2,meta2,data1", getSchemaFields(schema2));
+
+        // test move before first
+        final org.talend.sdk.component.api.record.Schema schema3 = new AvroSchemaBuilder() //
+                .withType(RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta1) //
+                .withEntry(data2) //
+                .withEntry(meta2) //
+                .moveBefore("data1", "data2")
+                .build();
+        assertEquals("data2,data1,meta1,meta2", getSchemaFields(schema3));
     }
 
     @Test

@@ -551,11 +551,13 @@ public interface Schema {
                 throw new IllegalArgumentException(String.format("%s not in schema", after));
             }
             getFieldsOrder().remove(name);
-            int destination = getFieldsOrder().indexOf(after);
-            if (!(destination + 1 == getFieldsOrder().size())) {
-                destination += 1;
+            final int destination = getFieldsOrder().indexOf(after) + 1;
+            if (destination < getFieldsOrder().size()) {
+                getFieldsOrder().add(destination, name);
             }
-            getFieldsOrder().add(destination, name);
+            else {
+                getFieldsOrder().add(name);
+            }
             return this;
         }
 

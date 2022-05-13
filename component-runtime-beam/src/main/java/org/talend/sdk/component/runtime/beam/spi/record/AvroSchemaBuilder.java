@@ -218,11 +218,12 @@ public class AvroSchemaBuilder implements Schema.Builder {
             throw new IllegalArgumentException(String.format("%s not in schema", after));
         }
         final Entry entry = fields.remove(getEntryIndex(name));
-        int destination = getEntryIndex(after);
-        if (!(destination + 1 == fields.size())) {
-            destination += 1;
+        int destination = getEntryIndex(after) + 1;
+        if (destination < fields.size()) {
+            fields.add(destination, entry);
+        } else {
+            fields.add(entry);
         }
-        fields.add(destination, entry);
         return this;
     }
 
