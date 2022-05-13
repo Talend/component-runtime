@@ -25,6 +25,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.beans.Introspector;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,16 +37,24 @@ import javax.inject.Inject;
 import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.starter.server.service.Strings;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.util.NameConventions;
+import org.talend.sdk.component.starter.server.service.openapi.model.ApiModel;
+import org.talend.sdk.component.starter.server.service.openapi.model.openapi.OpenAPI;
+import org.talend.sdk.component.starter.server.service.openapi.model.swagger.SwaggerAPI;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
+@Slf4j
 public class OpenAPIGenerator {
 
     @Inject
@@ -54,10 +63,41 @@ public class OpenAPIGenerator {
     @Inject
     private NameConventions nameConventions;
 
+    @Inject
+    private Jsonb jsonb;
+
+    @RequiredArgsConstructor
+    enum ApiType {
+
+        OAS20("2.0"),
+        OAS30("3.0"),
+        UNKNOWN("");
+
+        @Getter
+        private final String key;
+
+        public static ApiType fromVersion(final String version) {
+            for (ApiType api : values()) {
+                if (api.key.startsWith(version)) {
+                    return api;
+                }
+            }
+            return UNKNOWN;
+        }
+
+        public List<ApiType> getSupportedAPIs() {
+            return Arrays.asList(OAS30, OAS20);
+        }
+    }
+
     public Collection<FacetGenerator.InMemoryFile> generate(final String family, final Build build,
             final String basePackage, final JsonObject openapi) {
+        final ApiType apiType = getApiType(openapi);
+        // TODO validateVersion(openapi);
+        final ApiModel api = getApiModel(apiType, openapi);
 
-        validateVersion(openapi);
+        log.warn("[generate] {}", api.getInfo());
+        final String defaultUrl = api.getDefaultUrl();
 
         final String pck = '/' + basePackage.replace('.', '/') + '/';
         final String javaBase = build.getMainJavaDirectory() + pck;
@@ -65,6 +105,28 @@ public class OpenAPIGenerator {
         return ofNullable(openapi.getJsonObject("paths"))
                 .map(it -> toFiles(basePackage, family, javaBase, resourcesBase, it))
                 .orElseGet(Collections::emptyList);
+    }
+
+    private ApiType getApiType(final JsonObject openapi) {
+        final String version = ofNullable(
+                ofNullable(openapi.getJsonString("openapi"))
+                        .orElse(openapi.getJsonString("swagger")))
+                                .map(JsonString::getString)
+                                .orElse("");
+        return ApiType.fromVersion(version);
+    }
+
+    private ApiModel getApiModel(final ApiType api, final JsonObject json) {
+        switch (api) {
+        case OAS20:
+            return jsonb.fromJson(json.toString(), SwaggerAPI.class);
+        case OAS30:
+            return jsonb.fromJson(json.toString(), OpenAPI.class);
+        case UNKNOWN:
+        default:
+            throw new IllegalArgumentException(
+                    String.format("UNKNOWN API! Only %s are supported", api.getSupportedAPIs()));
+        }
     }
 
     private Collection<FacetGenerator.InMemoryFile> toFiles(final String basePackage, final String family,
