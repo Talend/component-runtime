@@ -554,8 +554,7 @@ public interface Schema {
             final int destination = getFieldsOrder().indexOf(after) + 1;
             if (destination < getFieldsOrder().size()) {
                 getFieldsOrder().add(destination, name);
-            }
-            else {
+            } else {
                 getFieldsOrder().add(name);
             }
             return this;

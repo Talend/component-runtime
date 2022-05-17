@@ -4,9 +4,19 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-2111[TCOMP-2111^]: [Runtime convergence] : Join connector fails in cloud environment with hybrid tck/beam connectors link:search.html?query=api[api^,role='dockey'] link:search.html?query=beam[beam^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2123[TCOMP-2123^]: Bug on order columns for Avro Impl link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2127[TCOMP-2127^]: Fix avro records where array contains nullable array link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2131[TCOMP-2131^]: starter-toolkit fails when generating a connector from openapi description link:search.html?query=starter[starter^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2133[TCOMP-2133^]: component-registry uses detailed version not baseVersion in snapshot case link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2134[TCOMP-2134^]: Activate intellij plugin by default link:search.html?query=intellij[intellij^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2138[TCOMP-2138^]: starter-toolkit github repository creation process fails link:search.html?query=starter[starter^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2135[TCOMP-2135^]: Component server tester in non interactive mode link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=testing[testing^,role='dockey']
 
 
 
