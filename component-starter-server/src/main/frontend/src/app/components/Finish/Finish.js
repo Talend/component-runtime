@@ -24,11 +24,14 @@ import Input from '../Input';
 import Summary from '../Summary';
 import {
 	GENERATOR_GITHUB_URL,
+	GENERATOR_OPENAPI_GITHUB_URL,
 	COMPONENT_TYPE_SOURCE,
 } from '../../constants';
 import FinishContext from './FinishContext';
 
 import theme from './Finish.scss';
+
+var githubProjectTypeUrl;
 
 function isEmpty(str) {
 	return !str || str.trim().length === 0;
@@ -38,6 +41,7 @@ function createModel({ project, components, datastore, dataset }, openapi) {
 	// we copy the model to compute sources and processors attributes
 	const lightCopyModel = Object.assign({}, project.project);
 	if (!openapi) {
+	    githubProjectTypeUrl = `${GENERATOR_GITHUB_URL}`;
 		lightCopyModel.datastores = datastore.datastores;
 		lightCopyModel.datasets = dataset.datasets;
 		lightCopyModel.sources = components.components
@@ -57,6 +61,7 @@ function createModel({ project, components, datastore, dataset }, openapi) {
 				return processor;
 			});
 	} else {
+	    githubProjectTypeUrl = `${GENERATOR_OPENAPI_GITHUB_URL}`;
 		if (!project.$$openapi) {
 			lightCopyModel.openapi = { version: '3.0.0' }; // surely to replace with an error message?
 		} else {
@@ -113,7 +118,7 @@ export default class Finish extends React.Component {
 				password: '',
 				organization: '',
 				// repository: model.artifact,
-				useOrganization: true,
+				useOrganization: false,
 			},
 		};
 
@@ -179,7 +184,7 @@ export default class Finish extends React.Component {
 
 	doGithub(model) {
 		this.setState({ progress: 'github' });
-		return fetch(`${GENERATOR_GITHUB_URL}`, {
+		return fetch(githubProjectTypeUrl, {
 			method: 'POST',
 			body: JSON.stringify({ model, repository: this.state.github }),
 			headers: new Headers({ Accept: 'application/json', 'Content-Type': 'application/json' }),
@@ -271,13 +276,13 @@ export default class Finish extends React.Component {
 										/>
 									</div>
 									<div className={fieldClasses}>
-										<label htmlFor="githubPassword">Password</label>
+										<label htmlFor="githubPassword">Personal Access Token</label>
 										<Help
-											title="Github Password"
+											title="Github Token"
 											i18nKey="finish_github_password"
 											content={
 												<span>
-													<p>The Github password to use to create the project.</p>
+													<p>The Github personal access token to use to create the project.</p>
 												</span>
 											}
 										/>
@@ -285,7 +290,7 @@ export default class Finish extends React.Component {
 											className="form-control"
 											id="githubPassword"
 											type="password"
-											placeholder="Enter your Github password..."
+											placeholder="Enter your Github personal access token..."
 											required
 											aggregate={this.state.github}
 											accessor="password"
