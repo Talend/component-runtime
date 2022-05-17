@@ -71,6 +71,8 @@ public class OpenAPIGenerator {
 
         OAS20("2.0"),
         OAS30("3.0"),
+        TALEND_API_CREATOR("apic-1.0"),
+        TALEND_API_TESTER("apit-1.0"),
         UNKNOWN("");
 
         @Getter
@@ -78,7 +80,7 @@ public class OpenAPIGenerator {
 
         public static ApiType fromVersion(final String version) {
             for (ApiType api : values()) {
-                if (api.key.startsWith(version)) {
+                if (version.startsWith(api.key)) {
                     return api;
                 }
             }
