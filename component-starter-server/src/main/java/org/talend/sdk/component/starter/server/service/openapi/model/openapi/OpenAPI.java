@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.starter.server.service.openapi.model.openapi;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -88,7 +90,7 @@ public class OpenAPI implements ApiModel {
 
     @Override
     public String getDefaultUrl() {
-        return getServers().stream()
+        return ofNullable(getServers()).map(ss -> ss.stream()
                 .map(s -> s.getUrl())
                 .map(url -> {
                     if (url.startsWith("/")) {
@@ -97,6 +99,7 @@ public class OpenAPI implements ApiModel {
                     return url;
                 })
                 .findFirst()
+                .orElse("https://localhost"))
                 .orElse("https://localhost");
     }
 }
