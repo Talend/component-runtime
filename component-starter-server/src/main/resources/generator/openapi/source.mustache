@@ -31,9 +31,10 @@ public class APISource implements Serializable {
 
     private boolean called = false;
 
-    public APISource(@Option final APIConfiguration configuration, final APIClient client) {
+    public APISource(@Option final APIConfiguration configuration, final APIClient client, final RecordBuilderFactory recordBuilderFactory) {
         this.configuration = configuration;
         this.client = client;
+        this.recordBuilderFactory = recordBuilderFactory;
     }
 
     @Producer
