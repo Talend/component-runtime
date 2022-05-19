@@ -6,7 +6,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
-import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import {{packageName}}.configuration.Connection;
@@ -14,11 +14,14 @@ import {{packageName}}.configuration.Connection;
 @Version
 @DataSet("Dataset")
 @Documentation("Dataset.")
-@OptionsOrder({
-"connection",
-{{#options}}    "{{value.name}}"{{^last}},{{/last}}
+
+@GridLayout({
+@GridLayout.Row({ "connection" }),
+{{#options}}      @GridLayout.Row({ "{{value.name}}" }){{^last}},{{/last}}
 {{/options}}
 })
+
+
 public class Dataset implements Serializable {
 
     @Option

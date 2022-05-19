@@ -154,7 +154,7 @@ public class UIService {
                 {{#options}}
                 env.put("{{value.name}}", conf.getDataset().{{value.getter}}());
                 {{/options}}
-                final Promise<Void> promise = runner.executeSCenario(env);
+                final Promise<Void> promise = runner.executeSCenario("{{environment}}", env);
                 final byte[] data = ((ByteBackedBlob) promise.getResultLastQuery().getBody()).getData();
 
                 rr.setBody(new String(data));
