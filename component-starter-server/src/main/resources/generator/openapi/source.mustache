@@ -42,6 +42,7 @@ public class APISource implements Serializable {
         if (called) {
             return null;
         }
+        called = true;
         final APIDataSet dataset = configuration.getDataSet();
         JsonObject json = dataset.getAPI().call(dataset, client).body();
         final JsonToRecord jsonToRecord = new JsonToRecord(recordBuilderFactory, true);
