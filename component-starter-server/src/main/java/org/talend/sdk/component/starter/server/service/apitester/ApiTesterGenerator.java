@@ -87,6 +87,7 @@ public class ApiTesterGenerator {
                                 "Connection.xhrEmulation._displayName = xhr Emulation\n"));
         // dataset
 
+        final String envName = scenario.getEnvironments().stream().findFirst().get().getName();
         final Collection<Option> options = scenario
                 .getEnvironments()
                 .stream()
@@ -102,7 +103,7 @@ public class ApiTesterGenerator {
                         var.getValue(), ""))
                 .collect(Collectors.toList());
 
-        final DataSetModel datasetModel = new DataSetModel(true, pck, true, true, options, family);
+        final DataSetModel datasetModel = new DataSetModel(true, pck, true, true, options, family, envName);
         payloads
                 .add(new InMemoryFile(base + "configuration/Dataset.java",
                         renderer.render("generator/apitester/dataset.mustache", datasetModel)));
@@ -112,9 +113,10 @@ public class ApiTesterGenerator {
                                 "Connection.instanceHost._displayName = instance Host\n" +
                                 "Connection.stopOnFailure._displayName = Stop on failure\n" +
                                 "Connection.xhrEmulation._displayName = xhr Emulation\n" +
-                                "Dataset.connection._displayName = <connection> \n" +
-                                "Dataset.log_level._displayName = <log_level> \n" +
-                                "Dataset.name_input._displayName = <name_input>\n"));
+                                "Dataset.connection._displayName = Connection \n" +
+                                options.stream()
+                                        .map(o -> "Dataset." + o.getName() + "._displayName = " + o.getName())
+                                        .collect(Collectors.joining("\n"))));
         // service
         payloads
                 .add(new InMemoryFile(base + "service/UIService.java",
@@ -203,6 +205,8 @@ public class ApiTesterGenerator {
         private final Collection<Option> options;
 
         private final String family;
+
+        private final String environment;
 
     }
 
