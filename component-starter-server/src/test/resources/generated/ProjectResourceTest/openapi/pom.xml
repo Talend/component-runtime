@@ -41,7 +41,25 @@
       <version>@runtime.version@</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.talend.components</groupId>
+      <artifactId>stream-json</artifactId>
+      <version>1.32.0</version>
+    </dependency>
   </dependencies>
+
+  <repositories>
+  <repository>
+    <id>TalendOpenSourceRelease</id>
+    <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    <releases>
+      <enabled>true</enabled>
+    </releases>
+    <snapshots>
+      <enabled>false</enabled>
+    </snapshots>
+  </repository>
+  </repositories>
 
   <build>
     <extensions>

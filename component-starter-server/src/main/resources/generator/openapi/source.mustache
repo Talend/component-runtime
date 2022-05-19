@@ -3,6 +3,8 @@ package {{packageName}}.source;
 import java.io.Serializable;
 
 import javax.json.JsonObject;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.components.common.stream.input.json.JsonToRecord;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -30,11 +32,13 @@ public class APISource implements Serializable {
     }
 
     @Producer
-    public JsonObject data() {
+    public Record data() {
         if (called) {
             return null;
         }
         final APIDataSet dataset = configuration.getDataSet();
-        return dataset.getAPI().call(dataset, client).body();
+        JsonObject json = dataset.getAPI().call(dataset, client).body();
+        final JsonToRecord jsonToRecord = new JsonToRecord(recordBuilderFactory, true);
+        return jsonToRecord.toRecord(json);
     }
 }
