@@ -7,14 +7,16 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Version
 @Icon(Icon.IconType.STAR) // todo use CUSTOM
 @DataStore("APIConnection")
 @Documentation("Enables to configure the targetted server for the call.")
-@OptionsOrder("baseUrl")
+@GridLayout({
+    @GridLayout.Row({ "baseUrl" })
+})
 public class APIConnection implements Serializable {
     @Option
     @Required

@@ -16,7 +16,7 @@ import org.talend.sdk.component.api.configuration.type.DataSet;
 {{#importDefaultValue}}
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 {{/importDefaultValue}}
-import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 {{#importCode}}
 import org.talend.sdk.component.api.configuration.ui.widget.Code;
 {{/importCode}}
@@ -30,11 +30,11 @@ import {{packageName}}.client.APIClient;
 @Icon(Icon.IconType.STAR) // todo use CUSTOM
 @DataSet("APIDataSet")
 @Documentation("Enables to select the API to call.")
-@OptionsOrder({
-    "connection",
-    "api",
-    {{#options}}    "{{value.name}}"{{^last}},{{/last}}
-    {{/options}}
+@GridLayout({
+@GridLayout.Row({ "connection" }),
+@GridLayout.Row({ "api" }),
+{{#options}}      @GridLayout.Row({ "{{value.name}}" }){{^last}},{{/last}}
+{{/options}}
 })
 public class APIDataSet implements Serializable {
     @Option

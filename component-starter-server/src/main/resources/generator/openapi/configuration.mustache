@@ -3,12 +3,14 @@ package {{packageName}}.source;
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import {{packageName}}.dataset.APIDataSet;
 
-@OptionsOrder("dataset")
+@GridLayout({
+    @GridLayout.Row({ "dataset" })
+})
 public class APIConfiguration implements Serializable {
     @Option
     @Documentation("The API dataset.")
