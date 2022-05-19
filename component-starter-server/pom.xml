@@ -33,6 +33,8 @@
     <npm.version>6.12.0</npm.version>
     <talend.build.name>${talend.build.name.base}.starter</talend.build.name>
     <rat.numUnapprovedLicenses>10</rat.numUnapprovedLicenses>
+    <api-tester-maven-plugin.version>0.22.5-20220519121437</api-tester-maven-plugin.version>
+    <stream-json.version>1.30.0</stream-json.version>
   </properties>
 
   <dependencies>

@@ -6,15 +6,21 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.meta.Documentation;
 
-import {{packageName}}.dataset.APIDataSet;
+import {{packageName}}.configuration.Dataset;
 
+@Documentation("Config.")
 @OptionsOrder("dataset")
-public class APIConfiguration implements Serializable {
+public class Configuration implements Serializable {
     @Option
     @Documentation("The API dataset.")
-    private APIDataSet dataset;
+    private Dataset dataset;
 
-    public APIDataSet getDataSet() {
+    public Dataset getDataset() {
         return dataset;
     }
+
+    public void setDataset(Dataset dataset){
+        this.dataset = dataset;
+    }
+
 }

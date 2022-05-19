@@ -37,6 +37,7 @@ import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.service.facet.apitester.APITesterFacet;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
@@ -61,6 +62,11 @@ public class MavenBuildGenerator implements BuildGenerator {
     public Build createBuild(final ProjectRequest.BuildConfiguration buildConfiguration, final String packageBase,
             final Collection<Dependency> dependencies, final Collection<String> facets,
             final ServerInfo.Snapshot versions) {
+        String repositories = "";
+        if (facets.contains(APITesterFacet.NAME)) {
+            repositories = APITesterFacet.REPOSITORIES;
+        }
+
         return new Build(buildConfiguration.getArtifact(), buildConfiguration.getGroup(),
                 buildConfiguration.getVersion(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "pom.xml",
@@ -69,7 +75,7 @@ public class MavenBuildGenerator implements BuildGenerator {
                                 new Pom(buildConfiguration, dependencies,
                                         createPlugins(facets, packageBase,
                                                 plugins.get(buildConfiguration.getPackaging()), versions),
-                                        versions.getKit())),
+                                        versions.getKit(), repositories)),
                 "target", generateWrapperFiles());
     }
 
@@ -129,6 +135,8 @@ public class MavenBuildGenerator implements BuildGenerator {
         private final Collection<Plugin> plugins;
 
         private final String pluginVersion;
+
+        private final String repositories;
     }
 
     @Data

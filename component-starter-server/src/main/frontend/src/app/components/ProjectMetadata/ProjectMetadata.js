@@ -47,6 +47,7 @@ export default class ProjectMetadata extends React.Component {
 			facets: {},
 			showAll: false,
 		};
+		console.log(this.project);
 		this.showAll = this.showAll.bind(this);
 		this.showLight = this.showLight.bind(this);
 	}

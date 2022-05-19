@@ -120,7 +120,7 @@ public class ProjectGenerator {
         final Build build = generateProjectStructure(request, versionSnapshot, files);
 
         openAPIGenerator
-                .generate(request.getFamily(), build, request.getPackageBase(), request.getOpenapi())
+                .generate(request.getFamily(), build, request.getPackageBase(), request.getJsonModel())
                 .forEach(file -> files.put(file.getPath(), file.getContent()));
 
         zip(request, outputStream, files);
@@ -129,10 +129,12 @@ public class ProjectGenerator {
     public void generateFromAPITester(final ProjectRequest request, final OutputStream outputStream) {
         final ServerInfo.Snapshot versionSnapshot = versions.getSnapshot();
         final Map<String, byte[]> files = new HashMap<>();
-
+        request.getFacets().add("APITesterFacet");
         final Build build = generateProjectStructure(request, versionSnapshot, files);
+        // TODO add specific facets
+
         apiTesterGenerator
-                .generate(request.getFamily(), build, request.getPackageBase(), request.getOpenapi())
+                .generate(request.getFamily(), build, request.getPackageBase(), request.getJsonModel())
                 .forEach(file -> files.put(file.getPath(), file.getContent()));
 
         zip(request, outputStream, files);

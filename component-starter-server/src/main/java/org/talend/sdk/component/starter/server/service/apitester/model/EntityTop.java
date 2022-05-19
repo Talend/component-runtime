@@ -13,33 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.starter.server.model;
+package org.talend.sdk.component.starter.server.service.apitester.model;
 
-import java.util.Date;
+import java.util.List;
 
-import org.talend.sdk.component.starter.server.service.info.ServerInfo.Snapshot;
+public class EntityTop {
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+    private Entity entity;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Environment {
-
-    private Date lastUpdate;
-
-    private String version;
-
-    private String branch;
-
-    private String commit;
-
-    private String buildTime;
-
-    private String release;
-
-    private Snapshot snapshot;
+    private List<Entity> children;
 
 }

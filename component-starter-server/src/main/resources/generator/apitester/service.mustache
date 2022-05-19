@@ -1,0 +1,222 @@
+package {{packageName}}.service;
+
+import static java.lang.Boolean.getBoolean;
+import static java.lang.Integer.getInteger;
+import static java.lang.System.getProperty;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.restlet.client.TestRunnerLegacy;
+import com.restlet.client.TestRunnerLegacy.Option;
+import com.restlet.client.async.Promise;
+import com.restlet.client.http.ByteBackedBlob;
+import com.restlet.client.http.client.ApacheHttpClient.FollowRedirects;
+import com.restlet.client.net.MessageHeaderTo;
+
+import org.talend.components.common.stream.input.json.JsonToRecord;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus.Status;
+import org.talend.sdk.component.api.service.http.Response;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.stream.JsonParser;
+import javax.json.stream.JsonParserFactory;
+
+import {{packageName}}.source.Configuration;
+import {{packageName}}.configuration.Connection;
+
+
+@Service
+public class UIService {
+
+    public final static String ACTION_HEALTH_CHECK = "ACTION_HEALTH_CHECK";
+
+    private final static String APITesterExport = "scenario.json";
+
+    @Service
+    private RecordBuilderFactory recordBuilderFactory;
+
+    @Service
+    private JsonBuilderFactory jsonBuilderFactory;
+
+    @Service
+    private JsonParserFactory jsonParserFactory;
+
+    @Service
+    private LicenseServerClient licenseServerClient;
+
+    @HealthCheck(ACTION_HEALTH_CHECK)
+    public HealthCheckStatus validateDataStore(@org.talend.sdk.component.api.configuration.Option final Connection connection) {
+        boolean https = Boolean.parseBoolean(getProperty("apimgmt.tester.accountchecker.https", "true"));
+
+        if (connection.isForceHTTP()) {
+            https = false;
+        }
+
+        String protocol = https ? "https://" : "http://";
+
+        final String url = protocol + connection.getInstanceHost();
+
+        System.out.println("ACTION_HEALTH_CHECK License url : " + url);
+        final Response<InputStream> response = licenseServerClient.execute(url);
+        final int status = response.status();
+        if (status != 200) {
+            return new HealthCheckStatus(Status.KO, String.format("Connection issue with license server, returned status is '%S'", status));
+        }
+        return new HealthCheckStatus(HealthCheckStatus.Status.OK, "License server connection ok.");
+    }
+
+    public Record buildRecord(final ReadableResult readableResult) {
+        final byte[] bytes = readableResult.getBody().getBytes();
+        System.out.println("AAAAA  : readableResult=" + readableResult);
+        System.out.println("BBBB  : readableResult.getBody(=" + readableResult.getBody());
+        System.out.println("CCCC : jsonParserFactory : " + jsonParserFactory);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+        final JsonParser parser = jsonParserFactory.createParser(inputStream);
+        final JsonObject body = parser.getObject();
+
+        final JsonObjectBuilder headersBuilder = jsonBuilderFactory.createObjectBuilder();
+        readableResult.getHeaders().entrySet().stream().forEach(e -> headersBuilder.add(e.getKey(), e.getValue()));
+
+        final JsonObject json = jsonBuilderFactory.createObjectBuilder()
+                .add("status", readableResult.getStatus())
+                .add("headers", headersBuilder)
+                .add("body", jsonBuilderFactory.createObjectBuilder(body))
+                .build();
+
+        try {
+            FileWriter fw = new FileWriter("/tmp/result.json");
+            fw.write(json.toString());
+            fw.close();
+        }catch (IOException e){
+            System.err.println("Can't write json to file : " + e.getMessage());
+            e.printStackTrace(System.err);
+        }
+
+        final JsonToRecord jsonToRecord = new JsonToRecord(recordBuilderFactory, true);
+        return jsonToRecord.toRecord(json);
+    }
+
+    public ReadableResult execScenario(final Configuration conf) {
+        System.out.println("conf.getDataset().getConnection().isForceHTTP() : " + conf.getDataset().getConnection().isForceHTTP());
+        if (conf.getDataset().getConnection().isForceHTTP()) {
+            System.setProperty("apimgmt.tester.accountchecker.https", "false");
+        }
+        System.out.println("Property apimgmt.tester.accountchecker.https : " + System.getProperty("apimgmt.tester.accountchecker.https"));
+
+        final ReadableResult rr = new ReadableResult();
+        try {
+            final Path tempDir = Files.createTempDirectory("Hack");
+            System.out.println(String.format("Temp dir: %s", tempDir.toString()));
+            final String fileContent = this.loadResource(String.format("/%s", APITesterExport));
+
+            final TestRunnerLegacy runner = new TestRunnerLegacy("%s", "A", "A")
+                    .setOutputDirectory(tempDir.toFile())
+                    .setFileContent(fileContent)
+                    //.setSelectedEnvironment(getProperty("selectedEnvironment"))
+                    .setStopOnFailure(conf.getDataset().getConnection().isStopOnFailure())
+                    .setFollowRedirects(getProperty("followRedirects", FollowRedirects.ALL.name()))
+                    .setXhrEmulation(conf.getDataset().getConnection().isXhrEmulation())
+                    .setHttpClientTimeoutInMs(getInteger("httpClientTimeoutInMs", 60_000))
+                    //.setBegin(getProperty("begin"))
+                    //.setBeforeTest(getProperty("beforeTest"))
+                    //.setAfterTest(getProperty("afterTest"))
+                    //.setEnd(getProperty("end"))
+                    .setAccountId(getProperty("accountId", UUID.randomUUID().toString()))
+                    .setInstance(getProperty("instance", "custom"))
+                    .setInstanceHost(conf.getDataset().getConnection().getInstanceHost())
+                    .setShouldHideAuthorizationHeaders(getBoolean("shouldHideAuthorizationHeaders"))
+
+
+                    .setSelectedEnvironment("DemoSimple"); // To read in input content
+
+
+            runner.enable(Option.FORCE_UNIX_CHARACTERS);
+            runner.enable(Option.FORCE_VERBOSE_MODE);
+
+            try {
+                Map<String, String> env = new HashMap<>();
+                {{#options}}
+                env.put("{{value.name}}", conf.getDataset().{{value.getter}}());
+                {{/options}}
+                final Promise<Void> promise = runner.executeSCenario(env);
+                final byte[] data = ((ByteBackedBlob) promise.getResultLastQuery().getBody()).getData();
+
+                rr.setBody(new String(data));
+                rr.setStatus(promise.getResultLastQuery().getStatus().getCode());
+                final Map<String, String> headersMap = promise.getResultLastQuery().getHeaders().stream().collect(Collectors.toMap(MessageHeaderTo::getName, MessageHeaderTo::getValue));
+                rr.setHeaders(headersMap);
+                System.out.println("end.");
+            } catch (Throwable throwable) {
+                System.err.println("Error legacy 2: ");
+                throwable.printStackTrace();
+            }
+        } catch (Exception e) {
+            System.err.println(String.format("API Tester execution error: %s", e.getMessage()));
+            e.printStackTrace(System.err);
+        }
+
+        return rr;
+    }
+
+
+    public String loadResource(final String name) throws IOException {
+        final InputStream resource = UIService.class.getResourceAsStream(name);
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream(resource);
+        StringBuilder content = new StringBuilder();
+        while (bufferedInputStream.available() > 0) {
+            final int available = bufferedInputStream.available();
+            final byte[] buffer = new byte[available];
+            bufferedInputStream.read(buffer, 0, available);
+            content.append(new String(buffer));
+        }
+        return content.toString();
+    }
+
+    public static class ReadableResult {
+        private int status;
+        private Map<String, String> headers;
+        private String body;
+
+        public int getStatus() {
+            return status;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        public Map<String, String> getHeaders() {
+            return headers;
+        }
+
+        public void setHeaders(Map<String, String> headers) {
+            this.headers = headers;
+        }
+
+        public String getBody() {
+            return body;
+        }
+
+        public void setBody(String body) {
+            this.body = body;
+        }
+    }
+
+}

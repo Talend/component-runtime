@@ -171,6 +171,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Result createAPITesterOnGithub(final GithubProject project) {
         final ByteArrayOutputStream zip = new ByteArrayOutputStream();
+
         generator.generateFromAPITester(toRequest(project.getModel()), zip);
         gitPush(project, zip.toByteArray());
         return new Result(true);
@@ -206,6 +207,7 @@ public class ProjectResource {
     @Produces("application/zip")
     public Response createAPITesterZip(@FormParam("project") final String compressedModel,
             @Context final Providers providers) {
+
         final ProjectModel model = readProjectModel(compressedModel, providers);
         final String filename = ofNullable(model.getArtifact()).orElse("zip") + ".zip";
         return Response.ok().entity((StreamingOutput) out -> {
@@ -245,6 +247,7 @@ public class ProjectResource {
                     .readFrom(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE,
                             new MultivaluedHashMap<>(), gzipInputStream);
         } catch (final IOException e) {
+            log.error("[readProjectModel] {}", e.getMessage());
             throw new WebApplicationException(Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(new ErrorMessage(e.getMessage()))
@@ -490,7 +493,7 @@ public class ProjectResource {
                                         mapStructures(i.getOutputStructures(), reusableConfigs)))
                                 .collect(toList()))
                         .orElse(emptyList()),
-                reusableConfigs.values(), model.getFamily(), model.getCategory(), model.getOpenapi());
+                reusableConfigs.values(), model.getFamily(), model.getCategory(), model.getJsonModel());
     }
 
     private Stream<ProjectRequest.ReusableConfiguration> mapReusableConfig(

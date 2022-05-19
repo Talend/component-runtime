@@ -1,0 +1,50 @@
+package {{packageName}}.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.junit5.WithComponents;
+
+import {{packageName}}.configuration.Connection;
+import {{packageName}}.configuration.Dataset;
+import {{packageName}}.service.UIService.ReadableResult;
+import {{packageName}}.source.Configuration;
+
+@WithComponents(value = "{{packageName}}")
+class UIServiceTest {
+
+    @Service
+    private UIService service;
+
+    private Configuration config;
+
+    @BeforeEach
+    void beforeEach(){
+        //System.setProperty("apimgmt.tester.accountchecker.https", "false");
+
+        Connection connection = new Connection();
+        connection.setForceHTTP(true);
+        Dataset dataset = new Dataset();
+        dataset.setConnection(connection);
+        {{#options}}
+        dataset.{{value.setter}}("{{value.defaultValue}}");
+        {{/options}}
+        config = new Configuration();
+        config.setDataset(dataset);
+    }
+
+    @Test
+    void buildRecord() {
+        final ReadableResult readableResult = service.execScenario(config);
+        assertNotNull(readableResult);
+        assertEquals(200, readableResult.getStatus());
+
+        final Record record = service.buildRecord(readableResult);
+        assertNotNull(record);
+
+    }
+}

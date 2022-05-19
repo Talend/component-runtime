@@ -13,33 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.starter.server.model;
+package org.talend.sdk.component.starter.server.service.apitester.model;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
-import org.talend.sdk.component.starter.server.service.info.ServerInfo.Snapshot;
+import javax.json.bind.annotation.JsonbProperty;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Environment {
+public class Variable {
 
-    private Date lastUpdate;
+    private String name;
 
-    private String version;
+    private String value;
 
-    private String branch;
+    private Boolean enabled;
 
-    private String commit;
+    private ZonedDateTime createdAt;
 
-    private String buildTime;
-
-    private String release;
-
-    private Snapshot snapshot;
+    @JsonbProperty("private")
+    private Boolean privat;
 
 }

@@ -25,6 +25,7 @@ import Summary from '../Summary';
 import {
 	GENERATOR_GITHUB_URL,
 	GENERATOR_OPENAPI_GITHUB_URL,
+	GENERATOR_APITESTER_GITHUB_URL,
 	COMPONENT_TYPE_SOURCE,
 } from '../../constants';
 import FinishContext from './FinishContext';
@@ -37,11 +38,12 @@ function isEmpty(str) {
 	return !str || str.trim().length === 0;
 }
 
-function createNewModel({ project, components, datastore, dataset }) {
+function createModel({ project, components, datastore, dataset }) {
 	// we copy the model to compute sources and processors attributes
 	const lightModel = Object.assign({}, project.project);
 	const mode = project.mode;
 
+    lightModel.mode = mode;
     lightModel.datastores = [];
     lightModel.datasets = [];
     lightModel.sources = [];
@@ -52,7 +54,7 @@ function createNewModel({ project, components, datastore, dataset }) {
 		lightModel.category = 'Cloud';
 
 		const model = JSON.parse(project.$$apitester.apitester.trim());
-        lightModel.apitester = {
+        lightModel.jsonModel = {
         ...model,
         };
 
@@ -66,7 +68,7 @@ function createNewModel({ project, components, datastore, dataset }) {
             const model = JSON.parse(project.$$openapi.openapi.trim());
 			const paths = model.paths || {};
             const selectedEP = project.$$openapi.selectedEndpoints;
-			lightModel.openapi = {
+			lightModel.jsonModel = {
 				    ...{ version: '3.0.0' },
 					...model,
 					paths: Object.keys(paths)
@@ -115,73 +117,6 @@ function createNewModel({ project, components, datastore, dataset }) {
     	})
 
     return lightModel;
-}
-
-function createModel({ project, components, datastore, dataset }, openapi) {
-	// we copy the model to compute sources and processors attributes
-	const lightCopyModel = Object.assign({}, project.project);
-	if (!openapi) {
-	    githubProjectTypeUrl = `${GENERATOR_GITHUB_URL}`;
-		lightCopyModel.datastores = datastore.datastores;
-		lightCopyModel.datasets = dataset.datasets;
-		lightCopyModel.sources = components.components
-			.filter(c => c.type === COMPONENT_TYPE_SOURCE)
-			.map(c => {
-				const source = Object.assign({}, c.source);
-				source.name = c.configuration.name;
-				return source;
-			});
-		lightCopyModel.processors = components.components
-			.filter(
-				c => c.processor.outputStructures.length !== 0 || c.processor.inputStructures.length !== 0,
-			)
-			.map(c => {
-				const processor = Object.assign({}, c.processor);
-				processor.name = c.configuration.name;
-				return processor;
-			});
-	} else {
-	    githubProjectTypeUrl = `${GENERATOR_OPENAPI_GITHUB_URL}`;
-		if (!project.$$openapi) {
-			lightCopyModel.openapi = { version: '3.0.0' }; // surely to replace with an error message?
-		} else {
-			try {
-				const model = JSON.parse(project.$$openapi.openapi.trim());
-				const paths = model.paths || {};
-                const selectedEP = project.$$openapi.selectedEndpoints;
-				lightCopyModel.openapi = {
-				    ...{ version: '3.0.0' },
-					...model,
-					paths: Object.keys(paths)
-						.map(path => ({
-							key: path,  // endpoint
-							value: Object.keys(paths[path]) // all verbs
-								.filter(endpointVerb => selectedEP
-									    .filter(it => it.verb + "_" + it.path == endpointVerb + "_"+ path)
-							            .length == 1)
-							    .reduce((agg, endpointVerb) => {
-								    agg[endpointVerb] = paths[path][endpointVerb];
-									return agg;
-								}, {}),
-						}))
-						.reduce((agg, value) => {
-							if (Object.keys(value.value).length > 0) {
-								agg[value.key] = value.value;
-							}
-							return agg;
-						}, {}),
-				};
-			} catch (e) {
-				lightCopyModel.openapi = { version: '3.1.0' }; // todo: same as previous branch
-			}
-		}
-		lightCopyModel.category = 'Cloud';
-		lightCopyModel.datastores = [];
-		lightCopyModel.datasets = [];
-		lightCopyModel.sources = [];
-		lightCopyModel.processors = [];
-	}
-	return lightCopyModel;
 }
 
 function getDownloadValue(model) {
@@ -288,8 +223,7 @@ export default class Finish extends React.Component {
 			<FinishContext.Provider>
 				<FinishContext.Consumer>
 					{services => {
-						const projectModel = createModel(services, !!this.props.openapi);
-						const projectModelNew = createNewModel(services, !!this.props.mode);
+						const projectModel = createModel(services);
 						return (
 							<div className={theme.Finish}>
 							<h2>Project Summary</h2>

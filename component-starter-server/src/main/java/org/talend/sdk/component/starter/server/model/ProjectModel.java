@@ -55,7 +55,7 @@ public class ProjectModel {
 
     private Collection<ReusableStructure> datastores;
 
-    private JsonObject openapi;
+    private JsonObject jsonModel;
 
     @Data
     public static class ReusableStructure {

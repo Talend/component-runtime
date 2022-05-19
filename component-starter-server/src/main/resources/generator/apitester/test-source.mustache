@@ -1,0 +1,59 @@
+package {{packageName}}.source;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
+
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.junit.BaseComponentsHandler;
+import org.talend.sdk.component.junit5.Injected;
+import org.talend.sdk.component.junit5.WithComponents;
+import org.talend.sdk.component.runtime.manager.chain.Job;
+
+import {{packageName}}.configuration.Connection;
+import {{packageName}}.configuration.Dataset;
+import {{packageName}}.source.Configuration;
+
+@WithComponents(value = "{{packageName}}")
+class SourceTest {
+
+    @Injected
+    private BaseComponentsHandler handler;
+
+    private Configuration config;
+
+    @BeforeEach
+    void beforeEach() {
+        // System.setProperty("apimgmt.tester.accountchecker.https", "false");
+
+        Connection connection = new Connection();
+        connection.setForceHTTP(true);
+        Dataset dataset = new Dataset();
+        dataset.setConnection(connection);
+        {{#options}}
+        dataset.{{value.setter}}("{{value.defaultValue}}");
+        {{/options}}
+        config = new Configuration();
+        config.setDataset(dataset);
+    }
+
+    @Test
+    void testInput() {
+        final String configStr = configurationByExample().forInstance(config).configured().toQueryString();
+        Job
+                .components() //
+                .component("emitter", "{{family}}://Input?" + configStr) //
+                .component("out", "test://collector") //
+                .connections() //
+                .from("emitter") //
+                .to("out") //
+                .build() //
+                .run();
+        final List<Record> records = handler.getCollectedData(Record.class);
+        assertEquals(1, records.size());
+    }
+
+}

@@ -1,27 +1,79 @@
-package {{packageName}}.connection;
+package {{packageName}}.configuration;
 
 import java.io.Serializable;
 
-import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.constraint.Required;
+import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
-@Version
-@Icon(Icon.IconType.STAR) // todo use CUSTOM
-@DataStore("APIConnection")
-@Documentation("Enables to configure the targetted server for the call.")
-@OptionsOrder("baseUrl")
-public class APIConnection implements Serializable {
-    @Option
-    @Required
-    @Documentation("The API base url to use.")
-    private String baseUrl;
+import {{packageName}}.service.UIService;
 
-    public String getBaseUrl() {
-        return baseUrl;
+@Version
+@DataStore("Connection")
+@Documentation("Datastore.")
+@GridLayout({
+    @GridLayout.Row({ "instanceHost", "forceHTTP" }),
+    @GridLayout.Row({ "stopOnFailure" }),
+    @GridLayout.Row({ "xhrEmulation" })
+})
+@Checkable(UIService.ACTION_HEALTH_CHECK)
+public class Connection implements Serializable {
+
+    @Option
+    @Documentation("XHREmulation.")
+    private boolean xhrEmulation = false;
+
+    @Option
+    @Documentation("License server.")
+    @DefaultValue("localhost:8000/api/license")
+    private String instanceHost = "localhost:8000/api/license";
+
+    @Option
+    @Documentation("Force license server call with HTTP for test purpose.")
+    private boolean forceHTTP = false;
+
+    @Option
+    @Documentation("Stop on failure.")
+    private boolean stopOnFailure = false;
+
+    public boolean isXhrEmulation() {
+        return this.xhrEmulation;
     }
+
+    public String getInstanceHost() {
+        return this.instanceHost;
+    }
+
+    public boolean isForceHTTP() {
+        return this.forceHTTP;
+    }
+
+    public boolean isStopOnFailure() {
+        return this.stopOnFailure;
+    }
+
+    public void setXhrEmulation(boolean xhrEmulation) {
+        this.xhrEmulation = xhrEmulation;
+    }
+
+    public void setInstanceHost(String instanceHost) {
+        this.instanceHost = instanceHost;
+    }
+
+    public void setForceHTTP(boolean forceHTTP) {
+        this.forceHTTP = forceHTTP;
+    }
+
+    public void setStopOnFailure(boolean stopOnFailure) {
+        this.stopOnFailure = stopOnFailure;
+    }
+
+    public String toString() {
+        return "Connection(xhrEmulation=" + this.isXhrEmulation() + ", instanceHost=" + this.getInstanceHost() + ", forceHTTP=" + this.isForceHTTP() + ", stopOnFailure=" + this.isStopOnFailure() + ")";
+    }
+
 }

@@ -46,7 +46,7 @@ public class ProjectRequest {
 
     private final String category;
 
-    private final JsonObject openapi;
+    private final JsonObject jsonModel;
 
     @Getter
     @RequiredArgsConstructor

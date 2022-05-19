@@ -13,33 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.starter.server.model;
+package org.talend.sdk.component.starter.server.service.apitester.model;
 
-import java.util.Date;
-
-import org.talend.sdk.component.starter.server.service.info.ServerInfo.Snapshot;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Environment {
+public class Body {
 
-    private Date lastUpdate;
+    private FormBody formBody;
 
-    private String version;
-
-    private String branch;
-
-    private String commit;
-
-    private String buildTime;
-
-    private String release;
-
-    private Snapshot snapshot;
+    private String bodyType;
 
 }

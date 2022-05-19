@@ -1,0 +1,20 @@
+package {{packageName}}.service;
+
+import java.io.InputStream;
+
+import org.talend.sdk.component.api.service.http.ConfigurerOption;
+import org.talend.sdk.component.api.service.http.HttpClient;
+import org.talend.sdk.component.api.service.http.Request;
+import org.talend.sdk.component.api.service.http.Response;
+import org.talend.sdk.component.api.service.http.Url;
+import org.talend.sdk.component.api.service.http.UseConfigurer;
+
+import {{packageName}}.configuration.Connection;
+
+
+public interface LicenseServerClient extends HttpClient {
+
+    @Request(method = "GET")
+    Response<InputStream> execute(@Url String url);
+
+}

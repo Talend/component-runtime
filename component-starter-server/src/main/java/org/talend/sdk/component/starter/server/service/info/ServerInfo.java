@@ -228,5 +228,11 @@ public class ServerInfo {
         private String cxf;
 
         private String log4j2;
+
+        private String jupiter = "5.8.1";
+
+        private String apiTester = "0.22.5-20220519121437";
+
+        private String streamJson = "1.30.0";
     }
 }

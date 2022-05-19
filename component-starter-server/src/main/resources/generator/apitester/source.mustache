@@ -3,6 +3,7 @@ package {{packageName}}.source;
 import java.io.Serializable;
 
 import javax.json.JsonObject;
+import javax.annotation.PostConstruct;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -10,31 +11,44 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.record.Record;
 
-import {{packageName}}.client.APIClient;
-import {{packageName}}.dataset.APIDataSet;
+import {{packageName}}.configuration.Dataset;
+import {{packageName}}.source.Configuration;
+import {{packageName}}.service.UIService;
+import {{packageName}}.service.UIService.ReadableResult;
+
 
 @Version
-@Icon(Icon.IconType.STAR) // todo use CUSTOM
-@Emitter(name = "Source")
-@Documentation("A source emitting the result of the configured called.")
-public class APISource implements Serializable {
-    private final APIConfiguration configuration;
-    private final APIClient client;
+@Icon(value = Icon.IconType.CUSTOM, custom = "apitester")
+@Emitter(name = "Input")
+@Documentation("API Tester scenario connector.")
+public class Source implements Serializable {
 
-    private boolean called = false;
+    private final Configuration config;
 
-    public APISource(@Option final APIConfiguration configuration, final APIClient client) {
-        this.configuration = configuration;
-        this.client = client;
+    private final UIService service;
+
+    private boolean done = false;
+
+    public Source(@Option("configuration") final Configuration config, final UIService service){
+        this.config = config;
+        this.service = service;
+    }
+
+    @PostConstruct
+    public void init() {
     }
 
     @Producer
-    public JsonObject data() {
-        if (called) {
-            return null;
+    public Record next() {
+        if(!done){
+            final ReadableResult readableResult = service.execScenario(config);
+            final Record record = service.buildRecord(readableResult);
+            done = true;
+            return record;
         }
-        final APIDataSet dataset = configuration.getDataSet();
-        return dataset.getAPI().call(dataset, client).body();
+        return null;
     }
+
 }

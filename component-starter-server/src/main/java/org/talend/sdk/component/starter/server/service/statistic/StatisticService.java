@@ -62,7 +62,8 @@ public class StatisticService {
             final Representation representation = new Representation(project,
                     event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
                     event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size(),
-                    event.getRequest().getOpenapi() != null ? countEndpoints(event.getRequest().getOpenapi()) : null,
+                    event.getRequest().getJsonModel() != null ? countEndpoints(event.getRequest().getJsonModel())
+                            : null,
                     ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList));
             representationEvent.fire(representation);
             logger.info(jsonb.toJson(representation));

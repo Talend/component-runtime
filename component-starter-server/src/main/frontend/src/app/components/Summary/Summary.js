@@ -46,6 +46,7 @@ export default function Summary(props) {
 			<Info name="Name" value={p.name} />
 			<Info name="Build Tool" value={p.buildType} />
 			<Info name="Coordinates" value={`${p.group}:${p.artifact}:${p.version}`} />
+			<Info name="Connector Type" value={p.mode} />
 			{!props.useOpenAPI && (
 				<React.Fragment>
 					<Info

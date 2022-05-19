@@ -15,17 +15,17 @@
  */
 package org.talend.sdk.component.starter.server.service.apitester;
 
-import static java.util.Optional.ofNullable;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.starter.server.service.Strings;
+import org.talend.sdk.component.starter.server.service.apitester.model.Scenario;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator.InMemoryFile;
 import org.talend.sdk.component.starter.server.service.facet.util.NameConventions;
@@ -47,56 +47,117 @@ public class ApiTesterGenerator {
     @Inject
     private Jsonb jsonb;
 
+    private String javaBase;
+
+    private String testBase;
+
+    private String packageName;
+
+    private Scenario scenario;
+
+    private JsonObject jsonScenario;
+
     public Collection<InMemoryFile> generate(final String family, final Build build,
-            final String basePackage, final JsonObject openapi) {
-        final String pck = '/' + basePackage.replace('.', '/') + '/';
-        final String javaBase = build.getMainJavaDirectory() + pck;
-        final String resourcesBase = build.getMainResourcesDirectory() + pck;
-        return ofNullable(openapi.getJsonObject("paths"))
-                .map(it -> toFiles(basePackage, family, javaBase, resourcesBase, it))
-                .orElseGet(Collections::emptyList);
+            final String basePackage, final JsonObject apitester) {
+
+        jsonScenario = apitester;
+        packageName = '/' + basePackage.replace('.', '/') + '/';
+        final String javaBase = build.getMainJavaDirectory() + packageName;
+        testBase = build.getTestJavaDirectory() + packageName;
+        final String resourcesBase = build.getMainResourcesDirectory() + packageName;
+
+        scenario = jsonb.fromJson(apitester.toString(), Scenario.class);
+
+        return toFiles(basePackage, family, javaBase, resourcesBase);
     }
 
-    private Collection<InMemoryFile> toFiles(final String pck, final String family,
-            final String base, final String resources, final JsonObject scenario) {
+    private Collection<InMemoryFile> toFiles(final String pck, final String family, final String base,
+            final String resources) {
         final Collection<InMemoryFile> payloads = new ArrayList<>();
 
         // datastore
         payloads
-                .add(new InMemoryFile(base + "connection/APIConnection.java",
+                .add(new InMemoryFile(base + "configuration/Connection.java",
                         renderer.render("generator/apitester/connection.mustache", new ConnectionModel(pck))));
         payloads
-                .add(new InMemoryFile(resources + "connection/Messages.properties",
-                        "APIConnection.baseUrl._displayName = Base URL\n"
-                                + "APIConnection.baseUrl._placeholder = Base URL...\n"));
+                .add(new InMemoryFile(resources + "configuration/Messages.properties",
+                        "Connection.forceHTTP._displayName = force HTTP\n" +
+                                "Connection.instanceHost._displayName = instance Host\n" +
+                                "Connection.stopOnFailure._displayName = Stop on failure\n" +
+                                "Connection.xhrEmulation._displayName = xhr Emulation\n"));
         // dataset
-        final DataSetModel datasetModel = new DataSetModel(true, "basePackage", true, true);
+
+        final Collection<Option> options = scenario
+                .getEnvironments()
+                .stream()
+                .findFirst()
+                .get()
+                .getVariables()
+                .values()
+                .stream()
+                .map(var -> new Option(var.getName(),
+                        "get" + Strings.capitalize(var.getName()),
+                        "set" + Strings.capitalize(var.getName()),
+                        "String",
+                        var.getValue(), ""))
+                .collect(Collectors.toList());
+
+        final DataSetModel datasetModel = new DataSetModel(true, pck, true, true, options, family);
         payloads
-                .add(new InMemoryFile(base + "dataset/APIDataSet.java",
+                .add(new InMemoryFile(base + "configuration/Dataset.java",
                         renderer.render("generator/apitester/dataset.mustache", datasetModel)));
         payloads
-                .add(new InMemoryFile(resources + "dataset/Messages.properties",
-                        "APIDataSet.api._displayName = API\n"
-                                + "APIDataSet.connection._displayName = API connection\n"));
-
+                .add(new InMemoryFile(resources + "configuration/Messages.properties",
+                        "Connection.forceHTTP._displayName = force HTTP\n" +
+                                "Connection.instanceHost._displayName = instance Host\n" +
+                                "Connection.stopOnFailure._displayName = Stop on failure\n" +
+                                "Connection.xhrEmulation._displayName = xhr Emulation\n" +
+                                "Dataset.connection._displayName = <connection> \n" +
+                                "Dataset.log_level._displayName = <log_level> \n" +
+                                "Dataset.name_input._displayName = <name_input>\n"));
+        // service
         payloads
-                .add(new InMemoryFile(base + "source/APIConfiguration.java", renderer
-                        .render("generator/apitester/configuration.mustache", new ConfigurationModel(pck))));
+                .add(new InMemoryFile(base + "service/UIService.java",
+                        renderer.render("generator/apitester/service.mustache", datasetModel)));
         payloads
-                .add(new InMemoryFile(base + "source/APISource.java",
+                .add(new InMemoryFile(base + "service/LicenseServerClient.java",
+                        renderer.render("generator/apitester/server-client.mustache", new ConnectionModel(pck))));
+        // source
+        payloads
+                .add(new InMemoryFile(base + "source/Source.java",
                         renderer.render("generator/apitester/source.mustache", new ConnectionModel(pck))));
         payloads
                 .add(new InMemoryFile(resources + "source/Messages.properties",
-                        "APIConfiguration.dataset._displayName = API Dataset\n\n" + family + ".Source._displayName = "
+                        family + ".Input._displayName = " + family + " Input\n" +
+                                "Configuration.dataset._displayName = API Dataset\n\n" + family
+                                + ".Source._displayName = "
                                 + family + " Input\n"));
+        // configuration
+        payloads
+                .add(new InMemoryFile(base + "source/Configuration.java", renderer
+                        .render("generator/apitester/configuration.mustache", new ConfigurationModel(pck))));
+        // package-info
         payloads
                 .add(new InMemoryFile(base + "package-info.java", renderer
                         .render("generator/apitester/package-info.mustache", new PackageModel(pck, family))));
         payloads
                 .add(new InMemoryFile(resources + "Messages.properties",
-                        family + "._displayName = " + family + "\n\n" + family
-                                + ".datastore.APIConnection._displayName = " + family + " Connection\n" + family
-                                + ".dataset.APIDataSet._displayName = " + family + " DataSet\n"));
+                        family + "._displayName = " + family + "\n\n" +
+                                family + ".actions.healthcheck.ACTION_HEALTH_CHECK._displayName = " + family
+                                + " Health check\n" +
+                                family + ".Input._displayName = " + family + " Input\n" +
+                                family + ".datastore.Connection._displayName = " + family + " Connection\n" +
+                                family + ".dataset.Dataset._displayName = " + family + " Dataset\n"));
+        // icon
+        payloads.add(new InMemoryFile("src/main/resources/icons/apitester.svg", renderer
+                .render("generator/apitester/apitester.svg", null)));
+        // scenario
+        payloads.add(new InMemoryFile("src/main/resources/scenario.json", jsonScenario.toString()));
+        // tests
+        payloads.add(new InMemoryFile(testBase + "source/SourceTest.java", renderer
+                .render("generator/apitester/test-source.mustache", datasetModel)));
+        payloads.add(new InMemoryFile(testBase + "service/UIServiceTest.java", renderer
+                .render("generator/apitester/test-service.mustache", datasetModel)));
 
         return payloads;
     }
@@ -138,6 +199,27 @@ public class ApiTesterGenerator {
         private final boolean importList;
 
         private final boolean importCode;
+
+        private final Collection<Option> options;
+
+        private final String family;
+
+    }
+
+    @Data
+    private static class Option {
+
+        private final String name;
+
+        private final String getter;
+
+        private final String setter;
+
+        private final String type;
+
+        private final String defaultValue;
+
+        private final String widget;
     }
 
     @Data

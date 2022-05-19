@@ -43,9 +43,6 @@ function ModeSwitcher (props) {
     }
 	return (
 		<React.Fragment>
-			<Icon name='talend-component-kit-negative' />
-			<Icon name='talend-rest' />
-			<Icon name='talend-api-tester-negative' />
 			<Toggle.Label
                 id="starter-mode-switcher"
                 autoFocus
@@ -88,7 +85,6 @@ function App (props) {
 							className: theme.switcher,
 						}}
 						getComponent={component => {
-						    console.log("getComponent", component);
 							if (component == 'User') {
 								return ModeSwitcherRouterAware;
 							}
