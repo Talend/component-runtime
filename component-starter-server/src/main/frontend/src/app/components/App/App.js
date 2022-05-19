@@ -20,9 +20,11 @@ import { withTranslation } from 'react-i18next';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
 import Icon from '@talend/react-components/lib/Icon';
 import Toggle from '@talend/react-components/lib/Toggle';
+import LabelToggle from '@talend/react-components/lib/Toggle/LabelToggle';
 import HeaderBar from '@talend/react-components/lib/HeaderBar';
 import Generator from '../Generator';
 import OpenAPIWizard from '../OpenAPI';
+import TalendAPITesterWizard from '../TalendAPITester';
 import DatastoreContext from '../../DatastoreContext';
 import DatasetContext from '../../DatasetContext';
 import ComponentsContext from '../../ComponentsContext';
@@ -31,24 +33,39 @@ import ProjectContext from '../../ProjectContext';
 import theme from './App.scss';
 
 function ModeSwitcher (props) {
-	const openapi = (props.history.location.pathname || '/').startsWith('/openapi');
+	const currentPath = (props.history.location.pathname || '/');
+	if (currentPath.startsWith('/openapi')) {
+        props.mode = 'openapi';
+    } else if (currentPath.startsWith('/apitester')) {
+        props.mode ='apitester';
+    } else {
+        props.mode = 'generic';
+    }
 	return (
 		<React.Fragment>
 			<Icon name='talend-component-kit-negative' />
-			<label>Standard</label>
-			<Toggle
-				id="starter-mode-switcher"
-				onChange={() => {
-					if (openapi) {
-						props.history.push('/');
-					} else {
-						props.history.push('/openapi/project');
-					}
-				}}
-				checked={openapi}
-			/>
-			<label>OpenAPI</label>
 			<Icon name='talend-rest' />
+			<Icon name='talend-api-tester-negative' />
+			<Toggle.Label
+                id="starter-mode-switcher"
+                autoFocus
+            	values={[
+            		{ value: 'generic',   label: 'Standard', dataFeature: 'generic' },
+            		{ value: 'openapi',   label: 'OpenAPI', dataFeature: 'openapi' },
+            		{ value: 'apitester', label: 'Talend API Tester', dataFeature: 'apitest' },
+            	]}
+            	value={props.mode}
+            	onChange={(val) => {
+                    if (val == "openapi") {
+                        props.history.push('/openapi/project');
+                    } else if (val == "apitester") {
+                        props.history.push('/apitester/project');
+                    } else {
+                      	props.history.push('/');
+                    }
+                    props.mode = val;
+                }}
+            />
 		</React.Fragment>
 	);
 }
@@ -62,7 +79,7 @@ function App (props) {
 
 				<div className={theme.header}>
 					<HeaderBar
-						id='heder-bar'
+						id='header-bar'
 						logo={{ isFull: true }}
 						brand={{
 							label: 'Starter Toolkit',
@@ -71,6 +88,7 @@ function App (props) {
 							className: theme.switcher,
 						}}
 						getComponent={component => {
+						    console.log("getComponent", component);
 							if (component == 'User') {
 								return ModeSwitcherRouterAware;
 							}
@@ -87,6 +105,7 @@ function App (props) {
 								<ComponentsContext.Provider>
 									<Switch>
 										<Route path="/openapi" component={OpenAPIWizard} />
+										<Route path="/apitester" component={TalendAPITesterWizard} />
 										<Route component={Generator} />
 									</Switch>
 								</ComponentsContext.Provider>

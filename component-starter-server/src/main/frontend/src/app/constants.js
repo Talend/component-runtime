@@ -16,9 +16,11 @@
 export const SERVER_URL = '/api';
 export const CONFIGURATION_URL = `${SERVER_URL}/project/configuration`;
 export const GENERATOR_ZIP_URL = `${SERVER_URL}/project/zip/form`;
-export const GENERATOR_OPENAPI_ZIP_URL = `${SERVER_URL}/project/openapi/zip/form`;
 export const GENERATOR_GITHUB_URL = `${SERVER_URL}/project/github`;
+export const GENERATOR_OPENAPI_ZIP_URL = `${SERVER_URL}/project/openapi/zip/form`;
 export const GENERATOR_OPENAPI_GITHUB_URL = `${SERVER_URL}/project/openapi/github`;
+export const GENERATOR_APITESTER_ZIP_URL = `${SERVER_URL}/project/apitester/zip/form`;
+export const GENERATOR_APITESTER_GITHUB_URL = `${SERVER_URL}/project/apitester/github`;
 export const COMPONENT_TYPE_SOURCE = 'Input';
 export const COMPONENT_TYPE_PROCESSOR = 'Processor';
 export const COMPONENT_TYPE_SINK = 'Output';

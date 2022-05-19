@@ -41,6 +41,7 @@
   "delete_datastore_warning_is_used": "<0>You can't delete this configuration because it's already used.</0>",
   "headerbar_mode_default": "Standard Mode",
   "headerbar_mode_openapi": "OpenAPI mode",
+  "headerbar_mode_apitester": "Talend API Tester mode",
   "openapi_list_title": "Select the endpoints to use:",
   "openapi_metadata_title": "Project Metadata",
   "openapi_metadata": "<0>Select your project metadata (coordinates, build type, etc....).</0>",
@@ -49,6 +50,14 @@
   "openapi_metadata_family": "Family",
   "openapi_metadata_coordinates": "Coordinates",
   "openapi_metadata_build": "Build Type",
+  "apitester_list_title": "Select the scenario to use.",
+  "apitester_metadata_title": "Project Metadata",
+  "apitester_metadata": "<0>Select your project metadata (coordinates, build type, etc....).</0>",
+  "apitester_overview_title": "Talend API Tester Design",
+  "apitester_overview": "<0><0>The right editor enables you to edit the Talend API Tester scenario.</0><1>The editor part allows you to paste the scenario.</1><2>Once you are ready, hit the button Finish<1>Download as ZIP</1> to download a ready to run component project.</2></0>",
+  "apitester_metadata_family": "Family",
+  "apitester_metadata_coordinates": "Coordinates",
+  "apitester_metadata_build": "Build Type",
   "finish_github_organization_title": "Github Organization",
   "finish_github_organization": "<0><p>The Github organization to use to create the project.</p></0>"
 }

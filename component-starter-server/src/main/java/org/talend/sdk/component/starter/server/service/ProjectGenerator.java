@@ -41,6 +41,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import org.talend.sdk.component.starter.server.service.apitester.ApiTesterGenerator;
 import org.talend.sdk.component.starter.server.service.build.BuildGenerator;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
@@ -80,6 +81,9 @@ public class ProjectGenerator {
     private OpenAPIGenerator openAPIGenerator;
 
     @Inject
+    private ApiTesterGenerator apiTesterGenerator;
+
+    @Inject
     private TemplateRenderer tpl;
 
     @Inject
@@ -101,7 +105,6 @@ public class ProjectGenerator {
         final Map<String, byte[]> files = new HashMap<>();
 
         final Build build = generateProjectStructure(request, versionSnapshot, files);
-
         componentGenerator
                 .create(request.getPackageBase(), build, request.getFamily(), request.getCategory(),
                         request.getSources(), request.getProcessors(), request.getConfigurations())
@@ -117,6 +120,18 @@ public class ProjectGenerator {
         final Build build = generateProjectStructure(request, versionSnapshot, files);
 
         openAPIGenerator
+                .generate(request.getFamily(), build, request.getPackageBase(), request.getOpenapi())
+                .forEach(file -> files.put(file.getPath(), file.getContent()));
+
+        zip(request, outputStream, files);
+    }
+
+    public void generateFromAPITester(final ProjectRequest request, final OutputStream outputStream) {
+        final ServerInfo.Snapshot versionSnapshot = versions.getSnapshot();
+        final Map<String, byte[]> files = new HashMap<>();
+
+        final Build build = generateProjectStructure(request, versionSnapshot, files);
+        apiTesterGenerator
                 .generate(request.getFamily(), build, request.getPackageBase(), request.getOpenapi())
                 .forEach(file -> files.put(file.getPath(), file.getContent()));
 

@@ -1,0 +1,95 @@
+package {{packageName}}.dataset;
+
+{{#importList}}
+
+import java.util.List;
+{{/importList}}
+import java.io.Serializable;
+
+import javax.json.JsonObject;
+
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+{{#importDefaultValue}}
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
+{{/importDefaultValue}}
+import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+{{#importCode}}
+import org.talend.sdk.component.api.configuration.ui.widget.Code;
+{{/importCode}}
+import org.talend.sdk.component.api.service.http.Response;
+import org.talend.sdk.component.api.meta.Documentation;
+
+import {{packageName}}.connection.APIConnection;
+import {{packageName}}.client.APIClient;
+
+@Version
+@Icon(Icon.IconType.STAR) // todo use CUSTOM
+@DataSet("APIDataSet")
+@Documentation("Enables to select the API to call.")
+@OptionsOrder({
+    "connection",
+    "api",
+    {{#options}}    "{{value.name}}"{{^last}},{{/last}}
+    {{/options}}
+})
+public class APIDataSet implements Serializable {
+    @Option
+    @Documentation("The API connection.")
+    private APIConnection connection;
+
+    @Option
+    @Documentation("The API to use for this call.")
+    private APIType api;
+    {{#options}}
+
+    @Option
+    {{#value.defaultValue}}
+    @DefaultValue("{{value.defaultValue}}")
+    {{/value.defaultValue}}
+    {{#value.widget}}
+    {{value.widget}}
+    {{/value.widget}}
+    @ActiveIf(target = "api", value = { {{#value.supportedAPI}}"{{value}}"{{^last}}, {{/last}}{{/value.supportedAPI}} })
+    @Documentation("{{value.name}} value.")
+    private {{value.type}} {{value.name}};
+    {{/options}}
+    {{#options}}
+
+    public {{value.type}} {{value.getter}}() {
+        return {{value.name}};
+    }
+    {{/options}}
+
+    public APIConnection getConnection() {
+        return connection;
+    }
+
+    public APIType getAPI() {
+        return api;
+    }
+
+    public enum APIType {
+        {{#operations}}
+        {{value.name}} {
+            @Override
+            public Response<JsonObject> call(final APIDataSet config, final APIClient client) {
+                validateUrl(config);
+                client.base(config.getConnection().getBaseUrl());
+                return client.{{value.name}}({{#value.parameters}}config.{{value.getter}}(){{^last}}, {{/last}}{{/value.parameters}});
+            }
+        }{{^last}},{{/last}}{{#last}};{{/last}}
+        {{/operations}}
+
+        protected void validateUrl(final APIDataSet config) {
+            if (config.getConnection() == null || config.getConnection().getBaseUrl() == null) {
+                throw new IllegalArgumentException("No base url set");
+            }
+        }
+
+        public abstract Response<JsonObject> call(APIDataSet config, APIClient client);
+    }
+}

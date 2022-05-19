@@ -137,6 +137,7 @@ class OpenAPI extends React.Component {
     onSpecChange(spec, project) {
         const openapi = (spec || '').trim();
         const endpoints = readEndpoint(openapi, project.$$openapi.endpoints);
+        project.mode = 'openapi';
         project.$$openapi = {
             ...project.$$openapi,
             openapi,

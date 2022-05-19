@@ -37,6 +37,86 @@ function isEmpty(str) {
 	return !str || str.trim().length === 0;
 }
 
+function createNewModel({ project, components, datastore, dataset }) {
+	// we copy the model to compute sources and processors attributes
+	const lightModel = Object.assign({}, project.project);
+	const mode = project.mode;
+
+    lightModel.datastores = [];
+    lightModel.datasets = [];
+    lightModel.sources = [];
+    lightModel.processors = [];
+
+	if (mode == 'apitester') {
+        githubProjectTypeUrl = `${GENERATOR_APITESTER_GITHUB_URL}`;
+		lightModel.category = 'Cloud';
+
+		const model = JSON.parse(project.$$apitester.apitester.trim());
+        lightModel.apitester = {
+        ...model,
+        };
+
+	    return lightModel;
+	}
+
+	if (mode == 'openapi') {
+        githubProjectTypeUrl = `${GENERATOR_OPENAPI_GITHUB_URL}`;
+		lightModel.category = 'Cloud';
+        try {
+            const model = JSON.parse(project.$$openapi.openapi.trim());
+			const paths = model.paths || {};
+            const selectedEP = project.$$openapi.selectedEndpoints;
+			lightModel.openapi = {
+				    ...{ version: '3.0.0' },
+					...model,
+					paths: Object.keys(paths)
+						.map(path => ({
+							key: path,  // endpoint
+							value: Object.keys(paths[path]) // all verbs
+								.filter(endpointVerb => selectedEP
+									    .filter(it => it.verb + "_" + it.path == endpointVerb + "_"+ path)
+							            .length == 1)
+							    .reduce((agg, endpointVerb) => {
+								    agg[endpointVerb] = paths[path][endpointVerb];
+									return agg;
+								}, {}),
+						}))
+						.reduce((agg, value) => {
+							if (Object.keys(value.value).length > 0) {
+								agg[value.key] = value.value;
+							}
+							return agg;
+						}, {}),
+				};
+			} catch (e) {
+				lightModel.openapi = { version: '3.1.0' }; // todo: same as previous branch
+			}
+	    return lightModel;
+	}
+    /* generic */
+    githubProjectTypeUrl = `${GENERATOR_GITHUB_URL}`;
+    lightModel.datastores = datastore.datastores;
+    lightModel.datasets = dataset.datasets;
+    lightModel.sources = components.components
+    	.filter(c => c.type === COMPONENT_TYPE_SOURCE)
+    	.map(c => {
+    		const source = Object.assign({}, c.source);
+    		source.name = c.configuration.name;
+    		return source;
+    	});
+    lightModel.processors = components.components
+    	.filter(
+    		c => c.processor.outputStructures.length !== 0 || c.processor.inputStructures.length !== 0,
+    	)
+    	.map(c => {
+    		const processor = Object.assign({}, c.processor);
+    		processor.name = c.configuration.name;
+    		return processor;
+    	})
+
+    return lightModel;
+}
+
 function createModel({ project, components, datastore, dataset }, openapi) {
 	// we copy the model to compute sources and processors attributes
 	const lightCopyModel = Object.assign({}, project.project);
@@ -209,6 +289,7 @@ export default class Finish extends React.Component {
 				<FinishContext.Consumer>
 					{services => {
 						const projectModel = createModel(services, !!this.props.openapi);
+						const projectModelNew = createNewModel(services, !!this.props.mode);
 						return (
 							<div className={theme.Finish}>
 							<h2>Project Summary</h2>

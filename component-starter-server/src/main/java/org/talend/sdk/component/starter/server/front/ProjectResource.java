@@ -166,6 +166,17 @@ public class ProjectResource {
     }
 
     @POST
+    @Path("apitester/github")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Result createAPITesterOnGithub(final GithubProject project) {
+        final ByteArrayOutputStream zip = new ByteArrayOutputStream();
+        generator.generateFromAPITester(toRequest(project.getModel()), zip);
+        gitPush(project, zip.toByteArray());
+        return new Result(true);
+    }
+
+    @POST
     @Path("zip/form")
     @Produces("application/zip")
     public Response createZip(@FormParam("project") final String compressedModel, @Context final Providers providers) {
@@ -186,6 +197,19 @@ public class ProjectResource {
         final String filename = ofNullable(model.getArtifact()).orElse("zip") + ".zip";
         return Response.ok().entity((StreamingOutput) out -> {
             generator.generateFromOpenAPI(toRequest(model), out);
+            out.flush();
+        }).header("Content-Disposition", "inline; filename=" + filename).build();
+    }
+
+    @POST
+    @Path("apitester/zip/form")
+    @Produces("application/zip")
+    public Response createAPITesterZip(@FormParam("project") final String compressedModel,
+            @Context final Providers providers) {
+        final ProjectModel model = readProjectModel(compressedModel, providers);
+        final String filename = ofNullable(model.getArtifact()).orElse("zip") + ".zip";
+        return Response.ok().entity((StreamingOutput) out -> {
+            generator.generateFromAPITester(toRequest(model), out);
             out.flush();
         }).header("Content-Disposition", "inline; filename=" + filename).build();
     }
