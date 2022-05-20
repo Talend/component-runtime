@@ -22,6 +22,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
 import java.beans.Introspector;
 import java.util.ArrayList;
@@ -39,9 +40,9 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 
-import org.talend.sdk.component.starter.server.service.Strings;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator.InMemoryFile;
 import org.talend.sdk.component.starter.server.service.facet.util.NameConventions;
 import org.talend.sdk.component.starter.server.service.openapi.model.ApiModel;
 import org.talend.sdk.component.starter.server.service.openapi.model.openapi.OpenAPI;
@@ -151,7 +152,7 @@ public class OpenAPIGenerator {
                 .flatMap(operation -> operation
                         .getParameters()
                         .stream()
-                        .map(param -> new Option(param.getName(), "get" + Strings.capitalize(param.getName()),
+                        .map(param -> new Option(param.getName(), "get" + capitalize(param.getName()),
                                 param.getJavaType(), param.getDefaultValue(),
                                 new ArrayList<>(singletonList(operation.getName())), param.getWidget())))
                 .collect(toMap(Option::getName, identity(), (a, b) -> {
@@ -175,8 +176,8 @@ public class OpenAPIGenerator {
                                 // options
                                 options.stream().flatMap(opt -> {
                                     final Stream<String> displayName = Stream
-                                            .of("APIDataSet." + opt.getName() + "._displayName = <" + opt.getName()
-                                                    + ">");
+                                            .of("APIDataSet." + opt.getName() + "._displayName = "
+                                                    + capitalize(opt.getName()));
                                     if ("string".equalsIgnoreCase(opt.type)) {
                                         return Stream
                                                 .concat(displayName,
