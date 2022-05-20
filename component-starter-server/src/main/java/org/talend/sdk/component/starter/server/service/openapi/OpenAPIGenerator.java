@@ -66,6 +66,8 @@ public class OpenAPIGenerator {
     @Inject
     private Jsonb jsonb;
 
+    private String defaultUrl = "http://myhost:8080/api/v1/";
+
     @RequiredArgsConstructor
     enum ApiType {
 
@@ -97,9 +99,8 @@ public class OpenAPIGenerator {
         final ApiType apiType = getApiType(openapi);
         // TODO validateVersion(openapi);
         final ApiModel api = getApiModel(apiType, openapi);
-
         log.warn("[generate] {}", api.getInfo());
-        final String defaultUrl = api.getDefaultUrl();
+        defaultUrl = api.getDefaultUrl();
 
         final String pck = '/' + basePackage.replace('.', '/') + '/';
         final String javaBase = build.getMainJavaDirectory() + pck;
@@ -138,7 +139,8 @@ public class OpenAPIGenerator {
 
         payloads
                 .add(new FacetGenerator.InMemoryFile(baseFolder + "connection/APIConnection.java",
-                        renderer.render("generator/openapi/connection.mustache", new ConnectionModel(basePackage))));
+                        renderer.render("generator/openapi/connection.mustache",
+                                new ConnectionModel(basePackage, defaultUrl))));
         payloads
                 .add(new FacetGenerator.InMemoryFile(resourcesBaseFolder + "connection/Messages.properties",
                         "APIConnection.baseUrl._displayName = Base URL\n"
@@ -216,7 +218,8 @@ public class OpenAPIGenerator {
                         .render("generator/openapi/configuration.mustache", new ConfigurationModel(basePackage))));
         payloads
                 .add(new FacetGenerator.InMemoryFile(baseFolder + "source/APISource.java",
-                        renderer.render("generator/openapi/source.mustache", new ConnectionModel(basePackage))));
+                        renderer.render("generator/openapi/source.mustache",
+                                new ConnectionModel(basePackage, defaultUrl))));
         payloads
                 .add(new FacetGenerator.InMemoryFile(resourcesBaseFolder + "source/Messages.properties",
                         "APIConfiguration.dataset._displayName = API Dataset\n\n" + family + ".Source._displayName = "
@@ -439,6 +442,8 @@ public class OpenAPIGenerator {
     private static class ConnectionModel {
 
         private final String packageName;
+
+        private final String url;
     }
 
     @Data

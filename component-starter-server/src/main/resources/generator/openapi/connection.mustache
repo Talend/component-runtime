@@ -7,6 +7,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
@@ -20,6 +21,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 public class APIConnection implements Serializable {
     @Option
     @Required
+    @DefaultValue("{{url}}")
     @Documentation("The API base url to use.")
     private String baseUrl;
 
