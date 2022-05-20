@@ -233,6 +233,9 @@ public class OpenAPIGenerator {
                         family + "._displayName = " + family + "\n\n" + family
                                 + ".datastore.APIConnection._displayName = " + family + " Connection\n" + family
                                 + ".dataset.APIDataSet._displayName = " + family + " DataSet\n"));
+        // icon
+        payloads.add(new InMemoryFile("src/main/resources/icons/openapi.svg", renderer
+                .render("generator/openapi/openapi.svg", null)));
 
         return payloads;
     }
