@@ -49,7 +49,9 @@ import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.CreateProject;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.service.facet.apitester.APITesterFacet;
 import org.talend.sdk.component.starter.server.service.facet.component.ComponentGenerator;
+import org.talend.sdk.component.starter.server.service.facet.openapi.OpenAPIFacet;
 import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.service.openapi.OpenAPIGenerator;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
@@ -116,7 +118,7 @@ public class ProjectGenerator {
     public void generateFromOpenAPI(final ProjectRequest request, final OutputStream outputStream) {
         final ServerInfo.Snapshot versionSnapshot = versions.getSnapshot();
         final Map<String, byte[]> files = new HashMap<>();
-
+        request.getFacets().add(OpenAPIFacet.NAME);
         final Build build = generateProjectStructure(request, versionSnapshot, files);
 
         openAPIGenerator
@@ -129,9 +131,8 @@ public class ProjectGenerator {
     public void generateFromAPITester(final ProjectRequest request, final OutputStream outputStream) {
         final ServerInfo.Snapshot versionSnapshot = versions.getSnapshot();
         final Map<String, byte[]> files = new HashMap<>();
-        request.getFacets().add("APITesterFacet");
+        request.getFacets().add(APITesterFacet.NAME);
         final Build build = generateProjectStructure(request, versionSnapshot, files);
-        // TODO add specific facets
 
         apiTesterGenerator
                 .generate(request.getFamily(), build, request.getPackageBase(), request.getJsonModel())

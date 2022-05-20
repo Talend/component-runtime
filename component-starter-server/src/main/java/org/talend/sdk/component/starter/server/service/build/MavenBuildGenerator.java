@@ -38,6 +38,7 @@ import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.apitester.APITesterFacet;
+import org.talend.sdk.component.starter.server.service.facet.openapi.OpenAPIFacet;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
@@ -63,7 +64,7 @@ public class MavenBuildGenerator implements BuildGenerator {
             final Collection<Dependency> dependencies, final Collection<String> facets,
             final ServerInfo.Snapshot versions) {
         String repositories = "";
-        if (facets.contains(APITesterFacet.NAME)) {
+        if (facets.contains(APITesterFacet.NAME) || facets.contains(OpenAPIFacet.NAME)) {
             repositories = APITesterFacet.REPOSITORIES;
         }
 
