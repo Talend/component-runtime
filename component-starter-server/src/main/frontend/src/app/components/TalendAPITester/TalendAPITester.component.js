@@ -193,6 +193,7 @@ class TalendAPITester extends React.Component {
         project.mode = 'apitester';
         project.$$apitester = {
             ...project.$$apitester,
+            apitester: spec,
         };
     }
 
