@@ -278,22 +278,27 @@ public class OpenAPIGenerator {
 
     private Parameter mapParameter(final JsonObject it, final String type, final String name) {
         final String javaName = Introspector.decapitalize(nameConventions.toJavaName(name));
-        return new Parameter(javaName, "get" + Strings.capitalize(javaName), type,
-                getJavaMarkerForParameter(name, type),
-                getMarkerImportForParameter(name, type),
-                getObject(it, "schema").map(this::mapJavaType).orElse("String"),
-                getObject(it, "schema").map(schema -> schema.get("default")).map(defaultValue -> {
-                    switch (defaultValue.getValueType()) {
-                    case TRUE:
-                    case FALSE:
-                    case NUMBER:
-                        return String.valueOf(defaultValue);
-                    case STRING:
-                        return JsonString.class.cast(defaultValue).getString();
-                    default:
-                        return null;
-                    }
-                }).orElse(null), null);
+        String javaType = getObject(it, "schema").map(this::mapJavaType).orElse("String");
+        final String getter = "get" + capitalize(javaName);
+        final String javaMarker = getJavaMarkerForParameter(name, type);
+        final String importMarker = getMarkerImportForParameter(name, type);
+        final String defaultVal = getObject(it, "schema").map(schema -> schema.get("default")).map(defaultValue -> {
+            switch (defaultValue.getValueType()) {
+            case TRUE:
+            case FALSE:
+            case NUMBER:
+                return String.valueOf(defaultValue);
+            case STRING:
+                return JsonString.class.cast(defaultValue).getString();
+            default:
+                return null;
+            }
+        }).orElse(null);
+        final String widget = null;
+        if ("query".equals(type) && "JsonObject".equals(javaType)) {
+            javaType = "String";
+        }
+        return new Parameter(javaName, getter, type, javaMarker, importMarker, javaType, defaultVal, widget);
     }
 
     private String getMarkerImportForParameter(final String name, final String type) {
@@ -347,7 +352,8 @@ public class OpenAPIGenerator {
             return "List<" + mapJavaType(subSchema) + ">";
         }
         case "object":
-            return "List<JsonObject>";
+            // TODO unusable in studio : return "List<JsonObject>";
+            return "JsonObject";
         case "unknown": {
             System.out.println("Maybe a ref: " + jsonObject.getString("$ref", "noref"));
             return "JsonObject";
