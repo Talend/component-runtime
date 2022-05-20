@@ -47,8 +47,14 @@ public class OpenAPIFacet implements FacetGenerator {
     }
 
     @Override
+    public String loggingScope() {
+        return "compile";
+    }
+
+    @Override
     public Stream<Dependency> dependencies(final Collection<String> facets, final Snapshot versions) {
         return Stream.of(
+                new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versions.getLog4j2(), "compile"),
                 new Dependency("org.talend.components", "stream-json", versions.getStreamJson(), "compile"));
     }
 

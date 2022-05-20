@@ -6,6 +6,7 @@ import javax.json.JsonObject;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.components.common.stream.input.json.JsonToRecord;
 
+import org.slf4j.Logger;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -13,6 +14,7 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 import {{packageName}}.client.APIClient;
@@ -23,6 +25,7 @@ import {{packageName}}.dataset.APIDataSet;
 @Emitter(name = "Source")
 @Documentation("A source emitting the result of the configured called.")
 public class APISource implements Serializable {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(APISource.class);
     private final APIConfiguration configuration;
     private final APIClient client;
 
@@ -44,7 +47,12 @@ public class APISource implements Serializable {
         }
         called = true;
         final APIDataSet dataset = configuration.getDataSet();
-        JsonObject json = dataset.getAPI().call(dataset, client).body();
+        final Response<JsonObject> response = dataset.getAPI().call(dataset, client);
+        JsonObject json = response.body();
+        log.debug("{} ==> [code: {}] [body: {}]", dataset.getAPI().name(), response.status(), json);
+        if (response.status() > 299) {
+            log.warn("{} ==> [code: {}] [body: {}]", dataset.getAPI().name(), response.status(), json);
+        }
         final JsonToRecord jsonToRecord = new JsonToRecord(recordBuilderFactory, true);
         return jsonToRecord.toRecord(json);
     }

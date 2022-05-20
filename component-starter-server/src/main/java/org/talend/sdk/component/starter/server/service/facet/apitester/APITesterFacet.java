@@ -86,8 +86,14 @@ public class APITesterFacet implements FacetGenerator {
     }
 
     @Override
+    public String loggingScope() {
+        return "compile";
+    }
+
+    @Override
     public Stream<Dependency> dependencies(final Collection<String> facets, final Snapshot versions) {
         return Stream.of(
+                new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versions.getLog4j2(), "compile"),
                 new Dependency("org.junit.jupiter", "junit-jupiter", versions.getJupiter(), "test"),
                 new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"),
                 new Dependency("org.talend.components", "stream-json", versions.getStreamJson(), "compile"),
