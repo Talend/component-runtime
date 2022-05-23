@@ -15,6 +15,15 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -28,11 +37,6 @@ import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFi
 import org.talend.sdk.component.runtime.manager.service.api.ComponentInstantiator;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
-import java.io.*;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 class ProducerFinderImplTest {
 
     public static int state;
@@ -44,7 +48,7 @@ class ProducerFinderImplTest {
                         final ComponentManager.ComponentType componentType) -> this::instantiate;
 
         ProducerFinderImplTest.state = 0;
-        final ProducerFinderImpl finder = new ProducerFinderImpl("ThePlugin", builder, this::toRecord);
+        final ProducerFinder finder = new ProducerFinderImpl().init("ThePlugin", builder, this::toRecord);
         final Iterator<Record> recordIterator = finder.find("", "", 1, null);
         int counter = 0;
         while (recordIterator.hasNext()) {
@@ -62,7 +66,7 @@ class ProducerFinderImplTest {
         final ComponentInstantiator.Builder builder =
                 (final String pluginId, final ComponentInstantiator.MetaFinder finder,
                         final ComponentManager.ComponentType componentType) -> null;
-        final ProducerFinderImpl finder = new ProducerFinderImpl("ThePlugin", builder, this::toRecord);
+        final ProducerFinder finder = new ProducerFinderImpl().init("ThePlugin", builder, this::toRecord);
         final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> finder.find("unknownFamily", "unknownInput", 1, null));
 
@@ -81,7 +85,7 @@ class ProducerFinderImplTest {
 
     @Test
     void serial() throws IOException, ClassNotFoundException {
-        final ProducerFinderImpl implem = new ProducerFinderImpl("theplugin", null, this::toRecord);
+        final ProducerFinder implem = new ProducerFinderImpl().init("theplugin", null, this::toRecord);
 
         DynamicContainerFinder.SERVICES.put(ProducerFinder.class, implem);
         DynamicContainerFinder.LOADERS.put("theplugin", Thread.currentThread().getContextClassLoader());
