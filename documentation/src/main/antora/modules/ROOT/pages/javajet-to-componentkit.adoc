@@ -214,6 +214,34 @@ Component Kit
 List<MyObject> config;
 ----
 
+==== Module List
+
+Javajet
+[source,XML]
+----
+<PARAMETER NAME="DRIVER_JAR" FIELD="TABLE" NUM_ROW="3" NB_LINES="2" REQUIRED="true">
+    <ITEMS>
+        <ITEM NAME="JAR_NAME" FIELD="MODULE_LIST"  />
+    </ITEMS>
+</PARAMETER>
+----
+
+Component Kit
+[source,java]
+----
+public class Driver implements Serializable {
+
+    @ModuleList
+    @Option
+    private String path;
+
+}
+
+//define it in config class like this:
+@Option
+List<Driver> config;
+----
+
 ==== Code
 
 Javajet
