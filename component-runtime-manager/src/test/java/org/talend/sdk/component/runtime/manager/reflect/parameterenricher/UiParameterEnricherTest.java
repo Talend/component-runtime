@@ -37,7 +37,11 @@ import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
 import org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout;
-import org.talend.sdk.component.api.configuration.ui.widget.*;
+import org.talend.sdk.component.api.configuration.ui.widget.Code;
+import org.talend.sdk.component.api.configuration.ui.widget.Credential;
+import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
+import org.talend.sdk.component.api.configuration.ui.widget.ModuleList;
+import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 
 class UiParameterEnricherTest {
