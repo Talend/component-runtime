@@ -431,6 +431,17 @@ public interface Schema {
          * @return the described schema.
          */
         Schema build();
+
+        /**
+         * Same as {@link Builder#build()} but entries order is specified by {@code order}. This takes precedence on any
+         * previous defined order with builder and may void it.
+         *
+         * @param order the wanted order for entries.
+         * @return the described schema.
+         */
+        default Schema build(Comparator<Entry> order) {
+            throw new UnsupportedOperationException("#build(EntriesOrder) is not implemented");
+        }
     }
 
     /**
@@ -500,11 +511,22 @@ public interface Schema {
         /**
          * Build an EntriesOrder according fields.
          *
-         * @param fields the fields ordering
+         * @param fields the fields ordering. Each field should be {@code ,} separated.
          *
          * @return the order EntriesOrder
          */
         public static EntriesOrder of(final String fields) {
+            return new EntriesOrder(fields);
+        }
+
+        /**
+         * Build an EntriesOrder according fields.
+         *
+         * @param fields the fields ordering.
+         *
+         * @return the order EntriesOrder
+         */
+        public static EntriesOrder of(final List<String> fields) {
             return new EntriesOrder(fields);
         }
 
@@ -529,11 +551,12 @@ public interface Schema {
                 throw new IllegalArgumentException(String.format("%s not in schema", after));
             }
             getFieldsOrder().remove(name);
-            int destination = getFieldsOrder().indexOf(after);
-            if (!(destination + 1 == getFieldsOrder().size())) {
-                destination += 1;
+            final int destination = getFieldsOrder().indexOf(after) + 1;
+            if (destination < getFieldsOrder().size()) {
+                getFieldsOrder().add(destination, name);
+            } else {
+                getFieldsOrder().add(name);
             }
-            getFieldsOrder().add(destination, name);
             return this;
         }
 

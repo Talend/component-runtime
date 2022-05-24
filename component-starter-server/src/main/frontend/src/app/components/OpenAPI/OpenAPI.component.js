@@ -58,7 +58,7 @@ function readEndpoint(spec, existingEndpoints) {
         return Object.keys(json.paths)
                 .flatMap(path => Object.keys(json.paths[path])
                     .map(verb => {
-                        const operationId = json.paths[path][verb].operationId || (`${verb}_${path.replace('/', '_').replace('{', '').replace('}', '')}`);
+                        const operationId = (`${verb}_${path}`);
                         const existing = existingEndpoints.filter(it => it.operationId == operationId);
                         const checked = existing.length == 1 ? existing[0].checked : true;
                         return {

@@ -35,6 +35,8 @@ public class NameConventions {
                 .of(name)
                 // first split on all separators we don't want
                 .flatMap(s -> Stream.of(s.split("[^\\p{Alnum}]")))
+                // remove any '-'
+                .map(s -> s.replaceAll("-", ""))
                 // drop empty strings
                 .map(String::trim)
                 .filter(it -> !it.isEmpty())

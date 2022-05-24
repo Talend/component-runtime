@@ -187,7 +187,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         return doMap(expectedType, unwrapUnion(fieldSchema), value);
     }
 
-    private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchema, final Object value) {
+    private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchemaRaw, final Object value) {
+        final org.apache.avro.Schema fieldSchema = unwrapUnion(fieldSchemaRaw);
         if (Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name())) && Long.class.isInstance(value)
                 && expectedType != Long.class) {
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
@@ -217,7 +218,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return expectedType.cast(value.toString());
         }
         if (Collection.class.isAssignableFrom(expectedType) && value instanceof Collection) {
-            final org.apache.avro.Schema elementType = unwrapUnion(fieldSchema).getElementType();
+            final org.apache.avro.Schema elementType = fieldSchema.getElementType();
             final org.apache.avro.Schema elementSchema = unwrapUnion(elementType);
             Class<?> toType = Object.class;
             if (elementSchema.getType() == org.apache.avro.Schema.Type.RECORD) {

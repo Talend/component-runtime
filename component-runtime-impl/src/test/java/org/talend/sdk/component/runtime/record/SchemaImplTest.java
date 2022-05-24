@@ -16,12 +16,14 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +38,7 @@ import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -420,6 +423,30 @@ class SchemaImplTest {
                 Schema.avoidCollision(e2, entriesDuplicate.values()::stream, entriesDuplicate::put);
 
         Assertions.assertSame(realEntry2, e2);
+    }
+
+    @RepeatedTest(20)
+    void entriesOrderShouldBeDeterministic() {
+        final List<Entry> entries = IntStream
+                .range(0, 20)
+                .mapToObj(i -> newEntry(String.format("data0%02d", i), Type.STRING))
+                .collect(toList());
+        entries.add(data1);
+        entries.add(data2);
+        entries.add(meta1);
+        entries.add(meta2);
+        Collections.shuffle(entries);
+        final String shuffled = entries.stream()
+                .map(e -> e.getName())
+                .filter(s -> !s.matches("(data1|data2|meta1|meta2)"))
+                .collect(joining(","));
+        final Builder builder = new BuilderImpl().withType(Type.RECORD);
+        entries.forEach(builder::withEntry);
+        final Schema schema = builder.build();
+        final String order = "meta1,meta2,data1,data2";
+        final EntriesOrder entriesOrder = EntriesOrder.of(order);
+        assertEquals(shuffled, getSchemaFields(schema, entriesOrder).replace(order + ",", ""));
+        assertEquals(order, getSchemaFields(schema, entriesOrder).replaceAll(",data0.*", ""));
     }
 
     private String getSchemaFields(final Schema schema) {

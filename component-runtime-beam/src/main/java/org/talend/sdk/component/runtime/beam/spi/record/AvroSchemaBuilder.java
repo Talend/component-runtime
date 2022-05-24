@@ -16,12 +16,14 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -216,11 +218,12 @@ public class AvroSchemaBuilder implements Schema.Builder {
             throw new IllegalArgumentException(String.format("%s not in schema", after));
         }
         final Entry entry = fields.remove(getEntryIndex(name));
-        int destination = getEntryIndex(after);
-        if (!(destination + 1 == fields.size())) {
-            destination += 1;
+        int destination = getEntryIndex(after) + 1;
+        if (destination < fields.size()) {
+            fields.add(destination, entry);
+        } else {
+            fields.add(entry);
         }
-        fields.add(destination, entry);
         return this;
     }
 
@@ -277,7 +280,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     /**
      * Convert a non avro schema to schema.
-     * 
+     *
      * @param schema : Non Avro schema.
      * @return Avro schema.
      */
@@ -327,6 +330,11 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     @Override
     public Schema build() {
+        return build(null);
+    }
+
+    @Override
+    public Schema build(final Comparator<Entry> order) {
         switch (type) {
         case BYTES:
             return BYTES_SCHEMA;
@@ -354,7 +362,13 @@ public class AvroSchemaBuilder implements Schema.Builder {
                     .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
                             false);
             record.setFields(avroFields);
-            record.addProp(ENTRIES_ORDER_PROP, fields.stream().map(e -> e.getName()).collect(Collectors.joining(",")));
+            if (order != null) {
+                final String entriesOrder = fields.stream().sorted(order).map(Entry::getName).collect(joining(","));
+                record.addProp(ENTRIES_ORDER_PROP, entriesOrder);
+            } else {
+                record.addProp(ENTRIES_ORDER_PROP,
+                        fields.stream().map(e -> e.getName()).collect(joining(",")));
+            }
             this.props.entrySet()
                     .stream()
                     .filter((Map.Entry<String, String> e) -> !ENTRIES_ORDER_PROP.equals(e.getKey()))

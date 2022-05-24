@@ -33,37 +33,52 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor
 public class ProducerFinderImpl implements ProducerFinder {
 
-    private final String plugin;
+    protected String plugin;
 
-    private final ComponentInstantiator.Builder mapperFinder;
+    protected ComponentInstantiator.Builder mapperFinder;
 
-    private final Function<Object, Record> recordConverter;
+    protected Function<Object, Record> recordConverter;
+
+    @Override
+    public ProducerFinder init(final String plugin, final Object builder, final Function<Object, Record> converter) {
+        this.plugin = plugin;
+        mapperFinder = ComponentInstantiator.Builder.class.cast(builder);
+        recordConverter = converter;
+        return this;
+    }
 
     @Override
     public Iterator<Record> find(final String familyName, final String inputName, final int version,
             final Map<String, String> configuration) {
+        final ComponentInstantiator instantiator = getInstantiator(familyName, inputName);
+        final Mapper mapper = findMapper(instantiator, version, configuration);
 
+        return iterator(mapper.create());
+    }
+
+    protected ComponentInstantiator getInstantiator(final String familyName, final String inputName) {
         final ComponentInstantiator.MetaFinder datasetFinder = new ComponentInstantiator.ComponentNameFinder(inputName);
         final ComponentInstantiator instantiator =
                 this.mapperFinder.build(familyName, datasetFinder, ComponentManager.ComponentType.MAPPER);
         if (instantiator == null) {
-            log.error("Can't find {} for connector family {}", inputName, familyName);
+            log.error("Can't find {} for family {}.", inputName, familyName);
             throw new IllegalArgumentException(
-                    String.format("Can't find %s for connector family %s", inputName, familyName));
+                    String.format("Can't find %s for family %s.", inputName, familyName));
         }
-        final Mapper mapper = this.findMapper(instantiator, version, configuration);
-        final Input input = mapper.create();
-        final Iterator<Object> iteratorObject = new InputIterator(input);
-
-        return new IteratorMap<>(iteratorObject, this.recordConverter);
+        return instantiator;
     }
 
-    private Mapper findMapper(final ComponentInstantiator instantiator, final int version,
+    protected Mapper findMapper(final ComponentInstantiator instantiator, final int version,
             final Map<String, String> configuration) {
         return (Mapper) instantiator.instantiate(configuration, version);
+    }
+
+    protected Iterator<Record> iterator(final Input input) {
+        final Iterator<Object> iteratorObject = new InputIterator(input);
+
+        return new IteratorMap<>(iteratorObject, recordConverter);
     }
 
     private Object writeReplace() throws ObjectStreamException {
@@ -76,7 +91,7 @@ public class ProducerFinderImpl implements ProducerFinder {
 
         private Object nextObject;
 
-        private boolean init = false;
+        private boolean init;
 
         InputIterator(final Input input) {
             this.input = input;
@@ -88,26 +103,26 @@ public class ProducerFinderImpl implements ProducerFinder {
 
         @Override
         public boolean hasNext() {
-            synchronized (this.input) {
+            synchronized (input) {
                 if (!init) {
-                    this.init = true;
-                    this.input.start();
-                    this.nextObject = InputIterator.findNext(input);
+                    init = true;
+                    input.start();
+                    nextObject = findNext(input);
                 }
-                if (this.nextObject == null) {
-                    this.input.stop();
+                if (nextObject == null) {
+                    input.stop();
                 }
             }
-            return this.nextObject != null;
+            return nextObject != null;
         }
 
         @Override
         public Object next() {
-            if (!this.hasNext()) {
+            if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            final Object current = this.nextObject;
-            this.nextObject = InputIterator.findNext(input);
+            final Object current = nextObject;
+            nextObject = findNext(input);
             return current;
         }
     }

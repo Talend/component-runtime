@@ -43,6 +43,19 @@ import lombok.extern.slf4j.Slf4j;
 class ApiDemoEndpointsTest {
 
     @Test
+    void realEnvironment(final WebTarget target) throws Exception {
+        final JsonObject result = target
+                .path("environment")
+                .request(APPLICATION_JSON_TYPE)
+                .get(JsonObject.class);
+        log.warn("[environment] {}", result);
+        assertNotNull(result.get("version"));
+        assertNotNull(result.get("release"));
+        assertNotNull(result.get("branch"));
+        assertNotNull(result.get("commit"));
+    }
+
+    @Test
     void environment(final WebTarget target) throws Exception {
         final JsonObject result = target
                 .path("demo/{version}/api/v1/environment")
