@@ -69,6 +69,7 @@ public class CarBundler implements Runnable {
         final Properties metadata = new Properties();
         metadata.put("date", date);
         metadata.put("version", ofNullable(configuration.version).orElse("NC"));
+        metadata.put("CarMainVersion", Metadata.get().getVersion());
         metadata
                 .put("component_coordinates", ofNullable(configuration.mainGav)
                         .orElseThrow(() -> new IllegalArgumentException("No component coordinates specified")));

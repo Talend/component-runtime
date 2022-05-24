@@ -177,45 +177,51 @@ public class CarMain {
         }
 
         final Properties configuration = readProperties(config);
-        final String repositoryType = configuration.getProperty("maven.repository");
         final File m2Root;
-        if ("global".equals(repositoryType)) {
-            // grab local maven setup, we use talend env first to override dev one then dev env setup
-            // and finally this main system props as a more natural config but less likely set on a dev machine
-            m2Root = Stream
-                    .of("TALEND_STUDIO_MAVEN_HOME", "MAVEN_HOME", "M2_HOME", "talend.component.server.maven.repository",
-                            "talend.studio.m2")
-                    .map(it -> it.contains(".") ? System.getProperty(it) : System.getenv(it))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .map(mvnHome -> {
-                        final File globalSettings = new File(mvnHome, "conf/settings.xml");
-                        if (globalSettings.exists()) {
-                            try {
-                                final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                                factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                                final DocumentBuilder builder = factory.newDocumentBuilder();
-                                final Document document = builder.parse(globalSettings);
-                                final NodeList localRepository = document.getElementsByTagName("localRepository");
-                                if (localRepository.getLength() == 1) {
-                                    final Node node = localRepository.item(0);
-                                    if (node != null) {
-                                        final String repoPath = node.getTextContent();
-                                        if (repoPath != null) {
-                                            return new File(repoPath);
+        String m2RepoPath = System.getProperty("talend.studio.m2.repo", null);
+        if (m2RepoPath != null) {
+            m2Root = new File(m2RepoPath);
+        } else {
+            final String repositoryType = configuration.getProperty("maven.repository");
+            if ("global".equals(repositoryType)) {
+                // grab local maven setup, we use talend env first to override dev one then dev env setup
+                // and finally this main system props as a more natural config but less likely set on a dev machine
+                m2Root = Stream
+                        .of("TALEND_STUDIO_MAVEN_HOME", "MAVEN_HOME", "M2_HOME",
+                                "talend.component.server.maven.repository",
+                                "talend.studio.m2")
+                        .map(it -> it.contains(".") ? System.getProperty(it) : System.getenv(it))
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .map(mvnHome -> {
+                            final File globalSettings = new File(mvnHome, "conf/settings.xml");
+                            if (globalSettings.exists()) {
+                                try {
+                                    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                                    factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                                    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                                    final DocumentBuilder builder = factory.newDocumentBuilder();
+                                    final Document document = builder.parse(globalSettings);
+                                    final NodeList localRepository = document.getElementsByTagName("localRepository");
+                                    if (localRepository.getLength() == 1) {
+                                        final Node node = localRepository.item(0);
+                                        if (node != null) {
+                                            final String repoPath = node.getTextContent();
+                                            if (repoPath != null) {
+                                                return new File(repoPath);
+                                            }
                                         }
                                     }
+                                } catch (final ParserConfigurationException | SAXException | IOException e) {
+                                    throw new IllegalStateException(e);
                                 }
-                            } catch (final ParserConfigurationException | SAXException | IOException e) {
-                                throw new IllegalStateException(e);
                             }
-                        }
-                        return null;
-                    })
-                    .orElseGet(() -> new File(System.getProperty("user.home"), ".m2/repository/"));
-        } else {
-            m2Root = new File(studioLocation, "configuration/.m2/repository/");
+                            return null;
+                        })
+                        .orElseGet(() -> new File(System.getProperty("user.home"), ".m2/repository/"));
+            } else {
+                m2Root = new File(studioLocation, "configuration/.m2/repository/");
+            }
         }
         if (!m2Root.isDirectory()) {
             throw new IllegalArgumentException(m2Root + " does not exist, did you specify a valid studio home?");
