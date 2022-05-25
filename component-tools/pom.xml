@@ -151,15 +151,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <filtering>true</filtering>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>metadata.properties</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <!-- grab asciidoctor.css as a base of our theme for now -->
