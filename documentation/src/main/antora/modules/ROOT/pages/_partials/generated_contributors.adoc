@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":552,
+    "commits":553,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -79,6 +79,13 @@
   },
   {
     "commits":4,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
+    "id":"wwang-talend",
+    "name":"wang wei"
+  },
+  {
+    "commits":4,
     "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?)\n\nBlog: https://ismaelmejia.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
@@ -97,13 +104,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/7931535?v=4",
     "id":"amaumont",
     "name":"Axel MAUMONT"
-  },
-  {
-    "commits":3,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
-    "id":"wwang-talend",
-    "name":"wang wei"
   },
   {
     "commits":3,

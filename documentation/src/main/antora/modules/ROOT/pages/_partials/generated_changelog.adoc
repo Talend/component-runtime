@@ -1,5 +1,11 @@
 
 
+== Version 1.46.0
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2146[TCOMP-2146^]: Car bundler improvements link:search.html?query=car-bundler[car-bundler^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+
 == Version 1.45.0
 
 === Bug
