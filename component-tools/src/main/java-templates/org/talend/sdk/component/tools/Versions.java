@@ -15,19 +15,12 @@
  */
 package org.talend.sdk.component.tools;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+public interface Versions {
 
-import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.StringUtils;
+    String GROUP = "${project.groupId}";
 
-import lombok.extern.slf4j.Slf4j;
+    String ARTIFACT = "${project.artifactId}";
 
-@Slf4j
-class MetadataTest {
-
-    @Test
-    void testGetVersion() throws Exception {
-        assertTrue(StringUtils.isNotBlank(Metadata.get().getVersion()), "can get version from metadata");
-    }
+    String VERSION = "${project.version}";
 
 }
