@@ -18,9 +18,10 @@ package org.talend.sdk.component.runtime.standalone;
 import java.lang.reflect.Method;
 
 import org.talend.sdk.component.api.standalone.RunAtDriver;
+import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
 
-public class DriverRunnerImpl extends LifecycleImpl implements DriverRunner {
+public class DriverRunnerImpl extends LifecycleImpl implements DriverRunner, Delegated {
 
     private transient Method runAtDriver;
 
@@ -38,5 +39,10 @@ public class DriverRunnerImpl extends LifecycleImpl implements DriverRunner {
             runAtDriver = findMethods(RunAtDriver.class).findFirst().get();
         }
         doInvoke(runAtDriver);
+    }
+
+    @Override
+    public Object getDelegate() {
+        return delegate;
     }
 }
