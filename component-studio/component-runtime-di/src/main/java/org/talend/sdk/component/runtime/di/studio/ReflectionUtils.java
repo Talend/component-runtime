@@ -41,18 +41,6 @@ public class ReflectionUtils {
                 }));
     }
 
-    static Stream<Field> findFields(final Object delegate, final Class<? extends Annotation> marker,
-            final ClassLoader loader) {
-        return callInLoader(loader,
-                () -> Stream.of(delegate.getClass().getDeclaredFields())
-                        .filter(m -> m.isAnnotationPresent(marker))
-                        .peek(m -> {
-                            if (!m.isAccessible()) {
-                                m.setAccessible(true);
-                            }
-                        }));
-    }
-
     static Stream<Field> findFields(final Object delegate, final Class<? extends Annotation> marker) {
         return findFields(delegate.getClass(), marker);
     }

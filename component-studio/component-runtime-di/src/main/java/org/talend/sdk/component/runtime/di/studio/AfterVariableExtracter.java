@@ -43,7 +43,7 @@ public class AfterVariableExtracter {
         if (lifecycle instanceof Delegated) {
             final Object delegate = ((Delegated) lifecycle).getDelegate();
 
-            ClassLoader classloader = ReflectionUtils.getClassLoader(lifecycle);
+            final ClassLoader classloader = ReflectionUtils.getClassLoader(lifecycle);
 
             return ReflectionUtils.findMethods(delegate, AfterVariableContainer.class, classloader)
                     .findFirst()

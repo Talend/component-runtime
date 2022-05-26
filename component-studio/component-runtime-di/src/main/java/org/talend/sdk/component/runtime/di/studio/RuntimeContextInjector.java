@@ -24,14 +24,16 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RuntimeContextInjector {
 
     /**
      * Inject runtime context object to runtime input/processor/standalone runner object
+     *
+     * @param lifecycle input/processor/standalone runner
+     * @param runtimeContext the runtime context
+     * @see Lifecycle
      */
     public static void injectLifecycle(final Lifecycle lifecycle, final Map<String, Object> runtimeContext) {
         if (lifecycle instanceof Delegated) {
@@ -51,14 +53,17 @@ public class RuntimeContextInjector {
                 currentClass = currentClass.getSuperclass();
             }
         } else {
-            log.warn("Not supported implementation of lifecycle");
+            throw new IllegalArgumentException("Not supported implementation of lifecycle : " + lifecycle);
         }
     }
 
     /**
-     * Inject runtime context object to runtime connection/close service/action object,
-     * maybe also commit/rollback if they are auto generated too,
-     * service is flat, no extends as common, so not do getSuperclass
+     * Inject runtime context object to runtime connection/close service/action object
+     *
+     * @param manager component manager
+     * @param plugin the plugin name
+     * @param runtimeContext the runtime context
+     * @see ComponentManager
      */
     public static void injectService(final ComponentManager manager, final String plugin,
             final Map<String, Object> runtimeContext) {
