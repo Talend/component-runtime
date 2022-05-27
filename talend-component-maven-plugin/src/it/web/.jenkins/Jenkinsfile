@@ -136,6 +136,7 @@ pipeline {
     stage('Test Checkout') {
       steps {
         container(tsbiImage) {
+          // Checkout of the connector directory (TODO Will be cleaned when test component will be ready)
           checkout([
               $class           : 'GitSCM',
               branches         : [[name: '*/master']],
@@ -146,6 +147,7 @@ pipeline {
               userRemoteConfigs: [[credentialsId: 'github-ssh',
                                    url          : 'git@github.com:Talend/connectors-se.git']]
           ])
+          // Checkout of the test directory from API Tester
           checkout([
               $class           : 'GitSCM',
               branches         : [[name: "*/${branchToUse}"]],
@@ -155,21 +157,7 @@ pipeline {
                   [$class                           : 'CleanBeforeCheckout',
                    deleteUntrackedNestedRepositories: true],
                   [$class             : 'SparseCheckoutPaths',
-                   sparseCheckoutPaths: [[path: 'tck-api-test/tests']]]
-              ],
-              userRemoteConfigs: [[credentialsId: 'github-ssh',
-                                   url          : 'git@github.com:Talend/tdi-jenkins-job.git']]
-          ])
-          checkout([
-              $class           : 'GitSCM',
-              branches         : [[name: "*/${branchToUse}"]],
-              extensions       : [
-                  [$class           : 'RelativeTargetDirectory',
-                   relativeTargetDir: './scenarios'],
-                  [$class                           : 'CleanBeforeCheckout',
-                   deleteUntrackedNestedRepositories: true],
-                  [$class             : 'SparseCheckoutPaths',
-                   sparseCheckoutPaths: [[path: 'C:/git/component-runtime/component-server-parent']]]
+                   sparseCheckoutPaths: [[path: 'component-runtime/talend-component-maven-plugin/src/it/web/test']]]
               ],
               userRemoteConfigs: [[credentialsId: 'github-ssh',
                                    url          : 'git@github.com:Talend/component-runtime.git']]
