@@ -92,11 +92,10 @@ pipeline {
 
     APP_ID = '579232'
     TALEND_REGISTRY = "artifactory.datapwn.com"
-
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
-    ROOT_PATH = "${WORKSPACE}/tck-api-test"
-    SCRIPTS_PATH = "${WORKSPACE}/tck-api-test/scripts"
+    ROOT_PATH = "${WORKSPACE}"
+    SCRIPTS_PATH = "${WORKSPACE}/scripts"
     TESTS_PATH = "${WORKSPACE}/tests_scenarios/tck-api-test/tests"
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${WORKSPACE}/connectors/azure/azure-dls-gen2"
