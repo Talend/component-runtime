@@ -118,7 +118,7 @@ pipeline {
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
 
-    API_TESTER_ID = "${API_TESTER_ID}"
+    API_TESTER_ID = apiTesterId
   }
 
   options {
@@ -159,10 +159,11 @@ pipeline {
           checkout([
               $class           : 'GitSCM',
               branches         : [[name: '*/master']],
-              extensions       : [[$class           : 'RelativeTargetDirectory',
-                                   relativeTargetDir: './connectors'],
-                                  [$class                           : 'CleanBeforeCheckout',
-                                   deleteUntrackedNestedRepositories: true]],
+              extensions       : [
+                  [$class           : 'RelativeTargetDirectory',
+                   relativeTargetDir: './connectors'],
+                  [$class                           : 'CleanBeforeCheckout',
+                   deleteUntrackedNestedRepositories: true]],
               userRemoteConfigs: [[credentialsId: 'github-ssh',
                                    url          : 'git@github.com:Talend/connectors-se.git']]
           ])
