@@ -96,7 +96,7 @@ pipeline {
 
     ROOT_PATH = "${WORKSPACE}"
     SCRIPTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    TESTS_PATH = "${WORKSPACE}/tests_scenarios/tck-api-test/tests"
+    TESTS_PATH = "${WORKSPACE}/test_scenarios/talend-component-maven-plugin/src/it/web/test"
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
 
@@ -153,11 +153,11 @@ pipeline {
               branches         : [[name: "*/${branchToUse}"]],
               extensions       : [
                   [$class           : 'RelativeTargetDirectory',
-                   relativeTargetDir: './tests_scenarios'],
+                   relativeTargetDir: './test_scenarios'],
                   [$class                           : 'CleanBeforeCheckout',
                    deleteUntrackedNestedRepositories: true],
                   [$class             : 'SparseCheckoutPaths',
-                   sparseCheckoutPaths: [[path: 'component-runtime/talend-component-maven-plugin/src/it/web/test']]]
+                   sparseCheckoutPaths: [[path: 'talend-component-maven-plugin/src/it/web/test']]]
               ],
               userRemoteConfigs: [[credentialsId: 'github-ssh',
                                    url          : 'git@github.com:Talend/component-runtime.git']]
