@@ -79,7 +79,7 @@ pipeline {
   }
 
   environment {
-    MAVEN_SETTINGS = "${WORKSPACE}/tck-api-test/.jenkins/settings.xml"
+    MAVEN_SETTINGS = "${WORKSPACE}.jenkins/settings.xml"
     DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
     MAVEN_OPTS = [
             "-Dmaven.artifact.threads=128",
