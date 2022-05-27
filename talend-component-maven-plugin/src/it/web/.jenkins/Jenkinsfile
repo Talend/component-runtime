@@ -40,6 +40,9 @@ try {
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "API_TESTER_ID not supplied, try to use the txt version"
 }
+catch (ArrayIndexOutOfBoundsException ignored) {
+  echo "API_TESTER_ID is default, try to use the txt version"
+}
 
 if (apiTesterId == "default") {
   try {
