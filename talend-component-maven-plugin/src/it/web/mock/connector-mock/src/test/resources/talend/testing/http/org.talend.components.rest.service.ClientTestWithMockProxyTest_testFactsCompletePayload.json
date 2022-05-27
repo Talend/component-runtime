@@ -1,0 +1,17 @@
+[
+  {
+    "request":{
+      "headers":{
+      },
+      "method":"GET",
+      "uri":"https://fakefacts.com/facts"
+    },
+    "response":{
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "payload":"{\"one_element\":{\"_id\":\"000001\",\"text\":\"First fact.\",\"type\":\"fact\",\"user\":{\"_id\":\"13213213\",\"name\":{\"first\":\"John\",\"last\":\"Doe\"}}}}",
+      "status":200
+    }
+  }
+]
