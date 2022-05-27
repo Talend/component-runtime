@@ -1,0 +1,17 @@
+[
+  {
+    "request":{
+      "headers":{
+      },
+      "method":"GET",
+      "uri":"https://fakefacts.com/facts"
+    },
+    "response":{
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "payload":"{ \"name\" :  \"Durance\",  \"adresse\" :  \"4, allée d'Orléans 4400 NANTES\",  \"books\" : [ { \"isbn\" :  \"12345\",  \"title\" :  \"Civilizations\",  \"author\" :  \"Laurent Binet\"},{ \"isbn\" :  \"97854\",  \"title\" :  \"La panthère des neiges\",  \"author\" :  \"Sylvain Tesson\"},{ \"isbn\" :  \"65423\",  \"title\" :  \"Par les routes\",  \"author\" : \"Sylvain Prudhomme\"}]}",
+      "status":200
+    }
+  }
+]
