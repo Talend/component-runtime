@@ -30,14 +30,24 @@ final String serverLog = "component_server.log"
 final String serverTimeout = "1"
 
 // Default value for parameters
+String apiTesterId = "default"
 String runtimeVersion = "default"
 String branchToUse = "master"
+
+try {
+  runtimeVersion = "${API_TESTER_ID}"
+}
+catch (groovy.lang.MissingPropertyException ignored) {
+  echo "RUNTIME_VERSION not supplied, default value will be used"
+}
+
 try {
   runtimeVersion = "${RUNTIME_VERSION}"
 }
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "RUNTIME_VERSION not supplied, default value will be used"
 }
+
 try {
   branchToUse = "${TEST_BRANCH}".replace("origin/","") // Remove "origin/" prefix to avoid double in script
 }
@@ -79,7 +89,7 @@ pipeline {
   }
 
   environment {
-    MAVEN_SETTINGS = "${WORKSPACE}.jenkins/settings.xml"
+    MAVEN_SETTINGS = "${WORKSPACE}/.jenkins/settings.xml"
     DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
     MAVEN_OPTS = [
             "-Dmaven.artifact.threads=128",
