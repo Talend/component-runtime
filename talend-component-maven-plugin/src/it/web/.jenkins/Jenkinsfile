@@ -95,7 +95,7 @@ pipeline {
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
     ROOT_PATH = "${WORKSPACE}"
-    SCRIPTS_PATH = "${WORKSPACE}/scripts"
+    SCRIPTS_PATH = "${WORKSPACE}/.jenkins/scripts"
     TESTS_PATH = "${WORKSPACE}/tests_scenarios/tck-api-test/tests"
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${WORKSPACE}/connectors/azure/azure-dls-gen2"
