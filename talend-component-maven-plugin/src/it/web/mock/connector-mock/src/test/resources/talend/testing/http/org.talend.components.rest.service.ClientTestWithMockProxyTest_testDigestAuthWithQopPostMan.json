@@ -1,0 +1,49 @@
+[
+  {
+    "request":{
+      "headers":{
+        "content-length":"0",
+        "Accept":"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2",
+        "Connection":"keep-alive"
+      },
+      "method":"GET",
+      "uri":"https://postman-echo.com/digest-auth"
+    },
+    "response":{
+      "headers":{
+        "set-cookie":"sails.sid=s%3ABDiJJXXojNxmlGa6gDPdWxkxkMKkimxv.6YyVLK3q26X7VgewrZt%2BGI3FafxifRzudIi0v3JHgTo; Path=/; HttpOnly",
+        "Server":"nginx",
+        "WWW-Authenticate":"Digest realm=\"Users\", nonce=\"8Km224sINLEnSweUhDX4BIhDwOBOeGB4\", qop=\"auth\"",
+        "Connection":"keep-alive",
+        "Content-Length":"12"
+      },
+      "payload":"Unauthorized",
+      "status":401
+    }
+  },
+  {
+    "request":{
+      "headers":{
+        "content-length":"0",
+        "Accept":"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2",
+        "Connection":"keep-alive",
+        "Authorization":"Digest username=\"postman\", realm=\"Users\", nonce=\"8Km224sINLEnSweUhDX4BIhDwOBOeGB4\", uri=\"/digest-auth\", response=\"6a58874ea935bd2afd924ce5f1e925f9\", qop=auth, nc=00000001, cnonce=\"b4edf2c86e7ce27e\", algorithm=MD5"
+      },
+      "method":"GET",
+      "uri":"https://postman-echo.com/digest-auth"
+    },
+    "response":{
+      "headers":{
+        "set-cookie":"sails.sid=s%3AwrQR79wOJjyASaNx917RIQY52rwNj-iI.uqyhZyJsJ%2B3HjnawILa2EwuckuJnaPUJGQbZFP%2FX10I; Path=/; HttpOnly",
+        "Server":"nginx",
+        "ETag":"W/\"16-sJz8uwjdDv0wvm7//BYdNw8vMbU\"",
+        "Connection":"keep-alive",
+        "Vary":"Accept-Encoding",
+        "Content-Length":"22",
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "payload":"{\"authenticated\":true}",
+      "status":200
+    }
+  }
+]
