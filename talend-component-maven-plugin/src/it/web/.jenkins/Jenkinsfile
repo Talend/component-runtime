@@ -100,7 +100,7 @@ pipeline {
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${WORKSPACE}/connectors/azure/azure-dls-gen2"
 
-    API_TESTER_ID = ${API_TESTER_ID}
+    API_TESTER_ID = "${API_TESTER_ID}"
   }
 
   options {
@@ -170,7 +170,7 @@ pipeline {
       steps {
         container(tsbiImage) {
           script {
-            if (runtimeVersion != ""){
+            if (runtimeVersion != "default"){
                 sh """
                     chmod +x ${SCRIPTS_PATH}/pom-edit.sh
                     ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
