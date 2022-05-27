@@ -118,7 +118,7 @@ pipeline {
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
 
-    API_TESTER_ID = apiTesterId
+    API_TESTER_ID = "'" + apiTesterId + "'"
   }
 
   options {
