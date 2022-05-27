@@ -30,19 +30,18 @@ final String serverLog = "component_server.log"
 final String serverTimeout = "1"
 
 // Default value for parameters
-TEST_BRANCH="${TEST_BRANCH}".replace("origin/","") // Remove "origin/" prefix to avoid double in script
-String runtimeVersion = ""
+String runtimeVersion = "default"
 String branchToUse = "master"
 try {
   runtimeVersion = "${RUNTIME_VERSION}"
 }
-catch (groovy.lang.MissingPropertyException ex) {
+catch (groovy.lang.MissingPropertyException ignored) {
   echo "RUNTIME_VERSION not supplied, default value will be used"
 }
 try {
-  branchToUse = "${TEST_BRANCH}"
+  branchToUse = "${TEST_BRANCH}".replace("origin/","") // Remove "origin/" prefix to avoid double in script
 }
-catch (groovy.lang.MissingPropertyException ex) {
+catch (groovy.lang.MissingPropertyException ignored) {
   echo "TEST_BRANCH not supplied, default value will be used"
 }
 
