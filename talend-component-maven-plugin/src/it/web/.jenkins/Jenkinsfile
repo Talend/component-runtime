@@ -35,10 +35,19 @@ String runtimeVersion = "default"
 String branchToUse = "master"
 
 try {
-  runtimeVersion = "${API_TESTER_ID}"
+  apiTesterId = "${API_TESTER_ID}".split(':')[1]
 }
 catch (groovy.lang.MissingPropertyException ignored) {
-  echo "RUNTIME_VERSION not supplied, default value will be used"
+  echo "API_TESTER_ID not supplied, try to use the txt version"
+}
+
+if (apiTesterId == "default") {
+  try {
+    apiTesterId = "${API_TESTER_ID_TXT}"
+  }
+  catch (groovy.lang.MissingPropertyException ignored) {
+    echo "API_TESTER_ID_TXT not supplied, default value will be used"
+  }
 }
 
 try {
@@ -124,6 +133,7 @@ pipeline {
       steps {
         container(tsbiImage) {
           script {
+            println("API Tester ID: ${apiTesterId}")
             println("Runtime version: ${runtimeVersion}")
             println("Test branch: ${branchToUse}")
 
