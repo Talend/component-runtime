@@ -221,12 +221,10 @@ pipeline {
           sh """
               chmod +x ${SCRIPTS_PATH}/server-start.sh
               ${SCRIPTS_PATH}/server-start.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
-              """
-          sh """
+  
               chmod +x ${SCRIPTS_PATH}/server-check.sh
               ${SCRIPTS_PATH}/server-check.sh ${serverPort}
-              """
-          sh """
+
               cat ${TESTED_CONNECTOR_PATH}/${serverLog}
               """
         }
@@ -247,8 +245,10 @@ pipeline {
                              --define file=${file}
               """
             // Generate Html reports
-            sh """mvn surefire-report:report-only -f ${TESTS_PATH}"""
-            sh """mvn site -DgenerateReports=false -f ${TESTS_PATH}"""
+            sh """
+              mvn surefire-report:report-only -f ${TESTS_PATH}
+              mvn site -DgenerateReports=false -f ${TESTS_PATH}
+              """
           }
         }
       }
