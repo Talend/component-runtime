@@ -35,12 +35,6 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <file>component_runtime_prod.json</file>
-
-                            <!-- Enter your account ID here. Consult your account information in Talend Management Console Subscription page. -->
-                            <accountId>${env.API_TESTER_ID}</accountId>
-
-                            <instance>eu</instance>
                         </configuration>
                     </execution>
                 </executions>

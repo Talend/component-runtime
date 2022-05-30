@@ -30,12 +30,15 @@ final String serverLog = "component_server.log"
 final String serverTimeout = "1"
 
 // Default value for parameters
-String apiTesterId = "default"
+String tenantId = "default"
 String runtimeVersion = "default"
 String branchToUse = "master"
+String environment = "localhost"
+String file = "component_runtime_prod.json"
+String tenantInstance = "eu"
 
 try {
-  apiTesterId = "${API_TESTER_ID}".split(':')[1]
+  tenantId = "${API_TESTER_ID}".split(':')[1]
 }
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "API_TESTER_ID not supplied, try to use the txt version"
@@ -44,9 +47,9 @@ catch (ArrayIndexOutOfBoundsException ignored) {
   echo "API_TESTER_ID is default, try to use the txt version"
 }
 
-if (apiTesterId == "default") {
+if (tenantId == "default") {
   try {
-    apiTesterId = "${API_TESTER_ID_TXT}"
+    tenantId = "${API_TESTER_ID_TXT}"
   }
   catch (groovy.lang.MissingPropertyException ignored) {
     echo "API_TESTER_ID_TXT not supplied, default value will be used"
@@ -66,6 +69,8 @@ try {
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "TEST_BRANCH not supplied, default value will be used"
 }
+
+//TODO test 'API_TESTER_ID' and 'API_TESTER_ID_TXT content and failed if still default (mandatory to run)
 
 pipeline {
   agent {
@@ -121,7 +126,7 @@ pipeline {
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
 
-    API_TESTER_ID = "$apiTesterId"
+    API_TESTER_ID = "$tenantId"
   }
 
   options {
@@ -136,9 +141,12 @@ pipeline {
       steps {
         container(tsbiImage) {
           script {
-            println("API Tester ID: ${apiTesterId}")
+            println("Tenant instance: ${tenantInstance}")
+            println("Tenant ID used for API Tester: ${tenantId}")
             println("Runtime version: ${runtimeVersion}")
             println("Test branch: ${branchToUse}")
+            println("Test file executed: ${file}")
+            println("API Tester used environment: ${environment}")
 
             def branchName = "master"
             if (branchToUse != "master") {
@@ -232,7 +240,11 @@ pipeline {
             // Execute test
             sh """
               cd ${TESTS_PATH}
-              mvn clean test --define selectedEnvironment='localhost' --settings=${MAVEN_SETTINGS}
+              mvn clean test --settings=${MAVEN_SETTINGS}
+                             --define instance=${tenantInstance}
+                             --define accountId=${tenantId}
+                             --define selectedEnvironment=${environment}
+                             --define file=${file}
               """
             // Generate Html reports
             sh """mvn surefire-report:report-only -f ${TESTS_PATH}"""
