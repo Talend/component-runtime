@@ -4,7 +4,7 @@
     {
       "entity": {
         "type": "Project",
-        "description": "To run the test you need to run a component server (1.45 minimum). \nGo to a component directory and run:\nmvn talend-component:web \"-Dtalend.web.batch=true\" \"-Dtalend.web.batch.timeout=1\" \"-Dtalend.web.port=8081\"  \"-Dtalend.web.batch.timeout=5\"\n\nApi documentation is herer https://talend.github.io/component-runtime/main/latest/rest-openapi.html",
+        "description": "To run the test you need to run a component server (1.45 minimum). \nGo to a component directory and run:\nmvn talend-component:web \"-Dtalend.web.batch=true\" \"-Dtalend.web.batch.timeout=1\" \"-Dtalend.web.port=8081\"  \"-Dtalend.web.batch.timeout=5\"\n\nApi documentation is here https://talend.github.io/component-runtime/main/latest/rest-openapi.html",
         "id": "cca65a3a-d87a-4aaa-af56-dd0cc90b32bd",
         "name": "component_runtime-dev"
       },
@@ -41,7 +41,7 @@
                     "version": "V11"
                   },
                   "host": "${\"server-ip\"}:${\"server-port\"}",
-                  "path": "/api/v1/action/indexesypl"
+                  "path": "/api/v1/action/indexes"
                 },
                 "description": "",
                 "id": "cf1761a6-b2a1-4a42-a98e-bb90d596cb43",
@@ -1266,21 +1266,21 @@
   ],
   "environments": [
     {
-      "id": "b70b6814-bded-45e9-a3e0-dd8ab64fcc72",
-      "name": "DEMO2",
+      "id": "f122bbc5-8017-42d1-9ec9-98cf8a004462",
+      "name": "acatoire-local",
       "variables": {
-        "11b2708d-a811-4d68-8570-30bdee5d0d53": {
-          "name": "name_input",
-          "value": "my name",
+        "d6d314b6-d13c-4152-b503-8e21a78a14aa": {
+          "name": "server-ip",
+          "value": "172.30.13.245",
           "enabled": true,
-          "createdAt": "2022-05-16T19:56:57.071Z",
+          "createdAt": "2022-05-05T09:43:06.786Z",
           "private": false
         },
-        "4a377094-4c9e-47d9-a89f-3da7770bffc5": {
-          "name": "log_level",
-          "value": "INFO",
+        "bacedbea-2b3d-47e5-802a-dce25ef29e53": {
+          "name": "server-port",
+          "value": "8080",
           "enabled": true,
-          "createdAt": "2022-05-16T19:57:18.306Z",
+          "createdAt": "2022-05-05T09:44:32.475Z",
           "private": false
         }
       }

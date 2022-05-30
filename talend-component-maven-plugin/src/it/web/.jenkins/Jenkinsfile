@@ -150,6 +150,7 @@ pipeline {
 
             def branchName = "master"
             if (branchToUse != "master") {
+                //TODO find a better branchName value in case of branch
                 branchName = "branch"
             }
 
