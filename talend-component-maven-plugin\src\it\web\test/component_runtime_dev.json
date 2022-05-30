@@ -1,0 +1,1289 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "To run the test you need to run a component server (1.45 minimum). \nGo to a component directory and run:\nmvn talend-component:web \"-Dtalend.web.batch=true\" \"-Dtalend.web.batch.timeout=1\" \"-Dtalend.web.port=8081\"  \"-Dtalend.web.batch.timeout=5\"\n\nApi documentation is here https://talend.github.io/component-runtime/main/latest/rest-openapi.html",
+        "id": "cca65a3a-d87a-4aaa-af56-dd0cc90b32bd",
+        "name": "component_runtime-dev"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Scenario",
+            "id": "41af6c74-63a0-472e-b321-0baefcf65d17",
+            "name": "Component Action (POST)"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/indexes"
+                },
+                "description": "",
+                "id": "cf1761a6-b2a1-4a42-a98e-bb90d596cb43",
+                "name": "action list",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "enabled": true,
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "enabled": true,
+                    "path": "content",
+                    "value": "component"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "",
+                "id": "2de04fed-9931-4c26-9544-f13e2c9460ea",
+                "name": "component list",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "components"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "type",
+                        "value": "${getEntityById(\"cf1761a6-b2a1-4a42-a98e-bb90d596cb43\").\"response\".\"body\".\"items\".\"0\".\"type\"}"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "family",
+                        "value": "${getEntityById(\"2de04fed-9931-4c26-9544-f13e2c9460ea\").\"response\".\"body\".\"components\".\"0\".\"id\".\"familyId\"}"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "action",
+                        "value": "${getEntityById(\"cf1761a6-b2a1-4a42-a98e-bb90d596cb43\").\"response\".\"body\".\"items\".\"0\".\"name\"}"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "en"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/execute"
+                },
+                "description": "",
+                "id": "7a52d548-af6a-413a-a26f-20dbedb253ba",
+                "name": "action execute",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Scenario",
+            "id": "b1d96446-6a17-406c-9296-46be52758f3d",
+            "name": "Component Action bulk (POST)"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/index"
+                },
+                "description": "",
+                "id": "8d47a419-8073-4f01-8023-af4bd6333cdf",
+                "name": "action list",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "components"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "",
+                "id": "41f13c7e-9823-4e5a-b87f-5ac0dbcb6359",
+                "name": "component list",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "components"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{}"
+                },
+                "retryConfiguration": {
+                  "intervalInSeconds": 10,
+                  "retryCount": 1
+                },
+                "uri": {
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/bulk"
+                },
+                "description": "",
+                "id": "1b595c30-152c-47ab-b819-cf2e693f711a",
+                "name": "action bulk",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Scenario",
+            "id": "9779ae0a-1969-4819-bd29-cf797fc8d909",
+            "name": "Component migrate (POST)"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "",
+                "id": "001be860-a8a0-4ec6-a3a6-0cda402b1037",
+                "name": "component list",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "components"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/migrate/${getEntityById(\"001be860-a8a0-4ec6-a3a6-0cda402b1037\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}/{configurationVersion}"
+                },
+                "id": "4fed883d-d88b-4148-b325-aa15badb6a33",
+                "name": "component migrate",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Scenario",
+            "description": "Get",
+            "id": "09c0d564-787f-49ac-85db-22ae6c306778",
+            "name": "Component(GET)"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "",
+                "id": "9387fb14-2d4d-40ac-bb9f-b9bc60476c75",
+                "name": "component list",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "components"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "en"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/details"
+                },
+                "description": "",
+                "id": "cbe4ecdf-792b-44bc-aca2-955d40f68b11",
+                "name": "component details en",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "components"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "\"Filesystems\""
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "fr"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/details"
+                },
+                "description": "",
+                "id": "70075e21-42de-4171-b219-5391fb908513",
+                "name": "component details fr",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "components"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "de fichiers\""
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/dependencies"
+                },
+                "description": "",
+                "id": "6ce274f7-ce95-41e8-acfa-0280bbbdfd3d",
+                "name": "component dependencies",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "dependencies"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                },
+                "description": "",
+                "id": "de80ae21-ae12-492e-8d74-dc78255d210b",
+                "name": "component icon",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "<svg xmlns="
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/environment"
+                },
+                "description": "",
+                "id": "27f9d973-9a6b-4d64-bacc-bf8b0f8e827e",
+                "name": "environment",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "name": "language",
+                        "value": "en"
+                      },
+                      {
+                        "name": "segment",
+                        "value": "???"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/documentation/component/${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                },
+                "description": "",
+                "id": "04359a8b-9818-46ae-b83d-9c23eec4b2e5",
+                "name": "component doc",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/family/${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"familyId\"}"
+                },
+                "description": "",
+                "id": "a26e53c9-b7df-4bd6-b5bd-a4cfab497e71",
+                "name": "component family icon",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "<svg xmlns="
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/svg+xml"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/dependency/${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                },
+                "description": "",
+                "id": "69566320-7623-4b5b-82db-d1dbf2ee1cbf",
+                "name": "component dependency",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "application/octet-stream"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Scenario",
+            "id": "b5043892-2f8f-4dc4-ba44-282b16f59629",
+            "name": "Configurationtype  (GET)"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "lang",
+                        "value": "en"
+                      },
+                      {
+                        "name": "lightPayload",
+                        "value": "true"
+                      },
+                      {
+                        "name": "q",
+                        "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/configurationtype/index"
+                },
+                "description": "",
+                "id": "9f948697-8bdc-407a-bc34-c4fd66f1c284",
+                "name": "configurationtype index (GET) - No light payload - No query",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "configurationType"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "en"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${getEntityById(\"9f948697-8bdc-407a-bc34-c4fd66f1c284\").\"response\".\"body\".\"nodes\".\"bG9jYWxpbyNMb2NhbElP\".\"id\"}, ${getEntityById(\"9f948697-8bdc-407a-bc34-c4fd66f1c284\").\"response\".\"body\".\"nodes\".\"ZnRwI0ZUUA\".\"id\"}${getEntityById(\"9f948697-8bdc-407a-bc34-c4fd66f1c284\").\"response\".\"body\".\"nodes\".\"YXp1cmUtZGxzLWdlbjIjQXp1cmUjZGF0YXNldCNBZGxzR2VuMkRhdGFTZXQ\".\"id\"}"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/configuration/detail/${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                },
+                "description": "",
+                "id": "c605108a-47a6-4cfd-a28c-181529c9fb6c",
+                "name": "configurationtype details (GET) en",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Scenario",
+            "description": "",
+            "id": "8d68a915-cbed-4503-8f4a-aeff05e011f8",
+            "name": "configurationtype migrate (POST)"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "en"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "lightPayload",
+                        "value": "true"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "q",
+                        "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/configurationtype/index"
+                },
+                "description": "",
+                "id": "4e2c235a-4c60-4717-bd8e-ff0b99446b8e",
+                "name": "configurationtype index",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "<svg xmlns="
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "en"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/configuration/detail/${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                },
+                "description": "",
+                "id": "86e7a18a-fb5c-4251-970f-dbd01ecd3c95",
+                "name": "configurationtype details",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "200"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "f122bbc5-8017-42d1-9ec9-98cf8a004462",
+      "name": "acatoire-local",
+      "variables": {
+        "d6d314b6-d13c-4152-b503-8e21a78a14aa": {
+          "name": "server-ip",
+          "value": "172.30.13.245",
+          "enabled": true,
+          "createdAt": "2022-05-05T09:43:06.786Z",
+          "private": false
+        },
+        "bacedbea-2b3d-47e5-802a-dce25ef29e53": {
+          "name": "server-port",
+          "value": "8080",
+          "enabled": true,
+          "createdAt": "2022-05-05T09:44:32.475Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}
