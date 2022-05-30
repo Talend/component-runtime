@@ -17,7 +17,7 @@
 final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 final def nexusCredentials = usernamePassword(
-	credentialsId: 'nexus-artifact-zl-credentials',
+    credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
     passwordVariable: 'NEXUS_PASSWORD')
 
@@ -64,7 +64,7 @@ catch (groovy.lang.MissingPropertyException ignored) {
 }
 
 try {
-  branchToUse = "${TEST_BRANCH}".replace("origin/","") // Remove "origin/" prefix to avoid double in script
+  branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
 }
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "TEST_BRANCH not supplied, default value will be used"
@@ -109,11 +109,11 @@ pipeline {
     MAVEN_SETTINGS = "${WORKSPACE}/.jenkins/settings.xml"
     DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
     MAVEN_OPTS = [
-            "-Dmaven.artifact.threads=128",
-            "-Dorg.slf4j.simpleLogger.showDateTime=true",
-            "-Dorg.slf4j.simpleLogger.showThreadName=true",
-            "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
-            "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
+        "-Dmaven.artifact.threads=128",
+        "-Dorg.slf4j.simpleLogger.showDateTime=true",
+        "-Dorg.slf4j.simpleLogger.showThreadName=true",
+        "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
+        "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
 
     APP_ID = '579232'
@@ -130,8 +130,7 @@ pipeline {
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '50',
-                              numToKeepStr: '50'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '30', numToKeepStr: '30'))
     timeout(time: 30, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
@@ -150,13 +149,13 @@ pipeline {
 
             def branchName = "master"
             if (branchToUse != "master") {
-                //TODO find a better branchName value in case of branch
-                branchName = "branch"
+              //TODO find a better branchName value in case of branch
+              branchName = "branch"
             }
 
             def runtimeName = "master"
             if (runtimeVersion != "") {
-                runtimeName = runtimeVersion.replace("-SNAPSHOT", "-S")
+              runtimeName = runtimeVersion.replace("-SNAPSHOT", "-S")
             }
             //updating displayName
             currentBuild.displayName = "#" + currentBuild.number + ": " + branchName + "(" + runtimeName + ")"
@@ -172,27 +171,20 @@ pipeline {
               $class           : 'GitSCM',
               branches         : [[name: '*/master']],
               extensions       : [
-                  [$class           : 'RelativeTargetDirectory',
-                   relativeTargetDir: './connectors'],
-                  [$class                           : 'CleanBeforeCheckout',
-                   deleteUntrackedNestedRepositories: true]],
-              userRemoteConfigs: [[credentialsId: 'github-ssh',
-                                   url          : 'git@github.com:Talend/connectors-se.git']]
+                  [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
+                  [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
+              userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/connectors-se.git']]
           ])
           // Checkout of the test directory from API Tester
           checkout([
               $class           : 'GitSCM',
               branches         : [[name: "*/${branchToUse}"]],
               extensions       : [
-                  [$class           : 'RelativeTargetDirectory',
-                   relativeTargetDir: './test_scenarios'],
-                  [$class                           : 'CleanBeforeCheckout',
-                   deleteUntrackedNestedRepositories: true],
-                  [$class             : 'SparseCheckoutPaths',
-                   sparseCheckoutPaths: [[path: 'talend-component-maven-plugin/src/it/web/test']]]
+                  [$class: 'RelativeTargetDirectory', relativeTargetDir: './test_scenarios'],
+                  [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                  [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'talend-component-maven-plugin/src/it/web/test']]]
               ],
-              userRemoteConfigs: [[credentialsId: 'github-ssh',
-                                   url          : 'git@github.com:Talend/component-runtime.git']]
+              userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/component-runtime.git']]
           ])
         }
       }
@@ -202,8 +194,8 @@ pipeline {
       steps {
         container(tsbiImage) {
           script {
-            if (runtimeVersion != "default"){
-                sh """
+            if (runtimeVersion != "default") {
+              sh """
                     chmod +x ${SCRIPTS_PATH}/pom-edit.sh
                     ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
                     """
