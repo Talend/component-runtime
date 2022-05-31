@@ -28,7 +28,7 @@
   <description>JUnit integration to simplify the HTTP API testing/mocking.</description>
 
   <properties>
-    <netty.version>4.1.72.Final</netty.version>
+    <netty.version>4.1.77.Final</netty.version>
     <talend.build.name>${talend.build.name.base}.junit.http</talend.build.name>
   </properties>
 
