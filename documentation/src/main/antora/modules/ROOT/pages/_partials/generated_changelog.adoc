@@ -12,6 +12,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2152[TCOMP-2152^]: Upgrade jackson to 2.13.2 link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=bom[bom^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2153[TCOMP-2153^]: Bump netty to 4.1.77.Final due to CVE link:search.html?query=testing[testing^,role='dockey']
 
 
 
