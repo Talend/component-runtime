@@ -87,16 +87,16 @@ pipeline {
               tty: true
               volumeMounts: [
                 { name: docker, mountPath: /var/run/docker.sock },
-                { name: efs-jenkins-connectors-se-m2, mountPath: /root/.m2/repository },
+                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
                 { name: dockercache, mountPath: /root/.dockercache }
               ]
               resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' } }
           volumes:
             - name: docker
               hostPath: { path: /var/run/docker.sock }
-            - name: efs-jenkins-connectors-se-m2
+            - name: efs-jenkins-component-runtime-m2
               persistentVolumeClaim:
-                    claimName: efs-jenkins-connectors-se-m2
+                    claimName: efs-jenkins-component-runtime-m2
             - name: dockercache
               hostPath: { path: /tmp/jenkins/tdi/docker }
           imagePullSecrets:
