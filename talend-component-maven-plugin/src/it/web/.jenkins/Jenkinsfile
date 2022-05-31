@@ -38,21 +38,21 @@ String file = "component_runtime_prod.json"
 String tenantInstance = "eu"
 
 try {
-  tenantId = "${API_TESTER_ID}".split(':')[1]
+  tenantId = "${TENANT_ID}".split(':')[1]
 }
 catch (groovy.lang.MissingPropertyException ignored) {
-  echo "API_TESTER_ID not supplied, try to use the txt version"
+  echo "TENANT_ID not supplied, try to use the txt version"
 }
 catch (ArrayIndexOutOfBoundsException ignored) {
-  echo "API_TESTER_ID is default, try to use the txt version"
+  echo "TENANT_ID is default, try to use the txt version"
 }
 
 if (tenantId == "default") {
   try {
-    tenantId = "${API_TESTER_ID_TXT}"
+    tenantId = "${TENANT_ID_TXT}"
   }
   catch (groovy.lang.MissingPropertyException ignored) {
-    echo "API_TESTER_ID_TXT not supplied, default value will be used"
+    echo "TENANT_ID_TXT not supplied, test can't be run"
   }
 }
 
@@ -70,7 +70,7 @@ catch (groovy.lang.MissingPropertyException ignored) {
   echo "TEST_BRANCH not supplied, default value will be used"
 }
 
-//TODO test 'API_TESTER_ID' and 'API_TESTER_ID_TXT content and failed if still default (mandatory to run)
+//TODO test 'TENANT_ID' and 'TENANT_ID_TXT content and failed if still default (mandatory to run)
 
 pipeline {
   agent {
@@ -125,8 +125,6 @@ pipeline {
     TESTS_PATH = "${WORKSPACE}/test_scenarios/talend-component-maven-plugin/src/it/web/test"
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
-
-    API_TESTER_ID = "$tenantId"
   }
 
   options {
