@@ -621,6 +621,15 @@ public class ComponentResourceImpl implements ComponentResource {
                 .map(e -> bundle.displayName(e.getKey().replaceAll("::", "."))
                         .map(it -> (Entry<String, String>) new SimpleEntry(e.getKey(), it))
                         .orElse(e))
+                .map(t -> {
+                    if (t.getKey().equals("documentation::value")) {
+                        final String bundleDoc = bundle.documentation().orElse(null);
+                        if (bundleDoc != null) {
+                            t.setValue(bundleDoc);
+                        }
+                    }
+                    return t;
+                })
                 .collect(toMap(Entry::getKey, Entry::getValue));
     }
 

@@ -5,6 +5,7 @@
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-2146[TCOMP-2146^]: Car bundler improvements link:search.html?query=car-bundler[car-bundler^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2151[TCOMP-2151^]: Add documentation translation to metadata link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
