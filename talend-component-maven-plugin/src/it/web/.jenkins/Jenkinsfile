@@ -34,7 +34,7 @@ String tenantId = "default"
 String runtimeVersion = "default"
 String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master before the first PR merge
 String apiTesterEnv = "localhost"
-String file = "component_runtime_prod.json"
+String fileToRun = "component_runtime_prod.json"
 String tenantInstance = "eu"
 
 try {
@@ -47,6 +47,27 @@ catch (ArrayIndexOutOfBoundsException ignored) {
   echo "TENANT_ID is default, try to use the txt version"
 }
 
+try {
+  runtimeVersion = "${RUNTIME_VERSION}"
+}
+catch (groovy.lang.MissingPropertyException ignored) {
+  echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
+}
+
+try {
+  branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
+}
+catch (groovy.lang.MissingPropertyException ignored) {
+  echo "TEST_BRANCH not supplied, default value will be used ($branchToUse)"
+}
+
+try {
+  tenantId = "${TENANT_ID_TXT}"
+}
+catch (groovy.lang.MissingPropertyException ignored) {
+  echo "TENANT_ID_TXT not supplied, test can't be run"
+}
+
 if (tenantId == "default") {
   try {
     tenantId = "${TENANT_ID_TXT}"
@@ -57,20 +78,11 @@ if (tenantId == "default") {
 }
 
 try {
-  runtimeVersion = "${RUNTIME_VERSION}"
+  fileToRun = "${FILE_TO_RUN}"
 }
 catch (groovy.lang.MissingPropertyException ignored) {
-  echo "RUNTIME_VERSION not supplied, default value will be used"
+  echo "FILE_TO_RUN not supplied, default value will be used ($fileToRun)"
 }
-
-try {
-  branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
-}
-catch (groovy.lang.MissingPropertyException ignored) {
-  echo "TEST_BRANCH not supplied, default value will be used"
-}
-
-//TODO test 'TENANT_ID' and 'TENANT_ID_TXT content and failed if still default (mandatory to run)
 
 pipeline {
   agent {
@@ -142,7 +154,7 @@ pipeline {
             println("Tenant ID used for API Tester: ${tenantId}")
             println("Runtime version: ${runtimeVersion}")
             println("Test branch: ${branchToUse}")
-            println("Test file executed: ${file}")
+            println("Test file executed: ${fileToRun}")
             println("API Tester used environment: ${apiTesterEnv}")
 
             def branchName = "master"
@@ -234,7 +246,7 @@ pipeline {
                              --define instance=${tenantInstance} \
                              --define accountId=${tenantId} \
                              --define selectedEnvironment=${apiTesterEnv} \
-                             --define file=${file}
+                             --define file=${fileToRun}
               """
             // Generate Html reports
             sh """
