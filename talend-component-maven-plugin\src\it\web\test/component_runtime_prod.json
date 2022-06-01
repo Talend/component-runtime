@@ -395,7 +395,7 @@
                 },
                 "description": "Test the French request",
                 "id": "8418e453-60f4-4f09-933a-f9e57def7c36",
-                "name": "component list ja",
+                "name": "component list ja DISABLED",
                 "headers": [],
                 "assertions": [
                   {
