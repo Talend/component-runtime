@@ -170,8 +170,7 @@ pipeline {
               branches         : [[name: '*/master']],
               extensions       : [
                   [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
-                  [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                  [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'C:/git/connectors/connectors-se/azure']]]
+                  [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]
               ],
               userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/connectors-se.git']]
           ])
@@ -231,10 +230,10 @@ pipeline {
             // Execute test
             sh """
               cd ${TESTS_PATH}
-              mvn clean test --settings=${MAVEN_SETTINGS}
-                             --define instance=${tenantInstance}
-                             --define accountId=${tenantId}
-                             --define selectedEnvironment=${apiTesterEnv}
+              mvn clean test --settings=${MAVEN_SETTINGS} \
+                             --define instance=${tenantInstance} \
+                             --define accountId=${tenantId} \
+                             --define selectedEnvironment=${apiTesterEnv} \
                              --define file=${file}
               """
             // Generate Html reports
