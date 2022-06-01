@@ -413,7 +413,7 @@
                   {
                     "comparison": "Matches",
                     "subject": "ResponseBody",
-                    "enabled": true,
+                    "enabled": false,
                     "path": "content",
                     "value": "\"displayName\":\".{0,30}の入力.*\""
                   }
