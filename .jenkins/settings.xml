@@ -81,6 +81,22 @@
       <username>${env.DOCKER_USER}</username>
       <password>${env.DOCKER_PASS}</password>
     </server>
+    <server>
+      <id>snapshots</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
+    <server>
+      <id>releases</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
   </servers>
 
   <mirrors>
