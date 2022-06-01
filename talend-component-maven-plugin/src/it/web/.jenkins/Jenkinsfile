@@ -136,7 +136,7 @@ pipeline {
             println("Tenant ID used for API Tester: ${tenantId}")
             println("Runtime version: ${runtimeVersion}")
             println("Test branch: ${branchToUse}")
-            println("Test file executed: ${fileToRun}")
+            println("Test file executed: ${fileToRun}" + ".json")
             println("API Tester used environment: ${apiTesterEnv}")
 
             def branchName = "master"
@@ -150,7 +150,10 @@ pipeline {
               runtimeName = runtimeVersion.replace("-SNAPSHOT", "-S")
             }
             //updating displayName
-            currentBuild.displayName = "#" + currentBuild.number + ": " + branchName + "(" + runtimeName + ")"
+            currentBuild.displayName = ("#" + currentBuild.number +
+                                        ": " + branchName +
+                                        "(" + runtimeName + ")" +
+                                        "-" + fileToRun)
           }
         }
       }
@@ -228,7 +231,7 @@ pipeline {
                              --define instance=${tenantInstance} \
                              --define accountId=${tenantId} \
                              --define selectedEnvironment=${apiTesterEnv} \
-                             --define file=${fileToRun}
+                             --define file=${fileToRun}.json
               """
             // Generate Html reports
             sh """
