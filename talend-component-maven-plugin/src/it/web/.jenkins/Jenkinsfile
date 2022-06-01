@@ -170,7 +170,9 @@ pipeline {
               branches         : [[name: '*/master']],
               extensions       : [
                   [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
-                  [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
+                  [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                  [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'C:/git/connectors/connectors-se/azure']]]
+              ],
               userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/connectors-se.git']]
           ])
           // Checkout of the test directory from API Tester
