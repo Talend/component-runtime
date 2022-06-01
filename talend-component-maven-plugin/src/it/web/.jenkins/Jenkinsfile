@@ -33,7 +33,7 @@ final String serverTimeout = "1"
 String tenantId = "default"
 String runtimeVersion = "default"
 String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master before the first PR merge
-String environment = "localhost"
+String apiTesterEnv = "localhost"
 String file = "component_runtime_prod.json"
 String tenantInstance = "eu"
 
@@ -129,7 +129,7 @@ pipeline {
 
   options {
     buildDiscarder(logRotator(artifactNumToKeepStr: '30', numToKeepStr: '30'))
-    timeout(time: 30, unit: 'MINUTES')
+    timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
 
@@ -143,7 +143,7 @@ pipeline {
             println("Runtime version: ${runtimeVersion}")
             println("Test branch: ${branchToUse}")
             println("Test file executed: ${file}")
-            println("API Tester used environment: ${environment}")
+            println("API Tester used environment: ${apiTesterEnv}")
 
             def branchName = "master"
             if (branchToUse != "master") {
@@ -232,7 +232,7 @@ pipeline {
               mvn clean test --settings=${MAVEN_SETTINGS}
                              --define instance=${tenantInstance}
                              --define accountId=${tenantId}
-                             --define selectedEnvironment=${environment}
+                             --define selectedEnvironment=${apiTesterEnv}
                              --define file=${file}
               """
             // Generate Html reports
