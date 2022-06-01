@@ -37,37 +37,28 @@ String apiTesterEnv = "localhost"
 String fileToRun = "component_runtime_prod.json"
 String tenantInstance = "eu"
 
+// TENANT_ID
 try {
   tenantId = "${TENANT_ID}".split(':')[1]
 }
 catch (groovy.lang.MissingPropertyException ignored) {
-  echo "TENANT_ID not supplied, try to use the txt version"
+  error("TENANT_ID_TXT not supplied, test can't be run")
 }
-catch (ArrayIndexOutOfBoundsException ignored) {
-  echo "TENANT_ID is default, try to use the txt version"
-}
-
+// RUNTIME_VERSION
 try {
   runtimeVersion = "${RUNTIME_VERSION}"
 }
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
 }
-
+// TEST_BRANCH
 try {
   branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
 }
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "TEST_BRANCH not supplied, default value will be used ($branchToUse)"
 }
-
-try {
-  tenantId = "${TENANT_ID}"
-}
-catch (groovy.lang.MissingPropertyException ignored) {
-  echo "TENANT_ID_TXT not supplied, test can't be run"
-}
-
+// FILE_TO_RUN
 try {
   fileToRun = "${FILE_TO_RUN}"
 }
@@ -258,4 +249,8 @@ pipeline {
       }
     }
   }
+}
+
+def parametersManagement() {
+  println("Hello World!")
 }
