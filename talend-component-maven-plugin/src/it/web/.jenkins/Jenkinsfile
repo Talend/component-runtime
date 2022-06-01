@@ -34,7 +34,7 @@ String tenantId = "default"
 String runtimeVersion = "default"
 String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master before the first PR merge
 String apiTesterEnv = "localhost"
-String fileToRun = "component_runtime_prod.json"
+String fileToRun = "component_runtime_prod"
 String tenantInstance = "eu"
 
 // TENANT_ID
