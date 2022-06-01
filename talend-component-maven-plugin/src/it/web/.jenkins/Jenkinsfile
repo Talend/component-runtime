@@ -62,19 +62,10 @@ catch (groovy.lang.MissingPropertyException ignored) {
 }
 
 try {
-  tenantId = "${TENANT_ID_TXT}"
+  tenantId = "${TENANT_ID}"
 }
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "TENANT_ID_TXT not supplied, test can't be run"
-}
-
-if (tenantId == "default") {
-  try {
-    tenantId = "${TENANT_ID_TXT}"
-  }
-  catch (groovy.lang.MissingPropertyException ignored) {
-    echo "TENANT_ID_TXT not supplied, test can't be run"
-  }
 }
 
 try {
