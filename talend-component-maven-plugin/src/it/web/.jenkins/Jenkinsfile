@@ -139,21 +139,21 @@ pipeline {
             println("Test file executed: ${fileToRun}" + ".json")
             println("API Tester used environment: ${apiTesterEnv}")
 
-            def branchName = "master"
-            if (branchToUse != "master") {
-              //TODO find a better branchName value in case of branch
-              branchName = "branch"
-            }
-
             def runtimeName = "master"
             if (runtimeVersion != "") {
-              runtimeName = runtimeVersion.replace("-SNAPSHOT", "-S")
+              runtimeName = runtimeVersion
             }
-            //updating displayName
-            currentBuild.displayName = ("#" + currentBuild.number +
-                                        ": " + branchName +
-                                        "(" + runtimeName + ")" +
-                                        "-" + fileToRun)
+            // updating build displayName
+            currentBuild.displayName = (
+                "#" + currentBuild.number +
+                ": " + branchName
+            )
+            // updating build description
+            currentBuild.description = (
+                "Branch " + branchToUse + "\n" +
+                "Runtime: " + runtimeName + "\n" +
+                "Test batch: " + fileToRun
+            )
           }
         }
       }
