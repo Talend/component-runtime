@@ -54,4 +54,25 @@ public class OutputsHandler extends BaseIOHandler {
         };
     }
 
+    /**
+     * Guess schema special use-case for processor Studio mock.
+     * Same as asOutputFactory but stores the record as the pojo class isn't available.
+     *
+     * @return GuessSchema OutputFactory
+     */
+    public OutputFactory asOutputFactoryForGuessSchema() {
+        return name -> value -> {
+            final BaseIOHandler.IO ref = connections.get(getActualName(name));
+            if (ref != null && value != null) {
+                if (value instanceof javax.json.JsonValue) {
+                    ref.add(jsonb.fromJson(value.toString(), ref.getType()));
+                } else if (value instanceof Record) {
+                    ref.add(value);
+                } else {
+                    ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
+                }
+            }
+        };
+    }
+
 }
