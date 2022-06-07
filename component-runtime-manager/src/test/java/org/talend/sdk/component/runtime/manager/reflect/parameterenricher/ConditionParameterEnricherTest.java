@@ -280,7 +280,7 @@ class ConditionParameterEnricherTest {
             {
                 put("tcomp::condition::if::target", UIScope.TARGET);
                 put("tcomp::condition::if::value",
-                        UIScope.CLOUD_SCOPE + "," + UIScope.STUDIO_METADATA_SCOPE);
+                        UIScope.CLOUD_SCOPE + "," + UIScope.STUDIO_SCOPE);
                 put("tcomp::condition::if::negate", "false");
                 put("tcomp::condition::if::evaluationStrategy", "DEFAULT");
             }
@@ -293,7 +293,7 @@ class ConditionParameterEnricherTest {
 
             @Override
             public String[] value() {
-                return new String[] { UIScope.CLOUD_SCOPE, UIScope.STUDIO_METADATA_SCOPE };
+                return new String[] { UIScope.CLOUD_SCOPE, UIScope.STUDIO_SCOPE };
             }
 
             @Override

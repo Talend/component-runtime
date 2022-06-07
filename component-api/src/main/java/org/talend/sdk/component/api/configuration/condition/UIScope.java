@@ -19,12 +19,14 @@ public interface UIScope {
 
     String TARGET = "ui.scope";
 
+    String STUDIO_SCOPE = "studio";
+
     String CLOUD_SCOPE = "cloud";
 
-    String STUDIO_COMPONENT_SCOPE = "studio_component";
+    String STUDIO_COMPONENT_SCOPE = "studio.component";
 
-    String STUDIO_CONNECTION_SCOPE = "studio_connection";
+    String STUDIO_CONNECTION_COMPONENT_SCOPE = "studio.component.connection";
 
-    String STUDIO_METADATA_SCOPE = "studio_metadata";
+    String STUDIO_METADATA_SCOPE = "studio.metadata";
 
 }
