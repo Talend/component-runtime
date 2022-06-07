@@ -23,6 +23,7 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
+import org.talend.sdk.component.api.configuration.condition.UIScope;
 
 class ConditionParameterEnricherTest {
 
@@ -263,6 +264,51 @@ class ConditionParameterEnricherTest {
             @Override
             public EvaluationStrategy evaluationStrategy() {
                 return EvaluationStrategy.CONTAINS;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return ActiveIf.class;
+            }
+        }));
+    }
+
+    @Test
+    void conditionWithUIScope() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::condition::if::target", UIScope.TARGET);
+                put("tcomp::condition::if::value",
+                        UIScope.CLOUD_SCOPE + "," + UIScope.STUDIO_METADATA_SCOPE);
+                put("tcomp::condition::if::negate", "false");
+                put("tcomp::condition::if::evaluationStrategy", "DEFAULT");
+            }
+        }, new ConditionParameterEnricher().onParameterAnnotation("testParam", String.class, new ActiveIf() {
+
+            @Override
+            public String target() {
+                return UIScope.TARGET;
+            }
+
+            @Override
+            public String[] value() {
+                return new String[] { UIScope.CLOUD_SCOPE, UIScope.STUDIO_METADATA_SCOPE };
+            }
+
+            @Override
+            public boolean negate() {
+                return false;
+            }
+
+            @Override
+            public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                return new EvaluationStrategyOption[0];
+            }
+
+            @Override
+            public EvaluationStrategy evaluationStrategy() {
+                return EvaluationStrategy.DEFAULT;
             }
 
             @Override
