@@ -131,7 +131,7 @@ class AbstractWidgetConverterTest {
 
                             {
                                 put("condition::if::target", "ui.scope");
-                                put("condition::if::value", "studio_component,studio_connection,studio_metadata");
+                                put("condition::if::value", "studio");
                                 put("condition::if::negate", "false");
                                 put("condition::if::evaluationStrategy", "DEFAULT");
                             }
@@ -145,7 +145,7 @@ class AbstractWidgetConverterTest {
                                 put("condition::if::evaluationStrategy::0", "DEFAULT");
 
                                 put("condition::if::target::1", "ui.scope");
-                                put("condition::if::value::1", "cloud,studio_connection,studio_metadata");
+                                put("condition::if::value::1", "cloud,studio");
                                 put("condition::if::negate::1", "false");
                                 put("condition::if::evaluationStrategy::1", "DEFAULT");
                             }
