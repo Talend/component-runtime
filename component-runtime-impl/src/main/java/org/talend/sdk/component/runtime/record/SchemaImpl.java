@@ -304,7 +304,9 @@ public class SchemaImpl implements Schema {
 
         @Override
         public Schema build() {
-            this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(joining(",")));
+            if (this.entriesOrder != null && !this.entriesOrder.isEmpty()) {
+                this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(joining(",")));
+            }
             return new SchemaImpl(this);
         }
 

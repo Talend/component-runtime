@@ -450,6 +450,17 @@ class SchemaImplTest {
         assertEquals(order, getSchemaFields(schema, entriesOrder).replaceAll(",data0.*", ""));
     }
 
+    @Test
+    void emptyRecord() {
+        final Schema emptySchema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .build();
+        List<Entry> ordered = emptySchema.getEntriesOrdered();
+        RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test");
+        Record record = factory.newRecordBuilder(emptySchema).build();
+        Assertions.assertNotNull(record);
+    }
+
     private String getSchemaFields(final Schema schema) {
         return schema.getEntriesOrdered().stream().map(e -> e.getName()).collect(joining(","));
     }

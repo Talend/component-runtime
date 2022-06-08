@@ -532,12 +532,16 @@ public interface Schema {
         }
 
         public EntriesOrder(final String fields) {
-            if (fields == null) {
+            if (fields == null || fields.isEmpty()) {
                 fieldsOrder = new OrderedMap<>(Function.identity());
             } else {
                 final List<String> fieldList = Arrays.stream(fields.split(",")).collect(Collectors.toList());
                 fieldsOrder = new OrderedMap<>(Function.identity(), fieldList);
             }
+        }
+
+        public EntriesOrder(final Iterable<String> fields) {
+            this(new OrderedMap<>(Function.identity(), fields));
         }
 
         public Stream<String> getFieldsOrder() {
