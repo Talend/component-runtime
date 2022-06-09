@@ -140,14 +140,16 @@ class ConfigurationTypeResourceImplTest {
                         put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
                         put("configuration.username", "username0");
                         put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.connection.password",
+                                "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
                     }
                 }, APPLICATION_JSON_TYPE))
                 .readEntity(Map.class);
         assertEquals("true", config.get("configuration.migrated"));
-        assertEquals("4", config.get("configuration.size"));
-        assertEquals("test", config.get("configuration.url"));
+        assertEquals("5", config.get("configuration.size"));
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", config.get("configuration.url"));
         assertEquals("username0", config.get("configuration.username"));
-        assertEquals("test", config.get("configuration.password"));
+        assertEquals("test", config.get("configuration.connection.password"));
     }
 
     private void assertIndex(final ConfigTypeNodes index) {
