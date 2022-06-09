@@ -61,6 +61,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.talend.sdk.component.container.Container;
@@ -70,6 +71,7 @@ import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
 import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.BaseMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMapperMeta;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -92,6 +94,7 @@ import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.front.security.SecurityUtils;
 import org.talend.sdk.component.server.lang.MapCache;
 import org.talend.sdk.component.server.service.ActionsService;
 import org.talend.sdk.component.server.service.ComponentManagerService;
@@ -105,7 +108,6 @@ import org.talend.sdk.component.server.service.event.DeployedComponent;
 import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
 import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 import org.talend.sdk.component.spi.component.ComponentExtension;
-import org.talend.sdk.components.vault.client.VaultClient;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -162,7 +164,7 @@ public class ComponentResourceImpl implements ComponentResource {
     private HttpHeaders headers;
 
     @Inject
-    private VaultClient vault;
+    private SecurityUtils secUtils;
 
     private final Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
 
@@ -411,10 +413,16 @@ public class ComponentResourceImpl implements ComponentResource {
             log.debug("[migrate] context not applicable: {}", e.getMessage());
             tenant = null;
         }
-        final Map<String, String> decrypted = vault.decrypt(configuration, tenant);
         if (virtualComponents.isExtensionEntity(id)) {
-            return decrypted;
+            return config;
         }
+        final BaseMeta<Lifecycle> comp = ofNullable(componentDao.findById(id))
+                .orElseThrow(() -> new WebApplicationException(Response
+                        .status(Status.NOT_FOUND)
+                        .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find component " + id))
+                        .build()));
+        final Map<String, String> decrypted = secUtils.decrypt(comp.getParameterMetas().get(), configuration, tenant);
+
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
