@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.xbean.registry;
 
 import static java.util.Optional.ofNullable;
+import static org.apache.xbean.recipe.RecipeHelper.toClass;
 import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
 
 import java.lang.reflect.Type;
@@ -153,6 +154,24 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    protected Converter findStructuralConverter(final Type type) {
+        final Converter result = super.findStructuralConverter(type);
+
+        final Class<?> clazz = toClass(type);
+        if (Enum.class.isAssignableFrom(clazz)) {
+            // override default logic, allows convert an empty string to null enum value
+            return new AbstractConverter(clazz) {
+                @Override
+                protected Object toObjectImpl(final String text) {
+                    return text.isEmpty() ? null : result.toObject(text);
+                }
+            };
+        }
+
+        return result;
     }
 
     @Override
