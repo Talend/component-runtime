@@ -149,10 +149,9 @@ pipeline {
                 ": " + runtimeName
             )
             // updating build description
-            currentBuild.description = (
-                "Branch " + branchToUse + "\n" +
-                "Runtime: " + runtimeName + "\n" +
-                "Test batch: " + fileToRun
+            currentBuild.description = ( "Branch: " + branchToUse + "\n" +
+                                         "Runtime: " + runtimeName + "\n" +
+                                         "Test batch: " + fileToRun
             )
           }
         }
