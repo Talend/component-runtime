@@ -146,7 +146,7 @@ pipeline {
             // updating build displayName
             currentBuild.displayName = (
                 "#" + currentBuild.number +
-                ": " + branchName
+                ": " + runtimeName
             )
             // updating build description
             currentBuild.description = (
@@ -178,6 +178,7 @@ pipeline {
               extensions       : [
                   [$class: 'RelativeTargetDirectory', relativeTargetDir: './test_scenarios'],
                   [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                  [$class: 'cloneOptions', shallow: true, depth: 1, noTags: true],
                   [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'talend-component-maven-plugin/src/it/web/test']]]
               ],
               userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/component-runtime.git']]
@@ -252,8 +253,4 @@ pipeline {
       }
     }
   }
-}
-
-def parametersManagement() {
-  println("Hello World!")
 }
