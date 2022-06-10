@@ -972,10 +972,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Equals",
+                        "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "155169"
+                        "value": "160000"
                       }
                     ]
                   }
@@ -1025,10 +1025,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Equals",
+                        "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "1509440"
+                        "value": "1500000"
                       }
                     ]
                   }
@@ -1094,6 +1094,10 @@
                         "items": []
                       },
                       "bodyType": "Text"
+                    },
+                    "retryConfiguration": {
+                      "intervalInSeconds": 10,
+                      "retryCount": 1
                     },
                     "uri": {
                       "query": {
