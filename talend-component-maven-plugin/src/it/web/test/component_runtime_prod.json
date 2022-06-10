@@ -962,7 +962,7 @@
                     },
                     "description": "",
                     "id": "0eb68b63-47e3-45d4-bcaa-47e7a9e14ee6",
-                    "name": "component/dependency - component",
+                    "name": "component.dependency-component",
                     "headers": [],
                     "assertions": [
                       {
