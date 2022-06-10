@@ -20,14 +20,14 @@
               "entity": {
                 "type": "Scenario",
                 "id": "43068825-357d-4be3-9839-749bb6a5d0ef",
-                "name": "action/execute"
+                "name": "action.execute"
               }
             },
             {
               "entity": {
                 "type": "Scenario",
                 "id": "97148975-4749-4503-bfe0-a6ff6abc1fc4",
-                "name": "action/index"
+                "name": "action.index"
               }
             },
             {
@@ -52,7 +52,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "6fedc1ed-d1ab-4db9-a28d-218808236772",
-                "name": "1-component/index"
+                "name": "1 - component.index"
               },
               "children": [
                 {
@@ -390,7 +390,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "2b5e8281-597d-459e-b3af-95474f5c5f6d",
-                "name": "2-component/details"
+                "name": "2 - component.details"
               },
               "children": [
                 {
@@ -712,7 +712,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "922e845b-0e30-477e-a32c-64eb687ac221",
-                "name": "3-component/dependencies_and_dependency"
+                "name": "3 - component.dependencies_and_dependency"
               },
               "children": [
                 {
@@ -1134,7 +1134,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "73a0d0bf-ec7d-4fbb-9abf-033d11899b4d",
-                "name": "4-component/icon_and_component/icon/family"
+                "name": "4 - component.icon_and_icon.family"
               },
               "children": [
                 {
@@ -1498,7 +1498,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "e666dcae-ee07-47b3-9ae4-ab205c0de6a1",
-                "name": "5-component/migrate_TODO"
+                "name": "5 - component.migrate_TODO"
               }
             }
           ]
@@ -2113,7 +2113,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "165f992a-08d6-4ed1-836d-5fba9b5e11a0",
-                "name": "1-documentation/component"
+                "name": "1 - documentation.component"
               },
               "children": [
                 {
@@ -2582,7 +2582,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "417d6e0c-9f5e-47c7-bc03-84557e8cc11d",
-                "name": "2-environment"
+                "name": "2 - environment"
               },
               "children": [
                 {
@@ -2649,7 +2649,7 @@
               "entity": {
                 "type": "Scenario",
                 "id": "54ae603e-4361-463a-862f-6c5fd4532a6a",
-                "name": "1-Errors"
+                "name": "1 - Errors"
               },
               "children": [
                 {
