@@ -1516,7 +1516,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "f75bd712-1883-4c94-9f9d-fa2824318607",
-                "name": "1-configurationtype/index"
+                "name": "1-configurationtype.index"
               },
               "children": [
                 {
@@ -1781,7 +1781,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "434d244e-34c6-4428-a908-f39d384bfa60",
-                "name": "2-configurationtype/details"
+                "name": "2-configurationtype.details"
               },
               "children": [
                 {
@@ -2034,7 +2034,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "79b2435b-a016-421f-b797-99ed62a73d09",
-                "name": "3 - configurationtype/migrate TODO"
+                "name": "3 - configurationtype.migrate TODO"
               },
               "children": [
                 {
